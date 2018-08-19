@@ -1,0 +1,60 @@
+{
+  "name": "UFABC Matricula",
+  "short_name": "UFABC Matricula",
+  "description": "Adiciona funcionalidades novas ao sistema de matricula da UFABC",
+  "version": "0.1.0",
+  "manifest_version": 2,
+  "minimum_chrome_version": "55.0.0",
+  "default_locale": "en",
+  "icons": {
+    "16": "images/icon-16.png",
+    "128": "images/icon-128.png"
+  },
+  "background": {
+    "scripts": [
+      "scripts/background.js"
+    ]
+  },
+  "permissions": [
+    "tabs",
+    "storage",
+    "http://*.ufabc.edu.br/*",
+    "https://*.ufabc.edu.br/*",
+    "http://localhost:8000/*",
+    "http://*.felipecoder.com/*",
+    "https://*.felipecoder.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*.ufabc.edu.br/*",
+        "https://*.ufabc.edu.br/*",
+        "http://localhost:8000/*",
+        "http://*.felipecoder.com/*",
+        "https://*.felipecoder.com/*"
+      ],
+      "js": [
+        "scripts/contentscript.js",
+        "scripts/portal_aluno/portal.js"
+      ],
+      "run_at": "document_end",
+      "all_frames": true
+    }
+  ],
+  "browser_action": {
+    "default_icon": {
+      "19": "images/icon-19.png",
+      "38": "images/icon-38.png"
+    },
+    "default_title": "UFABC Matricula",
+    "default_popup": "popup.html"
+  },
+  "content_security_policy": "script-src 'self'; object-src 'self'",
+  "web_accessible_resources": [
+    "fonts/*",
+    "scripts/*",
+    "images/*",
+    "html/*",
+    "styles/*"
+  ]
+}
