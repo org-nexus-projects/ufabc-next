@@ -9,7 +9,10 @@ import livereload from 'gulp-livereload'
 import args from './lib/args'
 import rename from 'gulp-rename'
 
-const ENV = args.production ? 'production' : 'development'
+const { VueLoaderPlugin } = require('vue-loader')
+const { VueTemplateCompiler } = require('vue-template-compiler')
+
+const ENV = args.production ? 'production' : (args.staging ? 'staging': 'development')
 
 gulp.task('scripts', (cb) => {
   var tmp = {}
@@ -30,9 +33,12 @@ gulp.task('scripts', (cb) => {
       },
       plugins: [
         new webpack.DefinePlugin({
-          'process.env.NODE_ENV': JSON.stringify(ENV),
+          'process.env': {
+            'NODE_ENV': JSON.stringify(ENV)
+          },
           'process.env.VENDOR': JSON.stringify(args.vendor)
-        })
+        }),
+        new VueLoaderPlugin()
       ].concat(args.production ? [
         new webpack.optimize.UglifyJsPlugin()
       ]: []),
@@ -44,11 +50,14 @@ gulp.task('scripts', (cb) => {
         rules: [{
           test: /\.js$/,
           loader: 'babel-loader'
+        }, {
+          test: /\.vue$/,
+          loader: 'vue-loader'
         }]
       },
       resolve: {
         alias: {
-          'vue$': 'vue/dist/vue.esm.js'
+          'vue$': 'vue/dist/vue.common.js'
         }
       }
     },

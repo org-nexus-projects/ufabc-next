@@ -2,20 +2,23 @@ import toastr from 'toastr'
 import $ from 'jquery'
 import Utils from '../helpers/utils'
 
-window.addEventListener('load', function() {
-  if (isIndexPortalAluno()) {
-    Utils.injectStyle('styles/main.css');
-    toastr.info("Clique em <a href='https://aluno.ufabc.edu.br/fichas_individuais' style='color: #FFF !important;'>Ficha Individual</a> para atualizar suas informações!");
-  } 
-  else if (isFichasIndividuaisPath()) {
-    Utils.injectStyle('styles/main.css');
-    toastr.info('A mágica começa agora...');
-      
-    clearAlunoStorage(getEmailAluno());
+if (isIndexPortalAluno()) {
+  const anchor = document.createElement('div')
+  anchor.setAttribute('id', 'app')
+  document.body.append(anchor)
+  Utils.injectScript('scripts/portal.js')
 
-    iterateTabelaCursosAndSaveToLocalStorage();
-  };
-});
+  Utils.injectStyle('styles/main.css')
+  toastr.info("Clique em <a href='https://aluno.ufabc.edu.br/fichas_individuais' style='color: #FFF !important;'>Ficha Individual</a> para atualizar suas informações!");
+} 
+else if (isFichasIndividuaisPath()) {
+  Utils.injectStyle('styles/main.css');
+  toastr.info('A mágica começa agora...');
+    
+  clearAlunoStorage(getEmailAluno());
+
+  iterateTabelaCursosAndSaveToLocalStorage();
+};
 
 function isIndexPortalAluno () {
   return document.location.href
@@ -58,7 +61,7 @@ function getFichaAluno(fichaAlunoUrl, cb) {
 
         var info = ficha_obj.find('.coeficientes tbody tr td');
 
-        var ra = /.*(\d{8}).*/g.exec(ficha_obj.find("#page").children('p')[2].innerText)[1] || 'some ra';
+        var ra = /.*?(\d+).*/g.exec(ficha_obj.find("#page").children('p')[2].innerText)[1] || 'some ra';
 
         // send to make UFABC HELP using data from students
         $.get('https://aluno.ufabc.edu.br' + fichaAlunoUrl, function(data) {

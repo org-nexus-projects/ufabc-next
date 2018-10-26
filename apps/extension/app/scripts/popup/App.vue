@@ -1,5 +1,5 @@
 <template>
-  <p> Oi </p>
+  <p> Estou no popup </p>
 </template>
 <script>
   export default {

@@ -17,12 +17,12 @@ chrome.storage.local.get(function (items) {
 })
 
 import Vue from 'vue';
-import App from '../component/App.vue';
+import App from './popup/App.vue';
 
-var app=new Vue({
-  el:'#app',
+var app = new Vue({
+  el: '#app',
   data:{
-    name:'vue-chrome-extension'
+    name:'popup-ufabc-matricula-extension'
   },
   render: h =>h(App)
 })

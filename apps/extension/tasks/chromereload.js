@@ -32,7 +32,7 @@ gulp.task('chromereload', (cb) => {
   // The watching for javascript files is done by webpack
   // Check out ./tasks/scripts.js for further info.
   gulp.watch('app/manifest.json', ['manifest'])
-  gulp.watch('app/component/**/*.vue',['pages','scripts']);
+  gulp.watch('app/scripts/**/*.vue',['scripts']);
   gulp.watch('app/styles/**/*.css', ['styles:css'])
   gulp.watch('app/styles/**/*.less', ['styles:less'])
   gulp.watch('app/styles/**/*.scss', ['styles:sass'])
