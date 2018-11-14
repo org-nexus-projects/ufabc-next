@@ -117,7 +117,11 @@ window.addEventListener('load', async function() {
     // handler help
     $('body').on('click', '.Help', function (e) {
       const teacherId = $(e.target).attr('data')
-      helpData.professor = teacherId
+      const teacherName = $(e.target).attr('teacherName')
+      helpData.professor = {
+        id: teacherId,
+        name: teacherName,
+      },
       helpData.dialog = true
     })
   }

@@ -58,34 +58,6 @@
     <div class="share ufabc-row align-center">
       <div class="fb-share-button fb_iframe_widget" data-href="https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk?hl=pt-BR" data-layout="button" data-size="small" data-mobile-iframe="true" fb-xfbml-state="rendered" fb-iframe-plugin-query="app_id=283675788310945&amp;container_width=300&amp;href=https%3A%2F%2Fchrome.google.com%2Fwebstore%2Fdetail%2Fufabc-matricula%2Fgphjopenfpnlnffmhhhhdiecgdcopmhk%3Fhl%3Dpt-BR&amp;layout=button&amp;locale=pt_BR&amp;mobile_iframe=true&amp;sdk=joey&amp;size=small"><span style="vertical-align: bottom; width: 97px; height: 20px;"><iframe name="f3f6380124e0d68" width="1000px" height="1000px" frameborder="0" allowtransparency="true" allowfullscreen="true" scrolling="no" allow="encrypted-media" title="fb:share_button Facebook Social Plugin" src="https://www.facebook.com/v2.10/plugins/share_button.php?app_id=283675788310945&amp;channel=https%3A%2F%2Fstaticxx.facebook.com%2Fconnect%2Fxd_arbiter%2Fr%2FafATJJjxKE6.js%3Fversion%3D43%23cb%3Df9fea2ad7fa08c%26domain%3Dufabc-matricula-test.cdd.naoseiprogramar.com.br%26origin%3Dhttps%253A%252F%252Fufabc-matricula-test.cdd.naoseiprogramar.com.br%252Ff1f7e9e9fbd3a%26relation%3Dparent.parent&amp;container_width=300&amp;href=https%3A%2F%2Fchrome.google.com%2Fwebstore%2Fdetail%2Fufabc-matricula%2Fgphjopenfpnlnffmhhhhdiecgdcopmhk%3Fhl%3Dpt-BR&amp;layout=button&amp;locale=pt_BR&amp;mobile_iframe=true&amp;sdk=joey&amp;size=small" style="border: none; visibility: visible; width: 97px; height: 20px;" class=""></iframe></span></div>
     </div>
-<!--       <div v-for="f in customFilters">
-        <v-switch
-          :label="f.name"
-          v-model="f.val"
-          @change="filter(f)"
-        ></v-switch>
-      </div>
-
-      <v-switch
-        label='Mostra materias selecionadas'
-        v-model='selected'
-        @change="changeSelected()"
-      >
-      </v-switch>
-
-      <v-switch
-        label='Remove disciplinas cursadas'
-        v-model='cursadas'
-        @change="changeCursadas()"
-      >
-      </v-switch>
-
-      <v-switch
-        label='Carregar professores'
-        v-model='teachers'
-        @change="changeTeachers()"
-      >
-      </v-switch> -->
   </div>
 </template>
 <script>
@@ -127,6 +99,7 @@
       }
     },
     created() {
+      $('#sessao').remove()
       window.tempo = Infinity
 
       setTimeout(() => {
