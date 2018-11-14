@@ -4,14 +4,16 @@
     @close="closeDialog()"
     :visible="value.dialog"
     width="32%">
-    <div v-if='loading || help_data' style="min-height: 200px" v-loading="loading" element-loading="Carregando">
-         <vue-highcharts
-      :options="options"
-      :highcharts="Highcharts"
-    ></vue-highcharts>
+    {{ value }}
+    <div v-if='loading || (help_data && help_data.specific && help_data.specific.length)' style="min-height: 200px" v-loading="loading" element-loading="Carregando">
+      <vue-highcharts
+          v-if='help_data && help_data.specific && help_data.specific.length'
+          :options="options"
+          :highcharts="Highcharts"
+      ></vue-highcharts>
     </div>
     <div class="ufabc-row ufabc-align-center ufabc-justify-middle" style="min-height: 100px" v-else>
-      Nenhum dado carregado
+      Nenhum dado encontrado
     </div>
     <span slot="footer" class="dialog-footer">
       <i class="information">* Dados baseados nos alunos que utilizam a extensão</i>
@@ -59,7 +61,8 @@
           ]
         }
       ]
-    };
+  };
+
   export default {
     name: 'Help',
     props: ['value'],
