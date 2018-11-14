@@ -5,7 +5,10 @@
     :visible="value.dialog"
     width="32%">
     <div v-if='loading || help_data' style="min-height: 200px" v-loading="loading" element-loading="Carregando">
-
+         <vue-highcharts
+      :options="options"
+      :highcharts="Highcharts"
+    ></vue-highcharts>
     </div>
     <div class="ufabc-row ufabc-align-center ufabc-justify-middle" style="min-height: 100px" v-else>
       Nenhum dado carregado
@@ -17,17 +20,57 @@
   </el-dialog>
 </template>
 <script>
+  import VueHighcharts from 'vue2-highcharts'
+  import Highcharts3D from "highcharts/highcharts-3d";
+  import Highcharts from "highcharts";
+
   import _ from 'lodash'
   import Axios from 'axios'
+
+  Highcharts3D(Highcharts);
+
+  const data = {
+    chart: {
+        type: "pie",
+        options3d: {
+          enabled: true,
+          alpha: 45
+        }
+      },
+      plotOptions: {
+        pie: {
+          // innerSize: 100,
+          depth: 45
+        }
+      },
+      series: [
+        {
+          name: "Delivered amount",
+          data: [
+            ["Bananas", 8],
+            ["Kiwi", 3],
+            ["Mixed nuts", 1],
+            ["Oranges", 6],
+            ["Apples", 8],
+            ["Pears", 4],
+            ["Clementines", 4],
+            ["Reddish (bag)", 1],
+            ["Grapes (bunch)", 1]
+          ]
+        }
+      ]
+    };
   export default {
     name: 'Help',
     props: ['value'],
     components: {
-
+      VueHighcharts
     },
 
     data() {
       return {
+        options: data,
+        Highcharts,
         loading: false,
 
         help_data: null,

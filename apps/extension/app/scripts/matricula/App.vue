@@ -1,4 +1,4 @@
-<template>
+<template>  
   <div class="ufabc-row filters">
     <div class="mr-3 ufabc-row ufabc-align-center">
       <img :src="getUrl('/images/icon-128.png')" style="width: 32px; height: 32px;" />

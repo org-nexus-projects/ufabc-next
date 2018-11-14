@@ -3785,6 +3785,11 @@ he@^1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/he/-/he-1.1.1.tgz#93410fd21b009735151f8868c2f271f3427e23fd"
 
+highcharts@^6.2.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-6.2.0.tgz#2a6d04652eb43c66f462ca7e2d2808f1f2782b61"
+  integrity sha512-A4E89MA+kto8giic7zyLU6ZxfXnVeCUlKOyzFsah3+n4BROx4bgonl92KIBtwLud/mIWir8ahqhuhe2by9LakQ==
+
 hmac-drbg@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/hmac-drbg/-/hmac-drbg-1.0.1.tgz#d2745701025a6c775a6c545793ed502fc0c649a1"
@@ -8044,6 +8049,11 @@ vue-template-validator@^1.0.1:
   resolved "https://registry.yarnpkg.com/vue-template-validator/-/vue-template-validator-1.1.5.tgz#22d1ee77d0647c1ab14ff7eb01865942d9b3c458"
   dependencies:
     chalk "^1.1.1"
+
+vue2-highcharts@^1.2.5:
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/vue2-highcharts/-/vue2-highcharts-1.2.5.tgz#4ab5ace0573d2e02a0cfd4029e3d7dbba2de2205"
+  integrity sha512-di7kuqZyqo77pmCs23s+wIyA1aBuKMxRJg871ggcj0Y1GopfF9j/cPlmwgjyIMaOHz4iQmvfn8hEDNOMW7etEQ==
 
 vue@^2.5.17:
   version "2.5.17"
