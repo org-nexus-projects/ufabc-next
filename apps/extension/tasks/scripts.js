@@ -11,6 +11,7 @@ import rename from 'gulp-rename'
 
 const { VueLoaderPlugin } = require('vue-loader')
 const { VueTemplateCompiler } = require('vue-template-compiler')
+const ExtractTextPlugin = require("extract-text-webpack-plugin")
 
 const ENV = args.production ? 'production' : (args.staging ? 'staging': 'development')
 
@@ -38,22 +39,75 @@ gulp.task('scripts', (cb) => {
           },
           'process.env.VENDOR': JSON.stringify(args.vendor)
         }),
-        new VueLoaderPlugin()
+        new VueLoaderPlugin(),
+        new ExtractTextPlugin("style.css")
       ].concat(args.production ? [
         new webpack.optimize.UglifyJsPlugin()
       ]: []),
       module: {
-        loaders: [{
-          test: /\.vue$/,
-          loader: 'vue-loader'
-        }],
-        rules: [{
-          test: /\.js$/,
-          loader: 'babel-loader'
-        }, {
-          test: /\.vue$/,
-          loader: 'vue-loader'
-        }]
+        rules: [
+          {
+            test: /\.css$/,
+            use: [
+              'vue-style-loader',
+              'css-loader',
+              'postcss-loader',
+            ],
+          },
+          {
+            test: /\.scss$/,
+            use: [
+              'vue-style-loader',
+              'css-loader',
+              'sass-loader'
+            ],
+          },
+          { 
+            test: /\.(woff|woff2|eot|ttf|svg)$/, 
+            loader: 'url-loader?limit=100000' 
+          },
+          {
+            test: /\.sass$/,
+            use: [
+              'vue-style-loader',
+              'css-loader',
+              'sass-loader?indentedSyntax'
+            ],
+          },
+          {
+            test: /\.vue$/,
+            loader: 'vue-loader',
+            options: {
+              loaders: {
+                // Since sass-loader (weirdly) has SCSS as its default parse mode, we map
+                // the "scss" and "sass" values for the lang attribute to the right configs here.
+                // other preprocessors should work out of the box, no loader config like this necessary.
+                'scss': [
+                  'vue-style-loader',
+                  'css-loader',
+                  'sass-loader'
+                ],
+                'sass': [
+                  'vue-style-loader',
+                  'css-loader',
+                  'sass-loader?indentedSyntax'
+                ]
+              }
+            }
+          },
+          {
+            test: /\.js$/,
+            loader: 'babel-loader',
+            exclude: /node_modules/
+          },
+          {
+            test: /\.(png|jpe?g|gif)(\?.*)?$/,
+            loader: 'url-loader',
+            options: {
+              name: '[name].[ext]?[hash]'
+            }
+          }
+        ]
       },
       resolve: {
         alias: {

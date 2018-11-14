@@ -1,7 +1,6 @@
 /* Keep in mind that when you inject main.css you inject all this files to the website */
 @import "../../node_modules/toastr/build/toastr.min.css";
-@import "../../node_modules/element-ui/lib/theme-chalk/index.css";
-@import "../../node_modules/vuetify/dist/vuetify.min.css";
+
 /* fallback */
 @font-face {
   font-family: 'Material Icons';
@@ -9,6 +8,8 @@
   font-weight: 400;
   src: url(https://fonts.gstatic.com/s/materialicons/v41/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2) format('woff2');
 }
+
+@import url('https://fonts.googleapis.com/css?family=Ubuntu');
 
 .material-icons {
   font-family: 'Material Icons';
@@ -26,6 +27,9 @@
   -webkit-font-smoothing: antialiased;
 }
 
+#sessao {
+  display: none;
+}
 
 .ufabc-extension-font {
     font-size: 11px;
@@ -203,4 +207,131 @@
 
 .notHigh {
     display: none;
+}
+
+
+
+
+
+/* Grid helpers */
+.ufabc-flex {
+  flex: 1 1 auto;
+}
+
+.ufabc-no-flex {
+  flex: none !important;
+}
+
+.ufabc-no-shrink {
+  flex-shrink: 0;
+}
+
+.ufabc-no-grow {
+  flex-grow: 0;
+}
+
+.ufabc-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.ufabc-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.ufabc-row-reverse {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.ufabc-row > .ufabc-scroll-y {
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 0;
+}
+.ufabc-column > .ufabc-scroll-y {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 0;
+}
+
+/*
+  Flexbox helpers
+*/
+.ufabc-justify-top {
+  justify-content: flex-start;
+}
+.ufabc-justify-middle {
+  justify-content: center;
+}
+.ufabc-justify-bottom {
+  justify-content: flex-end;
+}
+
+
+.ufabc-align-start {
+  align-items: flex-start;
+}
+.ufabc-align-center {
+  align-items: center;
+}
+.ufabc-align-end {
+  align-items: flex-end;
+}
+
+.ufabc-float-right {
+  float: right;
+}
+
+.ufabc-float-left {
+  float: left;
+}
+
+.ufabc-float-none {
+  float: none;
+}
+/* 
+  Divider styles 
+*/
+.ufabc-column > .ufabc-divider {
+  flex: 0;
+}
+
+.ufabc-divider-overlay-below {
+  position: relative;
+  top: 1px;
+  z-index: 1;
+  background-color: rgba(0, 0, 0, 0.06) !important
+}
+
+/* 
+  Positions helpers
+*/
+.ufabc-static {
+  position: static;
+}
+.ufabc-relative {
+  position: relative;
+}
+.ufabc-absolute {
+  position: absolute;
+}
+.ufabc-fixed {
+  position: fixed;
+}
+
+/* 
+  Flexbox helpers 
+*/
+.ufabc-flex-wrap {
+  flex-wrap: wrap;
+}
+.ufabc-space-around {
+  justify-content: space-around;
+}
+
+
+.ufabc-element-switch  .el-switch__label *{
+  font-size: 13px;
 }

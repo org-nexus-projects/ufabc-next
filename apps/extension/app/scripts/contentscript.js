@@ -18,6 +18,10 @@ Vue.use(ElementUI)
 import Modal from './matricula/Modal.vue'
 import Help from './matricula/Help.vue'
 
+// CSS imports
+import "element-ui/lib/theme-chalk/index.css"
+import "vuetify/dist/vuetify.min.css"
+
 let matricula_url
 
 if (process.env.NODE_ENV == 'production') {
@@ -59,7 +63,7 @@ window.addEventListener('load', async function() {
     // i.e, where all the filters live
     const anchor = document.createElement('div')
     anchor.setAttribute('id', 'app')
-    $('#filtros')[0].append(anchor)
+    $('#meio').prepend(anchor)
 
     //inject styles
     Utils.injectStyle('styles/main.css')
@@ -96,18 +100,6 @@ window.addEventListener('load', async function() {
         return helpData
       },
       components: { Help }
-    })
-
-    // add chrome box
-    let box = Utils.fetchChromeUrl('pages/box.html')
-    box.then(r => {
-      const data = r.data
-
-      $("#filtros").append(data);
-      $("#filtros")
-      .children(".col-md-6")
-      .removeClass("col-md-6")
-      .addClass("col-md-3");
     })
 
     // inject Vue app

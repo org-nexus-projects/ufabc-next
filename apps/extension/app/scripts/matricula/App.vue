@@ -1,6 +1,64 @@
 <template>
-  <v-container fluid px-0>
-      <div v-for="f in customFilters">
+  <div class="ufabc-row filters">
+    <div class="mr-3 ufabc-row ufabc-align-center">
+      <img :src="getUrl('/images/icon-128.png')" style="width: 32px; height: 32px;" />
+    </div>
+    <div class="mr-5">
+      <div class="title-filter">Câmpus</div>
+      <div>
+        <el-switch  
+          class="mr-3 ufabc-element-switch"
+          v-for='filter in campusFilters' 
+          :activeText="filter.name" 
+          v-model="filter.val" 
+          @change="applyFilter(filter)"
+          ></el-switch>
+      </div>
+    </div>
+    <i class="mdi mdi-ear"></i>
+    <div class="mr-5">
+      <div class="title-filter">Turno</div>
+      <div>
+        <el-switch  
+          class="mr-3 ufabc-element-switch"
+          v-for='filter in shiftFilters' 
+          :activeText="filter.name" 
+          v-model="filter.val" 
+          @change="applyFilter(filter)"
+          ></el-switch>
+      </div>
+    </div>
+
+    <div class="pr-5">
+      <div class="title-filter">Extras</div>
+      <div>
+        <el-switch  
+          class="mr-3 ufabc-element-switch"
+          active-text="Disciplinas escolhidas" 
+          v-model="selected" 
+          @change="changeSelected()"
+          ></el-switch>
+
+        <el-switch  
+          class="mr-3 ufabc-element-switch"
+          active-text="Remover cursadas" 
+          v-model="cursadas" 
+          @change="changeCursadas()"
+          ></el-switch>
+
+        <el-switch  
+          class="mr-3 ufabc-element-switch"
+          active-text="Professores" 
+          v-model="teachers" 
+          @change="changeTeachers()"
+          ></el-switch>
+      </div>
+    </div>
+
+    <div class="share ufabc-row align-center">
+      <div class="fb-share-button fb_iframe_widget" data-href="https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk?hl=pt-BR" data-layout="button" data-size="small" data-mobile-iframe="true" fb-xfbml-state="rendered" fb-iframe-plugin-query="app_id=283675788310945&amp;container_width=300&amp;href=https%3A%2F%2Fchrome.google.com%2Fwebstore%2Fdetail%2Fufabc-matricula%2Fgphjopenfpnlnffmhhhhdiecgdcopmhk%3Fhl%3Dpt-BR&amp;layout=button&amp;locale=pt_BR&amp;mobile_iframe=true&amp;sdk=joey&amp;size=small"><span style="vertical-align: bottom; width: 97px; height: 20px;"><iframe name="f3f6380124e0d68" width="1000px" height="1000px" frameborder="0" allowtransparency="true" allowfullscreen="true" scrolling="no" allow="encrypted-media" title="fb:share_button Facebook Social Plugin" src="https://www.facebook.com/v2.10/plugins/share_button.php?app_id=283675788310945&amp;channel=https%3A%2F%2Fstaticxx.facebook.com%2Fconnect%2Fxd_arbiter%2Fr%2FafATJJjxKE6.js%3Fversion%3D43%23cb%3Df9fea2ad7fa08c%26domain%3Dufabc-matricula-test.cdd.naoseiprogramar.com.br%26origin%3Dhttps%253A%252F%252Fufabc-matricula-test.cdd.naoseiprogramar.com.br%252Ff1f7e9e9fbd3a%26relation%3Dparent.parent&amp;container_width=300&amp;href=https%3A%2F%2Fchrome.google.com%2Fwebstore%2Fdetail%2Fufabc-matricula%2Fgphjopenfpnlnffmhhhhdiecgdcopmhk%3Fhl%3Dpt-BR&amp;layout=button&amp;locale=pt_BR&amp;mobile_iframe=true&amp;sdk=joey&amp;size=small" style="border: none; visibility: visible; width: 97px; height: 20px;" class=""></iframe></span></div>
+    </div>
+<!--       <div v-for="f in customFilters">
         <v-switch
           :label="f.name"
           v-model="f.val"
@@ -27,8 +85,8 @@
         v-model='teachers'
         @change="changeTeachers()"
       >
-      </v-switch>
-    </v-container>
+      </v-switch> -->
+  </div>
 </template>
 <script>
   import $ from 'jquery'
@@ -44,7 +102,7 @@
         selected: false,
         cursadas: false,
         teachers: false,
-        customFilters: [{
+        shiftFilters: [{
           name: 'Noturno',
           class: 'notNoturno',
           val: false,
@@ -54,11 +112,12 @@
           class: 'notMatutino',
           val: false,
           comparator: 'noturno',
-        }, {
+        }],
+        campusFilters: [{
           name: 'São Bernardo',
           class: 'notBernardo',
           val: false,
-          comparator: 'andr',
+          comparator: 'andr', //isso está correto
         },{
           name: 'Santo André',
           class: 'notAndre',
@@ -68,12 +127,25 @@
       }
     },
     created() {
+      window.tempo = Infinity
+
+      setTimeout(() => {
+        this.$notify({
+          title: 'UHU!',
+          message: 'Retiramos o timer para você fazer a sua matrícula com tranquilidade 😉',
+          type: 'success',
+          duration: 8000,
+        });
+      }, 5000)
       this.teachers = true
       this.changeTeachers()
     },
 
     methods: {
-      filter(params) {
+      getUrl(path) {
+        return Utils.getChromeUrl(path)
+      },
+      applyFilter(params) {
         if (!params.val) {
           $("#tabeladisciplinas tr").each(function(){
             $(this).removeClass(params.class)
@@ -185,4 +257,33 @@
     }
   }
 </script>
-<style></style>
+<style scoped>
+* {
+  font-family: Ubuntu;
+}
+.filters { 
+  position: sticky;
+  top: 0px;
+  background: #fff;
+  min-height: 56px;
+  padding-left: 24px;
+  padding-top: 6px;
+  z-index: 1;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  padding-bottom: 12px;
+}
+
+.title-filter {
+  font-size: 14px; 
+  margin-bottom: 2px;
+  color: rgba(0,0,0,0.9);
+}
+
+.share {
+  height: 100%;
+  position: absolute;
+  top: 0px;
+  right: 22px;
+}
+</style>
+<!-- <style type="text/css" src="@mdi/font/css/materialdesignicons.css"></style> -->
