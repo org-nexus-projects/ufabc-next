@@ -30,6 +30,9 @@
 #sessao {
   display: none;
 }
+.highcharts-credits {
+    display: none;
+}
 
 .ufabc-extension-font {
     font-size: 11px;
@@ -334,4 +337,8 @@
 
 .ufabc-element-switch  .el-switch__label *{
   font-size: 13px;
+}
+
+.ufabc-element-dialog .el-dialog__body {
+  padding-top: 16px;
 }
