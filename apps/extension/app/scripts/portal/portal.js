@@ -8,16 +8,21 @@ if (isIndexPortalAluno()) {
   document.body.append(anchor)
   Utils.injectScript('scripts/portal.js')
 
-  Utils.injectStyle('styles/main.css')
+  Utils.injectStyle('styles/portal.css')
   toastr.info("Clique em <a href='https://aluno.ufabc.edu.br/fichas_individuais' style='color: #FFF !important;'>Ficha Individual</a> para atualizar suas informações!");
 } 
 else if (isFichasIndividuaisPath()) {
-  Utils.injectStyle('styles/main.css');
+  Utils.injectStyle('styles/portal.css');
   toastr.info('A mágica começa agora...');
     
   clearAlunoStorage(getEmailAluno());
 
   iterateTabelaCursosAndSaveToLocalStorage();
+}
+else if(isFichaIndividualPath()) {
+  Utils.injectStyle('styles/portal.css');
+
+  console.log('opaaaa')
 };
 
 function isIndexPortalAluno () {
@@ -28,6 +33,11 @@ function isIndexPortalAluno () {
 function isFichasIndividuaisPath () {
   return document.location.href
     .indexOf('aluno.ufabc.edu.br/fichas_individuais') !== -1;
+}
+
+function isFichaIndividualPath () {
+  return document.location.href
+    .indexOf('aluno.ufabc.edu.br/ficha_individual') !== -1;
 }
 
 function iterateTabelaCursosAndSaveToLocalStorage () {

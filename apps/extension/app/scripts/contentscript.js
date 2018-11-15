@@ -20,7 +20,7 @@ import Help from './matricula/Help.vue'
 
 // CSS imports
 import "element-ui/lib/theme-chalk/index.css"
-import "vuetify/dist/vuetify.min.css"
+// import "vuetify/dist/vuetify.min.css"
 
 let matricula_url
 

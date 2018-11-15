@@ -258,10 +258,12 @@
       },
 
       fetchStudent() {
+        console.log(MatriculaHelper.currentUser())
         chrome.runtime.sendMessage(Utils.EXTENSION_ID, {
           method: 'storage', 
           key: MatriculaHelper.currentUser()
         }, (item) => {
+          console.log(item)
           if (item == null) return
 
           this.student_cr = item.cr

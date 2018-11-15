@@ -1,5 +1,7 @@
 /* Keep in mind that when you inject main.css you inject all this files to the website */
 @import "../../node_modules/toastr/build/toastr.min.css";
+/*@import "../../node_modules/element-ui/lib/theme-chalk/index.css";*/
+@import "../../node_modules/vuetify/dist/vuetify.min.css";
 
 /* fallback */
 @font-face {
