@@ -209,7 +209,9 @@
 
         let all_cr = []
         for(let conceito of this.conceitosDistriubution) {
-          all_cr.push(conceito && conceito.cr_medio)
+          if(conceito.conceito != 'O' && conceito.conceito != 'E') {
+            all_cr.push(conceito && conceito.cr_medio)
+          }
         }
         let closest = all_cr.sort( (a, b) => Math.abs(this.student_cr - a) - Math.abs(this.student_cr - b) )[0]
         let targetConceito = _.find(this.conceitosDistriubution, { cr_medio: closest })
