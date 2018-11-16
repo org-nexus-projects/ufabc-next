@@ -3,7 +3,7 @@
     :title="'Professor: ' + professorName"
     @close="closeDialog()"
     :visible="value.dialog"
-    width="32%"
+    width="460px"
     class="ufabc-element-dialog">
     <div v-if='loading || (help_data && help_data.specific && help_data.specific.length)' 
       style="min-height: 200px" 
@@ -263,10 +263,9 @@
           method: 'storage', 
           key: MatriculaHelper.currentUser()
         }, (item) => {
-          console.log(item)
           if (item == null) return
 
-          this.student_cr = item.cr
+          this.student_cr = _.get(item, '[1].cr', 0) || _.get(item, '[0].cr', 0)
         })
       },
 
