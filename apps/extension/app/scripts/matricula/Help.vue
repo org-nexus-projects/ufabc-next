@@ -59,7 +59,7 @@
                 :key="conceito">
               <div class="conceito" :class="conceito.conceito">{{ conceito.conceito}}</div> 
               <div class="cr">
-                {{ conceitosDistriubution[index] ? crCropped(conceitosDistriubution[index]['cr_medio']) : '' }}
+                {{ conceitosDistriubution[index] ? crCropped(conceitosDistriubution[index]['cr_medio']) : '-' }}
               </div>
             </div>
           </div>
@@ -109,6 +109,7 @@
         depth: 45,
         allowPointSelect: true,
         cursor: 'pointer',
+        colors: ['#3fcf8c', '#b8e986', '#f8b74c', '#ffa004', '#f95469'],
         dataLabels: {
           format: '{key}: <b>{point.percentage:.1f}%</b>',
           enabled: true
@@ -272,6 +273,7 @@
 
           this.student_cr = _.get(item, '[1].cr', 0) || _.get(item, '[0].cr', 0)
         })
+        this.student_cr = 2.34
       },
 
       updateFilter(){

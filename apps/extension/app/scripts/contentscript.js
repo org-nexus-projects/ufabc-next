@@ -42,7 +42,8 @@ chrome.storage.local.get('ufabc-extension-last', MatriculaHelper.updateProfessor
 // global const change modal data
 const modalData = {
   corte_id: 4040,
-  dialog: false
+  dialog: false,
+  disciplina: null,
 }
 
 const helpData = {
