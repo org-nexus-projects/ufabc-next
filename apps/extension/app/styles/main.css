@@ -431,6 +431,10 @@
 /* 
  * Cursor helpers
  */
+.ufabc-cursor-pointer {
+  cursor: pointer;
+}
+
 .ufabc-cursor-grabbing {
   cursor: move;
 }

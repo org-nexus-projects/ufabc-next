@@ -12,7 +12,14 @@
       <div class="border mb-3 pa-2">
         <div class="ufabc-row ufabc-align-center">
           <div>
-            Critérios
+            Critérios 
+            <el-popover
+              placement="top-start"
+              width="340"
+              trigger="hover"
+              content="Os critérios são definidos com base nos critérios abaixo e seu peso, você pode alterar o peso arrastando o critérios para que fiquem na ordem desejada.">
+              <span slot="reference" class="ufabc-cursor-pointer info-icon">i</span>
+            </el-popover>
           </div>
           <!-- Fill space -->
           <div class="ufabc-flex"></div>
@@ -39,7 +46,8 @@
         :data="transformed"
         max-height="250"
         style="width: 100%"
-        class="elevate-3 kicks-table">
+        class="elevate-3 kicks-table"
+        :row-class-name="tableRowClassName">
         <el-table-column
           type="index"
           width="50">
@@ -255,15 +263,44 @@
       closeDialog(){
         this.value.dialog = false
       },
+
+      tableRowClassName({row, rowIndex}) {
+        console.log('tableRowClassName', row)
+        
+        if (row.aluno_id == MatriculaHelper.getAlunoId()) {
+          return 'aluno-row'
+        } else if (row.kicked) {
+          return 'kicked-row'
+        } else {
+          return 'not-kicked-row'
+        }
+      }
     },
   }
 </script>
-<style scoped>
+<style>
 .information {
   color: rgba(0, 0, 0, 0.6);
   display: inline-flex;
   font-size: 11px;
   flex-direction: row;
   margin-right: 16px;
+}
+
+.info-icon {
+  font-size: 14px;
+  font-style: italic;
+}
+
+.el-table .aluno-row {
+  background-color: #B7D3FF !important;
+}
+
+.el-table .kicked-row {
+  color: #f95469 !important;
+}
+
+.el-table .not-kicked-row {
+  color: #3fcf8c !important;
 }
 </style>
