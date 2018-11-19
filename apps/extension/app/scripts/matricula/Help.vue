@@ -6,10 +6,10 @@
     width="32%"
     class="ufabc-element-dialog">
     <div v-if='loading || (help_data && help_data.specific && help_data.specific.length)' 
-      style="min-height: 200px" 
-      v-loading="loading" 
+      style="min-height: 200px"
+      v-loading="loading"
       element-loading="Carregando">
-      <el-select 
+      <el-select
           class="ufabc-flex ufabc-row mb-2"
           placeholder="Selecione a matéria" 
           @change="updateFilter()"
@@ -55,7 +55,8 @@
               <div class="square"></div>
             </div>
             <div class="conceitos-cr ufabc-row" 
-                v-for='(conceito, index) in conceitos'>
+                v-for='(conceito, index) in conceitos'
+                :key="conceito">
               <div class="conceito" :class="conceito.conceito">{{ conceito.conceito}}</div> 
               <div class="cr">
                 {{ conceitosDistriubution[index] ? crCropped(conceitosDistriubution[index]['cr_medio']) : '' }}
@@ -233,6 +234,8 @@
         let professorId = _.get(this.value, 'professor.id', '')
         if(!professorId) return
         this.fetchStudent()
+
+        console.log('professorId', professorId)
 
         professorId = '5bd05045639f40b3b0ffbbeb'
         this.loading = true

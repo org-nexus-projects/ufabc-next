@@ -1,4 +1,4 @@
-import Chart from 'chart.js'
+// import Chart from 'chart.js'
 
 module.exports = new (function (){
   function getHTML (info, id) {
@@ -46,10 +46,10 @@ module.exports = new (function (){
               }]
       };
 
-      var myChart = new Chart(ctx, {
-          type: 'pie',
-          data: data
-      });
+    //   var myChart = new Chart(ctx, {
+    //       type: 'pie',
+    //       data: data
+    //   });
   }
 
   return {
