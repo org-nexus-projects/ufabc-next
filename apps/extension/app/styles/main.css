@@ -432,17 +432,31 @@
  * Cursor helpers
  */
 .ufabc-cursor-pointer {
-  cursor: pointer;
+  cursor: pointer !important;
 }
-
-.ufabc-cursor-grabbing {
-  cursor: move;
-}
-
 /* 
- * FIX
+ * Custom table
  */
-table.table, tr, td, th {
+.kicks-table > el-table, 
+.kicks-table tr, 
+.kicks-table td, 
+.kicks-table th {
   border: none !important;
   text-align: center !important;
+}
+
+.el-table .aluno-row {
+  background-color: #B7D3FF !important;
+}
+
+.el-table .kicked-row {
+  color: #f95469 !important;
+}
+
+.el-table .not-kicked-row {
+  color: #3fcf8c !important;
+}
+
+.ufabc-cursor-grabbing .v-chip__content {
+  cursor: move !important;
 }

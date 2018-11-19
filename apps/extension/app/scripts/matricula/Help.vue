@@ -45,7 +45,7 @@
         </div>
         <div class="conceitos" v-if='conceitosDistriubution && conceitosDistriubution.length && student_cr'>
           <div class="conceitos-title">
-            Com este professor, você <b>provavelmente</b> tirará:
+            Com este professor, seu conceito <b>provavelmente</b> será:
           </div>
           <div class="all-conceitos">
             <div class="conceito-target" :class="targetConceitoStudent">
@@ -265,8 +265,7 @@
         chrome.runtime.sendMessage(Utils.EXTENSION_ID, {
           method: 'storage', 
           key: MatriculaHelper.currentUser()
-        }, (item) => {
-          console.log(item)
+        }, function(item) {
           if (item == null) return
 
           this.student_cr = item.cr

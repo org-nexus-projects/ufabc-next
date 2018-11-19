@@ -161,6 +161,7 @@
           method: 'storage', 
           key: MatriculaHelper.currentUser()
         }, function(item) {
+          console.log("ITEM", item)
           if (item == null) {
             self.$notify({
               message: 'Não temos as diciplinas que você cursou...'

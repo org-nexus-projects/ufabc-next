@@ -18,7 +18,7 @@
               width="340"
               trigger="hover"
               content="Os critérios são definidos com base nos critérios abaixo e seu peso, você pode alterar o peso arrastando o critérios para que fiquem na ordem desejada.">
-              <span slot="reference" class="ufabc-cursor-pointer info-icon">i</span>
+              <v-icon small class="ufabc-cursor-pointer" slot="reference">info_outline</v-icon>
             </el-popover>
           </div>
           <!-- Fill space -->
@@ -34,10 +34,10 @@
 
         <draggable v-model="headers" @update="resort($event)">
           <div v-for="h in headers" 
-            :key="h.value" 
+            :key="h.value"
             class="ufabc-cursor-grabbing"
             style="display: inline-block !important;">
-            <v-chip close @input="removedFilter(h.value)">{{ h.text }}</v-chip>
+            <v-chip  close @input="removedFilter(h.value)">{{ h.text }}</v-chip>
           </div>
         </draggable>
       </div>
@@ -208,7 +208,6 @@
       },
 
       'value.corte_id'(val){
-        console.log('watch value.corte_id')
         this.fetch()
       },
     },
@@ -224,17 +223,16 @@
 
     methods: {
       fetch() {
-        console.log("FETCH")
         let corteId = _.get(this.value, 'corte_id', '')
         if(!corteId) return
         var aluno_id = MatriculaHelper.getAlunoId()
 
-        corteId = '2722'
+        corteId = '2942'
+        aluno_id = '1504'
         this.loading = true
 
-        Axios.get(`https://ufabc-matricula-test.cdd.naoseiprogramar.com.br/v1/disciplinas/${corteId}/kicks?${aluno_id}`).then((res) => {
+        Axios.get(`http://localhost:8011/v1/disciplinas/${corteId}/kicks?aluno_id=${aluno_id}`).then((res) => {
           this.kicksData = res.data
-          console.log('kicksData', this.kicksData)
           this.loading = false
         }).catch((e) => {
           this.loading = false
@@ -265,8 +263,6 @@
       },
 
       tableRowClassName({row, rowIndex}) {
-        console.log('tableRowClassName', row)
-        
         if (row.aluno_id == MatriculaHelper.getAlunoId()) {
           return 'aluno-row'
         } else if (row.kicked) {
@@ -278,29 +274,12 @@
     },
   }
 </script>
-<style>
+<style scoped>
 .information {
   color: rgba(0, 0, 0, 0.6);
   display: inline-flex;
   font-size: 11px;
   flex-direction: row;
   margin-right: 16px;
-}
-
-.info-icon {
-  font-size: 14px;
-  font-style: italic;
-}
-
-.el-table .aluno-row {
-  background-color: #B7D3FF !important;
-}
-
-.el-table .kicked-row {
-  color: #f95469 !important;
-}
-
-.el-table .not-kicked-row {
-  color: #3fcf8c !important;
 }
 </style>
