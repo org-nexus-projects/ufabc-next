@@ -3,7 +3,7 @@
     :title="'Professor: ' + professorName"
     @close="closeDialog()"
     :visible="value.dialog"
-    width="32%"
+    width="460px"
     class="ufabc-element-dialog">
     <div v-if='loading || (help_data && help_data.specific && help_data.specific.length)' 
       style="min-height: 200px"
@@ -210,7 +210,9 @@
 
         let all_cr = []
         for(let conceito of this.conceitosDistriubution) {
-          all_cr.push(conceito && conceito.cr_medio)
+          if(conceito.conceito != 'O' && conceito.conceito != 'E') {
+            all_cr.push(conceito && conceito.cr_medio)
+          }
         }
         let closest = all_cr.sort( (a, b) => Math.abs(this.student_cr - a) - Math.abs(this.student_cr - b) )[0]
         let targetConceito = _.find(this.conceitosDistriubution, { cr_medio: closest })
@@ -268,7 +270,7 @@
         }, function(item) {
           if (item == null) return
 
-          this.student_cr = item.cr
+          this.student_cr = _.get(item, '[1].cr', 0) || _.get(item, '[0].cr', 0)
         })
       },
 
