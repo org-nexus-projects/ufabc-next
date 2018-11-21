@@ -6,26 +6,24 @@
     <div class="mr-5">
       <div class="title-filter">Câmpus</div>
       <div>
-        <el-switch  
-          class="mr-3 ufabc-element-switch"
-          v-for='filter in campusFilters' 
-          :activeText="filter.name" 
-          v-model="filter.val" 
-          @change="applyFilter(filter)"
-          ></el-switch>
+        <el-checkbox 
+         v-for='filter in campusFilters' 
+         @change="applyFilter(filter)" 
+         v-model="filter.val">
+          {{ filter.name }}
+        </el-checkbox>
       </div>
     </div>
     <i class="mdi mdi-ear"></i>
     <div class="mr-5">
       <div class="title-filter">Turno</div>
       <div>
-        <el-switch  
-          class="mr-3 ufabc-element-switch"
-          v-for='filter in shiftFilters' 
-          :activeText="filter.name" 
-          v-model="filter.val" 
-          @change="applyFilter(filter)"
-          ></el-switch>
+        <el-checkbox 
+         v-for='filter in shiftFilters' 
+         @change="applyFilter(filter)" 
+         v-model="filter.val">
+          {{ filter.name }}
+        </el-checkbox>
       </div>
     </div>
 
@@ -41,7 +39,7 @@
 
         <el-switch  
           class="mr-3 ufabc-element-switch"
-          active-text="Remover cursadas" 
+          active-text="Disciplinas cursadas" 
           v-model="cursadas" 
           @change="changeCursadas()"
           ></el-switch>
@@ -74,26 +72,28 @@
         selected: false,
         cursadas: false,
         teachers: false,
+
         shiftFilters: [{
           name: 'Noturno',
           class: 'notNoturno',
-          val: false,
+          val: true,
           comparator: 'matutino',
         }, {
           name: 'Matutino',
           class: 'notMatutino',
-          val: false,
+          val: true,
           comparator: 'noturno',
         }],
+
         campusFilters: [{
           name: 'São Bernardo',
           class: 'notBernardo',
-          val: false,
+          val: true,
           comparator: 'andr', //isso está correto
         },{
           name: 'Santo André',
           class: 'notAndre',
-          val: false,
+          val: true,
           comparator: 'bernardo',
         }],
       }
@@ -118,20 +118,24 @@
       getUrl(path) {
         return Utils.getChromeUrl(path)
       },
+
       applyFilter(params) {
+        // if(this.shiftFilters.every(f => f.val == false) || this.campusFilters.every(f => f.val == false)) return
+
         if (!params.val) {
-          $("#tabeladisciplinas tr").each(function(){
-            $(this).removeClass(params.class)
+          $("#tabeladisciplinas tr td:nth-child(3)").each(function(){
+            var campus = $(this).text().toLowerCase()
+            if(campus.indexOf(params.comparator) == -1) {
+              $(this).parent().addClass(params.class)
+            }
           })
           return
         }
 
-        $("#tabeladisciplinas tr td:nth-child(3)").each(function(){
-          var campus = $(this).text().toLowerCase()
-          if(campus.indexOf(params.comparator) != -1) {
-            $(this).parent().addClass(params.class)
-          }
+        $("#tabeladisciplinas tr").each(function(){
+          $(this).removeClass(params.class)
         })
+
       },
       changeSelected() {
         if (!this.selected) {
@@ -163,7 +167,7 @@
         }, function(item) {
           if (item == null) {
             self.$notify({
-              message: 'Não temos as diciplinas que você cursou...'
+              message: 'Não temos as diciplinas que você cursou, acesse o Portal do Aluno'
             })
             return
           }

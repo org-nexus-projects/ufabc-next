@@ -81,7 +81,7 @@ window.addEventListener('load', async function() {
     modal.setAttribute('data-app', true);
     document.body.append(modal)
     new Vue({ 
-      template: '<v-app><Modal :value="$data"></Modal></v-app>',
+      template: '<v-app v-show="$data.dialog"><Modal :value="$data"></Modal></v-app>',
       el: '#modal',
       data() {
         return modalData
@@ -95,7 +95,7 @@ window.addEventListener('load', async function() {
     help.setAttribute('data-app', true);
     document.body.append(help)
     new Vue({ 
-      template: '<v-app><Help :value="$data"></Help></v-app>',
+      template: '<v-app v-show="$data.dialog"><Help :value="$data"></Help></v-app>',
       el: '#help',
       data() {
         return helpData

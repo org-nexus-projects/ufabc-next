@@ -4,7 +4,7 @@
     @close="closeDialog()"
     :visible="value.dialog"
     light
-    width="32%"
+    width="520px"
     class="ufabc-element-dialog">
     <div v-loading="loading"
       element-loading="Carregando">
@@ -40,6 +40,9 @@
             <v-chip  close @input="removedFilter(h.value)">{{ h.text }}</v-chip>
           </div>
         </draggable>
+        <div class="drag-info">
+          * Arraste para alterar a ordem dos critérios
+        </div>
       </div>
       <!-- Table -->
       <el-table
@@ -281,5 +284,10 @@
   font-size: 11px;
   flex-direction: row;
   margin-right: 16px;
+}
+.drag-info {
+  font-family: Ubuntu;
+  font-size: 11px;
+  margin-top: 8px;
 }
 </style>

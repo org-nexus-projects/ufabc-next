@@ -269,11 +269,12 @@
           method: 'storage', 
           key: MatriculaHelper.currentUser()
         }, function(item) {
+          console.log(item)
           if (item == null) return
 
           this.student_cr = _.get(item, '[1].cr', 0) || _.get(item, '[0].cr', 0)
         })
-        this.student_cr = 2.34
+        // this.student_cr = 2.34
       },
 
       updateFilter(){
