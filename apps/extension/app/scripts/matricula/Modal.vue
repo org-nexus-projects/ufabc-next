@@ -1,10 +1,10 @@
 <template>
   <el-dialog
-    title="Cortes"
+    :title="disciplina && disciplina.nome ? 'Disciplina: ' + disciplina.nome : 'Cortes'"
     @close="closeDialog()"
     :visible="value.dialog"
     light
-    width="50%"
+    width="520px"
     class="ufabc-element-dialog">
     <div v-loading="loading"
       element-loading="Carregando">
@@ -40,6 +40,9 @@
             <v-chip  close @input="removedFilter(h.value)">{{ h.text }}</v-chip>
           </div>
         </draggable>
+        <div class="drag-info">
+          * Arraste para alterar a ordem dos critérios
+        </div>
       </div>
       <!-- Table -->
       <el-table
@@ -82,22 +85,9 @@
     data() {
       return {
         loading: false,
+        disciplina: {},
 
-        defaultHeaders: [
-          { text: 'Reserva', sortable: false, value: 'reserva' },
-          { text: 'Turno', value: 'turno', sortable: false },
-          { text: 'Ik', value: 'ik', sortable: false },
-          { text: 'CP', value: 'cp', sortable: false },
-          { text: 'CR', value: 'cr', sortable: false },
-        ],
-
-        headers: [
-          { text: 'Reserva', sortable: false, value: 'reserva' },
-          { text: 'Turno', value: 'turno', sortable: false },
-          { text: 'Ik', value: 'ik', sortable: false },
-          { text: 'CP', value: 'cp', sortable: false },
-          { text: 'CR', value: 'cr', sortable: false },
-        ],
+        headers: [],
 
         kicksData: [],
       }
@@ -113,6 +103,8 @@
       },
 
       'value.corte_id'(val){
+        this.disciplina = _.find(todasDisciplinas, { id: parseInt(val) })
+        this.headers = this.defaultHeaders
         this.fetch()
       },
     },
@@ -122,6 +114,26 @@
         return this.kicksData.map(d => {
           return _.assign(_.clone(d), { reserva: d.reserva ? 'Sim' : 'Nao'})
         })
+      },
+
+      defaultHeaders() {
+        let isIdeal = MatriculaHelper.findIdeais().includes(this.disciplina.codigo)
+        
+        const base = [
+          { text: 'Reserva', sortable: false, value: 'reserva' },
+          { text: 'Turno', value: 'turno', sortable: false },
+          { text: 'Ik', value: 'ik', sortable: false },
+        ]
+
+        if(isIdeal) {
+          base.push({ text: 'CR', value: 'cr', sortable: false })
+          base.push({ text: 'CP', value: 'cp', sortable: false })
+        } else {
+          base.push({ text: 'CP', value: 'cp', sortable: false })
+          base.push({ text: 'CR', value: 'cr', sortable: false })
+        }
+
+        return base
       }
     },
 
@@ -135,11 +147,17 @@
 
         Api.get(`/disciplinas/${corteId}/kicks?aluno_id=${aluno_id}`).then((res) => {
           this.kicksData = res
+          this.resort()
           this.loading = false
         }).catch((e) => {
           this.loading = false
-          // Show dialog with error
-          console.log(e)
+
+          if(e && e.name == 'Forbidden') {
+            // Show dialog with error
+            this.$notify({
+              message: 'Não temos as diciplinas que você cursou, acesse o Portal do Aluno'
+            })
+          }
         })
       },
 
@@ -183,5 +201,10 @@
   font-size: 11px;
   flex-direction: row;
   margin-right: 16px;
+}
+.drag-info {
+  font-family: Ubuntu;
+  font-size: 11px;
+  margin-top: 8px;
 }
 </style>

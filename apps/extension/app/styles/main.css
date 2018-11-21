@@ -30,6 +30,21 @@
 }
 
 #sessao {
+  top: 20px;
+  right: 141px;
+  position: fixed;
+  z-index: 1;
+  background-color: transparent;
+  border-radius: 3px;
+  font-family: Ubuntu;
+  font-size: 14px;
+  text-align: center;
+  /* color: #f95469; */
+  padding: 3px;
+  border: none;
+}
+
+#sessao > .tempo {
   display: none;
 }
 .highcharts-credits {

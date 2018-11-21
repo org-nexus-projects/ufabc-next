@@ -11,7 +11,7 @@ import MatriculaHelper from './helpers/matricula'
 
 // global const change modal data
 const modalData = {
-  corte_id: 4040,
+  corte_id: null,
   dialog: false,
   disciplina: null,
 }
@@ -32,7 +32,7 @@ var app = new Vue({
 })
 
 new Vue({ 
-  template: '<v-app><Modal :value="$data"></Modal></v-app>',
+  template: '<v-app v-show="$data.dialog"><Modal :value="$data"></Modal></v-app>',
   el: '#modal',
   data() {
     return modalData
@@ -41,7 +41,7 @@ new Vue({
 })
 
 new Vue({ 
-  template: '<v-app><Help :value="$data"></Help></v-app>',
+  template: '<v-app v-show="$data.dialog"><Help :value="$data"></Help></v-app>',
   el: '#help',
   data() {
     return helpData
