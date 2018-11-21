@@ -39,20 +39,6 @@ if (process.env.NODE_ENV == 'production') {
 
 chrome.storage.local.get('ufabc-extension-last', MatriculaHelper.updateProfessors)
 
-// global const change modal data
-const modalData = {
-  corte_id: 4040,
-  dialog: false,
-  disciplina: null,
-}
-
-const helpData = {
-  dialog: false,
-  professor: null,
-  // use this to notify
-  notifier: null
-}
-
 // quando carrega qualquer pagina fazemos isto
 window.addEventListener('load', async function() {
   const currentUrl = document.location.href;
@@ -60,70 +46,36 @@ window.addEventListener('load', async function() {
   require('./portal/portal')
 
   if(matricula_url.some(url => currentUrl.indexOf(url) != -1)) {
-    // this is the main vue app
-    // i.e, where all the filters live
-    const anchor = document.createElement('div')
-    anchor.setAttribute('id', 'app')
-    $('#meio').prepend(anchor)
+    setTimeout(() => {
+      // this is the main vue app
+      // i.e, where all the filters live
+      const anchor = document.createElement('div')
+      anchor.setAttribute('id', 'app')
+      $('#meio').prepend(anchor)
 
-    //inject styles
-    Utils.injectStyle('styles/main.css')
+      //inject styles
+      Utils.injectStyle('styles/main.css')
 
-    //inject face
-    Utils.injectScript('scripts/helpers/face.js')
+      //inject face
+      Utils.injectScript('scripts/helpers/face.js')
 
-    // manda as informacoes para o servidor
-    MatriculaHelper.sendAlunoData()
-    
-    // load vue app modal
-    const modal = document.createElement('div')
-    modal.setAttribute('id', 'modal')
-    modal.setAttribute('data-app', true);
-    document.body.append(modal)
-    new Vue({ 
-      template: '<v-app><Modal :value="$data"></Modal></v-app>',
-      el: '#modal',
-      data() {
-        return modalData
-      },
-      components: { Modal }
-    })
+      // manda as informacoes para o servidor
+      MatriculaHelper.sendAlunoData()
+      
+      // load vue app modal
+      const modal = document.createElement('div')
+      modal.setAttribute('id', 'modal')
+      modal.setAttribute('data-app', true);
+      document.body.append(modal)
 
-    // load vue app help
-    const help = document.createElement('div')
-    help.setAttribute('id', 'help')
-    help.setAttribute('data-app', true);
-    document.body.append(help)
-    new Vue({ 
-      template: '<v-app><Help :value="$data"></Help></v-app>',
-      el: '#help',
-      data() {
-        return helpData
-      },
-      components: { Help }
-    })
+      // load vue app help
+      const help = document.createElement('div')
+      help.setAttribute('id', 'help')
+      help.setAttribute('data-app', true);
+      document.body.append(help)
 
-    // inject Vue app
-    Utils.injectScript('scripts/main.js')
-
-    // handler cortes
-    $('body').on('click', '.corte', async function (e) {
-      var aluno_id = MatriculaHelper.getAlunoId()
-      var target = $(e.target);
-      var corte_id = target.parent().parent().attr('value');
-      modalData.corte_id = corte_id
-      modalData.dialog = true
-    })
-
-    // handler help
-    $('body').on('click', '.Help', function (e) {
-      const teacherId = $(e.target).attr('data')
-      const teacherName = $(e.target).attr('teacherName')
-      helpData.professor = {
-        id: teacherId,
-        name: teacherName,
-      },
-      helpData.dialog = true
-    })
+      // inject Vue app
+      Utils.injectScript('scripts/main.js')
+    }, 1500)
   }
 })

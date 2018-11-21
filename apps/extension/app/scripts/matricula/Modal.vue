@@ -4,7 +4,7 @@
     @close="closeDialog()"
     :visible="value.dialog"
     light
-    width="32%"
+    width="50%"
     class="ufabc-element-dialog">
     <div v-loading="loading"
       element-loading="Carregando">
@@ -46,8 +46,8 @@
         :data="transformed"
         max-height="250"
         style="width: 100%"
-        class="elevate-3 kicks-table"
-        :row-class-name="tableRowClassName">
+        empty-text="Não há dados"
+        class="elevate-3 kicks-table">
         <el-table-column
           type="index"
           width="50">
@@ -70,7 +70,7 @@
   import $ from 'jquery'
   import _ from 'lodash'
   import draggable from 'vuedraggable'
-  import Axios from 'axios'
+  import Api from '../helpers/api'
   import MatriculaHelper from '../helpers/matricula'
 
   export default {
@@ -100,101 +100,6 @@
         ],
 
         kicksData: [],
-
-        mockedData: [
-          { aluno_id: 10523,
-            cr: 2.479,
-            cp: 0.527,
-            ik: 0.55,
-            reserva: true,
-            turno: 'Matutino',
-            curso: 'Engenharia de Energia',
-            kicked: true },
-          { aluno_id: 1504,
-            cr: 3.207,
-            cp: 0.463,
-            ik: 0,
-            reserva: false,
-            turno: 'Matutino',
-            curso: 'Bacharelado em Ciência e Tecnologia',
-            kicked: false },
-            { aluno_id: 1500,
-            cr: 3.4,
-            cp: 0.8,
-            ik: 0,
-            reserva: false,
-            turno: 'Noturno',
-            curso: 'Bacharelado em Ciência e Tecnologia',
-            kicked: false },{ aluno_id: 10523,
-            cr: 2.479,
-            cp: 0.527,
-            ik: 0.55,
-            reserva: true,
-            turno: 'Matutino',
-            curso: 'Engenharia de Energia',
-            kicked: true },
-          { aluno_id: 1504,
-            cr: 3.207,
-            cp: 0.463,
-            ik: 0,
-            reserva: false,
-            turno: 'Matutino',
-            curso: 'Bacharelado em Ciência e Tecnologia',
-            kicked: false },
-            { aluno_id: 1500,
-            cr: 3.4,
-            cp: 0.8,
-            ik: 0,
-            reserva: false,
-            turno: 'Noturno',
-            curso: 'Bacharelado em Ciência e Tecnologia',
-            kicked: false },{ aluno_id: 10523,
-            cr: 2.479,
-            cp: 0.527,
-            ik: 0.55,
-            reserva: true,
-            turno: 'Matutino',
-            curso: 'Engenharia de Energia',
-            kicked: true },
-          { aluno_id: 1504,
-            cr: 3.207,
-            cp: 0.463,
-            ik: 0,
-            reserva: false,
-            turno: 'Matutino',
-            curso: 'Bacharelado em Ciência e Tecnologia',
-            kicked: false },
-            { aluno_id: 1500,
-            cr: 3.4,
-            cp: 0.8,
-            ik: 0,
-            reserva: false,
-            turno: 'Noturno',
-            curso: 'Bacharelado em Ciência e Tecnologia',
-            kicked: false },{ aluno_id: 10523,
-            cr: 2.479,
-            cp: 0.527,
-            ik: 0.55,
-            reserva: true,
-            turno: 'Matutino',
-            curso: 'Engenharia de Energia',
-            kicked: true },
-          { aluno_id: 1504,
-            cr: 3.207,
-            cp: 0.463,
-            ik: 0,
-            reserva: false,
-            turno: 'Matutino',
-            curso: 'Bacharelado em Ciência e Tecnologia',
-            kicked: false },
-            { aluno_id: 1500,
-            cr: 3.4,
-            cp: 0.8,
-            ik: 0,
-            reserva: false,
-            turno: 'Noturno',
-            curso: 'Bacharelado em Ciência e Tecnologia',
-            kicked: false } ]
       }
     },
 
@@ -214,8 +119,7 @@
 
     computed: {
       transformed() {
-        // console.log(_.map(this.mockedData, 'reserva'))
-        return this.mockedData.map(d => {
+        return this.kicksData.map(d => {
           return _.assign(_.clone(d), { reserva: d.reserva ? 'Sim' : 'Nao'})
         })
       }
@@ -227,12 +131,10 @@
         if(!corteId) return
         var aluno_id = MatriculaHelper.getAlunoId()
 
-        corteId = '2942'
-        aluno_id = '1504'
         this.loading = true
 
-        Axios.get(`http://localhost:8011/v1/disciplinas/${corteId}/kicks?aluno_id=${aluno_id}`).then((res) => {
-          this.kicksData = res.data
+        Api.get(`/disciplinas/${corteId}/kicks?aluno_id=${aluno_id}`).then((res) => {
+          this.kicksData = res
           this.loading = false
         }).catch((e) => {
           this.loading = false
@@ -244,7 +146,7 @@
       resort(e) {
         const sortOrder = _.map(this.headers, 'value')
         const sortRef = Array(sortOrder.length || 0).fill('desc')
-        this.mockedData = _.orderBy(this.mockedData, sortOrder, sortRef)
+        this.kicksData = _.orderBy(this.kicksData, sortOrder, sortRef)
       },
 
       removedFilter(value) {

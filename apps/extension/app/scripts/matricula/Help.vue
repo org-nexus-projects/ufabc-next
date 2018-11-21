@@ -4,7 +4,8 @@
     @close="closeDialog()"
     :visible="value.dialog"
     width="460px"
-    class="ufabc-element-dialog">
+    top="2vh"
+    class="ufabc-element-dialog mt-1">
     <div v-if='loading || (help_data && help_data.specific && help_data.specific.length)' 
       style="min-height: 200px"
       v-loading="loading"
@@ -43,24 +44,25 @@
         <div class="ufabc-row ufabc-align-center ufabc-justify-middle my-cr" v-if='student_cr'>
           Seu CR é <b class="ml-1">{{ crCropped(student_cr) }}</b>
         </div>
-        <div class="conceitos" v-if='conceitosDistriubution && conceitosDistriubution.length && student_cr'>
+        <div class="conceitos" v-if='conceitoDistribution && conceitoDistribution.length && student_cr'>
           <div class="conceitos-title">
-            Com este professor, seu conceito <b>provavelmente</b> será:
+            Com seu CR {{ crCropped(student_cr) }}, seu conceito com este professor <b>provavelmente</b> será:
           </div>
           <div class="all-conceitos">
             <div class="conceito-target" :class="targetConceitoStudent">
               <div class="arrow">
-                <div class="arrow-text">você</div>
+<!--                 <div class="arrow-text">você</div> -->
               </div>
               <div class="square"></div>
             </div>
             <div class="conceitos-cr ufabc-row" 
                 v-for='(conceito, index) in conceitos'
-                :key="conceito">
-              <div class="conceito" :class="conceito.conceito">{{ conceito.conceito}}</div> 
+                :key="index">
+              <div class="conceito" :class="conceito.conceito">{{ conceito.conceito }} </div> 
               <div class="cr">
-                {{ conceitosDistriubution[index] ? crCropped(conceitosDistriubution[index]['cr_medio']) : '-' }}
+                {{ findConcept(conceito.conceito) }}
               </div>
+<!--               <div class="cr">{{ findCount(conceito.conceito) }}</div> -->
             </div>
           </div>
         </div>
@@ -71,7 +73,6 @@
     </div>
     <span slot="footer" class="dialog-footer">
       <i class="information">* Dados baseados nos alunos que utilizam a extensão</i>
-      <el-button @click="closeDialog()">Fechar</el-button>
     </span>
   </el-dialog>
 </template>
@@ -81,7 +82,7 @@
   import Highcharts from "highcharts";
 
   import _ from 'lodash'
-  import Axios from 'axios'
+  import Api from '../helpers/api'
   import Utils from '../helpers/utils'
   import MatriculaHelper from '../helpers/matricula'
 
@@ -95,7 +96,7 @@
         alpha: 45
       },
       width: 380,
-      height: 320
+      height: 240
     },
     title: {
         text: ''
@@ -106,10 +107,12 @@
     plotOptions: {
       pie: {
         // innerSize: 100,
-        depth: 45,
+        animation: {
+          duration: 200,
+        },
+        depth: 20,
         allowPointSelect: true,
         cursor: 'pointer',
-        colors: ['#3fcf8c', '#b8e986', '#f8b74c', '#ffa004', '#f95469'],
         dataLabels: {
           format: '{key}: <b>{point.percentage:.1f}%</b>',
           enabled: true
@@ -182,7 +185,7 @@
         return disciplinas.reverse()
       },
 
-      conceitosDistriubution() {
+      conceitoDistribution() {
         if(!this.filterSelected) return []
 
         let filter
@@ -193,7 +196,6 @@
         }
 
         return filter && filter.distribution && _.sortBy(filter.distribution, 'conceito')
-
       },
 
       cobraPresenca() {
@@ -207,49 +209,63 @@
       },
 
       targetConceitoStudent() {
-        if(!this.student_cr || !this.conceitosDistriubution || !this.conceitosDistriubution.length) return
+        if(!this.student_cr || !this.conceitoDistribution || !this.conceitoDistribution.length) return
 
         let all_cr = []
-        for(let conceito of this.conceitosDistriubution) {
+        for(let conceito of this.conceitoDistribution) {
           if(conceito.conceito != 'O' && conceito.conceito != 'E') {
             all_cr.push(conceito && conceito.cr_medio)
           }
         }
         let closest = all_cr.sort( (a, b) => Math.abs(this.student_cr - a) - Math.abs(this.student_cr - b) )[0]
-        let targetConceito = _.find(this.conceitosDistriubution, { cr_medio: closest })
+        let targetConceito = _.find(this.conceitoDistribution, { cr_medio: closest })
 
         return targetConceito && targetConceito.conceito
       },
     },
 
     methods: {
+      resolveColorForConcept(concept) {
+        return {
+          'A': '#3fcf8c',
+          'B': '#b8e986',
+          'C': '#f8b74c',
+          'D': '#ffa004',
+          'F': '#f95469',
+          'O': '#A9A9A9'
+        }[concept] || '#A9A9A9'
+      },
       crCropped(cr){
         return cr.toFixed(2)
       },
-
       closeDialog(){
         this.value.dialog = false
         this.filterSelected = null
         this.help_data = null
+        this.samplesCount = 0
       },
-
+      findConcept(concept) {
+        let conceito = _.find(this.conceitoDistribution, { conceito: concept }, null)
+        return conceito ? this.crCropped(conceito.cr_medio) : '-'
+      },
+      findCount(concept) {
+        let conceito = _.find(this.conceitoDistribution, { conceito: concept }, null)
+        return conceito ? conceito.count : '-'
+      },  
       fetch() {
         let professorId = _.get(this.value, 'professor.id', '')
         if(!professorId) return
         this.fetchStudent()
 
-        console.log('professorId', professorId)
-
-        professorId = '5bd05045639f40b3b0ffbbeb'
         this.loading = true
 
-        Axios.get('https://ufabc-matricula-test.cdd.naoseiprogramar.com.br/v1/help/teachers/' + professorId).then((res) => {
-          this.help_data = res.data
+        Api.get('/help/teachers/' + professorId).then((res) => {
+          this.help_data = res
+          this.loading = false
 
-          if(_.get(res.data, 'general.count', 0)) {
+          if(_.get(res, 'general.count', 0)) {
             this.filterSelected = this.possibleDisciplinas[0]._id._id
             setTimeout(() => {
-              this.loading = false
               this.updateFilter()
             }, 500)
           }
@@ -257,23 +273,21 @@
           this.loading = false
 
           // Show dialog with error
-          console.log(e)
           this.closeDialog()
         })
 
       },
 
       fetchStudent() {
-        console.log(MatriculaHelper.currentUser())
+        let self = this
         chrome.runtime.sendMessage(Utils.EXTENSION_ID, {
           method: 'storage', 
           key: MatriculaHelper.currentUser()
         }, function(item) {
           if (item == null) return
 
-          this.student_cr = _.get(item, '[1].cr', 0) || _.get(item, '[0].cr', 0)
+          self.student_cr = _.get(item, '[1].cr', 0) || _.get(item, '[0].cr', 0)
         })
-        this.student_cr = 2.34
       },
 
       updateFilter(){
@@ -293,16 +307,21 @@
           let conceitosFiltered = []
           let conceitos = filter.distribution
           for(let conceito of conceitos){
-            conceitosFiltered.push([conceito.conceito, conceito.count])
+            conceitosFiltered.push({
+              name: conceito.conceito,
+              y: conceito.count,
+              color: this.resolveColorForConcept(conceito.conceito)
+            })
           }
           this.samplesCount = filter.count
 
           // pieChart.mergeOption({
           //   subtitle: { text: 'Total de amostras: <b>' + filter.count + '<b/>'}
           // })
+
           pieChart.addSeries({  
-              data: conceitosFiltered
-            })
+            data: _.sortBy(conceitosFiltered, 'name')
+          })
           pieChart.hideLoading();
         }, 500)
       }
@@ -353,7 +372,7 @@
 
 .all-conceitos {
   display: flex;
-  margin-top: 52px;
+  margin-top: 24px;
   margin-left: 38px;
   margin-right: 38px;
   margin-bottom: 20px;
@@ -415,6 +434,7 @@
 }
 .arrow-text {
   text-align: center;
+  font-size: 11px;
 }
 .arrow:after {
   content: " ";
@@ -434,7 +454,7 @@
 }
 .conceito-target {
   position: absolute;
-  height: 90px;
+/*  height: 90px;*/
   bottom: 0px;
   left: -2px;
 }
