@@ -1,11 +1,12 @@
 import $ from 'jquery'
+import _ from 'lodash'
 
 chrome.storage.local.get(function (items) {
   var users = [];
   var exists = false;
   if (items) {
     for (var key in items) {
-      if (items[key][0].cp != null) {
+      if (_.get(items[key], '[0].cp', null) != null) {
         exists = true;
         users.push(key);
       };

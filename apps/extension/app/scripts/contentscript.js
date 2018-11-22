@@ -27,6 +27,7 @@ let matricula_url
 if (process.env.NODE_ENV == 'production') {
   matricula_url = [
     'matricula.ufabc.edu.br/matricula',
+    'ufabc-matricula.cdd.naoseiprogramar.com.br/snapshot',
   ]
 } else {
    matricula_url = [
