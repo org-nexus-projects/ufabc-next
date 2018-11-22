@@ -1,6 +1,7 @@
 import toastr from 'toastr'
 import $ from 'jquery'
 import Utils from '../helpers/utils'
+import Api from '../helpers/api'
 
 if (isIndexPortalAluno()) {
   const anchor = document.createElement('div')
@@ -8,16 +9,19 @@ if (isIndexPortalAluno()) {
   document.body.append(anchor)
   Utils.injectScript('scripts/portal.js')
 
-  Utils.injectStyle('styles/main.css')
+  Utils.injectStyle('styles/portal.css')
   toastr.info("Clique em <a href='https://aluno.ufabc.edu.br/fichas_individuais' style='color: #FFF !important;'>Ficha Individual</a> para atualizar suas informações!");
 } 
 else if (isFichasIndividuaisPath()) {
-  Utils.injectStyle('styles/main.css');
+  Utils.injectStyle('styles/portal.css');
   toastr.info('A mágica começa agora...');
     
   clearAlunoStorage(getEmailAluno());
 
   iterateTabelaCursosAndSaveToLocalStorage();
+}
+else if(isFichaIndividualPath()) {
+  Utils.injectStyle('styles/portal.css');
 };
 
 function isIndexPortalAluno () {
@@ -28,6 +32,11 @@ function isIndexPortalAluno () {
 function isFichasIndividuaisPath () {
   return document.location.href
     .indexOf('aluno.ufabc.edu.br/fichas_individuais') !== -1;
+}
+
+function isFichaIndividualPath () {
+  return document.location.href
+    .indexOf('aluno.ufabc.edu.br/ficha_individual') !== -1;
 }
 
 function iterateTabelaCursosAndSaveToLocalStorage () {
@@ -42,7 +51,7 @@ function iterateTabelaCursosAndSaveToLocalStorage () {
       
       getFichaAluno(fichaAlunoUrl, function(curso) {
         curso.curso = linhaCurso[0].innerText.replace("Novo", '');
-      curso.turno = linhaCurso[3].innerText;
+        curso.turno = linhaCurso[3].innerText;
 
         saveToLocalStorage(aluno, curso);
       });
@@ -51,7 +60,6 @@ function iterateTabelaCursosAndSaveToLocalStorage () {
 
 function getFichaAluno(fichaAlunoUrl, cb) {
   var curso = {};
-
 
     var ficha_url = fichaAlunoUrl.replace('.json', '');
 
@@ -64,10 +72,8 @@ function getFichaAluno(fichaAlunoUrl, cb) {
         var ra = /.*?(\d+).*/g.exec(ficha_obj.find("#page").children('p')[2].innerText)[1] || 'some ra';
 
         // send to make UFABC HELP using data from students
-        $.get('https://aluno.ufabc.edu.br' + fichaAlunoUrl, function(data) {
-            $.post('https://desolate-lake-30493.herokuapp.com/api/history', {ra : ra, data: data}, function (data) {
-                console.log(data)
-            })
+        $.get('https://aluno.ufabc.edu.br' + fichaAlunoUrl, async function(data) {
+          await Api.post('/histories', { ra: ra, disciplinas: data })
         })
 
         curso.cp = toNumber(info[0]);

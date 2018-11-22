@@ -1,7 +1,8 @@
 /* Keep in mind that when you inject main.css you inject all this files to the website */
 @import "../../node_modules/toastr/build/toastr.min.css";
-@import "../../node_modules/element-ui/lib/theme-chalk/index.css";
+/*@import "../../node_modules/element-ui/lib/theme-chalk/index.css";*/
 @import "../../node_modules/vuetify/dist/vuetify.min.css";
+
 /* fallback */
 @font-face {
   font-family: 'Material Icons';
@@ -9,6 +10,8 @@
   font-weight: 400;
   src: url(https://fonts.gstatic.com/s/materialicons/v41/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2) format('woff2');
 }
+
+@import url('https://fonts.googleapis.com/css?family=Ubuntu');
 
 .material-icons {
   font-family: 'Material Icons';
@@ -26,6 +29,27 @@
   -webkit-font-smoothing: antialiased;
 }
 
+#sessao {
+  top: 20px;
+  right: 141px;
+  position: fixed;
+  z-index: 1;
+  background-color: transparent;
+  border-radius: 3px;
+  font-family: Ubuntu;
+  font-size: 14px;
+  text-align: center;
+  /* color: #f95469; */
+  padding: 3px;
+  border: none;
+}
+
+#sessao > .tempo {
+  display: none;
+}
+.highcharts-credits {
+    display: none;
+}
 
 .ufabc-extension-font {
     font-size: 11px;
@@ -203,4 +227,251 @@
 
 .notHigh {
     display: none;
+}
+
+
+
+
+
+/* Grid helpers */
+.ufabc-flex {
+  flex: 1 1 auto;
+}
+
+.ufabc-no-flex {
+  flex: none !important;
+}
+
+.ufabc-no-shrink {
+  flex-shrink: 0;
+}
+
+.ufabc-no-grow {
+  flex-grow: 0;
+}
+
+.ufabc-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.ufabc-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.ufabc-row-reverse {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.ufabc-row > .ufabc-scroll-y {
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 0;
+}
+.ufabc-column > .ufabc-scroll-y {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 0;
+}
+
+/*
+  Flexbox helpers
+*/
+.ufabc-justify-top {
+  justify-content: flex-start;
+}
+.ufabc-justify-middle {
+  justify-content: center;
+}
+.ufabc-justify-bottom {
+  justify-content: flex-end;
+}
+
+
+.ufabc-align-start {
+  align-items: flex-start;
+}
+.ufabc-align-center {
+  align-items: center;
+}
+.ufabc-align-end {
+  align-items: flex-end;
+}
+
+.ufabc-float-right {
+  float: right;
+}
+
+.ufabc-float-left {
+  float: left;
+}
+
+.ufabc-float-none {
+  float: none;
+}
+/* 
+  Divider styles 
+*/
+.ufabc-column > .ufabc-divider {
+  flex: 0;
+}
+
+.ufabc-divider-overlay-below {
+  position: relative;
+  top: 1px;
+  z-index: 1;
+  background-color: rgba(0, 0, 0, 0.06) !important
+}
+
+/* 
+  Positions helpers
+*/
+.ufabc-static {
+  position: static;
+}
+.ufabc-relative {
+  position: relative;
+}
+.ufabc-absolute {
+  position: absolute;
+}
+.ufabc-fixed {
+  position: fixed;
+}
+
+/* 
+  Flexbox helpers 
+*/
+.ufabc-flex-wrap {
+  flex-wrap: wrap;
+}
+.ufabc-space-around {
+  justify-content: space-around;
+}
+
+
+.ufabc-element-switch  .el-switch__label *{
+  font-size: 13px;
+}
+
+.ufabc-element-dialog .el-dialog__body {
+  padding-top: 16px;
+}
+
+/* Custom Card elevations */
+.elevate-3d {
+  transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+  cursor: pointer;
+}
+.elevate-3d:hover {
+  box-shadow: 0px 5px 26px -4px rgba(0, 0, 0, 0.2) !important;
+  transform: translateY(-3px);
+}
+.elevate-1 {
+  box-shadow: 0 1px 4px -1px rgba(0,0,0,.2) !important
+}
+
+.elevate-2 {
+  box-shadow: 0 2px 7px -1px rgba(0,0,0,.2) !important;
+}
+
+.elevate-3 {
+  box-shadow: 0px 5px 26px -4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* 
+  Borders
+*/
+.border-right {
+  border-right: 1px solid rgba(0,0,0,0.07)!important;
+}
+.border-left {
+  border-left: 1px solid rgba(0,0,0,0.07) !important;
+}
+.border-top {
+  border-top: 1px solid rgba(0,0,0,0.07)!important;
+}
+.border-bottom {
+  border-bottom: 1px solid rgba(0,0,0,0.07)!important;
+}
+.border {
+  border: 1px solid rgba(0,0,0,0.07)!important; 
+}
+
+.border-right-lighten-3 {
+  border-right: 3px solid #f4f5f7!important;
+}
+.border-left-lighten-3 {
+  border-left: 3px solid #f4f5f7!important;
+}
+.border-top-lighten-3 {
+  border-top: 3px solid #f4f5f7!important;
+}
+.border-bottom-lighten-3 {
+  border-bottom: 3px solid #f4f5f7!important;
+}
+.border-lighten-3 {
+  border: 3px solid #f4f5f7!important; 
+}
+
+.no-border { 
+  border: none !important;
+}
+
+/* 
+ * Webkit Scrollbar 
+ */
+ *::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+  overflow: hidden;
+  background: transparent;
+}
+
+.native.win32 *::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2)
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.08)
+}
+
+/* 
+ * Cursor helpers
+ */
+.ufabc-cursor-pointer {
+  cursor: pointer !important;
+}
+/* 
+ * Custom table
+ */
+.kicks-table > el-table, 
+.kicks-table tr, 
+.kicks-table td, 
+.kicks-table th {
+  border: none !important;
+  text-align: center !important;
+}
+
+.el-table .aluno-row {
+  background-color: #B7D3FF !important;
+}
+
+.el-table .kicked-row {
+  color: #f95469 !important;
+}
+
+.el-table .not-kicked-row {
+  color: #3fcf8c !important;
+}
+
+.ufabc-cursor-grabbing .v-chip__content {
+  cursor: move !important;
 }

@@ -1,0 +1,133 @@
+@import "../../node_modules/toastr/build/toastr.min.css";
+
+@import url('https://fonts.googleapis.com/css?family=Ubuntu');
+@import url('https://fonts.googleapis.com/css?family=Lato');
+
+/*
+#conteudo #page > h2 {
+  width: 100%;
+  margin-bottom: 18px;
+  font-family: Lato;
+  font-size: 30px;
+  font-weight: bold;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 1.07;
+  letter-spacing: normal;
+  color: #3cbb80;
+  border: none;
+  display: block;
+  margin-top: 20px;
+}
+
+
+#conteudo #page > p:nth-child(2) {
+   font-family: Lato;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 1.38;
+  letter-spacing: normal;
+  color: rgba(0, 0, 0, 0.75); 
+}
+
+#conteudo #page > p:nth-child(3) {
+  height: 48px;
+  border-radius: 2px;
+  background-color: #f3f6f7;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0, 0, 0, 0.75);
+  font-family: Lato;
+  font-size: 18px;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+#conteudo #page > p:nth-child(3) > b {
+  display: none;
+}
+#conteudo #page > p:nth-child(4) {
+  font-family: Lato;
+  font-size: 14px;
+}
+
+
+#conteudo table.ficha_individual tr.cabecalho {
+  height: 36px;
+  background-color: #56cdb7;
+  border-top-left-radius: 8px;
+}
+
+#conteudo table.ficha_individual tr > th {
+  background-color: transparent;
+  font-family: Lato;
+  font-size: 12px;
+  font-weight: bold;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 2.67;
+  letter-spacing: normal;
+  color: #ffffff;
+}
+#conteudo table.ficha_individual tr.cabecalho > th:first-child {
+  display: none;
+}
+#conteudo table.ficha_individual tr.cabecalho > th:nth-child(2) {
+  text-align: left;
+  padding-left: 16px;
+  border-top-left-radius: 8px;
+}
+#conteudo table.ficha_individual tr.cabecalho > th:last-child {
+  border-top-right-radius: 8px;
+}
+
+#conteudo table.ficha_individual tr > td:first-child:not(.ano_periodo) {
+  display: none;
+}
+
+
+#conteudo table.ficha_individual td.ano_periodo {
+  background: #fff;
+  font-family: Lato;
+  font-size: 11px;
+  text-align: left;
+  height: 36px;
+  padding: 0px;
+  padding-left: 16px;
+  color: #000;
+  border: none;
+}
+
+#conteudo .ficha_individual tr td{
+  font-family: Lato;
+  border: none;
+  background-color: #f3f6f7;
+}
+#conteudo .ficha_individual tr {
+  height: 36px;
+}
+
+#conteudo .ficha_individual tr > td:nth-child(2){
+  padding-left: 16px;
+  font-size: 14px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 2.29;
+  letter-spacing: normal;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+#conteudo .ficha_individual tr > td:nth-child(3){
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 2;
+  letter-spacing: normal;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.5);
+}*/
