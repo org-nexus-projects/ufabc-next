@@ -132,8 +132,8 @@ function Matricula() {
 
   // find courseId for this season
   function findIdForCurso(name){
-    if (name == 'Bacharelado em Ciências da Computação') {
-        name = 'Bacharelado em Ciência da Computação'
+    if ( _.camelCase(name)  == _.camelCase('Bacharelado em Ciências da Computação')) {
+      name = 'Bacharelado em Ciência da Computação'
     }
     // normalize to camelCase
     name = _.camelCase(name)
@@ -156,21 +156,21 @@ function Matricula() {
     var current_user = currentUser()
     chrome.storage.local.get(current_user, async function (item) {
       if (item[current_user] != null) {
-        item = item[current_user];
+        let currentUser = item[current_user];
         // remove as disciplinas cursadas
-        for (var i = 0; i < item.length; i++) {
-          delete item[i].cursadas;
+        for (var i = 0; i < currentUser.length; i++) {
+          delete currentUser[i].cursadas;
         }
 
         // find curso ID
-        item = item.map(function(info){
+        currentUser = currentUser.map(function(info){
           info.curso_id = findIdForCurso(info.curso);
           return info;
         })
 
         await Api.post('/students', {
           aluno_id: aluno_id,
-          cursos: item
+          cursos: currentUser
         })
       }       
     })

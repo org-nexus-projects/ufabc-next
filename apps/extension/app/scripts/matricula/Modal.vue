@@ -4,7 +4,7 @@
     @close="closeDialog()"
     :visible="value.dialog"
     light
-    width="520px"
+    width="720px"
     class="ufabc-element-dialog">
     <div v-loading="loading"
       element-loading="Carregando">
@@ -44,12 +44,43 @@
           * Arraste para alterar a ordem dos critérios
         </div>
       </div>
+      <!-- subtitle -->
+      <div class="border mb-2 pa-2">
+          <div class="mb-2">Legenda</div>
+        <div class="ufabc-row" style="justify-content: space-between;">
+          <!-- You-->
+          <div class="ufabc-row ufabc-align-center">
+            <div class="aluno mr-1" style="width: 12px; height: 12px;">
+            </div>
+            <span>Você</span>
+          </div>
+          <!-- kicked-->
+          <div class="ufabc-row ufabc-align-center">
+            <div class="kicked mr-1" style="width: 12px; height: 12px;">
+            </div>
+            <span>Certeza de chute</span>
+          </div>
+          <!-- probably-kicked-->
+          <div class="ufabc-row ufabc-align-center">
+            <div class="probably-kicked mr-1" style="width: 12px; height: 12px;">
+            </div>
+            <span>Provavelmente será chutado</span>
+          </div>
+          <!-- not-kicked-->
+          <div class="ufabc-row ufabc-align-center">
+            <div class="not-kicked mr-1" style="width: 12px; height: 12px;">
+            </div>
+            <span>Provavelmente não será chutado</span>
+          </div>
+        </div>
+      </div>
       <!-- Table -->
       <el-table
         :data="transformed"
         max-height="250"
         style="width: 100%"
         empty-text="Não há dados"
+        :row-class-name="tableRowClassName"
         class="elevate-3 kicks-table">
         <el-table-column
           type="index"
@@ -75,6 +106,7 @@
   import draggable from 'vuedraggable'
   import Api from '../helpers/api'
   import MatriculaHelper from '../helpers/matricula'
+  import TransformDisciplinas from '../helpers/disciplinas.js'
 
   export default {
     name: 'Modal',
@@ -134,7 +166,25 @@
         }
 
         return base
+      },
+
+      getRequests() {
+        console.log('this.disciplina', this.disciplina)
+        return _.reduce(matriculas, (a, c) => c.includes(this.disciplina.id.toString()) ? a + 1 : a, 0) 
+      },
+
+      computeKicksForecast() {
+        console.log("kicksData", this.kicksData.length)
+        console.log("disciplina", this.disciplina.vagas)
+        console.log("getRequests", this.getRequests)
+
+        return this.kicksData.length * this.disciplina.vagas/this.getRequests
+      },
+      
+      parsedDisciplina() {
+        return TransformDisciplinas(this.disciplina) 
       }
+      
     },
 
     methods: {
@@ -162,8 +212,17 @@
       },
 
       resort(e) {
+        console.log('TransformDisciplinas', TransformDisciplinas(this.disciplina))
         const sortOrder = _.map(this.headers, 'value')
         const sortRef = Array(sortOrder.length || 0).fill('desc')
+        
+        console.log('SORTT ORDER', sortOrder)
+
+        const turnoIndex = sortOrder.indexOf('turno')
+        if(turnoIndex != -1) {
+          sortRef[turnoIndex] = (this.parsedDisciplina.turno == 'diurno') ? 'asc' : 'desc'
+        }
+
         this.kicksData = _.orderBy(this.kicksData, sortOrder, sortRef)
       },
 
@@ -182,13 +241,27 @@
         this.value.dialog = false
       },
 
+      // kickStatus(rowIndex) {
+      //   console.log("rowIndex", rowIndex)
+      //   console.log("this.computeKicksForecast", this.computeKicksForecast)
+      //   if(rowIndex <= this.computeKicksForecast) {
+      //     return 'not-kicked'
+      //   }else if(rowIndex >= this.disciplina.vagas){
+      //     return 'kicked'
+      //   }else {
+      //     return 'probably-kicked'
+      //   }
+      // },
+
       tableRowClassName({row, rowIndex}) {
         if (row.aluno_id == MatriculaHelper.getAlunoId()) {
           return 'aluno-row'
-        } else if (row.kicked) {
-          return 'kicked-row'
-        } else {
+        } else if(rowIndex <= this.computeKicksForecast) {
           return 'not-kicked-row'
+        }else if(rowIndex >= this.disciplina.vagas){
+          return 'kicked-row'
+        }else {
+          return 'probably-kicked-row'
         }
       }
     },

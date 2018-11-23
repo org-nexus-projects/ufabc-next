@@ -456,7 +456,10 @@
 .kicks-table tr, 
 .kicks-table td, 
 .kicks-table th {
-  border: none !important;
+  /* border: none !important; */
+  border-width: 0px 0px 1px 0px !important;
+  border-color: #ebeef5 !important;
+  border-style: solid !important;
   text-align: center !important;
 }
 
@@ -468,8 +471,28 @@
   color: #f95469 !important;
 }
 
+.el-table .probably-kicked-row {
+  color: #f3a939 !important;
+}
+
 .el-table .not-kicked-row {
   color: #3fcf8c !important;
+}
+
+.aluno {
+  background-color: #B7D3FF !important;
+}
+
+.kicked {
+  background-color: #f95469 !important;
+}
+
+.probably-kicked {
+  background-color: #f3a939 !important;
+}
+
+.not-kicked {
+  background-color: #3fcf8c !important;
 }
 
 .ufabc-cursor-grabbing .v-chip__content {
