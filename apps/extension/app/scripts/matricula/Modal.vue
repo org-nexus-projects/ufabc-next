@@ -144,7 +144,10 @@
     computed: {
       transformed() {
         return this.kicksData.map(d => {
-          return _.assign(_.clone(d), { reserva: d.reserva ? 'Sim' : 'Nao'})
+          return _.assign(_.clone(d), {
+            reserva: d.reserva ? 'Sim' : 'Não',
+            ik: d.ik.toFixed(3)
+          })
         })
       },
 
@@ -169,16 +172,11 @@
       },
 
       getRequests() {
-        console.log('this.disciplina', this.disciplina)
         return _.reduce(matriculas, (a, c) => c.includes(this.disciplina.id.toString()) ? a + 1 : a, 0) 
       },
 
       computeKicksForecast() {
-        console.log("kicksData", this.kicksData.length)
-        console.log("disciplina", this.disciplina.vagas)
-        console.log("getRequests", this.getRequests)
-
-        return this.kicksData.length * this.disciplina.vagas/this.getRequests
+        return (this.kicksData.length * this.disciplina.vagas) / this.getRequests
       },
       
       parsedDisciplina() {
@@ -212,11 +210,8 @@
       },
 
       resort(e) {
-        console.log('TransformDisciplinas', TransformDisciplinas(this.disciplina))
         const sortOrder = _.map(this.headers, 'value')
         const sortRef = Array(sortOrder.length || 0).fill('desc')
-        
-        console.log('SORTT ORDER', sortOrder)
 
         const turnoIndex = sortOrder.indexOf('turno')
         if(turnoIndex != -1) {

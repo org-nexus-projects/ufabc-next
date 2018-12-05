@@ -161,18 +161,17 @@
           return
         }
 
-        chrome.runtime.sendMessage(Utils.EXTENSION_ID, {
-          method: 'storage', 
-          key: MatriculaHelper.currentUser()
-        }, function(item) {
-          if (item == null) {
+        const storageUser = 'ufabc-extension-' + MatriculaHelper.currentUser()
+        Utils.storage.getItem(storageUser).then(cursadas => {
+          if(cursadas == null) {
             self.$notify({
               message: 'Não temos as diciplinas que você cursou, acesse o Portal do Aluno'
             })
             return
           }
+
           // se nao tiver nada precisa mandar ele cadastrar
-          var todas_cursadas = _(item[0].cursadas)
+          var todas_cursadas = _(cursadas[0].cursadas)
             .filter(d => ['A', 'B', 'C', 'D', 'E'].includes(d.conceito))
             .map('disciplina')
             .value()
@@ -189,6 +188,19 @@
             }
           })
         })
+
+        // chrome.runtime.sendMessage(Utils.EXTENSION_ID, {
+        //   method: 'storage', 
+        //   key: 
+        // }, function(item) {
+        //   if (item == null) {
+        //     self.$notify({
+        //       message: 'Não temos as diciplinas que você cursou, acesse o Portal do Aluno'
+        //     })
+        //     return
+        //   }
+          
+        // })
       },
       changeTeachers() {
         let self = this
@@ -203,12 +215,9 @@
           return;
         }
 
-        chrome.runtime.sendMessage(Utils.EXTENSION_ID, {
-          method: 'storage', 
-          key: 'ufabc-extension-disciplinas'
-        }, async function(item) {
+        Utils.storage.getItem('ufabc-extension-disciplinas').then(async item => {
           if (item == null) {
-            return
+            item = await MatriculaHelper.getProfessors()
           }
           
           const disciplinaMap = new Map([...item.map(d => [d.disciplina_id.toString(), d])])

@@ -3,6 +3,7 @@ import Api from './api'
 import var2json from './parse/var2json'
 import _ from 'lodash'
 import $ from 'jquery'
+import Utils from './utils'
 
 module.exports = new Matricula()
 
@@ -15,14 +16,26 @@ function Matricula() {
 
   // check if we need to update our localStorage of professors
   // based when you did this last request
-  async function updateProfessors(items) {
-    let lastTime = _.get(items, 'ufabc-extension-last', null)
+  async function updateProfessors(data) {
+    let lastTime = data
     let timeDiff = (Date.now() - lastTime) / (1000 * 60)
 
     await getProfessors()
     if(!lastTime || timeDiff > 0.2) {
       await getProfessors()
     }
+  }
+
+  // fetch professors url and save them into localStorage
+  async function getProfessors () {
+    try {
+      let professors = await Api.get('/disciplinas')
+      await Utils.storage.setItem('ufabc-extension-last', Date.now())
+      await Utils.storage.setItem('ufabc-extension-disciplinas', professors)
+      return professors
+    } catch(e) {
+      console.log(e.status)
+    }   
   }
 
   // disciplinas que mudaram de nome (HARDCODED)
@@ -32,17 +45,6 @@ function Matricula() {
     "Transformações Bioquímicas" : "Bioquímica: estrutura, propriedade e funções de Biomoléculas",
     "Transformações Bioquímicas" : "Bioquímica: Estrutura, Propriedade e Funções de Biomoléculas",
     "Origem da Vida e Diversidade dos Seres Vivos" : "Evolução e Diversificação da Vida na Terra",
-  }
-
-  // fetch professors url and save them into localStorage
-  async function getProfessors () {
-    try {
-      let professors = await Api.get('/disciplinas')
-      chrome.storage.local.set({'ufabc-extension-last': Date.now() })
-      chrome.storage.local.set({'ufabc-extension-disciplinas': professors })
-    } catch(e) {
-      console.log(e)
-    }   
   }
 
   function findQuadFromDate(month) {
@@ -151,28 +153,23 @@ function Matricula() {
   }
 
   // send aluno data
-  function sendAlunoData () {
-    var aluno_id = getAlunoId()
-    var current_user = currentUser()
-    chrome.storage.local.get(current_user, async function (item) {
-      if (item[current_user] != null) {
-        let currentUser = item[current_user];
-        // remove as disciplinas cursadas
-        for (var i = 0; i < currentUser.length; i++) {
-          delete currentUser[i].cursadas;
-        }
+  async function sendAlunoData () {
+    const storageUser = 'ufabc-extension-' + currentUser()
+    const user = await Utils.storage.getItem(storageUser)
 
-        // find curso ID
-        currentUser = currentUser.map(function(info){
-          info.curso_id = findIdForCurso(info.curso);
-          return info;
-        })
+    if(!user) return
 
-        await Api.post('/students', {
-          aluno_id: aluno_id,
-          cursos: currentUser
-        })
-      }       
+    // remove as disciplinas cursadas
+    for (var i = 0; i < user.length; i++) {
+      delete user[i].cursadas;
+    }
+
+    await Api.post('/students', {
+      aluno_id: getAlunoId(),
+      cursos: user.map(function(info){
+        info.curso_id = findIdForCurso(info.curso);
+        return info;
+      })
     })
   }
  

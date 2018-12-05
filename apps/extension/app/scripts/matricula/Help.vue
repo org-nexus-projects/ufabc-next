@@ -280,12 +280,10 @@
 
       fetchStudent() {
         let self = this
-        chrome.runtime.sendMessage(Utils.EXTENSION_ID, {
-          method: 'storage', 
-          key: MatriculaHelper.currentUser()
-        }, function(item) {
-          if (item == null) return
 
+        const storageUser = 'ufabc-extension-' + MatriculaHelper.currentUser()
+        Utils.storage.getItem(storageUser).then(item => {
+          if (item == null) return
           self.student_cr = _.get(item, '[1].cr', 0) || _.get(item, '[0].cr', 0)
         })
       },

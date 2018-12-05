@@ -1,26 +1,17 @@
 // https://crx.dam.io/ext/gphjopenfpnlnffmhhhhdiecgdcopmhk.html
+// add extension id to window
+const isBrowser = typeof chrome != "undefined" && !!chrome.storage
+// var script = document.createElement('script');
+// const extension_id = isBrowser ? chrome.i18n.getMessage("@@extension_id") : null;
+// script.innerHTML = `extension_id = "${extension_id}"`;
+// (document.head || document.documentElement).appendChild(script)
+
 import $ from 'jquery'
-import _ from 'lodash'
-
-import toastr from 'toastr'
 import Utils from './helpers/utils'
-import Api from './helpers/api'
-import Axios from 'axios'
-import Mustache from 'mustache'
 import MatriculaHelper from './helpers/matricula'
-import Identifier from './helpers/parse/identifier'
-
-import Vue from 'vue';
-import Vuetify from 'vuetify'
-import ElementUI from 'element-ui';
-Vue.use(Vuetify)
-Vue.use(ElementUI)
-import Modal from './matricula/Modal.vue'
-import Help from './matricula/Help.vue'
 
 // CSS imports
 import "element-ui/lib/theme-chalk/index.css"
-// import "vuetify/dist/vuetify.min.css"
 
 let matricula_url
 
@@ -31,6 +22,9 @@ if (process.env.NODE_ENV == 'production') {
   ]
 } else {
    matricula_url = [
+    'matricula.ufabc.edu.br/matricula',
+    'ufabc-matricula.cdd.naoseiprogramar.com.br/snapshot',
+    'ufabc-matricula.cdd.naoseiprogramar.com.br/snapshot/backup.html',
     'ufabc-matricula-test.cdd.naoseiprogramar.com.br/snapshot',
     'ufabc-matricula-test.cdd.naoseiprogramar.com.br/snapshot/backup.html',
     'locahost:8011/snapshot',
@@ -38,16 +32,29 @@ if (process.env.NODE_ENV == 'production') {
   ]
 }
 
-chrome.storage.local.get('ufabc-extension-last', MatriculaHelper.updateProfessors)
+if(!isBrowser) {
+  console.log('Not running on browser!')
+  load()
+} else {
+  window.addEventListener('load', load)
+}
 
-// quando carrega qualquer pagina fazemos isto
-window.addEventListener('load', async function() {
+async function load() {
   const currentUrl = document.location.href;
+
+  // add cross-domain local storage
+  Utils.injectScript('scripts/lib/xdLocalStorage.min.js')
+  Utils.injectIframe('pages/iframe.html')
+  Utils.injectScript('scripts/lib/init.js')
 
   require('./portal/portal')
 
   if(matricula_url.some(url => currentUrl.indexOf(url) != -1)) {
-    setTimeout(() => {
+    // update teachers locally
+    setTimeout(async () => {
+      const lastUpdate = await Utils.storage.getItem('ufabc-extension-last')
+      MatriculaHelper.updateProfessors(lastUpdate).then(r => console.log(r))
+
       // this is the main vue app
       // i.e, where all the filters live
       const anchor = document.createElement('div')
@@ -79,4 +86,4 @@ window.addEventListener('load', async function() {
       Utils.injectScript('scripts/main.js')
     }, 1500)
   }
-})
+}
