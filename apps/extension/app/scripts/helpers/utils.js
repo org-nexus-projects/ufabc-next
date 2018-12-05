@@ -107,7 +107,7 @@ module.exports = new (function (){
       const prefix = is.chrome() ? 'chrome-extension://' : 'moz-extension://'
       return prefix + EXTENSION_ID + '/' + link.replace(/^\//, '')
     } else {
-      return 'https://b2be3eb2.ngrok.io/static/' + link.replace(/^\//, '')
+      return 'https://ufabc-extension.naoseiprogramar.com.br/static/' + link.replace(/^\//, '')
     }
     
   }
