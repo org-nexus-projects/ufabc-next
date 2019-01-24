@@ -1,20 +1,21 @@
 import $ from 'jquery'
+import _ from 'lodash'
 
-chrome.storage.local.get(function (items) {
-  var users = [];
-  var exists = false;
-  if (items) {
-    for (var key in items) {
-      if (items[key][0].cp != null) {
-        exists = true;
-        users.push(key);
-      };
-    }
-    if (exists) {
-      $( 'p' ).replaceWith( 'Cadastrado para:' + users);
-    }
-  }
-})
+// chrome.storage.local.get(function (items) {
+//   var users = [];
+//   var exists = false;
+//   if (items) {
+//     for (var key in items) {
+//       if (_.get(items[key], '[0].cp', null) != null) {
+//         exists = true;
+//         users.push(key);
+//       };
+//     }
+//     if (exists) {
+//       $( 'p' ).replaceWith( 'Cadastrado para:' + users);
+//     }
+//   }
+// })
 
 import Vue from 'vue';
 import App from './popup/App.vue';

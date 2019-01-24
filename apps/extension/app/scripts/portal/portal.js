@@ -1,7 +1,10 @@
 import toastr from 'toastr'
 import $ from 'jquery'
+import _ from 'lodash'
 import Utils from '../helpers/utils'
 import Api from '../helpers/api'
+import Axios from 'axios'
+import MatriculaHelper from '../helpers/matricula'
 
 if (isIndexPortalAluno()) {
   const anchor = document.createElement('div')
@@ -11,16 +14,12 @@ if (isIndexPortalAluno()) {
 
   Utils.injectStyle('styles/portal.css')
   toastr.info("Clique em <a href='https://aluno.ufabc.edu.br/fichas_individuais' style='color: #FFF !important;'>Ficha Individual</a> para atualizar suas informações!");
-} 
-else if (isFichasIndividuaisPath()) {
+}  else if (isFichasIndividuaisPath()) {
   Utils.injectStyle('styles/portal.css');
   toastr.info('A mágica começa agora...');
-    
-  clearAlunoStorage(getEmailAluno());
 
   iterateTabelaCursosAndSaveToLocalStorage();
-}
-else if(isFichaIndividualPath()) {
+} else if (isFichaIndividualPath()) {
   Utils.injectStyle('styles/portal.css');
 };
 
@@ -44,48 +43,39 @@ function iterateTabelaCursosAndSaveToLocalStorage () {
 
   var tabelaCursos = $('tbody').children().slice(1);
 
-    tabelaCursos.each(function () {
-      var linhaCurso = $(this).children();
+  tabelaCursos.each(async function () {
+    var linhaCurso = $(this).children();
+    var fichaAlunoUrl = $(linhaCurso[1]).children('a').attr('href');
+    
+    const curso = await getFichaAluno(fichaAlunoUrl)
+    curso.curso = linhaCurso[0].innerText.replace("Novo", '');
+    curso.turno = linhaCurso[3].innerText;
 
-      var fichaAlunoUrl = $(linhaCurso[1]).children('a').attr('href');
-      
-      getFichaAluno(fichaAlunoUrl, function(curso) {
-        curso.curso = linhaCurso[0].innerText.replace("Novo", '');
-        curso.turno = linhaCurso[3].innerText;
-
-        saveToLocalStorage(aluno, curso);
-      });
-    });
+    await saveToLocalStorage(aluno, curso);
+  })
 }
 
-function getFichaAluno(fichaAlunoUrl, cb) {
+async function getFichaAluno(fichaAlunoUrl, cb) {
   var curso = {};
+  var ficha_url = fichaAlunoUrl.replace('.json', '');
 
-    var ficha_url = fichaAlunoUrl.replace('.json', '');
+  const ficha = await Axios.get('https://aluno.ufabc.edu.br' + ficha_url)
+  const ficha_obj = $($.parseHTML(ficha.data))
+  
+  const info = ficha_obj.find('.coeficientes tbody tr td');
+  const ra = /.*?(\d+).*/g.exec(ficha_obj.find("#page").children('p')[2].innerText)[1] || 'some ra';
 
+  const jsonFicha = await Axios.get('https://aluno.ufabc.edu.br' + fichaAlunoUrl)
+  await Api.post('/histories', { ra: ra, disciplinas: jsonFicha.data })
 
-    $.get('https://aluno.ufabc.edu.br' + ficha_url, function(data) {
-        var ficha_obj = $($.parseHTML(data));
+  curso.cp = toNumber(info[0]);
+  curso.cr = toNumber(info[1]);
+  curso.ca = toNumber(info[2]);
+  curso.quads = ficha_obj.find(".ano_periodo").length;
 
-        var info = ficha_obj.find('.coeficientes tbody tr td');
+  curso.cursadas = jsonFicha.data;
 
-        var ra = /.*?(\d+).*/g.exec(ficha_obj.find("#page").children('p')[2].innerText)[1] || 'some ra';
-
-        // send to make UFABC HELP using data from students
-        $.get('https://aluno.ufabc.edu.br' + fichaAlunoUrl, async function(data) {
-          await Api.post('/histories', { ra: ra, disciplinas: data })
-        })
-
-        curso.cp = toNumber(info[0]);
-        curso.cr = toNumber(info[1]);
-        curso.ca = toNumber(info[2]);
-        curso.quads = ficha_obj.find(".ano_periodo").length;
-
-        $.get( 'https://aluno.ufabc.edu.br' + fichaAlunoUrl, function(data) {
-            curso.cursadas = data;
-            cb(curso);
-        });
-    });   
+  return curso 
 }
 
 function getEmailAluno() {
@@ -97,21 +87,17 @@ function getEmailAluno() {
     .replace(' ','');
 }
 
-function clearAlunoStorage(aluno) {
-  var tmp_obj = {};
-    tmp_obj[aluno] = [];
-    chrome.storage.local.set(tmp_obj);
-}
-
 function toNumber(el) {
   return parseFloat(el.innerText.replace(',', '.'));
 }
 
-function saveToLocalStorage(aluno, curso) {
-  chrome.storage.local.get(aluno, function (data) {
-      data[aluno].push(curso);
-      console.log(data);
-    chrome.storage.local.set(data);
-    toastr.info('Salvando disciplinas do curso do ' + curso.curso + ' para o usuário ' + aluno + '.');
-  })
+async function saveToLocalStorage(aluno, curso) {
+  const storageUser = 'ufabc-extension-' + getEmailAluno()
+  let user = await Utils.storage.getItem(storageUser)
+
+  if(!user) user = []
+  user.push(curso)
+  user = _.uniqBy(user, 'curso')
+  await Utils.storage.setItem(storageUser, user)
+  toastr.info('Salvando disciplinas do curso do ' + curso.curso + ' para o usuário ' + aluno + '.')
 }

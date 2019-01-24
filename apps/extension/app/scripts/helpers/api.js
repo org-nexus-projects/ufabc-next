@@ -9,14 +9,17 @@ function resolveEndpoint(env) {
     'production'  : 'https://ufabc-matricula.cdd.naoseiprogramar.com.br/v1'
   }[env] || 'http://localhost:8011/v1'
 }
-
 function Api() {
+
   this.baseURL = resolveEndpoint(process.env.NODE_ENV)
 
   this.axios = Axios.create({
     baseURL: this.baseURL,
-    timeout: this.timeout,
-    headers: this.headers,
+    timeout: 5000,
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
   })
 
   this.axios.interceptors.response.use(function (response) {

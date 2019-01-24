@@ -1,8 +1,14 @@
 import $ from 'jquery'
 import Axios from 'axios'
+import is from 'is_js'
+import xdLocalStorage from '../lib/xdLocalStorage.min.js'
 
 module.exports = new (function (){
-  const EXTENSION_ID = 'gphjopenfpnlnffmhhhhdiecgdcopmhk'
+  // force initialization of xdLocalStorage
+  window.xdLocalStorage.init({ iframeUrl: getExtensionUrl('/pages/iframe.html')})
+
+  const IS_BROWSER = typeof chrome != "undefined" && !!chrome.storage
+  const EXTENSION_ID = IS_BROWSER ? chrome.i18n.getMessage("@@extension_id") : null
 
   var getChromeUrl = function (url) {
     return getExtensionUrl(url);
@@ -27,6 +33,41 @@ module.exports = new (function (){
     }
   }
 
+  function getBrowser() {
+    // Opera 8.0+
+    var isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+
+    // Firefox 1.0+
+    var isFirefox = typeof InstallTrigger !== 'undefined';
+
+    // Safari 3.0+ "[object HTMLElementConstructor]" 
+    var isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || safari.pushNotification);
+
+    // Internet Explorer 6-11
+    var isIE = /*@cc_on!@*/false || !!document.documentMode;
+
+    // Edge 20+
+    var isEdge = !isIE && !!window.StyleMedia;
+
+    // Chrome 1+
+    var isChrome = !!window.chrome && !!window.chrome.webstore;
+
+    // Blink engine detection
+    var isBlink = (isChrome || isOpera) && !!window.CSS;
+
+    var result = 
+        isOpera ? 'opera' :
+        isFirefox ? 'firefox' :
+        isSafari ? 'safari' :
+        isChrome ? 'chrome' :
+        isIE ? 'ie' :
+        isEdge ? 'edge' :
+        isBlink ? 'blink' :
+        "Don't know";
+
+    return result
+  }
+
   var injectStyle = function(link) {
     var s = document.createElement("link");
       s.href = getExtensionUrl(link);
@@ -41,21 +82,49 @@ module.exports = new (function (){
       (document.head || document.documentElement).appendChild(s);
   }
 
+  var injectIframe = function (link) {
+    var s = document.createElement('iframe');
+      s.src = getExtensionUrl(link);
+      s.setAttribute('style', 'display: none;');
+      (document.body || document.documentElement).appendChild(s);
+  }
+
+  var storage = {
+    setItem(key, value) {
+      return new Promise((resolve, reject) => {
+        window.xdLocalStorage.setItem(key, JSON.stringify(value), function(data) { resolve(data) })
+      })
+    },
+    getItem(key) {
+      return new Promise((resolve, reject) => {
+        window.xdLocalStorage.getItem(key, function(data) { resolve(JSON.parse(data.value)) })
+      })
+    }
+  }
+
   function getExtensionUrl(link){
-    return 'chrome-extension://' + EXTENSION_ID + '/' + link.replace(/^\//, '')
+    if(EXTENSION_ID) {
+      const prefix = is.chrome() ? 'chrome-extension://' : 'moz-extension://'
+      return prefix + EXTENSION_ID + '/' + link.replace(/^\//, '')
+    } else {
+      return 'https://ufabc-extension.cdd.naoseiprogramar.com.br/static/' + link.replace(/^\//, '')
+    }
+    
   }
 
   var getFile = async function (link) {
     return (await Axios.get(getChromeUrl(link))).data
   }
-  
+
   return {
     getChromeUrl: getChromeUrl,
     injectScript: injectScript,
     injectDiv: injectDiv,
+    injectIframe: injectIframe,
     injectStyle: injectStyle,
     fetchChromeUrl: fetchChromeUrl,
+    getExtensionUrl: getExtensionUrl,
     getFile: getFile,
-    EXTENSION_ID
+    storage: storage,
   }
 })();
