@@ -1,0 +1,45 @@
+/* width */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #666; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+
+.hover-parent .hover-show-translucid {
+  opacity: 0.1;
+  transition: opacity 0.2s;
+}
+
+.hover-parent .hover-show {
+  opacity: 0.0;
+  transition: opacity 0.2s;
+}
+
+.hover-parent:hover .hover-show,
+.hover-parent:hover .hover-show-translucid {
+  opacity: 1;
+  transition-duration: 0.4s;
+}
+
+.hover-parent .hover-hide {
+  opacity: 1;
+  transition: opacity 0.2s;
+}
+
+.hover-parent:hover .hover-hide {
+  opacity: 0;
+  transition-duration: 0.4s;
+}

@@ -1,0 +1,121 @@
+:root {
+  --ufabcnext-green: #3fcf8c;
+  --ufabcnext-blue: #4F60ED;
+  --ufabcnext-darkgrey: rgba(0,0,0,0.8);
+  --ufabcnext-grey: rgba(0,0,0,0.5);
+  --ufabcnext-lightgrey: rgba(0,0,0,0.3);
+  --ufabcnext-navigation: #4527A0;
+  --ufabcnext-red: #e17472;
+  --ufabcnext-nav-blue: #409EFF;
+}
+
+
+/*
+ * Colors to components
+ */
+/* 
+  Green - Text color, border color and background color
+*/
+.ufabcnext-green {
+  background-color: var(--ufabcnext-green) !important;
+}
+.ufabcnext-green-outline {
+  border-color: var(--ufabcnext-green) !important;
+}
+.ufabcnext-green--text {
+  color: var(--ufabcnext-green) !important;
+}
+
+
+/* 
+  Blue - Text color, border color and background color
+*/
+.ufabcnext-blue {
+  background-color: var(--ufabcnext-blue) !important;
+}
+.ufabcnext-blue-outline {
+  border-color: var(--ufabcnext-blue) !important;
+}
+.ufabcnext-blue--text {
+  color: var(--ufabcnext-blue) !important;
+}
+
+/* 
+  Grey - Text color, border color and background color
+*/
+.ufabcnext-grey {
+  background-color: var(--ufabcnext-grey) !important;
+}
+.ufabcnext-grey-outline {
+  border-color: var(--ufabcnext-grey) !important;
+}
+.ufabcnext-grey--text {
+  color: var(--ufabcnext-grey) !important;
+}
+
+
+/* 
+  Light Grey - Text color, border color and background color
+*/
+.ufabcnext-lightgrey {
+  background-color: var(--ufabcnext-lightgrey) !important;
+}
+.ufabcnext-lightgrey-outline {
+  border-color: var(--ufabcnext-lightgrey) !important;
+}
+.ufabcnext-lightgrey--text {
+  color: var(--ufabcnext-lightgrey) !important;
+}
+
+/* 
+  Dark Grey - Text color, border color and background color
+*/
+.ufabcnext-darkgrey {
+  background-color: var(--ufabcnext-darkgrey) !important;
+}
+.ufabcnext-darkgrey-outline {
+  border-color: var(--ufabcnext-darkgrey) !important;
+}
+.ufabcnext-darkgrey--text {
+  color: var(--ufabcnext-darkgrey) !important;
+}
+
+/* 
+  Light Grey - Text color, border color and background color
+*/
+.ufabcnext-navigation {
+  background-color: var(--ufabcnext-navigation) !important;
+}
+.ufabcnext-navigation-outline {
+  border-color: var(--ufabcnext-navigation) !important;
+}
+.ufabcnext-navigation--text {
+  color: var(--ufabcnext-navigation) !important;
+}
+
+/* 
+  Red - Text color, border color and background color
+*/
+.ufabcnext-red {
+  background-color: var(--ufabcnext-red) !important;
+}
+.ufabcnext-red-outline {
+  border-color: var(--ufabcnext-red) !important;
+}
+.ufabcnext-red--text {
+  color: var(--ufabcnext-red) !important;
+}
+
+
+/* 
+  Red - Text color, border color and background color
+*/
+.ufabcnext-nav-blue {
+  background-color: var(--ufabcnext-nav-blue) !important;
+}
+.ufabcnext-nav-blue-outline {
+  border-color: var(--ufabcnext-nav-blue) !important;
+}
+.ufabcnext-nav-blue--text {
+  color: var(--ufabcnext-nav-blue) !important;
+}

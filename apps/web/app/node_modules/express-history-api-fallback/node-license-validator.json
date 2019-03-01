@@ -1,0 +1,7 @@
+{
+  "deep": true,
+  "production": true,
+  "allow-licenses": [
+    "ISC"
+  ]
+}

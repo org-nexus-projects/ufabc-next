@@ -1,0 +1,2366 @@
+/*--------- Contents -----------
+
+1. Reset css
+2. Navbar Styling
+3. Hero Section Styling
+4. About section 
+5. Features section Styling
+6. video Feature Styling 
+7. Counter Section
+8. Review Section
+9. Pricing Section
+10. Subscription FOrm
+11. Faq Section
+12. Footer Styling 
+13. All media queries
+-------------------------------*/
+
+/*----- 1. Reset.css -----*/
+
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+
+/* --- Common Styles ---*/
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'Montserrat';
+  font-size: 16px;
+}
+
+p {
+	font-family: 'Montserrat';
+	font-size: 14px;
+}
+
+/*----- Helper Classes -----*/
+
+html * {
+	text-rendering: optimizeLegibility !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+*, *:after, *:before {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.nopadding {
+	padding: 0;
+}
+
+.nomargin {
+	margin: 0 !important;
+}
+
+.custom-padding {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.bg-color {
+	background: #f8faff !important;
+}
+
+#loading {
+   width: 100%;
+   height: 100%;
+   top: 0px;
+   left: 0px;
+   position: fixed;
+   opacity: 1;
+   background-color: #F2F2F2;
+   z-index: 9999;
+   text-align: center;
+}
+
+#loading-image {
+	display: inline;
+    top: 40%;
+    position: relative;
+  z-index: 9999;
+}
+
+.error-message {
+	color: #FF3333;
+	font-family: "Montserrat";
+	margin-top: 5px;
+}
+
+.success-message {
+	color:#33cc33;
+	font-family: "Montserrat";
+	margin-top: 5px;
+}
+
+
+/*------ 2. Navbar Styling ------*/
+
+.navbar {
+  font-family: "Montserrat";
+	padding-top: 25px;
+	padding-bottom: 25px;
+	background-color: transparent !important;
+	-webkit-transition: 0.5s all ease;
+	transition: 0.5s all ease;
+}
+
+.navbar .navbar-brand {
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: #563D7C;
+}
+
+.navbar .navbar-toggler {
+	border: none;
+}
+
+.navbar span.navbar-toggler-icon::before {
+	outline: none;
+}
+
+.navbar .navbar-toggler:focus {
+	outline: none;
+}
+
+.navbar-nav {
+	text-align: center;
+	margin-top: 15px;
+	-webkit-transition: 0.5s all ease; /* For Safari 3.1 to 6.0 */
+	transition: 0.5s all ease;
+}
+
+.navbar-nav .nav-item {
+	margin-right: 0;
+	margin-top: 1.5rem;
+	font-size: 0.85rem;
+	font-weight: 400;
+  text-transform: capitalize;
+  color: #563D7C;
+}
+
+.navbar-nav .nav-item .nav-link {
+  color: #563D7C;
+	font-weight: 500;
+}
+
+.nav-white .nav-item .nav-link {
+	font-size: 0.9rem;
+	text-transform: capitalize;
+  color: #FFFFFF;
+}
+
+.nav-white .nav-item .nav-link:hover {
+  color: #F1F1F1;
+}
+
+.nav-white .navbar-brand {
+	color: #FFFFFF;
+}
+
+@media only screen and (max-width: 768px) {
+
+	.navbar {
+		background: rgba(255, 255, 255, 0.99) !important;
+		padding-top: 10px;
+		padding-bottom: 10px;
+	}
+	.nav-white .navbar-brand {
+		color: #4957B8;
+	}
+	.nav-white .nav-item .nav-link {
+		color: #4957B8;
+	}
+}
+
+@media only screen and (min-width: 240px) {
+
+.navbar.past-main {
+	padding-top: 15px;
+	padding-bottom: 15px;
+	background-color: rgba(255, 255, 255, 0.99) !important;
+	-webkit-box-shadow: 0 1px 5px 0 rgba(96, 96, 96, 0.3);
+	-moz-box-shadow: 0 1px 5px 0 rgba(96, 96, 96, 0.3);
+	box-shadow: 0 1px 5px 0 rgba(96, 96, 96, 0.3);
+}
+
+.navbar.effect-main {
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+}
+
+
+.nav-white.past-main .nav-item .nav-link {
+  color: #4957B8;
+	font-weight: 500;
+}
+
+.navbar.past-main .nav-item .nav-link {
+	font-weight: 500;
+}
+
+.nav-white.past-main .navbar-brand {
+	color: #4957B8;
+}
+
+.nav-white.effect-main {
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+}
+
+/*----------------------------------------------------------
+--------------- 3. Hero Home Styling Starts -------------------
+----------------------------------------------------------*/
+
+.hero-home {
+  padding: 150px 0 150px 0;
+	background: linear-gradient(to right, rgba(106, 17, 203, 0.95), rgba(37, 117, 252, 0.95)), url(../images/world-map.png) no-repeat center center;
+  background: url(../images/b.jpg) no-repeat center center;
+	background-size: cover;
+}
+
+.hero-home .intro-block {
+	padding: 50px 0 50px 0;
+	max-width: 800px;
+	margin: 0 auto;
+}
+
+.centered {
+	float: none !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.hero-home h4 {
+	font-family: 'Open Sans';
+	font-size: 12px;
+	font-weight: 500;
+	color: #FFF;
+	text-transform: uppercase;
+	line-height: 1.2;
+	letter-spacing: 2px;
+	margin-bottom: 20px;
+}
+
+.home-2 h4 {
+	font-family: 'Open Sans';
+	font-size: 12px;
+	font-weight: 500;
+	color: #b2bcc1;
+	text-transform: uppercase;
+	line-height: 1.2;
+	letter-spacing: 2px;
+	margin-bottom: 20px;
+}
+
+.home-2 img {
+	margin-top: 50px;
+}
+
+
+.hero-home h1 {
+	font-size: 32px;
+	font-weight: 700;
+	color: #FFFFFF;
+	color: #FFF;
+	line-height: 1.2;
+	letter-spacing: -1px;
+}
+
+.home-2 h1 {
+	font-size: 28px;
+	font-weight: 700;
+	color: #364655;
+	color: #FFF;
+	line-height: 1.2;
+	letter-spacing: -1px;
+}
+
+.hero-home p {
+	font-size: 14px;
+	font-weight: 300;
+	color: #EFEFEF;
+	color: #FFF;
+	line-height: 1.6;
+	letter-spacing: 1px;
+	margin-top: 20px;
+}
+
+.home-2 p {
+	font-size: 14px;
+	font-weight: 300;
+	color: #627382;
+	color: #FFF;
+	line-height: 1.6;
+	letter-spacing: 1px;
+	margin-top: 20px;
+}
+
+/*---------- Home-2 Styling --------------- */
+
+.home-2 {
+	padding: 100px 0 50px 0 !important;
+	background: #2e7eed;
+}
+
+.home-2 .hero-content {
+	text-align: center;
+}
+
+.hero-split {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: column;
+	flex-direction: column;
+}
+
+.hero-split .hero-left {
+	flex: 1 0 50%;
+	background: #F3F3F3;
+	order: 2;
+}
+
+.hero-split .hero-left {
+	padding: 150px 25px 50px 25px;
+	text-align: center;
+}
+
+.hero-split .hero-right {
+	flex: 1 0 50%;
+	background: url(../images/debut.png) no-repeat center center;
+	background-size: cover;
+	min-height: 100vh;
+	order: 1;
+}
+
+
+.home-2 .intro-block {
+	padding: 15px;
+}
+
+.home-2 .subform {
+	padding-top: 50px;
+}
+
+
+.home-2 .hero-split {
+	width: 100%;
+}
+
+
+/*------------ Home-3 Styling ---------------*/
+
+.home-3 {
+	padding: 150px 0 0 0;
+	background: #FFF;
+	background-size: cover;
+	overflow: hidden;
+	text-align: center;
+}
+
+.home-3 .intro-block {
+	padding: 0 0 0 0;
+	max-width: 800px;
+	margin: 0 auto;
+}
+
+.home-3 .hero-inner {
+	margin-top: 50px;
+}
+
+.home-3 .hero-inner img {
+	transform: translateX(0);
+	max-width: 100%;
+	margin-top: 50px;
+}
+
+.home-3 h4 {
+	font-family: 'Open Sans';
+	font-size: 12px;
+	font-weight: 500;
+	color: #b2bcc1;
+	text-transform: uppercase;
+	line-height: 1.2;
+	letter-spacing: 2px;
+	margin-bottom: 20px;
+}
+
+
+.home-3 h1 {
+	font-size: 28px;
+	font-weight: 300;
+	color: #364655;
+	line-height: 1.2;
+	letter-spacing: 0;
+}
+
+.home-3 p {
+	font-size: 14px;
+	font-weight: 300;
+	color: #627382;
+	line-height: 1.6;
+	letter-spacing: 1px;
+	margin-top: 20px;
+}
+
+.btn-action {
+	padding: 10px 24px;
+	background: #6c63ff;
+	border: 2px solid;
+	border-color: #6c63ff;
+	border-radius: 100px;
+	box-shadow: 0 3px 15px 0 rgba(0,0,0,.25);
+	font-family: 'Montserrat';
+	font-size: 12px;
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	color: #FFFFFF;
+	margin: 25px 10px 0 0;
+	-webkit-transition: 0.2s;
+	-moz-transition: 0.2s;
+	transition: 0.2s;
+}
+
+.btn-action:hover {
+	color: #FFFFFF;
+	border-color: #6c63ff;
+	background: #6c63ff;
+	-webkit-transform: translateY(-2px);
+	-moz-transform: translateY(-2px);
+	transform: translateY(-2px);
+}
+
+.btn-action:focus {
+	color: #FFFFFF;
+}
+
+
+/*------------ Home 4 Styling Starts ----------------*/
+
+.home-4 {
+	background: #FFFFFF;
+	padding: 100px 0 100px 0;
+}
+
+.home-4 .app-content-block {
+}
+
+.home-4 .app-content-block h1 {
+	font-size: 28px;
+	font-weight: 600;
+	color: #364655;
+	line-height: 1.2;
+}
+
+.home-4 .app-content-block p {
+	font-size: 14px;
+	line-height: 1.6;
+	color: #627382;
+	letter-spacing: 1px;
+	margin-top: 20px;
+	margin-bottom: 30px;
+}
+
+.home-4 .app-content-block h4 {
+	font-family: 'Open Sans';
+	font-size: 12px;
+	font-weight: 500;
+	color: #627382;
+	text-transform: uppercase;
+	line-height: 1.2;
+	letter-spacing: 2px;
+	margin-bottom: 20px;
+}
+
+
+.home-4 .app-btn img {
+	margin: 10px 15px 0 0;
+}
+
+/*---------------------------------------------------------------
+------------- 4. About Section Styling Starts Here ----------------
+---------------------------------------------------------------*/
+
+
+.about {
+	padding: 100px 0 100px 0;
+}
+
+.about-intro {
+	padding: 0 0 50px 0;
+}
+
+.about-intro h1 {
+	font-size: 28px;
+	font-weight: 300;
+	line-height: 1.3;
+	margin-bottom: 20px;
+}
+
+.about-intro p {
+	font-size: 16px;
+	font-weight: 300;
+	color: #768676;
+	line-height: 1.6;
+}
+
+.about-img {
+	border-radius: 15px;
+	background: transparent;
+}
+
+.about-img img {
+	border-radius: 15px;
+	-webkit-filter: grayscale(20%);
+  filter: grayscale(20%);
+	box-shadow: 0 23px 40px rgba(0, 0, 0, 0.2);
+}
+
+
+.about-txt-inner {
+	padding: 25px 0 25px 0;
+	margin-top: 25px;
+	cursor: pointer;
+}
+
+.about-txt-inner:hover {
+	background: #f2f4f7;
+}
+
+.num {
+	display: inline-block;
+  height: 47px;
+  width: 47px;
+  border-radius: 47px;
+  background: gray;
+  font-size: 24px;
+	font-family: 'Montserrat';
+  text-align: center;
+  color: #fff;
+  padding-top: 12px;
+  font-weight: 600;
+}
+
+.about-txt p {
+	font-size: 15px;
+  line-height: 1.4;
+  color: #364655;
+  margin-top: 20px;
+	margin-bottom: 20px;
+  max-width: 250px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+
+/*---------------------------------------------------------------
+-------------- About Section Styling Ends Here ------------------
+---------------------------------------------------------------*/
+
+
+
+/*---------------------------------------------------------------
+------------------ 5. Features Styling Starts Here -----------------
+---------------------------------------------------------------*/
+
+
+.features {
+	padding: 50px 0 50px 0;
+}
+
+.flex-split {
+	padding: 25px 0 25px 0;
+}
+
+.features .row, .app-feature .row, .flex-split .row, .hero .row {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+	}
+
+.align-center {
+    -webkit-box-align: center!important;
+    -webkit-align-items: center!important;
+    -ms-flex-align: center!important;
+    align-items: center!important;
+}
+
+.features .feature-img {
+	margin-bottom: 50px;
+}
+
+.features .feature-content h2 {
+	font-size: 24px;
+	font-weight: 500;
+	line-height: 1.2;
+	margin-bottom: 20px;
+}
+
+.features .feature-content p {
+	font-size: 15px;
+	font-weight: 400;
+	line-height: 1.6;
+	color: #898989;
+}
+
+.features hr {
+	margin: 3em auto;
+	border-color: #FFF;
+	background-color: transparent;
+}
+
+
+
+/*---------------------------------------------------------------
+------------- Boxed Features Styling Starts Here ----------------
+---------------------------------------------------------------*/
+
+.boxed-features {
+
+}
+
+.feature-single {
+	padding: 6em 0;
+}
+
+.feature-single .f-icon {
+	margin-bottom: 0.5em;
+}
+
+.feature-single .feature-text h4 {
+	font-size: 24px;
+	font-weight: 600;
+	margin-bottom: 1em;
+}
+
+.feature-single .feature-text p {
+	font-family: 'Varela Round';
+	font-size: 17px;
+	color: #767676;
+	font-weight: 300;
+	line-height: 1.4;
+	max-width: 80%;
+	margin: 0 auto;
+}
+
+.boxed-blue {
+	background: #387ed1;
+	color: #FFFFFF !important;
+}
+
+.boxed-blue p {
+	color: #FFFFFF !important;
+	opacity: 0.9;
+}
+
+
+
+/*------------------------------------------------------
+----------------- Product Tour Styling -----------------
+------------------------------------------------------*/
+
+
+.product-tour {
+	padding: 100px 0 100px 0;
+	overflow: hidden;
+}
+
+.product-tour .tour-intro {
+	padding: 10px;
+}
+
+.product-tour .tour-intro h1 {
+	font-size: 28px;
+	font-weight: 500;
+	color: #364655;
+	line-height: 1.2;
+	margin-bottom: 15px;
+}
+
+.product-tour .tour-intro p {
+	font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #898989;
+}
+
+.product-tour .tour-img {
+	transform: translateX(0);
+}
+
+.tour-list  {
+	padding-top: 0;
+	overflow: hidden;
+}
+
+.tour-list ul {
+	list-style-type: none;
+	overflow: hidden;
+}
+
+.tour-list ul li {
+	margin-bottom: 30px;
+	overflow: hidden;
+}
+
+.product-tour .tour-icon {
+	float: left;
+	width: 20%;
+}
+
+.product-tour .tour-text {
+	float: right;
+	width: 80%;
+}
+
+.product-tour .tour-text h3 {
+	font-size: 21px;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: 10px;
+}
+
+.product-tour .tour-text p {
+	font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #444444;
+}
+
+
+/*--------------- App Feature Styling --------------------*/
+
+
+.app-feature {
+	padding: 100px 0 100px 0;
+	background: #f2f2f2;
+}
+
+.app-feature-content h1 {
+	font-size: 28px;
+	font-weight: 500;
+	line-height: 1.2;
+	margin-bottom: 20px;
+}
+
+.app-feature-content p {
+	font-size: 16px;
+	font-weight: 400;
+	color: #7c7e80;
+	line-height: 1.4;
+	margin-bottom: 20px;
+}
+
+
+
+/* ----- Flex Features Section Styling Starts ----- */
+
+.flex-split .f-right img {
+	margin-top: 0;
+}
+
+.flex-split .f-left  {
+	padding: 0;
+}
+
+.flex-split .f-left h2 {
+	font-size: 28px;
+	font-weight: 500;
+	line-height: 1.3;
+	margin-top: 40px;
+}
+
+.flex-split .f-left  p {
+	font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #898989;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.flex-split .btn-action {
+	margin-top: 15px;
+	margin-bottom: 20px;
+	color: #8696fb;
+	background-color: #FFF;
+	border-color: #FFF;
+}
+
+
+/*-----------------------------------------------------
+------------ 6. Video Feature styling starts -------------
+-----------------------------------------------------*/
+
+
+.vid-feature {
+	padding: 100px 0 100px 0;
+	background: #FFFFFF;
+}
+
+.vid-feature .col-md-6, .vid-feature .col-sm-8 {
+	margin: 0 auto;
+	float: none;
+}
+
+.vid-feature h1 {
+	font-family: 'Montserrat';
+	font-size: 34px;
+	font-weight: 300;
+	line-height: 1.2;
+	letter-spacing: -1px;
+}
+
+.vid-cover {
+	position: relative;
+	overflow: hidden;
+	background: #252525;
+	border-radius: 6px;
+	box-shadow: 0 23px 40px rgba(0, 0, 0, 0.2);
+	z-index: 3;
+	margin-top: 60px;
+	margin-bottom: 30px;
+}
+
+.vid-feature h6 {
+	font-family: 'Montserrat';
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.4;
+	letter-spacing: 0;
+}
+
+.vid-feature h6 b {
+	font-weight: 600;
+}
+
+.vid-feature h6 span a {
+	font-family: 'Montserrat';
+	font-size: 14px;
+	font-weight: 400;
+	color: #387ed1;
+	text-transform: capitalize;
+	text-decoration: underline;
+	line-height: 1.2;
+}
+
+.vid-holder {
+	border-radius: 6px;
+  position: absolute;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-size: cover !important;
+  background-position: 50% 50% !important;
+  z-index: 0;
+  transition: opacity .3s linear;
+  -webkit-transition: opacity .3s linear;
+  opacity: 0;
+  background: #252525;
+}
+
+.vid-holder {
+	background: url(../images/bg.jpg);
+	z-index: 3;
+	opacity: 1;
+}
+
+.vid-cover.active .vid-icon.active,
+.vid-cover.active .vid-holder.active {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.vid-holder img {
+	display: none;
+	max-width: 100%;
+	vertical-align: middle;
+}
+
+.vid-icon {
+	position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  -webkit-transform: translate3d(-50%, -50%, 0);
+	width: 3.42857143em;
+	height: 3.42857143em;
+	border-radius: 50%;
+	z-index: 4;
+	display: inline-block;
+	border: 2px solid #ffffff;
+	cursor: pointer;
+	background: #ffffff;
+}
+
+.vid-icon:before {
+    border-color: transparent transparent transparent #252525;
+    margin-top: -3px;
+}
+
+.vid-icon:before {
+    position: absolute;
+    top: 50%;
+    margin-top: -5px;
+    left: 50%;
+    margin-left: -4px;
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 6px 0 6px 12px;
+    border-color: transparent transparent transparent #ffffff;
+    border-color: transparent transparent transparent #808080;
+}
+
+.vid-cover iframe {
+	width: 100%;
+	min-height: 320px;
+}
+
+
+
+/*--------------------------------------------------
+------------ Video Feature styling Ends -------------
+---------------------------------------------------*/
+
+.section-r {
+	padding: 100px 0 50px 0;
+	background: #eef2f5;
+}
+
+.review-pitch {
+	padding: 50px 10px 30px 10px;
+}
+
+.review-pitch h2 {
+	font-size: 24px;
+	font-weight: 600;
+	line-height: 1.2;
+	margin-bottom: 20px;
+}
+
+.review-pitch p {
+	font-size: 15px;
+	font-weight: 400;
+	line-height: 1.4;
+}
+
+
+
+/* ----- 7. Counter Section Styling Starts -----*/
+
+.counter-section {
+ width: 100%;
+ margin-bottom: 30px;
+}
+
+.counter-icon {
+  padding: 10px;
+}
+
+.counter-text {
+	margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.counter-section h3  {
+	font-size: 21px;
+	font-weight: 500;
+}
+
+.counter-text h4 {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0.5em;
+  color: #111111;
+}
+
+/* -------- Counter Section Styling Ends --------- */
+
+/*-------------- 8. Review Section Styling ------------*/
+
+.review-section {
+	padding: 0 0 0 0;
+	box-shadow: 0px 5px 50px 0px rgba(0,0,0,.1);
+	margin-bottom: 50px;
+	border-radius: 10px;
+}
+
+.review-section .review-text {
+	max-width: 75%;
+	margin: 0 auto;
+}
+
+.review-section .review-text p {
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.6;
+	letter-spacing: 0.5px;
+	color: #627382;
+	margin-bottom: 10px;
+}
+
+.review-section .review-text h3 {
+	font-size: 18px;
+	font-weight: 500;
+	color: #364655;
+	margin-bottom: 10px;
+	margin-top: 20px;
+}
+
+.review-section .review-text h4 {
+	font-size: 14px;
+	font-weight: 400;
+	color: #364655;
+}
+
+.review-single {
+	text-align: center;
+	padding: 75px 0 75px 0;
+}
+
+.review-single img {
+	width: 80px !important;
+	margin: 0 auto;
+	margin-bottom: 20px;
+}
+
+.review-text .ion {
+	display: inline-block;
+	margin-top: 20px;
+  font-size: 14px;
+  color: #ff8000;
+}
+
+.owl-theme .owl-dots {
+    display: none !important;
+}
+
+/*----------------------------------------------------------
+------------------ 9. Cta Big Styling Starts ------------------
+----------------------------------------------------------*/
+
+.cta-big {
+	background: url(../images/bg.jpg) no-repeat center center;
+	background-size: cover;
+	padding: 150px 0 150px 0;
+}
+
+
+.cta-big-inner h1 {
+	font-weight: 500;
+	font-size: 32px;
+	color: #FFFFFF;
+	line-height: 1.2;
+}
+
+
+.cta-big h4 {
+	font-family: 'Open Sans';
+	font-size: 12px;
+	font-weight: 500;
+	color: #FFF;
+	text-transform: uppercase;
+	line-height: 1.2;
+	letter-spacing: 2px;
+	margin-bottom: 20px;
+}
+
+
+.cta-big-inner p {
+	font-weight: 400;
+	font-size: 14px;
+	color: #FFFFFF;
+	line-height: 1.4;
+	margin: 20px 0 0 0;
+}
+
+
+
+/*--------------------------------------------------
+------------ 10. Pricing sm styling starts -------------
+---------------------------------------------------*/
+
+.pricing-sm {
+	padding: 100px 0 100px 0;
+}
+
+.pricing-sm h1 {
+	font-size: 34px;
+	font-weight: 500;
+	color: #364655;
+	letter-spacing: -1px;
+	margin-bottom: 50px;
+}
+
+.pricing-sm .plan {
+	padding: 20px 0 20px 0;
+}
+
+.pricing-sm .plan h4 {
+	font-size: 24px;
+	font-weight: 500;
+	color: #627382;
+}
+
+.pricing-sm .pricing-icon {
+	padding: 30px 0 0 0;
+}
+
+.pricing-sm .price {
+	font-size: 42px;
+	font-family: 'Montserrat';
+	margin: 30px 0 0 0;
+	color: rgb(56, 126, 209);
+}
+
+.pricing-sm small {
+	display: inline-block;
+	font-family: 'Montserrat';
+	font-size: 16px;
+	margin: 10px 0 30px 0;
+	color: rgb(56, 126, 209);
+}
+
+.pricing-sm .pricing-list {
+	list-style-type: none;
+}
+
+.pricing-sm .pricing-list li {
+	font-family: 'Montserrat';
+	font-size: 15px;
+	line-height: 1.2;
+	margin-bottom: 10px;
+	color: #627382;
+}
+
+.pricing-sm .btn-action {
+	background: rgb(56, 126, 209);
+	border-color: rgb(56, 126, 209);
+}
+
+
+
+/* ----- Pricing Tables Styling Starts ----- */
+
+.pricing-section {
+	width: 100%;
+	height: 100%;
+	padding-top: 100px;
+	padding-bottom: 100px;
+	background: #FFFFFF;
+}
+
+.pricing-intro {
+	padding-bottom: 30px;
+}
+
+.pricing-intro h1 {
+	font-size: 28px;
+	color: #364655;
+	font-weight: 600;
+	line-height: 1.4;
+	margin-bottom: 20px;
+}
+
+
+.pricing-intro p {
+	font-size: 14px;
+	color: #364655;
+	font-weight: 300;
+	line-height: 1.4;
+	letter-spacing: 1px;
+	margin-top: 10px;
+	margin-bottom: 50px;
+}
+
+.pricing-details {
+	padding: 50px 0 0 0;
+}
+
+.pricing-section .table-left, .pricing-section .table-right {
+	padding: 20px 20px 50px 20px;
+	margin: 0 auto;
+	margin-bottom: 30px;
+	background-color: #FFFFFF;
+	box-shadow: 0px 0px 80px 0px rgba(0,0,0,.1);
+	border: transparent;
+	max-width: 400px;
+}
+
+.table-left .icon, .table-right .icon {
+	padding: 50px 50px 40px 50px;
+}
+
+.table-left .icon img, .table-right .icon img {
+	width: 60px;
+	height: 60px;
+	margin: 0 auto;
+}
+
+.table-left .pricing-details span, .table-right .pricing-details span {
+	display: inline-block;
+	font-family: 'Montserrat';
+	font-size: 34px;
+	font-weight: 400;
+	color: #808080;
+	margin-bottom: 20px;
+}
+
+.table-left .pricing-details h2, .table-right .pricing-details h2 {
+	font-size: 21px;
+	font-weight: 500;
+	color: #505050;
+	margin-bottom: 30px;
+}
+
+.table-left .pricing-details p, .table-right .pricing-details p {
+	font-size: 14px;
+	font-weight: 300;
+	color: #505050;
+	letter-spacing: 1px;
+	line-height: 1.4;
+}
+
+.table-left .pricing-details ul, .table-right .pricing-details ul {
+	margin-top: 30px;
+	margin-bottom: 50px;
+	padding: 0;
+}
+
+
+.table-left .pricing-details li, .table-right .pricing-details li {
+	font-family: 'Montserrat';
+	font-size: 14px;
+	font-weight: 400;
+	color: #505050;
+	line-height: 1.4;
+	margin-bottom: 10px;
+}
+
+.pricing-section .table-left:hover, .pricing-section .table-right:hover {
+	box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
+	-webkit-transition: 0.3s;
+	-moz-transition: 0.3s;
+	-o-transition: 0.3s;
+	transition: 0.3s;
+}
+
+.pricing-section .table-left, .pricing-section .table-right {
+	margin-top: 20px;
+}
+
+.pricing-section .table-center {
+	margin-top: 0;
+}
+
+.pricing-section .btn-action {
+	background-color: #0facf3;
+	border-color: #0facf3;
+}
+
+.btn-green {
+	background-color: #46da60 !important;
+	border-color: #46da60 !important;
+}
+
+.text-green {
+	color: #46da60 !important;
+}
+
+
+
+/* ----- f-box Section Styling Starts Here -----*/
+
+.f-box {
+  width: 100%;
+  padding-top: 50px;
+  padding-bottom: 50px;
+	background: #eef2f5;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+.f-box-single {
+  background: #FFFFFF;
+  padding: 2em 1em 2em 1em;
+	margin-top: 1em;
+	margin-bottom: 1em;
+	border-radius: 5px;
+	border: 1px solid rgba(0, 0, 0, .05);
+  -webkit-transition: 0.3s;
+  -moz-transition: 0.3s;
+  transition: 0.3s;
+}
+
+
+.f-box-image {
+  padding: 1em;
+}
+
+.f-box-image img {
+  width: 60px;
+  -webkit-transition: 0.3s;
+  -moz-transition: 0.3s;
+  transition: 0.3s;
+}
+
+.f-box-single:hover {
+  background: #FFF;
+}
+
+.f-box-content h3 {
+  font-size: 18px;
+  letter-spacing: 0;
+  color: #364655;
+  font-weight: 500;
+}
+
+.f-box-content p {
+  font-size: 14px;
+  color: #616771;
+  line-height: 1.8;
+  padding: 1.2em;
+}
+
+@media only screen and (min-width: 801px) and (max-width: 991px) {
+  .f-box-single {
+    padding: 1em;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+
+	.home-4 {
+		text-align: center;
+	}
+
+	.home-4 .app-content-block {
+		margin-bottom: 30px;
+	}
+
+  .f-box-single {
+    margin-bottom: 1em;
+  }
+}
+
+@media only screen and (max-width:576px) {
+	.navigation .container {
+		margin: 0;
+	}
+}
+
+/* -----  Section Styling Ends Here -----*/
+
+
+
+
+
+/*-------------------------------------------------------
+-------------- 11. Subscription Form Styling ----------------
+-------------------------------------------------------*/
+
+.sub-form {
+		position: relative;
+}
+
+.formee {
+	position: relative;
+}
+
+.formee .mail {
+	position: relative;
+	background-color: #F9F9F9;
+  box-shadow: none;
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  transition: all .3s;
+}
+
+.formee input {
+  color: #222222;
+  font-family: 'Montserrat';
+  padding: 0;
+  font-size: 14px;
+	height: 45px;
+  border: 0;
+  border-radius: 10px 0 0 10px;
+	background-color: #F3F3F3;
+  outline: none;
+  padding: 0 100px 0 20px;
+	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.formee input:focus {
+	outline: none;
+}
+
+.formee .right {
+  height: 45px;
+  border: 0;
+  border-radius: 0 10px 10px 0;
+  margin: 0;
+  padding: 0 25px 0 25px;
+  background-color: #387ed1;
+	background-image: linear-gradient(90deg,#42b0ff,#4262ff);
+	font-family: 'Montserrat';
+	font-size: 14px;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+  color: #FFFFFF;
+	cursor: pointer;
+  outline: none;
+	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+	-webkit-transition: 500ms;
+	-moz-transition: 500ms;
+	transition: 500ms;
+}
+
+.formee .right:focus {
+	outline: none;
+}
+
+
+#email-error {
+	position: absolute;
+	left: 30%;
+	right: 0;
+	top: 250%;
+	font-family: 'Montserrat';
+	font-size: 13px;
+	font-weight: 400;
+	letter-spacing: 1px;
+	color: #FF3333;
+}
+
+#response {
+	color: #333333;
+	font-family: 'Montserrat';
+	margin-top: 30px;
+	font-size: 14px;
+	line-height: 1.4;
+}
+
+.form-note p {
+	font-size: 12px;
+}
+
+
+
+
+/* ----- Client Sectiion Styling ----- */
+
+.client-section {
+	background-color: #eef2f5;
+	padding: 25px 25px;
+	border: 1px solid #eef2f5;
+}
+
+.clients .single img {
+	width: 80px;
+	opacity: 0.5;
+}
+
+
+
+/*-------------------------------------------------------
+----------- Call to Action Styling Starts ---------------
+-------------------------------------------------------*/
+
+.ct-action {
+	background: #FFFFFF;
+	width: 100%;
+	padding: 150px 0 150px 0;
+}
+
+.ct-action-inner h1 {
+	font-size: 28px;
+	font-weight: 300;
+	line-height: 1.4;
+	color: #252525;
+	margin-bottom: 20px;
+}
+
+.ct-action-inner p {
+	font-size: 15px;
+	font-weight: 300;
+	line-height: 1.4;
+	color: #222222;
+	margin-bottom: 20px;
+}
+
+.ct-action .subform {
+	margin-top: 30px;
+}
+
+
+/*--------------------------------------------------------------
+-------------------- 12. FAQ Styling Starts ---------------
+--------------------------------------------------------------*/
+
+.faq {
+	padding: 100px 0 100px 0;
+	background: #FFFFFF;
+}
+
+.faq .faq-intro {
+	padding-bottom: 50px;
+}
+
+.faq .faq-intro h1 {
+	font-size: 34px;
+	font-weight: 400;
+	line-height: 1.2;
+}
+
+.faq .faq-intro p {
+	font-size: 16px;
+	font-weight: 300;
+	line-height: 1.4;
+}
+
+.faq h2 {
+	font-size: 15px;
+	font-weight: 500;
+	color: #364655;
+	line-height: 1.4;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.faq p {
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.6;
+	letter-spacing: 0.5px;
+	color: #627382;
+	margin-top: 30px;
+	padding-bottom: 40px;
+}
+
+.accordion-box {
+	padding: 20px 20px 50px 20px;
+}
+
+/*---------------------------------------------------
+----------- 13. Contact Section Styling Starts -------------
+---------------------------------------------------*/
+
+.contact {
+	width: 100%;
+	height: 100%;
+	padding: 100px 0 0 0;
+}
+
+.contact .inner h1 {
+	font-family: 'Roboto';
+	font-size: 34px;
+	font-weight: 300;
+	color: #252525;
+	line-height: 1.2;
+	margin-bottom: 20px;
+}
+
+.contact .inner p {
+	font-family: 'Roboto';
+	font-size: 16px;
+	font-weight: 300;
+	color: #848484;
+	line-height: 1.4;
+}
+
+.contact .address {
+	padding: 10px 0 100px 0;
+}
+
+.contact .address h1 {
+	font-family: 'Roboto';
+	font-size: 24px;
+	color: #454545;
+	margin-bottom: 30px;
+}
+
+.contact .address p {
+	font-family: 'Roboto';
+	font-size: 21px;
+	color: #454545;
+	line-height: 1.8;
+}
+
+.contact .address p:nth-child(3) {
+	margin-top: 30px;
+}
+
+.contact .address p:nth-child(5) {
+	margin-top: 30px;
+}
+
+/* ------------ Contact Form Styling --------*/
+
+.contact {
+	padding: 100px 0 100px 0;
+	background: #FFF;
+}
+
+.contact-intro h1 {
+	font-family: 'Montserrat';
+	font-size: 34px;
+	font-weight: 300;
+	line-height: 1.2;
+}
+
+.contact-intro p {
+	font-size: 14px;
+	line-height: 1.6;
+	margin-top: 20px;
+}
+
+.contact-form {
+	padding-top: 100px;
+}
+
+label {
+	display: block;
+	font-family: 'Montserrat';
+  font-size: 14px;
+  font-weight: 400;
+  color: #252525;
+	text-align: left;
+}
+
+ .contact-form .form-control {
+	 border: none;
+  border-bottom: 2px solid #d0e1fb;
+  border-radius: 1px;
+  margin-top: 10px;
+  background: #F9F9F9;
+  margin-bottom: 40px;
+  /*border-bottom: 1px solid #999999;*/
+  -webkit-box-shadow: inset 0 0px 0px rgba(0,0,0,0);
+  box-shadow: inset 0 0px 0px rgba(0,0,0,0);
+  -webkit-transition: 0.5s;
+  -moz-transition: 0.5s;
+    transition: 0.5s;
+}
+
+.form-control:focus {
+  border-color: #2e7eed;
+	background: #F4F4F4;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+
+.contact-form input[type="text"],
+textarea,
+textarea.form-control {
+	height: auto;
+	background: #F9F9F9;
+}
+
+
+.form-control::-webkit-input-placeholder {
+	font-family: 'Montserrat';
+  font-size: 13px;
+  color: #999999;
+}
+.form-control:-moz-placeholder {
+	font-family: 'Montserrat';
+  font-size: 13px;
+  color: #999999;
+}
+.form-control::-moz-placeholder {
+	font-family: 'Montserrat';
+  font-size: 13px;
+  color: #999999;
+}
+.form-control:-ms-input-placeholder {
+	font-family: 'Montserrat';
+  font-size: 13px;
+  color: #999999;
+}
+
+.text-muted {
+	font-family: 'Montserrat';
+  font-size: 13px;
+  color: #222222;
+}
+
+.text-muted strong {
+  color: #FF3333;
+}
+
+.btn-send {
+	font-family: 'Montserrat';
+	font-size: 13px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+	padding: 8px 16px;
+  border-radius: 3px;
+  color: #FFFFFF;
+	border: 0;
+	cursor: pointer;
+	background: linear-gradient(90deg,#42b0ff,#4262ff);
+  -webkit-transition: 0.5s;
+  -moz-transition: 0.5s;
+    transition: 0.5s;
+}
+
+.btn-send:hover, .btn-send:focus, .btn-send:active {
+  color: #FFFFFF;
+	background: linear-gradient(90deg,#4262ff,#42b0ff);
+	border: 0;
+  outline: none !important;
+	-webkit-transition: 0.5s;
+	-moz-transition: 0.5s;
+		transition: 0.5s;
+}
+
+.help-block {
+	font-family: 'Montserrat';
+	font-size: 12px;
+	color: #FF3333;
+}
+
+/* -------- Contact Section Styling Ends ---- */
+
+
+
+/*-----------------------------------------------------------
+------------ App Features Styling Starts ---------------
+-----------------------------------------------------------*/
+.justify-center {
+	justify-content: center !important;
+	display: flex;
+}
+
+.lbl-services {
+	background: #eef2f5;
+	padding: 100px 0 100px 0;
+}
+
+.service-intro {
+	padding: 0 0 50px 0;
+}
+
+.service-intro h1 {
+	font-size: 34px;
+	font-weight: 300;
+	line-height: 1.2;
+}
+
+.service-intro h6 {
+	font-size: 16px;
+	font-weight: 300;
+	line-height: 1.6;
+	margin-top: 20px;
+}
+
+.lbl-service-card {
+text-align: center;
+
+
+}
+.card-icon {
+	padding: 20px 0 5px 0;
+}
+
+.card-text {
+	padding: 15px;
+}
+
+.card-text h1 {
+	font-size: 21px;
+	font-weight: 600;
+	color: #49555f;
+}
+
+.card-text p {
+	font-size: 14px;
+	color: #70808D;
+	font-weight: 400;
+	line-height: 1.6;
+	margin-top: 15px;
+}
+
+@media only screen and (max-width: 42em) {
+	.lbl-service-card {
+		display: block !important;
+	}
+}
+
+
+
+/*--------------------------------------------------------------
+-------------------- Footer Small Styling Starts ---------------
+--------------------------------------------------------------*/
+
+
+.footer {
+	padding: 50px 0 50px 0;
+	background: #2d2d86;
+}
+
+.footer h2 {
+	font-size: 18px;
+	font-weight: 500;
+	color: #FFFFFF;
+	margin-bottom: 10px;
+}
+
+.footer p {
+	font-size: 13px;
+	font-weight: 400;
+	color: #364655;
+	color: #FFF;
+	letter-spacing: 0;
+	line-height: 1.4;
+	max-width: 320px;
+	margin-bottom: 10px;
+}
+
+.right-align {
+	text-align: right;
+}
+
+.footer .footer-nav {
+	list-style-type: none;
+	padding: 5px 0 5px 0;
+}
+
+.footer .footer-nav li {
+	display: inline-block;
+	margin-left: 10px;
+	padding-top: 6px;
+}
+
+.footer .footer-nav li a {
+	font-family: 'Montserrat';
+	font-size: 14px;
+	font-weight: 500;
+	color: #364655;
+	color: #D8D8D8;
+	letter-spacing: 0;
+	text-transform: capitalize;
+}
+
+.footer .social {
+	list-style-type: none;
+}
+
+.footer .social li {
+	display: inline;
+}
+
+.footer .footer-sub {
+	list-style-type: none;
+	margin: 5px 0 10px 0;
+}
+
+.footer .footer-sub li {
+	display: inline-block;
+	margin-right: 10px;
+	padding-top: 0;
+	font-family: 'Montserrat';
+	font-size: 13px;
+	font-weight: 300;
+	color: #364655;
+	color: #D8D8D8;
+}
+
+.footer .footer-sub li a {
+	font-family: 'Montserrat';
+	font-size: 14px;
+	font-weight: 300;
+	color: #364655;
+	color: #D8D8D8;
+}
+
+.footer .f-mail {
+	margin: 5px 5px 0 0;
+	font-family: 'Montserrat';
+	font-size: 13px;
+	letter-spacing: 0;
+	color: #364655;
+	color: #D8D8D8;
+	line-height: 1.6;
+}
+
+
+
+/* -------------------------------------------------------
+----------- Bact-to-Top Styling Starts Here --------------
+---------------------------------------------------------*/
+
+
+.back-to-top {
+	background: rgba(68, 176, 255, 0.5);
+	margin: 0;
+	position: fixed;
+	bottom: 30px;
+	right: 30px;
+	width: 40px;
+	height: 40px;
+	border-radius: 3px;
+	z-index: 90;
+	display: none;
+	text-decoration: none;
+	color: #0E1729;
+	box-shadow:0 5px 10px rgba(0, 0, 0, .3);
+}
+
+.back-to-top i {
+	position: relative;
+	left: 12px;
+	top: 5px;
+	font-size: 24px;
+	color: #FFFFFF;
+	-webkit-transition: 200ms;
+	-moz-transition: 200ms;
+	-o-transition: 200ms;
+	transition: 200ms;
+}
+
+.back-to-top:hover {
+	background: rgba(68, 176, 255, 0.8);
+  color: #FFFFFF;
+}
+
+.back-to-top:hover i {
+	top: 6px;
+}
+
+.back-to-top:focus {
+    color: #FFFFFF;
+}
+
+
+
+/*-----------------------------------------------------------------
+------------------ 13. All Media Queries Start Here -------------------
+-----------------------------------------------------------------*/
+
+@media only screen and (min-width: 767px) {
+
+	.navbar-nav {
+			margin-top: 0;
+		}
+
+		.navbar-nav .nav-item {
+			margin-top: 0;
+			margin-right: 15px;
+		  font-size: 0.85rem;
+		  font-weight: 400;
+		}
+
+
+	.hero-split .hero-left {
+		padding: 200px 20px 150px 20px;
+	}
+
+	.home-2 {
+		padding: 150px 0 150px 0 !important;
+	}
+
+	.home-2 .col-sm-5 {
+		-webkit-box-flex: 0;
+		-webkit-flex: 0 0 50%;
+		-ms-flex: 0 0 50%;
+		flex: 0 0 50%;
+		max-width: 50%;
+	}
+
+	.home-4 .col-sm-5 {
+		-webkit-box-flex: 0;
+		-webkit-flex: 0 0 50%;
+		-ms-flex: 0 0 50%;
+		flex: 0 0 50%;
+		max-width: 50%;
+	}
+
+	.about-txt-inner {
+		padding: 50px 0 50px 0;
+		margin-top: 50px;
+	}
+
+	.features {
+		padding: 75px 0 75px 0;
+	}
+
+	.flex-split {
+		padding: 50px 0 50px 0;
+	}
+
+
+	.features .col-sm-5, .app-feature .col-sm-5, .flex-split .col-sm-5 {
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 41.666667%;
+    -ms-flex: 0 0 41.666667%;
+    flex: 0 0 41.666667%;
+    max-width: 41.666667%;
+}
+
+.features .col-sm-7, .app-feature .col-sm-7, .flex-split .col-sm-7 {
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 58.333333%;
+    -ms-flex: 0 0 58.333333%;
+    flex: 0 0 58.333333%;
+    max-width: 58.333333%;
+}
+
+.features .feature-img {
+	margin-bottom: 0;
+}
+
+.product-tour .tour-intro {
+	padding: 0;
+}
+
+.product-tour .tour-img {
+	transform: translateX(120px);
+}
+
+.home-3 {
+	text-align: left;
+}
+
+.hero-home h4, .home-2 h4 {
+	font-size: 14px;
+}
+
+.hero-home h1, .home-2 h1 {
+	font-size: 34px;
+}
+
+.hero-home h1 {
+	font-size: 48px;
+}
+
+.home-3 h4 {
+	font-size: 14px;
+}
+
+.home-3 h1 {
+	font-size: 28px;
+}
+
+.home-3 .intro-block {
+	padding: 0 0 0 0;
+}
+
+.home-3 .hero-inner img {
+	transform: translateX(80px);
+	box-shadow: 0 0px 30px rgba(0, 0, 0, 0.2);
+	margin-top: 0;
+}
+
+.home-4 {
+	padding: 150px 0 100px 0;
+}
+
+.product-tour .tour-img {
+	transform: translateX(0);
+	max-width: 100%;
+}
+
+.about-intro h1 {
+	font-size: 34px;
+}
+
+.flex-split .f-left h2 {
+	font-size: 28px;
+}
+
+.clients .single img {
+	width: 120px;
+	opacity: 0.5;
+}
+
+	.counter-up {
+    margin-bottom: 1em;
+  }
+
+  .counter-text {
+    margin-bottom: 0;
+  }
+
+	.counter-section h3  {
+		font-size: 24px;
+	}
+
+	.counter-text h4 {
+	  font-size: 15px;
+	}
+
+	.review-section ul {
+		padding: 50px 50px 25px 50px;
+		margin-top: 30px;
+	}
+
+	.review-section .review-img {
+		float: left;
+		width: 18%;
+	}
+
+	.cta-big-inner h1 {
+		font-size: 42px;
+	}
+
+	.formee input {
+		padding: 0 50px 0 50px;
+	}
+
+	.formee .right {
+		padding: 0 15px 0 15px;
+	}
+
+}
+
+
+@media only screen and (min-width: 1024px) {
+
+	.home-2 img {
+		margin-top: 0;
+	}
+
+	.home-2 .hero-content {
+		text-align: left;
+	}
+
+	.home-4 {
+		padding: 100px 0 100px 0;
+	}
+
+	.hero-split {
+			-webkit-flex-direction: row;
+			flex-direction: row;
+		}
+
+		.hero-split .hero-left {
+			order: 1;
+		}
+
+		.hero-split .hero-right {
+			margin: 0;
+			order: 2;
+		}
+
+	.home-4 .app-content-block h1 {
+		font-size: 34px;
+	}
+
+	.product-tour .tour-intro h1 {
+		font-size: 28px;
+	}
+
+	.product-tour .tour-img {
+		transform: translateX(120px);
+		max-width: 100%;
+	}
+
+	.home-3 .hero-inner img {
+		transform: translateX(120px);
+		box-shadow: 0 0px 30px rgba(0, 0, 0, 0.2);
+	}
+
+	.home-3 .intro-block {
+		padding: 0 0 0 0;
+	}
+
+	.home-3 h4 {
+		font-size: 14px;
+	}
+
+	.home-3 h1 {
+		font-size: 34px;
+	}
+
+	.hero-split .hero-left {
+		padding: 200px 80px 150px 80px;
+		text-align: left;
+	}
+
+	.counter-section {
+		margin-bottom: 0;
+	}
+
+	.formee input {
+		padding: 0 100px 0 50px;
+	}
+
+	.formee .right {
+		padding: 0 25px 0 25px;
+	}
+
+	.formee-alt input {
+		padding: 0 20px 0 20px;
+	}
+
+	.formee-alt .right {
+		padding: 0 15px 0 15px;
+	}
+
+}
+
+@media only screen and (min-width: 1025px) {
+
+
+	.formee-alt input {
+		padding: 0 25px 0 25px;
+	}
+
+	.formee-alt .right {
+		padding: 0 25px 0 25px;
+	}
+
+	#email-error {
+		left: 38%;
+	}
+}
+
+
+@media only screen and (max-width: 766px) {
+
+	.product-tour .tour-img {
+		transform: translateX(0);
+		max-width: 100%;
+	}
+
+	#email-error {
+		left: 25%;
+	}
+
+}
+
+
+@media screen and (min-width: 400px) and (max-width: 600px) {
+
+ .formee input {
+   padding: 0 30px 0 20px;
+   border-radius: 5px 0 0 5px;
+ }
+
+ .formee .right {
+   padding: 0 5px 0 5px;
+   border-radius: 0 5px 5px 0;
+ }
+
+ #email-error {
+ 	left: 15%;
+ }
+}
+
+
+@media screen and (max-width: 399px) {
+
+ .formee input {
+	 text-align: center;
+   padding: 0;
+   border-radius: 5px 0 0 5px;
+ }
+
+ .formee .right {
+   padding: 0 5px 0 10px;
+   border-radius: 0 5px 5px 0;
+	 margin-top: 15px;
+	 font-size: 14px;
+ }
+
+
+ .footer .footer-sub {
+ 	list-style-type: none;
+ 	margin: 10px 0 5px 0;
+ }
+
+ #email-error {
+ 	left: 10%;
+ }
+}
+
+@media screen and (max-width: 320px) {
+
+	.subform {
+		text-align: center;
+	}
+
+ .formee input {
+	 text-align: center;
+   padding: 0;
+   border-radius: 5px;
+ }
+
+ .formee .right {
+   padding: 0 5px 0 10px;
+   border-radius: 5px;
+	 margin-top: 15px;
+	 font-size: 14px;
+ }
+}
