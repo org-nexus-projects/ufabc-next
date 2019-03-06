@@ -17,13 +17,22 @@
     <link rel="stylesheet" href="assets/css/magnific-popup.css">
     <link rel="stylesheet" href="assets/css/ionicons.min.css"> <!-- Resource style -->
     <link href="assets/css/style.css" rel="stylesheet" type="text/css" media="all" />
+    <style>
+    .navbar.past-main > .container > .logo-normal {
+      display: block!important;
+    }
+    .navbar.past-main > .container > .logo-white {
+      display: none;
+    }
+    </style>
   </head>
   <body>
     <div class="wrapper">
       <div class="container">
         <nav class="navbar navbar-expand-md nav-white navbar-light bg-light fixed-top">
           <div class="container">
-            <img src="assets/images/logo.png" width="156">
+            <img class="logo-white" src="assets/images/logo_white.png" width="156">
+            <img class="logo-normal" src="assets/images/logo.png" width="156" style="display: none;">
             <!-- <a class="navbar-brand" href="#">Label</a> -->
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>

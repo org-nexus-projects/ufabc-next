@@ -35,6 +35,7 @@ const router = new VueRouter({
         title: 'Reviews',
         // auth: true
       },
+      props: true,
     },
 
     // { path: '*', redirect: '/login' }

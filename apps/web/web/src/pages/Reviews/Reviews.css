@@ -6,5 +6,18 @@
 .results-area {
   box-shadow: 0 0 2px 0 rgba(0,0,0,0.12), 0 2px 2px 0 rgba(0,0,0,0.24);
   border-radius: 4px;
-  min-height: 300px;
+  min-height: 450px;
+}
+
+.target-name {
+  font-size: 30px;
+  line-height: 40px;
+  border-bottom: 1px solid #CCC;
+  padding-bottom: 5px;
+  margin-bottom: 18px;
+}
+
+.target-info {
+  display: flex;
+  align-items: center;
 }

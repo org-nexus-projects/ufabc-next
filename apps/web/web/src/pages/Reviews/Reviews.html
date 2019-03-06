@@ -1,7 +1,7 @@
 <v-container style="display: flex; flex-direction: column;">  
   <v-layout row align-center class="white elevation-1 search-area pl-3 pr-4 mr-0">
     <v-combobox
-      v-model='reviewTarget'
+      v-model='targetToReview'
       :search-input.sync="search"
       :items="entries"
       :multiple="false"
@@ -23,7 +23,101 @@
     </v-combobox>
   </v-layout>
 
-  <v-layout column class="results-area white mt-3">
-    {{ reviewTarget}} 
+  <v-layout column class="results-area white mt-3 pa-4" v-if='target'>
+    <div v-if='loading || (concepts && concepts.specific && concepts.specific.length)' 
+      style="min-height: 200px"
+      v-loading="loading"
+      element-loading="Carregando...">
+
+      <div class="target-name">{{ target.name }}</div>
+
+      <div class="target-info mb-3">
+        <div class="d-flex mr-3" v-if='samplesCount >= 0'>
+          <v-icon size="20" class="mr-1" color="grey">mdi-alpha-a-box</v-icon> {{samplesCount}} conceitos
+        </div>
+        <div class="d-flex mr-3">
+          <v-icon size="20" class="mr-1" color="grey">mdi-message-draw</v-icon> 12 comentários
+        </div>
+        <div class="d-flex mr-3">
+          <v-icon size="20" class="mr-1" color="grey">mdi-gmail</v-icon> 
+          <a href="mailto:professor@ufabc.edu.br" style="text-decoration: none;">
+            professor@ufabc.edu.br
+          </a>
+        </div>
+        <div class="d-flex mr-3">
+          <v-icon size="20" class="mr-1" color="grey">mdi-home</v-icon> Sala 1035 (Bloco B)
+        </div>
+        <div class="d-flex mr-3">
+          <v-icon size="20" class="mr-1" color="grey">mdi-phone</v-icon> (11) 4444-4444
+        </div>
+      </div>
+
+      <v-layout>
+        <v-flex md5>
+          <vue-highcharts
+            class="ufabc-row ufabc-align-center ufabc-justify-middle"
+              v-if='concepts && concepts.specific && concepts.specific.length'
+              :options="options"
+              :highcharts="Highcharts"
+              ref="pieChart"
+          ></vue-highcharts>
+
+          <div class="mt-2" style="text-align: center;">
+            <b>* {{ cobraPresenca }}</b>
+          </div>
+
+          <div class="ufabc-column ufabc-align-center mt-3 ufabc-flex-wrap">
+            <div class="ufabc-row ufabc-align-center ufabc-justify-middle my-cr" v-if='student_cr'>
+              Seu CR é <b class="ml-1">{{ crCropped(student_cr) }}</b>
+            </div>
+            <div class="conceitos" v-if='conceitoDistribution && conceitoDistribution.length && student_cr'>
+              <div class="conceitos-title">
+                Com seu CR {{ crCropped(student_cr) }}, seu conceito com este professor <b>provavelmente</b> será:
+              </div>
+              <div class="all-conceitos">
+                <div class="conceito-target" :class="targetConceitoStudent">
+                  <div class="arrow">
+                  </div>
+                  <div class="square"></div>
+                </div>
+                <div class="conceitos-cr ufabc-row" 
+                    v-for='(conceito, index) in conceitos'
+                    :key="index">
+                  <div class="conceito" :class="conceito.conceito">{{ conceito.conceito }} </div> 
+                  <div class="cr">
+                    {{ findConcept(conceito.conceito) }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </v-flex>
+        <v-flex md7>
+          <el-select
+            class="ufabc-flex ufabc-row mb-2"
+            placeholder="Selecione a matéria" 
+            @change="updateFilter()"
+            v-model="filterSelected" 
+            v-if='concepts && concepts.specific && concepts.specific.length'>
+            <el-option
+              v-for="option in possibleDisciplinas"
+              :key="option._id._id"
+              :label="option._id.name"
+              :value="option._id._id">
+            </el-option>
+          </el-select>
+        </v-flex>
+      </v-layout>
+
+    </div>
+
+    <NoReviewsFound
+      v-else-if='!loading'
+    />
   </v-layout>
+
+
+  <WelcomeReview
+    v-else
+  />
 </v-container>
