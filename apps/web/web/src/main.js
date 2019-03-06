@@ -15,6 +15,9 @@ import Environment from '@/environment'
 
 Vue.use(Vuetify)
 
+import VCharts from 'v-charts'
+Vue.use(VCharts)
+
 import VueTheMask from 'vue-the-mask'
 Vue.use(VueTheMask)
 

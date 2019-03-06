@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 
 // Pages
 import Reviews from '@/pages/Reviews'
+import Stats from '@/pages/Stats'
 
 import Auth from '@/services/Auth'
 // import UsersService from '@/services/Users'
@@ -33,6 +34,16 @@ const router = new VueRouter({
       component: Reviews,
       meta: {
         title: 'Reviews',
+        // auth: true
+      },
+    },
+    
+    {
+      name: 'reviews',
+      path: '/stats',
+      component: Stats,
+      meta: {
+        title: 'Stats',
         // auth: true
       },
     },

@@ -1,0 +1,13 @@
+<v-container style="display: flex; flex-direction: column;">  
+  <!-- <v-layout row align-center class="white elevation-1"> -->
+    <div class="white elevation-1 pa-4">
+      <span class="chart-title">Seu CR ao longo do tempo</span>
+      <ve-line :data="chartData" :settings="chartSettings"></ve-line>
+    </div>
+  <!-- </v-layout> -->
+
+  <div class="white elevation-1 pa-4 mt-3">
+    <span class="chart-title">Distribuição de CR</span>
+    <ve-histogram :data="chartData2"></ve-histogram>
+  </div>
+</v-container>
