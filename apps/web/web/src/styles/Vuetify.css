@@ -1,0 +1,16 @@
+
+/* 
+ * VAutocomplete to search reviews of teachers and disciplines
+ */
+.search-review-input.v-text-field > .v-input__control > .v-input__slot:before,
+.search-review-input.v-text-field > .v-input__control > .v-input__slot:after{
+  display: none;
+}
+.search-review-input.v-select.v-select--is-menu-active .v-input__icon--append .v-icon {
+  transform: none;
+}
+.search-review-input.v-text-field .v-input__prepend-outer,
+.search-review-input.v-text-field .v-input__append-inner {
+  margin-top: 8px;
+  margin-top: 8px;
+}

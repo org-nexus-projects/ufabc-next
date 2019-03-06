@@ -7,16 +7,13 @@ import '@mdi/font/css/materialdesignicons.css'
 import router from '@/router'
 import Colors from '@/styles/Colors.css'
 import General from '@/styles/General.css'
+import VuetifyCSS from '@/styles/Vuetify.css'
 // import ElementCSS from '@/styles/Element.css'
 import Auth from '@/services/Auth'
 import Axios from 'axios'
 import Environment from '@/environment'
 
-Vue.use(Vuetify, {
-  theme: {
-    primary: '#4A6FE5'
-  }
-})
+Vue.use(Vuetify)
 
 import VueTheMask from 'vue-the-mask'
 Vue.use(VueTheMask)
@@ -48,7 +45,7 @@ Axios.interceptors.request.use(function (config) {
   }
 
   if (Auth.token) {
-    config.headers['Authorization'] = 'Bearer ' + Auth.token
+    // config.headers['Authorization'] = 'Bearer ' + Auth.token
   }
 
   return config;

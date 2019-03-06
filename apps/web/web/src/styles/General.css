@@ -43,3 +43,12 @@
   opacity: 0;
   transition-duration: 0.4s;
 }
+
+.elevate-3d {
+  transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+  cursor: pointer;
+}
+.elevate-3d:hover {
+  box-shadow: 0px 5px 26px -4px rgba(0, 0, 0, 0.2) !important;
+  transform: translateY(-3px);
+}

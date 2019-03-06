@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 
 // Pages
-// import Login from '@/pages/Login'
+import Reviews from '@/pages/Reviews'
 
 import Auth from '@/services/Auth'
 // import UsersService from '@/services/Users'
@@ -26,16 +26,16 @@ const router = new VueRouter({
   mode: 'history',
   routes: [
 
-    // {
-    //   alias: '/',
-    //   name: 'order-create',
-    //   path: '/orders/new',
-    //   component: OrderEditor,
-    //   meta: {
-    //     title: 'Criar novo Pedido',
-    //     auth: true
-    //   },
-    // },
+    {
+      alias: '/',
+      name: 'reviews',
+      path: '/reviews',
+      component: Reviews,
+      meta: {
+        title: 'Reviews',
+        // auth: true
+      },
+    },
 
     // { path: '*', redirect: '/login' }
   ]

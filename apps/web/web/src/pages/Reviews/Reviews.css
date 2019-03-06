@@ -1,0 +1,10 @@
+.search-area {
+  height: 56px;
+  border-radius: 2px;
+  flex: none;
+}
+.results-area {
+  box-shadow: 0 0 2px 0 rgba(0,0,0,0.12), 0 2px 2px 0 rgba(0,0,0,0.24);
+  border-radius: 4px;
+  min-height: 300px;
+}
