@@ -14,3 +14,19 @@
   margin-top: 8px;
   margin-top: 8px;
 }
+.search-review-input.v-text-field .v-select__selections {
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+.v-chip.target-chip .v-chip__content {
+  white-space: initial;
+}
+
+
+
+
+.chart-large {
+  margin-left: -20px;
+  margin-right: -20px;
+  margin-top: 16px;
+}

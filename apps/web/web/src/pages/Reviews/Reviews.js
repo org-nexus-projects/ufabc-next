@@ -10,56 +10,21 @@ import ErrorMessage from '@/helpers/ErrorMessage'
 import Flatten from '@/helpers/Flatten'
 import WelcomeReview from '@/components/Reviews/Welcome'
 import NoReviewsFound from '@/components/Reviews/NoReviewsFound'
-
+import TargetInfo from '@/components/Reviews/TargetInfo'
 
 Highcharts3D(Highcharts);
-
-const data = {
-  chart: {
-    type: "pie",
-    options3d: {
-      enabled: true,
-      alpha: 45
-    },
-    width: 380,
-    height: 240
-  },
-  title: {
-      text: ''
-  },
-  tooltip: {
-    pointFormat: 'Porcentagem: <b>{point.percentage:.1f}%</b>'
-  },
-  plotOptions: {
-    pie: {
-      // innerSize: 100,
-      animation: {
-        duration: 200,
-      },
-      depth: 20,
-      allowPointSelect: true,
-      cursor: 'pointer',
-      dataLabels: {
-        format: '{key}: <b>{point.percentage:.1f}%</b>',
-        enabled: true
-      },
-      showInLegend: true
-    }
-  },
-  series: []
-};
 
 export default {
   name: 'Reviews',
   components: {
     VueHighcharts,
     WelcomeReview,
-    NoReviewsFound
+    NoReviewsFound,
+    TargetInfo
   },
 
   data() {
     return {
-      options: data,
       Highcharts,
 
       loading: false,
@@ -208,10 +173,64 @@ export default {
 
     entries() {
       return ([]).concat(this.teachers).concat(this.subjects)
+    },
+
+    totalComments() {
+      return 51
+    },
+
+    options() {
+      let maxWidth = 420
+      let maxHeight = 280
+      let onlyXs = this.$vuetify.breakpoint.xsOnly
+      let screenWidth = this.$vuetify.breakpoint.width
+      let width  =  onlyXs ? (screenWidth - 40) > maxWidth ? maxWidth : (screenWidth - 40) : maxWidth
+      let height =  onlyXs ? (screenWidth - 140) > maxHeight ? maxHeight : (screenWidth - 140) : maxHeight
+      
+      return {
+        chart: {
+          type: "pie",
+          options3d: {
+            enabled: true,
+            alpha: 45
+          },
+          width: width,
+          height: height
+        },
+        title: {
+            text: ''
+        },
+        tooltip: {
+          pointFormat: 'Porcentagem: <b>{point.percentage:.1f}%</b>'
+        },
+        plotOptions: {
+          pie: {
+            animation: {
+              duration: 200,
+            },
+            depth: 20,
+            allowPointSelect: true,
+            cursor: 'pointer',
+            dataLabels: {
+              format: '{key}: <b>{point.percentage:.1f}%</b>',
+              enabled: true
+            },
+            showInLegend: true
+          }
+        },
+        series: [],
+      }
     }
   },
 
   methods: {
+    iconForTarget(kind) {
+      return {
+        teacher: 'mdi-account',
+        subject: 'mdi-book-multiple'
+      }[kind]
+    },
+
     resolveColorForConcept(concept) {
       return {
         'A': '#3fcf8c',
@@ -274,7 +293,31 @@ export default {
     },
 
     async fetchSubject() {
+      if(!this.query.subjectId) return
+      this.loading = true
 
+      try {
+        let res = await Review.getSubjectConcepts(this.query.subjectId)
+
+        if(res.data){
+          this.concepts = res.data
+          if(_.get(res.data, 'general.count', 0)) {
+            this.filterSelected = this.possibleDisciplinas[0]._id._id
+            setTimeout(() => {
+              this.updateFilter()
+              this.loading = false
+            }, 500)
+          } else {
+            this.loading = false
+          }
+        }
+      } catch(err) {
+        this.loading = false
+        this.$message({
+          type: 'error',
+          message: ErrorMessage(err),
+        }) 
+      }
     },
 
     searchDebounced: _.debounce(async function (newVal) {
@@ -321,10 +364,6 @@ export default {
     }, 
 
     fetchStudent() {
-      let self = this
-
-      // const storageUser = 'ufabc-extension-' + MatriculaHelper.currentUser()
-      const storageUser = 'ufabc-extension-333'
       this.student_cr = 4.2222
       // Utils.storage.getItem(storageUser).then(item => {
       //   if (item == null) return
@@ -334,6 +373,7 @@ export default {
 
     updateFilter(){
       let pieChart = this.$refs.pieChart
+      if(!pieChart) return
       pieChart.delegateMethod('showLoading', 'Carregando...');
 
       setTimeout(() => {

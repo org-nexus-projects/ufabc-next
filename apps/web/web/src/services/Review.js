@@ -8,6 +8,10 @@ class Review {
     return await Axios.get('/help/teachers/' + tearchId)
   }
 
+  async getSubjectConcepts(subjectId) {
+    return await Axios.get('/help/subjects/' + subjectId)
+  }
+
   
 }
 

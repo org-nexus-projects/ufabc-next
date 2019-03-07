@@ -20,6 +20,20 @@
         <v-progress-circular v-if='loadingSearch' indeterminate color="primary" size="24" width="2"></v-progress-circular>
         <v-icon v-else>search</v-icon>
       </div>
+      <template v-slot:selection="data">
+        <v-chip class="target-chip v-chip--select-multi">
+          <v-icon class="mr-1" size="20" v-if='data.item && data.item.kind'>{{ iconForTarget(data.item.kind) }}</v-icon>
+          <div class="target-name-chip">
+            {{ data.item && data.item.name }}
+          </div>
+        </v-chip>
+      </template>
+      <template v-slot:item="data">
+        <v-icon class="mr-1" size="20" v-if='data.item && data.item.kind'>
+          {{ iconForTarget(data.item.kind) }}
+        </v-icon>
+        {{ data.item && data.item.name}}
+      </template>
     </v-combobox>
   </v-layout>
 
@@ -31,35 +45,21 @@
 
       <div class="target-name">{{ target.name }}</div>
 
-      <div class="target-info mb-3">
-        <div class="d-flex mr-3" v-if='samplesCount >= 0'>
-          <v-icon size="20" class="mr-1" color="grey">mdi-alpha-a-box</v-icon> {{samplesCount}} conceitos
-        </div>
-        <div class="d-flex mr-3">
-          <v-icon size="20" class="mr-1" color="grey">mdi-message-draw</v-icon> 12 comentários
-        </div>
-        <div class="d-flex mr-3">
-          <v-icon size="20" class="mr-1" color="grey">mdi-gmail</v-icon> 
-          <a href="mailto:professor@ufabc.edu.br" style="text-decoration: none;">
-            professor@ufabc.edu.br
-          </a>
-        </div>
-        <div class="d-flex mr-3">
-          <v-icon size="20" class="mr-1" color="grey">mdi-home</v-icon> Sala 1035 (Bloco B)
-        </div>
-        <div class="d-flex mr-3">
-          <v-icon size="20" class="mr-1" color="grey">mdi-phone</v-icon> (11) 4444-4444
-        </div>
-      </div>
+      <TargetInfo
+        :conceptsCount="samplesCount"
+        :target="target"
+        v-if='!loading && samplesCount >= 0'
+      />
 
-      <v-layout>
-        <v-flex md5>
+      <v-layout wrap>
+        <v-flex sm12 md6 lg5>
           <vue-highcharts
-            class="ufabc-row ufabc-align-center ufabc-justify-middle"
-              v-if='concepts && concepts.specific && concepts.specific.length'
-              :options="options"
-              :highcharts="Highcharts"
-              ref="pieChart"
+            v-if='concepts && concepts.specific && concepts.specific.length'
+            :options="options"
+            :highcharts="Highcharts"
+            ref="pieChart"
+            :class="{ 'chart-large': $vuetify.breakpoint.xsOnly }"
+            style="display: flex; align-items: center; justify-content: center;"
           ></vue-highcharts>
 
           <div class="mt-2" style="text-align: center;">
@@ -92,13 +92,17 @@
             </div>
           </div>
         </v-flex>
-        <v-flex md7>
+        <v-flex sm12 md6 lg7>
+          <div class="title mb-2 pb-1">
+            Comentários ({{ totalComments }})
+          </div>
           <el-select
-            class="ufabc-flex ufabc-row mb-2"
+            class="mb-2"
             placeholder="Selecione a matéria" 
             @change="updateFilter()"
             v-model="filterSelected" 
-            v-if='concepts && concepts.specific && concepts.specific.length'>
+            v-if='concepts && concepts.specific && concepts.specific.length && (target && target.kind == "teacher")'
+            style="display: flex;">
             <el-option
               v-for="option in possibleDisciplinas"
               :key="option._id._id"
@@ -106,6 +110,7 @@
               :value="option._id._id">
             </el-option>
           </el-select>
+
         </v-flex>
       </v-layout>
 

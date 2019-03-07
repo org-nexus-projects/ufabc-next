@@ -21,3 +21,18 @@
   display: flex;
   align-items: center;
 }
+
+@media (max-width: 600px) {
+  .target-name {
+    font-size: 24px;
+    margin-bottom: 8px;
+    line-height: 30px;
+  }
+}
+
+.target-name-chip {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
