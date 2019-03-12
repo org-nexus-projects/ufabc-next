@@ -30,3 +30,14 @@
   margin-right: -20px;
   margin-top: 16px;
 }
+
+.toggle-sort-teachers.v-btn-toggle {
+  box-shadow: none;
+  flex-wrap: wrap;
+}
+.toggle-sort-teachers.v-btn-toggle .v-btn{
+  opacity: 0.2;
+}
+.toggle-sort-teachers.v-btn-toggle .v-btn.v-btn--active{
+  opacity: 1;
+}

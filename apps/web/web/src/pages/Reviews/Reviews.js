@@ -11,6 +11,7 @@ import Flatten from '@/helpers/Flatten'
 import WelcomeReview from '@/components/Reviews/Welcome'
 import NoReviewsFound from '@/components/Reviews/NoReviewsFound'
 import TargetInfo from '@/components/Reviews/TargetInfo'
+import SubjectTeachersList from '@/components/Reviews/SubjectTeachersList'
 
 Highcharts3D(Highcharts);
 
@@ -20,7 +21,8 @@ export default {
     VueHighcharts,
     WelcomeReview,
     NoReviewsFound,
-    TargetInfo
+    TargetInfo,
+    SubjectTeachersList,
   },
 
   data() {
@@ -37,6 +39,7 @@ export default {
       subjects: [],
 
       target: null,
+      teachersOfSubject: null,
 
       // graph
       concepts: null,
@@ -120,7 +123,7 @@ export default {
     },
 
     possibleDisciplinas(){ 
-      let disciplinas = this.concepts.specific
+      let disciplinas = [...this.concepts.specific]
       let generalDefaults = {
         _id: {
           _id: 'all',
@@ -299,17 +302,13 @@ export default {
       try {
         let res = await Review.getSubjectConcepts(this.query.subjectId)
 
+        this.loading = false
         if(res.data){
-          this.concepts = res.data
-          if(_.get(res.data, 'general.count', 0)) {
-            this.filterSelected = this.possibleDisciplinas[0]._id._id
-            setTimeout(() => {
-              this.updateFilter()
-              this.loading = false
-            }, 500)
-          } else {
-            this.loading = false
-          }
+          this.teachersOfSubject = res.data.specific
+          this.concepts = Object.assign({}, res.data)
+
+          this.filterSelected = this.possibleDisciplinas[0]._id._id
+          this.updateFilter()
         }
       } catch(err) {
         this.loading = false

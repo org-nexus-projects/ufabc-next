@@ -24,9 +24,58 @@
     .navbar.past-main > .container > .logo-white {
       display: none;
     }
+    @media only screen and (max-width: 768px) {
+      .navbar-nav {
+        padding-bottom: 1.5rem;
+        background: rgba(255, 255, 255, 0.99) !important;
+      }
+      .navbar-light .navbar-toggler-icon{
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(250, 250, 250, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+      }
+      .navbar.past-main .navbar-toggler-icon{
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(46, 126, 237, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+      }
+    }
     </style>
   </head>
   <body>
+
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+        <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '807214296296082',
+          cookie     : true,
+          xfbml      : true,
+          version    : 'v3.2'
+        });
+          
+        FB.AppEvents.logPageView();   
+
+
+      };
+
+        function checkLoginState() {
+  FB.getLoginStatus(function(response) {
+    console.log(response)
+
+       FB.api('/me', function(response) {
+        console.log(response)
+    });
+  });
+
+}
+
+
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "https://connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+    </script>
     <div class="wrapper">
       <div class="container">
         <nav class="navbar navbar-expand-md nav-white navbar-light bg-light fixed-top">
@@ -34,8 +83,8 @@
             <img class="logo-white" src="assets/images/logo_white.png" width="156">
             <img class="logo-normal" src="assets/images/logo.png" width="156" style="display: none;">
             <!-- <a class="navbar-brand" href="#">Label</a> -->
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"  style="color: #fff!important">
+              <span class="navbar-toggler-icon" style="color: #fff!important"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav ml-auto navbar-right">
@@ -66,6 +115,10 @@
                    </form>
                     <div id="response"></div>
                   </div>
+
+<fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+</fb:login-button>
+
                   <div class="form-note">
                     <p>14-day free trial and no credit card required.</p>
                   </div>

@@ -48,6 +48,7 @@
       <TargetInfo
         :conceptsCount="samplesCount"
         :target="target"
+        :teachersCount="teachersOfSubject && teachersOfSubject.length"
         v-if='!loading && samplesCount >= 0'
       />
 
@@ -62,7 +63,7 @@
             style="display: flex; align-items: center; justify-content: center;"
           ></vue-highcharts>
 
-          <div class="mt-2" style="text-align: center;">
+          <div class="mt-2" style="text-align: center;" v-if='target && target.kind == "teacher"'>
             <b>* {{ cobraPresenca }}</b>
           </div>
 
@@ -93,7 +94,7 @@
           </div>
         </v-flex>
         <v-flex sm12 md6 lg7>
-          <div class="title mb-2 pb-1">
+          <div class="title mb-2 pb-1" v-if='(target && target.kind == "teacher")'>
             Comentários ({{ totalComments }})
           </div>
           <el-select
@@ -111,6 +112,12 @@
             </el-option>
           </el-select>
 
+
+          <SubjectTeachersList
+            :teachers="teachersOfSubject"
+            :totalConcepts="samplesCount"
+            v-if='target.kind == "subject"'
+            />
         </v-flex>
       </v-layout>
 
