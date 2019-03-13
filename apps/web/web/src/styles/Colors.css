@@ -7,6 +7,8 @@
   --ufabcnext-navigation: #215096; /*#4527A0;*/
   --ufabcnext-red: #e17472;
   --ufabcnext-nav-blue: #409EFF;
+  --ufabcnext-like: #909090;
+  --ufabcnext-liked: #065fd4;
 }
 
 
@@ -108,7 +110,7 @@
 
 
 /* 
-  Red - Text color, border color and background color
+  Nav blue - Text color, border color and background color
 */
 .ufabcnext-nav-blue {
   background-color: var(--ufabcnext-nav-blue) !important;
@@ -118,4 +120,31 @@
 }
 .ufabcnext-nav-blue--text {
   color: var(--ufabcnext-nav-blue) !important;
+}
+
+
+/* 
+  Like - Text color, border color and background color
+*/
+.ufabcnext-like {
+  background-color: var(--ufabcnext-like) !important;
+}
+.ufabcnext-like-outline {
+  border-color: var(--ufabcnext-like) !important;
+}
+.ufabcnext-like--text {
+  color: var(--ufabcnext-like) !important;
+}
+
+/* 
+  Liked - Text color, border color and background color
+*/
+.ufabcnext-liked {
+  background-color: var(--ufabcnext-liked) !important;
+}
+.ufabcnext-liked-outline {
+  border-color: var(--ufabcnext-liked) !important;
+}
+.ufabcnext-liked--text {
+  color: var(--ufabcnext-liked) !important;
 }

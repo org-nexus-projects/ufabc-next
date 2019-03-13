@@ -12,6 +12,7 @@ import WelcomeReview from '@/components/Reviews/Welcome'
 import NoReviewsFound from '@/components/Reviews/NoReviewsFound'
 import TargetInfo from '@/components/Reviews/TargetInfo'
 import SubjectTeachersList from '@/components/Reviews/SubjectTeachersList'
+import TeacherCommentsRender from '@/components/Reviews/TeacherCommentsRender'
 
 Highcharts3D(Highcharts);
 
@@ -23,6 +24,7 @@ export default {
     NoReviewsFound,
     TargetInfo,
     SubjectTeachersList,
+    TeacherCommentsRender,
   },
 
   data() {
@@ -45,6 +47,8 @@ export default {
       concepts: null,
       filterSelected: null,
       samplesCount: null,
+
+      comments: [],
 
       conceitos: [
         { conceito: 'A' },
@@ -71,8 +75,6 @@ export default {
         this.query[k] = this.$route.query[k]
       }
     }
-
-    // this.fetch()
   },
 
   watch: {
@@ -101,7 +103,9 @@ export default {
   computed: {
     targetToReview: {
       set(val) {
+        if(_.isString(val)) return
         this.target = val
+
         if(!val){
           this.query.subjectId = null
           this.query.teacherId = null
@@ -264,9 +268,11 @@ export default {
     }, 500, {leading: false, trailing: true}),
 
     fetch() {
-      if(!this.query.teacherId && !this.query.subjectId) return
-      this.fetchTeacher()
-      this.fetchSubject()
+      if(this.query.teacherId) {
+        this.fetchTeacher()
+      } else if(this.query.subjectId) {
+        this.fetchSubject()
+      }
     },
 
     async fetchTeacher() {
@@ -278,12 +284,16 @@ export default {
 
         this.loading = false
         if(res.data){
+          if(!this.targetToReview) this.targetToReview = Object.assign({ kind: 'teacher'}, res.data.teacher)
+
           this.concepts = res.data
           if(_.get(res.data, 'general.count', 0)) {
             this.filterSelected = this.possibleDisciplinas[0]._id._id
             setTimeout(() => {
               this.updateFilter()
             }, 500)
+
+            this.getTeacherComments()
           }
         }
       } catch(err) {
@@ -304,11 +314,16 @@ export default {
 
         this.loading = false
         if(res.data){
+          if(!this.targetToReview) this.targetToReview = Object.assign({ kind: 'subject'}, res.data.subject)
+
           this.teachersOfSubject = res.data.specific
           this.concepts = Object.assign({}, res.data)
-
           this.filterSelected = this.possibleDisciplinas[0]._id._id
-          this.updateFilter()
+          if(_.get(res.data, 'general.count', 0)) {
+            setTimeout(() => {
+              this.updateFilter()
+            }, 500)
+          }
         }
       } catch(err) {
         this.loading = false
@@ -370,6 +385,26 @@ export default {
       // })
     },
 
+    async getTeacherComments(){
+      if(!this.query.teacherId) return
+      this.loading = true
+
+      try {
+        let res = await Teacher.comments(this.query.teacherId)
+
+        this.loading = false
+        if(res.data){
+          this.comments = res.data
+        }
+      } catch(err) {
+        this.loading = false
+        this.$message({
+          type: 'error',
+          message: ErrorMessage(err),
+        }) 
+      }
+    },
+
     updateFilter(){
       let pieChart = this.$refs.pieChart
       if(!pieChart) return
@@ -395,10 +430,6 @@ export default {
           })
         }
         this.samplesCount = filter.count
-
-        // pieChart.mergeOption({
-        //   subtitle: { text: 'Total de amostras: <b>' + filter.count + '<b/>'}
-        // })
 
         pieChart.addSeries({  
           data: _.sortBy(conceitosFiltered, 'name')

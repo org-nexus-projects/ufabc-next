@@ -1,0 +1,6 @@
+.teacher-table-mobile.el-table{
+  width: calc(100% + 48px)!important;
+  margin-left: -24px;
+  margin-right: -24px!important;
+  max-width: none;
+}

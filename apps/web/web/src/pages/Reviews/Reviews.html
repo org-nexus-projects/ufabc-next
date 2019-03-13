@@ -53,7 +53,7 @@
       />
 
       <v-layout wrap>
-        <v-flex sm12 md6 lg5>
+        <v-flex sm12 md12 lg5>
           <vue-highcharts
             v-if='concepts && concepts.specific && concepts.specific.length'
             :options="options"
@@ -93,7 +93,7 @@
             </div>
           </div>
         </v-flex>
-        <v-flex sm12 md6 lg7>
+        <v-flex sm12 md12 lg7>
           <div class="title mb-2 pb-1" v-if='(target && target.kind == "teacher")'>
             Comentários ({{ totalComments }})
           </div>
@@ -112,6 +112,11 @@
             </el-option>
           </el-select>
 
+          <TeacherCommentsRender
+            class="mt-3"
+            :comments="comments"
+            v-if='target.kind == "teacher"'
+          />
 
           <SubjectTeachersList
             :teachers="teachersOfSubject"
