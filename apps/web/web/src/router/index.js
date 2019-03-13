@@ -36,6 +36,7 @@ const router = new VueRouter({
         title: 'Reviews',
         // auth: true
       },
+      props: true,
     },
     
     {

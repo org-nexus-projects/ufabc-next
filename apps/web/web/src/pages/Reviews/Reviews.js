@@ -5,54 +5,28 @@ import Highcharts from "highcharts";
 import _ from 'lodash'
 import Review from '@/services/Review'
 import Teacher from '@/services/Teacher'
+import Subjects from '@/services/Subjects'
 import ErrorMessage from '@/helpers/ErrorMessage'
+import Flatten from '@/helpers/Flatten'
+import WelcomeReview from '@/components/Reviews/Welcome'
+import NoReviewsFound from '@/components/Reviews/NoReviewsFound'
+import TargetInfo from '@/components/Reviews/TargetInfo'
+import SubjectTeachersList from '@/components/Reviews/SubjectTeachersList'
 
 Highcharts3D(Highcharts);
-
-const data = {
-  chart: {
-    type: "pie",
-    options3d: {
-      enabled: true,
-      alpha: 45
-    },
-    width: 380,
-    height: 240
-  },
-  title: {
-      text: ''
-  },
-  tooltip: {
-    pointFormat: 'Porcentagem: <b>{point.percentage:.1f}%</b>'
-  },
-  plotOptions: {
-    pie: {
-      // innerSize: 100,
-      animation: {
-        duration: 200,
-      },
-      depth: 20,
-      allowPointSelect: true,
-      cursor: 'pointer',
-      dataLabels: {
-        format: '{key}: <b>{point.percentage:.1f}%</b>',
-        enabled: true
-      },
-      showInLegend: true
-    }
-  },
-  series: []
-};
 
 export default {
   name: 'Reviews',
   components: {
-    VueHighcharts
+    VueHighcharts,
+    WelcomeReview,
+    NoReviewsFound,
+    TargetInfo,
+    SubjectTeachersList,
   },
 
   data() {
     return {
-      options: data,
       Highcharts,
 
       loading: false,
@@ -64,10 +38,11 @@ export default {
       teachers: [],
       subjects: [],
 
-      teacher: null,
-      subject: null,
+      target: null,
+      teachersOfSubject: null,
 
-      help_data: null,
+      // graph
+      concepts: null,
       filterSelected: null,
       samplesCount: null,
 
@@ -84,45 +59,78 @@ export default {
       query: {
         teacherId: null,
         subjectId: null,
+        q: ''
       }
     } 
   },
 
   created() {
-    this.fetch()
+    // Init with custom route params
+    for (let k in this.$route.query) {
+      if (k in this.query) {
+        this.query[k] = this.$route.query[k]
+      }
+    }
+
+    // this.fetch()
   },
 
   watch: {
-    // 'value.notifier'(val) {
-    //   if(val) this.$notify(val)
-    // },
+    query: {
+      handler() {
+        this.fetchDebounced()
 
-    // 'value.professor'(val){
-    //   this.fetch()
-    // },
-  },
+        if (this.isQueryClear) {
+          this.$router.replace({query: {}})
+        } else {
+          this.$router.replace({query: this.query})
+        }
 
-  watch: {
+      },
+      deep: true,
+    },
+
     search(val) {
+      this.query.q = val
+
       this.loadingSearch = true
       this.searchDebounced(val)
     }
   },
 
   computed: {
-    professorName() {
-      return _.get(this.value, 'professor.name', '')
+    targetToReview: {
+      set(val) {
+        this.target = val
+        if(!val){
+          this.query.subjectId = null
+          this.query.teacherId = null
+        } else if(val.kind == 'teacher'){
+          this.query.subjectId = null
+          this.query.teacherId = val._id
+        } else if(val.kind == 'subject') {
+          this.query.teacherId = null
+          this.query.subjectId = val._id
+        } 
+      },
+      get() {
+        return this.target
+      }
+    },
+
+    isQueryClear() {
+      return !Object.values(this.query).some(val => val)
     },
 
     possibleDisciplinas(){ 
-      let disciplinas = this.help_data.specific
+      let disciplinas = [...this.concepts.specific]
       let generalDefaults = {
         _id: {
           _id: 'all',
           name: 'Todas as matérias'
         }
       }
-      let general = Object.assign(generalDefaults, this.help_data.general)
+      let general = Object.assign(generalDefaults, this.concepts.general)
       disciplinas.push(general)
 
       return disciplinas.reverse()
@@ -133,18 +141,18 @@ export default {
 
       let filter
       if(this.filterSelected == 'all'){
-        filter = this.help_data.general
+        filter = this.concepts.general
       } else {
-        filter = _.find(this.help_data.specific, { _id: { _id: this.filterSelected }})
+        filter = _.find(this.concepts.specific, { _id: { _id: this.filterSelected }})
       }
 
       return filter && filter.distribution && _.sortBy(filter.distribution, 'conceito')
     },
 
     cobraPresenca() {
-      if(!_.get(this.help_data, 'general.distribution.length', 0)) return
+      if(!_.get(this.concepts, 'general.distribution.length', 0)) return
 
-      if(_.find(this.help_data.general.distribution, { conceito: 'O'})) {
+      if(_.find(this.concepts.general.distribution, { conceito: 'O'})) {
         return 'Provavelmente esse professor cobra presença 👎'
       } else {
         return 'Provavelmente esse professor NÃO cobra presença 👍'
@@ -167,11 +175,65 @@ export default {
     },
 
     entries() {
-      return this.teachers
+      return ([]).concat(this.teachers).concat(this.subjects)
+    },
+
+    totalComments() {
+      return 51
+    },
+
+    options() {
+      let maxWidth = 420
+      let maxHeight = 280
+      let onlyXs = this.$vuetify.breakpoint.xsOnly
+      let screenWidth = this.$vuetify.breakpoint.width
+      let width  =  onlyXs ? (screenWidth - 40) > maxWidth ? maxWidth : (screenWidth - 40) : maxWidth
+      let height =  onlyXs ? (screenWidth - 140) > maxHeight ? maxHeight : (screenWidth - 140) : maxHeight
+      
+      return {
+        chart: {
+          type: "pie",
+          options3d: {
+            enabled: true,
+            alpha: 45
+          },
+          width: width,
+          height: height
+        },
+        title: {
+            text: ''
+        },
+        tooltip: {
+          pointFormat: 'Porcentagem: <b>{point.percentage:.1f}%</b>'
+        },
+        plotOptions: {
+          pie: {
+            animation: {
+              duration: 200,
+            },
+            depth: 20,
+            allowPointSelect: true,
+            cursor: 'pointer',
+            dataLabels: {
+              format: '{key}: <b>{point.percentage:.1f}%</b>',
+              enabled: true
+            },
+            showInLegend: true
+          }
+        },
+        series: [],
+      }
     }
   },
 
   methods: {
+    iconForTarget(kind) {
+      return {
+        teacher: 'mdi-account',
+        subject: 'mdi-book-multiple'
+      }[kind]
+    },
+
     resolveColorForConcept(concept) {
       return {
         'A': '#3fcf8c',
@@ -197,31 +259,69 @@ export default {
       return conceito ? conceito.count : '-'
     },  
 
+    fetchDebounced: _.debounce(function () {
+      this.fetch()
+    }, 500, {leading: false, trailing: true}),
+
     fetch() {
-      // this.fetchStudent()
+      if(!this.query.teacherId && !this.query.subjectId) return
+      this.fetchTeacher()
+      this.fetchSubject()
+    },
 
-      let professorId = '5bf5fb65d741524f090c91bd'
-
+    async fetchTeacher() {
+      if(!this.query.teacherId) return
       this.loading = true
-      Review.getTeacherConcepts(professorId).then((res) => {
-        this.help_data = res
-        this.loading = false
 
-        if(_.get(res, 'general.count', 0)) {
-          this.filterSelected = this.possibleDisciplinas[0]._id._id
-          setTimeout(() => {
-            this.updateFilter()
-          }, 500)
+      try {
+        let res = await Review.getTeacherConcepts(this.query.teacherId)
+
+        this.loading = false
+        if(res.data){
+          this.concepts = res.data
+          if(_.get(res.data, 'general.count', 0)) {
+            this.filterSelected = this.possibleDisciplinas[0]._id._id
+            setTimeout(() => {
+              this.updateFilter()
+            }, 500)
+          }
         }
-      }).catch((e) => {
+      } catch(err) {
         this.loading = false
-      })
+        this.$message({
+          type: 'error',
+          message: ErrorMessage(err),
+        }) 
+      }
+    },
 
+    async fetchSubject() {
+      if(!this.query.subjectId) return
+      this.loading = true
+
+      try {
+        let res = await Review.getSubjectConcepts(this.query.subjectId)
+
+        this.loading = false
+        if(res.data){
+          this.teachersOfSubject = res.data.specific
+          this.concepts = Object.assign({}, res.data)
+
+          this.filterSelected = this.possibleDisciplinas[0]._id._id
+          this.updateFilter()
+        }
+      } catch(err) {
+        this.loading = false
+        this.$message({
+          type: 'error',
+          message: ErrorMessage(err),
+        }) 
+      }
     },
 
     searchDebounced: _.debounce(async function (newVal) {
       this.searchTeacher(newVal)
-      // this.searchPatient(newVal)
+      this.searchSubject(newVal)
     }, 500, {leading: false, trailing: true}),
 
     async searchTeacher(q) {
@@ -230,7 +330,10 @@ export default {
 
         this.loadingSearch = false
         if(res.data && res.data.total){
-          this.teachers = res.data.data
+          this.teachers = res.data.data.map(t => ({
+            ...t,
+            kind: 'teacher'
+          }))
         }
       } catch(err) {
         this.loadingSearch = false
@@ -241,11 +344,25 @@ export default {
       }
     }, 
 
-    fetchStudent() {
-      let self = this
+    async searchSubject(q) {
+      try {
+        let res = await Subjects.search(q)
 
-      // const storageUser = 'ufabc-extension-' + MatriculaHelper.currentUser()
-      const storageUser = 'ufabc-extension-333'
+        if(res.data && res.data.total){
+          this.subjects = res.data.data.map(s => ({
+            ...s,
+            kind: 'subject'
+          }))
+        }
+      } catch(err) {
+        // this.$message({
+        //   type: 'error',
+        //   message: ErrorMessage(err),
+        // }) 
+      }
+    }, 
+
+    fetchStudent() {
       this.student_cr = 4.2222
       // Utils.storage.getItem(storageUser).then(item => {
       //   if (item == null) return
@@ -255,6 +372,7 @@ export default {
 
     updateFilter(){
       let pieChart = this.$refs.pieChart
+      if(!pieChart) return
       pieChart.delegateMethod('showLoading', 'Carregando...');
 
       setTimeout(() => {
@@ -262,9 +380,9 @@ export default {
 
         let filter
         if(this.filterSelected == 'all'){
-          filter = this.help_data.general
+          filter = this.concepts.general
         } else {
-          filter = _.find(this.help_data.specific, { _id: { _id: this.filterSelected }})
+          filter = _.find(this.concepts.specific, { _id: { _id: this.filterSelected }})
         }
 
         let conceitosFiltered = []

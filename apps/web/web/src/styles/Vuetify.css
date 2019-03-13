@@ -14,3 +14,30 @@
   margin-top: 8px;
   margin-top: 8px;
 }
+.search-review-input.v-text-field .v-select__selections {
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+.v-chip.target-chip .v-chip__content {
+  white-space: initial;
+}
+
+
+
+
+.chart-large {
+  margin-left: -20px;
+  margin-right: -20px;
+  margin-top: 16px;
+}
+
+.toggle-sort-teachers.v-btn-toggle {
+  box-shadow: none;
+  flex-wrap: wrap;
+}
+.toggle-sort-teachers.v-btn-toggle .v-btn{
+  opacity: 0.2;
+}
+.toggle-sort-teachers.v-btn-toggle .v-btn.v-btn--active{
+  opacity: 1;
+}
