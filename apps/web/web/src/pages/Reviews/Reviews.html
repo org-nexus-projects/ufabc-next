@@ -112,11 +112,15 @@
             </el-option>
           </el-select>
 
-          <TeacherCommentsRender
-            class="mt-3"
-            :comments="comments"
-            v-if='target.kind == "teacher"'
-          />
+          <div class="comment-list mt-3" v-if='target.kind == "teacher"'>
+            <ReviewComment
+              v-for='comment in comments'
+              :comment="comment"
+              class="mb-4" 
+              :key="comment._id" 
+              @input="updateComment($event)"
+            />
+          </div>
 
           <SubjectTeachersList
             :teachers="teachersOfSubject"

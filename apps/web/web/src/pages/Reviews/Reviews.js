@@ -3,6 +3,7 @@ import Highcharts3D from "highcharts/highcharts-3d";
 import Highcharts from "highcharts";
 
 import _ from 'lodash'
+import Vue from 'vue'
 import Review from '@/services/Review'
 import Teacher from '@/services/Teacher'
 import Subjects from '@/services/Subjects'
@@ -12,7 +13,7 @@ import WelcomeReview from '@/components/Reviews/Welcome'
 import NoReviewsFound from '@/components/Reviews/NoReviewsFound'
 import TargetInfo from '@/components/Reviews/TargetInfo'
 import SubjectTeachersList from '@/components/Reviews/SubjectTeachersList'
-import TeacherCommentsRender from '@/components/Reviews/TeacherCommentsRender'
+import ReviewComment from '@/components/Reviews/Comment'
 
 Highcharts3D(Highcharts);
 
@@ -24,7 +25,7 @@ export default {
     NoReviewsFound,
     TargetInfo,
     SubjectTeachersList,
-    TeacherCommentsRender,
+    ReviewComment,
   },
 
   data() {
@@ -394,7 +395,10 @@ export default {
 
         this.loading = false
         if(res.data){
-          this.comments = res.data
+          this.comments = res.data.map(c => {
+            c.showMore = false
+            return c
+          })
         }
       } catch(err) {
         this.loading = false
@@ -436,6 +440,14 @@ export default {
         })
         pieChart.hideLoading();
       }, 500)
+    },
+
+    updateComment(comment){
+      if(!comment._id) return
+      let commentIndex = _.findIndex(this.comments, { _id: comment._id })
+      if(commentIndex < 0) return
+
+      Vue.set(this.comments, commentIndex, comment)
     }
 
   },

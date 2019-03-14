@@ -26,7 +26,7 @@ class Teacher {
             _id: "5bf5fbdb436c414f35a8efdd",
           },
           _id: '3',
-          author: null
+          author: null,
         },
         {
           text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam sodales purus non dignissim feugiat. Nulla eget lectus nisl. Mauris posuere eu ipsum a dapibus. Vestibulum vel nulla posuere, sagittis tellus id, venenatis tellus. Morbi porttitor rhoncus nunc, eu luctus ligula. Cras vitae ipsum facilisis, commodo quam eu, viverra est. Suspendisse sit amet tellus aliquam, mollis tortor vitae, luctus lacus. Suspendisse potenti. Proin et commodo neque. Phasellus a lorem et libero luctus pellentesque. Ut non rutrum dolor. Integer quis lacus risus. Aliquam nulla leo, tempus finibus dui sit amet, vulputate sagittis dolor. In rutrum est sit amet dictum auctor. Nam porta leo ultrices ante aliquam, at tempus dui finibus. Donec pulvinar euismod leo in hendrerit.',
