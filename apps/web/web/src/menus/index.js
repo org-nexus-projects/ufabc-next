@@ -10,8 +10,8 @@ export default [
   {
     title: 'Estatísticas',
     icon: 'mdi-google-analytics',
-    route: '/analytics',
-    permissions: 'analytics:read',
+    route: '/stats',
+    permissions: 'stats:read',
   },
 
   {

@@ -163,7 +163,7 @@ export default {
     },
 
     open(itemMenu) {
-      // if(itemMenu && itemMenu.route) this.$router.push({ path: itemMenu.route, query: itemMenu.query || {} })
+      if(itemMenu && itemMenu.route) this.$router.push({ path: itemMenu.route, query: itemMenu.query || {} })
     },
 
     // async getMe() {

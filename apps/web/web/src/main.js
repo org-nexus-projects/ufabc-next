@@ -6,6 +6,7 @@ import 'vuetify/src/stylus/app.styl'
 import '@mdi/font/css/materialdesignicons.css'
 import router from '@/router'
 import Colors from '@/styles/Colors.css'
+import Text from '@/styles/Text.css'
 import General from '@/styles/General.css'
 import VuetifyCSS from '@/styles/Vuetify.css'
 import ElementCSS from '@/styles/Element.css'
@@ -14,6 +15,9 @@ import Axios from 'axios'
 import Environment from '@/environment'
 
 Vue.use(Vuetify)
+
+import VCharts from 'v-charts'
+Vue.use(VCharts)
 
 import VueTheMask from 'vue-the-mask'
 Vue.use(VueTheMask)

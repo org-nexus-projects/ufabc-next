@@ -9,6 +9,7 @@
   "dependencies": {
     "@mdi/font": "^3.3.92",
     "axios": "^0.18.0",
+    "echarts": "^4.1.0",
     "element-ui": "^2.4.11",
     "highcharts": "^6.2.0",
     "jwt-decode": "^2.2.0",
@@ -17,6 +18,7 @@
     "raven-js": "^3.26.4",
     "url": "^0.11.0",
     "url-join": "^4.0.0",
+    "v-charts": "^1.19.0",
     "vee-validate": "^2.1.4",
     "vue": "^2.5.17",
     "vue-router": "^3.0.2",

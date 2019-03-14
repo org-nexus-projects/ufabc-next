@@ -9,6 +9,7 @@
   --ufabcnext-nav-blue: #409EFF;
   --ufabcnext-like: #909090;
   --ufabcnext-liked: #065fd4;
+  --ufabcnext-primary: #393e56;
 }
 
 
@@ -147,4 +148,17 @@
 }
 .ufabcnext-liked--text {
   color: var(--ufabcnext-liked) !important;
+}
+
+/*
+  New Black - Text color, border color and background color
+*/
+.ufabcnext-primary {
+  background-color: var(--ufabcnext-primary) !important;;
+}
+.ufabcnext-primary-outline {
+  border-color: var(--ufabcnext-primary) !important;
+}
+.ufabcnext-primary--text {
+  color: var(--ufabcnext-primary) !important;
 }

@@ -3,6 +3,8 @@ import VueRouter from 'vue-router'
 
 // Pages
 import Reviews from '@/pages/Reviews'
+import Stats from '@/pages/Stats'
+import History from '@/pages/History'
 
 import Auth from '@/services/Auth'
 // import UsersService from '@/services/Users'
@@ -36,6 +38,26 @@ const router = new VueRouter({
         // auth: true
       },
       props: true,
+    },
+    
+    {
+      name: 'stats',
+      path: '/stats',
+      component: Stats,
+      meta: {
+        title: 'Stats',
+        // auth: true
+      },
+    },
+
+     {
+      name: 'history',
+      path: '/history',
+      component: History,
+      meta: {
+        title: 'Meu Histórico',
+        // auth: true
+      },
     },
 
     // { path: '*', redirect: '/login' }

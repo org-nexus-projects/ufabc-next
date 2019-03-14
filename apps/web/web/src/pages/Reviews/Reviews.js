@@ -411,6 +411,7 @@ export default {
 
     updateFilter(){
       let pieChart = this.$refs.pieChart
+      console.log('PIE', pieChart)
       if(!pieChart) return
       pieChart.delegateMethod('showLoading', 'Carregando...');
 
