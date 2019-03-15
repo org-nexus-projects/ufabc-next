@@ -8,7 +8,15 @@ class Teacher {
     return await Axios.get('/teachers/search?q=' + q)
   }
 
-  async comments(id){
+  async createComment(id) {
+    return await Axios.post('/teachers/' + id + '/comment')
+  }
+
+  async updateComment(id) {
+    return await Axios.post('/teachers/' + id + '/comment')
+  }
+
+  async getComments(id){
     return {
       data: [
         {

@@ -393,7 +393,7 @@ export default {
       this.loading = true
 
       try {
-        let res = await Teacher.comments(this.query.teacherId)
+        let res = await Teacher.getComments(this.query.teacherId)
 
         this.loading = false
         if(res.data){

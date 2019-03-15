@@ -21,7 +21,7 @@
                 <span class="mr-2">
                   Juliana Kelmy Macario De Faria Daguano
                 </span>
-                <el-button class="pa-0" type="text">
+                <el-button @click="comment()" class="pa-0" type="text">
                   <div style="display: flex; align-items: center;">
                     <v-icon class="mr-2" size="18" color="ufabcnext-grey">mdi-message-draw</v-icon>
                     COMENTAR
@@ -33,7 +33,7 @@
                 <span class="mr-2">
                   Antonio Sérgio Munhoz
                 </span>
-                <el-button class="pa-0" type="text">
+                <el-button   @click="comment()" class="pa-0" type="text">
                   <div style="display: flex; align-items: center;">
                     <v-icon class="mr-2" size="18" color="ufabcnext-green">mdi-message-draw</v-icon>
                     COMENTAR
@@ -52,6 +52,8 @@
 import History from '@/services/History'
 import ErrorMessage from '@/helpers/ErrorMessage'
 import Vue from 'vue'
+import CommentEditor from '@/components/Reviews/CommentEditor'
+
 export default {
   name: 'ReviewQuickComment',
 
@@ -115,6 +117,18 @@ export default {
         }) 
       }
     },
+
+    async comment() {
+      let dialog = this.$dialog({
+        width: '750px',
+        top: '10vh',
+      }, CommentEditor)
+
+      try {
+        let res = await dialog
+
+      } catch(e) {} 
+    }
   }
 
 }

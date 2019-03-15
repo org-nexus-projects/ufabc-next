@@ -11,7 +11,6 @@ class Review {
   async getSubjectConcepts(subjectId) {
     return await Axios.get('/help/subjects/' + subjectId)
   }
-
   
 }
 
