@@ -9,7 +9,9 @@
   --ufabcnext-nav-blue: #409EFF;
   --ufabcnext-like: #909090;
   --ufabcnext-liked: #065fd4;
-  --ufabcnext-primary: #393e56;
+  --ufabcnext-primary: #2e7eed;
+  --ufabcnext-secondary: #393e56;
+  --ufabcnext-charcoal-grey: #323544;
 }
 
 
@@ -151,7 +153,7 @@
 }
 
 /*
-  New Black - Text color, border color and background color
+  Primary - Text color, border color and background color
 */
 .ufabcnext-primary {
   background-color: var(--ufabcnext-primary) !important;;
@@ -161,4 +163,30 @@
 }
 .ufabcnext-primary--text {
   color: var(--ufabcnext-primary) !important;
+}
+
+/*
+  Secondary - Text color, border color and background color
+*/
+.ufabcnext-secondary {
+  background-color: var(--ufabcnext-secondary) !important;;
+}
+.ufabcnext-secondary-outline {
+  border-color: var(--ufabcnext-secondary) !important;
+}
+.ufabcnext-secondary--text {
+  color: var(--ufabcnext-secondary) !important;
+}
+
+/*
+  Charcoal-grey - Text color, border color and background color
+*/
+.ufabcnext-charcoal-grey {
+  background-color: var(--ufabcnext-charcoal-grey) !important;;
+}
+.ufabcnext-charcoal-grey-outline {
+  border-color: var(--ufabcnext-charcoal-grey) !important;
+}
+.ufabcnext-charcoal-grey--text {
+  color: var(--ufabcnext-charcoal-grey) !important;
 }

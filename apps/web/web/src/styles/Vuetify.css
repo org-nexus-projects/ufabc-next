@@ -29,16 +29,13 @@
   margin-top: 16px;
 }
 
-.toggle-sort-teachers.v-btn-toggle {
-  box-shadow: none;
-  flex-wrap: wrap;
+.review-button.v-btn {
+  margin: 0px;
+  margin-left: 8px;
+  width: 30px;
+  height: 30px;
 }
-.toggle-sort-teachers.v-btn-toggle .v-btn{
-  opacity: 0.2;
-}
-.toggle-sort-teachers.v-btn-toggle .v-btn.v-btn--active{
-  opacity: 1;
-}
+
 
 /* Custom Card elevations */
 .elevate-3d {
