@@ -34,6 +34,24 @@ class Stats {
     return mockedData
   }
 
+async getCrDistribution() {
+  let mockedData = [
+    [1.05, 100],
+    [1.55, 130],
+    [2.05, 400],
+    [2.65, 600],
+    [2.95, 400],
+    [3.35, 100],
+    [3.40, 50],
+    [3.45, 10],
+    [3.65, 10],
+    [4.00, 1],
+  ]
+  // return await Axios.get('/help/teachers/' + studentId)
+  return mockedData
+}
+
+
   
 }
 

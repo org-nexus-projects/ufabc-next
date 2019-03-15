@@ -4,6 +4,7 @@ import VueRouter from 'vue-router'
 // Pages
 import Reviews from '@/pages/Reviews'
 import Stats from '@/pages/Stats'
+import SignupForm from '@/pages/Signup/SignupForm'
 
 import Auth from '@/services/Auth'
 // import UsersService from '@/services/Users'
@@ -26,6 +27,23 @@ Vue.use(VueRouter)
 const router = new VueRouter({
   mode: 'history',
   routes: [
+    {
+      path: '/signup',
+      component: SignupForm,
+      beforeEnter: RedirectIfLogged('/'),
+
+      children: [
+        // {
+        //   name: 'register',
+        //   path: 'Register',
+        //   component: LoginRegister,
+        //   meta: {
+        //     title: 'login.register',
+        //   },
+        //   props: true,
+        // },
+      ],
+    },
 
     {
       alias: '/',

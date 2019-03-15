@@ -1,13 +1,28 @@
-<v-container style="display: flex; flex-direction: column;">  
-  <!-- <v-layout row align-center class="white elevation-1"> -->
-    <div class="white elevation-1 pa-4">
-      <span class="chart-title">Seu CR ao longo do tempo</span>
-      <ve-line :data="chartData" :settings="chartSettings"></ve-line>
-    </div>
-  <!-- </v-layout> -->
 
-  <div class="white elevation-1 pa-4 mt-3">
-    <span class="chart-title">Distribuição de CR</span>
-    <ve-histogram :data="chartData2"></ve-histogram>
+<div class="column flex mx-4 mt-3 mb-4 pa-4 ra-1 elevate-2" style="background-color: white;">
+  <!-- Header -->
+    <div class="row align-center" style="height: 88px;">
+      <div class="column justify-center italic ufabcnext-primary--text header-title mr-3">
+        Algumas estatísticas :)
+      </div>
+    </div>
+  
+  <div class="flex mb-4 column ra-1 elevate-2 pa-3 white">
+    <span class="chart-title">Seu CR ao longo do tempo</span>
+    <ve-line :data="crHistoryOptions" :settings="crHistorySettings"></ve-line>
   </div>
-</v-container>
+
+
+  <div class="flex column ra-1 elevate-2 pa-3 white">
+    <span class="chart-title">Distribuição de CR</span>
+      <vue-highcharts
+        v-if="crDistributionOptions && crDistributionOptions.series[0] && crDistributionOptions.series[0].data.length"
+        :options="crDistributionOptions"
+        :highcharts="Highcharts"
+        ref="crDistributionChart"
+        :class="{ 'chart-large': $vuetify.breakpoint.xsOnly }"
+        style="display: flex; align-items: center; justify-content: center;"
+      ></vue-highcharts>
+  </div>
+</div>
+

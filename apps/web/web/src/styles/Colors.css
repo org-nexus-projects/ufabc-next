@@ -119,3 +119,17 @@
 .ufabcnext-nav-blue--text {
   color: var(--ufabcnext-nav-blue) !important;
 }
+
+/*
+  New Black - Text color, border color and background color
+*/
+
+.ufabcnext-primary {
+  background-color: #393e56 !important;;
+}
+.ufabcnext-primary-outline {
+  border-color: #393e56 !important;
+}
+.ufabcnext-primary--text {
+  color: #393e56 !important;
+}
