@@ -11,7 +11,7 @@
       width="240"
       style="display: flex; flex-direction: column;"
     >
-      <div class="my-4" v-if='$vuetify.breakpoint.lgOnly && !mini' style="padding-left: 17px;">
+      <div class="my-4" v-if='$vuetify.breakpoint.lgAndUp && !mini' style="padding-left: 17px;">
         <img src="@/assets/logo_white.svg" height="44" />
       </div>
       <div class="logo-minified mt-3 mb-4" v-if='mini'>

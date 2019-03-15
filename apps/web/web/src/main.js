@@ -25,6 +25,9 @@ Vue.use(VueTheMask)
 import VeeValidate, {Validator} from 'vee-validate'
 Vue.use(VeeValidate);
 
+import VueDialog from '@/helpers/VueDialog'
+Vue.mixin(VueDialog)
+
 import VeeLocale_pt_BR from 'vee-validate/dist/locale/pt_BR'
 Validator.localize('pt_BR', VeeLocale_pt_BR)
 

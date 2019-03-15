@@ -1,9 +1,14 @@
 <v-container style="display: flex; flex-direction: column; min-height: 100%;">  
-  <v-layout row wrap class="white elevation-1 px-5 mr-0">
-    <div class="mt-5">
+  <v-layout row wrap class="white elevation-1 mr-0" :class="$vuetify.breakpoint.xsOnly ? 'px-3' : 'px-5'">
+    <div :class="$vuetify.breakpoint.xsOnly ? 'mt-5' : 'mt-4'">
       <h2 class="history-title ufabcnext-primary--text">Ficha individual do aluno</h2>
 
-      <div class="history-text mt-3 mb-4">Esta ficha individual é uma réplica do que você pode encontrar no site do Portal do Aluno. Caso alguma informação esteja desatualizada, basta acessar o portal novamente utilizando a extensão que as informações serão atualizadas. Se o nome de algum professor estiver errado, você pode corrigir clicando no botão "Fazer comentário" ao lado do nome do professor.</div>
+      <div class="history-text mt-3 mb-4">Esta ficha individual é uma réplica do que você pode encontrar no site do <a href="https://aluno.ufabc.edu.br/fichas_individuais" target="_blank" style="text-decoration: none;">Portal do Aluno.</a> <br />
+        <br />
+        Caso o seu histórico esteja desatualizado, basta acessar o portal novamente utilizando a <a href="https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk" style="text-decoration: none;" target="_blank">extensão do UFABC Next</a></i> e as informações serão atualizadas. <br />
+        <br />
+        Se o nome de algum professor estiver errado, você pode corrigir clicando no botão "Fazer comentário" ao lado do nome do professor.
+      </div>
 
       <div class="history-chips" v-if='history'>
         <div class="history-chip mr-3 mb-3">
@@ -22,7 +27,7 @@
       </div>
     </div>
 
-    <div class="history-complete mb-5">
+    <div class="history-complete mb-5" v-loading='loading'>
       <el-table class="history-header" style="width: 100%;">
         <el-table-column
           label="Disciplina"

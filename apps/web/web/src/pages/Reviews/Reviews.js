@@ -14,6 +14,7 @@ import NoReviewsFound from '@/components/Reviews/NoReviewsFound'
 import TargetInfo from '@/components/Reviews/TargetInfo'
 import SubjectTeachersList from '@/components/Reviews/SubjectTeachersList'
 import ReviewComment from '@/components/Reviews/Comment'
+import ReviewQuickComment from '@/components/Reviews/QuickComment'
 
 Highcharts3D(Highcharts);
 
@@ -26,6 +27,7 @@ export default {
     TargetInfo,
     SubjectTeachersList,
     ReviewComment,
+    ReviewQuickComment
   },
 
   data() {

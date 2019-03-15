@@ -8,6 +8,7 @@ export default {
   data(){
     return {
       history: null,
+      loading: false,
       conceptsColor: {
         'A': 'rgb(63, 207, 140)',
         'B': 'rgb(184, 233, 134)',

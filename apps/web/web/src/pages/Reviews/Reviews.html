@@ -137,8 +137,8 @@
     />
   </v-layout>
 
-
-  <WelcomeReview
-    v-else
-  />
+  <template v-else>
+    <WelcomeReview />
+    <ReviewQuickComment />
+  </template>
 </v-container>
