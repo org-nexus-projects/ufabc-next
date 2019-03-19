@@ -6,7 +6,7 @@
     width="460px"
     top="2vh"
     class="ufabc-element-dialog mt-1">
-    <div v-if='loading || (help_data && help_data.specific && help_data.specific.length)' 
+    <div v-if='loading || (review && review.specific && review.specific.length)' 
       style="min-height: 200px"
       v-loading="loading"
       element-loading="Carregando">
@@ -15,7 +15,7 @@
           placeholder="Selecione a matéria" 
           @change="updateFilter()"
           v-model="filterSelected" 
-          v-if='help_data && help_data.specific && help_data.specific.length'>
+          v-if='review && review.specific && review.specific.length'>
         <el-option
           v-for="option in possibleDisciplinas"
           :key="option._id._id"
@@ -30,7 +30,7 @@
 
       <vue-highcharts
         class="ufabc-row ufabc-align-center ufabc-justify-middle"
-          v-if='help_data && help_data.specific && help_data.specific.length'
+          v-if='review && review.specific && review.specific.length'
           :options="options"
           :highcharts="Highcharts"
           ref="pieChart"
@@ -124,7 +124,7 @@
   };
 
   export default {
-    name: 'Help',
+    name: 'ReviewTecher',
     props: ['value'],
     components: {
       VueHighcharts
@@ -136,7 +136,7 @@
         Highcharts,
         loading: false,
 
-        help_data: null,
+        review: null,
         filterSelected: null,
         samplesCount: null,
 
@@ -172,14 +172,14 @@
       },
 
       possibleDisciplinas(){ 
-        let disciplinas = this.help_data.specific
+        let disciplinas = this.review.specific
         let generalDefaults = {
           _id: {
             _id: 'all',
             name: 'Todas as matérias'
           }
         }
-        let general = Object.assign(generalDefaults, this.help_data.general)
+        let general = Object.assign(generalDefaults, this.review.general)
         disciplinas.push(general)
 
         return disciplinas.reverse()
@@ -190,18 +190,18 @@
 
         let filter
         if(this.filterSelected == 'all'){
-          filter = this.help_data.general
+          filter = this.review.general
         } else {
-          filter = _.find(this.help_data.specific, { _id: { _id: this.filterSelected }})
+          filter = _.find(this.review.specific, { _id: { _id: this.filterSelected }})
         }
 
         return filter && filter.distribution && _.sortBy(filter.distribution, 'conceito')
       },
 
       cobraPresenca() {
-        if(!_.get(this.help_data, 'general.distribution.length', 0)) return
+        if(!_.get(this.review, 'general.distribution.length', 0)) return
 
-        if(_.find(this.help_data.general.distribution, { conceito: 'O'})) {
+        if(_.find(this.review.general.distribution, { conceito: 'O'})) {
           return 'Provavelmente esse professor cobra presença 👎'
         } else {
           return 'Provavelmente esse professor NÃO cobra presença 👍'
@@ -241,7 +241,7 @@
       closeDialog(){
         this.value.dialog = false
         this.filterSelected = null
-        this.help_data = null
+        this.review = null
         this.samplesCount = 0
       },
       findConcept(concept) {
@@ -259,8 +259,8 @@
 
         this.loading = true
 
-        Api.get('/help/teachers/' + professorId).then((res) => {
-          this.help_data = res
+        Api.get('/reviews/teachers/' + professorId).then((res) => {
+          this.review = res
           this.loading = false
 
           if(_.get(res, 'general.count', 0)) {
@@ -297,9 +297,9 @@
 
           let filter
           if(this.filterSelected == 'all'){
-            filter = this.help_data.general
+            filter = this.review.general
           } else {
-            filter = _.find(this.help_data.specific, { _id: { _id: this.filterSelected }})
+            filter = _.find(this.review.specific, { _id: { _id: this.filterSelected }})
           }
 
           let conceitosFiltered = []

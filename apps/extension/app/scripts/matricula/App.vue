@@ -205,13 +205,13 @@
       changeTeachers() {
         let self = this
         if(!this.teachers) {
-          $(".isHelp").css('display', 'none')
+          $(".isTeacherReview").css('display', 'none')
           return
         }
 
         // se ja tiver calculado nao refaz o trabalho
-        if ($(".isHelp").length > 0) {
-          $(".isHelp").css('display', '');
+        if ($(".isTeacherReview").length > 0) {
+          $(".isTeacherReview").css('display', '');
           return;
         }
 

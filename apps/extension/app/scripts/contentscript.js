@@ -76,11 +76,11 @@ async function load() {
       modal.setAttribute('data-app', true);
       document.body.append(modal)
 
-      // load vue app help
-      const help = document.createElement('div')
-      help.setAttribute('id', 'help')
-      help.setAttribute('data-app', true);
-      document.body.append(help)
+      // load vue app teacherReview
+      const teacherReview = document.createElement('div')
+      teacherReview.setAttribute('id', 'teacherReview')
+      teacherReview.setAttribute('data-app', true);
+      document.body.append(teacherReview)
 
       // inject Vue app
       Utils.injectScript('scripts/main.js')
