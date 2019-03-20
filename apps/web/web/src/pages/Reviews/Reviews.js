@@ -285,7 +285,6 @@ export default {
       try {
         let res = await Review.getTeacherConcepts(this.query.teacherId)
 
-        this.loading = false
         if(res.data){
           if(!this.targetToReview) this.targetToReview = Object.assign({ kind: 'teacher'}, res.data.teacher)
 
@@ -294,10 +293,15 @@ export default {
             this.filterSelected = this.possibleDisciplinas[0]._id._id
             setTimeout(() => {
               this.updateFilter()
+              this.loading = false
             }, 500)
 
             this.getTeacherComments()
+          } else {
+            this.loading = false
           }
+        } else {
+          this.loading = false
         }
       } catch(err) {
         this.loading = false
@@ -315,7 +319,6 @@ export default {
       try {
         let res = await Review.getSubjectConcepts(this.query.subjectId)
 
-        this.loading = false
         if(res.data){
           if(!this.targetToReview) this.targetToReview = Object.assign({ kind: 'subject'}, res.data.subject)
 
@@ -325,8 +328,13 @@ export default {
           if(_.get(res.data, 'general.count', 0)) {
             setTimeout(() => {
               this.updateFilter()
+              this.loading = false
             }, 500)
+          } else {
+            this.loading = false
           }
+        } else {
+          this.loading = false
         }
       } catch(err) {
         this.loading = false
@@ -352,6 +360,8 @@ export default {
             ...t,
             kind: 'teacher'
           }))
+        } else {
+          this.teachers = []
         }
       } catch(err) {
         this.loadingSearch = false
@@ -371,6 +381,8 @@ export default {
             ...s,
             kind: 'subject'
           }))
+        } else {
+          this.subjects = []
         }
       } catch(err) {
         // this.$message({
@@ -413,7 +425,7 @@ export default {
 
     updateFilter(){
       let pieChart = this.$refs.pieChart
-      console.log('PIE', pieChart)
+
       if(!pieChart) return
       pieChart.delegateMethod('showLoading', 'Carregando...');
 

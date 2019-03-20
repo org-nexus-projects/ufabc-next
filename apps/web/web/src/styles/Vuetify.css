@@ -63,3 +63,10 @@
               transform 0.3s ease-in-out,
               opacity 0.3s ease-in-out;
 }
+
+
+.settings-button {
+  text-transform: initial; 
+  width: 130px; 
+  height: 48px;
+}

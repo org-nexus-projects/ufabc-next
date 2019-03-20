@@ -5,6 +5,8 @@ import VueRouter from 'vue-router'
 import Reviews from '@/pages/Reviews'
 import Stats from '@/pages/Stats'
 import History from '@/pages/History'
+import Settings from '@/pages/Settings'
+import Admin from '@/pages/Admin'
 
 import Auth from '@/services/Auth'
 // import UsersService from '@/services/Users'
@@ -50,12 +52,32 @@ const router = new VueRouter({
       },
     },
 
-     {
+    {
       name: 'history',
       path: '/history',
       component: History,
       meta: {
         title: 'Meu Histórico',
+        // auth: true
+      },
+    },
+
+    {
+      name: 'settings',
+      path: '/settings',
+      component: Settings,
+      meta: {
+        title: 'Configurações',
+        // auth: true
+      },
+    },
+
+    {
+      name: 'admin',
+      path: '/admin',
+      component: Admin,
+      meta: {
+        title: 'Administrativo',
         // auth: true
       },
     },

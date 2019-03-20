@@ -1,51 +1,54 @@
 <template>
-  <v-container grid-list-lg text-xs-center>
-    <transition-group tag="div" key="index" name="slide-y-transition" class="layout" style="width: 100%; flex-wrap: wrap;">
-      <v-flex md6 align-center v-for='(subject, index) in subjects' :key="subject.codigo">
-        <div class="subject elevate-3d elevate-3">
-          <div class="subject-name">
-            <span>{{ subject.disciplina }}</span>
-            <v-btn @click="close(index)" icon style="margin: 0px; width: 22px; height: 22px;">
-              <v-icon size="18" color="white">mdi-close</v-icon>
-            </v-btn>
-          </div>
-          <div style="display:flex; height: calc(100% - 26px);">
-            <div 
-              class="concept-comment" 
-              :style="{'color': conceptsColor[subject.conceito || 'null']}">
-              <div class="concept-circle elevation-3">{{ subject.conceito }}</div>
+  <div>
+    <v-container grid-list-lg text-xs-center>
+      <div class="title mb-2 mt-4" style="text-align: left;">Minhas últimas matérias</div>
+      <transition-group tag="div" key="index" name="slide-y-transition" class="layout" style="width: 100%; flex-wrap: wrap;">
+        <v-flex md6 align-center v-for='(subject, index) in subjects' :key="subject.codigo">
+          <div class="subject elevate-3d elevate-3">
+            <div class="subject-name">
+              <span>{{ subject.disciplina }}</span>
+              <v-btn @click="close(index)" icon style="margin: 0px; width: 22px; height: 22px;">
+                <v-icon size="18" color="white">mdi-close</v-icon>
+              </v-btn>
             </div>
-
-            <div class="teachers mr-3">
-              <div class="teacher teacher-teoria mb-2">
-                <span class="mr-2">
-                  Juliana Kelmy Macario De Faria Daguano
-                </span>
-                <el-button @click="comment()" class="pa-0" type="text">
-                  <div style="display: flex; align-items: center;">
-                    <v-icon class="mr-2" size="18" color="ufabcnext-grey">mdi-message-draw</v-icon>
-                    COMENTAR
-                  </div>
-                </el-button>
+            <div style="display:flex; height: calc(100% - 26px);">
+              <div 
+                class="concept-comment" 
+                :style="{'color': conceptsColor[subject.conceito || 'null']}">
+                <div class="concept-circle elevation-3">{{ subject.conceito }}</div>
               </div>
 
-              <div class="teacher teacher-pratica">
-                <span class="mr-2">
-                  Antonio Sérgio Munhoz
-                </span>
-                <el-button   @click="comment()" class="pa-0" type="text">
-                  <div style="display: flex; align-items: center;">
-                    <v-icon class="mr-2" size="18" color="ufabcnext-green">mdi-message-draw</v-icon>
-                    COMENTAR
-                  </div>
-                </el-button>
+              <div class="teachers mr-3">
+                <div class="teacher teacher-teoria mb-2">
+                  <span class="mr-2">
+                    Juliana Kelmy Macario De Faria Daguano
+                  </span>
+                  <el-button @click="comment()" class="pa-0" type="text">
+                    <div style="display: flex; align-items: center;">
+                      <v-icon class="mr-2" size="18" color="ufabcnext-grey">mdi-message-draw</v-icon>
+                      COMENTAR
+                    </div>
+                  </el-button>
+                </div>
+
+                <div class="teacher teacher-pratica">
+                  <span class="mr-2">
+                    Antonio Sérgio Munhoz
+                  </span>
+                  <el-button   @click="comment()" class="pa-0" type="text">
+                    <div style="display: flex; align-items: center;">
+                      <v-icon class="mr-2" size="18" color="ufabcnext-green">mdi-message-draw</v-icon>
+                      COMENTAR
+                    </div>
+                  </el-button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </v-flex>
-    </transition-group>
-  </v-container>
+        </v-flex>
+      </transition-group>
+    </v-container>
+  </div>
 </template>
 
 <script type="text/javascript">
@@ -142,7 +145,7 @@ export default {
   height: 92px;
 }
 .subject-name {
-  font-size: 16px;
+  font-size: 14px;
   height: 26px;
   display: flex;
   align-items: center;
@@ -156,7 +159,7 @@ export default {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
   overflow: hidden;
-  height: 26px;
+  height: 22px;
   text-align: left;
   flex: 1 1 auto;
 }

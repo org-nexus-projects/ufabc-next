@@ -1,5 +1,6 @@
 <v-container style="display: flex; flex-direction: column;">  
   <v-layout row align-center class="white elevation-1 search-area pl-3 pr-4 mr-0">
+
     <v-combobox
       v-model='targetToReview'
       :search-input.sync="search"
@@ -10,11 +11,11 @@
       hide-details
       hide-selected
       item-text="name"
-      item-value="symbol"
       placeholder="Digite o nome do professor ou disciplina"
       class="pt-0 search-review-input"
       return-object
       append-icon=""
+      :no-filter="true"
     >
       <div slot="prepend">
         <v-progress-circular v-if='loadingSearch' indeterminate color="primary" size="24" width="2"></v-progress-circular>

@@ -17,6 +17,7 @@
 
     <el-table
       ref="teachersList"
+      @row-click="openTeacher($event)"
       @sort-change="sortButton = null"
       :data="teachersSorted"
       :class="{ 'teacher-table-mobile': $vuetify.breakpoint.xsOnly }"
@@ -156,6 +157,14 @@ export default {
     calculateConceptPercentage(distribution, concept){
       return ((100 * this.findConceptCount(distribution, concept))/this.findConceptCountTotal(distribution))
     },
+
+    openTeacher(teacher){
+      let teacherId = _.get(teacher, 'teacher._id', null)
+      if(teacherId){
+        this.$router.replace({query: {}})
+        this.$router.push({ name: 'reviews', query: { teacherId, subjectId: null }})
+      }
+    }
   }
 }
 </script>
