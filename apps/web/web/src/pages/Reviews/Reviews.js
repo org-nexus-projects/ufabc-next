@@ -94,7 +94,7 @@ export default {
       },
       deep: true,
     },
-
+    
     search(val) {
       this.query.q = val
 

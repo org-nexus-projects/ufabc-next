@@ -1,4 +1,5 @@
-<v-container style="display: flex; flex-direction: column;">  
+<v-container style="display: flex; flex-direction: column;" v-loading="loading"
+      element-loading="Carregando...">  
   <v-layout row align-center class="white elevation-1 search-area pl-3 pr-4 mr-0">
 
     <v-combobox
@@ -40,9 +41,7 @@
 
   <v-layout column class="results-area white mt-3 pa-4" v-if='target'>
     <div v-if='loading || (concepts && concepts.specific && concepts.specific.length)' 
-      style="min-height: 200px"
-      v-loading="loading"
-      element-loading="Carregando...">
+      style="min-height: 200px">
 
       <div class="target-name">{{ target.name }}</div>
 

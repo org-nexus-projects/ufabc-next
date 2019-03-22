@@ -1,7 +1,7 @@
 <template>
   <Navigation>
     <transition name="slide-x-transition" mode="out-in">
-      <router-view></router-view>
+      <router-view :key="$router.currentRoute.path"></router-view>
     </transition>
   </Navigation>
 </template>

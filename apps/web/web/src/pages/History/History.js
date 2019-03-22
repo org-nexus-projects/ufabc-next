@@ -1,6 +1,7 @@
 import History from '@/services/History'
 import ErrorMessage from '@/helpers/ErrorMessage'
 import _ from 'lodash'
+import CommentEditor from '@/components/Reviews/CommentEditor'
 
 export default {
   name: 'History',
@@ -75,5 +76,18 @@ export default {
         }) 
       }
     },
+
+    async comment() {
+      let dialog = this.$dialog({
+        width: '750px',
+        top: '10vh',
+      }, CommentEditor)
+
+      try {
+        let res = await dialog
+
+      } catch(e) {} 
+    }
+
   }
 }

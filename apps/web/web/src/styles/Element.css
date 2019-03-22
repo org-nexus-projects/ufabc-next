@@ -60,3 +60,10 @@
 .history-row td .cell{
   padding-left: 24px;
 }
+
+
+
+.helpful-checkbox.el-checkbox {
+  padding: 4px 15px 5px 10px!important;
+  height: 28px!important;
+}

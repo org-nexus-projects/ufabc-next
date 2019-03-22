@@ -28,6 +28,18 @@ function RedirectIfLogged(params) {
 Vue.use(VueRouter)
 const router = new VueRouter({
   mode: 'history',
+  scrollBehavior (to, from, savedPosition) {
+    return { x: 0, y: 0 }
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (savedPosition) {
+          resolve(savedPosition)
+        } else {
+          resolve({ x: 0, y: 0 })
+        }
+      }, 1000)
+    })
+  },
   routes: [
 
     {

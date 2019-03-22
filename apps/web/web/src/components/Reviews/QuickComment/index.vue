@@ -1,44 +1,44 @@
 <template>
   <div>
     <v-container grid-list-lg text-xs-center>
-      <div class="title mb-2 mt-4" style="text-align: left;">Minhas últimas matérias</div>
+      <div class="title mb-2 mt-4" style="text-align: left;">Minhas matérias para avaliar</div>
       <transition-group tag="div" key="index" name="slide-y-transition" class="layout" style="width: 100%; flex-wrap: wrap;">
         <v-flex md6 align-center v-for='(subject, index) in subjects' :key="subject.codigo">
           <div class="subject elevate-3d elevate-3">
             <div class="subject-name">
               <span>{{ subject.disciplina }}</span>
               <v-btn @click="close(index)" icon style="margin: 0px; width: 22px; height: 22px;">
-                <v-icon size="18" color="white">mdi-close</v-icon>
+                <v-icon size="18" style="color: rgba(0,0,0,0.2);">mdi-close</v-icon>
               </v-btn>
             </div>
-            <div style="display:flex; height: calc(100% - 26px);">
+            <div style="align-items: center; display:flex; height: calc(100% - 26px);">
               <div 
                 class="concept-comment" 
-                :style="{'color': conceptsColor[subject.conceito || 'null']}">
-                <div class="concept-circle elevation-3">{{ subject.conceito }}</div>
+                :style="{'backgroundColor': conceptsColor[subject.conceito || 'null']}">
+                  {{ subject.conceito }}
               </div>
 
               <div class="teachers mr-3">
                 <div class="teacher teacher-teoria mb-2">
                   <span class="mr-2">
-                    Juliana Kelmy Macario De Faria Daguano
+                    Juliana Kelmy Macario De Faria Daguano <el-tag class="ml-2" color="primary" size="mini">Prática</el-tag>
                   </span>
-                  <el-button @click="comment()" class="pa-0" type="text">
+                  <el-button @click="comment()" class="pa-0" type="text" style="width: 85px;">
                     <div style="display: flex; align-items: center;">
-                      <v-icon class="mr-2" size="18" color="ufabcnext-grey">mdi-message-draw</v-icon>
-                      COMENTAR
+                      <v-icon class="mr-2" size="18" color="ufabcnext-grey">mdi-plus-circle-outline</v-icon>
+                      AVALIAR
                     </div>
                   </el-button>
                 </div>
 
                 <div class="teacher teacher-pratica">
                   <span class="mr-2">
-                    Antonio Sérgio Munhoz
+                    Antonio Sérgio Munhoz <el-tag class="ml-2" size="mini">Teoria</el-tag>
                   </span>
-                  <el-button   @click="comment()" class="pa-0" type="text">
+                  <el-button @click="comment()" class="pa-0" type="text" style="width: 85px;">
                     <div style="display: flex; align-items: center;">
-                      <v-icon class="mr-2" size="18" color="ufabcnext-green">mdi-message-draw</v-icon>
-                      COMENTAR
+                      <v-icon class="mr-2" size="18" color="ufabcnext-green">mdi-checkbox-marked-circle</v-icon>
+                      VER
                     </div>
                   </el-button>
                 </div>
@@ -149,8 +149,8 @@ export default {
   height: 26px;
   display: flex;
   align-items: center;
-  background: #56cdb7;
-  color: #fff;
+  background: #e8e8e8;
+  color: rgba(0,0,0,0.8);
   padding-left: 12px;
   padding-right: 12px;
 }
@@ -164,8 +164,7 @@ export default {
   flex: 1 1 auto;
 }
 .concept-comment {
-  font-family: Lato;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: bold;
   font-style: normal;
   font-stretch: normal;
@@ -178,7 +177,10 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 46px;
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  color: #fff;
 }
 .concept-circle {
   width: 46px;
@@ -199,6 +201,7 @@ export default {
 .teacher {
   display: flex; 
   align-items: center;
+  font-weight: 300;
 }
 .teacher > span {
   display: -webkit-box;

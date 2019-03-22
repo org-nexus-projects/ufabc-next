@@ -84,7 +84,7 @@
             <template slot-scope="scope">
               <div class="teacher-in-history" v-if='scope.row.disciplina != "Bases Epistemológicas da Ciência Moderna"'>
                 <el-tooltip content="Fazer comentário">
-                  <v-btn icon class="review-button">
+                  <v-btn @click="comment()" icon class="review-button">
                     <v-icon size="18" color="ufabcnext-grey">mdi-message-draw</v-icon>
                   </v-btn>
                 </el-tooltip>
@@ -103,7 +103,7 @@
             <template slot-scope="scope">
               <div class="teacher-in-history">
                 <el-tooltip content="Fazer comentário">
-                  <v-btn icon class="review-button">
+                  <v-btn @click="comment()" icon class="review-button">
                     <v-icon size="18" color="ufabcnext-green">mdi-message-draw</v-icon>
                   </v-btn>
                 </el-tooltip>

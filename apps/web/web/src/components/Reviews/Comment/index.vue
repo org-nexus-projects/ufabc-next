@@ -4,9 +4,9 @@
       <v-layout row wrap>
         <div style="display: flex; flex: 1 1 auto; align-items: center; min-height: 32px; flex-wrap: wrap;">
           <div class="ufabcnext-blue--text mr-2">
-            <!-- <router-link :to="{ name: 'reviews', query: { subjectId: comment.subject._id }"> -->
+            <router-link :to="{ name: 'reviews', query: { subjectId: comment.subject._id }}" style="text-decoration: none">
               {{ comment.subject.name }}
-            <!-- </router-link> -->
+            </router-link>
           </div>
           
           <div class="concept-author mr-2" :style="{ 'background': conceptsColor[comment.conceito || 'null'] }">
@@ -18,28 +18,37 @@
           </div>
         </div>
 
-        <div style="display:flex; align-items: center; flex: none; min-height: 32px;">
+        <el-checkbox v-if='helpfulCheckMode' class="helpful-checkbox" label="Útil" border size="small"></el-checkbox>
+        <div style="display:flex; align-items: center; flex: none; min-height: 32px;" v-else>
           <div class="mr-3 comment-like-area">
             <v-icon color="ufabcnext-liked" size="16" v-ripple>mdi-thumb-up</v-icon>
             10
           </div>
-          <div class="comment-like-area">
-            <v-icon color="ufabcnext-like" size="16" v-ripple>mdi-thumb-down</v-icon>
-            3,5 mil
-          </div>
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <div class="comment-like-area" v-on="on">
+                <v-icon color="ufabcnext-like" size="20" v-ripple>mdi-medal</v-icon>
+                3,5 mil
+              </div>
+            </template>
+            <span>3,5 mil recomendaram esse comentário</span>
+          </v-tooltip>
         </div>
       </v-layout>
 
       <v-layout column wrap align-content-start>
-        <div class="comment-text" :class="{'show-more': comment.showMore}">
-          {{ comment.text }}
+        <div class="comment-text" :class="{'collapsed': !comment.showMore}">
+          <p>{{ comment.text }}</p>
+          <div class="show-more">
+            <el-button 
+              @click="showMore(comment._id)" 
+              type="text" 
+              class="ma-0 pa-0"
+              style="text-align: left;background: #fff;font-size: 13px;">
+              MOSTRAR MAIS <i class="el-icon-arrow-down"></i>
+            </el-button>
+          </div>
         </div>
-        <el-button 
-          @click="showMore(comment._id)" 
-          type="text" 
-          style="text-align: left;">
-          MOSTRAR {{ comment.showMore ? 'MENOS' : 'MAIS' }}
-        </el-button>
       </v-layout>
     </v-flex>
   </v-layout>
@@ -72,6 +81,11 @@ export default {
   props: {
     comment: {
       type: Object
+    },
+
+    helpfulCheckMode: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -96,8 +110,25 @@ export default {
   justify-content: center;
 }
 .comment-text {
-  max-height: 250px;
+  max-height: 300px;
+  transition: max-height 0.5s ease-in-out;
+  line-height: 1.3em;
   overflow: hidden;
+  position: relative;
+}
+.comment-text.collapsed {
+  max-height: 3.9em; 
+}
+.comment-text:not(.collapsed) > .show-more {
+  display: none;
+}
+.show-more {
+  position: absolute;
+  text-align: center;
+  top: 2.6em;
+  width: 100%;
+  height: 1.3em;
+  background-image: linear-gradient(to right, transparent, white 40%);
 }
 .comment-text.show-more {
   max-height: initial;
@@ -113,5 +144,18 @@ export default {
   border-radius: 14px;
   width: 28px;
   height: 28px;
+}
+@media (max-width: 600px) {
+  .comment-text {
+    max-height: 700px;
+    line-height: 1.3em;
+  }
+  .comment-text.collapsed {
+    max-height: 10.4em; 
+  }
+  .show-more {
+    top: 9.1em;
+    height: 1.3em;
+  }
 }
 </style>

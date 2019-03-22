@@ -33,7 +33,7 @@
         <template slot-scope="scope">
           <div v-if='scope.row.teacher && scope.row.teacher.name' 
             style="word-break: break-word;">
-            {{ scope.row.teacher.name }}
+            {{ scope.row.teacher.name || '(professor desconhecido)' }}
           </div>
 
           <template v-if='$vuetify.breakpoint.xsOnly'>

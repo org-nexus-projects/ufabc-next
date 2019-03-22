@@ -21,8 +21,8 @@ class Teacher {
       data: [
         {
           text: 'Coxa para caramba.',
-          upVotting: 2,
-          downVotting: 2,
+          likesCount: 2,
+          helpfulCount: 10,
           year: 2019,
           quad: 2,
           conceito: 'A',
@@ -38,8 +38,8 @@ class Teacher {
         },
         {
           text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam sodales purus non dignissim feugiat. Nulla eget lectus nisl. Mauris posuere eu ipsum a dapibus. Vestibulum vel nulla posuere, sagittis tellus id, venenatis tellus. Morbi porttitor rhoncus nunc, eu luctus ligula. Cras vitae ipsum facilisis, commodo quam eu, viverra est. Suspendisse sit amet tellus aliquam, mollis tortor vitae, luctus lacus. Suspendisse potenti. Proin et commodo neque. Phasellus a lorem et libero luctus pellentesque. Ut non rutrum dolor. Integer quis lacus risus. Aliquam nulla leo, tempus finibus dui sit amet, vulputate sagittis dolor. In rutrum est sit amet dictum auctor. Nam porta leo ultrices ante aliquam, at tempus dui finibus. Donec pulvinar euismod leo in hendrerit.',
-          upVotting: 2,
-          downVotting: 2,
+          likesCount: 2,
+          helpfulCount: 10,
           year: 2019,
           quad: 2,
           conceito: 'D',
@@ -55,8 +55,8 @@ class Teacher {
         },
         {
           text: 'ME FERREI COM ESSE CARA',
-          upVotting: 2,
-          downVotting: 2,
+          likesCount: 2,
+          helpfulCount: 10,
           year: 2019,
           quad: 2,
           conceito: 'F',
@@ -70,7 +70,6 @@ class Teacher {
           _id: '5',
           author: null
         }
-
       ]
     }
     // return await Axios.get('/teachers/:teacherId/comments')

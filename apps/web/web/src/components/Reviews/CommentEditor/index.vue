@@ -2,38 +2,54 @@
   <div class="pa-4">
     <VueMarkdown
       class="title mb-3"
-      :source="commentId ? 'Atualizar comentário' : 'Criar comentário'"
+      :source="commentId ? 'Atualizar comentário' : 'Fazer review'"
       :html="false"
       :xhtml-out="true"
       :breaks="true"
       :anchorAttributes="{target: '_blank'}"/>
 
+    <v-layout>
+      <v-flex sm6>
+        <small class="mt-3 ufabcnext-grey--text">Disciplina:</small>
+        <div class="mt-1 mb-3">Algoritmos e Estruturas de Dados I</div>
+      </v-flex>
+      <v-flex sm3>
+        <small class="mt-3 ufabcnext-grey--text">Conceito:</small>
+        <div class="mt-1 mb-3">A</div>
+      </v-flex>
+      <v-flex sm3>
+        <small class="mt-3 ufabcnext-grey--text">Período:</small>
+        <div class="mt-1 mb-3">2º Quadrimestre de 2019</div>
+      </v-flex>
+    </v-layout>
 
-      <div class="mt-3 mb-2">Disciplina:</div>
-    
-        <v-text-field
-      disabled
-      solo
-      :value='"Algoritmos e Estruturas de Dados I"'
-      hide-details
-      />
+    <small class="mt-3 ufabcnext-grey--text">Professor:</small>
+    <div class="mb-3">
+      Antonio Sergio Munhoz 
+      <el-tooltip content="Alterar professor">
+        <v-btn icon class="my-0" style="margin-top: -6px!important">
+          <v-icon color="grey" size="22">edit</v-icon>
+        </v-btn>
+      </el-tooltip>
+    </div>
 
-          <div class="mt-3 mb-2">Professor:</div>
-    <v-text-field
-      disabled
-      solo
-      hide-details
-      :value='"Antonio Sérgio Munhoz"'
-      />
-
-      <el-button type="text" class="pt-0 mt-3 mb-2">Eu não fiz essa matéria com esse professor</el-button>
-
-
-      <div class="">Conceito Final: A</div>
-
-      <div class="mt-4 mb-2">Comentários sobre o professor: </div>
-      <v-textarea solo placeholder="Diga como foi a prova, a didática, se ele cobra presença..."></v-textarea>
-
+    <el-tabs v-model="activeName">
+      <el-tab-pane label="Comentários sobre o professor" name="first">
+        <ReviewComment
+          v-for='_comment in comments'
+          :comment="_comment"
+          class="mb-4" 
+          :key="_comment._id" 
+          @input="updateComment($event)"
+          helpfulCheckMode
+        />
+      </el-tab-pane>
+      <el-tab-pane label="Novo comentário" name="second">
+        <div class="mx-1">
+          <v-textarea solo placeholder="Diga como foi a prova, a didática, se ele cobra presença..."></v-textarea>
+        </div>
+      </el-tab-pane>
+    </el-tabs>
 
     <div class="prompt-buttons">
       <v-btn
@@ -54,21 +70,25 @@
 
 <script>
 import Comment from '@/services/Comment'
+import Teacher from '@/services/Teacher'
 import ErrorMessage from '@/helpers/ErrorMessage'
 import VueMarkdown from 'vue-markdown'
+import ReviewComment from '@/components/Reviews/Comment'
 
 export default {
   name: 'CommentEditor',
-  components: {VueMarkdown},
+  components: {
+    VueMarkdown,
+    ReviewComment
+  },
 
   data() {
     return {
       loading: false,
       comment: null,
-      buttons: [
-        {name: 'Cancelar', class: 'grey--text'},
-        {name: 'Comentar', action: true, class: 'green--text'}
-      ]
+
+      comments: null,
+      activeName: 'first',
     }
   },
 
@@ -87,6 +107,19 @@ export default {
       return {
 
       }
+    },
+
+    buttons() {
+      if(this.activeName == 'first') {
+        return [
+          {name: 'Fechar', class: 'grey--text'},
+          {name: 'Salvar', class: 'green--text'}
+        ]
+      }
+      return [
+        {name: 'Cancelar', class: 'grey--text'},
+        {name: 'Comentar', action: true, class: 'green--text'}
+      ]
     }
   },
 
@@ -95,6 +128,7 @@ export default {
       this.comment = this.cache
     }
 
+    this.getTeacherComments()
     if(!this.commentId) {
       this.comment = Object.assign({}, this.defaults)
     } else {
@@ -117,8 +151,8 @@ export default {
       try {
         let res = await Comment.get(this.commentId)
 
+        this.loading = false
         if(res.data){
-          this.loading = false
           this.comment = _.defaultsDeep(res.data, this.defaults)
         }
       } catch(err) {
@@ -131,6 +165,28 @@ export default {
       }
     }, 
 
+    async getTeacherComments(){
+      this.loading = true
+
+      try {
+        let res = await Teacher.getComments('')
+
+        this.loading = false
+        if(res.data){
+          this.comments = res.data.map(c => {
+            c.showMore = false
+            return c
+          })
+        }
+      } catch(err) {
+        this.loading = false
+        this.$message({
+          type: 'error',
+          message: ErrorMessage(err),
+        }) 
+      }
+    },
+
   },
 }
 </script>
@@ -140,5 +196,12 @@ export default {
   justify-content: flex-end;
   flex-wrap: wrap;
   margin: 0 -8px -8px -8px;
+}
+.reviews-options[data-v-b6d34bca] {
+  display: flex;
+  height: 200px;
+  background: #87caba;
+  align-items: center;
+  justify-content: center;
 }
 </style>
