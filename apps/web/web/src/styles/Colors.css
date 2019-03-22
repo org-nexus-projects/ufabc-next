@@ -133,3 +133,17 @@
 .ufabcnext-primary--text {
   color: #393e56 !important;
 }
+
+/*
+  Link color - Text color, border color and background color
+*/
+
+.ufabcnext-link {
+  background-color: #4a90e2 !important;;
+}
+.ufabcnext-link-outline {
+  border-color: #4a90e2 !important;
+}
+.ufabcnext-link--text {
+  color: #4a90e2 !important;
+}

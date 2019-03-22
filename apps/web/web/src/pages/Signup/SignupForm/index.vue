@@ -14,10 +14,13 @@
         </el-steps>
       </v-flex>
     </v-layout>
-    <v-layout align-center row wrap style="width: 100%; flex: 1 1 auto;">
+    <v-layout v-loading="loading" align-center row wrap style="width: 100%; flex: 1 1 auto;">
         <!-- Art -->
         <v-flex sm12 md7 lg7>
-          <img style="max-width: 100%; height: auto;" src="@/assets/signup.svg" />
+          <transition name="slide-x-transition" mode="out-in">
+            <img v-if="role == 'teacher'" key="teacher" style="max-width: 100%; height: auto;" src="@/assets/ilustra-construction.png" />
+            <img v-else key="student" style="max-width: 100%; height: auto;" src="@/assets/signup.svg" />
+          </transition>
         </v-flex>
 
         <!-- Steps -->
@@ -54,28 +57,56 @@
                 </div>
                 <div class="step-subtitle mb-2">Insira seu email institucional</div>
                 <v-text-field
-                  placeholder="Ex: next@aluno.ufabc.edu.br"
+                  placeholder="joão"
+                  suffix="@aluno.ufabc.edu.br"
+                  v-model="studentData.email"
+                  name="studentEmail"
+                  v-validate="{required: true}"
+                  data-vv-as="email institucional"
+                  :error-messages="errors.collect('studentEmail')"
                   solo
                 ></v-text-field>
                 <div class="step-subtitle mb-2">Insira seu RA</div>
                 <v-text-field
+                  v-model="studentData.ra"
+                  name="ra"
+                  v-validate="{required: true}"
+                  data-vv-as="RA"
+                  :error-messages="errors.collect('ra')"
+                  ref="ra"
                   placeholder="Ex: 11012014"
                   solo
                 ></v-text-field>
                 <div class="step-subtitle mb-2">Confirme seu RA</div>
                 <v-text-field
+                  name="ra_confirmation"
+                  v-validate="'required|confirmed:ra'"
+                  data-vv-as="confirmação do RA"
+                  :error-messages="errors.collect('ra_confirmation')"
                   placeholder="Ex: 11012014"
+                  v-model="raConfirmation"
                   solo
                 ></v-text-field>
               </div>
               <div v-if="role == 'teacher'">
-                Professor
+                <div class="step-title mb-4">
+                  Estamos trabalhando nisso!
+                </div>
+                <div class="step-subtitle mb-2">Professor estamos construindo algumas ferramentas especiais para você, por enquanto você pode verificar sua distribuição de notas por disciplinas <span class="ufabcnext-link--text cursor-pointer">aqui</span></div>
               </div>
             </v-layout>
 
             <!-- Step 3 -->
             <div v-if="currentStep == 2">
-              Step 3
+              <div v-if="role == 'student'">
+                <div class="step-title mb-4">
+                  Enviamos um email de confirmação para 
+                  <span class="ufabcnext-nav-blue--text">{{`${studentData.email}${emailSuffix}`}}</span>
+                </div>
+                <div>
+                  <span class="cursor-pointer ufabcnext-link--text">Clique aqui</span> para acessar seu email institucional
+                </div>
+              </div>
             </div>
         </v-flex>
       </v-layout>
@@ -98,29 +129,85 @@
 </template>
 
 <script>
+import ErrorMessage from '@/helpers/ErrorMessage'
+import User from '@/services/User'
+
 export default {
   name: 'SignupForm',
+  inject: ["$validator"],
   data() {
     return {
+      loading: false,
       currentStep: 0,
       role: '',
-    };
+      studentData: {
+        email: '',
+        ra: ''
+      },
+      raConfirmation: '',
+      emailSuffix: '@aluno.ufabc.edu.br'
+    }
   },
 
   methods: {
-      next() {
-        if (this.currentStep++ > 2) this.currentStep = 0;
+      async next() {
+        if (this.currentStep == 1) {
+          if(await this.confirmAccount()) {
+            this.currentStep++
+            return
+          }else {
+           return 
+          }
+        }
+
+        if (this.currentStep++ > 2) {
+          this.currentStep = 0;
+        }
       },
 
       back() {
+        if (this.currentStep == 1) {
+          this.role = ''
+        }
+
         if (this.currentStep-- < 0) this.currentStep = 0;
       },
 
       selectRole(role) {
         this.role = role
         this.next()
-      }
-    }
+      },
+
+      async confirmAccount() {
+        let email = this.studentData.email.concat(this.emailSuffix)
+        return this.$validator.validateAll().then(async isValid => {
+          if (!isValid) {
+            // this.$message({
+            //   type: 'error',
+            //   message: ErrorMessage(err),
+            // })
+            console.log('Not valid')
+
+            return false
+          }
+
+          //Call confirmation route
+          try {
+            this.loading = true
+            let res = await User.completeSignup()
+            this.loading = false
+          } catch(err) {
+            this.loading = false
+            this.$message({
+              type: 'error',
+              message: ErrorMessage(err),
+            })
+          }
+
+          return true
+        })
+    },
+  }
 
 }
 </script>
@@ -135,5 +222,4 @@ export default {
   font-size: 14px;
   color: rgba(0,0,0,0.5);
 }
-
 </style>
