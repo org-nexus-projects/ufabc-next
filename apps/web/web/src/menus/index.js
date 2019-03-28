@@ -25,6 +25,12 @@ export default [
   },
 
   {
+    title: 'Dados da Matrícula',
+    icon: 'mdi-book-multiple-variant',
+    route: '/enrollments',
+  },
+
+  {
     title: 'Configurações',
     icon: 'settings',
     route: '/settings',
