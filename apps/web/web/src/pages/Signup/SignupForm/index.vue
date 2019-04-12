@@ -25,89 +25,89 @@
 
         <!-- Steps -->
         <v-flex sm12 md5 lg5>
-            <!-- Step 1 -->
-            <v-layout column fill-width v-if="currentStep == 0">
-              <div class="mb-4">
-                <v-layout wrap>
+          <!-- Step 1 -->
+          <v-layout column fill-width v-if="currentStep == 0">
+            <div class="mb-4">
+              <v-layout wrap>
                 <span class="step-title">O que você faz na UFABC?</span>
-                </v-layout>         
-                <v-layout wrap>
+              </v-layout>         
+              <v-layout wrap>
                 <span class="step-subtitle">Selecione uma das opções:</span>
-                </v-layout>
-              </div>
-              <v-layout fill-height>
-                <!-- Student -->
-                <v-layout class="elevate-3d pa-4 border cursor-pointer mr-3" style="max-width: 160px;" @click="selectRole('student')">
-                  <v-icon class="mr-2">mdi-school</v-icon>
-                  <div>Aluno</div>
-                </v-layout>
-                <!-- Teacher -->
-                <v-layout align-center class="elevate-3d pa-4 border cursor-pointer" style="max-width: 160px;" @click="selectRole('teacher')">
-                  <v-icon class="mr-2">mdi-account</v-icon>
-                  <div>Professor</div>
-                </v-layout>
+              </v-layout>
+            </div>
+            <v-layout fill-height>
+              <!-- Student -->
+              <v-layout class="elevate-3d pa-4 border cursor-pointer mr-3" style="max-width: 160px;" @click="selectRole('student')">
+                <v-icon class="mr-2">mdi-school</v-icon>
+                <div>Aluno</div>
+              </v-layout>
+              <!-- Teacher -->
+              <v-layout align-center class="elevate-3d pa-4 border cursor-pointer" style="max-width: 160px;" @click="selectRole('teacher')">
+                <v-icon class="mr-2">mdi-account</v-icon>
+                <div>Professor</div>
               </v-layout>
             </v-layout>
+          </v-layout>
 
-            <!-- Step 2 -->
-            <v-layout column fill-width pr-4 v-if="currentStep == 1">
-              <div v-if="role == 'student'">
-                <div class="step-title mb-4">
-                  Falta pouco para completar o seu cadastro
-                </div>
-                <div class="step-subtitle mb-2">Insira seu email institucional</div>
-                <v-text-field
-                  placeholder="joão"
-                  suffix="@aluno.ufabc.edu.br"
-                  v-model="studentData.email"
-                  name="studentEmail"
-                  v-validate="{required: true}"
-                  data-vv-as="email institucional"
-                  :error-messages="errors.collect('studentEmail')"
-                  solo
-                ></v-text-field>
-                <div class="step-subtitle mb-2">Insira seu RA</div>
-                <v-text-field
-                  v-model="studentData.ra"
-                  name="ra"
-                  v-validate="{required: true}"
-                  data-vv-as="RA"
-                  :error-messages="errors.collect('ra')"
-                  ref="ra"
-                  placeholder="Ex: 11012014"
-                  solo
-                ></v-text-field>
-                <div class="step-subtitle mb-2">Confirme seu RA</div>
-                <v-text-field
-                  name="ra_confirmation"
-                  v-validate="'required|confirmed:ra'"
-                  data-vv-as="confirmação do RA"
-                  :error-messages="errors.collect('ra_confirmation')"
-                  placeholder="Ex: 11012014"
-                  v-model="raConfirmation"
-                  solo
-                ></v-text-field>
+          <!-- Step 2 -->
+          <v-layout column fill-width v-if="currentStep == 1">
+            <div v-if="role == 'student'">
+              <div class="step-title mb-4">
+                Falta pouco para completar o seu cadastro
               </div>
-              <div v-if="role == 'teacher'">
-                <div class="step-title mb-4">
-                  Estamos trabalhando nisso!
-                </div>
-                <div class="step-subtitle mb-2">Professor estamos construindo algumas ferramentas especiais para você, por enquanto você pode verificar sua distribuição de notas por disciplinas <span class="ufabcnext-link--text cursor-pointer">aqui</span></div>
+              <div class="step-subtitle mb-2">Insira seu email institucional</div>
+              <v-text-field
+                placeholder="joão"
+                suffix="@aluno.ufabc.edu.br"
+                v-model="studentData.email"
+                name="studentEmail"
+                v-validate="{required: true}"
+                data-vv-as="email institucional"
+                :error-messages="errors.collect('studentEmail')"
+                solo
+              ></v-text-field>
+              <div class="step-subtitle mb-2">Insira seu RA</div>
+              <v-text-field
+                v-model="studentData.ra"
+                name="ra"
+                v-validate="{required: true}"
+                data-vv-as="RA"
+                :error-messages="errors.collect('ra')"
+                ref="ra"
+                placeholder="Ex: 11012014"
+                solo
+              ></v-text-field>
+              <div class="step-subtitle mb-2">Confirme seu RA</div>
+              <v-text-field
+                name="ra_confirmation"
+                v-validate="'required|confirmed:ra'"
+                data-vv-as="confirmação do RA"
+                :error-messages="errors.collect('ra_confirmation')"
+                placeholder="Ex: 11012014"
+                v-model="raConfirmation"
+                solo
+              ></v-text-field>
+            </div>
+            <div v-if="role == 'teacher'">
+              <div class="step-title mb-4">
+                Estamos trabalhando nisso!
               </div>
-            </v-layout>
+              <div class="step-subtitle mb-2">Professor estamos construindo algumas ferramentas especiais para você, por enquanto você pode verificar sua distribuição de notas por disciplinas <span class="ufabcnext-link--text cursor-pointer">aqui</span></div>
+            </div>
+          </v-layout>
 
-            <!-- Step 3 -->
-            <div v-if="currentStep == 2">
-              <div v-if="role == 'student'">
-                <div class="step-title mb-4">
-                  Enviamos um email de confirmação para 
-                  <span class="ufabcnext-nav-blue--text">{{`${studentData.email}${emailSuffix}`}}</span>
-                </div>
-                <div>
-                  <span class="cursor-pointer ufabcnext-link--text">Clique aqui</span> para acessar seu email institucional
-                </div>
+          <!-- Step 3 -->
+          <div v-if="currentStep == 2">
+            <div v-if="role == 'student'">
+              <div class="step-title mb-4">
+                Enviamos um email de confirmação para 
+                <span class="ufabcnext-nav-blue--text">{{`${studentData.email}${emailSuffix}`}}</span>
+              </div>
+              <div>
+                <span @click="openLink()" class="cursor-pointer ufabcnext-link--text">Clique aqui</span> para acessar seu email institucional
               </div>
             </div>
+          </div>
         </v-flex>
       </v-layout>
 
@@ -206,6 +206,10 @@ export default {
 
           return true
         })
+    },
+
+    openLink() {
+      window.open('https://www.outlook.com/aluno.ufabc.edu.br', '_blank')
     },
   }
 
