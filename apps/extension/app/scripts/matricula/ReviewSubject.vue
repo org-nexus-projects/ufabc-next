@@ -38,8 +38,8 @@
 </template>
 <script>
   import VueHighcharts from 'vue2-highcharts'
-  import Highcharts3D from "highcharts/highcharts-3d";
-  import Highcharts from "highcharts";
+  import Highcharts3D from "highcharts/highcharts-3d"
+  import Highcharts from "highcharts"
 
   import _ from 'lodash'
   import Api from '../helpers/api'

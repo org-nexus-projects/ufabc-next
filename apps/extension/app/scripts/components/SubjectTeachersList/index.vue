@@ -6,6 +6,10 @@
         :value="0"
       ></v-radio>
       <v-radio
+        :label="`Melhor média`"
+        :value="3"
+      ></v-radio>
+      <v-radio
         :label="`Maior Reprovação`"
         :value="1"
       ></v-radio>
@@ -33,7 +37,11 @@
         <template slot-scope="scope">
           <div v-if='scope.row.teacher && scope.row.teacher.name' 
             style="word-break: break-word;">
-            {{ scope.row.teacher.name || '(professor desconhecido)' }}
+            {{ scope.row.teacher.name }}
+          </div>
+           <div v-else 
+            style="word-break: break-word;">
+            Professor desconhecido
           </div>
 
           <template v-if='$vuetify.breakpoint.xsOnly'>
@@ -141,6 +149,8 @@ export default {
         order = [['reproof', 'approval'], ['desc', 'desc']]
       } else if(this.sortButton == 2) {
         order = [['count'], ['desc']]
+      } else if(this.sortButton == 3) {
+        order = [['cr_professor'], ['desc']]
       }
 
       return _.orderBy([...this.teachersPopulated], ...order)
@@ -157,18 +167,18 @@ export default {
           teachers[i].concepts[c]['percentage'] = this.calculateConceptPercentage(teachers[i].distribution, c)
           teachers[i].concepts[c]['count'] = this.findConceptCount(teachers[i].distribution, c)
         })
-        4
+
         let approvalConcepts = ['A', 'B', 'C', 'D']
         let reproofConcepts = ['F', 'O']
         let approval = []
         let reproof = []
         approvalConcepts.forEach((c, index) => {
-          approval.push(teachers[i].concepts[c]['percentage'] * (approvalConcepts.length - index))
+          approval.push(teachers[i].concepts[c]['percentage'])
         })
         reproofConcepts.forEach(c => {
           reproof.push(teachers[i].concepts[c]['percentage'])
         })
-        teachers[i]['approval'] = _.sum(approval) / 10
+        teachers[i]['approval'] = _.sum(approval)
         teachers[i]['reproof'] = _.sum(reproof)
       }
 
