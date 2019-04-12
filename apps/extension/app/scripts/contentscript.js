@@ -82,6 +82,12 @@ async function load() {
       help.setAttribute('data-app', true);
       document.body.append(help)
 
+      // load vue app review subjects
+      const reviewSubject = document.createElement('div')
+      reviewSubject.setAttribute('id', 'review-subject')
+      reviewSubject.setAttribute('data-app', true);
+      document.body.append(reviewSubject)
+
       // inject Vue app
       Utils.injectScript('scripts/main.js')
     }, 1500)

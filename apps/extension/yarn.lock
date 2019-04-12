@@ -3143,10 +3143,10 @@ electron-to-chromium@^1.3.82:
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.84.tgz#2e55df59e818f150a9f61b53471ebf4f0feecc65"
   integrity sha512-IYhbzJYOopiTaNWMBp7RjbecUBsbnbDneOP86f3qvS0G0xfzwNSvMJpTrvi5/Y1gU7tg2NAgeg8a8rCYvW9Whw==
 
-element-ui@^2.4.8:
-  version "2.4.8"
-  resolved "https://registry.yarnpkg.com/element-ui/-/element-ui-2.4.8.tgz#04c684540f84983ef440b516680b0dc6a4c66eff"
-  integrity sha512-hkt8beJRhOvojx1USK3KS/CbE6SdPtqNdul0uxCMHSdr4RbfTS5HAMRFRdbTjXb1bKlF2D2GFERY2lzrWtk6Qw==
+element-ui@^2.4.11:
+  version "2.7.2"
+  resolved "https://registry.yarnpkg.com/element-ui/-/element-ui-2.7.2.tgz#8bc5bef5c3c53a2170422516b4324e70069c23d1"
+  integrity sha512-Exh9QTkm9gwMMPzg1TyaTlBKyr3k4K9XcC5vl0A/mneDvJX//RsURGuOWsCNDVQMdhh5h9e+W5icosh+pKfbCg==
   dependencies:
     async-validator "~1.8.1"
     babel-helper-vue-jsx-merge-props "^2.0.0"

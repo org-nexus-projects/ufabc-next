@@ -228,7 +228,11 @@
 .notHigh {
     display: none;
 }
-
+td span.sbc:hover,
+td span.sa:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
 
 
 
