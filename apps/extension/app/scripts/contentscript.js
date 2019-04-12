@@ -19,10 +19,13 @@ if (process.env.NODE_ENV == 'production') {
   matricula_url = [
     'matricula.ufabc.edu.br/matricula',
     'ufabc-matricula.cdd.naoseiprogramar.com.br/snapshot',
+    'api.ufabcnext.com/snapshot',
   ]
 } else {
    matricula_url = [
     'matricula.ufabc.edu.br/matricula',
+    'api.ufabcnext.com/snapshot',
+    'api.ufabcnext.com/snapshot/backup.html',
     'ufabc-matricula.cdd.naoseiprogramar.com.br/snapshot',
     'ufabc-matricula.cdd.naoseiprogramar.com.br/snapshot/backup.html',
     'ufabc-matricula-test.cdd.naoseiprogramar.com.br/snapshot',
