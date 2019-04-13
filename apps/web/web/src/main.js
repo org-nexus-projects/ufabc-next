@@ -11,7 +11,7 @@ import Borders from '@/styles/Borders.css'
 import Text from '@/styles/Text.css'
 import General from '@/styles/General.css'
 import VuetifyCSS from '@/styles/Vuetify.css'
-// import ElementCSS from '@/styles/Element.css'
+import ElementCSS from '@/styles/Element.css'
 import Auth from '@/services/Auth'
 import Axios from 'axios'
 import Environment from '@/environment'
@@ -26,6 +26,9 @@ Vue.use(VueTheMask)
 
 import VeeValidate, {Validator} from 'vee-validate'
 Vue.use(VeeValidate);
+
+import VueDialog from '@/helpers/VueDialog'
+Vue.mixin(VueDialog)
 
 import VeeLocale_pt_BR from 'vee-validate/dist/locale/pt_BR'
 Validator.localize('pt_BR', VeeLocale_pt_BR)

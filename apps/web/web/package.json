@@ -21,6 +21,7 @@
     "v-charts": "^1.19.0",
     "vee-validate": "^2.1.4",
     "vue": "^2.5.17",
+    "vue-markdown": "^2.2.4",
     "vue-router": "^3.0.2",
     "vue-the-mask": "^0.11.1",
     "vue2-highcharts": "^1.2.5",

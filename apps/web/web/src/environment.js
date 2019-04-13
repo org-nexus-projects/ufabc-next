@@ -20,7 +20,8 @@ function APILocation() {
   //   return 'https://ufabc-matricula.cdd.naoseiprogramar.com.br/v1'
   // }
   
-  return 'https://ufabc-matricula.cdd.naoseiprogramar.com.br/v1'
+  // return 'https://ufabc-matricula.cdd.naoseiprogramar.com.br/v1'
+  return 'https://api.ufabcnext.com/v1'
 
   const parsedURL = url.parse(URL, false, true)
   return urljoin(parsedURL.protocol, parsedURL.host, '/v1')

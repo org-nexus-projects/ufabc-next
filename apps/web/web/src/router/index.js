@@ -7,6 +7,9 @@ import Stats from '@/pages/Stats'
 import SignupForm from '@/pages/Signup/SignupForm'
 import Confirmation from '@/pages/Signup/Confirmation'
 import jsonwebtoken from 'jsonwebtoken'
+import History from '@/pages/History'
+import Settings from '@/pages/Settings'
+import Admin from '@/pages/Admin'
 
 import Auth from '@/services/Auth'
 // import UsersService from '@/services/Users'
@@ -64,6 +67,18 @@ function confirmAccount(params) {
 Vue.use(VueRouter)
 const router = new VueRouter({
   mode: 'history',
+  scrollBehavior (to, from, savedPosition) {
+    return { x: 0, y: 0 }
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (savedPosition) {
+          resolve(savedPosition)
+        } else {
+          resolve({ x: 0, y: 0 })
+        }
+      }, 1000)
+    })
+  },
   routes: [
     
     {
@@ -95,7 +110,7 @@ const router = new VueRouter({
     },
     
     {
-      name: 'reviews',
+      name: 'stats',
       path: '/stats',
       component: Stats,
       meta: {
@@ -110,6 +125,35 @@ const router = new VueRouter({
       component: Confirmation,
       meta: {
         title: 'Confirmation',
+      }
+    },
+      
+    {
+      name: 'history',
+      path: '/history',
+      component: History,
+      meta: {
+        title: 'Meu Histórico',
+        // auth: true
+      },
+    },
+
+    {
+      name: 'settings',
+      path: '/settings',
+      component: Settings,
+      meta: {
+        title: 'Configurações',
+        // auth: true
+      },
+    },
+
+    {
+      name: 'admin',
+      path: '/admin',
+      component: Admin,
+      meta: {
+        title: 'Administrativo',
         // auth: true
       },
     },

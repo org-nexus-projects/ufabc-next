@@ -42,9 +42,9 @@ async getCrDistribution() {
     [2.65, 600],
     [2.95, 400],
     [3.35, 100],
-    [3.40, 50],
+    [3.05, 50],
     [3.45, 10],
-    [3.65, 10],
+    [3.45, 10],
     [4.00, 1],
   ]
   // return await Axios.get('/help/teachers/' + studentId)

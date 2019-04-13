@@ -36,3 +36,11 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
 }
+
+
+@media (min-width: 1264px) {
+  .comment-list {
+    max-height: 420px;
+    overflow-y: auto;
+  }
+}

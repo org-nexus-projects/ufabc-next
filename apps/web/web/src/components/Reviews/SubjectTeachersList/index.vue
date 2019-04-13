@@ -1,98 +1,64 @@
 <template>
-  <div class="">
-    <div class="title mb-2 pb-1">
-      Ordenar por:
-    </div>
-
-    <v-btn-toggle v-model="sortButton" class="toggle-sort-teachers pb-2"> 
-      <v-btn color="success" class="mr-2 mb-2" style="color: #fff; border-radius: 4px!important;">
-        Maior Aprovação
-      </v-btn>
-      <v-btn color="red" class="mr-2 mb-2" style="color: #fff; border-radius: 4px!important;">
-        Maior Reprovação
-      </v-btn>
-      <v-btn color="info" style="color: #fff; border-radius: 4px!important;">
-        Maior nº de amostras
-      </v-btn>
-    </v-btn-toggle>
+  <div>
+   <v-radio-group v-model="sortButton" row>
+      <v-radio
+        :label="`Maior Aprovação`"
+        :value="0"
+      ></v-radio>
+      <v-radio
+        :label="`Maior Reprovação`"
+        :value="1"
+      ></v-radio>
+      <v-radio
+        :label="`Maior nº de amostras`"
+        :value="2"
+      ></v-radio>
+    </v-radio-group>
 
     <el-table
       ref="teachersList"
+      @row-click="openTeacher($event)"
       @sort-change="sortButton = null"
       :data="teachersSorted"
+      :class="{ 'teacher-table-mobile': $vuetify.breakpoint.xsOnly }"
+      empty-text="Nenhum resultado encontrado"
       style="width: 100%">
       <el-table-column
         fixed="left"
         prop="teacher.name"
         sortable
         label="Nome do professor"
-        width="180">
+        :min-width="$vuetify.breakpoint.xsOnly ? 220 : null"
+        :width="$vuetify.breakpoint.xsOnly ? null : '180'">
         <template slot-scope="scope">
           <div v-if='scope.row.teacher && scope.row.teacher.name' 
             style="word-break: break-word;">
-            {{ scope.row.teacher.name }}
+            {{ scope.row.teacher.name || '(professor desconhecido)' }}
           </div>
+
+          <template v-if='$vuetify.breakpoint.xsOnly'>
+            <HorizontalChart
+              :teacher="scope.row"
+            />
+            <div>
+              Amostras: {{ scope.row.count }}
+            </div>
+          </template>
         </template>
       </el-table-column>
-      <el-table-column
-        sortable
-        prop="concepts.A"
-        label="A"
-        width="75">
+      <el-table-column label="Conceitos" v-if='!$vuetify.breakpoint.xsOnly'>
         <template slot-scope="scope">
-          {{ scope.row.concepts.A.toFixed(2) }}%
-        </template>
-      </el-table-column>
-      <el-table-column
-        sortable
-        prop="concepts.B"
-        label="B"
-        width="75">
-        <template slot-scope="scope">
-          {{ scope.row.concepts.B.toFixed(2) }}%
-        </template>
-      </el-table-column>
-      <el-table-column
-        sortable
-        prop="concepts.C"
-        label="C"
-        width="75">
-        <template slot-scope="scope">
-          {{ scope.row.concepts.C.toFixed(2) }}%
-        </template>
-      </el-table-column>
-      <el-table-column
-        sortable
-        prop="concepts.D"
-        label="D"
-        width="75">
-        <template slot-scope="scope">
-          {{ scope.row.concepts.D.toFixed(2) }}%
-        </template>
-      </el-table-column>
-      <el-table-column
-        sortable
-        prop="concepts.F"
-        label="F"
-        width="75">
-        <template slot-scope="scope">
-          {{ scope.row.concepts.F.toFixed(2) }}%
+          <HorizontalChart
+            :teacher="scope.row"
+          />
         </template>
       </el-table-column>
 
       <el-table-column
+        v-if='!$vuetify.breakpoint.xsOnly'
         sortable
-        prop="concepts.O"
-        label="O"
-        width="75">
-        <template slot-scope="scope">
-          {{ scope.row.concepts.O.toFixed(2) }}%
-        </template>
-      </el-table-column>
-
-      <el-table-column
+        align="center"
         prop="count"
-        sortable
         label="Amostras"
         width="120">
       </el-table-column>
@@ -100,13 +66,19 @@
   </div>
 </template>
 <script>
+import HorizontalChart from '@/components/Reviews/HorizontalChart'
+
 export default {
   name: 'SubjectTeachersList',
 
   data() {
     return {
-      sortButton: 0
+      sortButton: 0,
     }
+  },
+
+  components: {
+    HorizontalChart
   },
 
   props: {
@@ -130,39 +102,41 @@ export default {
 
   computed: {
     teachersSorted() {
-      let key = 'teacher.name'
+      let order = [['teacher.name'], ['desc']]
       if(this.sortButton == 0) {
-        key = 'approval'
+        order = [['approval', 'reproof', 'count'], ['desc', 'desc']]
       } else if (this.sortButton == 1) {
-        key = 'reproof'
+        order = [['reproof', 'approval'], ['desc', 'desc']]
       } else if(this.sortButton == 2) {
-        key = 'count'
+        order = [['count'], ['desc']]
       }
 
-      return _.orderBy([...this.teachersPopulated], [key, 'count'], ['desc', 'desc'])
+      return _.orderBy([...this.teachersPopulated], ...order)
     },
 
     teachersPopulated() {
-      let teachers = [...this.teachers]
+      let teachers = [...this.teachers||[]]
       let possibleConcepts = ['A', 'B', 'C', 'D', 'F', 'O']
 
       for (let i = 0; i < teachers.length; i++) { 
         teachers[i].concepts = {}
         possibleConcepts.forEach(c => {
-          teachers[i].concepts[c] = this.calculateConceptPercentage(teachers[i].distribution, c)
+          teachers[i].concepts[c] = {}
+          teachers[i].concepts[c]['percentage'] = this.calculateConceptPercentage(teachers[i].distribution, c)
+          teachers[i].concepts[c]['count'] = this.findConceptCount(teachers[i].distribution, c)
         })
-
+        4
         let approvalConcepts = ['A', 'B', 'C', 'D']
         let reproofConcepts = ['F', 'O']
         let approval = []
         let reproof = []
-        approvalConcepts.forEach(c => {
-          approval.push(teachers[i].concepts[c])
+        approvalConcepts.forEach((c, index) => {
+          approval.push(teachers[i].concepts[c]['percentage'] * (approvalConcepts.length - index))
         })
         reproofConcepts.forEach(c => {
-          reproof.push(teachers[i].concepts[c])
+          reproof.push(teachers[i].concepts[c]['percentage'])
         })
-        teachers[i]['approval'] = _.sum(approval)
+        teachers[i]['approval'] = _.sum(approval) / 10
         teachers[i]['reproof'] = _.sum(reproof)
       }
 
@@ -184,13 +158,17 @@ export default {
       return ((100 * this.findConceptCount(distribution, concept))/this.findConceptCountTotal(distribution))
     },
 
-    sortPercent(a,b){
-      console.log(arguments)
-    },
-
-    sortBySamples(a,b){
-      return a.count > b.count;
+    openTeacher(teacher){
+      let teacherId = _.get(teacher, 'teacher._id', null)
+      if(teacherId){
+        this.$router.replace({query: {}})
+        this.$router.push({ name: 'reviews', query: { teacherId, subjectId: null }})
+      }
     }
   }
 }
 </script>
+
+<style type="text/css">
+
+</style>
