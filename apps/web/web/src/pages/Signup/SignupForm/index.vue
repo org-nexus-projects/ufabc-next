@@ -92,7 +92,7 @@
               <div class="step-title mb-4">
                 Estamos trabalhando nisso!
               </div>
-              <div class="step-subtitle mb-2">Professor estamos construindo algumas ferramentas especiais para você, por enquanto você pode verificar sua distribuição de notas por disciplinas <span class="ufabcnext-link--text cursor-pointer">aqui</span></div>
+              <div class="step-subtitle mb-2">Professor estamos construindo algumas ferramentas especiais para você, por enquanto você pode verificar sua distribuição de notas por disciplinas <a href="https://ufabcnext.com" class="ufabcnext-link--text cursor-pointer">aqui</a></div>
             </div>
           </v-layout>
 
@@ -119,7 +119,7 @@
             < Anterior
           </v-btn>
           <v-flex></v-flex>
-          <v-btn style="background-color: #00EB5E; color: white;" round large @click="next()">
+          <v-btn v-if="showNextButton" style="background-color: #00EB5E; color: white;" round large @click="next()">
             Próximo >
           </v-btn>
         </v-flex>
@@ -131,6 +131,7 @@
 <script>
 import ErrorMessage from '@/helpers/ErrorMessage'
 import User from '@/services/User'
+import Auth from '@/services/Auth'
 
 export default {
   name: 'SignupForm',
@@ -142,10 +143,24 @@ export default {
       role: '',
       studentData: {
         email: '',
-        ra: ''
+        ra: '',
       },
       raConfirmation: '',
       emailSuffix: '@aluno.ufabc.edu.br'
+    }
+  },
+
+  computed: {
+    showNextButton() {
+      if(this.role == 'student' && this.currentStep == 2) {
+        return false
+      }
+
+      if(this.role == 'teacher' && this.currentStep == 1) {
+        return false
+      }
+
+      return true
     }
   },
 
@@ -180,6 +195,7 @@ export default {
 
       async confirmAccount() {
         let email = this.studentData.email.concat(this.emailSuffix)
+        
         return this.$validator.validateAll().then(async isValid => {
           if (!isValid) {
             // this.$message({
@@ -194,7 +210,14 @@ export default {
           //Call confirmation route
           try {
             this.loading = true
-            let res = await User.completeSignup()
+
+            let payload = {
+              token: Auth.token,
+              email: email,
+              ra: this.studentData.ra,
+            }
+
+            let res = await User.completeSignup(payload)
             this.loading = false
           } catch(err) {
             this.loading = false

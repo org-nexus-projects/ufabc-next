@@ -16,7 +16,8 @@ class Auth {
   }
 
   isLoggedIn() {
-    return !!this.user
+    // return !!this.user
+    return false
   }
 
   setToken(token) {

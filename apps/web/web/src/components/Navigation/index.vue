@@ -2,7 +2,7 @@
   <v-app 
     style="font-family: Roboto, Ubuntu, Helvetica Neue,Helvetica,PingFang SC,Hiragino Sans GB,Microsoft YaHei,SimSun,sans-serif;">
     <v-navigation-drawer
-      v-if='!!user'
+      v-if='user && user.confirmed'
       v-model='drawer'
       :mini-variant.sync="mini"
       class="ufabcnext-navigation"
@@ -46,7 +46,7 @@
       </div>
     </v-navigation-drawer>
 
-    <v-toolbar color="white" class="toolbar" app dark flat v-if='!!user' :absolute="!$vuetify.breakpoint.xsOnly">
+    <v-toolbar v-if='user && user.confirmed' color="white" class="toolbar" app dark flat :absolute="!$vuetify.breakpoint.xsOnly">
       <v-toolbar-side-icon class="primary--text hidden-lg-and-up" @click="drawer = !drawer"></v-toolbar-side-icon>
       <v-layout row flex class="title ufabcnext-grey--text hidden-md-and-down">
         Hello
@@ -141,7 +141,7 @@ export default {
     },
  
     user() {
-      return {}
+      return Auth.user
     },
   },
   
