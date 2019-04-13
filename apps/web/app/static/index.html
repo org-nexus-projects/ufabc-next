@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
   <head>
     <meta charset="utf-8">
-    <title>Label - Startup Business Template</title>
+    <title>UFABC Next - Juntos somos mais fortes</title>
     <link rel="icon" href="assets/images/favicon.png" type="image/png" sizes="16x16">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="Label Multipurpose Startup Business Template">
-    <meta name="keywords" content="Label HTML Template, Label Startup Business Template, Startup Template">
+    <meta name="keywords" content="UFABC Next, UFABC, Matrícula, UFABC Matrícula, Extensão, UFABC Extensão, Extensão Chrome, Extensão da Matrícula, UFABC Help">
     <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" media="all" />
     <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600%7COpen+Sans:400%7CVarela+Round" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/animate.css"> <!-- Resource style -->
@@ -17,7 +17,86 @@
     <link rel="stylesheet" href="assets/css/magnific-popup.css">
     <link rel="stylesheet" href="assets/css/ionicons.min.css"> <!-- Resource style -->
     <link href="assets/css/style.css" rel="stylesheet" type="text/css" media="all" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
     <style>
+    .home-image {
+      border-radius: 10px;
+      -webkit-box-shadow: 0 9px 68px 0 rgba(62,57,107,.2);
+      box-shadow: 0 9px 68px 0 rgba(62,57,107,.2);
+      margin-bottom: 20px;
+    }
+    .registration-image {
+      border-radius: 12px;
+      -webkit-box-shadow: 0 9px 68px 0 rgba(62,57,107,.2);
+      box-shadow: 0 9px 68px 0 rgba(62,57,107,.2);
+    }
+    .facebook-button {
+      background-color: #4267b2;
+      box-shadow: none;
+      color: #fff!important;
+      border-radius: 3px;
+      font-size: 16px;
+      font-weight: bold;
+      height: 50px;
+      margin-bottom: 25px;
+      padding: 18px 22px 16px 60px;
+      position: relative;
+      transition: all 0.3s;
+      width: 263px;
+      cursor: pointer;
+      font-family: Montserrat;
+      text-decoration: none!important;
+      display: inline-block;
+    }
+    .facebook-button > i {
+      position: absolute;
+      top: calc(50% - 0.5em);
+      font-size: 24px;
+      left: 23px;
+    }
+    .google-button {
+      background-color: white;
+      box-shadow: 1px 1px 1px 2px #d2d2d0;
+      color: #777777!important;
+      border-radius: 3px;
+      font-size: 16px;
+      font-weight: bold;
+      height: 50px;
+      margin-bottom: 6px;
+      padding: 18px 22px 16px 60px;
+      position: relative;
+      transition: all 0.3s;
+      width: 263px;
+      cursor: pointer;
+      display: inline-block;
+      font-family: Montserrat;
+      text-decoration: none!important;
+    }
+    .google-button > img {
+      left: 13px;
+      position: absolute;
+      top: calc(50% - 1em);
+      width: 32px;
+      margin-top: 0px!important;
+    }
+    .google-button:hover, .facebook-button:hover {
+      transform: scale(1.05, 1.05);
+    }
+    .chromestore-download {
+      max-height: 72px;
+      background: #fff;
+      border-radius: 4px;
+      padding: 4px;
+      transition: background 0.5s;
+      cursor: pointer;
+    }
+    .chromestore-download:hover {
+      background-color: #f7f2f2;
+    }
+    .extension-link {
+      color: #0000ff!important;
+      cursor: pointer;
+    }
     .navbar.past-main > .container > .logo-normal {
       display: block!important;
     }
@@ -36,46 +115,30 @@
         background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(46, 126, 237, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
       }
     }
+    .cta-big {
+      background-image: url('assets/images/concepts.png');
+    }
+    h1.thanks {
+      font-size: 24px;
+      font-weight: 600;
+      line-height: 1.2;
+      margin-top: 40px;
+      display: flex;
+      flex: 1 1 auto;
+      justify-content: center;
+    }
+    @media only screen and (min-width: 240px){
+      .review-single {
+          text-align: center;
+          padding: 50px 0 50px 0;
+      }
+    }
     </style>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.js"></script>
   </head>
   <body>
 
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
-
-        <script>
-      window.fbAsyncInit = function() {
-        FB.init({
-          appId      : '807214296296082',
-          cookie     : true,
-          xfbml      : true,
-          version    : 'v3.2'
-        });
-          
-        FB.AppEvents.logPageView();   
-
-
-      };
-
-        function checkLoginState() {
-  FB.getLoginStatus(function(response) {
-    console.log(response)
-
-       FB.api('/me', function(response) {
-        console.log(response)
-    });
-  });
-
-}
-
-
-      (function(d, s, id){
-         var js, fjs = d.getElementsByTagName(s)[0];
-         if (d.getElementById(id)) {return;}
-         js = d.createElement(s); js.id = id;
-         js.src = "https://connect.facebook.net/en_US/sdk.js";
-         fjs.parentNode.insertBefore(js, fjs);
-       }(document, 'script', 'facebook-jssdk'));
-    </script>
     <div class="wrapper">
       <div class="container">
         <nav class="navbar navbar-expand-md nav-white navbar-light bg-light fixed-top">
@@ -89,11 +152,9 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav ml-auto navbar-right">
                   <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#main">Home</a></li>
-                  <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#about">About</a></li>
-                  <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#services">Features</a></li>
-                  <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#pricing">Pricing</a></li>
-                  <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#contact">Contact</a></li>
-                  <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#">Buy Now</a></li>
+                  <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#about">Sobre nós</a></li>
+                  <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#features">Funcionalidades</a></li>
+                  <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#data">Dados</a></li>
                 </ul>
             </div>
           </div>
@@ -106,87 +167,40 @@
             <div class="row align-center">
               <div class="col-md-12 col-lg-5">
                 <div class="hero-content">
-                  <h4>Label for your big data needs</h4>
                   <h1>Juntos somos mais fortes</h1>
                   <p>Sabemos que a vida na UFABC pode se tornar muito complicada, portanto o objetivo do Next é te ajudar a planejar melhor sua graduação.</p>
                   <div class="subform subform-alt wow fadeInDown" data-wow-delay="0.3s">
-                    <form id="signup" class="formee formee-alt" action="assets/php/subscribe.php" method="post">
-                     <input name="email" id="email" type="text" /><input class="right inputnew" type="submit" title="Send" value="Get Access" />
-                   </form>
-                    <div id="response"></div>
+                    <a class="facebook-button" href="https://api.ufabcnext.com/connect/facebook">
+                      <i class="fab fa-facebook"></i>
+                      Entrar com Facebook
+                    </a>
+                    <a class="google-button" href="https://api.ufabcnext.com/connect/google">
+                      <img src="assets/icons/google-logo.png" />
+                      Entrar com Google
+                    </a>
                   </div>
-
-<fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
-</fb:login-button>
-
                   <div class="form-note">
-                    <p>14-day free trial and no credit card required.</p>
+                    <p>O acesso está limitado somente à alunos por enquanto</p>
                   </div>
                 </div>
               </div>
-              <div class="col-md-12 col-lg-6 offset-lg-1">
-                <img class="img-fluid" src="assets/images/mb.png" alt="Home">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!---About Section----->
-        <div id="about" class="about">
-          <div class="container">
-            <div class="row text-center">
-              <div class="col-md-8 offset-md-2">
-                <div class="about-intro">
-                  <h1>Label gives you the easiest way to build coolest landing pages</h1>
-                </div>
-                <div class="about-img">
-                      <img class="img-fluid" src="assets/images/ui.jpg" alt="About">
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="about-txt-inner">
-                  <div class="num" style="background-color:#75cfd6">
-                    1
-                  </div>
-                  <div class="about-txt">
-                    <p>Scroll down to explore more features and options our software can offer you.</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="about-txt-inner">
-                  <div class="num" style="background-color:#FF9999">
-                    2
-                  </div>
-                  <div class="about-txt">
-                    <p>Scroll down to explore more features and options our software can offer you.</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="about-txt-inner">
-                  <div class="num" style="background-color:#4f77ff">
-                    3
-                  </div>
-                  <div class="about-txt">
-                    <p>Scroll down to explore more features and options our software can offer you.</p>
-                  </div>
-                </div>
+              <div class="col-md-12 col-lg-7 text-center">
+                <img class="img-fluid home-image" src="assets/images/reviews.png" alt="Home">
+                <a onclick="window.open(EXTENSION_URL,'_blank'); return false;" target="_blank"><img src="assets/icons/chromestore.png" class="chromestore-download" /></a>
               </div>
             </div>
           </div>
         </div>
 
 
-        <div id="services" class="lbl-services">
+        <div id="about" class="lbl-services">
           <div class="container">
             <div class="row justify-center">
               <div class="col-md-8">
                 <div class="service-intro text-center">
-                 <h1 class="wow fadeInDown">Designed for startups to excel.</h1>
+                 <h1 class="wow fadeInDown">Queremos facilitar as informações.</h1>
                  <h6>
-                   Best in class big data software and analytics services will render your huge chunks into meaningful
-                  data. Try the demo now.
+                   Somos uma plataforma onde reunimos avaliações de professores, estatísticas pessoais da graduação, histórico completo e planejamento da matrícula.
                 </h6>
                 </div>
               </div>
@@ -198,9 +212,8 @@
                     <img src="assets/icons/pricing-1.png" width="60" alt="Feature">
                   </div>
                   <div class="card-text">
-                    <h1>Cart Management</h1>
-                    <p>Big data software and analytics services will render your huge chunks into meaningful data.
-                      Try it now.</p>
+                    <h1>Distribuição de notas</h1>
+                    <p>Seja o dono da sua grade! Planejar é fundamental para se dar bem na UFABC.</p>
                   </div>
                 </div>
               </div>
@@ -210,9 +223,8 @@
                     <img src="assets/icons/downloads.png" width="60" alt="Feature">
                   </div>
                   <div class="card-text">
-                    <h1>Unlimited Downloads</h1>
-                    <p>Big data software and analytics services will render your huge chunks into meaningful data.
-                      Try it now.</p>                  </div>
+                    <h1>Dados sobre disciplinas</h1>
+                    <p>Veja um ranking atualizado dos conceitos distribuidores pelos professores.</p>                  </div>
                 </div>
               </div>
               <div class="col-sm-4 wow fadeInDown" data-wow-delay="0.1s">
@@ -221,9 +233,8 @@
                     <img src="assets/icons/projects.png" width="60" alt="Feature">
                   </div>
                   <div class="card-text">
-                    <h1>Personal Projects</h1>
-                    <p>Big data software and analytics services will render your huge chunks into meaningful data.
-                      Try it now.</p>
+                    <h1>Seja um aluno formado!</h1>
+                    <p>Sabemos o quanto é dificil conciliar a grade e saber quanto falta para se formar, que tal saber isso automaticamente?</p>
                   </div>
                 </div>
               </div>
@@ -233,7 +244,7 @@
 
 
 
-        <div class="product-tour features">
+        <div id="features" class="product-tour features">
           <div class="hero-inner">
           <div class="container">
             <div class="row align-center">
@@ -242,36 +253,36 @@
                     <ul>
                       <li>
                         <div class="tour-icon">
-                          <img src="assets/icons/feature-2.png" width="45" alt="Icon">
+                          <img src="assets/icons/feature-1.png" width="45" alt="Icon">
                         </div>
                         <div class="tour-text">
-                          <h3>Client Support</h3>
-                          <p>Team hangouts and instant text messaging right from the dashboard.</p>
+                          <h3>Informações na matrícula</h3>
+                          <p>Utilizando a nossa <a class="extension-link" onclick="window.open(EXTENSION_URL,'_blank'); return false;"  target="_blank">extensão para Google Chrome</a>, deixamos para você o processo de matrícula mais completo e simples</p>
                         </div>
                       </li>
                       <li>
                         <div class="tour-icon">
-                          <img src="assets/icons/feature-3.png" width="45" alt="Icon">
+                          <img src="assets/icons/growth.png" width="45" alt="Icon">
                         </div>
                         <div class="tour-text">
-                          <h3>Secure Hangouts</h3>
-                          <p>Team hangouts and instant text messaging right from the dashboard.</p>
+                          <h3>Estatísticas da Graduação</h3>
+                          <p>Saiba o seu CR ao longo do tempo, como seu CR está entre os demais e um preenchimento automático da grade. (EM BREVE)</p>
                         </div>
                       </li>
                       <li>
                         <div class="tour-icon">
-                          <img src="assets/icons/feature-2.png" width="45" alt="Icon">
+                          <img src="assets/icons/feature-3.png" width="45" alt="Segurança dos dados">
                         </div>
                         <div class="tour-text">
-                          <h3>Client Support</h3>
-                          <p>Team hangouts and instant text messaging right from the dashboard.</p>
+                          <h3>Segurança dos dados</h3>
+                          <p>Todos seus dados estão armazenados e protegidos na Cloud, a qualquer momento você pode exclui-los.</p>
                         </div>
                       </li>
                     </ul>
                   </div>
                 </div>
                 <div class="col-md-7">
-                  <img class="tour-img" src="assets/images/hero.jpg" alt="Hero Image">
+                  <img class="tour-img registration-image" src="assets/images/registration.png" alt="UFABC Register">
                 </div>
               </div>
             </div>
@@ -284,10 +295,9 @@
             <div class="row">
               <div class="col-md-6 col-lg-5">
                 <div class="cta-big-inner wow fadeInRight">
-                  <h4>Why you need label</h4>
-                  <h1>Join the fraternity of millions of users and be found.</h1>
-                  <p>Some lorem ipsum text to make this section look more appealing.Now, it looks okay ish. </p>
-                  <a href="#" class="btn btn-action btn-white">Join now</a>
+                  <h1>Você é professor da UFABC e quer acessar sua distribuição de conceitos?</h1>
+                  <p>Por enquanto não conseguimos desenvolver o acesso dos professores à plataforma, contudo se quiser ter acesso aos dados dos seus conceitos, clique no botão abaixo</p>
+                  <a href="#" onclick="window.open(TEACHER_FORM,'_blank'); return false;" target="_blank" style="cursor: pointer;" class="btn btn-action btn-white">Clique aqui</a>
                 </div>
               </div>
             </div>
@@ -295,110 +305,61 @@
         </div>
 
 
-        <div id="pricing" class="pricing-sm">
-          <div class="container">
-            <div class="row text-center">
-              <div class="col-sm-12">
-              <h1 class="text-center">Pricing</h1>
-            </div>
-              <div class="col-sm-4 offset-sm-2">
-                <div class="plan">
-                  <h4>Basic Plan</h4>
-                  <div class="pricing-icon">
-                    <img class="rounded-circle" src="assets/icons/pricing-1.png" width="70" alt="Pricing">
-                  </div>
-                  <div class="price">
-                    $24
-                    <br>
-                  </div>
-                    <small>per month</small>
-                  <ul class="pricing-list">
-                    <li>Only 1 user</li>
-                    <li>1 TB monthly data</li>
-                    <li>Unlimited bandwidth</li>
-                    <li>24/7 customer support</li>
-                  </ul>
-                  <a href="#" class="btn btn-action btn-edge wow fadeInLeft" data-wow-delay="0.2s">Buy Now</a>
-                </div>
-              </div>
-              <div class="col-sm-4">
-                <div class="plan">
-                  <h4>Agency</h4>
-                  <div class="pricing-icon">
-                    <img class="rounded-circle" src="assets/icons/pricing-2.png"  width="70" alt="Pricing">
-                  </div>
-                  <div class="price">
-                    $99
-                    <br>
-                  </div>
-                    <small>monthly / user</small>
-                  <ul class="pricing-list">
-                    <li>Only 1 user</li>
-                    <li>1 TB monthly data</li>
-                    <li>Unlimited bandwidth</li>
-                    <li>24/7 customer support</li>
-                  </ul>
-                  <a href="#" class="btn btn-action btn-edge wow fadeInLeft" data-wow-delay="0.2s">Get in touch</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-
-        <div class="section-r">
+        <div id="data" class="section-r">
           <div class="container">
             <div class="row">
               <div class="col-lg-5">
                 <div class="review-pitch">
-                  <h2>Let the fact that we deliver 100% satisfaction not persuade you</h2>
-                  <p>It won't be long before you realize that we have over 1.2 million customers and you'll be persuaded by the
-                     features we offer.</p>
+                  <h2>Estamos sempre tentando te oferecer o melhor</h2>
+                  <p>Conforme mais pessoas usam, mais dados são compartilhados e podemos usa-los para o bem de todos.</p>
                 </div>
                 <div class="counter-section">
-                  <div class="row text-center">
+                  <div class="row text-center" id="stats-counter" type="x-tmpl-mustache">
+                    <div class="col-sm-3 col-xs-6">
+                      <div class="counter-up">
+                        <div class="counter-icon">
+                          <img src="assets/icons/user.png" width="60" alt="Usuários">
+                        </div>
+                        <h3>
+                          <span >
+                            {{ usersCount }}
+                          </span>
+                        </h3>
+                        <div class="counter-text">
+                          <h4>Usuários</h4>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-sm-3 col-xs-6">
+                      <div class="counter-up">
+                        <div class="counter-icon">
+                          <img src="assets/icons/press.png" width="60" alt="Conceitos">
+                        </div>
+                        <h3><span >{{ conceptsCount }}</span></h3>
+                        <div class="counter-text">
+                          <h4>Conceitos</h4>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-sm-3 col-xs-6">
+                      <div class="counter-up">
+                        <div class="counter-icon">
+                          <img src="assets/icons/awards.png" width="60" alt="Reviews">
+                        </div>
+                        <h3><span >{{ reviewsCount }}</span></h3>
+                        <div class="counter-text">
+                          <h4>Avaliações</h4>
+                        </div>
+                      </div>
+                    </div>
                     <div class="col-sm-3 col-xs-6">
                       <div class="counter-up">
                         <div class="counter-icon">
                           <img src="assets/icons/downloads.png" width="60" alt="Press">
                         </div>
-                        <h3><span class="counter">46</span>K+</h3>
+                        <h3><span class="counter">5</span>K+</h3>
                         <div class="counter-text">
                           <h4>Downloads</h4>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                      <div class="counter-up">
-                        <div class="counter-icon">
-                          <img src="assets/icons/projects.png" width="60" alt="Projects">
-                        </div>
-                        <h3><span class="counter">66</span></h3>
-                        <div class="counter-text">
-                          <h4>Projects</h4>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                      <div class="counter-up">
-                        <div class="counter-icon">
-                          <img src="assets/icons/awards.png" width="60" alt="Press">
-                        </div>
-                        <h3><span class="counter">32</span></h3>
-                        <div class="counter-text">
-                          <h4>Awards</h4>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                      <div class="counter-up">
-                        <div class="counter-icon">
-                          <img src="assets/icons/press.png" width="60" alt="Press">
-                        </div>
-                        <h3><span class="counter">12</span></h3>
-                        <div class="counter-text">
-                          <h4>Press</h4>
                         </div>
                       </div>
                     </div>
@@ -410,45 +371,23 @@
                   <div id="reviews" class="review-section">
                     <div class="container">
                       <div class="row text-center">
+                        <h1 class="thanks">Agradecimentos</h1>
                         <div class="col-sm-12">
                           <div class="reviews owl-carousel owl-theme">
                             <div class="review-single">
-                              <img class="rounded-circle" src="assets/icons/review-1.png" alt="Client Testimonoal" />
-                              <div class="review-text wow fadeInDown" data-wow-delay="0.2s">
-                                <p>Going to use some lorem here. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer iaculis quis tellus ac vestibulum.  Etiam fermentum nisl ac venenatis rhoncus.</p>
-                                <h3>Thomas Young</h3>
-                                <h4>Vice President Primal Inc</h4>
-                                <i class="ion ion-star"></i>
-                                <i class="ion ion-star"></i>
-                                <i class="ion ion-star"></i>
-                                <i class="ion ion-star"></i>
-                                <i class="ion ion-star"></i>
+                              <img class="rounded-circle" src="assets/images/fesnt.jpg" alt="Felipe Santos" />
+                              <div class="review-text">
+                                <p>O Felipe percebeu uma necessidade imensa no processo de matrícula nas disciplinas da UFABC. Faltavam diversas informações como nome do professor, ordenamento por campus/turno e etc. A partir disso, ele criou uma extensão para Google Chrome adicionando as informações que os alunos precisavam. A extensão chegou a ter 4000 alunos utilizando durante um processo de matrícula. A extensão evoluiu e foi incorporada ao UFABC Next. Somos muito gratos por todo trabalho desenvolvido pelo Felipe, foi fundamental.</p>
+                                <h3>Felipe Santos</h3>
+                                <h4>Criador da Extensão da Matrícula</h4>
                               </div>
                             </div>
                             <div class="review-single">
-                              <img class="rounded-circle" src="assets/icons/review-2.png" alt="Client Testimonoal" />
+                              <img class="rounded-circle" src="assets/images/wes.jpg" alt="Wes Toppani" />
                               <div class="review-text">
-                                <p>Going to use some lorem here. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer iaculis quis tellus ac vestibulum.  Etiam fermentum nisl ac venenatis rhoncus.</p>
-                                <h3>Neil Harris</h3>
-                                <h4>President Proton LLC</h4>
-                                <i class="ion ion-star"></i>
-                                <i class="ion ion-star"></i>
-                                <i class="ion ion-star"></i>
-                                <i class="ion ion-star"></i>
-                                <i class="ion ion-ios-star-half"></i>
-                              </div>
-                            </div>
-                            <div class="review-single">
-                              <img class="rounded-circle" src="assets/icons/review-3.png" alt="Client Testimonoal" />
-                              <div class="review-text">
-                                <p>Going to use some lorem here. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer iaculis quis tellus ac vestibulum.  Etiam fermentum nisl ac venenatis rhoncus.</p>
-                                <h3>Alison Burgers</h3>
-                                <h4>CEO Marga Holdings</h4>
-                                <i class="ion ion-star"></i>
-                                <i class="ion ion-star"></i>
-                                <i class="ion ion-star"></i>
-                                <i class="ion ion-star"></i>
-                                <i class="ion ion-ios-star-half"></i>
+                                <p>Gostariamos de agradecer todo apoio que foi dado pelo Wes para o desenvolvimento do UFABC Next. O Help surgiu em 2012 a partir de uma necessidade que os alunos tinham de levantar dados sobre os professores da UFABC. Antes de existir o sistema, as avaliações dos professores eram feitas através de um formulário onde a senha era "ufabc2011" (bem deep web) e depois disso o Help evoluiu podendo contar com até com 50 pessoas na equipe e ser uma referência dentro da UFABC.</p>
+                                <h3>Wes Toppani</h3>
+                                <h4>Criador do <a href="https://ufabchelp.me">UFABC Help</a></h4>
                               </div>
                             </div>
                           </div>
@@ -463,84 +402,28 @@
         </div>
 
 
-        <div id="contact" class="contact">
-          <div class="container">
-            <div class="row text-center">
-              <div class="col-sm-8 offset-sm-2 text-center">
-                <div class="contact-intro wow fadeInDown">
-                  <h1>Still confused? Drop us a word, we'll get back to you asap.</h1>
-                </div>
-              </div>
-              <div class="col-sm-8 offset-sm-2">
-                <div class="contact-form wow fadeInDown">
-                    <form id="contact-form" method="post" action="assets/php/contact.php">
-                      <div class="messages"></div>
-                      <div class="controls">
-                      <div class="row">
-                          <div class="col-md-6">
-                              <div class="form-group">
-                                  <label for="form_name">Name*</label>
-                                  <input id="form_name" type="text" name="name" class="form-control" required="required" data-error="Firstname is required.">
-                                  <div class="help-block with-errors"></div>
-                              </div>
-                          </div>
-                          <div class="col-md-6">
-                              <div class="form-group">
-                                  <label for="form_email">Email *</label>
-                                  <input id="form_email" type="email" name="email" class="form-control" required="required" data-error="Valid email is required.">
-                                  <div class="help-block with-errors"></div>
-                              </div>
-                          </div>
-                        </div>
-                      <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="form_message">Message *</label>
-                                <textarea id="form_message" name="message" class="form-control" rows="4" required="required" data-error="Please,leave us a message."></textarea>
-                                <div class="help-block with-errors"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <input type="submit" class="btn btn-success btn-send" value="Send message">
-                        </div>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-
         <div class="footer">
           <div class="container">
             <div class="row">
               <div class="col-md-6">
-                <h2>Label Inc</h2>
-                <p> Some great details about your brand can fill this section. There will always be someone who reads footer.</p>
+                <img src="assets/images/logo_white.png" width="120" />
+                <p>Sabemos que a vida na UFABC pode se tornar muito complicada, portanto o objetivo do Next é te ajudar a planejar melhor sua graduação. </p>
                 <ul class="footer-sub">
-                  <li>&copy; 2017 Label Inc.</li>
-                  <li><a href="#">Privacy</a></li>
-                  <li><a href="#">Legal</a></li>
+                  <li>&copy; 2019 UFABC Next.</li>
+                  <li><a href="#">Termos de uso</a></li>
                 </ul>
               </div>
               <div class="col-md-6 text-right d-none d-md-block">
                 <ul class="social">
-                  <li><a href="#"><img src="assets/icons/facebook.png" width="35" alt="Social"></a></li>
-                  <li><a href="#"><img src="assets/icons/twitter.png" width="35" alt="Social"></a></li>
-                  <li><a href="#"><img src="assets/icons/youtube.png" width="35" alt="Social"></a></li>
-                  <li><a href="#"><img src="assets/icons/instagram.png" width="35" alt="Social"></a></li>
+                  <li><a onclick="window.open(EXTENSION_URL,'_blank'); return false;" target="_blank" style="cursor: pointer;"><img src="assets/icons/google-logo.png" width="35" alt="Social"></a></li>
                 </ul>
                 <ul class="footer-nav">
-                  <li><a href="#">About</a></li>
-                  <li><a href="#">Support</a></li>
-                  <li><a href="#">Contact</a></li>
+                  <li><a href="#about">Sobre nós</a></li>
+                  <li><a href="#features">Funcionalidades</a></li>
+                  <li><a href="#data">Dados</a></li>
                 </ul>
-                <a class="f-mail" href="tel:180032472349">Call: 1800 3247 2349</a>
                 <br>
-                <a class="f-mail" href="mailto:info@label.co">support@label.co</a>
+                <a class="f-mail" href="mailto:contato@ufabcnext.com">contato@ufabcnext.com</a>
               </div>
             </div>
           </div>
@@ -566,5 +449,30 @@
     <script src="assets/js/validator.js"></script>
     <script src="assets/js/contact.js"></script>
     <script src="assets/js/custom.js"></script>
+    <script type="text/javascript">
+      var template = $('#stats-counter').html();
+      Mustache.parse(template);
+      var rendered = Mustache.render(template, {
+        usersCount: 0,
+        conceptsCount: 0,
+        reviewsCount: 0,
+      })
+      $('#stats-counter').html(rendered)
+
+      const EXTENSION_URL = 'https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk'
+      const TEACHER_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSfbwaJCw-t4SlHJ4akwQNCMNAEBREDcdfrqHs7ROhkuUUwDRQ/viewform?usp=sf_link'
+      let self = this
+      axios.get('https://api.ufabcnext.com/v1/stats/usage').then(function (res){
+        self.stats = res.data
+        var newRendered = Mustache.render(template, {
+          usersCount: self.stats.users || 0,
+          conceptsCount: self.stats.help || 0,
+          reviewsCount: self.stats.reviews || 0,
+        })
+        $('#stats-counter').html(newRendered)
+      }).catch(function(err) {
+        console.log(err)
+      })
+    </script>
   </body>
 </html>

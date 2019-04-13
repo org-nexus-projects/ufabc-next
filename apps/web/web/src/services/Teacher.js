@@ -20,11 +20,11 @@ class Teacher {
     return {
       data: [
         {
-          text: 'Coxa para caramba.',
+          text: 'Professor super gente boa, recomendo!',
           likesCount: 2,
           helpfulCount: 10,
           year: 2019,
-          quad: 2,
+          quad: 1,
           conceito: 'A',
           subject: {
             createdAt: "2018-11-22T00:44:12.265Z",
@@ -37,7 +37,7 @@ class Teacher {
           author: null,
         },
         {
-          text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam sodales purus non dignissim feugiat. Nulla eget lectus nisl. Mauris posuere eu ipsum a dapibus. Vestibulum vel nulla posuere, sagittis tellus id, venenatis tellus. Morbi porttitor rhoncus nunc, eu luctus ligula. Cras vitae ipsum facilisis, commodo quam eu, viverra est. Suspendisse sit amet tellus aliquam, mollis tortor vitae, luctus lacus. Suspendisse potenti. Proin et commodo neque. Phasellus a lorem et libero luctus pellentesque. Ut non rutrum dolor. Integer quis lacus risus. Aliquam nulla leo, tempus finibus dui sit amet, vulputate sagittis dolor. In rutrum est sit amet dictum auctor. Nam porta leo ultrices ante aliquam, at tempus dui finibus. Donec pulvinar euismod leo in hendrerit.',
+          text: 'Eu não concordo muito com a didática mas deu para passar, dava para ter ido com um pouco melhor se estivesse estudado mais para a P1, pq tava bem fácil. O que salvou foi a P2 que foi em dupla.',
           likesCount: 2,
           helpfulCount: 10,
           year: 2019,
@@ -57,7 +57,7 @@ class Teacher {
           text: 'ME FERREI COM ESSE CARA',
           likesCount: 2,
           helpfulCount: 10,
-          year: 2019,
+          year: 2017,
           quad: 2,
           conceito: 'F',
           subject: {

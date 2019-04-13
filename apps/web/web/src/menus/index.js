@@ -36,11 +36,11 @@ export default [
     route: '/settings',
   },
 
-  {
-    title: 'Administrativo',
-    icon: 'mdi-database-edit',
-    route: '/admin',
-    permissions: 'admin',
-  },
+  // {
+  //   title: 'Administrativo',
+  //   icon: 'mdi-database-edit',
+  //   route: '/admin',
+  //   permissions: 'admin',
+  // },
 
 ]
