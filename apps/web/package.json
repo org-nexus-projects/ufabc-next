@@ -3,6 +3,6 @@
     "install-app": "cd app && npm install && cd ../",
     "build-web": "cd web && npm install && npm run build && mv dist ../dist && cd ../",
     "deepinstall": "npm run install-app && npm run build-web",
-    "start": "node app/server.js"
+    "start": "cd app && node server.js"
   }
 }
