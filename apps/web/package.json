@@ -1,8 +1,12 @@
 {
   "scripts": {
     "install-app": "cd app && npm install && cd ../",
-    "build-web": "cd web && npm install && npm run build && mv dist ../dist && cd ../",
+    "build-web": "cd web && npm install && npm run build",
     "deepinstall": "npm run install-app && npm run build-web",
-    "start": "cd app && node server.js"
+    "start": "cd app && node server.js",
+    "deploy": "caprover deploy",
+  },
+  "devDependencies": {
+    "caprover": "^1.2.0"
   }
 }
