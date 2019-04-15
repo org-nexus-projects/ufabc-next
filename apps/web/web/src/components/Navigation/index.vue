@@ -11,11 +11,11 @@
       width="240"
       style="display: flex; flex-direction: column;"
     >
-      <div class="my-4" v-if='$vuetify.breakpoint.lgOnly && !mini' style="padding-left: 17px;">
+      <div class="my-4" v-if='$vuetify.breakpoint.lgAndUp && !mini' style="padding-left: 17px;">
         <img src="@/assets/logo_white.svg" height="44" />
       </div>
       <div class="logo-minified mt-3 mb-4" v-if='mini'>
-        <img src="@/assets/next_symbol.svg" height="42" />
+        <div class="circle elevate-3d"><img src="@/assets/next_symbol.png" height="42" /></div>
       </div>
       <v-divider></v-divider>
       <v-list
@@ -96,12 +96,9 @@
 
     </v-toolbar>
 
-    <!-- Main Content -->
     <v-content style="transition: initial !important;">
-      <!-- Content with default slot -->
       <slot></slot>
     </v-content>
-
   </v-app>
 </template>
 
@@ -166,7 +163,7 @@ export default {
     },
 
     open(itemMenu) {
-      // if(itemMenu && itemMenu.route) this.$router.push({ path: itemMenu.route, query: itemMenu.query || {} })
+      if(itemMenu && itemMenu.route) this.$router.push({ path: itemMenu.route, query: itemMenu.query || {} })
     },
 
     // async getMe() {
@@ -189,6 +186,26 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.logo-minified > .circle {
+  background: #fff;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 6px;
+}
+.logo-minified > .circle:hover {
+  transform: scale(1.2);
+}
+.logo-minified > .circle:hover > img {
+  transform: scale(0.8);
+}
+
+.logo-minified > .circle > img {
+  transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out, -webkit-box-shadow 0.2s ease-in-out, -webkit-transform 0.2s ease-in-out;
 }
 .ufabcnext-navigation.v-navigation-drawer--mini-variant .v-list__tile{
   padding: 0 20px;

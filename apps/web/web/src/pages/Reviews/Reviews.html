@@ -1,0 +1,143 @@
+<v-container style="display: flex; flex-direction: column;" v-loading="loading"
+      element-loading="Carregando...">  
+  <v-layout row align-center class="white elevation-1 search-area pl-3 pr-4 mr-0">
+
+    <v-combobox
+      v-model='targetToReview'
+      :search-input.sync="search"
+      :items="entries"
+      :multiple="false"
+      chips
+      clearable
+      hide-details
+      hide-selected
+      item-text="name"
+      placeholder="Digite o nome do professor ou disciplina"
+      class="pt-0 search-review-input"
+      return-object
+      append-icon=""
+      :no-filter="true"
+    >
+      <div slot="prepend">
+        <v-progress-circular v-if='loadingSearch' indeterminate color="primary" size="24" width="2"></v-progress-circular>
+        <v-icon v-else>search</v-icon>
+      </div>
+      <template v-slot:selection="data">
+        <v-chip class="target-chip v-chip--select-multi">
+          <v-icon class="mr-1" size="20" v-if='data.item && data.item.kind'>{{ iconForTarget(data.item.kind) }}</v-icon>
+          <div class="target-name-chip">
+            {{ data.item && data.item.name }}
+          </div>
+        </v-chip>
+      </template>
+      <template v-slot:item="data">
+        <v-icon class="mr-1" size="20" v-if='data.item && data.item.kind'>
+          {{ iconForTarget(data.item.kind) }}
+        </v-icon>
+        {{ data.item && data.item.name}}
+      </template>
+    </v-combobox>
+  </v-layout>
+
+  <v-layout column class="results-area white mt-3 pa-4" v-if='target'>
+    <div v-if='loading || (concepts && concepts.specific && concepts.specific.length)' 
+      style="min-height: 200px">
+
+      <div class="target-name">{{ target.name }}</div>
+
+      <TargetInfo
+        :conceptsCount="samplesCount"
+        :target="target"
+        :teachersCount="teachersOfSubject && teachersOfSubject.length"
+        v-if='!loading && samplesCount >= 0'
+      />
+      <v-layout wrap>
+        <v-flex sm12 md12 lg5>
+          <vue-highcharts
+            v-if='concepts && concepts.specific && concepts.specific.length'
+            :options="options"
+            :highcharts="Highcharts"
+            ref="pieChart"
+            :class="{ 'chart-large': $vuetify.breakpoint.xsOnly }"
+            style="display: flex; align-items: center; justify-content: center;"
+          ></vue-highcharts>
+
+          <div class="mt-2" style="text-align: center;" v-if='target && target.kind == "teacher"'>
+            <b>* {{ cobraPresenca }}</b>
+          </div>
+
+          <div class="ufabc-column ufabc-align-center mt-3 ufabc-flex-wrap">
+            <div class="ufabc-row ufabc-align-center ufabc-justify-middle my-cr" v-if='student_cr'>
+              Seu CR é <b class="ml-1">{{ crCropped(student_cr) }}</b>
+            </div>
+            <div class="conceitos" v-if='conceitoDistribution && conceitoDistribution.length && student_cr'>
+              <div class="conceitos-title">
+                Com seu CR {{ crCropped(student_cr) }}, seu conceito com este professor <b>provavelmente</b> será:
+              </div>
+              <div class="all-conceitos">
+                <div class="conceito-target" :class="targetConceitoStudent">
+                  <div class="arrow">
+                  </div>
+                  <div class="square"></div>
+                </div>
+                <div class="conceitos-cr ufabc-row" 
+                    v-for='(conceito, index) in conceitos'
+                    :key="index">
+                  <div class="conceito" :class="conceito.conceito">{{ conceito.conceito }} </div> 
+                  <div class="cr">
+                    {{ findConcept(conceito.conceito) }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </v-flex>
+        <v-flex sm12 md12 lg7>
+          <div class="title mb-2 pb-1" v-if='(target && target.kind == "teacher")'>
+            Comentários ({{ totalComments }})
+          </div>
+          <el-select
+            class="mb-2"
+            placeholder="Selecione a matéria" 
+            @change="updateFilter()"
+            v-model="filterSelected" 
+            v-if='concepts && concepts.specific && concepts.specific.length && (target && target.kind == "teacher")'
+            style="display: flex;">
+            <el-option
+              v-for="option in possibleDisciplinas"
+              :key="option._id._id"
+              :label="option._id.name"
+              :value="option._id._id">
+            </el-option>
+          </el-select>
+
+          <div class="comment-list mt-3" v-if='target.kind == "teacher"'>
+            <ReviewComment
+              v-for='comment in comments'
+              :comment="comment"
+              class="mb-4" 
+              :key="comment._id" 
+              @input="updateComment($event)"
+            />
+          </div>
+
+          <SubjectTeachersList
+            :teachers="teachersOfSubject"
+            :totalConcepts="samplesCount"
+            v-if='target.kind == "subject"'
+            />
+        </v-flex>
+      </v-layout>
+
+    </div>
+
+    <NoReviewsFound
+      v-else-if='!loading'
+    />
+  </v-layout>
+
+  <template v-else>
+    <WelcomeReview />
+    <ReviewQuickComment />
+  </template>
+</v-container>

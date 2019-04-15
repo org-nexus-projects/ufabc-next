@@ -1,0 +1,39 @@
+.title-settings {
+  font-family: Lato, Roboto;
+  font-size: 28px;
+}
+
+.username-settings {
+  font-family: Lato, Roboto;
+  line-height: 1.5;
+  font-size: 26px;
+  height: 45px;
+  color: #444;
+}
+
+.email-settings {
+  font-family: Lato, Roboto;
+  color: #676767;
+  font-size: 16px;
+}
+
+.createdAt-settings {
+  font-family: Lato, Roboto;
+  color: #676767;
+  font-size: 16px;
+}
+
+.title-box-settings {
+  font-family: Lato, Roboto;
+  color: #444;
+  font-size: 26px;
+}
+.text-box-settings {
+  color: #676767;
+  font-size: 16px;
+}
+
+.links-settings {
+  font-size: 16px;
+  text-decoration: none;
+}

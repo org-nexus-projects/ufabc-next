@@ -2,7 +2,11 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 
 // Pages
-// import Login from '@/pages/Login'
+import Reviews from '@/pages/Reviews'
+import Stats from '@/pages/Stats'
+import History from '@/pages/History'
+import Settings from '@/pages/Settings'
+import Admin from '@/pages/Admin'
 
 import Auth from '@/services/Auth'
 // import UsersService from '@/services/Users'
@@ -24,18 +28,71 @@ function RedirectIfLogged(params) {
 Vue.use(VueRouter)
 const router = new VueRouter({
   mode: 'history',
+  scrollBehavior (to, from, savedPosition) {
+    return { x: 0, y: 0 }
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (savedPosition) {
+          resolve(savedPosition)
+        } else {
+          resolve({ x: 0, y: 0 })
+        }
+      }, 1000)
+    })
+  },
   routes: [
 
-    // {
-    //   alias: '/',
-    //   name: 'order-create',
-    //   path: '/orders/new',
-    //   component: OrderEditor,
-    //   meta: {
-    //     title: 'Criar novo Pedido',
-    //     auth: true
-    //   },
-    // },
+    {
+      alias: '/',
+      name: 'reviews',
+      path: '/reviews',
+      component: Reviews,
+      meta: {
+        title: 'Reviews',
+        // auth: true
+      },
+      props: true,
+    },
+    
+    {
+      name: 'stats',
+      path: '/stats',
+      component: Stats,
+      meta: {
+        title: 'Stats',
+        // auth: true
+      },
+    },
+
+    {
+      name: 'history',
+      path: '/history',
+      component: History,
+      meta: {
+        title: 'Meu Histórico',
+        // auth: true
+      },
+    },
+
+    {
+      name: 'settings',
+      path: '/settings',
+      component: Settings,
+      meta: {
+        title: 'Configurações',
+        // auth: true
+      },
+    },
+
+    {
+      name: 'admin',
+      path: '/admin',
+      component: Admin,
+      meta: {
+        title: 'Administrativo',
+        // auth: true
+      },
+    },
 
     // { path: '*', redirect: '/login' }
   ]

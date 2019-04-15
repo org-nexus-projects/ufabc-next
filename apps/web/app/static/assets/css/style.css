@@ -212,9 +212,8 @@ body {
 }
 
 @media only screen and (max-width: 768px) {
-
-	.navbar {
-		background: rgba(255, 255, 255, 0.99) !important;
+  .navbar {
+    /*background: rgba(255, 255, 255, 0.99) !important;*/
 		padding-top: 10px;
 		padding-bottom: 10px;
 	}
@@ -395,7 +394,7 @@ body {
 }
 
 .home-2 .subform {
-	padding-top: 50px;
+	padding-top: 28px;
 }
 
 

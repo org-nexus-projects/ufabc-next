@@ -4,9 +4,14 @@
   --ufabcnext-darkgrey: rgba(0,0,0,0.8);
   --ufabcnext-grey: rgba(0,0,0,0.5);
   --ufabcnext-lightgrey: rgba(0,0,0,0.3);
-  --ufabcnext-navigation: #4527A0;
+  --ufabcnext-navigation: #215096; /*#4527A0;*/
   --ufabcnext-red: #e17472;
   --ufabcnext-nav-blue: #409EFF;
+  --ufabcnext-like: #909090;
+  --ufabcnext-liked: #065fd4;
+  --ufabcnext-primary: #2e7eed;
+  --ufabcnext-secondary: #393e56;
+  --ufabcnext-charcoal-grey: #323544;
 }
 
 
@@ -108,7 +113,7 @@
 
 
 /* 
-  Red - Text color, border color and background color
+  Nav blue - Text color, border color and background color
 */
 .ufabcnext-nav-blue {
   background-color: var(--ufabcnext-nav-blue) !important;
@@ -118,4 +123,70 @@
 }
 .ufabcnext-nav-blue--text {
   color: var(--ufabcnext-nav-blue) !important;
+}
+
+
+/* 
+  Like - Text color, border color and background color
+*/
+.ufabcnext-like {
+  background-color: var(--ufabcnext-like) !important;
+}
+.ufabcnext-like-outline {
+  border-color: var(--ufabcnext-like) !important;
+}
+.ufabcnext-like--text {
+  color: var(--ufabcnext-like) !important;
+}
+
+/* 
+  Liked - Text color, border color and background color
+*/
+.ufabcnext-liked {
+  background-color: var(--ufabcnext-liked) !important;
+}
+.ufabcnext-liked-outline {
+  border-color: var(--ufabcnext-liked) !important;
+}
+.ufabcnext-liked--text {
+  color: var(--ufabcnext-liked) !important;
+}
+
+/*
+  Primary - Text color, border color and background color
+*/
+.ufabcnext-primary {
+  background-color: var(--ufabcnext-primary) !important;;
+}
+.ufabcnext-primary-outline {
+  border-color: var(--ufabcnext-primary) !important;
+}
+.ufabcnext-primary--text {
+  color: var(--ufabcnext-primary) !important;
+}
+
+/*
+  Secondary - Text color, border color and background color
+*/
+.ufabcnext-secondary {
+  background-color: var(--ufabcnext-secondary) !important;;
+}
+.ufabcnext-secondary-outline {
+  border-color: var(--ufabcnext-secondary) !important;
+}
+.ufabcnext-secondary--text {
+  color: var(--ufabcnext-secondary) !important;
+}
+
+/*
+  Charcoal-grey - Text color, border color and background color
+*/
+.ufabcnext-charcoal-grey {
+  background-color: var(--ufabcnext-charcoal-grey) !important;;
+}
+.ufabcnext-charcoal-grey-outline {
+  border-color: var(--ufabcnext-charcoal-grey) !important;
+}
+.ufabcnext-charcoal-grey--text {
+  color: var(--ufabcnext-charcoal-grey) !important;
 }

@@ -11,13 +11,6 @@ class Auth {
     this._listeners = []
   }
 
-  async login(email, password) {
-    return await Axios.post('/auth/login', {
-      email: email,
-      password: password
-    })
-  }
-
   logOut() {
     this.setToken(null)
   }
@@ -47,6 +40,11 @@ class Auth {
     }
   }
 
+  loadFromLocalStorage() {
+    const token = localStorage.getItem('token') || null
+    this.setToken(token)
+  }
+
   onAuthStateChanged(callback) {
     if (! (callback in this._listeners) )
       this._listeners.push(callback)
@@ -55,16 +53,18 @@ class Auth {
       setTimeout(() => callback(this.user), 0)
   }
 
-  loadFromLocalStorage() {
-    const token = localStorage.getItem('token') || null
-    this.setToken(token)
-  }
-
   async forgot(email) {
     return await Axios.get('/auth/reset', {
       params: {
         email: email
       }
+    })
+  }
+
+  async login(email, password) {
+    return await Axios.post('/auth/login', {
+      email: email,
+      password: password
     })
   }
 
