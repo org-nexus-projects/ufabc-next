@@ -12,6 +12,7 @@
     "echarts": "^4.1.0",
     "element-ui": "^2.4.11",
     "highcharts": "^6.2.0",
+    "jsonwebtoken": "^8.5.1",
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.11",
     "moment": "^2.23.0",

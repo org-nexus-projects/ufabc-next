@@ -68,14 +68,7 @@ export default {
       crDistributionLoading: false,
       crHistoryOptions: {
         columns: ['season', 'cr'],
-        rows: [
-          // { 'cr': 2.56, 'season': '01/01',},
-          // { 'cr': 2.60, 'season': '01/02',},
-          // { 'cr': 2.90, 'season': '01/03',},
-          // { 'cr': 3.19, 'season': '01/04',},
-          // { 'cr': 2.12, 'season': '01/05',},
-          // { 'cr': 2.34, 'season': '01/06',}
-        ]
+        rows: []
       },
       crDistributionOptions: {
         chart: {
@@ -83,35 +76,48 @@ export default {
           zoomType: 'x',
           panning: true,
           panKey: 'shift',
-          scrollablePlotArea: {
-            minWidth: 600
-          }
+          
+        },
+
+        responsive: {
+          rules: [{
+            condition: {
+              maxWidth: 1200
+            },
+            chartOptions: {
+              legend: {
+                  layout: 'horizontal',
+                  align: 'center',
+                  verticalAlign: 'bottom'
+              }
+            }
+          }]
         },
 
         title: {
-          text: 'Distribuição de CR'
+          text: ''
         },
 
         subtitle: {
-          text: 'An annotated chart in Highcharts'
+          text: ''
         },
 
         annotations: [{
-          labelOptions: {
-            backgroundColor: 'rgba(255,255,255,0.5)',
-            verticalAlign: 'top',
-            y: 15
-          },
-          labels: [{
-            point: {
+        labelOptions: {
+          backgroundColor: 'rgba(255,255,255,1)',
+          verticalAlign: 'top',
+          y: 15
+        },
+        labels: [{
+          point: {
               xAxis: 0,
               yAxis: 0,
-              x: 3.0,
-              y: 228
-            },
-            text: 'Você'
-          },]
-        },],
+              x: 27.98,
+              y: 50
+          },
+          text: 'Arbois'
+        }]
+      }],
 
         xAxis: {
           labels: {
@@ -149,15 +155,14 @@ export default {
           lineColor: Highcharts.getOptions().colors[1],
           color: Highcharts.getOptions().colors[2],
           fillOpacity: 0.5,
-          name: 'Elevation',
+          name: 'Número de alunos',
           marker: {
             enabled: false
           },
           threshold: null
         }]
       }
-
-    } 
+    }
   },
 
   created() {
@@ -189,6 +194,14 @@ export default {
 
     async populateCrDistribution() {
       this.crDistributionLoading = true
+
+      let maxWidth = 420
+      let maxHeight = 280
+      let onlyXs = this.$vuetify.breakpoint.xsOnly
+      let screenWidth = this.$vuetify.breakpoint.width
+      let width  =  onlyXs ? (screenWidth - 40) > maxWidth ? maxWidth : (screenWidth - 40) : maxWidth
+      let height =  onlyXs ? (screenWidth - 140) > maxHeight ? maxHeight : (screenWidth - 140) : maxHeight
+
       try {
         let crDistributionData = await Stats.getCrDistribution()
         if(!crDistributionData) return
