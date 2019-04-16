@@ -125,7 +125,19 @@
   color: var(--ufabcnext-nav-blue) !important;
 }
 
+/*
+  Link color - Text color, border color and background color
+*/
 
+.ufabcnext-link {
+  background-color: #4a90e2 !important;;
+}
+.ufabcnext-link-outline {
+  border-color: #4a90e2 !important;
+}
+.ufabcnext-link--text {
+  color: #4a90e2 !important;
+}
 /* 
   Like - Text color, border color and background color
 */
