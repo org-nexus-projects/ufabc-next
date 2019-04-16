@@ -1,6 +1,6 @@
 {
   "schemaVersion" : 2,
-  "dockerfileLines" : [
+  "dockerfileLines" :[
     "FROM node:9.11.2-alpine",
     "RUN apk --no-cache add bash git openssh",
     "RUN mkdir -p /usr/src/app",
