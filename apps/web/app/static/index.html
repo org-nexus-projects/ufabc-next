@@ -458,8 +458,8 @@
         self.stats = res.data
         var newRendered = Mustache.render(template, {
           usersCount: self.stats.users || 0,
-          conceptsCount: self.stats.help || 0,
-          reviewsCount: self.stats.reviews || 0,
+          conceptsCount: self.stats.enrollments || 0,
+          reviewsCount: self.stats.comments || 0,
         })
         $('#stats-counter').html(newRendered)
       }).catch(function(err) {
