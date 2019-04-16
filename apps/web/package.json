@@ -4,17 +4,12 @@
   "license": "MIT",
   "scripts": {
     "install-app": "cd app && npm install && cd ../",
-    "build-web": "cd web && npm install && npm run build && mv dist ../dist && cd ../",
-    "start": "node app/server.js",
+    "build-web": "cd web && npm install && npm run build",
     "deepinstall": "npm run install-app && npm run build-web",
+    "start": "cd app && node server.js",
     "deploy": "caprover deploy"
   },
-  "engines": {
-    "node": ">= 8.0.0",
-    "npm": ">= 3.0.0"
-  },
-  "dependencies": {
-    "caprover": "^1.2.0",
-    "captainduckduck": "^1.0.15"
+  "devDependencies": {
+    "caprover": "^1.2.0"
   }
 }
