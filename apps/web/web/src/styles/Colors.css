@@ -2,6 +2,7 @@
   --ufabcnext-green: #3fcf8c;
   --ufabcnext-blue: #4F60ED;
   --ufabcnext-darkgrey: rgba(0,0,0,0.8);
+  --ufabcnext-yellow: #ffcb17;
   --ufabcnext-grey: rgba(0,0,0,0.5);
   --ufabcnext-lightgrey: rgba(0,0,0,0.3);
   --ufabcnext-navigation: #215096; /*#4527A0;*/
@@ -83,6 +84,20 @@
 }
 .ufabcnext-darkgrey--text {
   color: var(--ufabcnext-darkgrey) !important;
+}
+
+
+/* 
+  Yellow - Text color, border color and background color
+*/
+.ufabcnext-yellow {
+  background-color: var(--ufabcnext-yellow) !important;
+}
+.ufabcnext-yellow-outline {
+  border-color: var(--ufabcnext-yellow) !important;
+}
+.ufabcnext-yellow--text {
+  color: var(--ufabcnext-yellow) !important;
 }
 
 /* 

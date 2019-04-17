@@ -34,24 +34,26 @@ class Stats {
     return mockedData
   }
 
-async getCrDistribution() {
-  let mockedData = [
-    [1.05, 100],
-    [1.55, 130],
-    [2.05, 400],
-    [2.65, 600],
-    [2.95, 400],
-    [3.35, 100],
-    [3.05, 50],
-    [3.45, 10],
-    [3.45, 10],
-    [4.00, 1],
-  ]
-  // return await Axios.get('/help/teachers/' + studentId)
-  return mockedData
-}
+  async getCrDistribution() {
+    let mockedData = [
+      [1.05, 100],
+      [1.55, 130],
+      [2.05, 400],
+      [2.65, 600],
+      [2.95, 400],
+      [3.35, 100],
+      [3.05, 50],
+      [3.45, 10],
+      [3.45, 10],
+      [4.00, 1],
+    ]
+    // return await Axios.get('/help/teachers/' + studentId)
+    return mockedData
+  }
 
-
+  async matricula(action, params) {
+    return await Axios.get('/stats/disciplinas/' + action, { params })
+  }
   
 }
 

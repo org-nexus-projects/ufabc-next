@@ -1,1 +1,126 @@
-Enrollments.html
+<v-container style="display: flex; flex-direction: column; min-height: 100%;">  
+  <v-layout class="card-group-stats" row style="min-height: 145px; flex: none" :class="{ 'wrap': !$vuetify.breakpoint.lgOnly }">
+    <v-flex xs12 lg3 class="card-stats" justify-center>
+      <div class="stats-counter" justify-center v-if='$vuetify.breakpoint.lgOnly'>2º quadrimestre <br /> 2019</small></div>
+      <div class="stats-counter text-center" v-else>2º quadrimestre 2019</small></div>
+    </v-flex>
+
+    <v-flex xs12 sm3 md3 lg3 class="card-stats">
+      <v-icon class="mb-1" color="ufabcnext-green" style="display: block;">mdi-account-group</v-icon>
+      <div class="stats-counter">3.023 <small class="ufabcnext-grey--text">/ 9.057</small></div>
+      <div class="stats-subtitle">alunos usando a extensão</div>
+      <div>
+        <v-progress-linear
+          color="ufabcnext-green"
+          height="6"
+          value="15"
+          style="border-radius: .25rem;"
+        ></v-progress-linear>
+      </div>
+    </v-flex>
+
+    <v-flex xs12 sm3 md3 lg3 class="card-stats">
+      <v-icon class="mb-1" color="ufabcnext-blue" style="display: block;">mdi-book-open-variant</v-icon>
+      <div class="stats-counter">1093</div>
+      <div class="stats-subtitle">turmas</div>
+      <div v-if='!$vuetify.breakpoint.xsOnly'>
+        <v-progress-linear
+          color="ufabcnext-blue"
+          height="6"
+          value="100"
+          style="border-radius: .25rem;"
+        ></v-progress-linear>
+      </div>
+    </v-flex>
+
+    <v-flex xs12 sm3 md3 lg3 class="card-stats">
+      <v-icon class="mb-1" color="ufabcnext-nav-blue" style="display: block;">mdi-teach</v-icon>
+      <div class="stats-counter">488</div>
+      <div class="stats-subtitle">professores</div>
+      <div v-if='!$vuetify.breakpoint.xsOnly'>
+        <v-progress-linear
+          color="ufabcnext-nav-blue"
+          height="6"
+          value="100"
+          style="border-radius: .25rem;"
+        ></v-progress-linear>
+      </div>
+    </v-flex>
+
+    <v-flex xs12 sm3 md3 lg3 class="card-stats">
+      <v-icon class="mb-1" color="ufabcnext-red" style="display: block;">mdi-import</v-icon>
+      <div class="stats-counter">-3300</div>
+      <div class="stats-subtitle">deficit de vagas</div>
+      <div v-if='!$vuetify.breakpoint.xsOnly'>
+        <v-progress-linear
+          color="ufabcnext-red"
+          height="6"
+          value="100"
+          style="border-radius: .25rem;"
+        ></v-progress-linear>
+      </div>
+    </v-flex>
+
+  </v-layout>
+  <v-layout column wrap class="white mt-3 pa-4" style="border-radius: 4px;">
+    <div class="enrollments-title stats-counter">Informações da matrícula</div>
+    <div class="enrollments-subtitle stats-subtitle mb-2">Saiba mais sobre a concorrência nas disciplinas, turmas e cursos presentes na UFABC.</div>
+
+    <el-tabs v-model="tab">
+      <el-tab-pane label="Turmas" name="">
+      </el-tab-pane>
+      <el-tab-pane label="Curso" name="courses">
+      </el-tab-pane>
+      <el-tab-pane label="Disciplina" name="disciplines">
+      </el-tab-pane>
+    </el-tabs>
+
+    <div class="enrollments-subtitle stats-subtitle mb-2" v-if='total >= 0 && !loading'>
+      {{ total }} resultados encontrados
+    </div>
+
+    <el-table
+      empty-text="Nenhum dado encontrado"
+      ref="disciplinas"
+      v-loading='loading'
+      :data="disciplinas"
+      style="width: 100%">
+      <el-table-column
+        label="Nome">
+        <template slot-scope="scope">
+          {{ matriculaNameLabel(scope.row)}}
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="vagas"
+        label="Vagas"
+        sortable
+        width="150">
+      </el-table-column>
+      <el-table-column
+        prop="requisicoes"
+        label="Requisições"
+        sortable
+        width="150">
+      </el-table-column>
+      <el-table-column
+        prop="deficit"
+        label="Deficit"
+        sortable
+        width="150">
+      </el-table-column>
+      <el-table-column
+        prop="ratio"
+        label="Ratio"
+        sortable
+        width="150">
+        <template slot-scope="scope">
+          {{ scope.row.ratio.toFixed(2)}}
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-button class="load-more" @click="fetch(true)" v-if='more' :loading="moreLoading">
+      Carregar mais <i class="el-icon-arrow-down el-icon-right"></i>
+    </el-button>
+  </v-layout>
+</v-container>

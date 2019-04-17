@@ -9,6 +9,7 @@ import Confirmation from '@/pages/Signup/Confirmation'
 import jsonwebtoken from 'jsonwebtoken'
 import History from '@/pages/History'
 import Settings from '@/pages/Settings'
+import Enrollments from '@/pages/Enrollments'
 import Admin from '@/pages/Admin'
 
 import Auth from '@/services/Auth'
@@ -135,6 +136,16 @@ const router = new VueRouter({
       component: History,
       meta: {
         title: 'Meu Histórico',
+        // auth: true
+      },
+    },
+
+    {
+      name: 'enrollments',
+      path: '/enrollments',
+      component: Enrollments,
+      meta: {
+        title: 'Dados da Matrícula',
         // auth: true
       },
     },
