@@ -160,7 +160,7 @@ export default {
     // },
 
     logOut() {
-      // Auth.logOut()
+      Auth.logOut()
     },
 
     open(itemMenu) {
