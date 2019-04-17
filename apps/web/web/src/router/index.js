@@ -67,6 +67,7 @@ function confirmAccount(params) {
 Vue.use(VueRouter)
 const router = new VueRouter({
   mode: 'history',
+  base: '/app',
   scrollBehavior (to, from, savedPosition) {
     return { x: 0, y: 0 }
     return new Promise((resolve, reject) => {

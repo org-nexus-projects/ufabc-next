@@ -1,5 +1,15 @@
 {
-  "dependencies": {
-    "jsonwebtoken": "^8.5.1"
+  "name": "UFABC-Next",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "install-app": "cd app && npm install && cd ../",
+    "build-web": "cd web && npm install && npm run build",
+    "deepinstall": "npm run install-app && npm run build-web",
+    "start": "cd app && node server.js",
+    "deploy": "caprover deploy"
+  },
+  "devDependencies": {
+    "caprover": "^1.2.0"
   }
 }

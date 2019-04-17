@@ -12,7 +12,7 @@ server.use(bodyParser.json())
 
 let vueStatic = express.static('../dist')
 server.use('/app', vueStatic)
-server.use('app', fallback('index.html', { root: '../dist' }))
+server.use('/app', fallback('index.html', { root: '../dist' }))
 
 let static = express.static('./static')
 server.use(static)
