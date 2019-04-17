@@ -1,0 +1,114 @@
+[
+  {
+    "_id": 16,
+    "name": "Bacharelado em Ciência da Computação"
+  },
+  {
+    "_id": 20,
+    "name": "Bacharelado em Ciência e Tecnologia"
+  },
+  {
+    "_id": 17,
+    "name": "Bacharelado em Ciências Biológicas"
+  },
+  {
+    "_id": 1,
+    "name": "Bacharelado em Ciências Econômicas"
+  },
+  {
+    "_id": 22,
+    "name": "Bacharelado em Ciências e Humanidades"
+  },
+  {
+    "_id": 10,
+    "name": "Bacharelado em Filosofia"
+  },
+  {
+    "_id": 28,
+    "name": "Bacharelado em Física"
+  },
+  {
+    "_id": 21,
+    "name": "Bacharelado em Matemática"
+  },
+  {
+    "_id": 24,
+    "name": "Bacharelado em Neurociência"
+  },
+  {
+    "_id": 11,
+    "name": "Bacharelado em Planejamento Territorial"
+  },
+  {
+    "_id": 31,
+    "name": "Bacharelado em Políticas Públicas"
+  },
+  {
+    "_id": 3,
+    "name": "Bacharelado em Políticas Públicas"
+  },
+  {
+    "_id": 14,
+    "name": "Bacharelado em Química"
+  },
+  {
+    "_id": 27,
+    "name": "Bacharelado em Relações Internacionais"
+  },
+  {
+    "_id": 26,
+    "name": "Engenharia Aeroespacial"
+  },
+  {
+    "_id": 6,
+    "name": "Engenharia Ambiental e Urbana"
+  },
+  {
+    "_id": 18,
+    "name": "Engenharia Biomédica"
+  },
+  {
+    "_id": 7,
+    "name": "Engenharia de Energia"
+  },
+  {
+    "_id": 23,
+    "name": "Engenharia de Gestão"
+  },
+  {
+    "_id": 8,
+    "name": "Engenharia de Informação"
+  },
+  {
+    "_id": 2,
+    "name": "Engenharia de Instrumentação, Automação e Robótica"
+  },
+  {
+    "_id": 15,
+    "name": "Engenharia de Materiais"
+  },
+  {
+    "_id": 19,
+    "name": "ENGENHARIAS"
+  },
+  {
+    "_id": 13,
+    "name": "Licenciatura em Ciências Biológicas"
+  },
+  {
+    "_id": 5,
+    "name": "Licenciatura em Filosofia"
+  },
+  {
+    "_id": 25,
+    "name": "Licenciatura em Física"
+  },
+  {
+    "_id": 9,
+    "name": "Licenciatura em Matemática"
+  },
+  {
+    "_id": 4,
+    "name": "Licenciatura em Química"
+  }
+]
