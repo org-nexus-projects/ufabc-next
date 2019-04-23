@@ -87,6 +87,18 @@
                 v-model="raConfirmation"
                 solo
               ></v-text-field>
+              <div>
+                <div class="row no-flex align-center justify-start">
+                  <input name="terms" 
+                    v-model="termsOfUse" 
+                    v-validate="'required'" 
+                    data-vv-as="termos de uso"
+                    class="mr-2"
+                    type="checkbox">
+                  <div class="step-subtitle">Confirmo que li e concordo com os <a :href="termsOfUseUrl" class="ufabcnext-link--text">termos de uso</a></div>
+                </div>
+                <span class="v-messages error--text" style="padding-left: 12px;" v-show="errors.has('terms')">{{ errors.first('terms') }}</span>
+              </div>
             </div>
             <div v-if="role == 'teacher'">
               <div class="step-title mb-4">
@@ -146,7 +158,8 @@ export default {
         ra: '',
       },
       raConfirmation: '',
-      emailSuffix: '@aluno.ufabc.edu.br'
+      emailSuffix: '@aluno.ufabc.edu.br',
+      termsOfUse: false,
     }
   },
 
@@ -161,6 +174,10 @@ export default {
       }
 
       return true
+    },
+
+    termsOfUseUrl() {
+      return 'https://ufabcnext.com/termos-de-uso.html'
     }
   },
 
@@ -225,6 +242,7 @@ export default {
               type: 'error',
               message: ErrorMessage(err),
             })
+            return false
           }
 
           return true

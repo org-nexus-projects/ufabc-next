@@ -54,7 +54,7 @@ Axios.interceptors.request.use(function (config) {
   }
 
   if (Auth.token) {
-    // config.headers['Authorization'] = 'Bearer ' + Auth.token
+    config.headers['Authorization'] = 'Bearer ' + Auth.token
   }
 
   return config;
