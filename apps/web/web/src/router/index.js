@@ -17,7 +17,6 @@ import Auth from '@/services/Auth'
 
 function RedirectIfLogged(params) {
   return function (to, from, next) {
-    console.log("TO AQUI tchela", to)
     if(to.name == 'login' && !Auth.isLoggedIn()) {
       let token = _.get(to, 'query.token', null)
       Auth.setToken(token)
@@ -106,7 +105,7 @@ const router = new VueRouter({
       component: Reviews,
       meta: {
         title: 'Reviews',
-        // auth: true
+        auth: true
       },
       props: true,
     },
@@ -117,7 +116,7 @@ const router = new VueRouter({
       component: Stats,
       meta: {
         title: 'Stats',
-        // auth: true
+        auth: true
       },
     },
 
@@ -136,7 +135,7 @@ const router = new VueRouter({
       component: History,
       meta: {
         title: 'Meu Histórico',
-        // auth: true
+        auth: true
       },
     },
 
@@ -156,7 +155,7 @@ const router = new VueRouter({
       component: Settings,
       meta: {
         title: 'Configurações',
-        // auth: true
+        auth: true
       },
     },
 
@@ -166,7 +165,7 @@ const router = new VueRouter({
       component: Admin,
       meta: {
         title: 'Administrativo',
-        // auth: true
+        auth: true
       },
     },
 

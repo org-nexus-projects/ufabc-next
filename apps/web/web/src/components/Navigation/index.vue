@@ -9,8 +9,7 @@
       app
       dark
       width="240"
-      style="display: flex; flex-direction: column;"
-    >
+      style="display: flex; flex-direction: column;">
       <div class="my-4" v-if='$vuetify.breakpoint.lgAndUp && !mini' style="padding-left: 17px;">
         <img src="@/assets/logo_white.svg" height="44" />
       </div>
@@ -21,14 +20,12 @@
       <v-list
         style="flex: 1 1 auto;"
         dense
-        class="mt-2"
-      >
+        class="mt-2">
         <v-list-tile
           v-for='(menu, i) in menus'
           :key="menu.title + menu.route"
           @click="open(menu)"
-          exact
-        >
+          exact>
           <v-list-tile-action style="min-width: 36px;">
             <v-icon>{{ menu.icon }}</v-icon>
           </v-list-tile-action>
@@ -54,6 +51,10 @@
       <v-layout row align-center justify-center class="flex hidden-lg-and-up">
         <img src="@/assets/logo.svg" height="32" />
       </v-layout>
+
+      <!-- <v-layout row align-center justify-center class="flex hidden-lg-and-up"> -->
+        <!-- <div class="black--text">{{ user.email}}</div> -->
+      <!-- </v-layout> -->
     
       <v-menu full-width bottom left>
         <div slot="activator" class="py-2">
@@ -62,9 +63,9 @@
           <!-- User information -->
           <v-layout row wrap align-center style="height: 56px" class="hidden-md-and-down">
             <v-layout justify-center column class="mr-3">
-              <div class="black--text">{{ user.name}}</div>
-              <div class="caption ufabcnext-lightgrey--text" v-if='user.cpf'>
-                CPF: {{ user.cpf }}
+              <div class="black--text">{{ user.email}}</div>
+              <div class="caption ufabcnext-lightgrey--text" v-if='user.ra'>
+                RA: {{ user.ra }}
               </div>
             </v-layout>
             <v-avatar :size="38" color="primary">
@@ -74,16 +75,16 @@
         </div>
 
         <v-list dense>
-          <v-layout row wrap align-center style="height: 56px" class="hidden-lg-and-up mx-3">
+          <v-layout column wrap align-center style="height: 56px" class="hidden-lg-and-up mx-3">
             <v-avatar :size="38" color="primary">
-              <!-- <span class="white--text">{{user.name[0]}}</span> -->
+              <!-- <span class="white--text">{{user.email}}</span> -->
             </v-avatar>
-            <v-layout justify-center column class="ml-3">
-              <div class="black--text">{{ user.name}}</div>
-              <div class="caption ufabcnext-lightgrey--text" v-if='user.cpf'>
-                CPF: {{ user.cpf }}
+            <!-- <v-layout justify-center column class="ml-3" style="width: 100%;">
+              <div class="black--text">{{ user.email }}</div>
+              <div class="caption ufabcnext-lightgrey--text" v-if='user.ra'>
+                RA: {{ user.ra }}
               </div>
-            </v-layout>
+            </v-layout> -->
           </v-layout>
 
           <v-list-tile @click="logOut()">
@@ -93,7 +94,6 @@
           </v-list-tile>
         </v-list>
       </v-menu>
-
     </v-toolbar>
 
     <v-content style="transition: initial !important;">
@@ -141,6 +141,7 @@ export default {
     },
  
     user() {
+      console.log("User", Auth.user)
       return Auth.user
     },
   },
@@ -159,7 +160,7 @@ export default {
     // },
 
     logOut() {
-      // Auth.logOut()
+      Auth.logOut()
     },
 
     open(itemMenu) {

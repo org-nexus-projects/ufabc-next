@@ -20,7 +20,21 @@
 
     <div v-if="html" v-html="html"></div>
 
-    <div class="prompt-buttons">
+    <v-select
+      v-if="inputType == 'select'"
+      v-validate="validationRules"
+      class="ra-1 mt-4"
+      :name="inputName"
+      :items="items"
+      :placeholder="inputPlaceholder"
+      :error-messages="errors.collect(inputName)"
+      v-model="inputData"
+      :returnObject="returnObject"
+      hide-details
+      solo
+    />
+
+    <div class="prompt-buttons mt-2">
       <v-btn
         flat
         v-for='button in buttons'
@@ -45,6 +59,10 @@ export default {
 
   components: {VueMarkdown},
 
+  $_veeValidate: {
+    validator: 'new'
+  },
+
   props: {
     title: {
       type: String,
@@ -55,6 +73,29 @@ export default {
     },
     html: {
       type: String,
+    },
+    inputPlaceholder: {
+      type: String,
+    },
+    inputLabel: {
+      type: String,
+    },
+    inputType:{
+      type: String,
+    },
+    items: {
+      type: Array,
+      default: null,
+    },
+    inputName:{
+      type: String,
+      default:'input',
+    },
+    validationRules:{
+      default: ''
+    },
+    returnObject: {
+      type: Boolean
     },
     buttons: {
       type: Array,
@@ -68,7 +109,8 @@ export default {
   },
   data() {
     return {
-      loading: false
+      loading: false,
+      inputData: null
     }
   },
   methods: {
@@ -76,8 +118,16 @@ export default {
       if (!button || button.action === undefined) {
         this.$emit('close')
       } else {
-        this.loading = true
-        this.$emit('answer', button.action)
+        if(this.inputType) {
+          this.$validator.validateAll().then((isValid) => {
+            if(isValid) {
+              this.$emit('answer', this.inputData)
+              return
+            }
+          })
+        } else {
+          this.$emit('answer', button.action)
+        }
       }
     },
 

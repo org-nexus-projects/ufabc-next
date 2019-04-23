@@ -54,6 +54,10 @@ class Stats {
   async matricula(action, params) {
     return await Axios.get('/stats/disciplinas/' + action, { params })
   }
+
+  async matriculaUsage(params) {
+    return await Axios.get('/stats/usage/', { params })
+  }
   
 }
 
