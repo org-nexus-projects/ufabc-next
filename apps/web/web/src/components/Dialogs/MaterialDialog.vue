@@ -19,21 +19,22 @@
       :anchorAttributes="{target: '_blank'}"/>
 
     <div v-if="html" v-html="html"></div>
-    
+
     <v-select
-      v-else-if="inputType == 'select'"
+      v-if="inputType == 'select'"
       v-validate="validationRules"
       class="ra-1 mt-4"
       :name="inputName"
       :items="items"
       :placeholder="inputPlaceholder"
+      :error-messages="errors.collect(inputName)"
       v-model="inputData"
       :returnObject="returnObject"
       hide-details
       solo
     />
 
-    <div class="prompt-buttons">
+    <div class="prompt-buttons mt-2">
       <v-btn
         flat
         v-for='button in buttons'
@@ -117,7 +118,6 @@ export default {
       if (!button || button.action === undefined) {
         this.$emit('close')
       } else {
-        this.loading = true
         if(this.inputType) {
           this.$validator.validateAll().then((isValid) => {
             if(isValid) {

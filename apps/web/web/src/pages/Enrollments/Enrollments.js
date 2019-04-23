@@ -35,6 +35,9 @@ export default {
       }],
       orderby: 'deficit',
       season: findSeasonKey(),
+
+      overview: null,
+      usage: null,
     }
   },
 
@@ -71,11 +74,10 @@ export default {
   },
 
   created() {
-    this.fetch()
+    this.fetchAll()
   },
 
   methods: {
-
     async changeTargetSeason() {
       let dialog = this.$dialog({
         title: 'Alterar quadrimestre',
@@ -83,7 +85,7 @@ export default {
         top: '10vh',
         inputType: 'select', 
         items: this.allSeasons,
-        inputName: 'quadrimestre',
+        inputPlaceholder: 'Escolha o quadrimestre',
         validationRules: 'required',
       })
 
@@ -91,7 +93,7 @@ export default {
         let res = await dialog
         if(res) {
           this.season = res
-          this.fetch()
+          this.fetchAll()
         }
 
       } catch(e) {} 
@@ -120,6 +122,43 @@ export default {
       let course = _.find(courses, { _id: courseId })
       if(course){
         return course.name
+      }
+    },
+
+    fetchAll() {
+      this.fetch()
+      this.fetchOverview()
+      this.fetchUsage()
+    },
+
+    async fetchOverview() {
+      let body = {
+        season: this.season
+      }
+
+      try {
+        let res = await Stats.matricula('overview', body)
+        if(res.data && res.data.data && res.data.data.length) {
+          this.overview = res.data.data[0]
+        }
+      } catch(err) {
+
+      }
+    },
+
+    async fetchUsage() {
+      let body = {
+        season: this.season
+      }
+
+      try {
+        let res = await Stats.matriculaUsage(body)
+
+        if(res.data) {
+          this.usage = res.data
+        }
+      } catch(err) {
+
       }
     },
 

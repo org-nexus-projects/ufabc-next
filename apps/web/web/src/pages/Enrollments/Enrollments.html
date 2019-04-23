@@ -2,29 +2,33 @@
   <v-layout class="card-group-stats" row style="min-height: 145px; flex: none" :class="{ 'wrap': !$vuetify.breakpoint.lgOnly }">
     <v-flex xs12 lg3 class="card-stats" justify-center>
       <div class="stats-counter" justify-center v-if='$vuetify.breakpoint.lgOnly'>
-        2º quadrimestre <br /> 2019</small>
-        <v-btn icon @click="changeTargetSeason()"><v-icon color="ufabcnext-grey">update</v-icon></v-btn>
+        {{ prettySeason }}
+        <v-btn icon @click="changeTargetSeason()" class="mt-0 ml-0"><v-icon color="ufabcnext-grey">mdi-swap-vertical</v-icon></v-btn>
       </div>
-      <div class="stats-counter text-center" v-else>2º quadrimestre 2019</small></div>
+      <div class="stats-counter text-center" v-else>{{ prettySeason }}</small></div>
     </v-flex>
 
-    <v-flex xs12 sm3 md3 lg3 class="card-stats">
+    <v-flex xs12 sm3 md3 lg3 class="card-stats" v-if='usage'>
       <v-icon class="mb-1" color="ufabcnext-green" style="display: block;">mdi-account-group</v-icon>
-      <div class="stats-counter">3.023 <small class="ufabcnext-grey--text">/ 9.057</small></div>
+      <div class="stats-counter">{{ usage.currentAlunos.toLocaleString() }} <small class="ufabcnext-grey--text">/ {{ usage.totalAlunos.toLocaleString() }}</small>
+        <small class="ufabcnext-grey--text" style="font-size: 11px;">
+          ({{ ((usage.currentAlunos / usage.totalAlunos) * 100).toFixed(1) }}%)
+        </small>
+      </div>
       <div class="stats-subtitle">alunos usando a extensão</div>
       <div>
         <v-progress-linear
           color="ufabcnext-green"
           height="6"
-          value="15"
+          :value="(usage.currentAlunos / usage.totalAlunos) * 100"
           style="border-radius: .25rem;"
         ></v-progress-linear>
       </div>
     </v-flex>
 
-    <v-flex xs12 sm3 md3 lg3 class="card-stats">
+    <v-flex xs12 sm3 md3 lg3 class="card-stats" v-if='usage'>
       <v-icon class="mb-1" color="ufabcnext-blue" style="display: block;">mdi-book-open-variant</v-icon>
-      <div class="stats-counter">1093</div>
+      <div class="stats-counter">{{ usage.subjects }}</div>
       <div class="stats-subtitle">turmas</div>
       <div v-if='!$vuetify.breakpoint.xsOnly'>
         <v-progress-linear
@@ -36,9 +40,9 @@
       </div>
     </v-flex>
 
-    <v-flex xs12 sm3 md3 lg3 class="card-stats">
+    <v-flex xs12 sm3 md3 lg3 class="card-stats" v-if='usage'>
       <v-icon class="mb-1" color="ufabcnext-nav-blue" style="display: block;">mdi-teach</v-icon>
-      <div class="stats-counter">488</div>
+      <div class="stats-counter">{{ usage.teachers }}</div>
       <div class="stats-subtitle">professores</div>
       <div v-if='!$vuetify.breakpoint.xsOnly'>
         <v-progress-linear
@@ -50,9 +54,9 @@
       </div>
     </v-flex>
 
-    <v-flex xs12 sm3 md3 lg3 class="card-stats">
+    <v-flex xs12 sm3 md3 lg3 class="card-stats" v-if='overview'>
       <v-icon class="mb-1" color="ufabcnext-red" style="display: block;">mdi-import</v-icon>
-      <div class="stats-counter">-3300</div>
+      <div class="stats-counter">{{ overview.deficit }}</div>
       <div class="stats-subtitle">deficit de vagas</div>
       <div v-if='!$vuetify.breakpoint.xsOnly'>
         <v-progress-linear
