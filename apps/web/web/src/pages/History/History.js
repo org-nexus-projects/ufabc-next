@@ -1,5 +1,6 @@
 import History from '@/services/History'
 import ErrorMessage from '@/helpers/ErrorMessage'
+import PrettySeasonSimple from '@/helpers/PrettySeasonSimple'
 import _ from 'lodash'
 import CommentEditor from '@/components/Reviews/CommentEditor'
 
@@ -48,9 +49,7 @@ export default {
 
   methods: {
     seasonLabel(season) {
-      let seasonSplited = season.split(':')
-      if(seasonSplited.length < 2) return ''
-      return seasonSplited[1] + ' de ' + seasonSplited[0]
+      return PrettySeasonSimple(season)
     },
 
     async fetch() {

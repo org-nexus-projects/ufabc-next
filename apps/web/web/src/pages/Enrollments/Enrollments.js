@@ -1,5 +1,7 @@
 import Stats from '@/services/Stats'
 import ErrorMessage from '@/helpers/ErrorMessage'
+import PrettySeason from '@/helpers/PrettySeason'
+import findSeasonKey from '@/helpers/FindSeason'
 import courses from './courses'
 import _ from 'lodash'
 
@@ -16,7 +18,23 @@ export default {
       moreLoading: false,
       limit: 10,
       more: false,
-      total: null
+      total: null,
+
+      orders: [{
+        value: 'requisicoes',
+        label: 'Requisições'
+      }, {
+        value: 'vagas',
+        label: 'Vagas'
+      },{
+        value: 'deficit',
+        label: 'Deficit'
+      }, {
+        value: 'ratio',
+        label: 'Pessoas por vaga'
+      }],
+      orderby: 'deficit',
+      season: findSeasonKey(),
     }
   },
 
@@ -26,6 +44,29 @@ export default {
       this.total = null
       // clear internal sort of table when external button clicked
       this.$refs && this.$refs.disciplinas && this.$refs.disciplinas.clearSort();
+    },
+
+    orderby() {
+      this.fetch()
+    }
+  },
+
+  computed: {
+    prettySeason() {
+      return PrettySeason(this.season)
+    },
+
+    allSeasons() {
+      let firstSeason = '2019:1'
+      let finalSeason = findSeasonKey()
+
+      return [{
+        text: PrettySeason(firstSeason), 
+        value: firstSeason, 
+      }, {
+        text: PrettySeason(finalSeason), 
+        value: finalSeason, 
+      }]
     }
   },
 
@@ -34,6 +75,28 @@ export default {
   },
 
   methods: {
+
+    async changeTargetSeason() {
+      let dialog = this.$dialog({
+        title: 'Alterar quadrimestre',
+        width: '750px',
+        top: '10vh',
+        inputType: 'select', 
+        items: this.allSeasons,
+        inputName: 'quadrimestre',
+        validationRules: 'required',
+      })
+
+      try {
+        let res = await dialog
+        if(res) {
+          this.season = res
+          this.fetch()
+        }
+
+      } catch(e) {} 
+    },
+
     mapTurnoLabel(turno) {
       return {
         'noturno': 'Noturno',
@@ -72,8 +135,14 @@ export default {
         this.moreLoading = true
       }
 
+      let body = { 
+        page: this.page, 
+        [this.orderby]: 1,
+        season: this.season
+      }
+
       try {
-        let res = await Stats.matricula(this.tab, { page: this.page })
+        let res = await Stats.matricula(this.tab, body)
 
         this.loading = false
         this.moreLoading = false

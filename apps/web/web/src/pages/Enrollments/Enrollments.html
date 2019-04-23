@@ -1,7 +1,10 @@
 <v-container style="display: flex; flex-direction: column; min-height: 100%;">  
   <v-layout class="card-group-stats" row style="min-height: 145px; flex: none" :class="{ 'wrap': !$vuetify.breakpoint.lgOnly }">
     <v-flex xs12 lg3 class="card-stats" justify-center>
-      <div class="stats-counter" justify-center v-if='$vuetify.breakpoint.lgOnly'>2º quadrimestre <br /> 2019</small></div>
+      <div class="stats-counter" justify-center v-if='$vuetify.breakpoint.lgOnly'>
+        2º quadrimestre <br /> 2019</small>
+        <v-btn icon @click="changeTargetSeason()"><v-icon color="ufabcnext-grey">update</v-icon></v-btn>
+      </div>
       <div class="stats-counter text-center" v-else>2º quadrimestre 2019</small></div>
     </v-flex>
 
@@ -69,15 +72,25 @@
     <el-tabs v-model="tab">
       <el-tab-pane label="Turmas" name="">
       </el-tab-pane>
-      <el-tab-pane label="Curso" name="courses">
+      <el-tab-pane label="Cursos" name="courses">
       </el-tab-pane>
-      <el-tab-pane label="Disciplina" name="disciplines">
+      <el-tab-pane label="Disciplinas" name="disciplines">
       </el-tab-pane>
     </el-tabs>
 
-    <div class="enrollments-subtitle stats-subtitle mb-2" v-if='total >= 0 && !loading'>
-      {{ total }} resultados encontrados
-    </div>
+    <v-layout class="enrollments-subtitle stats-subtitle mb-2" v-if='total >= 0 && !loading'>
+      <v-flex xs12>
+        {{ total }} resultados encontrados
+      </v-flex> 
+      <el-select v-model="orderby" placeholder="Ordenar por" label="Ordenar por" style="min-width: 200px;">
+        <el-option
+          v-for="order in orders"
+          :key="order.value"
+          :label="order.label"
+          :value="order.value">
+        </el-option>
+      </el-select>
+    </v-layout>
 
     <el-table
       empty-text="Nenhum dado encontrado"
@@ -86,6 +99,8 @@
       :data="disciplinas"
       style="width: 100%">
       <el-table-column
+        fixed="left"
+        min-width="200"
         label="Nome">
         <template slot-scope="scope">
           {{ matriculaNameLabel(scope.row)}}
@@ -94,26 +109,26 @@
       <el-table-column
         prop="vagas"
         label="Vagas"
-        sortable
+        align="center"
         width="150">
       </el-table-column>
       <el-table-column
         prop="requisicoes"
         label="Requisições"
-        sortable
+        align="center"
         width="150">
       </el-table-column>
       <el-table-column
         prop="deficit"
         label="Deficit"
-        sortable
+        align="center"
         width="150">
       </el-table-column>
       <el-table-column
         prop="ratio"
-        label="Ratio"
-        sortable
-        width="150">
+        label="Pessoas por vaga"
+        align="center"
+        width="160">
         <template slot-scope="scope">
           {{ scope.row.ratio.toFixed(2)}}
         </template>
