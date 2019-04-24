@@ -9,7 +9,7 @@ export default [
   {
     title: 'Performance',
     icon: 'mdi-google-analytics',
-    route: '/stats',
+    route: '/performance',
   },
 
   {

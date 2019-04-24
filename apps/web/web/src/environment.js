@@ -24,6 +24,19 @@ function APILocation() {
   return urljoin(parsedURL.protocol, parsedURL.host, '/v1')
 }
 
+function HomeLocation() {
+  const URL = window.location.href
+
+  if (URL.indexOf('localhost') > 0) {
+    return 'http://localhost:7000'
+  }
+
+  if(URL.indexOf('ufabcnext.com') >= 0) {
+    return 'https://ufabcnext.com'
+  }
+}
+
 export default {
   API_URL: APILocation(),
+  HOME_URL: HomeLocation()
 }

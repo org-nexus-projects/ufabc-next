@@ -86,7 +86,15 @@
       <v-flex xs12>
         {{ total }} resultados encontrados
       </v-flex> 
-      <el-select v-model="orderby" placeholder="Ordenar por" label="Ordenar por" style="min-width: 200px;">
+
+      <el-checkbox-group v-model="filterByPeriod" style="min-width: 200px">
+        <el-checkbox label="diurno">Matutino</el-checkbox>
+        <el-checkbox label="noturno">Noturno</el-checkbox>
+      </el-checkbox-group>
+      <div class="ml-5" style="min-width: 120px">
+        Ordenar por turno
+      </div>
+      <el-select v-model="orderby" placeholder="Ordenar por" style="min-width: 200px;">
         <el-option
           v-for="order in orders"
           :key="order.value"

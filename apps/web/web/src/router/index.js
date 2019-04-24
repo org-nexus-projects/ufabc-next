@@ -1,9 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import Environment from '@/environment'
 
 // Pages
 import Reviews from '@/pages/Reviews'
-import Stats from '@/pages/Stats'
+import Performance from '@/pages/Performance'
 import SignupForm from '@/pages/Signup/SignupForm'
 import Confirmation from '@/pages/Signup/Confirmation'
 import jsonwebtoken from 'jsonwebtoken'
@@ -16,12 +17,16 @@ import Auth from '@/services/Auth'
 
 function RedirectIfLogged(params) {
   return function (to, from, next) {
-    if(to.name == 'login' && !Auth.isLoggedIn()) {
+    if(to.name == 'login') {
       let token = _.get(to, 'query.token', null)
+      if(!token) {
+        window.location = Environment.HOME_URL
+        return
+      }
+
       Auth.setToken(token)
 
       let decodedToken = jsonwebtoken.decode(token)
-
       if(!decodedToken || !decodedToken.confirmed) {
         return next('/signup')
       }
@@ -85,11 +90,11 @@ const router = new VueRouter({
     },
     
     {
-      name: 'stats',
-      path: '/stats',
-      component: Stats,
+      name: 'performance',
+      path: '/performance',
+      component: Performance,
       meta: {
-        title: 'Stats',
+        title: 'Performance',
         auth: true
       },
     },
@@ -99,7 +104,7 @@ const router = new VueRouter({
       path: '/confirm',
       component: Confirmation,
       meta: {
-        title: 'Confirmation',
+        title: 'Confirmação da conta',
       }
     },
       
@@ -119,7 +124,7 @@ const router = new VueRouter({
       component: Enrollments,
       meta: {
         title: 'Dados da Matrícula',
-        // auth: true
+        auth: true
       },
     },
 

@@ -171,11 +171,11 @@
                   <h1>Juntos somos mais fortes</h1>
                   <p>Sabemos que a vida na UFABC pode se tornar muito complicada, portanto o objetivo do Next é te ajudar a planejar melhor sua graduação.</p>
                   <div class="subform subform-alt wow fadeInDown" data-wow-delay="0.3s">
-                    <a class="facebook-button" href="https://api.ufabcnext.com/connect/facebook">
+                    <a class="facebook-button" onclick="window.location.href = FB_LINK; return false;">
                       <i class="fab fa-facebook"></i>
                       Entrar com Facebook
                     </a>
-                    <a class="google-button" href="https://api.ufabcnext.com/connect/google">
+                    <a class="google-button" onclick="window.location.href = GOOGLE_LINK; return false;">
                       <img src="assets/icons/google-logo.png" />
                       Entrar com Google
                     </a>
@@ -516,6 +516,9 @@
 
       const EXTENSION_URL = 'https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk'
       const TEACHER_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSfbwaJCw-t4SlHJ4akwQNCMNAEBREDcdfrqHs7ROhkuUUwDRQ/viewform?usp=sf_link'
+      const FB_LINK = window.location.href.indexOf('ufabcnext') != -1 ? 'https://api.ufabcnext.com/connect/facebook' : 'http://localhost:8011/connect/facebook'
+      const GOOGLE_LINK = window.location.href.indexOf('ufabcnext') != -1 ? 'https://api.ufabcnext.com/connect/google' : 'http://localhost:8011/connect/google'
+
       let self = this
       axios.get('https://api.ufabcnext.com/v1/stats/usage').then(function (res){
         self.stats = res.data

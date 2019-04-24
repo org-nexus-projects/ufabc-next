@@ -1,4 +1,7 @@
 module.exports = {
   publicPath: "/app/",
-  outputDir: "../dist"
+  outputDir: "../dist",
+  devServer: {
+    port: 7500
+  }
 }

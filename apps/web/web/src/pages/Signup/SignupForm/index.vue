@@ -64,13 +64,15 @@
                 v-validate="{required: true}"
                 data-vv-as="email institucional"
                 :error-messages="errors.collect('studentEmail')"
+                persistent-hint
+                :hint="`Caso você não tenha um e-mail @aluno.ufabc.edu.br, <a href='${LOGIN_PROBLEMS_FORM}' class='ufabcnext-link--text' target='_blank' style='text-decoration: none'>clique aqui</a>`"
                 solo
               ></v-text-field>
-              <div class="step-subtitle mb-2">Insira seu RA</div>
+              <div class="step-subtitle mt-3 mb-2">Insira seu RA</div>
               <v-text-field
                 v-model="studentData.ra"
                 name="ra"
-                v-validate="{required: true}"
+                v-validate="{required: true, min: 8}"
                 data-vv-as="RA"
                 :error-messages="errors.collect('ra')"
                 ref="ra"
@@ -88,7 +90,7 @@
                 solo
               ></v-text-field>
               <div>
-                <div class="row no-flex align-center justify-start">
+                <div class="row no-flex align-center justify-start mb-3">
                   <input name="terms" 
                     v-model="termsOfUse" 
                     v-validate="'required'" 
@@ -118,6 +120,22 @@
               <div>
                 <span @click="openLink()" class="cursor-pointer ufabcnext-link--text">Clique aqui</span> para acessar seu email institucional
               </div>
+
+              <div class="mt-3">
+                <v-btn color="ufabcnext-yellow" @click="back()">
+                  <v-icon class="mr-2">edit</v-icon> Digitei o email errado
+                </v-btn>
+                <v-btn
+                  :loading="loadingResend"
+                  :disabled="loadingResend || resent"
+                  color="ufabcnext-blue"
+                  :dark="!resent"
+                  @click="resendEmail()"
+                >
+                  <v-icon class="mr-2">{{ resent ? 'mdi-check-circle' : 'email' }}</v-icon> {{ resent ? 'Email enviado' : 'Reenviar email' }}
+                </v-btn>
+              </div>
+
             </div>
           </div>
         </v-flex>
@@ -160,6 +178,18 @@ export default {
       raConfirmation: '',
       emailSuffix: '@aluno.ufabc.edu.br',
       termsOfUse: false,
+      loadingResend: false,
+      resent: false,
+
+      LOGIN_PROBLEMS_FORM: 'https://docs.google.com/forms/d/e/1FAIpQLSclCQczaO-BSzDaDx33SCZSm1lqqKgjw8x7u-eIfrfwkLCSrw/viewform',
+    }
+  },
+
+  created() {
+    if(Auth.token || _.get(this.$route, 'query.token', '')) {
+      this.login()
+    } else {
+      this.redirectIfIsFilled()
     }
   },
 
@@ -178,7 +208,7 @@ export default {
 
     termsOfUseUrl() {
       return 'https://ufabcnext.com/termos-de-uso.html'
-    }
+    },
   },
 
   methods: {
@@ -186,8 +216,9 @@ export default {
         if (this.currentStep == 1) {
           if(await this.confirmAccount()) {
             this.currentStep++
+            this.resent = false
             return
-          }else {
+          } else {
            return 
           }
         }
@@ -240,6 +271,52 @@ export default {
 
           return true
         })
+    },
+
+    async resendEmail() {
+      try {
+        this.loadingResend = true
+
+        let res = await User.resendEmail()
+        this.loadingResend = false
+        this.resent = true
+      } catch(err) {
+        this.loadingResend = false
+        this.$message({
+          type: 'error',
+          message: ErrorMessage(err),
+        })
+      }
+    },
+
+    async login() {
+      try {
+        this.loading = true
+
+        let res = await User.info()
+        this.loading = false
+        if(res.data.confirmed) {
+          Auth.user = res.data
+          this.$router.push({ path: '/' })
+        } else {
+          this.redirectIfIsFilled()
+        }
+      } catch(err) {
+        this.loading = false
+
+        // Redirect to final screen if all info was filled
+        this.redirectIfIsFilled()
+      }
+    },
+
+    redirectIfIsFilled() {
+      if(Auth.user && Auth.user.email && Auth.user.ra && !Auth.user.confirmed){
+        this.currentStep = 1
+        this.role = 'student'
+        this.studentData.email = Auth.user.email.replace(this.emailSuffix, '')
+        this.studentData.ra = Auth.user.ra
+        this.next()
+      }
     },
 
     openLink() {
