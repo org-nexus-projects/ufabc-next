@@ -95,7 +95,7 @@
                     data-vv-as="termos de uso"
                     class="mr-2"
                     type="checkbox">
-                  <div class="step-subtitle">Confirmo que li e concordo com os <a :href="termsOfUseUrl" class="ufabcnext-link--text">termos de uso</a></div>
+                  <div class="step-subtitle">Confirmo que li e concordo com os <a :href="termsOfUseUrl" class="ufabcnext-link--text" target="_blank">termos de uso</a></div>
                 </div>
                 <span class="v-messages error--text" style="padding-left: 12px;" v-show="errors.has('terms')">{{ errors.first('terms') }}</span>
               </div>
@@ -215,12 +215,6 @@ export default {
         
         return this.$validator.validateAll().then(async isValid => {
           if (!isValid) {
-            // this.$message({
-            //   type: 'error',
-            //   message: ErrorMessage(err),
-            // })
-            console.log('Not valid')
-
             return false
           }
 
@@ -229,7 +223,6 @@ export default {
             this.loading = true
 
             let payload = {
-              token: Auth.token,
               email: email,
               ra: this.studentData.ra,
             }

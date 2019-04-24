@@ -13,7 +13,6 @@ import Enrollments from '@/pages/Enrollments'
 import Admin from '@/pages/Admin'
 
 import Auth from '@/services/Auth'
-// import UsersService from '@/services/Users'
 
 function RedirectIfLogged(params) {
   return function (to, from, next) {
@@ -23,32 +22,7 @@ function RedirectIfLogged(params) {
 
       let decodedToken = jsonwebtoken.decode(token)
 
-      if(!decodedToken.confirmed) {
-        return next('/signup')
-      }
-    }
-    if((to.name == 'register' || to.name == 'reset-password' || to.name == 'forgot-password' || to.name == 'complete-account') && Auth.isLoggedIn()){
-      Auth.logOut()
-      return next(to.fullPath)
-    }
-
-    if (Auth.isLoggedIn()) {
-      return next(params)
-    }
-    next()
-  }
-}
-
-function confirmAccount(params) {
-  return function (to, from, next) {
-    console.log("Confirm account", to)
-    if(to.name == 'login' && !Auth.isLoggedIn()) {
-      let token = _.get(to, 'query.token', null)
-      Auth.setToken(token)
-
-      let decodedToken = jsonwebtoken.decode(token)
-
-      if(!decodedToken.confirmed) {
+      if(!decodedToken || !decodedToken.confirmed) {
         return next('/signup')
       }
     }

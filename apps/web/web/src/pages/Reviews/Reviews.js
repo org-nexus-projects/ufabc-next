@@ -405,10 +405,11 @@ export default {
       this.loading = true
 
       try {
-        let res = await Teacher.getComments(this.query.teacherId)
+        let res = await Comment.get(this.query.teacherId)
 
         this.loading = false
         if(res.data){
+          console.log(res.data)
           this.comments = res.data.map(c => {
             c.showMore = false
             return c

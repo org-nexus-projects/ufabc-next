@@ -5,11 +5,11 @@ class Review {
   constructor(){}
 
   async getTeacherConcepts(tearchId) {
-    return await Axios.get('/help/teachers/' + tearchId)
+    return await Axios.get('/reviews/teachers/' + tearchId)
   }
 
   async getSubjectConcepts(subjectId) {
-    return await Axios.get('/help/subjects/' + subjectId)
+    return await Axios.get('/reviews/subjects/' + subjectId)
   }
   
 }
