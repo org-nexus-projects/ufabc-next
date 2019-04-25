@@ -72,7 +72,7 @@ const router = new VueRouter({
       path: '/signup',
       component: SignupForm,
       meta: {
-        title: 'Signup',
+        title: 'Cadastro',
       },
       props: true,
     },

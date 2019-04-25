@@ -106,7 +106,7 @@
 
 <script>
 import Auth from '@/services/Auth'
-// import Users from '@/services/Users'
+import User from '@/services/User'
 import _ from 'lodash'
 import Menus from '@/menus'
 import AliasInitials from '@/helpers/AliasInitials'
@@ -119,6 +119,10 @@ export default {
       navigationOpened: false,
       mini: false,
     }
+  },
+
+  created() {
+    this.login()
   },
 
   computed: {
@@ -155,10 +159,6 @@ export default {
       return AliasInitials(this.userLogin)
     },
   },
-  
-  created() {
-    // this.getMe()
-  },
 
   methods: {
     // isAllowed(menu) {
@@ -177,12 +177,19 @@ export default {
       if(itemMenu && itemMenu.route) this.$router.push({ path: itemMenu.route, query: itemMenu.query || {} })
     },
 
-    // async getMe() {
-    //   try {
-    //     let res = await Users.getMe()
-    //     if(res.data) Auth.user = res.data
-    //   } catch(err) {}
-    // }
+    async login() {
+      try {
+        this.loading = true
+
+        let res = await User.info()
+        this.loading = false
+        if(res.data) Auth.user = res.data
+      } catch(err) {
+        Auth.user = null
+
+        this.loading = false
+      }
+    }
   }
 }
 </script>

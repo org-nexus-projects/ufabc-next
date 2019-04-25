@@ -295,13 +295,16 @@ export default {
 
         let res = await User.info()
         this.loading = false
+        if(res.data) Auth.user = res.data
+
         if(res.data.confirmed) {
-          Auth.user = res.data
           this.$router.push({ path: '/' })
         } else {
           this.redirectIfIsFilled()
         }
       } catch(err) {
+        Auth.user = null
+
         this.loading = false
 
         // Redirect to final screen if all info was filled

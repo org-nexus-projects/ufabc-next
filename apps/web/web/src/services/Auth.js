@@ -27,6 +27,7 @@ class Auth {
     try {
       localStorage.setItem('token', token)
       this.user = JwtDecode(token)
+
       this.token = token
     } catch (e) {
       localStorage.removeItem('token')
