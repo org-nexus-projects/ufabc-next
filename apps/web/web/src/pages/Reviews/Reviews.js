@@ -187,7 +187,7 @@ export default {
     },
 
     totalComments() {
-      return this.comments.length
+      return this.comments.total
     },
 
     options() {
@@ -408,8 +408,8 @@ export default {
         let res = await Comment.get(this.query.teacherId)
 
         this.loading = false
-        if(res.data && res.data.length){
-          this.comments = res.data.map(c => {
+        if(res.data && res.data.data && res.data.data.length){
+          this.comments = res.data.data.map(c => {
             c.showMore = false
             return c
           })

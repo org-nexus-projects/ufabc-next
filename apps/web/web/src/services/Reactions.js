@@ -8,8 +8,8 @@ class Reactions {
     return await Axios.post('/reactions/' + commentId, { kind })
   }
 
-  async delete(id) {
-    return await Axios.delete('/reactions/' + id)
+  async delete(commentId, kind) {
+    return await Axios.delete('/reactions/' + commentId + '/' + kind)
   }
 }
 

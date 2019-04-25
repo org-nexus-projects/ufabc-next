@@ -24,18 +24,20 @@
             <v-icon :color="(comment.myReactions && comment.myReactions.like) ? 'ufabcnext-liked' : 'ufabcnext-like'" size="16" v-ripple>
               mdi-thumb-up
             </v-icon>
-            10
+            {{ (comment.reactionsCount && comment.reactionsCount.like) || 0 }}
           </div>
-          <v-tooltip top>
+          <v-tooltip top v-if='recommendationCount >= 0'>
             <template v-slot:activator="{ on }">
-              <div class="comment-like-area" v-on="on">
+              <div class="comment-like-area" v-on="on" @click="!loadingRecommendation ? giveReaction('recommendation') : null" v-loading="loadingRecommendation">
                 <v-icon :color="(comment.myReactions && comment.myReactions.recommendation) ? 'ufabcnext-liked' : 'ufabcnext-like'" size="20" v-ripple>
                   mdi-medal
                 </v-icon>
-                3,5 mil
+                {{ recommendationCount }}
               </div>
             </template>
-            <span>3,5 mil recomendaram esse comentário</span>
+            <span>
+            {{ recommendationCount == 0 ? 'Ninguém recomendou esse comentário ainda': recommendationCount + ' recomendaram esse comentário' }} 
+          </span>
           </v-tooltip>
         </div>
       </v-layout>
@@ -85,6 +87,7 @@ export default {
       },
 
       loadingLike: false,
+      loadingRecommendation: false
     }
   },
 
@@ -103,6 +106,10 @@ export default {
     prettySeason() {
       if(!this.comment || !this.comment.season) return ''
       return PrettySeason(this.comment.season)
+    },
+
+    recommendationCount() {
+      return _.get(this.comment, 'reactionsCount.recommendation', 0)
     }
   },
 
@@ -114,14 +121,22 @@ export default {
     },
 
     async giveReaction(kind) {
-      if(!this.comment || !this.comment._id) return
+      if(!this.comment || !this.comment._id || !this.comment.myReactions) return
 
       try {
         this.loadingLike = true
 
-        let method = this.comment.myReactions[kind] ? 'delete' : 'create'
+        // Create reaction
+        if(!this.comment.myReactions[kind]) {
+          let res = await Reactions.create(this.comment._id, kind)
+          this.comment.myReactions[kind] = true
+          this.comment.reactionsCount[kind]++
+        } else {
+          let res = await Reactions.delete(this.comment._id, kind)
+          this.comment.myReactions[kind] = false 
+          this.comment.reactionsCount[kind]--
+        }
 
-        let res = await Reactions[method](this.comment._id, 'like')
         this.loadingLike = false
       } catch(err) {
         this.loadingLike = false
