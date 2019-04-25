@@ -11,22 +11,27 @@
       class="mb-3" 
       :style="{'maxWidth': $vuetify.breakpoint.smAndDown ? '100%' : '142px' }" 
       style="width: 100%;">
-      <v-avatar :size="80" color="primary" class="white--text" style="font-size: 32px;">
-        FS
+      <v-avatar :size="80" color="primary" class="white--text" style="font-size: 32px; text-transform: uppercase;">
+        {{ userInitials }}
       </v-avatar>
     </v-flex>
     <v-flex class="mb-3" :style="{ 'width': $vuetify.breakpoint.smAndDown ? '100%': ''}">
       <div class="username-settings">
-        felipeo.silva
+        {{ userLogin }}
       </div>
       <div class="email-settings">
-        felipeo.silva@hotmail.com
+        {{ user.email }}
       </div>
       <div class="createdAt-settings">
-        Usuário desde 02/02/2019
+        Usuário desde {{ user.createdAt | moment('DD/MM/YYYY - HH:ss') }}
       </div>
-      <a href="" target="_blank" class="links-settings">
+      <a href="" target="_blank" class="links-settings" v-if='user.oauth.facebook'>
         Conta do Facebook associada
+        <v-icon color="ufabcnext-green">mdi-check</v-icon>
+      </a>
+
+      <a href="" target="_blank" class="links-settings" v-if='user.oauth.google'>
+        Conta do Google associada
         <v-icon color="ufabcnext-green">mdi-check</v-icon>
       </a>
     </v-flex>

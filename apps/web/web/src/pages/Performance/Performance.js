@@ -6,7 +6,7 @@ import Highcharts from "highcharts";
 import Stats from '@/services/Stats'
 
 export default {
-  name: 'Stats',
+  name: 'Performance',
   components: {
     VueHighcharts,
   },

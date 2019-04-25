@@ -20,6 +20,7 @@ export default {
       more: false,
       total: null,
 
+      filterByPeriod: ['diurno', 'noturno'],
       orders: [{
         value: 'requisicoes',
         label: 'Requisições'
@@ -50,6 +51,14 @@ export default {
     },
 
     orderby() {
+      this.fetch()
+    },
+
+    filterByPeriod(newVal) {
+      if(!newVal || newVal.length == 0) {
+        this.filterByPeriod = ['diurno', 'noturno']
+        return
+      }
       this.fetch()
     }
   },
@@ -177,7 +186,10 @@ export default {
       let body = { 
         page: this.page, 
         [this.orderby]: 1,
-        season: this.season
+        season: this.season,
+      }
+      if(this.filterByPeriod && this.filterByPeriod.length == 1){
+        body.turno = this.filterByPeriod[0]
       }
 
       try {

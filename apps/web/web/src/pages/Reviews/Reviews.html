@@ -40,13 +40,13 @@
   </v-layout>
 
   <v-layout column class="results-area white mt-3 pa-4" v-if='target'>
-    <div v-if='loading || (concepts && concepts.specific && concepts.specific.length)' 
+    <div v-if='loading || (concepts && concepts.specific && concepts.specific.length) || (comments.length)' 
       style="min-height: 200px">
 
       <div class="target-name">{{ target.name }}</div>
-
       <TargetInfo
         :conceptsCount="samplesCount"
+        :commentsCount="totalComments"
         :target="target"
         :teachersCount="teachersOfSubject && teachersOfSubject.length"
         v-if='!loading && samplesCount >= 0'
@@ -62,7 +62,7 @@
             style="display: flex; align-items: center; justify-content: center;"
           ></vue-highcharts>
 
-          <div class="mt-2" style="text-align: center;" v-if='target && target.kind == "teacher"'>
+          <div class="mt-2" style="text-align: center;" v-if='target && target.kind == "teacher" && cobraPresenca'>
             <b>* {{ cobraPresenca }}</b>
           </div>
 
@@ -118,7 +118,12 @@
               class="mb-4" 
               :key="comment._id" 
               @input="updateComment($event)"
+              v-if='comments && comments.length'
             />
+
+            <div v-else-if='!loading && !comments.length'>
+              Nenhum comentário, seja o primeiro a comentar
+            </div>
           </div>
 
           <SubjectTeachersList

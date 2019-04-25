@@ -17,7 +17,6 @@ class Auth {
 
   isLoggedIn() {
     return !!this.user
-    // return false
   }
 
   setToken(token) {
@@ -28,6 +27,7 @@ class Auth {
     try {
       localStorage.setItem('token', token)
       this.user = JwtDecode(token)
+
       this.token = token
     } catch (e) {
       localStorage.removeItem('token')
@@ -62,28 +62,10 @@ class Auth {
     })
   }
 
-  async login(email, password) {
-    return await Axios.post('/auth/login', {
-      email: email,
-      password: password
-    })
-  }
-
   async reset(user) {
     return await Axios.post('/auth/reset', user)
   }
 
-  async register(form) {
-    return await Axios.post('/auth/register', form)
-  }
-
-  async confirm(token) {
-    return await Axios.post('/auth/confirm', { token })
-  }
-
-  async complete(user) {
-    return await Axios.post('/auth/complete', user)
-  }
 }
 
 export default (new Auth)

@@ -133,6 +133,21 @@
           padding: 50px 0 50px 0;
       }
     }
+    .coming-soon {
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: #ccc;
+        border: 4px dashed #c1c1c1;
+        font-family: 'Montserrat';
+        font-size: 16px;
+        font-weight: 700;
+        color: #364655;
+        line-height: 1.2;
+        letter-spacing: -1px;
+    }
     </style>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.js"></script>
@@ -171,18 +186,22 @@
                   <h1>Juntos somos mais fortes</h1>
                   <p>Sabemos que a vida na UFABC pode se tornar muito complicada, portanto o objetivo do Next é te ajudar a planejar melhor sua graduação.</p>
                   <div class="subform subform-alt wow fadeInDown" data-wow-delay="0.3s">
-                    <a class="facebook-button" href="https://api.ufabcnext.com/connect/facebook">
+<!--                     <a class="facebook-button" onclick="window.location.href = FB_LINK; return false;">
                       <i class="fab fa-facebook"></i>
                       Entrar com Facebook
                     </a>
-                    <a class="google-button" href="https://api.ufabcnext.com/connect/google">
+                    <a class="google-button" onclick="window.location.href = GOOGLE_LINK; return false;">
                       <img src="assets/icons/google-logo.png" />
                       Entrar com Google
-                    </a>
+                    </a> -->
+
+                    <div class="coming-soon">
+                      Volte aqui depois do dia 03/05/19 para fazer o cadastro
+                    </div>
                   </div>
-                  <div class="form-note">
+                  <!-- <div class="form-note">
                     <p>O acesso está limitado somente à alunos por enquanto</p>
-                  </div>
+                  </div> -->
                 </div>
               </div>
               <div class="col-md-12 col-lg-7 text-center">
@@ -516,6 +535,9 @@
 
       const EXTENSION_URL = 'https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk'
       const TEACHER_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSfbwaJCw-t4SlHJ4akwQNCMNAEBREDcdfrqHs7ROhkuUUwDRQ/viewform?usp=sf_link'
+      const FB_LINK = window.location.href.indexOf('ufabcnext') != -1 ? 'https://api.ufabcnext.com/connect/facebook' : 'http://localhost:8011/connect/facebook'
+      const GOOGLE_LINK = window.location.href.indexOf('ufabcnext') != -1 ? 'https://api.ufabcnext.com/connect/google' : 'http://localhost:8011/connect/google'
+
       let self = this
       axios.get('https://api.ufabcnext.com/v1/stats/usage').then(function (res){
         self.stats = res.data

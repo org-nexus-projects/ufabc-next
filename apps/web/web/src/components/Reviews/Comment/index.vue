@@ -5,40 +5,46 @@
         <div style="display: flex; flex: 1 1 auto; align-items: center; min-height: 32px; flex-wrap: wrap;">
           <div class="ufabcnext-blue--text mr-2">
             <router-link :to="{ name: 'reviews', query: { subjectId: comment.subject._id }}" style="text-decoration: none">
-              {{ comment.subject.name }}
+              {{ comment.subject.name || '(disciplina desconhecida)' }}
             </router-link>
           </div>
           
-          <div class="concept-author mr-2" :style="{ 'background': conceptsColor[comment.conceito || 'null'] }">
-            {{ comment.conceito }}
+          <div class="concept-author mr-2" :style="{ 'background': conceptsColor[comment.enrollment.conceito || 'null'] }" v-if='comment.enrollment && comment.enrollment.conceito'>
+            {{ comment.enrollment.conceito }}
           </div>
 
           <div class="ufabcnext-grey--text">
-            {{ comment.quad }}º quadrimestre de {{ comment.year }} 
+            {{ prettySeason }}
           </div>
         </div>
 
         <el-checkbox v-if='helpfulCheckMode' class="helpful-checkbox" label="Útil" border size="small"></el-checkbox>
         <div style="display:flex; align-items: center; flex: none; min-height: 32px;" v-else>
-          <div class="mr-3 comment-like-area">
-            <v-icon color="ufabcnext-liked" size="16" v-ripple>mdi-thumb-up</v-icon>
-            10
+          <div class="mr-3 comment-like-area" @click="!loadingLike ? giveReaction('like') : null" v-loading="loadingLike">
+            <v-icon :color="(comment.myReactions && comment.myReactions.like) ? 'ufabcnext-liked' : 'ufabcnext-like'" size="16" v-ripple>
+              mdi-thumb-up
+            </v-icon>
+            {{ (comment.reactionsCount && comment.reactionsCount.like) || 0 }}
           </div>
-          <v-tooltip top>
+          <v-tooltip top v-if='recommendationCount >= 0'>
             <template v-slot:activator="{ on }">
-              <div class="comment-like-area" v-on="on">
-                <v-icon color="ufabcnext-like" size="20" v-ripple>mdi-medal</v-icon>
-                3,5 mil
+              <div class="comment-like-area" v-on="on" @click="!loadingRecommendation ? giveReaction('recommendation') : null" v-loading="loadingRecommendation">
+                <v-icon :color="(comment.myReactions && comment.myReactions.recommendation) ? 'ufabcnext-liked' : 'ufabcnext-like'" size="20" v-ripple>
+                  mdi-medal
+                </v-icon>
+                {{ recommendationCount }}
               </div>
             </template>
-            <span>3,5 mil recomendaram esse comentário</span>
+            <span>
+            {{ recommendationCount == 0 ? 'Ninguém recomendou esse comentário ainda': recommendationCount + ' recomendaram esse comentário' }} 
+          </span>
           </v-tooltip>
         </div>
       </v-layout>
 
       <v-layout column wrap align-content-start>
         <div class="comment-text" :class="{'collapsed': !comment.showMore}">
-          <p>{{ comment.text }}</p>
+          <p>{{ comment.comment }}</p>
           <div class="show-more">
             <el-button 
               @click="showMore(comment._id)" 
@@ -56,8 +62,12 @@
 <script>
 import _ from 'lodash'
 import Vue from 'vue'
+import PrettySeason from '@/helpers/PrettySeason'
+import ErrorMessage from '@/helpers/ErrorMessage'
+import Reactions from '@/services/Reactions'
 
 export default {
+
   name: 'ReviewComment',
 
   data(){
@@ -74,7 +84,10 @@ export default {
         'I': 'rgb(25, 118, 210)',
         'E': 'rgb(25, 118, 210)',
         'null': 'rgb(0, 0, 0)',
-      }
+      },
+
+      loadingLike: false,
+      loadingRecommendation: false
     }
   },
 
@@ -89,12 +102,53 @@ export default {
     }
   },
 
+  computed: {
+    prettySeason() {
+      if(!this.comment || !this.comment.season) return ''
+      return PrettySeason(this.comment.season)
+    },
+
+    recommendationCount() {
+      return _.get(this.comment, 'reactionsCount.recommendation', 0)
+    }
+  },
+
   methods: {
     showMore(commentId){
       let comment = Object.assign({}, this.comment)
       comment.showMore = !this.comment.showMore
       this.$emit('input', comment)
-    }
+    },
+
+    async giveReaction(kind) {
+      if(!this.comment || !this.comment._id || !this.comment.myReactions) return
+
+      try {
+        this.loadingLike = true
+
+        // Create reaction
+        if(!this.comment.myReactions[kind]) {
+          let res = await Reactions.create(this.comment._id, kind)
+          this.comment.myReactions[kind] = true
+          this.comment.reactionsCount[kind]++
+        } else {
+          let res = await Reactions.delete(this.comment._id, kind)
+          this.comment.myReactions[kind] = false 
+          this.comment.reactionsCount[kind]--
+        }
+
+        this.loadingLike = false
+      } catch(err) {
+        this.loadingLike = false
+
+        this.$message({
+          type: 'error',
+          message: ErrorMessage(err),
+        })
+      }
+    },
+
+
   }
 }
 </script>

@@ -11,6 +11,14 @@ class User {
   async confirmSignup(params = {}) {
     return await Axios.post('/users/me/confirm', params)
   }
+
+  async resendEmail() {
+    return await Axios.post('/users/me/resend')
+  }
+
+  async info() {
+    return await Axios.get('/users/info')
+  }
 }
 
 export default (new User)

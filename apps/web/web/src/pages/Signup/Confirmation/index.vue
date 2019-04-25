@@ -18,6 +18,7 @@
 import ErrorMessage from '@/helpers/ErrorMessage'
 import User from '@/services/User'
 import Auth from '@/services/Auth'
+import Environment from '@/environment'
 
 export default {
   name: 'Confirmation',
@@ -28,22 +29,23 @@ export default {
 
   methods: {
     async redirect() {
-      //Call confirmation route
       try {
+        let token = _.get(this.$route, 'query.token', null)
+        if(!token) {
+          window.location = Environment.HOME_URL
+          return
+        }
         let payload = {
-          token: Auth.token,
+          token: token,
         }
 
         let res = await User.confirmSignup(payload)
-
-        console.log("RES MANO", res)
 
         if(!res) {
           return
         }
 
         Auth.setToken(res.data.token)
-        console.log('PUSH')
         this.$router.push({name: 'reviews'})
       } catch(err) {
         this.$message({

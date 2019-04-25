@@ -7,6 +7,7 @@ import Vue from 'vue'
 import Review from '@/services/Review'
 import Teacher from '@/services/Teacher'
 import Subjects from '@/services/Subjects'
+import Comment from '@/services/Comment'
 import ErrorMessage from '@/helpers/ErrorMessage'
 import Flatten from '@/helpers/Flatten'
 import WelcomeReview from '@/components/Reviews/Welcome'
@@ -186,7 +187,7 @@ export default {
     },
 
     totalComments() {
-      return 51
+      return this.comments.total
     },
 
     options() {
@@ -273,6 +274,7 @@ export default {
     fetch() {
       if(this.query.teacherId) {
         this.fetchTeacher()
+        this.getTeacherComments()
       } else if(this.query.subjectId) {
         this.fetchSubject()
       }
@@ -295,8 +297,6 @@ export default {
               this.updateFilter()
               this.loading = false
             }, 500)
-
-            this.getTeacherComments()
           } else {
             this.loading = false
           }
@@ -405,17 +405,18 @@ export default {
       this.loading = true
 
       try {
-        let res = await Teacher.getComments(this.query.teacherId)
+        let res = await Comment.get(this.query.teacherId)
 
         this.loading = false
-        if(res.data){
-          this.comments = res.data.map(c => {
+        if(res.data && res.data.data && res.data.data.length){
+          this.comments = res.data.data.map(c => {
             c.showMore = false
             return c
           })
         }
       } catch(err) {
         this.loading = false
+        this.comments = []
         this.$message({
           type: 'error',
           message: ErrorMessage(err),

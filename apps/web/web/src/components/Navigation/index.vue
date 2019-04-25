@@ -63,13 +63,15 @@
           <!-- User information -->
           <v-layout row wrap align-center style="height: 56px" class="hidden-md-and-down">
             <v-layout justify-center column class="mr-3">
-              <div class="black--text">{{ user.email}}</div>
+              <div class="black--text" v-if='userLogin'>{{ userLogin }}</div>
               <div class="caption ufabcnext-lightgrey--text" v-if='user.ra'>
                 RA: {{ user.ra }}
               </div>
             </v-layout>
             <v-avatar :size="38" color="primary">
-              <!-- <span class="white--text">{{user.name[0]}}</span>-->
+               <span class="white--text" style="text-transform: uppercase;" v-if='userLogin && userLogin.length'>
+                {{ userInitials}}
+              </span>
             </v-avatar>
           </v-layout>
         </div>
@@ -77,14 +79,14 @@
         <v-list dense>
           <v-layout column wrap align-center style="height: 56px" class="hidden-lg-and-up mx-3">
             <v-avatar :size="38" color="primary">
-              <!-- <span class="white--text">{{user.email}}</span> -->
+              <span class="white--text" v-if='userLogin'>{{ userInitials }}</span>
             </v-avatar>
-            <!-- <v-layout justify-center column class="ml-3" style="width: 100%;">
-              <div class="black--text">{{ user.email }}</div>
+            <v-layout justify-center column class="ml-3" style="width: 100%;">
+              <div class="black--text">{{ userLogin }}</div>
               <div class="caption ufabcnext-lightgrey--text" v-if='user.ra'>
                 RA: {{ user.ra }}
               </div>
-            </v-layout> -->
+            </v-layout>
           </v-layout>
 
           <v-list-tile @click="logOut()">
@@ -104,9 +106,10 @@
 
 <script>
 import Auth from '@/services/Auth'
-// import Users from '@/services/Users'
+import User from '@/services/User'
 import _ from 'lodash'
 import Menus from '@/menus'
+import AliasInitials from '@/helpers/AliasInitials'
 
 export default {
   name: 'Navigation',
@@ -116,6 +119,10 @@ export default {
       navigationOpened: false,
       mini: false,
     }
+  },
+
+  created() {
+    this.login()
   },
 
   computed: {
@@ -141,13 +148,16 @@ export default {
     },
  
     user() {
-      console.log("User", Auth.user)
       return Auth.user
     },
-  },
-  
-  created() {
-    // this.getMe()
+
+    userLogin() {
+      return _.get(this.user, 'email', '').replace('@aluno.ufabc.edu.br', '')
+    },
+
+    userInitials() {
+      return AliasInitials(this.userLogin)
+    },
   },
 
   methods: {
@@ -167,12 +177,19 @@ export default {
       if(itemMenu && itemMenu.route) this.$router.push({ path: itemMenu.route, query: itemMenu.query || {} })
     },
 
-    // async getMe() {
-    //   try {
-    //     let res = await Users.getMe()
-    //     if(res.data) Auth.user = res.data
-    //   } catch(err) {}
-    // }
+    async login() {
+      try {
+        this.loading = true
+
+        let res = await User.info()
+        this.loading = false
+        if(res.data) Auth.user = res.data
+      } catch(err) {
+        Auth.user = null
+
+        this.loading = false
+      }
+    }
   }
 }
 </script>
