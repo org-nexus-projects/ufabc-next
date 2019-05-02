@@ -22,7 +22,6 @@
     <v-flex xs12 :style="style" v-if='teachersCount >= 0 && target.kind == "subject"' style="display: flex;">
       <v-icon size="20" class="mr-1" color="grey">mdi-account</v-icon> {{ teachersCount }} professores
     </v-flex>
-    {{ conceptsCount }}
   </v-layout>
 </template>
 

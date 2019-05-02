@@ -25,12 +25,12 @@
       <div class="createdAt-settings">
         Usuário desde {{ user.createdAt | moment('DD/MM/YYYY - HH:ss') }}
       </div>
-      <a href="" target="_blank" class="links-settings" v-if='user.oauth.facebook'>
+      <a href="" target="_blank" class="links-settings" v-if='user.oauth && user.oauth.facebook'>
         Conta do Facebook associada
         <v-icon color="ufabcnext-green">mdi-check</v-icon>
       </a>
 
-      <a href="" target="_blank" class="links-settings" v-if='user.oauth.google'>
+      <a href="" target="_blank" class="links-settings" v-if='user.oauth && user.oauth.google'>
         Conta do Google associada
         <v-icon color="ufabcnext-green">mdi-check</v-icon>
       </a>

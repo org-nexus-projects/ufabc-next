@@ -1,12 +1,12 @@
 import Stats from '@/services/Stats'
+import Histories from '@/services/Histories'
 import ErrorMessage from '@/helpers/ErrorMessage'
 import PrettySeason from '@/helpers/PrettySeason'
 import findSeasonKey from '@/helpers/FindSeason'
-import courses from './courses'
 import _ from 'lodash'
 
 export default {
-  name: 'Enrollments',
+  name: 'Stats',
 
   data(){
     return {
@@ -39,6 +39,7 @@ export default {
 
       overview: null,
       usage: null,
+      courses: null,
     }
   },
 
@@ -128,7 +129,7 @@ export default {
     },
 
     mapCourseName(courseId) {
-      let course = _.find(courses, { _id: courseId })
+      let course = _.find(this.courses, { _id: courseId })
       if(course){
         return course.name
       }
@@ -138,6 +139,23 @@ export default {
       this.fetch()
       this.fetchOverview()
       this.fetchUsage()
+      this.fetchCourses()
+    },
+
+    async fetchCourses() {
+      let body = {
+        season: this.season
+      }
+
+      try {
+        let res = await Histories.getCourses(body)
+
+        if(res.data) {
+          this.courses = res.data
+        }
+      } catch(err) {
+
+      }
     },
 
     async fetchOverview() {

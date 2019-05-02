@@ -27,7 +27,7 @@ export default [
   {
     title: 'Dados da Matrícula',
     icon: 'mdi-book-multiple-variant',
-    route: '/enrollments',
+    route: '/stats',
   },
 
   {
