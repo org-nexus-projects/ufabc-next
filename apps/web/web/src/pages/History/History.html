@@ -1,41 +1,41 @@
 <v-container style="display: flex; flex-direction: column; min-height: 100%;">  
   <v-layout row wrap class="white elevation-1 mr-0" :class="$vuetify.breakpoint.xsOnly ? 'px-3' : 'px-5'" style="flex: none">
-    <div :class="$vuetify.breakpoint.xsOnly ? 'mt-5' : 'mt-4'">
+    <div :class="$vuetify.breakpoint.xsOnly ? 'mt-5' : 'mt-4'" v-if='historySeasons && historySeasons.length'>
       <h2 class="history-title ufabcnext-primary--text">Ficha individual do aluno</h2>
-
-      <div class="history-text mt-3 mb-4">Esta ficha individual é uma réplica do que você pode encontrar no site do <a href="https://aluno.ufabc.edu.br/fichas_individuais" target="_blank" style="text-decoration: none;">Portal do Aluno.</a> <br />
-        <br />
-        Caso o seu histórico esteja desatualizado, basta acessar o portal novamente utilizando a <a href="https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk" style="text-decoration: none;" target="_blank">extensão do UFABC Next</a></i> e as informações serão atualizadas. <br />
-        <br />
-        Se o nome de algum professor estiver errado, você pode corrigir clicando no botão "Fazer comentário" ao lado do nome do professor.
+        <div class="history-text mt-3 mb-4">
+          Esta ficha individual é uma réplica do que você pode encontrar no site do <a href="https://aluno.ufabc.edu.br/fichas_individuais" target="_blank" style="text-decoration: none;">Portal do Aluno.</a> <br />
+          <br />
+          Caso o seu histórico esteja desatualizado, basta acessar o portal novamente utilizando a <a href="https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk" style="text-decoration: none;" target="_blank">extensão do UFABC Next</a></i> e as informações serão atualizadas. <br />
+          <br />
+          Se o nome de algum professor estiver errado, você pode corrigir clicando no botão "Fazer comentário" ao lado do nome do professor.
       </div>
-      <div class="history-chips" v-if='history'>
-        <div class="history-chip mr-3 mb-3" v-if='user && user.ra'>
-          <div class="ra-icon ufabcnext-charcoal-grey--text">RA</div>
-          {{ user.ra }}
-        </div>
-<!--         <div class="history-chip mr-3 mb-3">
-          <v-icon class="mr-2" size="20" color="ufabcnext-charcoal-grey">mdi-school</v-icon>
-          Bacharelado em Ciências da Computação
-        </div> -->
+    </div>
+    <div class="history-chips" v-if='history'>
+      <div class="history-chip mr-3 mb-3" v-if='user && user.ra && historySeasons && historySeasons.length'>
+        <div class="ra-icon ufabcnext-charcoal-grey--text">RA</div>
+        {{ user.ra }}
+      </div>
+<!--       <div class="history-chip mr-3 mb-3">
+        <v-icon class="mr-2" size="20" color="ufabcnext-charcoal-grey">mdi-school</v-icon>
+        Bacharelado em Ciências da Computação
+      </div> -->
 
-        <div class="history-chip mr-3 mb-3">
-          <v-icon class="mr-2" size="20" color="ufabcnext-charcoal-grey">mdi-book-multiple</v-icon>
-          {{ subjectsCount + (subjectsCount == 1 ?  ' Disciplina cursada' : ' Disciplinas cursadas') }}
-        </div>
+      <div class="history-chip mr-3 mb-3" v-if='subjectsCount != 0'>
+        <v-icon class="mr-2" size="20" color="ufabcnext-charcoal-grey">mdi-book-multiple</v-icon>
+        {{ subjectsCount + (subjectsCount == 1 ?  ' Disciplina cursada' : ' Disciplinas cursadas') }}
+      </div>
 
-        <div class="history-chip mr-3 mb-3" v-if='lastUpdate'>
-          <el-tooltip content="Atualizar o histórico">
-            <v-icon class="mr-2" size="20" color="ufabcnext-charcoal-grey" @click="updateHistory()" style="cursor: pointer;">
-              mdi-refresh
-            </v-icon>
-          </el-tooltip>
-          {{ lastUpdate | moment('DD/MM/YYYY - HH:ss') }}
-        </div>
+      <div class="history-chip mr-3 mb-3" v-if='lastUpdate'>
+        <el-tooltip content="Atualizar o histórico">
+          <v-icon class="mr-2" size="20" color="ufabcnext-charcoal-grey" @click="updateHistory()" style="cursor: pointer;">
+            mdi-refresh
+          </v-icon>
+        </el-tooltip>
+        {{ lastUpdate | moment('DD/MM/YYYY - HH:ss') }}
       </div>
     </div>
 
-    <div class="history-complete mb-5" v-loading='loading'>
+    <div class="history-complete mb-5" v-loading='loading' v-if='(historySeasons && historySeasons.length) || loading'>
       <el-table class="history-header" style="width: 100%;">
         <el-table-column
           label="Disciplina"
@@ -169,6 +169,12 @@
         </el-table>
       </div>
     </div>
+
+    <center class="mt-5" v-else>
+      <h2>Parece que não encontramos os dados do seu histórico :( <br />
+       É necessário instalar a <a href="https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk" style="text-decoration: none;" target="_blank">extensão</a> e acessar a tela de Fichas Individuais no <a href="https://aluno.ufabc.edu.br/fichas_individuais" target="_blank" style="text-decoration: none;">Portal do Aluno.</a></h2>
+      <img src="@/assets/missing_history.svg" width="100%" />
+    </center>
 
   </v-layout>
 </v-container>

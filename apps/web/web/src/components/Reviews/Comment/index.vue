@@ -112,6 +112,10 @@ export default {
     }
   },
 
+  created() {
+    this.recommended = _.get(this.comment, 'myReactions.recommendation', false)
+  },
+
   computed: {
     prettySeason() {
       if(!this.comment || !this.comment.enrollment || !this.comment.enrollment.season) return ''

@@ -43,16 +43,17 @@
 
     <el-tabs v-model="activeName" v-if='teacher'>
       <el-tab-pane label="Comentários sobre o professor" name="first">
-        <ReviewComment
-          v-if='!!(comments && comments.length)'
-          v-for='_comment in comments'
-          :comment="_comment"
-          class="mb-4" 
-          :key="_comment._id" 
-          @input="updateComment($event)"
-          recommendationCheckMode
-        />
-        <v-layout wrap align-center justify-center v-else>
+        <template v-if='comments && comments.length'>
+          <ReviewComment
+            v-for='_comment in comments'
+            :comment="_comment"
+            class="mb-4" 
+            :key="_comment._id" 
+            recommendationCheckMode
+            @input="updateComment($event)"
+          ></ReviewComment>
+        </template>
+        <v-layout wrap align-center justify-center v-else-if='!loading'>
           <v-flex xs12 class="text-center mb-3 mt-3"><img src="@/assets/certificate.svg" width="64" height="64" /></v-flex>
           <div @click='activeName = "second"' class="ufabcnext-link--text cursor-pointer">Seja o primeiro a comentar</div>
         </v-layout>
