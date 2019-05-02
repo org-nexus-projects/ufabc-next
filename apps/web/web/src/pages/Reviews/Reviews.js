@@ -73,6 +73,7 @@ export default {
   },
 
   created() {
+    this.fetchStudent()
     // Init with custom route params
     for (let k in this.$route.query) {
       if (k in this.query) {
@@ -254,7 +255,7 @@ export default {
     },
 
     crCropped(cr){
-      return cr.toFixed(2)
+      return cr && cr.toFixed(2)
     },
     
     findConcept(concept) {
@@ -393,7 +394,7 @@ export default {
     }, 
 
     fetchStudent() {
-      this.student_cr = 4.2222
+      // this.student_cr = 4.2222
       // Utils.storage.getItem(storageUser).then(item => {
       //   if (item == null) return
       //   self.student_cr = _.get(item, '[1].cr', 0) || _.get(item, '[0].cr', 0)
@@ -405,7 +406,7 @@ export default {
       this.loading = true
 
       try {
-        let res = await Comment.get(this.query.teacherId)
+        let res = await Comment.get(this.query.teacherId, this.query.subjectId || '')
 
         this.loading = false
         if(res.data && res.data.data && res.data.data.length){
@@ -413,6 +414,8 @@ export default {
             c.showMore = false
             return c
           })
+        } else {
+          this.comments = []
         }
       } catch(err) {
         this.loading = false
@@ -435,8 +438,12 @@ export default {
         let filter
         if(this.filterSelected == 'all'){
           filter = this.concepts.general
+          delete this.query.subjectId
+          this.getTeacherComments()
         } else {
           filter = _.find(this.concepts.specific, { _id: { _id: this.filterSelected }})
+          this.query.subjectId = this.filterSelected
+          this.getTeacherComments()
         }
 
         let conceitosFiltered = []

@@ -18,7 +18,16 @@
           </div>
         </div>
 
-        <el-checkbox v-if='helpfulCheckMode' class="helpful-checkbox" label="Útil" border size="small"></el-checkbox>
+        <el-checkbox 
+          v-loading="loadingRecommendation"
+          @change="!loadingRecommendation ? giveReaction('recommendation') : null"
+          v-model='recommended' 
+          v-if='recommendationCheckMode' 
+          class="recommendation-checkbox" 
+          label="Útil" 
+          border 
+          size="small"
+        ></el-checkbox>
         <div style="display:flex; align-items: center; flex: none; min-height: 32px;" v-else>
           <div class="mr-3 comment-like-area" @click="!loadingLike ? giveReaction('like') : null" v-loading="loadingLike">
             <v-icon :color="(comment.myReactions && comment.myReactions.like) ? 'ufabcnext-liked' : 'ufabcnext-like'" size="16" v-ripple>
@@ -87,7 +96,8 @@ export default {
       },
 
       loadingLike: false,
-      loadingRecommendation: false
+      loadingRecommendation: false,
+      recommended: false,
     }
   },
 
@@ -96,7 +106,7 @@ export default {
       type: Object
     },
 
-    helpfulCheckMode: {
+    recommendationCheckMode: {
       type: Boolean,
       default: false
     }
@@ -104,8 +114,8 @@ export default {
 
   computed: {
     prettySeason() {
-      if(!this.comment || !this.comment.season) return ''
-      return PrettySeason(this.comment.season)
+      if(!this.comment || !this.comment.enrollment || !this.comment.enrollment.season) return ''
+      return PrettySeason(this.comment.enrollment.season)
     },
 
     recommendationCount() {
@@ -123,6 +133,7 @@ export default {
     async giveReaction(kind) {
       if(!this.comment || !this.comment._id || !this.comment.myReactions) return
 
+      let recommended = this.recommended
       try {
         this.loadingLike = true
 
@@ -130,16 +141,31 @@ export default {
         if(!this.comment.myReactions[kind]) {
           let res = await Reactions.create(this.comment._id, kind)
           this.comment.myReactions[kind] = true
-          this.comment.reactionsCount[kind]++
+
+          if(!this.comment.reactionsCount) {
+            Vue.set(this.comment, 'reactionsCount', {
+              [kind]: 1
+            })
+          } else if(!this.comment.reactionsCount[kind] && this.comment.reactionsCount[kind] != 0) {
+            this.comment.reactionsCount = Object.assign({
+              [kind]: 1
+            }, this.comment.reactionsCount)
+          } else {
+            this.comment.reactionsCount[kind]++
+          }
+
+          if(this.comment.myReactions[kind] == 'recommendation') this.recommended = true
         } else {
           let res = await Reactions.delete(this.comment._id, kind)
           this.comment.myReactions[kind] = false 
           this.comment.reactionsCount[kind]--
+          if(this.comment.myReactions[kind] == 'recommendation') this.recommended = false
         }
 
         this.loadingLike = false
       } catch(err) {
         this.loadingLike = false
+        this.recommended = recommended
 
         this.$message({
           type: 'error',

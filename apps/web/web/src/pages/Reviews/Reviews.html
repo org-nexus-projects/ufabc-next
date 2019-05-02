@@ -34,7 +34,6 @@
         <v-icon class="mr-1" size="20" v-if='data.item && data.item.kind'>
           {{ iconForTarget(data.item.kind) }}
         </v-icon>
-        {{ data.item && data.item.name}}
       </template>
     </v-combobox>
   </v-layout>
@@ -121,8 +120,8 @@
               v-if='comments && comments.length'
             />
 
-            <div v-else-if='!loading && !comments.length'>
-              Nenhum comentário, seja o primeiro a comentar
+            <div v-else>
+              Nenhum comentário
             </div>
           </div>
 

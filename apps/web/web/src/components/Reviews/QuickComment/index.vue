@@ -1,15 +1,15 @@
 <template>
   <div>
-    <v-container grid-list-lg text-xs-center>
+    <v-container grid-list-lg text-xs-center v-if='enrollments && enrollments.length'>
       <div class="title mb-2 mt-4" style="text-align: left;">Minhas matérias para avaliar</div>
       <transition-group tag="div" key="index" name="slide-y-transition" class="layout" style="width: 100%; flex-wrap: wrap;">
-        <v-flex md6 align-center v-for='(subject, index) in subjects' :key="subject.codigo">
+        <v-flex md6 align-center v-for='(subject, index) in enrollments' :key="subject._id">
           <div class="subject elevate-3d elevate-3">
             <div class="subject-name">
               <span>{{ subject.disciplina }}</span>
-              <v-btn @click="close(index)" icon style="margin: 0px; width: 22px; height: 22px;">
+<!--               <v-btn @click="close(index)" icon style="margin: 0px; width: 22px; height: 22px;">
                 <v-icon size="18" style="color: rgba(0,0,0,0.2);">mdi-close</v-icon>
-              </v-btn>
+              </v-btn> -->
             </div>
             <div style="align-items: center; display:flex; height: calc(100% - 26px);">
               <div 
@@ -19,9 +19,9 @@
               </div>
 
               <div class="teachers mr-3">
-                <div class="teacher teacher-teoria mb-2">
+                <div class="teacher teacher-teoria mb-2" v-if='subject.teoria && subject.teoria.name'>
                   <span class="mr-2">
-                    Juliana Kelmy Macario De Faria Daguano <el-tag class="ml-2" color="primary" size="mini">Prática</el-tag>
+                    {{ subject.teoria.name }} <el-tag class="ml-2" color="primary" size="mini">Teoria</el-tag> <el-tag class="ml-2" color="primary" size="mini" v-if='sameBothProfessor'>Prática</el-tag>
                   </span>
                   <el-button @click="comment()" class="pa-0" type="text" style="width: 85px;">
                     <div style="display: flex; align-items: center;">
@@ -31,9 +31,9 @@
                   </el-button>
                 </div>
 
-                <div class="teacher teacher-pratica">
+                <div class="teacher teacher-pratica" v-if='subject.pratica && subject.pratica.name && !sameBothProfessor'>
                   <span class="mr-2">
-                    Antonio Sérgio Munhoz <el-tag class="ml-2" size="mini">Teoria</el-tag>
+                    {{ subject.pratica.name }} <el-tag class="ml-2" size="mini">Prática</el-tag>
                   </span>
                   <el-button @click="comment()" class="pa-0" type="text" style="width: 85px;">
                     <div style="display: flex; align-items: center;">
@@ -52,7 +52,7 @@
 </template>
 
 <script type="text/javascript">
-import History from '@/services/History'
+import Enrollment from '@/services/Enrollment'
 import ErrorMessage from '@/helpers/ErrorMessage'
 import Vue from 'vue'
 import CommentEditor from '@/components/Reviews/CommentEditor'
@@ -62,7 +62,7 @@ export default {
 
   data() {
     return {
-      subjects: null,
+      enrollments: null,
       loading: false,
       conceptsColor: {
         'A': 'rgb(63, 207, 140)',
@@ -85,9 +85,13 @@ export default {
   },
 
   methods:{
+    sameBothProfessor(teoria, pratica) {
+      return teoria._id == pratica._id
+    },
+
     close(index) {
-      if(this.subjects[index]) {
-        this.subjects.splice(index, 1)
+      if(this.enrollments[index]) {
+        this.enrollments.splice(index, 1)
       }
     },
 
@@ -95,22 +99,22 @@ export default {
       this.loading = true
 
       try {
-        let res = await History.get()
+        let res = await Enrollment.list()
 
         this.loading = false
         if(res.data){
           let history = res.data
 
-          history.disciplinas.map((h) => {
-            h.quad = h.ano + ':' + h.periodo
+          history.map((h) => {
+            h.quad = h.year + ':' + h.quad
             return h
           })
-          let seasons = _.groupBy(history.disciplinas, 'quad')
+          let seasons = _.groupBy(history, 'quad')
           let seasonsKeys = _.keys(seasons)
           if(!seasonsKeys.length) return
 
           // Get last season filtering by reviewed
-          this.subjects = seasons[seasonsKeys[seasonsKeys.length - 5]]//.filter(c => c.reviewed)
+          this.enrollments = seasons[seasonsKeys[seasonsKeys.length - 1]]//.filter(c => c.reviewed)
         }
       } catch(err) {
         this.loading = false
