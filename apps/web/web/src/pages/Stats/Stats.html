@@ -56,8 +56,8 @@
 
     <v-flex xs12 sm3 md3 lg3 class="card-stats" v-if='overview'>
       <v-icon class="mb-1" color="ufabcnext-red" style="display: block;">mdi-import</v-icon>
-      <div class="stats-counter">{{ overview.deficit }}</div>
-      <div class="stats-subtitle">deficit de vagas</div>
+      <div class="stats-counter">{{ Math.abs(overview.deficit) }}</div>
+      <div class="stats-subtitle">{{ deficitLabel }}</div>
       <div v-if='!$vuetify.breakpoint.xsOnly'>
         <v-progress-linear
           color="ufabcnext-red"
