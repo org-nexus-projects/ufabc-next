@@ -10,11 +10,12 @@
 }
 
 .target-name {
-  font-size: 30px;
+  font-size: 36px;
   line-height: 40px;
-  border-bottom: 1px solid #CCC;
   padding-bottom: 5px;
   margin-bottom: 18px;
+  font-weight: 300;
+  opacity: 0.85;
 }
 
 .target-info {
