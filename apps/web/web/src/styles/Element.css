@@ -16,9 +16,9 @@
   border-top-right-radius: 8px;
 }
 .history-header th {
-  background-color: #56cdb7;
-  padding: 0px;
-  height: 36px;
+  background-color: #56cdb7!important;
+  padding: 0px!important;
+  height: 36px!important;
   border-bottom: none!important;
 }
 .history-header th:first-child>.cell{
@@ -44,7 +44,7 @@
   height: 36px!important;
 }
 .history-row td {
-  padding: 0px;
+  padding: 0px !important;
   font-family: Lato;
   font-size: 14px;
   font-weight: normal;
@@ -53,9 +53,9 @@
   line-height: 2.29;
   letter-spacing: normal;
   color: rgba(0, 0, 0, 0.7);
-  border-bottom: 3px solid #fff;
-  border-left: 1.5px solid #fff;
-  border-right: 1.5px solid #fff;
+  border-bottom: 3px solid #fff!important;
+  border-left: 1.5px solid #fff!important;
+  border-right: 1.5px solid #fff!important;
 }
 .history-row td .cell{
   padding-left: 24px;

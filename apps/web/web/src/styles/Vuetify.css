@@ -29,6 +29,12 @@
   margin-top: 16px;
 }
 
+@media (max-width: 600px) { 
+  .chart-large{
+    margin-top: 0px;
+  }
+}
+
 .review-button.v-btn {
   margin: 0px;
   margin-left: 8px;
