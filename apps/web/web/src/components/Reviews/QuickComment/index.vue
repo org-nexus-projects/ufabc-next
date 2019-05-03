@@ -1,9 +1,9 @@
 <template>
   <div>
-    <v-container grid-list-lg text-xs-center v-if='enrollments && enrollments.length'>
-      <div class="title mb-2 mt-4" style="text-align: left;">Minhas matérias para avaliar</div>
-      <transition-group tag="div" key="index" name="slide-y-transition" class="layout" style="width: 100%; flex-wrap: wrap;">
-        <v-flex md6 align-center v-for='(enrollment, index) in enrollments' :key="enrollment._id">
+    <v-container grid-list-lg text-xs-center v-if='enrollments && enrollments.length' :class="$vuetify.breakpoint.xsOnly ? 'mx-0 px-1' : ''">
+      <div class="title mb-2 mt-4 text-left" :class="$vuetify.breakpoint.mdAndUp ? '': ''">Minhas matérias para avaliar</div>
+      <transition-group tag="div" key="index" name="slide-y-transition" class="layout" style="width: 100%; flex-wrap: wrap;" :class="$vuetify.breakpoint.xsOnly ? 'px-0 mx-0' : ''">
+        <v-flex xs12 md6 align-center v-for='(enrollment, index) in enrollments' :key="enrollment._id" :class="$vuetify.breakpoint.xsOnly ? 'px-0' : ''">
           <div class="enrollment elevate-3d elevate-3">
             <div class="enrollment-name">
               <span>{{ enrollment.disciplina }}</span>
@@ -14,6 +14,7 @@
             <div style="align-items: center; display:flex; height: calc(100% - 26px);">
               <div 
                 class="concept-comment" 
+                style="flex: none;" 
                 :style="{'backgroundColor': conceptsColor[enrollment.conceito || 'null']}">
                   {{ enrollment.conceito }}
               </div>
@@ -145,8 +146,9 @@ export default {
 
     async comment(enrollmentId, teacher = null, teacherType) {
       let dialog = this.$dialog({
-        width: '750px',
+        width: this.$vuetify.breakpoint.xsOnly ? '90%' : '750px',
         top: '10vh',
+        margin: this.$vuetify.breakpoint.xsOnly ? '5%' : '',
         enrollmentId: enrollmentId,
         teacher: teacher,
         teacherType: teacherType,

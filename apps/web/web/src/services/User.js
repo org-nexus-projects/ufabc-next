@@ -16,6 +16,10 @@ class User {
     return await Axios.post('/users/me/resend')
   }
 
+  async delete() {
+    return await Axios.delete('/users/me/')
+  }
+
   async info() {
     return await Axios.get('/users/info')
   }

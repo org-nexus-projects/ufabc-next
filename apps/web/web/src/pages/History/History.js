@@ -107,8 +107,9 @@ export default {
 
     async comment(enrollmentId, teacher = null, teacherType) {
       let dialog = this.$dialog({
-        width: '750px',
+        width: this.$vuetify.breakpoint.xsOnly ? '90%' : '750px',
         top: '10vh',
+        margin: this.$vuetify.breakpoint.xsOnly ? '5%' : '',
         enrollmentId: enrollmentId,
         teacher: teacher,
         teacherType: teacherType,
