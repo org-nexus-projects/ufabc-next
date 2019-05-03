@@ -269,7 +269,6 @@ export default {
       this.crHistoryLoading = true
       try {
         let crHistoryData = await Performance.getCrHistory()
-        console.log('crHistoryData', crHistoryData)
         if(!crHistoryData) return
 
         this.crHistoryOptions.rows = crHistoryData.data
@@ -283,10 +282,8 @@ export default {
       this.crDistributionLoading = true
       try {
         let crDistributionData = await Performance.getCrDistribution()
-        console.log('crDistributionData', crDistributionData)
         if(!crDistributionData) return
 
-        //COLOCAR .DATA
         this.crDistributionOptions.rows = crDistributionData.data
         this.crDistributionLoading = false
       } catch(err) {
