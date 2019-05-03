@@ -74,6 +74,7 @@ import Vue from 'vue'
 import PrettySeason from '@/helpers/PrettySeason'
 import ErrorMessage from '@/helpers/ErrorMessage'
 import Reactions from '@/services/Reactions'
+moment.locale('pt-BR')
 
 export default {
 
@@ -188,9 +189,9 @@ export default {
 
 <style>
 .concept-author {
-  height: 72px;
-  width: 72px;
-  border-radius: 16px;
+  height: 54px;
+  width: 54px;
+  border-radius: 4px;
   
   display: flex;
   align-items: center;
@@ -214,6 +215,9 @@ export default {
 .comment-text.collapsed {
   max-height: 3.9em; 
 }
+.comment-text > p {
+  font-size: 16px;
+} 
 .comment-text:not(.collapsed) > .show-more {
   display: none;
 }
