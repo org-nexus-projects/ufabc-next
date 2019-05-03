@@ -46,7 +46,7 @@
     <v-toolbar v-if='user && user.confirmed' color="white" class="toolbar" app dark flat :absolute="!$vuetify.breakpoint.xsOnly">
       <v-toolbar-side-icon class="primary--text hidden-lg-and-up" @click="drawer = !drawer"></v-toolbar-side-icon>
       <v-layout row flex class="title ufabcnext-grey--text hidden-md-and-down">
-        Hello
+        <!-- Current path -->
       </v-layout>
       <v-layout row align-center justify-center class="flex hidden-lg-and-up">
         <img src="@/assets/logo.svg" height="32" />
@@ -76,7 +76,7 @@
           </v-layout>
         </div>
 
-        <v-list dense>
+        <v-list dense style="min-width: 200px;">
           <v-layout column wrap align-center style="height: 56px" class="hidden-lg-and-up mx-3">
             <v-avatar :size="38" color="primary">
               <span class="white--text" v-if='userLogin'>{{ userInitials }}</span>

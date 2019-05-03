@@ -43,7 +43,7 @@
     <div v-if='loading || (concepts && concepts.specific && concepts.specific.length) || (comments.length)' 
       style="min-height: 200px">
 
-      <div class="row">
+      <div class="row" style="flex-wrap: wrap;">
         <div class="target-name flex">{{ target.name }}</div>
         <TargetInfo
           class="no-flex"
@@ -53,6 +53,7 @@
           :target="target"
           :teachersCount="teachersOfSubject && teachersOfSubject.length"
           v-if='!loading && samplesCount >= 0'
+          style="flex-wrap: wrap;"
         />
       </div>
       

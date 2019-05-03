@@ -1,6 +1,6 @@
 <template>
-  <div class="row">
-    <div class="column mr-3">
+  <div class="row" style="flex-wrap: wrap;">
+    <div class="column" :class="$vuetify.breakpoint.xsOnly ? 'mr-2' : 'mr-3'">
       <div
         class="concept-author column" 
         :style="{ 'background-color': conceptsColor[comment.enrollment.conceito || 'null'] }"
@@ -31,7 +31,7 @@
         </div>
       </div>
     </div>
-    <div class="ml-3">
+    <div class="ml-3" :style="{ 'width': $vuetify.breakpoint.xsOnly ? '100%' : '', 'margin': $vuetify.breakpoint.xsOnly ? '0px!important': '' }">
       <el-checkbox 
         v-loading="loadingRecommendation"
         @change="!loadingRecommendation ? giveReaction('recommendation') : null"
@@ -63,7 +63,7 @@
           </span>
         </v-tooltip>
       </div>
-      <div class="since-time">{{prettyDate}}</div>
+      <div class="since-time" v-if='!$vuetify.breakpoint.xsOnly'>{{prettyDate}}</div>
     </div>
   </div>
 </template>
@@ -259,6 +259,16 @@ export default {
   .show-more {
     top: 9.1em;
     height: 1.3em;
+  }
+  .comment-text > p {
+    font-size: 14px;
+  } 
+  .concept-author {
+    width: 42px;
+    height: 42px;
+  }
+  .quad {
+    font-size: 12px;
   }
 }
 </style>
