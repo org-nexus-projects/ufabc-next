@@ -71,7 +71,7 @@ export default {
     },
 
     deficitLabel() {
-      return this.overview.deficit > 0 ? 'vagas que sobraram' : 'vagas que faltaram'
+      return this.overview.deficit > 0 ? 'vagas que faltaram' : 'vagas que sobraram'
     }
   },
 
