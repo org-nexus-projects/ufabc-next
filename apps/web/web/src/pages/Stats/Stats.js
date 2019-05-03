@@ -69,6 +69,10 @@ export default {
     prettySeason() {
       return PrettySeason(this.season)
     },
+
+    deficitLabel() {
+      return this.overview.deficit > 0 ? 'vagas que sobraram' : 'vagas que faltaram'
+    }
   },
 
   created() {
