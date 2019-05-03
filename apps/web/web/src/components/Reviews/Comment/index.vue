@@ -1,75 +1,75 @@
 <template>
-  <v-layout>
-    <v-flex>
-      <v-layout row wrap>
-        <div style="display: flex; flex: 1 1 auto; align-items: center; min-height: 32px; flex-wrap: wrap;">
-          <div class="ufabcnext-blue--text mr-2">
-            <router-link :to="{ name: 'reviews', query: { subjectId: comment.subject._id }}" style="text-decoration: none">
-              {{ comment.subject.name || '(disciplina desconhecida)' }}
-            </router-link>
-          </div>
-          
-          <div class="concept-author mr-2" :style="{ 'background': conceptsColor[comment.enrollment.conceito || 'null'] }" v-if='comment.enrollment && comment.enrollment.conceito'>
-            {{ comment.enrollment.conceito }}
-          </div>
-
-          <div class="ufabcnext-grey--text">
-            {{ prettySeason }}
-          </div>
+  <div class="row">
+    <div class="column mr-3">
+      <div
+        class="concept-author column" 
+        :style="{ 'background-color': conceptsColor[comment.enrollment.conceito || 'null'] }"
+        v-if='comment.enrollment && comment.enrollment.conceito'>
+        <div class="concept">{{ comment.enrollment.conceito }}</div>
+      </div>
+      <div class="quad text-center blue--text mt-1">{{prettySeason}}</div>
+    </div>
+    <div class="column flex">
+      <div class="row wrap mb-0">
+        <div class="ufabcnext-blue--text mr-2 flex ellipsis">
+          <router-link :to="{ name: 'reviews', query: { subjectId: comment.subject._id }}" style="text-decoration: none">
+            {{ comment.subject.name || '(disciplina desconhecida)' }}
+          </router-link>
         </div>
+      </div>
 
-        <el-checkbox 
-          v-loading="loadingRecommendation"
-          @change="!loadingRecommendation ? giveReaction('recommendation') : null"
-          v-model='recommended' 
-          v-if='recommendationCheckMode' 
-          class="recommendation-checkbox" 
-          label="Útil" 
-          border 
-          size="small"
-        ></el-checkbox>
-        <div style="display:flex; align-items: center; flex: none; min-height: 32px;" v-else>
-          <div class="mr-3 comment-like-area" @click="!loadingLike ? giveReaction('like') : null" v-loading="loadingLike">
-            <v-icon :color="(comment.myReactions && comment.myReactions.like) ? 'ufabcnext-liked' : 'ufabcnext-like'" size="16" v-ripple>
-              mdi-thumb-up
-            </v-icon>
-            {{ (comment.reactionsCount && comment.reactionsCount.like) || 0 }}
-          </div>
-          <v-tooltip top v-if='recommendationCount >= 0'>
-            <template v-slot:activator="{ on }">
-              <div class="comment-like-area" v-on="on" @click="!loadingRecommendation ? giveReaction('recommendation') : null" v-loading="loadingRecommendation">
-                <v-icon :color="(comment.myReactions && comment.myReactions.recommendation) ? 'ufabcnext-liked' : 'ufabcnext-like'" size="20" v-ripple>
-                  mdi-medal
-                </v-icon>
-                {{ recommendationCount }}
-              </div>
-            </template>
-            <span>
+      <div class="comment-text" :class="{'collapsed': !comment.showMore}">
+        <p>{{ comment.comment }}</p>
+        <div class="show-more">
+          <el-button 
+            @click="showMore(comment._id)" 
+            type="text" 
+            class="ma-0 pa-0"
+            style="text-align: left;background: #fff;font-size: 13px;">
+            MOSTRAR MAIS <i class="el-icon-arrow-down"></i>
+          </el-button>
+        </div>
+      </div>
+    </div>
+    <div class="ml-3">
+      <el-checkbox 
+        v-loading="loadingRecommendation"
+        @change="!loadingRecommendation ? giveReaction('recommendation') : null"
+        v-model='recommended' 
+        v-if='recommendationCheckMode' 
+        class="recommendation-checkbox" 
+        label="Útil" 
+        border 
+        size="small"
+      ></el-checkbox>
+      <div style="display:flex; align-items: center; flex: none; min-height: 28px;" v-else>
+        <div class="mr-1 comment-like-area" @click="!loadingLike ? giveReaction('like') : null" v-loading="loadingLike">
+          <v-icon :color="(comment.myReactions && comment.myReactions.like) ? 'ufabcnext-liked' : 'ufabcnext-like'" size="16" v-ripple>
+            mdi-thumb-up
+          </v-icon>
+          {{ (comment.reactionsCount && comment.reactionsCount.like) || 0 }}
+        </div>
+        <v-tooltip top v-if='recommendationCount >= 0'>
+          <template v-slot:activator="{ on }">
+            <div class="comment-like-area" v-on="on" @click="!loadingRecommendation ? giveReaction('recommendation') : null" v-loading="loadingRecommendation">
+              <v-icon :color="(comment.myReactions && comment.myReactions.recommendation) ? 'ufabcnext-liked' : 'ufabcnext-like'" size="20" v-ripple>
+                mdi-medal
+              </v-icon>
+              {{ recommendationCount }}
+            </div>
+          </template>
+          <span>
             {{ recommendationCount == 0 ? 'Ninguém recomendou esse comentário ainda': recommendationCount + ' recomendaram esse comentário' }} 
           </span>
-          </v-tooltip>
-        </div>
-      </v-layout>
-
-      <v-layout column wrap align-content-start>
-        <div class="comment-text" :class="{'collapsed': !comment.showMore}">
-          <p>{{ comment.comment }}</p>
-          <div class="show-more">
-            <el-button 
-              @click="showMore(comment._id)" 
-              type="text" 
-              class="ma-0 pa-0"
-              style="text-align: left;background: #fff;font-size: 13px;">
-              MOSTRAR MAIS <i class="el-icon-arrow-down"></i>
-            </el-button>
-          </div>
-        </div>
-      </v-layout>
-    </v-flex>
-  </v-layout>
+        </v-tooltip>
+      </div>
+      <div class="since-time">{{prettyDate}}</div>
+    </div>
+  </div>
 </template>
 <script>
 import _ from 'lodash'
+import moment from 'moment'
 import Vue from 'vue'
 import PrettySeason from '@/helpers/PrettySeason'
 import ErrorMessage from '@/helpers/ErrorMessage'
@@ -119,12 +119,15 @@ export default {
   computed: {
     prettySeason() {
       if(!this.comment || !this.comment.enrollment || !this.comment.enrollment.season) return ''
-      return PrettySeason(this.comment.enrollment.season)
+      return PrettySeason(this.comment.enrollment.season).replace('º Quad de ', 'Q ')
     },
 
     recommendationCount() {
       return _.get(this.comment, 'reactionsCount.recommendation', 0)
-    }
+    },
+    prettyDate() {
+      return moment(this.comment.createdAt).fromNow()
+    },
   },
 
   methods: {
@@ -185,18 +188,26 @@ export default {
 
 <style>
 .concept-author {
-  height: 24px;
-  width: 24px;
-  border-radius: 4px;
-  color: #fff;
+  height: 72px;
+  width: 72px;
+  border-radius: 16px;
+  
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: center;  
 }
+.concept-author .concept {
+  font-size: 34px;
+  text-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+  color: rgba(255,255,255,0.9);
+  line-height: 40px;
+}
+
 .comment-text {
   max-height: 300px;
   transition: max-height 0.5s ease-in-out;
   line-height: 1.3em;
+  font-size: 18px;
   overflow: hidden;
   position: relative;
 }
@@ -228,6 +239,10 @@ export default {
   border-radius: 14px;
   width: 28px;
   height: 28px;
+}
+.since-time {
+  opacity: 0.6;
+  text-align: center;
 }
 @media (max-width: 600px) {
   .comment-text {

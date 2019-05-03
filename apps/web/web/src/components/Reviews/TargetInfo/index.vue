@@ -1,27 +1,30 @@
 <template>
   <v-layout class="target-info mb-3" wrap>
-    <v-flex xs12 :style="style"  v-if='conceptsCount != null & conceptsCount >= 0' style="display: flex;">
-      <v-icon size="20" class="mr-1" color="grey">mdi-alpha-n-box</v-icon> {{ conceptsCount }} conceitos
-    </v-flex>
-    <v-flex xs12 :style="style"  v-if='commentsCount >= 0 && target.kind == "teacher"' style="display: flex;">
-      <v-icon size="20" class="mr-1" color="grey">mdi-message-draw</v-icon> {{ commentsCount }} {{ commentsCount == '1' ? 'comentário' : 'comentários' }}
-    </v-flex><!-- 
-    <v-flex xs12 :style="style" v-if='target.kind == "teacher"' style="display: flex;">
+    <div class="chipzinha" xs12 :style="style"  v-if='conceptsCount != null & conceptsCount >= 0' style="display: flex;">
+      <v-icon size="20" class="mr-1" color="inherit">mdi-format-annotation-plus</v-icon> {{ conceptsCount }} conceitos
+    </div>
+    <div class="chipzinha" xs12 :style="style"  v-if='commentsCount >= 0 && target.kind == "teacher"' style="display: flex;">
+      <v-icon size="20" class="mr-1" color="inherit">mdi-message-text-outline</v-icon> {{ commentsCount }} {{ commentsCount == '1' ? 'comentário' : 'comentários' }}
+    </div>
+    <div class="chipzinha" xs12 :style="style"  v-if='classesCount >= 0 && target.kind == "teacher"' style="display: flex;">
+      <v-icon size="20" class="mr-1" color="inherit">mdi-teach</v-icon> {{ classesCount }} {{ classesCount == '1' ? 'disciplina' : 'disciplinas' }}
+    </div><!-- 
+    <div xs12 :style="style" v-if='target.kind == "teacher"' style="display: flex;">
       <v-icon size="20" class="mr-1" color="grey">mdi-gmail</v-icon> 
       <a href="mailto:professor@ufabc.edu.br" style="text-decoration: none;">
         professor@email.edu.br
       </a>
-    </v-flex> --><!-- 
-    <v-flex xs12 :style="style"  style="display: flex;" v-if='target.kind == "teacher"'>
+    </div> --><!-- 
+    <div xs12 :style="style"  style="display: flex;" v-if='target.kind == "teacher"'>
       <v-icon size="20" class="mr-1" color="grey">mdi-home</v-icon> Sala 9999 (Bloco B)
-    </v-flex> -->
-<!--     <v-flex xs12 :style="style"  style="display: flex;" v-if='target.kind == "teacher"'>
+    </div> -->
+<!--     <div xs12 :style="style"  style="display: flex;" v-if='target.kind == "teacher"'>
       <v-icon size="20" class="mr-1" color="grey">mdi-phone</v-icon> (11) 4444-4444
-    </v-flex> -->
+    </div> -->
     <!-- Subject -->
-    <v-flex xs12 :style="style" v-if='teachersCount >= 0 && target.kind == "subject"' style="display: flex;">
-      <v-icon size="20" class="mr-1" color="grey">mdi-account</v-icon> {{ teachersCount }} professores
-    </v-flex>
+    <div class="chipzinha" xs12 :style="style" v-if='teachersCount >= 0 && target.kind == "subject"' style="display: flex;">
+      <v-icon size="20" class="mr-1" color="inherit">mdi-account</v-icon> {{ teachersCount }} professores
+    </div>
   </v-layout>
 </template>
 
@@ -42,6 +45,10 @@ export default {
       type: Object
     },
 
+    classesCount: {
+      type: Number,
+    },
+
     teachersCount: {
       type: Number
     }
@@ -59,3 +66,13 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.chipzinha {
+  border: 1px solid;
+  border-color: var(--ufabcnext-blue);
+  padding: 4px 8px;
+  border-radius: 16px;
+  color: var(--ufabcnext-blue);
+}
+</style>
