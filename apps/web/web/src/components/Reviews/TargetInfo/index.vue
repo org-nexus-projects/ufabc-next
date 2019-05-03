@@ -1,5 +1,5 @@
 <template>
-  <v-layout class="target-info" wrap style="display: flex; flex-direction: column; align-items: start;" :class="$vuetify.breakpoint.xsOnly ? 'mb-0' : 'mb-3'">
+  <v-layout class="target-info" style="display: flex; align-items: start;" :class="$vuetify.breakpoint.xsOnly ? 'column wrap mb-0' : 'mb-3'">
     <div class="chipzinha" xs12 :style="style"  v-if='conceptsCount != null & conceptsCount >= 0'>
       <v-icon size="20" class="mr-1" color="inherit">mdi-format-annotation-plus</v-icon> {{ conceptsCount }} conceitos
     </div>

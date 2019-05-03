@@ -43,7 +43,7 @@
     <div v-if='loading || (concepts && concepts.specific && concepts.specific.length) || (comments.length)' 
       style="min-height: 200px">
 
-      <div class="row" style="flex-wrap: wrap;">
+      <div class="row" :style="{'flexWrap': $vuetify.breakpoint.xsOnly ? 'wrap' : ''}">
         <div class="target-name flex">{{ target.name }}</div>
         <TargetInfo
           class="no-flex"
