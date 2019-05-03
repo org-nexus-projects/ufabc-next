@@ -5,6 +5,7 @@ import Environment from '@/environment'
 // Pages
 import Reviews from '@/pages/Reviews'
 import Performance from '@/pages/Performance'
+import Planning from '@/pages/Planning'
 import SignupForm from '@/pages/Signup/SignupForm'
 import Confirmation from '@/pages/Signup/Confirmation'
 import jsonwebtoken from 'jsonwebtoken'
@@ -95,6 +96,16 @@ const router = new VueRouter({
       component: Performance,
       meta: {
         title: 'Performance',
+        auth: true
+      },
+    },
+
+    {
+      name: 'planejamento',
+      path: '/planning',
+      component: Planning,
+      meta: {
+        title: 'Planejamento',
         auth: true
       },
     },
