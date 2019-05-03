@@ -470,12 +470,12 @@ export default {
           filter = this.concepts.general
           delete this.query.subjectId
 
-          if(this.comments) this.getTeacherComments()
+          if(!this.comments || !this.comments.length) this.getTeacherComments()
         } else {
           filter = _.find(this.concepts.specific, { _id: { _id: this.filterSelected }})
           this.query.subjectId = this.filterSelected
 
-          if(this.comments) this.getTeacherComments()
+          this.getTeacherComments()
         }
 
         let conceitosFiltered = []
