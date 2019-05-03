@@ -4,8 +4,8 @@ import Vue from 'vue'
 class Comment {
   constructor(){}
 
-  async get(teacherId, subjectId = '') {
-    return await Axios.get('/comments/' + teacherId + '/' + subjectId)
+  async get(teacherId, subjectId = '', params) {
+    return await Axios.get('/comments/' + teacherId + '/' + subjectId, { params })
   }
 
   async create(body) {

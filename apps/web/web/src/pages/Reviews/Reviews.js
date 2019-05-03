@@ -53,6 +53,11 @@ export default {
       samplesCount: null,
 
       comments: [],
+      totalComments: null,
+      page: 0,
+      moreLoading: false,
+      limit: 10,
+      more: false,
 
       conceitos: [
         { conceito: 'A' },
@@ -185,10 +190,6 @@ export default {
 
     entries() {
       return ([]).concat(this.teachers).concat(this.subjects)
-    },
-
-    totalComments() {
-      return this.comments.total
     },
 
     options() {
@@ -401,25 +402,54 @@ export default {
       // })
     },
 
-    async getTeacherComments(){
+    async getTeacherComments(more){
       if(!this.query.teacherId) return
-      this.loading = true
+      if(more) {
+        this.loading = false
+        this.page = this.page + 1
+        this.moreLoading = true
+      } else {
+        this.loading = true
+        this.page = 0
+        this.more = true
+        this.moreLoading = true
+      }
+
+
+      let body = { 
+        page: this.page,
+        limit: this.limit
+      }
 
       try {
-        let res = await Comment.get(this.query.teacherId, this.query.subjectId || '')
+        let res = await Comment.get(this.query.teacherId, this.query.subjectId || '', body)
 
         this.loading = false
-        if(res.data && res.data.data && res.data.data.length){
+        this.moreLoading = false
+
+        if (more && this.comments) {
+          // Append data
+          this.comments = this.comments.concat(res.data.data)
+        } else {
+          // Replace data
           this.comments = res.data.data.map(c => {
             c.showMore = false
             return c
           })
-        } else {
-          this.comments = []
         }
+
+        // Check data is less than limit
+        if (res.data.data.length < this.limit) {
+          this.more = false
+        }
+
+        this.totalComments = res.data.total || 0
       } catch(err) {
         this.loading = false
-        this.comments = []
+        this.moreLoading = false
+
+        this.page = this.page - 1
+
         this.$message({
           type: 'error',
           message: ErrorMessage(err),
@@ -439,11 +469,13 @@ export default {
         if(this.filterSelected == 'all'){
           filter = this.concepts.general
           delete this.query.subjectId
-          this.getTeacherComments()
+
+          if(this.comments) this.getTeacherComments()
         } else {
           filter = _.find(this.concepts.specific, { _id: { _id: this.filterSelected }})
           this.query.subjectId = this.filterSelected
-          this.getTeacherComments()
+
+          if(this.comments) this.getTeacherComments()
         }
 
         let conceitosFiltered = []

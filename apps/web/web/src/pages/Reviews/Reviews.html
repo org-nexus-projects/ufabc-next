@@ -120,6 +120,9 @@
                 :key="comment._id" 
                 @input="updateComment($event)"
               />
+              <el-button @click="getTeacherComments(true)" v-if='more' :loading="moreLoading" style="width: 100%;">
+                Carregar mais <i class="el-icon-arrow-down el-icon-right"></i>
+              </el-button>
             </template>
 
             <v-layout wrap class="text-center mt-5" v-else-if='!loading'>

@@ -50,6 +50,7 @@
 }
 .enrollments-subtitle {
   align-items: center;
+  flex: none!important;
 }
 
 .load-more {

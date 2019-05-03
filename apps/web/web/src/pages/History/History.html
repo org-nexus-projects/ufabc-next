@@ -105,12 +105,14 @@
 
               <div class="teacher-in-history" style="justify-content: center;" v-else-if='!scope.row.teoria && !scope.row.pratica'>
                 <el-tooltip>
-                  <div class="text-center" slot="content">
+   <!--                <div class="text-center" slot="content">
                     Em breve você poderá fazer um comentário <br /> para esse professor
-                  </div>
-                  <v-icon size="20" color="ufabcnext-grey">mdi-clock-outline</v-icon>
+                  </div> -->
+                  <div>-</div>
                 </el-tooltip>
               </div>
+
+              <div class="teacher-in-history" style="justify-content: center;" v-else>-</div>
 <!--               <el-button @click="comment(scope.row._id)" type="text" class="teacher-in-history insert-teacher" v-else>
                 <v-icon size="18" class="mr-2" color="ufabcnext-grey">mdi-account-plus</v-icon> Vincular professor
               </el-button> -->
@@ -134,12 +136,14 @@
 
               <div class="teacher-in-history" style="justify-content: center;" v-else-if='!scope.row.teoria && !scope.row.pratica'>
                 <el-tooltip>
-                  <div class="text-center" slot="content">
+<!--                   <div class="text-center" slot="content">
                     Em breve você poderá fazer um comentário <br /> para esse professor
-                  </div>
-                  <v-icon size="20" color="ufabcnext-grey">mdi-clock-outline</v-icon>
+                  </div> -->
+                  <div>-</div>
                 </el-tooltip>
               </div>
+
+              <div class="teacher-in-history" style="justify-content: center;" v-else>-</div>
 <!--               <el-button @click="comment(scope.row._id)" type="text" class="teacher-in-history insert-teacher" v-else>
                 <v-icon size="18" class="mr-2" color="ufabcnext-grey">mdi-account-plus</v-icon> Vincular professor
               </el-button>    -->           

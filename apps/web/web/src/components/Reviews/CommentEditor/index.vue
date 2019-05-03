@@ -8,8 +8,8 @@
       :breaks="true"
       :anchorAttributes="{target: '_blank'}"/>
 
-    <v-layout v-if='enrollment'>
-      <v-flex sm6>
+    <v-layout wrap v-if='enrollment'>
+      <v-flex xs12 sm6>
         <small class="mt-3 ufabcnext-grey--text">Disciplina:</small>
         <div class="mt-1 mb-3">{{ enrollment.disciplina }}</div>
       </v-flex>
