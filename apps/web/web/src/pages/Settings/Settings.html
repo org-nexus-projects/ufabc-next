@@ -1,4 +1,4 @@
-<v-container style="display: flex; flex-direction: column;">  
+<v-container style="display: flex; flex-direction: column;" v-loading='loading'>  
   <div class="title-settings mb-3">Configurações da conta</div>
 
   <v-layout 
@@ -25,22 +25,22 @@
       <div class="createdAt-settings">
         Usuário desde {{ user.createdAt | moment('DD/MM/YYYY - HH:ss') }}
       </div>
-      <a href="" target="_blank" class="links-settings" v-if='user.oauth.facebook'>
+      <a href="" target="_blank" class="links-settings" v-if='user.oauth && user.oauth.facebook'>
         Conta do Facebook associada
         <v-icon color="ufabcnext-green">mdi-check</v-icon>
       </a>
 
-      <a href="" target="_blank" class="links-settings" v-if='user.oauth.google'>
+      <a href="" target="_blank" class="links-settings" v-if='user.oauth && user.oauth.google'>
         Conta do Google associada
         <v-icon color="ufabcnext-green">mdi-check</v-icon>
       </a>
     </v-flex>
     <v-flex>
       <v-layout row wrap :class="$vuetify.breakpoint.smAndDown ? 'justify-center' : 'justify-end'">
-        <v-btn class="settings-button" depressed color="#ececec" style="color: #676767">
+<!--         <v-btn class="settings-button" depressed color="#ececec" style="color: #676767">
           Editar Perfil
-        </v-btn>
-        <v-btn class="settings-button error--text" outline color="error"> 
+        </v-btn> -->
+        <v-btn class="settings-button error--text" outline color="error" @click="removeAccount()"> 
           Desativar Conta
         </v-btn>
       </v-layout>
@@ -50,15 +50,7 @@
   <v-layout column style="border: 2px solid #f1f1f1; padding: 2rem; border-radius: 3px; background: white"> 
     <h2 class="title-box-settings mb-3">Segurança e controle dos dados</h2>    
     <p class="text-box-settings">
-      Todos os seus dados que armazenamos (RA, histórico e avaliações) poderão ser excluídos a qualquer momento e você tem controle total sobre eles. Ao desativar sua conta, suas avaliações <b>não serão perdidas</b>.
-      <br /><br/>
-      Se deseja excluir todas suas avaliações ao desativar sua conta, entre contato diretamente conosco <a href="mailto:contato@ufabcnext.com" style="text-decoration: none">contato@ufabcnext.com</a>.
-
-      <v-checkbox
-        v-model="deleteMyReviews"
-        label="Ao desativar minha conta, excluir todos os meus dados"
-      ></v-checkbox>
-    </p>
+      Todos os seus dados que armazenamos (RA, histórico e avaliações) poderão ser excluídos a qualquer momento e você tem controle total sobre eles. Ao desativar sua conta, suas avaliações <b>não serão perdidas</b>.    </p>
 
   </v-layout>
 

@@ -1,12 +1,12 @@
 import Stats from '@/services/Stats'
+import Histories from '@/services/Histories'
 import ErrorMessage from '@/helpers/ErrorMessage'
 import PrettySeason from '@/helpers/PrettySeason'
 import findSeasonKey from '@/helpers/FindSeason'
-import courses from './courses'
 import _ from 'lodash'
 
 export default {
-  name: 'Enrollments',
+  name: 'Stats',
 
   data(){
     return {
@@ -39,6 +39,7 @@ export default {
 
       overview: null,
       usage: null,
+      courses: null,
     }
   },
 
@@ -60,6 +61,7 @@ export default {
         return
       }
       this.fetch()
+      this.fetchOverview()
     }
   },
 
@@ -67,19 +69,6 @@ export default {
     prettySeason() {
       return PrettySeason(this.season)
     },
-
-    allSeasons() {
-      let firstSeason = '2019:1'
-      let finalSeason = findSeasonKey()
-
-      return [{
-        text: PrettySeason(firstSeason), 
-        value: firstSeason, 
-      }, {
-        text: PrettySeason(finalSeason), 
-        value: finalSeason, 
-      }]
-    }
   },
 
   created() {
@@ -87,13 +76,41 @@ export default {
   },
 
   methods: {
+    allSeasons() {
+      let firstSeason = '2019:1'
+      let finalSeason = findSeasonKey()
+
+      let currentSeason = firstSeason
+      let seasons = [{
+        text: PrettySeason(currentSeason),
+        value: currentSeason
+      }]
+      while(currentSeason != finalSeason) {
+        let year = currentSeason.split(':')[0]
+        let quad = currentSeason.split(':')[1]
+        if(quad == 3) {
+          quad = 1
+          year++
+        } else {
+          quad++
+        }
+        currentSeason = year + ':' + quad
+        seasons.push({
+          text: PrettySeason(currentSeason),
+          value: currentSeason
+        })
+      }
+
+      return seasons
+    },
+
     async changeTargetSeason() {
       let dialog = this.$dialog({
         title: 'Alterar quadrimestre',
         width: '750px',
         top: '10vh',
         inputType: 'select', 
-        items: this.allSeasons,
+        items: this.allSeasons(),
         inputPlaceholder: 'Escolha o quadrimestre',
         validationRules: 'required',
       })
@@ -128,7 +145,7 @@ export default {
     },
 
     mapCourseName(courseId) {
-      let course = _.find(courses, { _id: courseId })
+      let course = _.find(this.courses, { curso_id: courseId })
       if(course){
         return course.name
       }
@@ -138,11 +155,31 @@ export default {
       this.fetch()
       this.fetchOverview()
       this.fetchUsage()
+      this.fetchCourses()
+    },
+
+    async fetchCourses() {
+      let body = {
+        season: this.season
+      }
+
+      try {
+        let res = await Histories.getCourses(body)
+
+        if(res.data) {
+          this.courses = res.data
+        }
+      } catch(err) {
+
+      }
     },
 
     async fetchOverview() {
       let body = {
         season: this.season
+      }
+      if(this.filterByPeriod && this.filterByPeriod.length == 1){
+        body.turno = this.filterByPeriod[0]
       }
 
       try {

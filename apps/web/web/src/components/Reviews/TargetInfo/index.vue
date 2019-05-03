@@ -5,24 +5,23 @@
     </v-flex>
     <v-flex xs12 :style="style"  v-if='commentsCount >= 0 && target.kind == "teacher"' style="display: flex;">
       <v-icon size="20" class="mr-1" color="grey">mdi-message-draw</v-icon> {{ commentsCount }} {{ commentsCount == '1' ? 'comentário' : 'comentários' }}
-    </v-flex>
+    </v-flex><!-- 
     <v-flex xs12 :style="style" v-if='target.kind == "teacher"' style="display: flex;">
       <v-icon size="20" class="mr-1" color="grey">mdi-gmail</v-icon> 
       <a href="mailto:professor@ufabc.edu.br" style="text-decoration: none;">
         professor@email.edu.br
       </a>
-    </v-flex>
+    </v-flex> --><!-- 
     <v-flex xs12 :style="style"  style="display: flex;" v-if='target.kind == "teacher"'>
       <v-icon size="20" class="mr-1" color="grey">mdi-home</v-icon> Sala 9999 (Bloco B)
-    </v-flex>
-    <v-flex xs12 :style="style"  style="display: flex;" v-if='target.kind == "teacher"'>
+    </v-flex> -->
+<!--     <v-flex xs12 :style="style"  style="display: flex;" v-if='target.kind == "teacher"'>
       <v-icon size="20" class="mr-1" color="grey">mdi-phone</v-icon> (11) 4444-4444
-    </v-flex>
+    </v-flex> -->
     <!-- Subject -->
     <v-flex xs12 :style="style" v-if='teachersCount >= 0 && target.kind == "subject"' style="display: flex;">
       <v-icon size="20" class="mr-1" color="grey">mdi-account</v-icon> {{ teachersCount }} professores
     </v-flex>
-    {{ conceptsCount }}
   </v-layout>
 </template>
 

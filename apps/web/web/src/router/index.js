@@ -5,12 +5,13 @@ import Environment from '@/environment'
 // Pages
 import Reviews from '@/pages/Reviews'
 import Performance from '@/pages/Performance'
+import Planning from '@/pages/Planning'
 import SignupForm from '@/pages/Signup/SignupForm'
 import Confirmation from '@/pages/Signup/Confirmation'
 import jsonwebtoken from 'jsonwebtoken'
 import History from '@/pages/History'
 import Settings from '@/pages/Settings'
-import Enrollments from '@/pages/Enrollments'
+import Stats from '@/pages/Stats'
 import Admin from '@/pages/Admin'
 
 import Auth from '@/services/Auth'
@@ -100,6 +101,16 @@ const router = new VueRouter({
     },
 
     {
+      name: 'planejamento',
+      path: '/planning',
+      component: Planning,
+      meta: {
+        title: 'Planejamento',
+        auth: true
+      },
+    },
+
+    {
       name: 'confirm',
       path: '/confirm',
       component: Confirmation,
@@ -119,9 +130,9 @@ const router = new VueRouter({
     },
 
     {
-      name: 'enrollments',
-      path: '/enrollments',
-      component: Enrollments,
+      name: 'stats',
+      path: '/stats',
+      component: Stats,
       meta: {
         title: 'Dados da Matrícula',
         auth: true

@@ -76,6 +76,9 @@
       maxHeight: {
         type: String
       },
+      maxWidth: {
+        type: String
+      },
       margin: {
         type: String
       },
@@ -131,6 +134,9 @@
         }
         if(this.height) {
           style.height = this.height
+        }
+        if(this.maxWidth){
+          style.maxWidth = this.maxWidth
         }
         if(this.maxHeight){
           style.maxHeight = this.maxHeight

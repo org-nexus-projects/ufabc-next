@@ -53,6 +53,11 @@ export default {
       samplesCount: null,
 
       comments: [],
+      totalComments: null,
+      page: 0,
+      moreLoading: false,
+      limit: 10,
+      more: false,
 
       conceitos: [
         { conceito: 'A' },
@@ -73,6 +78,7 @@ export default {
   },
 
   created() {
+    this.fetchStudent()
     // Init with custom route params
     for (let k in this.$route.query) {
       if (k in this.query) {
@@ -186,10 +192,6 @@ export default {
       return ([]).concat(this.teachers).concat(this.subjects)
     },
 
-    totalComments() {
-      return this.comments.total
-    },
-
     options() {
       let maxWidth = 420
       let maxHeight = 280
@@ -254,7 +256,7 @@ export default {
     },
 
     crCropped(cr){
-      return cr.toFixed(2)
+      return cr && cr.toFixed(2)
     },
     
     findConcept(concept) {
@@ -393,30 +395,61 @@ export default {
     }, 
 
     fetchStudent() {
-      this.student_cr = 4.2222
+      // this.student_cr = 4.2222
       // Utils.storage.getItem(storageUser).then(item => {
       //   if (item == null) return
       //   self.student_cr = _.get(item, '[1].cr', 0) || _.get(item, '[0].cr', 0)
       // })
     },
 
-    async getTeacherComments(){
+    async getTeacherComments(more){
       if(!this.query.teacherId) return
-      this.loading = true
+      if(more) {
+        this.loading = false
+        this.page = this.page + 1
+        this.moreLoading = true
+      } else {
+        this.loading = true
+        this.page = 0
+        this.more = true
+        this.moreLoading = true
+      }
+
+
+      let body = { 
+        page: this.page,
+        limit: this.limit
+      }
 
       try {
-        let res = await Comment.get(this.query.teacherId)
+        let res = await Comment.get(this.query.teacherId, this.query.subjectId || '', body)
 
         this.loading = false
-        if(res.data && res.data.data && res.data.data.length){
+        this.moreLoading = false
+
+        if (more && this.comments) {
+          // Append data
+          this.comments = this.comments.concat(res.data.data)
+        } else {
+          // Replace data
           this.comments = res.data.data.map(c => {
             c.showMore = false
             return c
           })
         }
+
+        // Check data is less than limit
+        if (res.data.data.length < this.limit) {
+          this.more = false
+        }
+
+        this.totalComments = res.data.total || 0
       } catch(err) {
         this.loading = false
-        this.comments = []
+        this.moreLoading = false
+
+        this.page = this.page - 1
+
         this.$message({
           type: 'error',
           message: ErrorMessage(err),
@@ -435,8 +468,14 @@ export default {
         let filter
         if(this.filterSelected == 'all'){
           filter = this.concepts.general
+          delete this.query.subjectId
+
+          if(this.comments) this.getTeacherComments()
         } else {
           filter = _.find(this.concepts.specific, { _id: { _id: this.filterSelected }})
+          this.query.subjectId = this.filterSelected
+
+          if(this.comments) this.getTeacherComments()
         }
 
         let conceitosFiltered = []

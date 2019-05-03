@@ -1,33 +1,41 @@
 <v-container style="display: flex; flex-direction: column; min-height: 100%;">  
-  <v-layout row wrap class="white elevation-1 mr-0" :class="$vuetify.breakpoint.xsOnly ? 'px-3' : 'px-5'">
-    <div :class="$vuetify.breakpoint.xsOnly ? 'mt-5' : 'mt-4'">
+  <v-layout row wrap class="white elevation-1 mr-0" :class="$vuetify.breakpoint.xsOnly ? 'px-3' : 'px-5'" style="flex: none">
+    <div :class="$vuetify.breakpoint.xsOnly ? 'mt-5' : 'mt-4'" v-if='historySeasons && historySeasons.length'>
       <h2 class="history-title ufabcnext-primary--text">Ficha individual do aluno</h2>
+        <div class="history-text mt-3 mb-4">
+          Esta ficha individual é uma réplica do que você pode encontrar no site do <a href="https://aluno.ufabc.edu.br/fichas_individuais" target="_blank" style="text-decoration: none;">Portal do Aluno.</a> <br />
+          <br />
+          Caso o seu histórico esteja desatualizado, basta acessar o portal novamente utilizando a <a href="https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk" style="text-decoration: none;" target="_blank">extensão do UFABC Next</a></i> e as informações serão atualizadas. <br />
+          <br />
+          Se o nome de algum professor estiver errado, você pode corrigir clicando no botão "Fazer comentário" ao lado do nome do professor.
+      </div>
+    </div>
+    <div class="history-chips" v-if='history'>
+      <div class="history-chip mr-3 mb-3" v-if='user && user.ra && historySeasons && historySeasons.length'>
+        <div class="ra-icon ufabcnext-charcoal-grey--text">RA</div>
+        {{ user.ra }}
+      </div>
+<!--       <div class="history-chip mr-3 mb-3">
+        <v-icon class="mr-2" size="20" color="ufabcnext-charcoal-grey">mdi-school</v-icon>
+        Bacharelado em Ciências da Computação
+      </div> -->
 
-      <div class="history-text mt-3 mb-4">Esta ficha individual é uma réplica do que você pode encontrar no site do <a href="https://aluno.ufabc.edu.br/fichas_individuais" target="_blank" style="text-decoration: none;">Portal do Aluno.</a> <br />
-        <br />
-        Caso o seu histórico esteja desatualizado, basta acessar o portal novamente utilizando a <a href="https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk" style="text-decoration: none;" target="_blank">extensão do UFABC Next</a></i> e as informações serão atualizadas. <br />
-        <br />
-        Se o nome de algum professor estiver errado, você pode corrigir clicando no botão "Fazer comentário" ao lado do nome do professor.
+      <div class="history-chip mr-3 mb-3" v-if='subjectsCount != 0'>
+        <v-icon class="mr-2" size="20" color="ufabcnext-charcoal-grey">mdi-book-multiple</v-icon>
+        {{ subjectsCount + (subjectsCount == 1 ?  ' Disciplina cursada' : ' Disciplinas cursadas') }}
       </div>
 
-      <div class="history-chips" v-if='history'>
-        <div class="history-chip mr-3 mb-3">
-          <div class="ra-icon ufabcnext-charcoal-grey--text">RA</div>
-          {{ history.ra }}
-        </div>
-        <div class="history-chip mr-3 mb-3">
-          <v-icon class="mr-2" size="20" color="ufabcnext-charcoal-grey">mdi-school</v-icon>
-          Bacharelado em Ciências da Computação
-        </div>
-
-        <div class="history-chip mr-3 mb-3">
-          <v-icon class="mr-2" size="20" color="ufabcnext-charcoal-grey">mdi-book-multiple</v-icon>
-          {{ subjectsCount + (subjectsCount == 1 ?  ' Disciplina cursada' : ' Disciplinas cursadas') }}
-        </div>
+      <div class="history-chip mr-3 mb-3" v-if='lastUpdate'>
+        <el-tooltip content="Atualizar o histórico">
+          <v-icon class="mr-2" size="20" color="ufabcnext-charcoal-grey" @click="updateHistory()" style="cursor: pointer;">
+            mdi-refresh
+          </v-icon>
+        </el-tooltip>
+        {{ lastUpdate | moment('DD/MM/YYYY - HH:ss') }}
       </div>
     </div>
 
-    <div class="history-complete mb-5" v-loading='loading'>
+    <div class="history-complete mb-5" v-loading='loading' v-if='(historySeasons && historySeasons.length) || loading'>
       <el-table class="history-header" style="width: 100%;">
         <el-table-column
           label="Disciplina"
@@ -82,35 +90,63 @@
 
           <el-table-column width="200">
             <template slot-scope="scope">
-              <div class="teacher-in-history" v-if='scope.row.disciplina != "Bases Epistemológicas da Ciência Moderna"'>
+              <div @click="comment(scope.row._id, scope.row.teoria, 'teoria')" class="teacher-in-history" v-if='scope.row.teoria && scope.row.teoria._id'>
                 <el-tooltip content="Fazer comentário">
-                  <v-btn @click="comment()" icon class="review-button">
-                    <v-icon size="18" color="ufabcnext-grey">mdi-message-draw</v-icon>
+                  <v-btn icon class="review-button">
+                    <v-icon size="18" :color="'ufabcnext-' + (includes(scope.row.comments, 'teoria') ? 'green' : 'grey')">
+                      mdi-message-draw
+                    </v-icon>
                   </v-btn>
                 </el-tooltip>
-                <span>
-                  Juliana Kelmy Macario De Faria Daguano
+                <span class="text-left">
+                  {{ scope.row.teoria.name }}
                 </span>
               </div>
 
-              <el-button type="text" class="teacher-in-history insert-teacher" v-else>
-                <v-icon size="18" class="mr-2" color="ufabcnext-grey">mdi-account-plus</v-icon> Vincular
-              </el-button>
+              <div class="teacher-in-history" style="justify-content: center;" v-else-if='!scope.row.teoria && !scope.row.pratica'>
+                <el-tooltip>
+   <!--                <div class="text-center" slot="content">
+                    Em breve você poderá fazer um comentário <br /> para esse professor
+                  </div> -->
+                  <div>-</div>
+                </el-tooltip>
+              </div>
+
+              <div class="teacher-in-history" style="justify-content: center;" v-else>-</div>
+<!--               <el-button @click="comment(scope.row._id)" type="text" class="teacher-in-history insert-teacher" v-else>
+                <v-icon size="18" class="mr-2" color="ufabcnext-grey">mdi-account-plus</v-icon> Vincular professor
+              </el-button> -->
             </template>
           </el-table-column>
 
           <el-table-column width="200">
             <template slot-scope="scope">
-              <div class="teacher-in-history">
+              <div class="teacher-in-history" v-if='scope.row.pratica && scope.row.pratica._id && !hasSameTeacher(scope.row)' @click="comment(scope.row._id, scope.row.pratica, 'pratica')">
                 <el-tooltip content="Fazer comentário">
-                  <v-btn @click="comment()" icon class="review-button">
-                    <v-icon size="18" color="ufabcnext-green">mdi-message-draw</v-icon>
+                  <v-btn icon class="review-button">
+                    <v-icon size="18" :color="'ufabcnext-' + (includes(scope.row.comments, 'pratica') ? 'green' : 'grey')">
+                      mdi-message-draw
+                    </v-icon>
                   </v-btn>
                 </el-tooltip>
-                <span>
-                  Juliana Kelmy Macario De Faria Daguano
+                <span class="text-left">
+                  {{ scope.row.pratica.name }}
                 </span>
               </div>
+
+              <div class="teacher-in-history" style="justify-content: center;" v-else-if='!scope.row.teoria && !scope.row.pratica'>
+                <el-tooltip>
+<!--                   <div class="text-center" slot="content">
+                    Em breve você poderá fazer um comentário <br /> para esse professor
+                  </div> -->
+                  <div>-</div>
+                </el-tooltip>
+              </div>
+
+              <div class="teacher-in-history" style="justify-content: center;" v-else>-</div>
+<!--               <el-button @click="comment(scope.row._id)" type="text" class="teacher-in-history insert-teacher" v-else>
+                <v-icon size="18" class="mr-2" color="ufabcnext-grey">mdi-account-plus</v-icon> Vincular professor
+              </el-button>    -->           
             </template>
           </el-table-column>
 
@@ -137,6 +173,12 @@
         </el-table>
       </div>
     </div>
+
+    <center class="mt-5" v-else>
+      <h2>Parece que não encontramos os dados do seu histórico :( <br />
+       É necessário instalar a <a href="https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk" style="text-decoration: none;" target="_blank">extensão</a> e acessar a tela de Fichas Individuais no <a href="https://aluno.ufabc.edu.br/fichas_individuais" target="_blank" style="text-decoration: none;">Portal do Aluno.</a></h2>
+      <img src="@/assets/missing_history.svg" width="100%" />
+    </center>
 
   </v-layout>
 </v-container>
