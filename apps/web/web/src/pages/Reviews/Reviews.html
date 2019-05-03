@@ -49,7 +49,7 @@
           class="no-flex"
           :conceptsCount="samplesCount"
           :commentsCount="totalComments"
-          :classesCount="possibleDisciplinas && possibleDisciplinas.length"
+          :classesCount="(possibleDisciplinas && possibleDisciplinas.length - 1)"
           :target="target"
           :teachersCount="teachersOfSubject && teachersOfSubject.length"
           v-if='!loading && samplesCount >= 0'
