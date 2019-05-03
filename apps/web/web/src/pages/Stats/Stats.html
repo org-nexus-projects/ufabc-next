@@ -82,19 +82,19 @@
       </el-tab-pane>
     </el-tabs>
 
-    <v-layout class="enrollments-subtitle stats-subtitle mb-2" v-if='total >= 0 && !loading'>
-      <v-flex xs12>
+    <v-layout class="enrollments-subtitle stats-subtitle mb-2" v-if='total >= 0 && !loading' wrap align-center>
+      <v-flex>
         {{ total }} resultados encontrados
       </v-flex> 
 
-      <el-checkbox-group v-model="filterByPeriod" style="min-width: 200px">
+      <el-checkbox-group v-model="filterByPeriod" style="min-width: 200px" v-if='!$vuetify.breakpoint.xsOnly'>
         <el-checkbox label="diurno">Matutino</el-checkbox>
         <el-checkbox label="noturno">Noturno</el-checkbox>
       </el-checkbox-group>
-      <div class="ml-5" style="min-width: 120px">
+      <div class="ml-5" style="min-width: 120px" v-if='!$vuetify.breakpoint.xsOnly'>
         Ordenar por turno
       </div>
-      <el-select v-model="orderby" placeholder="Ordenar por" style="min-width: 200px;">
+      <el-select v-model="orderby" placeholder="Ordenar por" :style="{ 'minWidth': $vuetify.breakpoint.xsOnly ? '100%' : '200px' }">
         <el-option
           v-for="order in orders"
           :key="order.value"

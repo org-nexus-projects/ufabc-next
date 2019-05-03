@@ -61,6 +61,7 @@ export default {
         return
       }
       this.fetch()
+      this.fetchOverview()
     }
   },
 
@@ -68,19 +69,6 @@ export default {
     prettySeason() {
       return PrettySeason(this.season)
     },
-
-    allSeasons() {
-      let firstSeason = '2019:1'
-      let finalSeason = findSeasonKey()
-
-      return [{
-        text: PrettySeason(firstSeason), 
-        value: firstSeason, 
-      }, {
-        text: PrettySeason(finalSeason), 
-        value: finalSeason, 
-      }]
-    }
   },
 
   created() {
@@ -88,13 +76,41 @@ export default {
   },
 
   methods: {
+    allSeasons() {
+      let firstSeason = '2019:1'
+      let finalSeason = findSeasonKey()
+
+      let currentSeason = firstSeason
+      let seasons = [{
+        text: PrettySeason(currentSeason),
+        value: currentSeason
+      }]
+      while(currentSeason != finalSeason) {
+        let year = currentSeason.split(':')[0]
+        let quad = currentSeason.split(':')[1]
+        if(quad == 3) {
+          quad = 1
+          year++
+        } else {
+          quad++
+        }
+        currentSeason = year + ':' + quad
+        seasons.push({
+          text: PrettySeason(currentSeason),
+          value: currentSeason
+        })
+      }
+
+      return seasons
+    },
+
     async changeTargetSeason() {
       let dialog = this.$dialog({
         title: 'Alterar quadrimestre',
         width: '750px',
         top: '10vh',
         inputType: 'select', 
-        items: this.allSeasons,
+        items: this.allSeasons(),
         inputPlaceholder: 'Escolha o quadrimestre',
         validationRules: 'required',
       })
@@ -129,7 +145,7 @@ export default {
     },
 
     mapCourseName(courseId) {
-      let course = _.find(this.courses, { _id: courseId })
+      let course = _.find(this.courses, { curso_id: courseId })
       if(course){
         return course.name
       }
@@ -161,6 +177,9 @@ export default {
     async fetchOverview() {
       let body = {
         season: this.season
+      }
+      if(this.filterByPeriod && this.filterByPeriod.length == 1){
+        body.turno = this.filterByPeriod[0]
       }
 
       try {
