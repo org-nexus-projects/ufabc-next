@@ -1,5 +1,5 @@
 <template>
-  <div class="row" style="flex-wrap: wrap;">
+  <div class="row" :style="{ 'flex-wrap': $vuetify.breakpoint.xsOnly ? 'wrap' : '' }">
     <div class="column" :class="$vuetify.breakpoint.xsOnly ? 'mr-2' : 'mr-3'">
       <div
         class="concept-author column" 
@@ -63,7 +63,7 @@
           </span>
         </v-tooltip>
       </div>
-      <div class="since-time" v-if='!$vuetify.breakpoint.xsOnly'>{{prettyDate}}</div>
+      <div class="since-time" v-if='!$vuetify.breakpoint.xsOnly && !recommendationCheckMode'>{{prettyDate}}</div>
     </div>
   </div>
 </template>
