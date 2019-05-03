@@ -42,7 +42,7 @@
         border 
         size="small"
       ></el-checkbox>
-      <div style="display:flex; align-items: center; flex: none; min-height: 28px;" v-else>
+      <div style="display:flex; align-items: center; flex: none; min-height: 28px;" :style="{ 'justify-content': $vuetify.breakpoint.xsOnly ? 'flex-start' : 'flex-end'}" v-else>
         <div class="mr-1 comment-like-area" @click="!loadingLike ? giveReaction('like') : null" v-loading="loadingLike">
           <v-icon :color="(comment.myReactions && comment.myReactions.like) ? 'ufabcnext-liked' : 'ufabcnext-like'" size="16" v-ripple>
             mdi-thumb-up
