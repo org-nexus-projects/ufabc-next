@@ -1,6 +1,6 @@
 
 <div class="column flex mx-4 mt-3 mb-4 ra-1" >
-  <v-layout class="card-group-stats mb-4" row style="min-height: 145px; flex: none" :class="{ 'wrap': !$vuetify.breakpoint.lgOnly }">
+  <v-layout v-if="crHistoryOptions.rows.length" class="card-group-stats mb-4" row style="min-height: 145px; flex: none" :class="{ 'wrap': !$vuetify.breakpoint.lgOnly }">
     <v-flex xs12 sm3 md3 lg3 class="card-stats" >
       <v-icon class="mb-1" color="ufabcnext-green" style="display: block;">mdi-chart-line-variant</v-icon>
       <div class="stats-counter">
@@ -68,14 +68,23 @@
     </v-flex>
   </v-layout>
   
-  <div v-loading="crHistoryLoading" class="flex mb-4 column ra-1 elevate-2 pa-3 white">
+  <div v-if="crHistoryOptions.rows.length" v-loading="crHistoryLoading" class="flex mb-4 column ra-1 elevate-2 pa-3 white">
     <span class="chart-title">Seu CR ao longo do tempo</span>
     <ve-line v-if="crHistoryOptions && crHistoryOptions.rows.length" :data="crHistoryOptions" :settings="crHistorySettings" :xAxis="crHistoryxAxis" :yAxis="crHistoryyAxis"></ve-line>
   </div>
 
-  <div v-loading="crDistributionLoading" class="flex column ra-1 elevate-2 pa-3 white">
+  <div v-if="crHistoryOptions.rows.length" v-loading="crDistributionLoading" class="flex column ra-1 elevate-2 pa-3 white">
     <span class="chart-title">Distribuição de CR</span>
     <span class="f-12 ufabcnext-darkgrey--text">Os dados são baseados apenas nos alunos que utilizam a extensão</span>
+    <div class="row align-center justify-middle mb-3">
+      <div class="f-14 py-2 px-4" style="background-color: #8E2DE2; color: white; border-radius: 30px;">Seu CR é maior do que o de {{worstCrsPercentage}}% dos alunos</div>
+    </div>
     <ve-line :data="crDistributionOptions" :mark-point="markPoint" :xAxis="crDistributionxAxis" :yAxis="crDistributionyAxis" :settings="crDistributionSettings"></ve-line>
   </div>
+
+  <center v-if="!crHistoryOptions.rows.length" class="mt-5">
+    <h2>Parece que não encontramos os dados do seu histórico :( <br />
+      É necessário instalar a <a href="https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk" style="text-decoration: none;" target="_blank">extensão</a> e acessar a tela de Fichas Individuais no <a href="https://aluno.ufabc.edu.br/fichas_individuais" target="_blank" style="text-decoration: none;">Portal do Aluno.</a></h2>
+    <img src="@/assets/missing_history.svg" width="100%" />
+  </center>
 </div>

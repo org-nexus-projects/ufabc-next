@@ -157,6 +157,24 @@ export default {
   },
 
   computed: {
+    crSampleCount() {
+      if(!this.getCurrentCr || !this.crDistributionOptions.rows.length) return
+
+      return _.sumBy(this.crDistributionOptions.rows, 'total')
+    },
+
+    worstCrsCount() {
+      if(!this.getCurrentCr || !this.crDistributionOptions.rows.length) return
+
+      let filteredCrs = _.filter(this.crDistributionOptions.rows, (interval) => { return interval._id <= this.targetCrStudent._id })
+
+      return _.sumBy(filteredCrs, 'total')
+    },
+
+    worstCrsPercentage() { 
+      return ((this.worstCrsCount/this.crSampleCount) * 100).toFixed(2)
+    },
+
     getUserMaxCr() {
       let maxCr = _.get(_.maxBy(this.crHistoryOptions.rows, 'cr_acumulado'),'cr_acumulado', 0) 
       return maxCr.toFixed(2)
