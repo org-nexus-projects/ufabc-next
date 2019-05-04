@@ -17,7 +17,7 @@ class User {
   }
 
   async delete() {
-    return await Axios.delete('/users/me/')
+    return await Axios.delete('/users/me/delete')
   }
 
   async info() {

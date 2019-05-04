@@ -53,7 +53,7 @@ export default {
 
         this.loading = false
         if(res.data){
-          Auth.logout()
+          Auth.logOut()
         } 
       } catch(err) {
         this.loading = false
