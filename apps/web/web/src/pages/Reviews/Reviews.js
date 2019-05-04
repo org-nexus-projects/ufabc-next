@@ -137,7 +137,7 @@ export default {
     },
 
     possibleDisciplinas(){ 
-      let disciplinas = [...this.concepts.specific]
+      let disciplinas = [...this.concepts.specific.filter(c => c._id)]
       let generalDefaults = {
         _id: {
           _id: 'all',
