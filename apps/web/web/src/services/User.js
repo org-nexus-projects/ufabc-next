@@ -9,7 +9,8 @@ class User {
   }
 
   async confirmSignup(params = {}) {
-    return await Axios.post('/users/me/confirm', params)
+    // return await Axios.post('/users/me/confirm', params)
+    return await Axios.post('/account/confirm', params)
   }
 
   async resendEmail() {
