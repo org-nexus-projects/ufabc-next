@@ -24,6 +24,15 @@
 }
 
 @media (max-width: 600px) {
+  .highcharts-credits {
+    display: none;
+  }
+  .highcharts-creditos {
+    font-size: 10px;
+    color: #ccc;
+    text-decoration: none;
+    text-align: right;
+  }
   .target-name {
     font-size: 20px;
     margin-bottom: 8px;

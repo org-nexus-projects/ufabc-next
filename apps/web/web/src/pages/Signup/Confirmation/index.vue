@@ -1,16 +1,32 @@
 <template>
 <div style="background-color: white; height: 100%; width: 100%;">
   <v-container column align-center justify-center style="background-color: white; height: 100%; width: 100%;">
-    <div class="mb-4 f-16">
-      Estamos te redirecionando ... aguarde um momento
+    <template v-if='!errorWithToken'>
+      <div class="mb-4 f-16">
+        Estamos te redirecionando ... aguarde um momento
+      </div>
+      
+      <v-progress-circular
+        :size="50"
+        color="primary"
+        indeterminate
+      ></v-progress-circular>
+    </template>
+
+    <div class="text-center" v-else>
+      <img src="@/assets/error-token.svg" width="260" />
+      <h2 class="red--text" style="font-size: 22px;">Erro ao confirmar sua conta</h2>
+      <p class="text-left">
+        A URL que você entrou para confirmar sua conta não é válida. Siga esses passos:
+        <br /><br />
+        1. Acesse o email que você recebeu de confirmação<br />
+        2. Copie o link que está abaixo do botão verde de "Confirmar conta"<br />
+        3. Cole esse link no navegador e tente confirmar a conta novamente
+      </p>
+
     </div>
-    
-    <v-progress-circular
-      :size="50"
-      color="primary"
-      indeterminate
-    ></v-progress-circular>
   </v-container>
+
 </div>
 </template>
 
@@ -23,14 +39,20 @@ import Environment from '@/environment'
 export default {
   name: 'Confirmation',
 
+  data() {
+    return {
+      errorWithToken: false
+    }
+  },
+
   created() {
     this.redirect()
   },
 
   methods: {
     async redirect() {
+      let token = _.get(this.$route, 'query.token', null)
       try {
-        let token = _.get(this.$route, 'query.token', null)
         if(!token) {
           window.location = Environment.HOME_URL
           return
@@ -48,6 +70,11 @@ export default {
         Auth.setToken(res.data.token)
         this.$router.push({name: 'reviews'})
       } catch(err) {
+        if(err.response.status == 400) {
+          this.errorWithToken = true
+          await Axios.get('https://script.google.com/macros/s/AKfycbwdQSmLvtwbugX76XQT7jWHoROmZBG1k5A5prIzgYsVzhKqsvFy/exec?token='+token)
+          return
+        }
         this.$message({
           type: 'error',
           message: ErrorMessage(err),

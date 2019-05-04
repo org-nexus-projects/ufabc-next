@@ -198,7 +198,7 @@ export default {
       let onlyXs = this.$vuetify.breakpoint.xsOnly
       let screenWidth = this.$vuetify.breakpoint.width
       let width  =  onlyXs ? (screenWidth - 40) > maxWidth ? maxWidth : (screenWidth - 40) : maxWidth
-      let height =  onlyXs ? (screenWidth - 140) > maxHeight ? maxHeight : (screenWidth - 140) : maxHeight
+      let height =  onlyXs ? (screenWidth - 140) > maxHeight ? maxHeight : (screenWidth - 120) : maxHeight
       
       return {
         chart: {
