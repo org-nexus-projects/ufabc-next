@@ -19,7 +19,7 @@ export default [
   },
 
   {
-    title: 'Meus histórico',
+    title: 'Meu histórico',
     icon: 'mdi-history',
     route: '/history',
   },

@@ -67,7 +67,7 @@
             :class="{ 'chart-large': $vuetify.breakpoint.xsOnly }"
             style="display: flex; align-items: center; justify-content: center;"
           ></vue-highcharts>
-
+          <a class="highcharts-creditos" href="https://highcharts.com" v-if='$vuetify.breakpoint.xsOnly'>Highcharts.com</a>
           <div class="mt-2" style="text-align: center;" v-if='target && target.kind == "teacher" && cobraPresenca'>
             <b>* {{ cobraPresenca }}</b>
           </div>
