@@ -105,14 +105,16 @@ export default {
       }
     },
 
-    async comment(enrollmentId, teacher = null, teacherType) {
+    async comment(enrollmentId, teacher = null, teacherType, comment) {
       let dialog = this.$dialog({
         width: this.$vuetify.breakpoint.xsOnly ? '90%' : '750px',
         top: '10vh',
         margin: this.$vuetify.breakpoint.xsOnly ? '5%' : '',
+        maxHeight: '100vh',
         enrollmentId: enrollmentId,
         teacher: teacher,
         teacherType: teacherType,
+        closeOnClickModal: false,
       }, CommentEditor)
 
       try {
@@ -144,10 +146,13 @@ export default {
         this.fetch()
       } catch(err) {
         this.loading = false
+
         this.$message({
           type: 'error',
           message: ErrorMessage(err),
         }) 
+
+
       }
     },
 

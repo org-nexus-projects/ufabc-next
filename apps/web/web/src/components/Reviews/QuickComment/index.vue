@@ -74,6 +74,7 @@ export default {
     return {
       enrollments: null,
       loading: false,
+      hasAnyToReview: false,
       conceptsColor: {
         'A': 'rgb(63, 207, 140)',
         'B': 'rgb(184, 233, 134)',
@@ -86,6 +87,14 @@ export default {
         'I': 'rgb(25, 118, 210)',
         'E': 'rgb(25, 118, 210)',
         'null': 'rgb(0, 0, 0)',
+      }
+    }
+  },
+
+  watch: {
+    enrollments(newVal) {
+      if(newVal && newVal.length == 0 && this.hasAnyToReview){
+        this.fetch()
       }
     }
   },
@@ -121,15 +130,29 @@ export default {
             return h
           })
           let seasons = _.groupBy(history, 'quad')
-          let seasonsKeys = _.keys(seasons)
+          let seasonsKeys = _(seasons).keys().value().sort().reverse()
           if(!seasonsKeys.length) return
 
           // Get last season filtering by reviewed
-          this.enrollments = seasons[seasonsKeys[seasonsKeys.length - 1]].filter(e => {
-            return !(_.includes(e.comments, 'teoria') || _.includes(e.comments, 'pratica')) 
-                    && (e.teoria || e.pratica)
-          })
+          this.hasAnyToReview = false
+          for(let season of seasonsKeys) {
+            let subjectsToReview = seasons[season].filter(e => {
+              if(this.sameBothProfessor(e) && !_.includes(e.comments, 'teoria')) {
+                return true
+              } else if((e.teoria && e.teoria._id && !_.includes(e.comments, 'teoria')) && !this.sameBothProfessor(e)){
+                return true
+              } else if(e.pratica && e.pratica._id && !_.includes(e.comments, 'pratica') && !this.sameBothProfessor(e)){
+                return true
+              }              
+            }) 
 
+            if(subjectsToReview.length) {
+              this.hasAnyToReview = true
+              this.enrollments = [...subjectsToReview]
+              break;
+            }
+          }
+          if(!this.hasAnyToReview) this.enrollments = []
         }
       } catch(err) {
         this.loading = false
@@ -149,9 +172,11 @@ export default {
         width: this.$vuetify.breakpoint.xsOnly ? '90%' : '750px',
         top: '10vh',
         margin: this.$vuetify.breakpoint.xsOnly ? '5%' : '',
+        maxHeight: '100vh',
         enrollmentId: enrollmentId,
         teacher: teacher,
         teacherType: teacherType,
+        closeOnClickModal: false,
       }, CommentEditor)
 
       try {
@@ -183,6 +208,7 @@ export default {
         this.fetch()
       } catch(err) {
         this.loading = false
+
         this.$message({
           type: 'error',
           message: ErrorMessage(err),

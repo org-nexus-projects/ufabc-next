@@ -12,7 +12,7 @@
     <div class="column flex">
       <div class="row wrap mb-0">
         <div class="ufabcnext-blue--text mr-2 flex ellipsis">
-          <router-link :to="{ name: 'reviews', query: { subjectId: comment.subject._id }}" style="text-decoration: none">
+          <router-link :to="{ path: '/', query: { subjectId: comment.subject._id }}" style="text-decoration: none">
             {{ comment.subject.name || '(disciplina desconhecida)' }}
           </router-link>
         </div>
@@ -33,8 +33,8 @@
     </div>
     <div class="ml-3" :style="{ 'width': $vuetify.breakpoint.xsOnly ? '100%' : '', 'margin': $vuetify.breakpoint.xsOnly ? '0px!important': '' }">
       <el-checkbox 
-        v-loading="loadingRecommendation"
-        @change="!loadingRecommendation ? giveReaction('recommendation') : null"
+        v-loading="loading.recommendation"
+        @change="!loading.recommendation ? giveReaction('recommendation') : null"
         v-model='recommended' 
         v-if='recommendationCheckMode' 
         class="recommendation-checkbox" 
@@ -43,7 +43,7 @@
         size="small"
       ></el-checkbox>
       <div style="display:flex; align-items: center; flex: none; min-height: 28px;" :style="{ 'justify-content': $vuetify.breakpoint.xsOnly ? 'flex-start' : 'flex-end'}" v-else>
-        <div class="mr-1 comment-like-area" @click="!loadingLike ? giveReaction('like') : null" v-loading="loadingLike">
+        <div class="mr-1 comment-like-area" @click="!loading.like ? giveReaction('like') : null" v-loading="loading.like">
           <v-icon :color="(comment.myReactions && comment.myReactions.like) ? 'ufabcnext-liked' : 'ufabcnext-like'" size="16" v-ripple>
             mdi-thumb-up
           </v-icon>
@@ -51,7 +51,7 @@
         </div>
         <v-tooltip top v-if='recommendationCount >= 0'>
           <template v-slot:activator="{ on }">
-            <div class="comment-like-area" v-on="on" @click="!loadingRecommendation ? giveReaction('recommendation') : null" v-loading="loadingRecommendation">
+            <div class="comment-like-area" v-on="on" @click="!loading.recommendation ? giveReaction('recommendation') : null" v-loading="loading.recommendation">
               <v-icon :color="(comment.myReactions && comment.myReactions.recommendation) ? 'ufabcnext-liked' : 'ufabcnext-like'" size="20" v-ripple>
                 mdi-medal
               </v-icon>
@@ -96,8 +96,11 @@ export default {
         'null': 'rgb(0, 0, 0)',
       },
 
-      loadingLike: false,
-      loadingRecommendation: false,
+      loading: {
+        like: false,
+        recommendation: false
+      },
+
       recommended: false,
     }
   },
@@ -120,7 +123,8 @@ export default {
   computed: {
     prettySeason() {
       if(!this.comment || !this.comment.enrollment || !this.comment.enrollment.season) return ''
-      return PrettySeason(this.comment.enrollment.season).replace('º Quad de ', 'Q ')
+      let season = this.comment.enrollment.season || this.comment.enrollment.year+':'+this.comment.enrollment.quad
+      return PrettySeason(season).replace('º Quad de ', 'Q ')
     },
 
     recommendationCount() {
@@ -132,6 +136,11 @@ export default {
   },
 
   methods: {
+    sameBothProfessor(enrollment) {
+      if(!enrollment || !enrollment.teoria || !enrollment.pratica) return false
+      return enrollment.teoria._id == enrollment.pratica._id
+    },
+
     showMore(commentId){
       let comment = Object.assign({}, this.comment)
       comment.showMore = !this.comment.showMore
@@ -143,7 +152,7 @@ export default {
 
       let recommended = this.recommended
       try {
-        this.loadingLike = true
+        this.loading[kind] = true
 
         // Create reaction
         if(!this.comment.myReactions[kind]) {
@@ -170,9 +179,9 @@ export default {
           if(this.comment.myReactions[kind] == 'recommendation') this.recommended = false
         }
 
-        this.loadingLike = false
+        this.loading[kind] = false
       } catch(err) {
-        this.loadingLike = false
+        this.loading[kind] = false
         this.recommended = recommended
 
         this.$message({
@@ -205,7 +214,7 @@ export default {
 }
 
 .comment-text {
-  max-height: 300px;
+  max-height: 100%;
   transition: max-height 0.5s ease-in-out;
   line-height: 1.3em;
   font-size: 18px;
@@ -217,6 +226,7 @@ export default {
 }
 .comment-text > p {
   font-size: 16px;
+  margin-bottom: 0;
 } 
 .comment-text:not(.collapsed) > .show-more {
   display: none;
