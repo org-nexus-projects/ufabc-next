@@ -17,7 +17,6 @@
 
     <el-table
       ref="teachersList"
-      @row-click="openTeacher($event)"
       @sort-change="sortButton = null"
       :data="teachersSorted"
       :class="{ 'teacher-table-mobile': $vuetify.breakpoint.xsOnly }"
@@ -31,9 +30,12 @@
         :min-width="$vuetify.breakpoint.xsOnly ? 220 : null"
         :width="$vuetify.breakpoint.xsOnly ? null : '180'">
         <template slot-scope="scope">
-          <div v-if='scope.row.teacher && scope.row.teacher.name' 
-            style="word-break: break-word;">
+          <div 
+            @click="openTeacher(scope.row)"
+            v-if='scope.row.teacher && scope.row.teacher.name' 
+            style="word-break: break-word; cursor: pointer; display: flex;">
             {{ scope.row.teacher.name || '(professor desconhecido)' }}
+            <v-icon color="blue" size="20" class="ml-2">mdi-open-in-new</v-icon>
           </div>
 
           <template v-if='$vuetify.breakpoint.xsOnly'>

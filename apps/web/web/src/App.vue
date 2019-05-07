@@ -1,7 +1,7 @@
 <template>
   <Navigation>
     <transition name="slide-x-transition" mode="out-in">
-      <router-view :key="$router.currentRoute.path"></router-view>
+      <router-view :key="$router.currentRoute.path" ></router-view>
     </transition>
   </Navigation>
 </template>
@@ -13,7 +13,7 @@ export default {
   name: 'App',
   components: {
     Navigation
-  }
+  },
 }
 </script>
 

@@ -1,13 +1,9 @@
 <template>
   <div class="pa-4">
-    <VueMarkdown
-      class="title mb-3"
-      :source="comment && comment._id ? 'Atualizar comentário' : 'Fazer review'"
-      :html="false"
-      :xhtml-out="true"
-      :breaks="true"
-      :anchorAttributes="{target: '_blank'}"/>
-
+    <div class="title" style="display: flex; align-items: center;">
+      <div style="flex: 1 1 auto">{{ comment && comment._id ? 'Atualizar comentário' : 'Fazer review' }}</div>
+      <v-btn class="pa-0" icon @click="$emit('close')"><v-icon color="grey">mdi-close</v-icon></v-btn>
+    </div>
     <v-layout wrap v-if='enrollment'>
       <v-flex xs12 sm6>
         <small class="mt-3 ufabcnext-grey--text">Disciplina:</small>
@@ -43,7 +39,7 @@
 
     <el-tabs v-model="activeName" v-if='teacher'>
       <el-tab-pane label="Comentários sobre o professor" name="first">
-        <template v-if='comments && comments.length'>
+        <div class="comment-list-recommendation" v-if='comments && comments.length'>
           <ReviewComment
             v-for='_comment in comments'
             :comment="_comment"
@@ -52,7 +48,7 @@
             recommendationCheckMode
             @input="updateComment($event)"
           ></ReviewComment>
-        </template>
+        </div>
         <v-layout wrap align-center justify-center v-else-if='!loading'>
           <v-flex xs12 class="text-center mb-3 mt-3"><img src="@/assets/certificate.svg" width="64" height="64" /></v-flex>
           <div @click='activeName = "second"' class="ufabcnext-link--text cursor-pointer">Seja o primeiro a comentar</div>
@@ -89,6 +85,7 @@ import ErrorMessage from '@/helpers/ErrorMessage'
 import VueMarkdown from 'vue-markdown'
 import ReviewComment from '@/components/Reviews/Comment'
 import PrettySeason from '@/helpers/PrettySeason'
+import Vue from 'vue'
 
 export default {
   name: 'CommentEditor',
@@ -232,6 +229,14 @@ export default {
       }
     },
 
+    updateComment(comment){
+      if(!comment._id) return
+      let commentIndex = _.findIndex(this.comments, { _id: comment._id })
+      if(commentIndex < 0) return
+
+      Vue.set(this.comments, commentIndex, comment)
+    }
+
   },
 }
 </script>
@@ -248,5 +253,14 @@ export default {
   background: #87caba;
   align-items: center;
   justify-content: center;
+}
+.comment-list-recommendation {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+@media (max-width: 600px) {
+  .comment-list-recommendation {
+    max-height: 38vh;
+  }
 }
 </style>

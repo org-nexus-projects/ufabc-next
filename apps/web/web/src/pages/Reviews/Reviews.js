@@ -107,7 +107,7 @@ export default {
 
       this.loadingSearch = true
       this.searchDebounced(val)
-    }
+    },
   },
 
   computed: {
