@@ -30,7 +30,7 @@
             <div class="mb-4">
               <v-layout wrap>
                 <span class="step-title">O que você faz na UFABC?</span>
-              </v-layout>         
+              </v-layout>
               <v-layout wrap>
                 <span class="step-subtitle">Selecione uma das opções:</span>
               </v-layout>
@@ -91,9 +91,9 @@
               ></v-text-field>
               <div>
                 <div class="row no-flex align-center justify-start mb-3">
-                  <input name="terms" 
-                    v-model="termsOfUse" 
-                    v-validate="'required'" 
+                  <input name="terms"
+                    v-model="termsOfUse"
+                    v-validate="'required'"
                     data-vv-as="termos de uso"
                     class="mr-2"
                     type="checkbox">
@@ -114,7 +114,7 @@
           <div v-if="currentStep == 2">
             <div v-if="role == 'student'">
               <div class="step-title mb-4">
-                Enviamos um email de confirmação para 
+                Enviamos um email de confirmação para
                 <span class="ufabcnext-nav-blue--text">{{`${studentData.email}${emailSuffix}`}}</span>
               </div>
               <div>
@@ -219,7 +219,7 @@ export default {
             this.resent = false
             return
           } else {
-           return 
+           return
           }
         }
 
@@ -243,7 +243,7 @@ export default {
 
       async confirmAccount() {
         let email = this.studentData.email.concat(this.emailSuffix)
-        
+
         return this.$validator.validateAll().then(async isValid => {
           if (!isValid) {
             return false
@@ -262,6 +262,23 @@ export default {
             this.loading = false
           } catch(err) {
             this.loading = false
+
+            if(err.response.data.error == "Essa conta foi desativada") {
+              await this.$dialog({
+                title: 'Sua conta foi desativada',
+                html: 'Para ativar novamente a sua conta, preencha este <a href="https://forms.gle/bbcm83WbBkTYp4J86">formulário</a> que iremos analisar o caso.',
+                buttons: [{ name: 'OK', class: 'grey--text'}]
+              })
+            }
+
+            if(err.response.data.status == 409) {
+              await this.$dialog({
+                title: `Já existe alguem usando este ${err.response.data.error}`,
+                html: 'Caso não seja você que esteja usando, preencha esse <a href="https://forms.gle/BLwuhuMS7aQaiKUN9">formulário</a> que iremos analisar o caso com urgência.',
+                buttons: [{ name: 'OK', class: 'grey--text'}]
+              })
+            }
+
             this.$message({
               type: 'error',
               message: ErrorMessage(err),
