@@ -28,7 +28,7 @@ function RedirectIfLogged(params) {
       Auth.setToken(token)
 
       let decodedToken = jsonwebtoken.decode(token)
-      if(!decodedToken || !decodedToken.confirmed) {
+      if(!decodedToken || !decodedToken.confirmed || !decodedToken.active) {
         return next('/signup')
       }
     }
