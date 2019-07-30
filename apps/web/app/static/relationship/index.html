@@ -52,7 +52,7 @@
 			let RA = document.getElementById('sendInput')
 
 			sendButton.addEventListener("click", function() {
-				axios.get(`http://api.ufabcnext.com/v1/relationships/${RA.value}`).then((res) => {
+				axios.get(`https://api.ufabcnext.com/v1/relationships/${RA.value}`).then((res) => {
 				var nodes = res.data.nodes
 				var edges = res.data.edges
 				var cy = window.cy = cytoscape({
