@@ -14,3 +14,4 @@ Foi criado com uma interface fácil para você:
 * Visualizar gráfico do seu CR em comparação aos outros
 * Simular o sistema de chutes em disciplinas
 * Ver distribuição de conceitos de uma professor
+

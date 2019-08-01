@@ -1,7 +1,7 @@
 <template>
 <div style="background-color: white; height: 100%; width: 100%;">
   <v-container column style="background-color: white; height: 100%; width: 100%;">
-    <v-layout row wrap style="width: 100%; flex: none">
+    <v-layout row wrap style="width: 100%; flex: none" v-if='!loading'>
       <v-flex xs3 sm1 md2 lg2>
         <img style="max-width: 100%; height: auto;" src="@/assets/logo.svg" />
       </v-flex>
@@ -14,9 +14,10 @@
         </el-steps>
       </v-flex>
     </v-layout>
+
     <v-layout v-loading="loading" align-center row wrap style="width: 100%; flex: 1 1 auto;">
         <!-- Art -->
-        <v-flex sm12 md7 lg7>
+        <v-flex sm12 md7 lg7 v-if='!loading'>
           <transition name="slide-x-transition" mode="out-in">
             <img v-if="role == 'teacher'" key="teacher" style="max-width: 100%; height: auto;" src="@/assets/ilustra-construction.png" />
             <img v-else key="student" style="max-width: 100%; height: auto;" src="@/assets/signup.svg" />
@@ -24,7 +25,7 @@
         </v-flex>
 
         <!-- Steps -->
-        <v-flex sm12 md5 lg5>
+        <v-flex sm12 md5 lg5 v-if='!loading'>
           <!-- Step 1 -->
           <v-layout column fill-width v-if="currentStep == 0">
             <div class="mb-4">

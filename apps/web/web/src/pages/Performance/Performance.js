@@ -269,12 +269,12 @@ export default {
       this.crHistoryLoading = true
       try {
         let crHistoryData = await Performance.getCrHistory()
+        this.crHistoryLoading = false
         if(!crHistoryData) return
 
         this.crHistoryOptions.rows = crHistoryData.data
-        this.crHistoryLoading = false
       } catch(err) {
-        this.statsLoading = false
+        this.crHistoryLoading = false
       }
     },
 
@@ -282,10 +282,10 @@ export default {
       this.crDistributionLoading = true
       try {
         let crDistributionData = await Performance.getCrDistribution()
+        this.crDistributionLoading = false
         if(!crDistributionData) return
 
         this.crDistributionOptions.rows = crDistributionData.data
-        this.crDistributionLoading = false
       } catch(err) {
         this.crDistributionLoading = false
       }
