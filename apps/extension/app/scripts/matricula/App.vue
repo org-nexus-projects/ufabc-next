@@ -226,12 +226,17 @@
 
           $("table tr").each(function () {
             var el = $(this).find('td:nth-child(3)')
+            var subjectEl = $(this).find('td:nth-child(3) > span')
             var corteEl = $(this).find('td:nth-child(5)')
-
             var disciplinaId = el.parent().attr('value')
             
             const disciplinaInfo = disciplinaMap.get(disciplinaId)
             if(!disciplinaInfo) return
+
+            // Add subject id to span with subject
+            if(disciplinaInfo.subject) {
+              subjectEl.attr('subjectId', disciplinaInfo.subject)
+            }
 
             const data = { disciplina: disciplinaInfo }
 

@@ -6,6 +6,7 @@ Vue.use(ElementUI)
 
 import App from './matricula/App.vue'
 import ReviewTeacher from './matricula/ReviewTeacher.vue'
+import ReviewSubject from './matricula/ReviewSubject.vue'
 import Modal from './matricula/Modal.vue'
 import MatriculaHelper from './helpers/matricula'
 
@@ -19,6 +20,13 @@ const modalData = {
 const teacherReviewData = {
   dialog: false,
   professor: null,
+  // use this to notify
+  notifier: null
+}
+
+const reviewSubjectData = {
+  dialog: false,
+  subject: null,
   // use this to notify
   notifier: null
 }
@@ -49,6 +57,16 @@ new Vue({
   components: { ReviewTeacher }
 })
 
+new Vue({ 
+  template: '<v-app v-show="$data.dialog"><ReviewSubject :value="$data"></ReviewSubject></v-app>',
+  el: '#review-subject',
+  data() {
+    return reviewSubjectData
+  },
+  components: { ReviewSubject }
+})
+
+
 // handler cortes
 $('body').on('click', '.corte', async function (e) {
   var aluno_id = MatriculaHelper.getAlunoId()
@@ -67,4 +85,13 @@ $('body').on('click', '.ReviewTeacher', function (e) {
     name: teacherName,
   },
   teacherReviewData.dialog = true
+})
+
+// handler subject click
+$('body').on('click', 'span.sa, span.sbc', function (e) {
+  const subjectId = $(e.target).attr('subjectId')
+  reviewSubjectData.subject = {
+    id: subjectId,
+  }
+  reviewSubjectData.dialog = true
 })
