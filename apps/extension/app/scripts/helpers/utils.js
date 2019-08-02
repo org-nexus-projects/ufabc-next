@@ -107,7 +107,7 @@ module.exports = new (function (){
       const prefix = is.chrome() ? 'chrome-extension://' : 'moz-extension://'
       return prefix + EXTENSION_ID + '/' + link.replace(/^\//, '')
     } else {
-      return 'https://ufabc-extension.cdd.naoseiprogramar.com.br/static/' + link.replace(/^\//, '')
+      return 'https://next-extension.sv.ufabcnext.com/static/' + link.replace(/^\//, '')
     }
     
   }

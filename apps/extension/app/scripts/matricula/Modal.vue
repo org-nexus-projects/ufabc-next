@@ -228,7 +228,6 @@
 
       restore() {
         this.headers = this.defaultHeaders
-        // this.help_data = nullltHeaders
         this.resort()
       },
 
