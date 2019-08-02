@@ -83,7 +83,8 @@ $('body').on('click', '.ReviewTeacher', function (e) {
   teacherReviewData.professor = {
     id: teacherId,
     name: teacherName,
-  },
+  }
+  
   teacherReviewData.dialog = true
 })
 
