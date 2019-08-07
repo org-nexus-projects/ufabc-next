@@ -24,6 +24,10 @@ class User {
   async info() {
     return await Axios.get('/users/info')
   }
+
+  async relationships() {
+    return await Axios.get('/users/me/relationships?ra=11201822479')
+  }
 }
 
 export default (new User)
