@@ -9,6 +9,8 @@
   "dependencies": {
     "@mdi/font": "^3.3.92",
     "axios": "^0.18.0",
+    "cytoscape": "^3.8.2",
+    "cytoscape-cola": "^2.3.0",
     "echarts": "^4.1.0",
     "element-ui": "^2.4.11",
     "highcharts": "^6.2.0",
