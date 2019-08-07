@@ -1,0 +1,39 @@
+<template>
+  <div class="column flex">
+    <div class="row flex">
+      <v-tabs
+        centered
+        fixed-tabs
+        color="#f1f1f1"
+        class="flex"
+      >
+        <v-tab>
+          Melhores amigos
+        </v-tab>
+        <v-tab>
+          Pessoas próximas
+        </v-tab>
+        <v-tab>
+          Todos em minha volta*
+        </v-tab>
+      </v-tabs>
+    </div>
+  </div>
+</template>
+
+
+<script>
+
+  export default {
+    name: 'Relationship',
+    data() {
+      return {
+
+      }
+    },
+  }
+</script>
+
+<style>
+
+</style>
