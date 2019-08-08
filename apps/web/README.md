@@ -15,3 +15,5 @@ Foi criado com uma interface fácil para você:
 * Simular o sistema de chutes em disciplinas
 * Ver distribuição de conceitos de uma professor
 
+## Rodando o Next
+1. Clone o repositório `ufabc-next-server`
