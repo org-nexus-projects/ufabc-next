@@ -155,7 +155,9 @@ function Matricula() {
   // send aluno data
   async function sendAlunoData () {
     const storageUser = 'ufabc-extension-' + currentUser()
+    const storageRA = 'ufabc-extension-ra-' + currentUser()
     const user = await Utils.storage.getItem(storageUser)
+    const ra = await Utils.storage.getItem(storageRA)
 
     if(!user) return
 
@@ -169,7 +171,9 @@ function Matricula() {
       cursos: user.map(function(info){
         info.curso_id = findIdForCurso(info.curso);
         return info;
-      })
+      }),
+      ra: ra,
+      login: currentUser(),
     })
   }
  

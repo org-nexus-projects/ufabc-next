@@ -65,6 +65,9 @@ async function getFichaAluno(fichaAlunoUrl, cb) {
   const info = ficha_obj.find('.coeficientes tbody tr td');
   const ra = /.*?(\d+).*/g.exec(ficha_obj.find("#page").children('p')[2].innerText)[1] || 'some ra';
 
+  const storageRA = 'ufabc-extension-ra-' + getEmailAluno()
+  await Utils.storage.setItem(storageRA, ra)
+
   const jsonFicha = await Axios.get('https://aluno.ufabc.edu.br' + fichaAlunoUrl)
   await Api.post('/histories', { ra: ra, disciplinas: jsonFicha.data })
 
