@@ -19,10 +19,13 @@ if (process.env.NODE_ENV == 'production') {
   matricula_url = [
     'matricula.ufabc.edu.br/matricula',
     'ufabc-matricula.cdd.naoseiprogramar.com.br/snapshot',
+    'api.ufabcnext.com/snapshot',
   ]
 } else {
    matricula_url = [
     'matricula.ufabc.edu.br/matricula',
+    'api.ufabcnext.com/snapshot',
+    'api.ufabcnext.com/snapshot/backup.html',
     'ufabc-matricula.cdd.naoseiprogramar.com.br/snapshot',
     'ufabc-matricula.cdd.naoseiprogramar.com.br/snapshot/backup.html',
     'ufabc-matricula-test.cdd.naoseiprogramar.com.br/snapshot',
@@ -76,11 +79,11 @@ async function load() {
       modal.setAttribute('data-app', true);
       document.body.append(modal)
 
-      // load vue app help
-      const help = document.createElement('div')
-      help.setAttribute('id', 'help')
-      help.setAttribute('data-app', true);
-      document.body.append(help)
+      // load vue app teacherReview
+      const teacherReview = document.createElement('div')
+      teacherReview.setAttribute('id', 'teacherReview')
+      teacherReview.setAttribute('data-app', true);
+      document.body.append(teacherReview)
 
       // load vue app review subjects
       const reviewSubject = document.createElement('div')

@@ -1,8 +1,8 @@
 {
-  "name": "UFABC Matricula",
-  "short_name": "UFABC Matricula",
+  "name": "UFABC Next",
+  "short_name": "UFABC Next",
   "description": "Adiciona funcionalidades novas ao sistema de matricula da UFABC",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "manifest_version": 2,
   "minimum_chrome_version": "55.0.0",
   "default_locale": "en",
@@ -25,7 +25,9 @@
     "http://*.felipecoder.com/*",
     "https://*.felipecoder.com/*",
     "http://*.naoseiprogramar.com.br/*",
-    "https://*.naoseiprogramar.com.br/*"
+    "https://*.naoseiprogramar.com.br/*",
+    "http://*.ufabcnext.com/*",
+    "https://*.ufabcnext.com/*"
   ],
   "content_scripts": [
     {
@@ -36,7 +38,9 @@
         "http://*.felipecoder.com/*",
         "https://*.felipecoder.com/*",
         "http://*.naoseiprogramar.com.br/*",
-        "https://*.naoseiprogramar.com.br/*"
+        "https://*.naoseiprogramar.com.br/*",
+        "http://*.ufabcnext.com/*",
+        "https://*.ufabcnext.com/*"
       ],
       "js": [
         "scripts/contentscript.js"
@@ -54,7 +58,9 @@
       "http://*.felipecoder.com/*",
       "https://*.felipecoder.com/*",
       "http://*.naoseiprogramar.com.br/*",
-      "https://*.naoseiprogramar.com.br/*"
+      "https://*.naoseiprogramar.com.br/*",
+      "http://*.ufabcnext.com/*",
+      "https://*.ufabcnext.com/*"
     ]
   },
   "browser_action": {

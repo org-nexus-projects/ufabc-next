@@ -5,7 +5,7 @@ Vue.use(Vuetify)
 Vue.use(ElementUI)
 
 import App from './matricula/App.vue'
-import Help from './matricula/Help.vue'
+import ReviewTeacher from './matricula/ReviewTeacher.vue'
 import ReviewSubject from './matricula/ReviewSubject.vue'
 import Modal from './matricula/Modal.vue'
 import MatriculaHelper from './helpers/matricula'
@@ -17,7 +17,7 @@ const modalData = {
   disciplina: null,
 }
 
-const helpData = {
+const teacherReviewData = {
   dialog: false,
   professor: null,
   // use this to notify
@@ -49,12 +49,12 @@ new Vue({
 })
 
 new Vue({ 
-  template: '<v-app v-show="$data.dialog"><Help :value="$data"></Help></v-app>',
-  el: '#help',
+  template: '<v-app v-show="$data.dialog"><ReviewTeacher :value="$data"></ReviewTeacher></v-app>',
+  el: '#teacherReview',
   data() {
-    return helpData
+    return teacherReviewData
   },
-  components: { Help }
+  components: { ReviewTeacher }
 })
 
 new Vue({ 
@@ -76,15 +76,16 @@ $('body').on('click', '.corte', async function (e) {
   modalData.dialog = true
 })
 
-// handler help
-$('body').on('click', '.Help', function (e) {
+// handler teacherReview
+$('body').on('click', '.ReviewTeacher', function (e) {
   const teacherId = $(e.target).attr('data')
   const teacherName = $(e.target).attr('teacherName')
-  helpData.professor = {
+  teacherReviewData.professor = {
     id: teacherId,
     name: teacherName,
-  },
-  helpData.dialog = true
+  }
+  
+  teacherReviewData.dialog = true
 })
 
 // handler subject click
