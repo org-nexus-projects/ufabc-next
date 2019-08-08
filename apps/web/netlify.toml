@@ -3,4 +3,3 @@
   from = "/app/*"
   to = "/app/index.html"
   status = 200
-  force = true # Ensure that we always redirect
