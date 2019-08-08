@@ -40,10 +40,6 @@ export default {
     this.fetch()
   },
 
-  computed: {
-   
-  },
-
   methods: {
     graphSettings(nodes, edges){
       cytoscape({
