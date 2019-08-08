@@ -11,6 +11,28 @@ export default {
     return {
       loading: false,
       nodes: null,
+      edges: null,
+      filters: [{
+        value: "best-friends",
+        label: "Melhores amigos",
+      }, {
+        value: "near-friends",
+        label: "Pessoas próximas",
+      }, {
+        value: "all",
+        label: "Todos em minha volta*",
+      }],
+      filter: "best-friends",
+      legends: [{
+        label: "Você",
+        color: "#007bff"
+      }, {
+        label: "Seus melhores amigos",
+        color: "#ea3453"
+      }, {
+        label: "Amigos dos seus melhores amigos",
+        color: "#e47184",
+      }]
     }
   },
 
@@ -65,13 +87,22 @@ export default {
     },
 
     async fetch(){
+      console.log(this.filter)
+      let breadth
+      let depth 
+      if(this.filter == 'best-friends') {breadth = 3; depth = 1} // best friends
+      if(this.filter == 'near-friends') {breadth = 4; depth = 2} // near friends
+      if(this.filter == 'all') {breadth = 5; depth = 4} // all relationship
+
       try {
         this.loading = true
-        let res = await User.relationships()
+        let res = await User.relationships(breadth, depth)
 
         this.loading = false
         let nodes = res.data.nodes
         let edges = res.data.edges
+        this.edges = edges
+        this.nodes = nodes
         this.graphSettings(nodes, edges)
       } catch(err) {
         console.log(err)
