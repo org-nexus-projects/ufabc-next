@@ -82,7 +82,7 @@
         </div>
 
         <v-list dense style="min-width: 200px;">
-          <v-layout column wrap align-center style="height: 56px" class="hidden-lg-and-up mx-3">
+          <v-layout column wrap align-center style="height: 56px; justify-content: center;" class="hidden-lg-and-up mx-3">
             <v-avatar :size="38" color="primary">
               <span class="white--text" v-if='userLogin'>{{ userInitials }}</span>
             </v-avatar>

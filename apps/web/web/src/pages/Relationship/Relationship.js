@@ -1,4 +1,5 @@
 import User from '@/services/User'
+import Enrollment from '@/services/Enrollment'
 import ErrorMessage from '@/helpers/ErrorMessage'
 import cytoscape from 'cytoscape'
 import cola from 'cytoscape-cola'
@@ -10,6 +11,8 @@ export default {
   data() {
     return {
       loading: false,
+      loadedHistory: false,
+      history: null,
       nodes: null,
       edges: null,
       filters: [{
@@ -38,6 +41,7 @@ export default {
 
   created() {
     this.fetch()
+    this.fetchHistory()
   },
 
   methods: {
@@ -87,7 +91,7 @@ export default {
 
     async fetch(){
       let breadth
-      let depth 
+      let depth
       if(this.filter == 'best-friends') {breadth = 3; depth = 1} // best friends
       if(this.filter == 'near-friends') {breadth = 4; depth = 2} // near friends
       if(this.filter == 'all') {breadth = 5; depth = 4} // all relationship
@@ -107,9 +111,20 @@ export default {
         this.$message({
           type: 'error',
           message: ErrorMessage(err),
-        }) 
+        })
       }
-    }
+    },
+
+    async fetchHistory() {
+      try {
+        let res = await Enrollment.list()
+
+        this.history = res.data
+        this.loadedHistory = true
+      } catch(err) {
+        this.loadedHistory = true
+      }
+    },
 
   }
 }

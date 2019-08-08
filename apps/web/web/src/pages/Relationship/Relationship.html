@@ -1,24 +1,23 @@
 <div class="column flex" v-loading='loading' style="height: 100%; justify-content: center;">
-  <div class="white" v-if='nodes && nodes.length'>
-    <div class="pa-4">
-      <h2 class="relationship-title ufabcnext-primary--text mb-2">Conexões</h2>
-      Descubra quais são as pessoas com quem você fez mais matérias junto.
+  <div class="white" v-if='(history && history.length) || !loadedHistory' style="display: flex; flex-direction: column; flex: 1 1 auto;">
+    <div class="px-4 pt-4 pb-0">
+      <h2 class="relationship-title ufabcnext-primary--text mb-2">
+        Minhas Conexões
+        <el-tooltip effect="dark" placement="bottom">
+          <div slot="content" style="text-align: center;">
+            Encontre as pessoas que você mais faz disciplinas junto<br /><br />
+            <i>* O número de disciplinas é calculado com base nos usuários que utilizam a extensão</i>
+          </div>
+          <i class="el-icon-question" style="font-size: 24px; color: #d1d1d1;"></i>
+        </el-tooltip>
+      </h2>
     </div>
-    <div class="px-4">
-      <div class="legend" v-for="legend in legends">
-        <div 
-          class="legend-ball mr-1 mb-2" 
-          :style="{'backgroundColor': legend.color }"
-        ></div>
-        {{ legend.label }}
-      </div>
-    </div>
-    <div class="row flex">
-      <el-select 
-        v-model="filter" 
-        @change="fetch($event)" 
-        v-if='$vuetify.breakpoint.xsOnly' 
-        class="mx-4 mb-4 mt-2" 
+    <div class="row">
+      <el-select
+        v-model="filter"
+        @change="fetch($event)"
+        v-if='$vuetify.breakpoint.xsOnly'
+        class="mx-4 mb-4 mt-2"
         style="width: 100%;">
         <el-option
           v-for="filter in filters"
@@ -36,13 +35,27 @@
         v-model="filter"
         v-else
       >
-        <el-tab-pane 
-          v-for='filter in filters' 
-          :name="filter.value" 
+        <el-tab-pane
+          v-for='filter in filters'
+          :name="filter.value"
           :label="filter.label"
           :key="filter.value">
         </el-tab-pane>
       </el-tabs>
+    </div>
+    <div id="cy"></div>
+    <div class="px-4 elevate-3 py-4" style="display: flex; flex-wrap: wrap; justify-content: center; z-index: 1;">
+      <div class="legend mr-3" v-for="legend in legends">
+        <div
+          class="legend-ball mr-1"
+          :style="{'backgroundColor': legend.color }"
+        ></div>
+        {{ legend.label }}
+      </div>
+      <div class="legend">
+        <div class="legend-number">4</div>
+        Qtd de disciplinas feitas
+      </div>
     </div>
   </div>
 
@@ -52,5 +65,4 @@
       <img src="@/assets/missing_history.svg" width="100%" />
     </center>
   </div>
-  <div id="cy"></div>
 </div>
