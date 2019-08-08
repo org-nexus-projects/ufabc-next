@@ -23,7 +23,8 @@
         <el-option
           v-for="filter in filters"
           :value="filter.value"
-          :label="filter.label">
+          :label="filter.label"
+          :key="filter.value">
         </el-option>
       </el-select>
 
@@ -38,7 +39,8 @@
         <el-tab-pane 
           v-for='filter in filters' 
           :name="filter.value" 
-          :label="filter.label">
+          :label="filter.label"
+          :key="filter.value">
         </el-tab-pane>
       </el-tabs>
     </div>
