@@ -15,6 +15,8 @@ export default {
       history: null,
       nodes: null,
       edges: null,
+      didLoad: {},
+      loadingMessage: '',
       filters: [{
         value: "best-friends",
         label: "Melhores amigos",
@@ -105,6 +107,23 @@ export default {
       try {
         this.loading = true
         let res = await User.relationships(breadth, depth)
+
+        if(!this.didLoad[this.filter]) {
+          this.loadingMessage = 'Aguarde, iniciando processamento...'
+          await (new Promise((resolve) => setTimeout(resolve, 1500)));
+          this.loadingMessage = 'Carregando Matrículas'
+          await (new Promise((resolve) => setTimeout(resolve, 1500)));
+          this.loadingMessage = 'Processando suas conexões'
+          await (new Promise((resolve) => setTimeout(resolve, 2000)));
+          this.loadingMessage = 'Consolidando bigdata em informações'
+          await (new Promise((resolve) => setTimeout(resolve, 1000)));
+          this.loadingMessage = 'Filtrando e gerando Grafos'
+          await (new Promise((resolve) => setTimeout(resolve, 1000)));
+          this.didLoad[this.filter] = true
+        } else {
+          this.loadingMessage = 'Filtrando e gerando Grafos'
+          await (new Promise((resolve) => setTimeout(resolve, 1000)));
+        }
 
         this.loading = false
         let nodes = res.data && res.data.nodes
