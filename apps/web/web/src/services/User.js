@@ -24,6 +24,13 @@ class User {
   async info() {
     return await Axios.get('/users/info')
   }
+
+  async relationships(breadth, depth) {
+    return await Axios.get('/users/me/relationships', { params: {
+      breadth: breadth,
+      depth: depth
+    }})
+  }
 }
 
 export default (new User)

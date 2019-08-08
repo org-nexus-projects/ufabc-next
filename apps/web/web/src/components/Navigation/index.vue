@@ -1,5 +1,5 @@
 <template>
-  <v-app 
+  <v-app
     style="font-family: Roboto, Ubuntu, Helvetica Neue,Helvetica,PingFang SC,Hiragino Sans GB,Microsoft YaHei,SimSun,sans-serif;">
     <v-navigation-drawer
       v-if='user && user.confirmed'
@@ -30,8 +30,13 @@
             <v-icon>{{ menu.icon }}</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title class="white--text">
-              {{ menu.title }}
+            <v-list-tile-title class="white--text row">
+              <div>
+                {{ menu.title }}
+              </div>
+              <div v-if="menu.featured">
+                <span class="featured-chip">Novo</span>
+              </div>
             </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
@@ -55,7 +60,7 @@
       <!-- <v-layout row align-center justify-center class="flex hidden-lg-and-up"> -->
         <!-- <div class="black--text">{{ user.email}}</div> -->
       <!-- </v-layout> -->
-    
+
       <v-menu full-width bottom left>
         <div slot="activator" class="py-2">
           <v-btn icon class="hidden-lg-and-up"><v-icon color="primary">more_vert</v-icon></v-btn>
@@ -146,7 +151,7 @@ export default {
     currentRoute() {
       return _.get(this.$router, 'history.current', '')
     },
- 
+
     user() {
       return Auth.user
     },
@@ -228,4 +233,17 @@ export default {
 .ufabcnext-navigation.v-navigation-drawer--mini-variant .v-list__tile{
   padding: 0 20px;
 }
+
+.featured-chip {
+  background-color: #14e079;
+  border-radius: 4px;
+  color: #4F60ED;
+  opacity: 1;
+  margin-left: 12px !important;
+  font-weight: 400;
+  display: inline-block;
+  padding: 0px 4px;
+  font-size: 12px;
+}
+
 </style>

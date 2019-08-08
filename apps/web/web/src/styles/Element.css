@@ -67,3 +67,10 @@
   padding: 4px 15px 5px 10px!important;
   height: 28px!important;
 }
+
+
+.relationship-filters > .el-tabs__header {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
