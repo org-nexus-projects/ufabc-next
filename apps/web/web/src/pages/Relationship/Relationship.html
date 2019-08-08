@@ -2,11 +2,7 @@
   <div class="white" v-if='nodes && nodes.length'>
     <div class="pa-4">
       <h2 class="relationship-title ufabcnext-primary--text mb-2">Conexões</h2>
-      Descubra quais são as pessoas com quem você fez mais matérias junto. <br />
-      <br />
-      Esse grafo considera apenas usuários que já usaram a extensão de matrículas<br />
-      <br />
-      <i>* Todos limitados em até 5 conexões por nó e 4 graus de profundidade</i>
+      Descubra quais são as pessoas com quem você fez mais matérias junto.
     </div>
     <div class="px-4">
       <div class="legend" v-for="legend in legends">
@@ -22,7 +18,7 @@
         v-model="filter" 
         @change="fetch($event)" 
         v-if='$vuetify.breakpoint.xsOnly' 
-        class="mx-4 mb-4" 
+        class="mx-4 mb-4 mt-2" 
         style="width: 100%;">
         <el-option
           v-for="filter in filters"

@@ -26,7 +26,6 @@ class User {
   }
 
   async relationships(breadth, depth) {
-    console.log(breadth)
     return await Axios.get('/users/me/relationships', { params: {
       breadth: breadth,
       depth: depth

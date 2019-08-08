@@ -20,7 +20,7 @@ export default {
         label: "Pessoas próximas",
       }, {
         value: "all",
-        label: "Todos em minha volta*",
+        label: "Todos em minha volta",
       }],
       filter: "best-friends",
       legends: [{
@@ -50,6 +50,9 @@ export default {
         container: document.getElementById('cy'),
         autounselectify: true,
         boxSelectionEnabled: false,
+        fit: false,
+        infinite: true,
+        padding: 1000,
         layout: {
           name: 'cola',
           maxSimulationTime: 30000,
@@ -87,7 +90,6 @@ export default {
     },
 
     async fetch(){
-      console.log(this.filter)
       let breadth
       let depth 
       if(this.filter == 'best-friends') {breadth = 3; depth = 1} // best friends
@@ -105,7 +107,6 @@ export default {
         this.nodes = nodes
         this.graphSettings(nodes, edges)
       } catch(err) {
-        console.log(err)
         this.loading = false
         this.$message({
           type: 'error',
