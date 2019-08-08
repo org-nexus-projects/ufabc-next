@@ -14,12 +14,12 @@ export default [
     route: '/performance',
   },
 
-  // {
-  //   title: 'Conexões',
-  //   featured: true,
-  //   icon: 'mdi-hubspot',
-  //   route: '/relationship',
-  // },
+  {
+    title: 'Conexões',
+    featured: true,
+    icon: 'mdi-hubspot',
+    route: '/relationship',
+  },
 
   {
     title: 'Planejamento',

@@ -28,8 +28,11 @@
   height: 20px;
   border-radius: 50%;
 }
-.legend-number {
+.legend-subjects {
   text-decoration: overline;
   font-size: 18px;
   margin-right: 10px;
+  width: 20px;
+  height: 4px;
+  background: #000;
 }

@@ -46,6 +46,12 @@ export default {
 
   methods: {
     graphSettings(nodes, edges){
+      let animationTime
+      if(this.$vuetify.breakpoint.xsOnly) {
+        animationTime = 5000
+      } else {
+        animationTime = 30000
+      }
       cytoscape({
         container: document.getElementById('cy'),
         autounselectify: true,
@@ -55,7 +61,7 @@ export default {
         padding: 1000,
         layout: {
           name: 'cola',
-          maxSimulationTime: 30000,
+          maxSimulationTime: animationTime,
           edgeLength: function(edge) { return 350 },
         },
         style: [
@@ -101,8 +107,10 @@ export default {
         let res = await User.relationships(breadth, depth)
 
         this.loading = false
-        let nodes = res.data.nodes
-        let edges = res.data.edges
+        let nodes = res.data && res.data.nodes
+        let edges = res.data && res.data.edges
+
+        if(!nodes && !edges) return
         this.edges = edges
         this.nodes = nodes
         this.graphSettings(nodes, edges)
