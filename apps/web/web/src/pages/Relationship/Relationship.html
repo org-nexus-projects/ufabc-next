@@ -1,0 +1,54 @@
+<div class="column flex" v-loading='loading' style="height: 100%; justify-content: center;">
+  <div class="white" v-if='nodes && nodes.length'>
+    <div class="pa-4">
+      <h2 class="relationship-title ufabcnext-primary--text mb-2">Conexões</h2>
+      Descubra quais são as pessoas com quem você fez mais matérias junto.
+    </div>
+    <div class="px-4">
+      <div class="legend" v-for="legend in legends">
+        <div 
+          class="legend-ball mr-1 mb-2" 
+          :style="{'backgroundColor': legend.color }"
+        ></div>
+        {{ legend.label }}
+      </div>
+    </div>
+    <div class="row flex">
+      <el-select 
+        v-model="filter" 
+        @change="fetch($event)" 
+        v-if='$vuetify.breakpoint.xsOnly' 
+        class="mx-4 mb-4 mt-2" 
+        style="width: 100%;">
+        <el-option
+          v-for="filter in filters"
+          :value="filter.value"
+          :label="filter.label">
+        </el-option>
+      </el-select>
+
+      <el-tabs
+        centered
+        color="#fff"
+        class="relationship-filters flex"
+        @tab-click="fetch($event)"
+        v-model="filter"
+        v-else
+      >
+        <el-tab-pane 
+          v-for='filter in filters' 
+          :name="filter.value" 
+          :label="filter.label">
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+  </div>
+
+  <div style="text-align: center;" v-else-if='!loading'>
+    <h2>Parece que não encontramos os dados do seu histórico :( <br />
+       É necessário instalar a <a href="https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk" style="text-decoration: none;" target="_blank">extensão</a> e acessar a tela de Fichas Individuais no <a href="https://aluno.ufabc.edu.br/fichas_individuais" target="_blank" style="text-decoration: none;">Portal do Aluno.</a></h2>
+      <img src="@/assets/missing_history.svg" width="100%" />
+    </center>
+  </div>
+  <div id="cy"></div>
+</div>

@@ -13,6 +13,7 @@ import History from '@/pages/History'
 import Settings from '@/pages/Settings'
 import Stats from '@/pages/Stats'
 import Admin from '@/pages/Admin'
+import Relationship from '@/pages/Relationship'
 
 import Auth from '@/services/Auth'
 
@@ -61,7 +62,7 @@ const router = new VueRouter({
     })
   },
   routes: [
-    
+
     {
       name: 'login',
       path: '/login',
@@ -89,7 +90,7 @@ const router = new VueRouter({
       },
       props: true,
     },
-    
+
     {
       name: 'performance',
       path: '/performance',
@@ -118,7 +119,7 @@ const router = new VueRouter({
         title: 'Confirmação da conta',
       }
     },
-      
+
     {
       name: 'history',
       path: '/history',
@@ -159,6 +160,16 @@ const router = new VueRouter({
       },
     },
 
+    {
+      name: 'relationship',
+      path: '/relationship',
+      component: Relationship,
+      meta: {
+        title: 'Minhas conexões',
+        auth: true
+      },
+    },
+
     // { path: '*', redirect: '/login' }
   ]
 })
@@ -168,7 +179,7 @@ router.beforeEach(function (to, from, next) {
   if (!to.meta.dontUpdateTitle) {
     document.title = to.meta.title || 'UFABC Next'
   }
-  
+
   next()
 })
 
