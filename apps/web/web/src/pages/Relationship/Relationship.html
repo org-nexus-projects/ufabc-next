@@ -1,12 +1,12 @@
-<div class="column flex" v-loading='loading' style="height: 100%; justify-content: center;">
-  <div class="white" v-if='(history && history.length) || !loadedHistory' style="display: flex; flex-direction: column; flex: 1 1 auto;">
+<div class="column flex" v-loading='loading' style="height: 100%; justify-content: center; overflow: hidden;">
+  <div class="white" v-if='(history && history.length) || !loadedHistory' style="display: flex; flex-direction: column; flex: 1 1 auto; overflow: hidden;">
     <div class="px-4 pt-4 pb-0">
       <h2 class="relationship-title ufabcnext-primary--text mb-2">
         Minhas Conexões
         <el-tooltip effect="dark" placement="bottom">
           <div slot="content" style="text-align: center;">
-            Encontre as pessoas que você mais faz disciplinas junto<br /><br />
-            <i>* O número de disciplinas é calculado com base nos usuários que utilizam a extensão</i>
+            Encontre as pessoas que você<br /> mais faz disciplinas junto<br /><br />
+            <i>* O número de disciplinas é calculado com base<br /> nos usuários que utilizam a extensão</i>
           </div>
           <i class="el-icon-question" style="font-size: 24px; color: #d1d1d1;"></i>
         </el-tooltip>
@@ -53,7 +53,7 @@
         {{ legend.label }}
       </div>
       <div class="legend">
-        <div class="legend-number">4</div>
+        <div class="legend-number">99</div>
         Qtd de disciplinas feitas
       </div>
     </div>
