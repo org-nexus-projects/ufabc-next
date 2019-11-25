@@ -16,7 +16,7 @@ export default [
 
   {
     title: 'Conexões',
-    featured: true,
+    featured: false,
     icon: 'mdi-hubspot',
     route: '/relationship',
   },
@@ -40,6 +40,12 @@ export default [
     featured: false,
     icon: 'mdi-book-multiple-variant',
     route: '/stats',
+  },
+
+  {
+    title: 'Snapshot da Matrícula',
+    icon: 'mdi-open-in-new',
+    url: 'https://api.ufabcnext.com/snapshot',
   },
 
   {

@@ -40,6 +40,23 @@
             </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
+        <v-list-tile
+          style="background-color: #2076d2"
+          @click="open({ url: 'https://chrome.google.com/webstore/detail/ufabc-next/gphjopenfpnlnffmhhhhdiecgdcopmhk' })" exact>
+          <v-list-tile-action style="min-width: 36px;">
+            <v-icon>mdi-download</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title class="white--text row">
+              <div>
+                Usar a extensão
+              </div>
+              <div>
+                <span class="featured-chip">Importante</span>
+              </div>
+            </v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
       </v-list>
       <div :style="{ 'textAlign': mini ? 'center' : 'right' }" style="height: 50px;">
         <v-btn icon @click.stop="mini = !mini" v-if='!$vuetify.breakpoint.xsOnly'>
@@ -179,7 +196,14 @@ export default {
     },
 
     open(itemMenu) {
-      if(itemMenu && itemMenu.route) this.$router.push({ path: itemMenu.route, query: itemMenu.query || {} })
+      if(itemMenu && itemMenu.url) {
+        window.open(itemMenu.url, '_blank')
+        return
+      }
+      if(itemMenu && itemMenu.route) {
+        this.$router.push({ path: itemMenu.route, query: itemMenu.query || {} })
+        return
+      }
     },
 
     async login() {
