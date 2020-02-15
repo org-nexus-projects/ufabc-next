@@ -1,8 +1,8 @@
-<img src="https://github.com/ufabc-next/ufabc-next/blob/master/app/static/assets/images/cover.jpg" />
+<img src="https://github.com/ufabc-next/ufabc-next-web/blob/master/app/static/assets/images/cover.jpg" />
 
 O UFABC Next é uma plataforma criada por alunos da UFABC para melhorar o planejamento da graduação. Esse repositório está o código do web-app que roda no site.
 
-<img src="https://github.com/ufabc-next/ufabc-next/blob/master/app/static/assets/images/reviews.png" />
+<img src="https://github.com/ufabc-next/ufabc-next-web/blob/master/app/static/assets/images/reviews.png" />
 
 ## O que é UFABC Next
 Um sistema que permite ver desempenho da graduação e criar um planejamento feito com
