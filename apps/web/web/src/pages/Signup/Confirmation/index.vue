@@ -34,7 +34,6 @@
 import ErrorMessage from '@/helpers/ErrorMessage'
 import User from '@/services/User'
 import Auth from '@/services/Auth'
-import Environment from '@/environment'
 
 export default {
   name: 'Confirmation',
@@ -54,7 +53,12 @@ export default {
       let token = _.get(this.$route, 'query.token', null)
       try {
         if(!token) {
-          window.location = Environment.HOME_URL
+          const inApp = !!window.cordova
+          
+          if(!inApp) {
+            window.location = process.env.VUE_APP_HOME_URL
+          }
+          
           return
         }
         let payload = {

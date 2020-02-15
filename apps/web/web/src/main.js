@@ -14,7 +14,6 @@ import VuetifyCSS from '@/styles/Vuetify.css'
 import ElementCSS from '@/styles/Element.css'
 import Auth from '@/services/Auth'
 import Axios from 'axios'
-import Environment from '@/environment'
 
 Vue.use(Vuetify)
 
@@ -48,7 +47,7 @@ Axios.interceptors.response.use(null, function (error) {
 })
 
 Axios.interceptors.request.use(function (config) {
-  let isBase = config.baseURL == Environment.API_URL
+  let isBase = config.baseURL == process.env.VUE_APP_API_URL
   if (isBase && config.url.startsWith('http')) {
     return config;
   }
@@ -60,7 +59,7 @@ Axios.interceptors.request.use(function (config) {
   return config;
 })
 
-Axios.defaults.baseURL = Environment.API_URL
+Axios.defaults.baseURL = process.env.VUE_APP_API_URL
 
 window.Axios = Axios
 window.Auth = Auth

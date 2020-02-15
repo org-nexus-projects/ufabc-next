@@ -12,7 +12,7 @@
     <div class="column flex">
       <div class="row wrap mb-0">
         <div class="ufabcnext-blue--text mr-2 flex ellipsis">
-          <router-link :to="{ path: '/', query: { subjectId: comment.subject._id }}" style="text-decoration: none">
+          <router-link :to="{ path: '/reviews', query: { subjectId: comment.subject._id }}" style="text-decoration: none">
             {{ comment.subject.name || '(disciplina desconhecida)' }}
           </router-link>
         </div>
