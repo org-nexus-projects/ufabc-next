@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@mdi/font": "^3.3.92",
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "cytoscape": "^3.8.2",
     "cytoscape-cola": "^2.3.0",
     "echarts": "^4.1.0",
