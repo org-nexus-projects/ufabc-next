@@ -29,7 +29,7 @@
     "highcharts": "^6.2.0",
     "jsonwebtoken": "^8.5.1",
     "jwt-decode": "^2.2.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.13",
     "moment": "^2.23.0",
     "raven-js": "^3.26.4",
     "url": "^0.11.0",
