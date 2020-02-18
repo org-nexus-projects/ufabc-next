@@ -15,5 +15,18 @@ Foi criado com uma interface fácil para você:
 * Simular o sistema de chutes em disciplinas
 * Ver distribuição de conceitos de uma professor
 
-## Rodando o Next
-1. Clone o repositório `ufabc-next-server`
+## Pre-requisitos
+Você precisa rodar o [ufabc-next-server](https://github.com/ufabc-next/ufabc-next-server) para ter um ambiente de testes completo:
+
+1. Clone o repositório [ufabc-next-server](https://github.com/ufabc-next/ufabc-next-server)
+2. Entre na pasta `ufabc-next-server/app` e rode `yarn install`
+3. Instale o [Docker](https://www.docker.com/)
+4. Execute o comando `docker-compose up -d`
+5. Para subir o server, por fim, execute o comando `yarn start:watch`
+
+
+## Executando o UFABC Next Web
+
+1. Clone este repositório
+2. Entre na pasta `ufabc-next-web/web` e rode `yarn install`
+3. Depois rode o comando `yarn start`
