@@ -1,10 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Environment from '@/environment'
 
 // Pages
 import Reviews from '@/pages/Reviews'
 import Performance from '@/pages/Performance'
+import Register from '@/pages/Register'
 import Planning from '@/pages/Planning'
 import SignupForm from '@/pages/Signup/SignupForm'
 import Confirmation from '@/pages/Signup/Confirmation'
@@ -22,7 +22,12 @@ function RedirectIfLogged(params) {
     if(to.name == 'login') {
       let token = _.get(to, 'query.token', null)
       if(!token) {
-        window.location = Environment.HOME_URL
+        const inApp = !!window.cordova
+          
+        if(!inApp) {
+          window.location = process.env.VUE_APP_HOME_URL
+        }
+        
         return
       }
 
@@ -33,10 +38,11 @@ function RedirectIfLogged(params) {
         return next('/signup')
       }
     }
-    if((to.name == 'register' || to.name == 'reset-password' || to.name == 'forgot-password' || to.name == 'complete-account') && Auth.isLoggedIn()){
-      Auth.logOut()
-      return next(to.fullPath)
-    }
+    
+    // if((to.name == 'register' || to.name == 'reset-password' || to.name == 'forgot-password' || to.name == 'complete-account') && Auth.isLoggedIn()){
+    //   Auth.logOut()
+    //   return next(to.fullPath)
+    // }
 
     if (Auth.isLoggedIn()) {
       return next(params)
@@ -46,8 +52,9 @@ function RedirectIfLogged(params) {
 }
 
 Vue.use(VueRouter)
+
 const router = new VueRouter({
-  mode: 'history',
+  mode: 'hash',
   base: '/app',
   scrollBehavior (to, from, savedPosition) {
     return { x: 0, y: 0 }
@@ -62,7 +69,6 @@ const router = new VueRouter({
     })
   },
   routes: [
-
     {
       name: 'login',
       path: '/login',
@@ -80,7 +86,6 @@ const router = new VueRouter({
     },
 
     {
-      alias: '/',
       name: 'reviews',
       path: '/reviews',
       component: Reviews,
@@ -169,6 +174,12 @@ const router = new VueRouter({
         auth: true
       },
     },
+    {
+      alias: '/',
+      name: 'register',
+      path: '/register',
+      component: Register
+    }
 
     // { path: '*', redirect: '/login' }
   ]

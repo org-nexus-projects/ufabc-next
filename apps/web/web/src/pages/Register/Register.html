@@ -1,0 +1,35 @@
+<v-container
+class="pa-0 login-page"
+fluid
+fill-height
+>
+<v-layout justify-center wrap class="login-background">
+  <v-flex xs12 sm8 md4 style="display: flex; flex-direction: column">
+    <form style="flex: 1 1 auto;">
+      <v-flex
+        >
+        <v-btn
+          color="#2672CB"
+          dark
+          depressed
+          class="mb-4"
+          style="width: 100%; height: 42px; font-size: 15px; text-transform: initial;"
+          @click="loginFacebook()"
+        >
+          <v-icon class="mr-3">mdi-facebook</v-icon>Entrar com o Facebook
+        </v-btn>
+        <v-btn
+          color="#FFFFFF"
+          dark
+          depressed
+          style="width: 100%; height: 42px; font-size: 15px; text-transform: initial; color: #777777!important; border: 1px solid #ccc;
+"
+          @click="loginGoogle()"
+        >
+          <v-icon class="mr-3">mdi-google</v-icon>Entrar com o Google
+        </v-btn>
+      </v-flex>
+    </form>
+  </v-flex>
+</v-layout>
+</v-container>

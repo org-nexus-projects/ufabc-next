@@ -316,7 +316,7 @@ export default {
         if(res.data) Auth.user = res.data
 
         if(res.data.confirmed) {
-          this.$router.push({ path: '/' })
+          this.$router.push({ path: '/reviews' })
         } else {
           this.redirectIfIsFilled()
         }

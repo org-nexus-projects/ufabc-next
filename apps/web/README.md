@@ -1,8 +1,8 @@
-<img src="https://github.com/ufabc-next/ufabc-next/blob/master/app/static/assets/images/cover.jpg" />
+<img src="https://github.com/ufabc-next/ufabc-next-web/blob/master/public/assets/images/cover.jpg" />
 
 O UFABC Next é uma plataforma criada por alunos da UFABC para melhorar o planejamento da graduação. Esse repositório está o código do web-app que roda no site.
 
-<img src="https://github.com/ufabc-next/ufabc-next/blob/master/app/static/assets/images/reviews.png" />
+<img src="https://github.com/ufabc-next/ufabc-next-web/blob/master/public/assets/images/reviews.png" />
 
 ## O que é UFABC Next
 Um sistema que permite ver desempenho da graduação e criar um planejamento feito com
@@ -24,9 +24,7 @@ Você precisa rodar o [ufabc-next-server](https://github.com/ufabc-next/ufabc-ne
 4. Execute o comando `docker-compose up -d`
 5. Para subir o server, por fim, execute o comando `yarn start:watch`
 
-
 ## Executando o UFABC Next Web
-
 1. Clone este repositório
 2. Entre na pasta `ufabc-next-web/web` e rode `yarn install`
 3. Depois rode o comando `yarn start`
