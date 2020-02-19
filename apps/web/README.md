@@ -28,3 +28,8 @@ Você precisa rodar o [ufabc-next-server](https://github.com/ufabc-next/ufabc-ne
 1. Clone este repositório
 2. Entre na pasta `ufabc-next-web/web` e rode `yarn install`
 3. Depois rode o comando `yarn start`
+
+## Buildando o UFABC Next App (Android)
+1. Entre na pasta `ufabc-next-web/web/src-cordova` e rode `yarn install`
+2. Execute o comando `yarn cordova platform add android`
+3. Volte para a pasta `ufabc-next-web/web` e depois execute o comando `yarn cordova-build-android` ou `yarn cordova-serve-android` (para compilar o aplicativo e executar no emulador ou no seu dispositivo)
