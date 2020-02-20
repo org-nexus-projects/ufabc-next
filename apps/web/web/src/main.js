@@ -15,6 +15,19 @@ import ElementCSS from '@/styles/Element.css'
 import Auth from '@/services/Auth'
 import Axios from 'axios'
 
+document.addEventListener(
+  'deviceready',
+  async () => {
+    window.handleOpenURL = url => {
+      setTimeout(() => {
+        window.location.href =
+          window.location.href + url.replace('ufabcnext://', '');
+      }, 0);
+    };
+  },
+  false
+);
+
 Vue.use(Vuetify)
 
 import VCharts from 'v-charts'

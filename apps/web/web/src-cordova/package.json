@@ -16,14 +16,23 @@
     "cordova": "^9.0.0",
     "cordova-android": "^8.1.0",
     "cordova-browser": "^6.0.0",
-    "cordova-ios": "^5.1.1"
+    "cordova-ios": "^5.1.1",
+    "cordova-plugin-customurlscheme": "^5.0.0",
+    "cordova-plugin-inappbrowser": "^3.2.0"
   },
   "devDependencies": {
     "cordova-plugin-whitelist": "^1.3.4"
   },
   "cordova": {
     "plugins": {
-      "cordova-plugin-whitelist": {}
+      "cordova-plugin-whitelist": {},
+      "cordova-plugin-customurlscheme": {
+        "URL_SCHEME": "ufabcnext",
+        "ANDROID_SCHEME": " ",
+        "ANDROID_HOST": " ",
+        "ANDROID_PATHPREFIX": "/"
+      },
+      "cordova-plugin-inappbrowser": {}
     },
     "platforms": [
       "android",
