@@ -1,7 +1,7 @@
 {
   "name": "UFABC-Next-Extension",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Adiciona funcionalidades novas ao sistema de matricula da UFABC",
   "scripts": {
     "start": "yarn build && node server/app.js",
