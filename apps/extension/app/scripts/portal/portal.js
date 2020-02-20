@@ -45,9 +45,12 @@ function iterateTabelaCursosAndSaveToLocalStorage () {
 
   tabelaCursos.each(async function () {
     var linhaCurso = $(this).children();
-    var fichaAlunoUrl = $(linhaCurso[1]).children('a').attr('href');
     
-    const curso = await getFichaAluno(fichaAlunoUrl)
+    var nomeDoCurso = $(linhaCurso[0]).children('a').text()
+    var fichaAlunoUrl = $(linhaCurso[1]).children('a').attr('href');
+    var anoDaGrade = $(linhaCurso[2]).text()
+    
+    const curso = await getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade)
     curso.curso = linhaCurso[0].innerText.replace("Novo", '');
     curso.turno = linhaCurso[3].innerText;
 
@@ -55,7 +58,7 @@ function iterateTabelaCursosAndSaveToLocalStorage () {
   })
 }
 
-async function getFichaAluno(fichaAlunoUrl, cb) {
+async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
   var curso = {};
   var ficha_url = fichaAlunoUrl.replace('.json', '');
 
@@ -69,7 +72,13 @@ async function getFichaAluno(fichaAlunoUrl, cb) {
   await Utils.storage.setItem(storageRA, ra)
 
   const jsonFicha = await Axios.get('https://aluno.ufabc.edu.br' + fichaAlunoUrl)
-  await Api.post('/histories', { ra: ra, disciplinas: jsonFicha.data })
+  
+  await Api.post('/histories', {
+    ra: ra,
+    disciplinas: jsonFicha.data,
+    curso: nomeDoCurso,
+    grade: anoDaGrade
+  })
 
   curso.cp = toNumber(info[0]);
   curso.cr = toNumber(info[1]);
