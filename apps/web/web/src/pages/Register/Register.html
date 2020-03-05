@@ -3,16 +3,24 @@ class="pa-0 login-page"
 fluid
 fill-height
 >
-<v-layout justify-center wrap class="login-background">
+<v-layout justify-center align-center wrap class="login-background">
   <v-flex xs12 sm8 md4 style="display: flex; flex-direction: column">
-    <form style="flex: 1 1 auto;">
+    <form style="flex: 1 1 auto;" class="pa-4">
+      <img src="@/assets/logo.svg" width="150px" class="mb-3" />
+      <div class="bold text-left" style="font-size: 20px">
+        O app dos alunos da UFABC
+      </div>
+      <div class="text">
+        Sabemos que a vida na universidade pode se tornar muito complicada, portanto o objetivo do Next é te ajudar a planejar melhor a sua graduação.
+      </div>
+      <img src="@/assets/welcome-app.svg" width="100%" class="px-3 py-2" />
       <v-flex
         >
         <v-btn
           color="#2672CB"
           dark
           depressed
-          class="mb-4"
+          class="ma-0 mb-3"
           style="width: 100%; height: 42px; font-size: 15px; text-transform: initial;"
           @click="loginFacebook()"
         >
@@ -24,6 +32,7 @@ fill-height
           depressed
           style="width: 100%; height: 42px; font-size: 15px; text-transform: initial; color: #777777!important; border: 1px solid #ccc;
 "
+          class="ma-0"
           @click="loginGoogle()"
         >
           <v-icon class="mr-3">mdi-google</v-icon>Entrar com o Google

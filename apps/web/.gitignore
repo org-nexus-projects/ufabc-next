@@ -37,3 +37,4 @@ testem.log
 .DS_Store
 Thumbs.db
 *.log
+*.keystore

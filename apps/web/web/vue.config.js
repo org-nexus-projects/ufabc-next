@@ -1,5 +1,5 @@
 module.exports = {
-  "publicPath": "/app/",
+  "publicPath": "",
   "outputDir": "../dist/app",
   "devServer": {
     "port": 7500

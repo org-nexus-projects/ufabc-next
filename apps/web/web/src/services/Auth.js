@@ -3,7 +3,7 @@ import Vue from 'vue'
 import JwtDecode from 'jwt-decode'
 
 class Auth {
-  constructor(){ 
+  constructor(){
     Vue.util.defineReactive(this, 'user', null)
     Vue.util.defineReactive(this, 'token', null)
     this.loadFromLocalStorage()
@@ -66,6 +66,23 @@ class Auth {
     return await Axios.post('/auth/reset', user)
   }
 
+  async addDevice() {
+    const firebaseToken = localStorage.getItem('firebaseToken') || null
+    const deviceId = window.device.uuid
+
+    if(this.isLoggedIn() && firebaseToken && deviceId) {
+       await Axios.post('/users/me/devices', { token: firebaseToken, deviceId: deviceId })
+    }
+ }
+
+  async removeDevice() {
+    const deviceId = window.device.uuid
+
+    if(deviceId) {
+      return await Axios.delete(`/users/me/devices/${deviceId}`)
+    }
+
+  }
 }
 
 export default (new Auth)

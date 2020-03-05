@@ -15,6 +15,33 @@ import ElementCSS from '@/styles/Element.css'
 import Auth from '@/services/Auth'
 import Axios from 'axios'
 
+document.addEventListener(
+  'deviceready',
+  async () => {
+    window.handleOpenURL = url => {
+      setTimeout(() => {
+        window.location.href =
+          window.location.href + url.replace('ufabcnext://', '');
+      }, 0);
+    };
+
+    window.FirebasePlugin.onTokenRefresh(function(fcmToken) {
+      localStorage.setItem('firebaseToken', fcmToken)
+      Auth.addDevice()
+    });
+  },
+  false
+);
+
+document.addEventListener("resume", () => {
+  window.FirebasePlugin.getToken(function(fcmToken) {
+    if (fcmToken) {
+      localStorage.setItem('firebaseToken', fcmToken)
+      Auth.addDevice()
+    }
+  });
+}, false);
+
 Vue.use(Vuetify)
 
 import VCharts from 'v-charts'

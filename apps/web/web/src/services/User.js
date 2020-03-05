@@ -1,5 +1,6 @@
 import Axios from 'axios'
 import Vue from 'vue'
+import Auth from './Auth'
 
 class User {
   constructor(){}
@@ -10,7 +11,13 @@ class User {
 
   async confirmSignup(params = {}) {
     // return await Axios.post('/users/me/confirm', params)
-    return await Axios.post('/account/confirm', params)
+    const token = await Axios.post('/account/confirm', params)
+
+    if(window.device) {
+      await Auth.addDevice()
+    }
+
+    return token
   }
 
   async resendEmail() {
