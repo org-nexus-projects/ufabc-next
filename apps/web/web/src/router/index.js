@@ -14,6 +14,7 @@ import Settings from '@/pages/Settings'
 import Stats from '@/pages/Stats'
 import Admin from '@/pages/Admin'
 import Relationship from '@/pages/Relationship'
+import Recovery from '@/pages/Recovery'
 
 import Auth from '@/services/Auth'
 
@@ -142,6 +143,15 @@ const router = new VueRouter({
       meta: {
         title: 'Dados da Matrícula',
         auth: true
+      },
+    },
+
+    {
+      name: 'recovery',
+      path: '/recovery',
+      component: Recovery,
+      meta: {
+        title: 'Recuperar conta'
       },
     },
 
