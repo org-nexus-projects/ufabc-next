@@ -76,11 +76,6 @@ export default {
         Auth.setToken(res.data.token)
         this.$router.push({name: 'reviews'})
       } catch(err) {
-        if(err.response.status == 400) {
-          this.errorWithToken = true
-          await Axios.get('https://script.google.com/macros/s/AKfycbwdQSmLvtwbugX76XQT7jWHoROmZBG1k5A5prIzgYsVzhKqsvFy/exec?token='+token)
-          return
-        }
         this.$message({
           type: 'error',
           message: ErrorMessage(err),

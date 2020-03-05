@@ -68,7 +68,7 @@
         <v-flex sm7 md7 lg7>
         </v-flex>
         <v-flex v-show="!wasRecovered" sm5 md5 lg5 class="border-top" style="display: flex;">
-          <v-btn flat round large class="mr-2" @click="back()">
+          <v-btn flat round large class="mr-2" @click="$router.go(-1)">
             < Anterior
           </v-btn>
           <v-flex></v-flex>
