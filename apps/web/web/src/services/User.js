@@ -24,6 +24,10 @@ class User {
     return await Axios.post('/users/me/resend')
   }
 
+  async recovery(email) {
+    return await Axios.post('/users/me/recover', { email })
+  }
+
   async delete() {
     return await Axios.delete('/users/me/delete')
   }

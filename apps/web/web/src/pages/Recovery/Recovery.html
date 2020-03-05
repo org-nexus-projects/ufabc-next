@@ -1,154 +1,78 @@
 <div style="background-color: white; height: 100%; width: 100%;">
   <v-container column style="background-color: white; height: 100%; width: 100%;">
-    <v-layout row wrap style="width: 100%; flex: none" v-if='!loading'>
-      <v-flex xs3 sm1 md2 lg2>
-        <img style="max-width: 100%; height: auto;" src="@/assets/logo.svg" />
-      </v-flex>
-      <v-flex sm5 md5 lg5></v-flex>
-      <v-flex sm5 md5 lg5>
-
-      </v-flex>
+    <v-layout row wrap style="width: 100%; flex: none; margin-top: 12px;">
+      <img style="max-width: 200px; height: auto;" src="@/assets/logo.svg" />
     </v-layout>
 
-    <v-layout v-loading="loading" align-center row wrap style="width: 100%; flex: 1 1 auto;">
+    <v-layout v-loading="loading" row wrap style="width: 100%; flex: 1 1 auto;">
         <!-- Art -->
-        <v-flex sm12 md7 lg7 v-if='!loading'>
-          <transition name="slide-x-transition" mode="out-in">
-            <img v-if="role == 'teacher'" key="teacher" style="max-width: 100%; height: auto;" src="@/assets/ilustra-construction.png" />
-            <img v-else key="student" style="max-width: 100%; height: auto;" src="@/assets/signup.svg" />
+        <v-flex sm12 md7 lg7>
+          <transition name="slide-x-transition" mode="out-in"> 
+            <img style="max-width: 100%; height: auto; padding: 24px;" src="@/assets/recovery.svg" />
           </transition>
         </v-flex>
 
-        <!-- Steps -->
-        <v-flex sm12 md5 lg5 v-if='!loading'>
-          <!-- Step 1 -->
-          <v-layout column fill-width v-if="currentStep == 0">
-            <div class="mb-4">
-              <v-layout wrap>
-                <span class="step-title">O que você faz na UFABC?</span>
-              </v-layout>
-              <v-layout wrap>
-                <span class="step-subtitle">Selecione uma das opções:</span>
-              </v-layout>
-            </div>
-            <v-layout fill-height>
-              <!-- Student -->
-              <v-layout class="elevate-3d pa-4 border cursor-pointer mr-3" style="max-width: 160px;" @click="selectRole('student')">
-                <v-icon class="mr-2">mdi-school</v-icon>
-                <div>Aluno</div>
-              </v-layout>
-              <!-- Teacher -->
-              <v-layout align-center class="elevate-3d pa-4 border cursor-pointer" style="max-width: 160px;" @click="selectRole('teacher')">
-                <v-icon class="mr-2">mdi-account</v-icon>
-                <div>Professor</div>
-              </v-layout>
-            </v-layout>
-            <v-layout>
-              <router-link class="ufabcnext-link--text mt-2" :to="{ name: 'recovery' }" style="text-decoration: none;">Já tenho conta no UFABC Next e quero recuperá-la</router-link>
-            </v-layout>
+        <v-flex sm12 md5 lg5 :class="$vuetify.breakpoint.smAndUp ? 'mt-5' : ''">
+          <v-layout column fill-width v-if='wasRecovered'>
+              <div class="step-title mb-2">
+                Sua conta será recuperada! 🎉
+              </div>
+
+              <div>
+                Você recebeu um email para recuperar sua conta, <span @click="openUFABCMail()" class="cursor-pointer ufabcnext-link--text">clique aqui</span> para acessar seu email institucional.
+              </div>
+
+                <el-alert
+                  type="warning"
+                  class="my-3"
+                  :closable="false"
+                  show-icon>
+                  <slot name="title">
+                    <div class="pa-2">
+                      Caso você não tenha recebido o email de recuperação de conta, envie uma mensagem para <a class="ufabcnext-link--text" href="https://www.facebook.com/ufabcnext" target="_blank" style="text-decoration: none;">nosso Facebook</a> (respondemos mais rápido), ou mande um email para <span class="ufabcnext-grey--text">contato@ufabcnext.com</span> (mais demorado).
+                      <br /><br />
+                      Não esqueça de informar seu RA e email institucional
+                    </div>
+                  </slot>
+              </el-alert>
+
+              <v-btn color="ufabcnext-link" class="mt-3" style="color: white; width: 200px;" round large @click="$router.push('/')">
+                Voltar para a home >
+              </v-btn>
           </v-layout>
 
-          <!-- Step 2 -->
-          <v-layout column fill-width v-if="currentStep == 1">
-            <div v-if="role == 'student'">
-              <div class="step-title mb-4">
-                Falta pouco para completar o seu cadastro
+          <v-layout column fill-width v-else>
+              <div class="step-title mb-2">
+                Criou uma conta no Next e não consegue acessar?
               </div>
               <div class="step-subtitle mb-2">Insira seu email institucional</div>
               <v-text-field
                 placeholder="joão"
-                suffix="@aluno.ufabc.edu.br"
-                v-model="studentData.email"
+                :suffix="notDefaultEmail ? '' : emailSuffix"
+                v-model="email"
                 name="studentEmail"
                 v-validate="{required: true}"
                 data-vv-as="email institucional"
                 :error-messages="errors.collect('studentEmail')"
-                persistent-hint
-                :hint="`Caso você não tenha um e-mail @aluno.ufabc.edu.br, <a href='${LOGIN_PROBLEMS_FORM}' class='ufabcnext-link--text' target='_blank' style='text-decoration: none'>clique aqui</a>`"
                 solo
-              ></v-text-field>
-              <div class="step-subtitle mt-3 mb-2">Insira seu RA</div>
-              <v-text-field
-                v-model="studentData.ra"
-                name="ra"
-                v-validate="{required: true, min: 8}"
-                data-vv-as="RA"
-                :error-messages="errors.collect('ra')"
-                ref="ra"
-                placeholder="Ex: 11012014"
-                solo
-              ></v-text-field>
-              <div class="step-subtitle mb-2">Confirme seu RA</div>
-              <v-text-field
-                name="ra_confirmation"
-                v-validate="'required|confirmed:ra'"
-                data-vv-as="confirmação do RA"
-                :error-messages="errors.collect('ra_confirmation')"
-                placeholder="Ex: 11012014"
-                v-model="raConfirmation"
-                solo
-              ></v-text-field>
-              <div>
-                <div class="row no-flex align-center justify-start mb-3">
-                  <input name="terms"
-                    v-model="termsOfUse"
-                    v-validate="'required'"
-                    data-vv-as="termos de uso"
-                    class="mr-2"
-                    type="checkbox">
-                  <div class="step-subtitle">Confirmo que li e concordo com os <a :href="termsOfUseUrl" class="ufabcnext-link--text" target="_blank">termos de uso</a></div>
-                </div>
-                <span class="v-messages error--text" style="padding-left: 12px;" v-show="errors.has('terms')">{{ errors.first('terms') }}</span>
+              >
+              </v-text-field>
+              <div class="ufabcnext-grey--text mb-4" style="font-size: 13px">
+                Caso você não tenha um e-mail {{ emailSuffix }}, <a @click='notDefaultEmail = true' class='ufabcnext-link--text' target='_blank' style='text-decoration: none'>clique aqui</a>
               </div>
-            </div>
-            <div v-if="role == 'teacher'">
-              <div class="step-title mb-4">
-                Estamos trabalhando nisso!
-              </div>
-              <div class="step-subtitle mb-2">Professor estamos construindo algumas ferramentas especiais para você, por enquanto você pode verificar sua distribuição de notas por disciplinas <a href="https://ufabcnext.com" class="ufabcnext-link--text cursor-pointer">aqui</a></div>
-            </div>
           </v-layout>
-
-          <!-- Step 3 -->
-          <div v-if="currentStep == 2">
-            <div v-if="role == 'student'">
-              <div class="step-title mb-4">
-                Enviamos um email de confirmação para
-                <span class="ufabcnext-nav-blue--text">{{`${studentData.email}${emailSuffix}`}}</span>
-              </div>
-              <div>
-                <span @click="openLink()" class="cursor-pointer ufabcnext-link--text">Clique aqui</span> para acessar seu email institucional
-              </div>
-
-              <div class="mt-3">
-                <v-btn color="ufabcnext-yellow" @click="back()">
-                  <v-icon class="mr-2">edit</v-icon> Digitei o email errado
-                </v-btn>
-                <v-btn
-                  :loading="loadingResend"
-                  :disabled="loadingResend || resent"
-                  color="ufabcnext-blue"
-                  :dark="!resent"
-                  @click="resendEmail()"
-                >
-                  <v-icon class="mr-2">{{ resent ? 'mdi-check-circle' : 'email' }}</v-icon> {{ resent ? 'Email enviado' : 'Reenviar email' }}
-                </v-btn>
-              </div>
-
-            </div>
-          </div>
         </v-flex>
       </v-layout>
 
       <v-layout align-end row style="width: 100%; flex: none; height:57px;" >
         <v-flex sm7 md7 lg7>
         </v-flex>
-        <v-flex v-show="currentStep != 0" sm5 md5 lg5 class="border-top" style="display: flex;">
+        <v-flex v-show="!wasRecovered" sm5 md5 lg5 class="border-top" style="display: flex;">
           <v-btn flat round large class="mr-2" @click="back()">
             < Anterior
           </v-btn>
           <v-flex></v-flex>
-          <v-btn v-if="showNextButton" style="background-color: #00EB5E; color: white;" round large @click="next()">
+          <v-btn style="background-color: #00EB5E; color: white;" round large @click="next()">
             Próximo >
           </v-btn>
         </v-flex>
