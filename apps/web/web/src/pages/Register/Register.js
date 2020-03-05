@@ -1,9 +1,16 @@
+import Auth from '@/services/Auth'
+
 export default {
   data() {
     return {
      inApp: !!window.cordova
    }
   },  
+  created() {
+    if(Auth.isLoggedIn()) {
+      this.$router.push('/reviews')
+    }
+  },
   methods: {
     loginFacebook() {
       window.open(

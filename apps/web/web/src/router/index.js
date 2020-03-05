@@ -26,9 +26,11 @@ function RedirectIfLogged(params) {
           
         if(!inApp) {
           window.location = process.env.VUE_APP_HOME_URL
+
+          return
         }
-        
-        return
+
+        return next('/register')
       }
 
       Auth.setToken(token)
