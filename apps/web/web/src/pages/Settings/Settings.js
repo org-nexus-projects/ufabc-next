@@ -3,7 +3,7 @@ import Auth from '@/services/Auth'
 import User from '@/services/User'
 import moment from 'moment'
 import ErrorMessage from '@/helpers/ErrorMessage'
-
+import environment from '@/environment'
 export default {
   name: 'Settings',
 
@@ -24,6 +24,14 @@ export default {
     userInitials() {
       return AliasInitials(this.userLogin)
     },
+    addGoogleAccount() {
+      const apiPath = environment.API_URL.replace('/v1', '')
+      return apiPath + '/connect/google?userId=' + this.user._id
+    },
+    addFacebookAccount() {
+      const apiPath = environment.API_URL.replace('/v1', '')
+      return apiPath + '/connect/facebook?userId=' + this.user._id
+    }
   },
 
   methods: {
