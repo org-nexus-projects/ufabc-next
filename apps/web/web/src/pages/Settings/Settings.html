@@ -25,15 +25,27 @@
       <div class="createdAt-settings">
         Usuário desde {{ user.createdAt | moment('DD/MM/YYYY - HH:ss') }}
       </div>
-      <a href="" target="_blank" class="links-settings" v-if='user.oauth && user.oauth.facebook'>
-        Conta do Facebook associada
-        <v-icon color="ufabcnext-green">mdi-check</v-icon>
-      </a>
+      <v-layout row wrap>
+        <a href="#" class="links-settings" v-if='user.oauth && user.oauth.facebook'>
+          <v-icon color="ufabcnext-green">mdi-check</v-icon>
+          Conta do Facebook associada
+        </a>
 
-      <a href="" target="_blank" class="links-settings" v-if='user.oauth && user.oauth.google'>
-        Conta do Google associada
-        <v-icon color="ufabcnext-green">mdi-check</v-icon>
-      </a>
+        <a :href="addFacebookAccount" target="_blank" class="links-settings add-account" v-else-if='user'>
+          <v-icon color="ufabcnext-blue" class="mr-2">mdi-plus-circle-outline</v-icon>
+          Associar à uma conta do Facebook
+        </a>
+
+        <a href="#" class="links-settings ml-2" v-if='user.oauth && user.oauth.google'>
+          <v-icon color="ufabcnext-green">mdi-check</v-icon>
+          Conta do Google associada
+        </a>
+
+        <a :href="addGoogleAccount" target="_blank" class="links-settings add-account ml-2" v-else-if='user'>
+          <v-icon color="ufabcnext-blue" class="mr-2">mdi-plus-circle-outline</v-icon>
+          Associar à uma conta do Google
+        </a>
+      </v-layout>
     </v-flex>
     <v-flex>
       <v-layout row wrap :class="$vuetify.breakpoint.smAndDown ? 'justify-center' : 'justify-end'">
