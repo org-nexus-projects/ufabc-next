@@ -48,6 +48,9 @@
                 <div>Professor</div>
               </v-layout>
             </v-layout>
+            <v-layout>
+              <router-link class="ufabcnext-link--text mt-2" :to="{ name: 'recovery' }" style="text-decoration: none;">Já tenho uma conta no UFABC Next e quero recuperá-la</router-link>
+            </v-layout>
           </v-layout>
 
           <!-- Step 2 -->
@@ -267,7 +270,7 @@ export default {
             if(err.response.data.error == "Essa conta foi desativada") {
               await this.$dialog({
                 title: 'Sua conta foi desativada',
-                html: 'Para ativar novamente a sua conta, preencha este <a href="https://forms.gle/bbcm83WbBkTYp4J86">formulário</a> que iremos analisar o caso.',
+                html: `Para ativar novamente a sua conta, preencha este <a href="https://ufabcnext.com/app/#/recovery" target="_blank">formulário</a>.`,
                 buttons: [{ name: 'OK', class: 'grey--text'}]
               })
             }
@@ -275,7 +278,7 @@ export default {
             if(err.response.data.status == 409) {
               await this.$dialog({
                 title: `Já existe alguem usando este ${err.response.data.error}`,
-                html: 'Caso não seja você que esteja usando, preencha esse <a href="https://forms.gle/BLwuhuMS7aQaiKUN9">formulário</a> que iremos analisar o caso com urgência.',
+                html: 'Caso não seja você que esteja usando, preencha esse <a href="https://ufabcnext.com/app/#/recovery" target="_blank">formulário</a>.',
                 buttons: [{ name: 'OK', class: 'grey--text'}]
               })
             }

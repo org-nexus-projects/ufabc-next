@@ -1,0 +1,81 @@
+<div style="background-color: white; height: 100%; width: 100%;">
+  <v-container column style="background-color: white; height: 100%; width: 100%;">
+    <v-layout row wrap style="width: 100%; flex: none; margin-top: 12px;">
+      <img style="max-width: 200px; height: auto;" src="@/assets/logo.svg" />
+    </v-layout>
+
+    <v-layout v-loading="loading" row wrap style="width: 100%; flex: 1 1 auto;">
+        <!-- Art -->
+        <v-flex sm12 md7 lg7>
+          <transition name="slide-x-transition" mode="out-in"> 
+            <img style="max-width: 100%; height: auto; padding: 24px;" src="@/assets/recovery.svg" />
+          </transition>
+        </v-flex>
+
+        <v-flex sm12 md5 lg5 :class="$vuetify.breakpoint.smAndUp ? 'mt-5' : ''">
+          <v-layout column fill-width v-if='wasRecovered'>
+              <div class="step-title mb-2">
+                Sua conta será recuperada! 🎉
+              </div>
+
+              <div>
+                Você recebeu um email para recuperar sua conta, <span @click="openUFABCMail()" class="cursor-pointer ufabcnext-link--text">clique aqui</span> para acessar seu email institucional.
+              </div>
+
+                <el-alert
+                  type="warning"
+                  class="my-3"
+                  :closable="false"
+                  show-icon>
+                  <slot name="title">
+                    <div class="pa-2">
+                      Caso você não tenha recebido o email de recuperação de conta, envie uma mensagem para <a class="ufabcnext-link--text" href="https://www.facebook.com/ufabcnext" target="_blank" style="text-decoration: none;">nosso Facebook</a> (respondemos mais rápido), ou mande um email para <span class="ufabcnext-grey--text">contato@ufabcnext.com</span> (mais demorado).
+                      <br /><br />
+                      Não esqueça de informar seu RA e email institucional
+                    </div>
+                  </slot>
+              </el-alert>
+
+              <v-btn color="ufabcnext-link" class="mt-3" style="color: white; width: 200px;" round large @click="$router.push('/')">
+                Voltar para a home >
+              </v-btn>
+          </v-layout>
+
+          <v-layout column fill-width v-else>
+              <div class="step-title mb-2">
+                Criou uma conta no Next e não consegue acessar?
+              </div>
+              <div class="step-subtitle mb-2">Insira seu email institucional</div>
+              <v-text-field
+                placeholder="joão"
+                :suffix="notDefaultEmail ? '' : emailSuffix"
+                v-model="email"
+                name="studentEmail"
+                v-validate="{required: true}"
+                data-vv-as="email institucional"
+                :error-messages="errors.collect('studentEmail')"
+                solo
+              >
+              </v-text-field>
+              <div class="ufabcnext-grey--text mb-4" style="font-size: 13px">
+                Caso você não tenha um e-mail {{ emailSuffix }}, <a @click='notDefaultEmail = true' class='ufabcnext-link--text' target='_blank' style='text-decoration: none'>clique aqui</a>
+              </div>
+          </v-layout>
+        </v-flex>
+      </v-layout>
+
+      <v-layout align-end row style="width: 100%; flex: none; height:57px;" >
+        <v-flex sm7 md7 lg7>
+        </v-flex>
+        <v-flex v-show="!wasRecovered" sm5 md5 lg5 class="border-top" style="display: flex;">
+          <v-btn flat round large class="mr-2" @click="$router.go(-1)">
+            < Anterior
+          </v-btn>
+          <v-flex></v-flex>
+          <v-btn style="background-color: #00EB5E; color: white;" round large @click="next()">
+            Próximo >
+          </v-btn>
+        </v-flex>
+      </v-layout>
+  </v-container>
+</div>

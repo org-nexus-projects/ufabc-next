@@ -40,7 +40,7 @@
       font-size: 16px;
       font-weight: bold;
       height: 50px;
-      margin-bottom: 25px;
+      margin-bottom: 12px;
       padding: 18px 22px 16px 60px;
       position: relative;
       transition: all 0.3s;
@@ -64,7 +64,7 @@
       font-size: 16px;
       font-weight: bold;
       height: 50px;
-      margin-bottom: 6px;
+      margin-bottom: 12px;
       padding: 18px 22px 16px 60px;
       position: relative;
       transition: all 0.3s;
@@ -82,6 +82,34 @@
       margin-top: 0px!important;
     }
     .google-button:hover, .facebook-button:hover {
+      transform: scale(1.05, 1.05);
+    }
+    .recovery-button {
+      background-color: #777777!important;
+      box-shadow: 1px 1px 1px 2px #868686;
+      color: #fff!important;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: bold;
+      height: 56px;
+      margin-bottom: 6px;
+      padding: 18px 22px 16px 60px;
+      position: relative;
+      transition: all 0.3s;
+      width: 263px;
+      cursor: pointer;
+      display: inline-block;
+      font-family: Montserrat;
+      text-decoration: none!important;
+    }
+    .recovery-button > img {
+      left: 13px;
+      position: absolute;
+      width: 32px;
+      margin-top: -16px!important;
+      top: 50%;
+    }
+    .recovery-button:hover, .facebook-button:hover {
       transform: scale(1.05, 1.05);
     }
     .chromestore-download {
@@ -196,6 +224,10 @@
                     <a class="google-button" onclick="window.location.href = GOOGLE_LINK; return false;">
                       <img src="assets/icons/google-logo.png" />
                       Entrar com Google
+                    </a>
+                    <a class="recovery-button" href="https://ufabcnext.com/app/recovery">
+                      <img src="assets/icons/warn.png" />
+                      Já tenho conta mas estou com problemas para acessar
                     </a>
                   </div>
                   <div class="form-note">
