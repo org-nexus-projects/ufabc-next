@@ -21,7 +21,7 @@ export default {
       }
       try {
         this.loading = true
-        let res = await User.recovery({ email: this.email })
+        let res = await User.recovery(this.email)
         this.wasRecovered = true
         this.loading = false
       } catch(err) {
