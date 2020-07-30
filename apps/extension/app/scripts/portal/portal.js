@@ -65,13 +65,8 @@ async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
     var ficha_url = fichaAlunoUrl.replace('.json', '');
 
     const ficha = await Axios.get('https://aluno.ufabc.edu.br' + ficha_url)
-    console.log(ficha)
     const ficha_obj = $($.parseHTML(ficha.data))
-    
-    console.log(ficha_obj)
     const info = ficha_obj.find('.coeficientes tbody tr td');
-
-    console.log(info)
 
     const ra = /.*?(\d+).*/g.exec(ficha_obj.find("#page").children('p')[2].innerText)[1] || 'some ra';
 
@@ -79,7 +74,7 @@ async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
     await Utils.storage.setItem(storageRA, ra)
 
     const jsonFicha = await Axios.get('https://aluno.ufabc.edu.br' + fichaAlunoUrl)
-    console.log(jsonFicha)
+
     await Api.post('/histories', {
       ra: ra,
       disciplinas: jsonFicha.data,
@@ -109,7 +104,6 @@ async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
     await Utils.storage.setItem('ufabc-extension-students', allSavedStudents)
 
     curso.cp = toNumber(info[0]);
-    console.log(curso.cp)
     curso.cr = toNumber(info[1]);
     curso.ca = toNumber(info[2]);
     curso.quads = ficha_obj.find(".ano_periodo").length;
