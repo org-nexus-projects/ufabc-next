@@ -5,6 +5,8 @@ import Utils from '../helpers/utils'
 import Api from '../helpers/api'
 import Axios from 'axios'
 import MatriculaHelper from '../helpers/matricula'
+import findSeasonKey from '../helpers/findSeasonKey'
+
 
 if (isIndexPortalAluno()) {
   const anchor = document.createElement('div')
@@ -59,35 +61,85 @@ function iterateTabelaCursosAndSaveToLocalStorage () {
 }
 
 async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
-  var curso = {};
-  var ficha_url = fichaAlunoUrl.replace('.json', '');
-
-  const ficha = await Axios.get('https://aluno.ufabc.edu.br' + ficha_url)
-  const ficha_obj = $($.parseHTML(ficha.data))
   
-  const info = ficha_obj.find('.coeficientes tbody tr td');
-  const ra = /.*?(\d+).*/g.exec(ficha_obj.find("#page").children('p')[2].innerText)[1] || 'some ra';
+  try {
+    var curso = {};
+    var ficha_url = fichaAlunoUrl.replace('.json', '');
 
-  const storageRA = 'ufabc-extension-ra-' + getEmailAluno()
-  await Utils.storage.setItem(storageRA, ra)
+    const ficha = await Axios.get('https://aluno.ufabc.edu.br' + ficha_url)
+    const ficha_obj = $($.parseHTML(ficha.data))
+    const info = ficha_obj.find('.coeficientes tbody tr td');
 
-  const jsonFicha = await Axios.get('https://aluno.ufabc.edu.br' + fichaAlunoUrl)
-  
-  await Api.post('/histories', {
-    ra: ra,
-    disciplinas: jsonFicha.data,
-    curso: nomeDoCurso,
-    grade: anoDaGrade
-  })
+    const ra = /.*?(\d+).*/g.exec(ficha_obj.find("#page").children('p')[2].innerText)[1] || 'some ra';
 
-  curso.cp = toNumber(info[0]);
-  curso.cr = toNumber(info[1]);
-  curso.ca = toNumber(info[2]);
-  curso.quads = ficha_obj.find(".ano_periodo").length;
+    const storageRA = 'ufabc-extension-ra-' + getEmailAluno()
+    await Utils.storage.setItem(storageRA, ra)
 
-  curso.cursadas = jsonFicha.data;
+    const jsonFicha = await Axios.get('https://aluno.ufabc.edu.br' + fichaAlunoUrl)
 
-  return curso 
+    const disciplinasCategory = ficha_obj.find('.quantidades:last-child tbody tr td');
+
+    // free
+    const totalCreditsCoursedFree = toNumber(disciplinasCategory[2])
+    const totalPercentageCoursedFree = toNumber(disciplinasCategory[3])
+    const totalCreditsFree = Math.round((totalCreditsCoursedFree * 100) / totalPercentageCoursedFree)
+
+    // mandatory
+    const totalCreditsCoursedMandatory = toNumber(disciplinasCategory[7])
+    const totalPercentageCoursedMandatory = toNumber(disciplinasCategory[8])
+    const totalCreditsMandatory = Math.round((totalCreditsCoursedMandatory * 100) / totalPercentageCoursedMandatory)
+
+    // limited
+    const totalCreditsCoursedLimited = toNumber(disciplinasCategory[12])
+    const totalPercentageCoursedLimited = toNumber(disciplinasCategory[13])
+    const totalCreditsLimited = Math.round(((totalCreditsCoursedLimited * 100) / totalPercentageCoursedLimited))
+
+    await Api.post('/histories', {
+      ra: ra,
+      disciplinas: jsonFicha.data,
+      curso: nomeDoCurso,
+      grade: anoDaGrade,
+
+      // credits total
+      mandatory_credits_number: totalCreditsMandatory,
+      limited_credits_number: totalCreditsLimited,
+      free_credits_number: totalCreditsFree,
+      credits_total: (totalCreditsMandatory + totalCreditsLimited + totalCreditsFree)
+    })
+    const storageUser = 'ufabc-extension-' + getEmailAluno()
+    const cursos = await Utils.storage.getItem(storageUser)
+
+
+    let allSavedStudents = []
+    const students = await Utils.storage.getItem('ufabc-extension-students')
+    if(students && students.length) {
+      allSavedStudents.push(...students)
+    }
+
+    allSavedStudents = allSavedStudents.filter(student => student.ra != ra)
+    
+    const student = {
+      cursos: cursos,
+      ra: ra,
+      name: getEmailAluno(),
+      lastUpdate: new Date()
+    }
+    allSavedStudents.unshift(student)
+
+    await Utils.storage.setItem('ufabc-extension-students', allSavedStudents)
+
+    curso.cp = toNumber(info[0]);
+    curso.cr = toNumber(info[1]);
+    curso.ca = toNumber(info[2]);
+    curso.quads = ficha_obj.find(".ano_periodo").length;
+
+    curso.cursadas = jsonFicha.data;
+
+    return curso 
+  } catch(err) {
+    console.log(err)
+    toastr.error('Não foi possível salvar seus dados, recarregue a página.', { timeOut: 10000 });
+  }
 }
 
 function getEmailAluno() {
