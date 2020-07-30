@@ -5,6 +5,8 @@ import Utils from '../helpers/utils'
 import Api from '../helpers/api'
 import Axios from 'axios'
 import MatriculaHelper from '../helpers/matricula'
+import findSeasonKey from '../helpers/findSeasonKey'
+
 
 if (isIndexPortalAluno()) {
   const anchor = document.createElement('div')
@@ -75,11 +77,34 @@ async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
 
     const jsonFicha = await Axios.get('https://aluno.ufabc.edu.br' + fichaAlunoUrl)
 
+    const disciplinasCategory = ficha_obj.find('.quantidades:last-child tbody tr td');
+
+    // free
+    const totalCreditsCoursedFree = toNumber(disciplinasCategory[2])
+    const totalPercentageCoursedFree = toNumber(disciplinasCategory[3])
+    const totalCreditsFree = Math.round((totalCreditsCoursedFree * 100) / totalPercentageCoursedFree)
+
+    // mandatory
+    const totalCreditsCoursedMandatory = toNumber(disciplinasCategory[7])
+    const totalPercentageCoursedMandatory = toNumber(disciplinasCategory[8])
+    const totalCreditsMandatory = Math.round((totalCreditsCoursedMandatory * 100) / totalPercentageCoursedMandatory)
+
+    // limited
+    const totalCreditsCoursedLimited = toNumber(disciplinasCategory[12])
+    const totalPercentageCoursedLimited = toNumber(disciplinasCategory[13])
+    const totalCreditsLimited = Math.round(((totalCreditsCoursedLimited * 100) / totalPercentageCoursedLimited))
+
     await Api.post('/histories', {
       ra: ra,
       disciplinas: jsonFicha.data,
       curso: nomeDoCurso,
-      grade: anoDaGrade
+      grade: anoDaGrade,
+
+      // credits total
+      mandatory_credits_number: totalCreditsMandatory,
+      limited_credits_number: totalCreditsLimited,
+      free_credits_number: totalCreditsFree,
+      credits_total: (totalCreditsMandatory + totalCreditsLimited + totalCreditsFree)
     })
     const storageUser = 'ufabc-extension-' + getEmailAluno()
     const cursos = await Utils.storage.getItem(storageUser)
