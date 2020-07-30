@@ -107,6 +107,7 @@
   import Api from '../helpers/api'
   import MatriculaHelper from '../helpers/matricula'
   import TransformDisciplinas from '../helpers/disciplinas.js'
+  import findSeasonKey from '../helpers/findSeasonKey'
 
   export default {
     name: 'Modal',
@@ -160,7 +161,9 @@
           { text: 'Ik', value: 'ik', sortable: false },
         ]
 
-        if(isIdeal) {
+        const season = findSeasonKey()
+
+        if(isIdeal && season != '2020:3') {
           base.push({ text: 'CR', value: 'cr', sortable: false })
           base.push({ text: 'CP', value: 'cp', sortable: false })
         } else {

@@ -59,35 +59,68 @@ function iterateTabelaCursosAndSaveToLocalStorage () {
 }
 
 async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
-  var curso = {};
-  var ficha_url = fichaAlunoUrl.replace('.json', '');
-
-  const ficha = await Axios.get('https://aluno.ufabc.edu.br' + ficha_url)
-  const ficha_obj = $($.parseHTML(ficha.data))
   
-  const info = ficha_obj.find('.coeficientes tbody tr td');
-  const ra = /.*?(\d+).*/g.exec(ficha_obj.find("#page").children('p')[2].innerText)[1] || 'some ra';
+  try {
+    var curso = {};
+    var ficha_url = fichaAlunoUrl.replace('.json', '');
 
-  const storageRA = 'ufabc-extension-ra-' + getEmailAluno()
-  await Utils.storage.setItem(storageRA, ra)
+    const ficha = await Axios.get('https://aluno.ufabc.edu.br' + ficha_url)
+    console.log(ficha)
+    const ficha_obj = $($.parseHTML(ficha.data))
+    
+    console.log(ficha_obj)
+    const info = ficha_obj.find('.coeficientes tbody tr td');
 
-  const jsonFicha = await Axios.get('https://aluno.ufabc.edu.br' + fichaAlunoUrl)
-  
-  await Api.post('/histories', {
-    ra: ra,
-    disciplinas: jsonFicha.data,
-    curso: nomeDoCurso,
-    grade: anoDaGrade
-  })
+    console.log(info)
 
-  curso.cp = toNumber(info[0]);
-  curso.cr = toNumber(info[1]);
-  curso.ca = toNumber(info[2]);
-  curso.quads = ficha_obj.find(".ano_periodo").length;
+    const ra = /.*?(\d+).*/g.exec(ficha_obj.find("#page").children('p')[2].innerText)[1] || 'some ra';
 
-  curso.cursadas = jsonFicha.data;
+    const storageRA = 'ufabc-extension-ra-' + getEmailAluno()
+    await Utils.storage.setItem(storageRA, ra)
 
-  return curso 
+    const jsonFicha = await Axios.get('https://aluno.ufabc.edu.br' + fichaAlunoUrl)
+    console.log(jsonFicha)
+    await Api.post('/histories', {
+      ra: ra,
+      disciplinas: jsonFicha.data,
+      curso: nomeDoCurso,
+      grade: anoDaGrade
+    })
+    const storageUser = 'ufabc-extension-' + getEmailAluno()
+    const cursos = await Utils.storage.getItem(storageUser)
+
+
+    let allSavedStudents = []
+    const students = await Utils.storage.getItem('ufabc-extension-students')
+    if(students && students.length) {
+      allSavedStudents.push(...students)
+    }
+
+    allSavedStudents = allSavedStudents.filter(student => student.ra != ra)
+    
+    const student = {
+      cursos: cursos,
+      ra: ra,
+      name: getEmailAluno(),
+      lastUpdate: new Date()
+    }
+    allSavedStudents.unshift(student)
+
+    await Utils.storage.setItem('ufabc-extension-students', allSavedStudents)
+
+    curso.cp = toNumber(info[0]);
+    console.log(curso.cp)
+    curso.cr = toNumber(info[1]);
+    curso.ca = toNumber(info[2]);
+    curso.quads = ficha_obj.find(".ano_periodo").length;
+
+    curso.cursadas = jsonFicha.data;
+
+    return curso 
+  } catch(err) {
+    console.log(err)
+    toastr.error('Não foi possível salvar seus dados, recarregue a página.', { timeOut: 10000 });
+  }
 }
 
 function getEmailAluno() {
