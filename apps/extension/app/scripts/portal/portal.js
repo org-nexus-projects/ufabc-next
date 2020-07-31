@@ -6,7 +6,21 @@ import Api from '../helpers/api'
 import Axios from 'axios'
 import MatriculaHelper from '../helpers/matricula'
 import findSeasonKey from '../helpers/findSeasonKey'
+import Toastify from 'toastify-js'
+import "toastify-js/src/toastify.css"
+const loading = require('./loading.svg')
+const errorSVG = require('./error.svg')
 
+const toast = new Toastify({
+  text: "<div class='toast-loading-text' style='width: 250px'><p style='padding-bottom: 8px;'>Atualizando suas informações...</p>\n\n <b>NÃO SAIA DESSA PÁGINA,</b> <p>apenas aguarde 🙏</p></div>",
+  duration: -1, 
+  close: false,
+  gravity: "bottom",
+  position: 'right',
+  className: 'toast-loading',
+  avatar: loading,
+  backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+})
 
 if (isIndexPortalAluno()) {
   const anchor = document.createElement('div')
@@ -18,7 +32,8 @@ if (isIndexPortalAluno()) {
   toastr.info("Clique em <a href='https://aluno.ufabc.edu.br/fichas_individuais' style='color: #FFF !important;'>Ficha Individual</a> para atualizar suas informações!");
 }  else if (isFichasIndividuaisPath()) {
   Utils.injectStyle('styles/portal.css');
-  toastr.info('A mágica começa agora...');
+
+  toast.showToast();
 
   iterateTabelaCursosAndSaveToLocalStorage();
 } else if (isFichaIndividualPath()) {
@@ -44,6 +59,7 @@ function iterateTabelaCursosAndSaveToLocalStorage () {
   var aluno = getEmailAluno();
 
   var tabelaCursos = $('tbody').children().slice(1);
+  let count = 0
 
   tabelaCursos.each(async function () {
     var linhaCurso = $(this).children();
@@ -53,6 +69,11 @@ function iterateTabelaCursosAndSaveToLocalStorage () {
     var anoDaGrade = $(linhaCurso[2]).text()
     
     const curso = await getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade)
+    if(count == 0) toast.hideToast()
+    count++
+
+    if(!curso) return
+
     curso.curso = linhaCurso[0].innerText.replace("Novo", '');
     curso.turno = linhaCurso[3].innerText;
 
@@ -138,7 +159,15 @@ async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
     return curso 
   } catch(err) {
     console.log(err)
-    toastr.error('Não foi possível salvar seus dados, recarregue a página.', { timeOut: 10000 });
+    Toastify({
+      text: "<div style='width: 228px; display: flex; align-items: end; margin-right: 12px;'><img style='margin-right: 16px;' width='32' height='32' src='" + errorSVG + "' /> Não foi possível salvar seus dados, recarregue a página e aguarde.</div>",
+      duration: -1, 
+      close: true,
+      gravity: "top",
+      position: 'right',
+      className: 'toast-error-container',
+      backgroundColor: "#E74C3C",
+    }).showToast()
   }
 }
 
@@ -163,5 +192,5 @@ async function saveToLocalStorage(aluno, curso) {
   user.push(curso)
   user = _.uniqBy(user, 'curso')
   await Utils.storage.setItem(storageUser, user)
-  toastr.info('Salvando disciplinas do curso do ' + curso.curso + ' para o usuário ' + aluno + '.')
+  toastr.success('Suas informações foram salvas! Disciplinas do curso do ' + curso.curso + ' para o usuário ' + aluno + '.', { timeout: 100000})
 }

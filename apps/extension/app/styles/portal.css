@@ -3,6 +3,33 @@
 @import url('https://fonts.googleapis.com/css?family=Ubuntu');
 @import url('https://fonts.googleapis.com/css?family=Lato');
 
+
+.toast-loading {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  padding-left: 8px;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+.toast-loading > .toast-loading-text {
+  display: block;
+  width: 250px;
+}
+.toast-loading > .toast-loading-text > p {
+  margin: 0px;
+}
+.toast-loading > img {
+  width: 48px;
+  height: 48px;
+  margin: 0px;
+  margin-right: 10px;
+}
+.toast-error-container {
+  display: flex;
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
 /*
 #conteudo #page > h2 {
   width: 100%;

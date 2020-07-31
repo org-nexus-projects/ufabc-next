@@ -9861,6 +9861,11 @@ to-regex@^3.0.1:
     extend-shallow "^2.0.1"
     regex-not "^1.0.0"
 
+toastify-js@^1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/toastify-js/-/toastify-js-1.9.0.tgz#726963ce850d914ee836951b5e79bdf641fe979e"
+  integrity sha512-v+Y/EUtRNdwtORfIF4oJIZ2BJWTT27Y/83ccVwJLI+wjz+dsyrjdWzC6awhfLWu8KOnfky/ac5tB1sz60fy6sQ==
+
 toastr@^2.1.4:
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/toastr/-/toastr-2.1.4.tgz#8b43be64fb9d0c414871446f2db8e8ca4e95f181"
