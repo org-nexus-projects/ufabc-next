@@ -10,16 +10,17 @@ import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
 const loading = require('./loading.svg')
 const errorSVG = require('./error.svg')
+const logoWhite = require('./logo-white.svg')
 
 const toast = new Toastify({
-  text: "<div class='toast-loading-text' style='width: 250px'><p style='padding-bottom: 8px;'>Atualizando suas informações...</p>\n\n <b>NÃO SAIA DESSA PÁGINA,</b> <p>apenas aguarde 🙏</p></div>",
+  text: "<div class='toast-loading-text' style='width: 250px'><img src=" + logoWhite + " width='120' style='margin-bottom: 8px' /><p style='padding-bottom: 8px;'>Atualizando suas informações...</p>\n\n <b>NÃO SAIA DESSA PÁGINA,</b> <p>apenas aguarde 🙏</p></div>",
   duration: -1, 
   close: false,
   gravity: "bottom",
   position: 'right',
   className: 'toast-loading',
   avatar: loading,
-  backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+  backgroundColor: "linear-gradient(to right, #2E7EED, rgba(46, 126, 237, 0.5));",
 })
 
 if (isIndexPortalAluno()) {
@@ -87,7 +88,9 @@ async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
     var curso = {};
     var ficha_url = fichaAlunoUrl.replace('.json', '');
 
-    const ficha = await Axios.get('https://aluno.ufabc.edu.br' + ficha_url)
+    const ficha = await Axios.get('https://aluno.ufabc.edu.br' + ficha_url, {
+      timeout: 60 * 1 * 1000 // 1 minute
+    })
     const ficha_obj = $($.parseHTML(ficha.data))
     const info = ficha_obj.find('.coeficientes tbody tr td');
 
@@ -96,7 +99,9 @@ async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
     const storageRA = 'ufabc-extension-ra-' + getEmailAluno()
     await Utils.storage.setItem(storageRA, ra)
 
-    const jsonFicha = await Axios.get('https://aluno.ufabc.edu.br' + fichaAlunoUrl)
+    const jsonFicha = await Axios.get('https://aluno.ufabc.edu.br' + fichaAlunoUrl, {
+      timeout: 60 * 1 * 1000 // 1 minute
+    })
 
     const disciplinasCategory = ficha_obj.find('.quantidades:last-child tbody tr td');
 
@@ -126,6 +131,8 @@ async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
       limited_credits_number: totalCreditsLimited,
       free_credits_number: totalCreditsFree,
       credits_total: (totalCreditsMandatory + totalCreditsLimited + totalCreditsFree)
+    }, {
+      timeout: 30 * 1000 // 30 seconds
     })
     const storageUser = 'ufabc-extension-' + getEmailAluno()
     const cursos = await Utils.storage.getItem(storageUser)
