@@ -93,11 +93,25 @@
           :label="header.text">
         </el-table-column>
       </el-table>
+
+      <div class="update-alert">
+        <el-alert
+          class="alert-update"
+          :closable="false"
+          title="Mantenha sempre seus dados atualizados para a previsão dos chutes ser mais precisa."
+          type="info"
+          show-icon>
+          <a href='https://aluno.ufabc.edu.br/' target='_blank'>Clique aqui para atualizar</a>
+        </el-alert>
+      </div>
     </div>
-    <span slot="footer" class="dialog-footer">
+    <div slot="footer" class="dialog-footer">
+      <div class="troubleshooting">
+        <a href='https://bit.ly/extensao-problemas' target='_blank'>Está com problemas com a extensão? <br />Clique aqui</a>
+      </div>
       <i class="information">* Dados baseados nos alunos que utilizam a extensão</i>
       <el-button @click="closeDialog()">Fechar</el-button>
-    </span>
+    </div>
   </el-dialog>
 </template>
 <script>
@@ -276,5 +290,36 @@
   font-family: Ubuntu;
   font-size: 11px;
   margin-top: 8px;
+}
+.dialog-footer {
+  display: flex;
+}
+.troubleshooting {
+  text-align: left;
+  flex: 1 1 auto;
+}
+.troubleshooting a {
+  color: #ed5167!important;
+  text-decoration: underline;
+}
+.update-alert {
+  display: flex;
+  background: #f4f4f5;
+  height: 78px;
+  width: 100%;
+  margin-top: 24px;
+  border-radius: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.update-alert a{
+  color: #1976d2!important;
+  text-decoration: underline;
+}
+.update-alert .el-alert__content{
+  padding-left: 16px!important;
 }
 </style>

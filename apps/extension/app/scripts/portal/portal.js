@@ -137,7 +137,6 @@ async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
     const storageUser = 'ufabc-extension-' + getEmailAluno()
     const cursos = await Utils.storage.getItem(storageUser)
 
-
     let allSavedStudents = []
     const students = await Utils.storage.getItem('ufabc-extension-students')
     if(students && students.length) {

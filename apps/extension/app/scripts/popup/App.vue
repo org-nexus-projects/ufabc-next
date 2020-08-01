@@ -11,7 +11,9 @@
           color="primary"
           indeterminate
         ></v-progress-circular>
-        <span>Carregando informações...</span>
+        <div class="loading-text">
+          <span>Carregando informações...</span>
+        </div>
       </div>
 
       <div class="error" v-else-if="error">
@@ -50,7 +52,7 @@
         </div>
 
         <div class="student-update">
-          <a href='https://aluno.ufabc.edu.br/fichas_individuais' target='_blank'>Atualizar agora</a>
+          <a href='https://aluno.ufabc.edu.br/fichas_individuais' target='_blank'>Atualizar dados agora</a>
         </div>
       </div>
 
@@ -58,6 +60,10 @@
         <p>Seja bem-vindo à extensão do UFABC Next.</p>
         <p>Parece que nós não temos suas informações, <a href='https://aluno.ufabc.edu.br/' target='_blank'>vamos carregá-las?</a></p>
       </template>
+
+      <div class="extension-troubleshooting">
+        <a href='https://bit.ly/extensao-problemas' target='_blank'>Está com problemas com a extensão? <br />Clique aqui</a>
+      </div>
     </div>
   </div>
 </template>
@@ -127,7 +133,7 @@ import Utils from '../helpers/utils'
   justify-content: center;
   height: 70px;
 }
-.loading > span {
+.loading-text {
   margin-left: 8px;
 }
 .error {
@@ -186,6 +192,7 @@ import Utils from '../helpers/utils'
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 12px;
 }
 .cp {
   text-align: left;
@@ -198,5 +205,8 @@ import Utils from '../helpers/utils'
 .ca {
   text-align: right;
   color: #2E7EED;
+}
+.extension-troubleshooting {
+  text-align: center;
 }
 </style>

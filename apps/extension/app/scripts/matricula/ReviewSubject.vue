@@ -26,7 +26,6 @@
         :teachers="help_data.specific"
       />
 
-
     </div>
     <div class="ufabc-row ufabc-align-center ufabc-justify-middle" style="min-height: 100px" v-else>
       Nenhum dado encontrado
