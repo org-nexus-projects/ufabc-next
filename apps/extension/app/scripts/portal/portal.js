@@ -13,7 +13,7 @@ const errorSVG = require('./error.svg')
 const logoWhite = require('./logo-white.svg')
 
 const toast = new Toastify({
-  text: "<div class='toast-loading-text' style='width: 250px'><img src=" + logoWhite + " width='120' style='margin-bottom: 8px' /><p style='padding-bottom: 8px;'>Atualizando suas informações...</p>\n\n <b>NÃO SAIA DESSA PÁGINA,</b> <p>apenas aguarde 🙏</p></div>",
+  text: "<div class='toast-loading-text' style='width: 250px'><img src=" + logoWhite + " width='120' style='margin-bottom: 8px' /><p style='padding-bottom: 8px;'>Atualizando suas informações...</p>\n\n <b>NÃO SAIA DESSA PÁGINA,</b> <p>apenas aguarde, no máx. 5 min 🙏</p></div>",
   duration: -1, 
   close: false,
   gravity: "bottom",
@@ -132,7 +132,7 @@ async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
       free_credits_number: totalCreditsFree,
       credits_total: (totalCreditsMandatory + totalCreditsLimited + totalCreditsFree)
     }, {
-      timeout: 30 * 1000 // 30 seconds
+      timeout: 60 * 1 * 1000 // 1 minute
     })
     const storageUser = 'ufabc-extension-' + getEmailAluno()
     const cursos = await Utils.storage.getItem(storageUser)
@@ -183,7 +183,8 @@ function getEmailAluno() {
     .text()
     .replace(/\s*/,'')
     .split('|')[0]
-    .replace(' ','');
+    .replace(' ','')
+    .toLowerCase();
 }
 
 function toNumber(el) {
