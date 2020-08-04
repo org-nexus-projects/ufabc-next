@@ -95,6 +95,7 @@ module.exports = new (function (){
         if (IS_BROWSER) {
           console.log('Using chrome.storage')
           chrome.storage.local.set({ [key]: value })
+          resolve(value)
         } else {
           console.log('Using xdLocalStorage')
           window.xdLocalStorage.setItem(key, JSON.stringify(value), function(data) { resolve(data) })  
