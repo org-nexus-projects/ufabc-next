@@ -113,7 +113,7 @@
       transform: scale(1.05, 1.05);
     }
     .chromestore-download {
-      max-height: 72px;
+      max-height: 64px;
       background: #fff;
       border-radius: 4px;
       padding: 4px;
@@ -122,6 +122,10 @@
     }
     .chromestore-download:hover {
       background-color: #f7f2f2;
+    }
+    .store-button {
+      height: 64px;
+      cursor: pointer;
     }
     .extension-link {
       color: #0000ff!important;
@@ -238,6 +242,9 @@
               <div class="col-md-12 col-lg-7 text-center">
                 <img class="img-fluid home-image" src="assets/images/reviews.png" alt="Home">
                 <a onclick="window.open(EXTENSION_URL,'_blank'); return false;" target="_blank"><img src="assets/icons/chromestore.png" class="chromestore-download" /></a>
+                <a onclick="window.open(FIREFOX_EXTENSION_URL,'_blank'); return false;" target="_blank"><img src="assets/icons/firefox-badge.png" class="chromestore-download" /></a>
+                <a onclick="window.open(ANDROID_URL,'_blank'); return false;" target="_blank"><img src="assets/icons/google-play-badge.svg" class="store-button" /></a>
+                <!-- <a onclick="window.open(IOS_URL,'_blank'); return false;" target="_blank"><img src="assets/icons/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" class="store-button" /></a> -->
               </div>
             </div>
           </div>
@@ -402,7 +409,7 @@
                   <div class="accordion no-border" data-accordion>
                     <div data-control><h2>Tem algum custo para acessar a plataforma? Como faço para utilizar?</h2></div>
                       <div data-content>
-                        <p>O UFABC Next é gratuito e sempre será! Qualquer aluno pode se cadastrar usando o login do Facebook ou do Google e acessar os dados. 
+                        <p>O UFABC Next é gratuito e sempre será! Qualquer aluno pode se cadastrar usando o login do Facebook ou do Google e acessar os dados.
                           <br /><br />
                           Recomendamos sempre utilizar a <a href="#" onclick="window.open(EXTENSION_URL,'_blank'); return false;" target="_blank">extensão</a> na hora que for fazer a matrícula para colaborar com as estatísticas dos chutes :)</p>
                       </div>
@@ -565,9 +572,12 @@
       $('#stats-counter').html(rendered)
 
       const EXTENSION_URL = 'https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk'
+      const FIREFOX_EXTENSION_URL = 'https://addons.mozilla.org/pt-BR/firefox/addon/ufabc-next/'
       const TEACHER_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSfbwaJCw-t4SlHJ4akwQNCMNAEBREDcdfrqHs7ROhkuUUwDRQ/viewform?usp=sf_link'
       const FB_LINK = window.location.href.indexOf('ufabcnext') != -1 ? 'https://api.ufabcnext.com/connect/facebook' : 'http://localhost:8011/connect/facebook'
       const GOOGLE_LINK = window.location.href.indexOf('ufabcnext') != -1 ? 'https://api.ufabcnext.com/connect/google' : 'http://localhost:8011/connect/google'
+      const ANDROID_URL = 'https://play.google.com/store/apps/details?id=com.ufabcnext'
+      const IOS_URL = 'https://apps.apple.com/us/app/id1505243398'
 
       let self = this
       axios.get('https://api.ufabcnext.com/v1/stats/usage').then(function (res){
