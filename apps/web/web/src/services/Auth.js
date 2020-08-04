@@ -17,7 +17,7 @@ class Auth {
 
   isLoggedIn() {
     if(!!this.user) {
-      window && window.opener && window.opener.parent && window.opener.parent.postMessage('ufabc-next-token', this.token);
+      window && window.opener && window.opener.parent && window.opener.parent.postMessage(this.token, '*');
     }
     return !!this.user
   }
@@ -29,7 +29,7 @@ class Auth {
 
     try {
       if(token) {
-        window && window.opener && window.opener.parent && window.opener.parent.postMessage('ufabc-next-token', token);
+        window && window.opener && window.opener.parent && window.opener.parent.postMessage(token, '*');
       }
       localStorage.setItem('token', token)
       this.user = JwtDecode(token)
