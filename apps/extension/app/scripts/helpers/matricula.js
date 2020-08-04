@@ -149,7 +149,7 @@ function Matricula() {
   }
 
   function currentUser() {
-    return $('#usuario_top').text().replace(/\s*/, '').split('|')[0].replace(' ', '')
+    return $('#usuario_top').text().replace(/\s*/, '').split('|')[0].trim().toLowerCase()
   }
 
   // send aluno data

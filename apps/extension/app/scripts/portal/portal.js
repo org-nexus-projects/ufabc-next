@@ -149,7 +149,7 @@ async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
       cursos: cursos,
       ra: ra,
       name: getEmailAluno(),
-      lastUpdate: new Date()
+      lastUpdate: Date.now()
     }
     allSavedStudents.unshift(student)
 
@@ -194,7 +194,7 @@ async function saveToLocalStorage(aluno, curso) {
   const storageUser = 'ufabc-extension-' + getEmailAluno()
   let user = await Utils.storage.getItem(storageUser)
 
-  if(!user) user = []
+  if(!user || _.isEmpty(user)) user = []
   user.push(curso)
   user = _.uniqBy(user, 'curso')
   await Utils.storage.setItem(storageUser, user)

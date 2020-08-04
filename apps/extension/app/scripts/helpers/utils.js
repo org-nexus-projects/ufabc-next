@@ -107,7 +107,7 @@ module.exports = new (function (){
         if (IS_BROWSER) {
           console.log('Using chrome.storage')
           // maybe below is actually resolve(data && data[key]) - please check
-          const storageGetResult = chrome.storage.local.get(key, function (data) { resolve(data) })
+          const storageGetResult = chrome.storage.local.get(key, function (data) { resolve(data && data[key]) })
           
           // firefox seems to return a promise instead of using callbacks
           if (storageGetResult instanceof Promise) {
