@@ -58,6 +58,7 @@ export default {
         }
       },
     },
+    
     this.crDistributionSettings = {
       area: true,
       labelMap: {
@@ -111,7 +112,64 @@ export default {
             globa: false // false by default
         }
       },
+      
     }
+
+    this.cpHistorySettings = {
+      area: true,
+      labelMap: {
+        season: 'Quadrimestre',
+        cp_acumulado: 'Seu CP'
+      },
+      areaStyle: {
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 1,
+          y2: 0,
+          colorStops: [{
+              offset: 0, color: '#8E2DE2' // color at 0% position
+          }, {
+              offset: 1, color: '#4A00E0' // color at 100% position
+          }],
+          global: false // false by default
+        }
+      },
+
+      lineStyle: {
+        color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 1,
+            y2: 0,
+            colorStops: [{
+                offset: 0, color: '#8E2DE2' // color at 0% position
+            }, {
+                offset: 1, color: '#4A00E0' // color at 100% position
+            }],
+            globa: false // false by default
+        }
+      },
+
+      itemStyle: {
+        color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 1,
+            y2: 0,
+            colorStops: [{
+                offset: 0, color: '#8E2DE2' // color at 0% position
+            }, {
+                offset: 1, color: '#4A00E0' // color at 100% position
+            }],
+            global: false // false by default
+        }
+      },
+    }
+
     return {
       crHistoryxAxis: {
         name: 'Quadrimestre',
@@ -119,9 +177,21 @@ export default {
         nameGap: 30,
         type: 'category'
       },
-
       crHistoryyAxis: {
         name: 'CR',
+        nameLocation: 'center',
+        nameGap: 25,
+        type: 'value'
+      },
+
+      cpHistoryxAxis: {
+        name: 'Quadrimestre',
+        nameLocation: 'center',
+        nameGap: 30,
+        type: 'category'
+      },
+      cpHistoryyAxis: {
+        name: 'CP',
         nameLocation: 'center',
         nameGap: 25,
         type: 'value'
@@ -138,8 +208,19 @@ export default {
         nameLocation: 'center',
         nameGap: 29,
       },
+      
+      cpHistoryLoading: false,
       crHistoryLoading: false,
       crDistributionLoading: false,
+
+      cpSelectedHistory: null,
+      cpHistories: [],
+
+      cpHistoryOptions: {
+        columns: ['season', 'cp_acumulado'],
+        rows: [],
+      },
+
       crHistoryOptions: {
         columns: ['season', 'cr_acumulado'],
         rows: [],
@@ -262,7 +343,48 @@ export default {
   methods: {
     fetch() {
       this.populateCrHistory()
-      this.populateCrDistribution()    
+      this.populateCrDistribution() 
+      this.populateCpHistory()
+    },
+
+    normalizeHistory(history) {
+      var total = []
+      
+      Object.keys(history).forEach(key => {
+        const year = history[key]
+        Object.keys(year).forEach(month => {
+          total.push(_.extend(year[month], { 
+            season: `${key}:${month}`, 
+            quad: parseInt(month), 
+            year: parseInt(key) 
+          }))
+        })
+      })
+    
+      return total
+    },
+
+    updateCpHistory() {
+      const currentHistory = _.find(this.cpHistories, { _id: this.cpSelectedHistory })
+      this.cpHistoryOptions.rows = this.normalizeHistory(currentHistory.coefficients)
+    },
+
+    async populateCpHistory() {
+      this.cpHistoryLoading = true
+      try {
+        let cpHistoryData = await Performance.getCpHistory()
+        this.cpHistoryLoading = false
+        if(!cpHistoryData) return
+
+        this.cpHistories = cpHistoryData.data.docs
+        if (this.cpHistories.length) {
+          this.cpSelectedHistory = this.cpHistories[0]._id
+          this.updateCpHistory()
+        }
+      } catch (err) {
+        console.log(err)
+        this.cpHistoryLoading = false
+      }
     },
 
     async populateCrHistory() {

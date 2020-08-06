@@ -73,6 +73,23 @@
     <ve-line v-if="crHistoryOptions && crHistoryOptions.rows.length" :data="crHistoryOptions" :settings="crHistorySettings" :xAxis="crHistoryxAxis" :yAxis="crHistoryyAxis"></ve-line>
   </div>
 
+  <div v-if="cpHistoryOptions.rows.length" v-loading="cpHistoryLoading" class="flex mb-4 column ra-1 elevate-2 pa-3 white">
+    <span class="chart-title mb-2">Seu CP ao longo do tempo</span>
+    <el-select 
+      v-model="cpSelectedHistory"
+      @change="updateCpHistory()"
+      placeholder="Curso"
+      :style="{ 'minWidth': $vuetify.breakpoint.xsOnly ? '100%' : '200px', 'maxWidth': '300px' }">
+      <el-option
+        v-for="history in cpHistories"
+        :key="history._id"
+        :label="history.curso"
+        :value="history._id">
+      </el-option>
+    </el-select>
+    <ve-line v-if="cpHistoryOptions && cpHistoryOptions.rows.length" :data="cpHistoryOptions" :settings="cpHistorySettings" :xAxis="cpHistoryxAxis" :yAxis="cpHistoryyAxis"></ve-line>
+  </div>
+
   <div v-if="crHistoryOptions.rows.length" v-loading="crDistributionLoading" class="flex column ra-1 elevate-2 pa-3 white">
     <span class="chart-title">Distribuição de CR</span>
     <span class="f-12 ufabcnext-darkgrey--text">Os dados são baseados apenas nos alunos que utilizam a extensão</span>

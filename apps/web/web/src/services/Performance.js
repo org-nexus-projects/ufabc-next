@@ -10,6 +10,10 @@ class Performance {
   async getCrDistribution() {
     return await Axios.get('/stats/grades')
   }
+
+  async getCpHistory() {
+    return Axios.get('/historiesGraduations')
+  }
 }
 
 export default (new Performance)
