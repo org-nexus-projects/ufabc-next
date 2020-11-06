@@ -13,7 +13,7 @@
       <div class="row wrap mb-0">
         <div class="ufabcnext-blue--text mr-2 flex ellipsis">
           <router-link :to="{ path: '/reviews', query: { subjectId: comment.subject._id }}" style="text-decoration: none">
-            {{ comment.subject.name || '(disciplina desconhecida)' }}
+            {{ comment.subject.name || '(disciplina desconhecida)' }} <el-tag class="ml-2" size="small" v-if="isEAD">EAD</el-tag>
           </router-link>
         </div>
       </div>
@@ -121,9 +121,21 @@ export default {
   },
 
   computed: {
+    isEAD() {
+      if(!this.comment || !this.comment.enrollment) return false
+      if(!this.comment.enrollment.season && !this.comment.enrollment.year) return false
+
+      const season = this.comment.enrollment.season || (this.comment.enrollment.year + ':' + this.comment.enrollment.quad)
+
+      if(season == '2020:1' || season == '2020:3' || season == '2021:3') return true
+    },
+
+
     prettySeason() {
-      if(!this.comment || !this.comment.enrollment || !this.comment.enrollment.season) return ''
-      let season = this.comment.enrollment.season || this.comment.enrollment.year+':'+this.comment.enrollment.quad
+      if(!this.comment || !this.comment.enrollment) return ''
+      if(!this.comment.enrollment.season && !this.comment.enrollment.year) return ''
+        
+      const season = this.comment.enrollment.season || (this.comment.enrollment.year + ':' + this.comment.enrollment.quad)
       return PrettySeason(season).replace('º Quad de ', 'Q ')
     },
 
