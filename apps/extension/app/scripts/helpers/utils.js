@@ -92,12 +92,31 @@ module.exports = new (function (){
   var storage = {
     setItem(key, value) {
       return new Promise((resolve, reject) => {
-        window.xdLocalStorage.setItem(key, JSON.stringify(value), function(data) { resolve(data) })
+        if (IS_BROWSER) {
+          console.log('Using chrome.storage')
+          chrome.storage.local.set({ [key]: value })
+          resolve(value)
+        } else {
+          console.log('Using xdLocalStorage')
+          window.xdLocalStorage.setItem(key, JSON.stringify(value), function(data) { resolve(data) })  
+        }
       })
     },
     getItem(key) {
       return new Promise((resolve, reject) => {
-        window.xdLocalStorage.getItem(key, function(data) { resolve(JSON.parse(data.value)) })
+        if (IS_BROWSER) {
+          console.log('Using chrome.storage')
+          // maybe below is actually resolve(data && data[key]) - please check
+          const storageGetResult = chrome.storage.local.get(key, function (data) { resolve(data && data[key]) })
+          
+          // firefox seems to return a promise instead of using callbacks
+          if (storageGetResult instanceof Promise) {
+            storageGetResult.then(result => resolve(result))
+          }
+        } else {
+          console.log('Using xdLocalStorage')
+          window.xdLocalStorage.getItem(key, function(data) { resolve(JSON.parse(data.value)) })
+        }
       })
     }
   }
@@ -109,7 +128,6 @@ module.exports = new (function (){
     } else {
       return 'https://next-extension.sv.ufabcnext.com/static/' + link.replace(/^\//, '')
     }
-    
   }
 
   var getFile = async function (link) {

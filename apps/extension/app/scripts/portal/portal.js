@@ -57,8 +57,6 @@ function isFichaIndividualPath () {
 }
 
 function iterateTabelaCursosAndSaveToLocalStorage () {
-  var aluno = getEmailAluno();
-
   var tabelaCursos = $('tbody').children().slice(1);
   let count = 0
 
@@ -78,12 +76,13 @@ function iterateTabelaCursosAndSaveToLocalStorage () {
     curso.curso = linhaCurso[0].innerText.replace("Novo", '');
     curso.turno = linhaCurso[3].innerText;
 
-    await saveToLocalStorage(aluno, curso);
+    await saveToLocalStorage(curso);
+
+    await saveStudentsToLocalStorage(curso);
   })
 }
 
 async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
-  
   try {
     var curso = {};
     var ficha_url = fichaAlunoUrl.replace('.json', '');
@@ -134,27 +133,8 @@ async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
     }, {
       timeout: 60 * 1 * 1000 // 1 minute
     })
-    const storageUser = 'ufabc-extension-' + getEmailAluno()
-    const cursos = await Utils.storage.getItem(storageUser)
 
-    let allSavedStudents = []
-    const students = await Utils.storage.getItem('ufabc-extension-students')
-    if(students && students.length) {
-      allSavedStudents.push(...students)
-    }
-
-    allSavedStudents = allSavedStudents.filter(student => student.ra != ra)
-    
-    const student = {
-      cursos: cursos,
-      ra: ra,
-      name: getEmailAluno(),
-      lastUpdate: new Date()
-    }
-    allSavedStudents.unshift(student)
-
-    await Utils.storage.setItem('ufabc-extension-students', allSavedStudents)
-
+    curso.ra = ra
     curso.cp = toNumber(info[0]);
     curso.cr = toNumber(info[1]);
     curso.ca = toNumber(info[2]);
@@ -177,6 +157,7 @@ async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
   }
 }
 
+
 function getEmailAluno() {
   return $('#top li')
     .last()
@@ -191,13 +172,37 @@ function toNumber(el) {
   return parseFloat(el.innerText.replace(',', '.'));
 }
 
-async function saveToLocalStorage(aluno, curso) {
+async function saveToLocalStorage(curso) {
   const storageUser = 'ufabc-extension-' + getEmailAluno()
   let user = await Utils.storage.getItem(storageUser)
+  if(!user || _.isEmpty(user)) user = []
 
-  if(!user) user = []
   user.push(curso)
   user = _.uniqBy(user, 'curso')
+
   await Utils.storage.setItem(storageUser, user)
-  toastr.success('Suas informações foram salvas! Disciplinas do curso do ' + curso.curso + ' para o usuário ' + aluno + '.', { timeout: 100000})
+  toastr.success('Suas informações foram salvas! Disciplinas do curso do ' + curso.curso + ' para o usuário ' + getEmailAluno() + '.', { timeout: 100000})
+}
+
+
+async function saveStudentsToLocalStorage(curso) {
+  const storageUser = 'ufabc-extension-' + getEmailAluno()
+  const cursos = await Utils.storage.getItem(storageUser)
+  const ra = (curso && curso.ra) || null
+
+  let allSavedStudents = []
+  const students = await Utils.storage.getItem('ufabc-extension-students')
+  if(students && students.length) {
+    allSavedStudents.push(...students)
+  }
+
+  allSavedStudents = allSavedStudents.filter(student => student.ra != ra)
+  const student = {
+    cursos: cursos,
+    ra: ra,
+    name: getEmailAluno(),
+    lastUpdate: Date.now()
+  }
+  allSavedStudents.unshift(student)
+  await Utils.storage.setItem('ufabc-extension-students', allSavedStudents)
 }

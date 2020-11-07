@@ -109,7 +109,7 @@ import Utils from '../helpers/utils'
 
         let d = new Date(date)
         const day = (d.getDate() < 10 ? '0' : '') + d.getDate()
-        const month = (d.getMonth() < 10 ? '0' : '') + d.getMonth()
+        const month = (d.getMonth() < 10 ? '0' : '') + (d.getMonth() + 1)
         const year = d.getFullYear()
         const hour = (d.getHours() < 10 ? '0' : '') + d.getHours()
         const minutes = (d.getMinutes() < 10 ? '0' : '') + d.getMinutes()
