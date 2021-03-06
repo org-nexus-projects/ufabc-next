@@ -34,7 +34,8 @@ function Matricula() {
       await Utils.storage.setItem('ufabc-extension-disciplinas', professors)
       return professors
     } catch(e) {
-      console.log(e.status)
+      console.log('❌ Erro ao atualizar disciplinas')
+      console.error(e)
     }   
   }
 

@@ -73,6 +73,9 @@ import Vuetify from 'vuetify'
 Vue.use(Vuetify)
 
 import Utils from '../helpers/utils'
+import setupStorage from '../helpers/setupStorage'
+
+setupStorage()
 
   export default {
     name: 'App',

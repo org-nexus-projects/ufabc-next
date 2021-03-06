@@ -177,7 +177,7 @@
 
         const season = findSeasonKey()
 
-        if(isIdeal && season != '2020:3') {
+        if(isIdeal && (season != '2020:3' || season != '2021:1' || season != '2021:2')) {
           base.push({ text: 'CR', value: 'cr', sortable: false })
           base.push({ text: 'CP', value: 'cp', sortable: false })
         } else {

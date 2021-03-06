@@ -2,6 +2,7 @@ import $ from 'jquery'
 import Axios from 'axios'
 import is from 'is_js'
 import xdLocalStorage from '../lib/xdLocalStorage.min.js'
+import _ from 'lodash'
 
 module.exports = new (function (){
   // force initialization of xdLocalStorage
@@ -76,10 +77,11 @@ module.exports = new (function (){
       document.head.appendChild(s); 
   }
 
-  var injectScript = function (link) {
+  var injectScript = function (link, storage) {
     var s = document.createElement('script');
-      s.src = getExtensionUrl(link);
-      (document.head || document.documentElement).appendChild(s);
+    s.src = getExtensionUrl(link);
+
+    (document.head || document.documentElement).appendChild(s);
   }
 
   var injectIframe = function (link) {
@@ -92,30 +94,42 @@ module.exports = new (function (){
   var storage = {
     setItem(key, value) {
       return new Promise((resolve, reject) => {
-        if (IS_BROWSER) {
-          console.log('Using chrome.storage')
-          chrome.storage.local.set({ [key]: value })
-          resolve(value)
-        } else {
-          console.log('Using xdLocalStorage')
-          window.xdLocalStorage.setItem(key, JSON.stringify(value), function(data) { resolve(data) })  
+        try {
+          const date = Date.now()
+          const event = new CustomEvent("requestStorage", {
+            "detail": {
+              "method": `setStorage-${key}-${date}`,
+              "date": date,
+              "key": key,
+              "value": value
+            }
+          })
+          document.addEventListener(`setStorage-${key}-${date}`, (evt) => {
+            resolve(evt.detail.value)
+          })
+          document.dispatchEvent(event)
+        } catch (err) {
+          console.error(err)
         }
       })
     },
     getItem(key) {
       return new Promise((resolve, reject) => {
-        if (IS_BROWSER) {
-          console.log('Using chrome.storage')
-          // maybe below is actually resolve(data && data[key]) - please check
-          const storageGetResult = chrome.storage.local.get(key, function (data) { resolve(data && data[key]) })
-          
-          // firefox seems to return a promise instead of using callbacks
-          if (storageGetResult instanceof Promise) {
-            storageGetResult.then(result => resolve(result))
-          }
-        } else {
-          console.log('Using xdLocalStorage')
-          window.xdLocalStorage.getItem(key, function(data) { resolve(JSON.parse(data.value)) })
+        try {
+          const date = Date.now()
+          const event = new CustomEvent("requestStorage", {
+            "detail": {
+              "method": `getStorage-${key}-${date}`,
+              "key": key,
+              "date": date
+            }
+          })
+          document.addEventListener(`getStorage-${key}-${date}`, (evt) => {
+            resolve(evt.detail.value)
+          })
+          document.dispatchEvent(event)
+        } catch (err) {
+          console.error(err)
         }
       })
     }
