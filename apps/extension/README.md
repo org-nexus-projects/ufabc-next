@@ -1,76 +1,19 @@
-# ex
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+# UFABC Next - Extension
 
-## Installation
+Instalando a extensão
 
-	$ npm install
+OBS: se já tiver a extensão instalada, desinstalar
+Acessar: chrome://extensions/
 
-## Usage
+Node version: 9
 
-Run `$ gulp --watch` and load the `dist`-directory into chrome.
+1. `yarn install`
+2. `yarn build`
+3. `yarn dev`
 
-## Entryfiles (bundles)
+Clicar em no botão Carregar sem compactação e selecionar a pasta ufabc-next-extension/dist/chrome
 
-There are two kinds of entryfiles that create bundles.
+Você precisa estar rodando o [ufabc-next-server](https://github.com/ufabc-next/ufabc-next-server) local para a extensão funcionar perfeitamente.
 
-1. All js-files in the root of the `./app/scripts` directory
-2. All css-,scss- and less-files in the root of the `./app/styles` directory
-
-## Tasks
-
-### Build
-
-    $ gulp
-
-
-| Option         | Description                                                                                                                                           |
-|----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `--watch`      | Starts a livereload server and watches all assets. <br>To reload the extension on change include `livereload.js` in your bundle.                      |
-| `--production` | Minifies all assets                                                                                                                                   |
-| `--verbose`    | Log additional data to the console.                                                                                                                   |
-| `--vendor`     | Compile the extension for different vendors (chrome, firefox, opera, edge)  Default: chrome                                                                 |
-| `--sourcemaps` | Force the creation of sourcemaps. Default: !production                                                                                                |
-
-
-### pack
-
-Zips your `dist` directory and saves it in the `packages` directory.
-
-    $ gulp pack --vendor=firefox
-
-### Version
-
-Increments version number of `manifest.json` and `package.json`,
-commits the change to git and adds a git tag.
-
-
-    $ gulp patch      // => 0.0.X
-
-or
-
-    $ gulp feature    // => 0.X.0
-
-or
-
-    $ gulp release    // => X.0.0
-
-
-## Globals
-
-The build tool also defines a variable named `process.env.NODE_ENV` in your scripts. It will be set to `development` unless you use the `--production` option.
-
-
-**Example:** `./app/background.js`
-
-```javascript
-if(process.env.NODE_ENV === 'development'){
-  console.log('We are in development mode!');
-}
-```
-
-
-
-
-
-
+Para testar, utilize o site de [DEBUG](https://api.ufabcnext.com/snapshot)

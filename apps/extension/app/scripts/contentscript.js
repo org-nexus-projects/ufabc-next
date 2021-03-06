@@ -10,8 +10,11 @@ import $ from 'jquery'
 import Utils from './helpers/utils'
 import MatriculaHelper from './helpers/matricula'
 
+import _ from 'lodash'
+
 // CSS imports
 import "element-ui/lib/theme-chalk/index.css"
+import setupStorage from './helpers/setupStorage'
 
 let matricula_url
 
@@ -50,13 +53,20 @@ async function load() {
   Utils.injectIframe('pages/iframe.html')
   Utils.injectScript('scripts/lib/init.js')
 
+  setupStorage()
   require('./portal/portal')
 
   if(matricula_url.some(url => currentUrl.indexOf(url) != -1)) {
     // update teachers locally
     setTimeout(async () => {
-      const lastUpdate = await Utils.storage.getItem('ufabc-extension-last')
-      MatriculaHelper.updateProfessors(lastUpdate).then(r => console.log(r))
+      let lastUpdate = null
+      try {
+        lastUpdate = await Utils.storage.getItem('ufabc-extension-last')
+      } catch (err) {
+        lastUpdate = Date.now()
+      } finally {
+        MatriculaHelper.updateProfessors(lastUpdate)
+      }
 
       // this is the main vue app
       // i.e, where all the filters live
@@ -66,9 +76,6 @@ async function load() {
 
       //inject styles
       Utils.injectStyle('styles/main.css')
-
-      //inject face
-      Utils.injectScript('scripts/helpers/face.js')
 
       // manda as informacoes para o servidor
       MatriculaHelper.sendAlunoData()

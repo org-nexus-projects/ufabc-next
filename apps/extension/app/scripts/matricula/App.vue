@@ -28,7 +28,7 @@
     </div>
 
     <div class="pr-5">
-      <div class="title-filter">Extras</div>
+      <div class="title-filter">Filtros</div>
       <div>
         <el-switch  
           class="mr-3 ufabc-element-switch"
@@ -44,17 +44,38 @@
           @change="changeCursadas()"
           ></el-switch>
 
-        <el-switch  
+            <el-popover
+              v-if="showWarning"
+              placement="bottom"
+              title="Atenção"
+              width="450"
+              trigger="hover">
+              <div class="warning-advice">
+                Faz mais de uma semana que você não sincroniza seus dados.<br />
+                Isso pode acabar afetando a ordem dos chutes. <br /><Br />
+                <a href='https://aluno.ufabc.edu.br/fichas_individuais' target='_blank'>
+                  Atualizar dados agora
+                </a>
+              </div>
+              <el-button 
+                v-if="showWarning"
+                slot="reference"
+                type="danger" 
+                icon="el-icon-warning" 
+                class="ml-3"
+                circle
+              ></el-button>
+            </el-popover>
+
+
+
+<!--         <el-switch  
           class="mr-3 ufabc-element-switch"
           active-text="Professores" 
           v-model="teachers" 
           @change="changeTeachers()"
-          ></el-switch>
+          ></el-switch> -->
       </div>
-    </div>
-
-    <div class="share ufabc-row align-center">
-      <div class="fb-share-button fb_iframe_widget" data-href="https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk?hl=pt-BR" data-layout="button" data-size="small" data-mobile-iframe="true" fb-xfbml-state="rendered" fb-iframe-plugin-query="app_id=283675788310945&amp;container_width=300&amp;href=https%3A%2F%2Fchrome.google.com%2Fwebstore%2Fdetail%2Fufabc-matricula%2Fgphjopenfpnlnffmhhhhdiecgdcopmhk%3Fhl%3Dpt-BR&amp;layout=button&amp;locale=pt_BR&amp;mobile_iframe=true&amp;sdk=joey&amp;size=small"><span style="vertical-align: bottom; width: 97px; height: 20px;"><iframe name="f3f6380124e0d68" width="1000px" height="1000px" frameborder="0" allowtransparency="true" allowfullscreen="true" scrolling="no" allow="encrypted-media" title="fb:share_button Facebook Social Plugin" src="https://www.facebook.com/v2.10/plugins/share_button.php?app_id=283675788310945&amp;channel=https%3A%2F%2Fstaticxx.facebook.com%2Fconnect%2Fxd_arbiter%2Fr%2FafATJJjxKE6.js%3Fversion%3D43%23cb%3Df9fea2ad7fa08c%26domain%3Dapi.ufabcnext.com%26origin%3Dhttps%253A%252F%252Fapi.ufabcnext.com%252Ff1f7e9e9fbd3a%26relation%3Dparent.parent&amp;container_width=300&amp;href=https%3A%2F%2Fchrome.google.com%2Fwebstore%2Fdetail%2Fufabc-matricula%2Fgphjopenfpnlnffmhhhhdiecgdcopmhk%3Fhl%3Dpt-BR&amp;layout=button&amp;locale=pt_BR&amp;mobile_iframe=true&amp;sdk=joey&amp;size=small" style="border: none; visibility: visible; width: 97px; height: 20px;" class=""></iframe></span></div>
     </div>
   </div>
 </template>
@@ -69,6 +90,7 @@
     name: 'App',
     data () {
       return {
+        showWarning: false,
         selected: false,
         cursadas: false,
         teachers: false,
@@ -98,18 +120,19 @@
         }],
       }
     },
-    created() {
-      // $('#sessao').remove()
-      // window.tempo = Infinity
+    async created() {
+      const students = await Utils.storage.getItem('ufabc-extension-students')
+      const currentUser = MatriculaHelper.currentUser()
 
-      // setTimeout(() => {
-      //   this.$notify({
-      //     title: 'UHU!',
-      //     message: 'Retiramos o timer para você fazer a sua matrícula com tranquilidade 😉',
-      //     type: 'success',
-      //     duration: 8000,
-      //   });
-      // }, 5000)
+      const currentStudent = students.find((student) => student.name == currentUser)
+      if(currentStudent && currentStudent.lastUpdate) {
+        const diff = Date.now() - currentStudent.lastUpdate
+        const MAX_UPDATE_DIFF = 1000 * 60 * 60 * 24 * 7 // 7 days
+        if(diff > MAX_UPDATE_DIFF) {
+          this.showWarning = true
+        }
+      }
+
       this.teachers = true
       this.changeTeachers()
     },
@@ -269,11 +292,7 @@
   margin-bottom: 2px;
   color: rgba(0,0,0,0.9);
 }
-
-.share {
-  height: 100%;
-  position: absolute;
-  top: 0px;
-  right: 22px;
+.warning-advice > a {
+  color: rgb(0, 0, 238);
 }
 </style>

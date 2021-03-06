@@ -31,6 +31,7 @@ const reviewSubjectData = {
   notifier: null
 }
 
+
 var app = new Vue({
   el: '#app',
   data:{
