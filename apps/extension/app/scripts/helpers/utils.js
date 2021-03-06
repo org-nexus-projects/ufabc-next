@@ -77,7 +77,7 @@ module.exports = new (function (){
       document.head.appendChild(s); 
   }
 
-  var injectScript = function (link, storage) {
+  var injectScript = function (link) {
     var s = document.createElement('script');
     s.src = getExtensionUrl(link);
 

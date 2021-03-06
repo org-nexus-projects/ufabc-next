@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import Vuetify from 'vuetify'
 import ElementUI from 'element-ui'
-import _ from 'lodash'
 Vue.use(Vuetify)
 Vue.use(ElementUI)
 
