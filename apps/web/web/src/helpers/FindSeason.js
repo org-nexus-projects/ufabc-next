@@ -1,6 +1,6 @@
 function findQuadFromDate(month) {
-  if([0, 1, 2, 10, 11].includes(month)) return 1
-  if([3, 4, 5].includes(month)) return 2
+  if([0, 1, 10, 11].includes(month)) return 1
+  if([2, 3, 4, 5].includes(month)) return 2
   if([6, 7, 8, 9].includes(month)) return 3
 }
 
