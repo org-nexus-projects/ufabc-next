@@ -1,5 +1,137 @@
-.under-construction {
+.graduation-year {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 0.25rem;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 5px 20px rgb(0 0 0 / 5%);
+  box-shadow: 0 5px 20px rgb(0 0 0 / 5%);
+  border: none;
+  padding: 1.25rem;
+}
+
+.graduation-year-chip {
+  background: #9b9b9b;
+  border-radius: 4px;
+  padding: 4px;
+  width: 64px;
+  text-align: center;
+  line-height: 16px;
+}
+
+.graduation-term {
+  display: flex;
+  margin-bottom: -32px;
+}
+.graduation-subjects {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  height: 134px;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.graduation-term-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 136px;
+  height: 100%;
+  border-radius: 4px;
+  font-weight: 500;
+  flex: none;
+  flex-wrap: wrap;
+  margin-top: 15px;
+  height: 104px;
+}
+.graduation-term-title-top {
+  margin-bottom: -18px;
+}
+.graduation-term-title-year {
+  font-size: 22px;
+  font-weight: bold;
+}
+.graduation-term-title-credits {
+  font-size: 12px;
+}
+
+.planning-options {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  flex: 1 1 auto;
+  margin-top: 10px;
+}
+
+.graduation-term-subjects {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 136px;
+  height: 100%;
+  border-radius: 4px;
+  font-weight: 500;
+  flex: none;
+  padding: 6px;
+  flex-direction: column;
+  position: relative;
+}
+
+.graduation-term-subjects.mandatory {
+  background-color: var(--ufabcnext-orange);
+}
+.graduation-term-subjects.limited {
+  background-color: var(--ufabcnext-blue-light);
+}
+.graduation-term-subjects.free {
+  background-color: var(--ufabcnext-pink);
+}
+.graduation-term-subjects.completed {
+  background: rgb(5 194 24 / 12%);
+  border: 1px solid #05c218;
+}
+.graduation-term-subjects.completed .graduation-subject-credits {
+  background-color: #05c218;
+}
+.graduation-subject-name {
+  line-height: 15px;
+  font-size: 13px;
+  text-align: center;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  width: 100%;
+}
+.graduation-subject-code {
+  text-align: center;
+  font-size: 10px;
   position: absolute;
-  max-width: 450px;
-  max-height: 420px;
+  top: 6px;
+  width: 100%;
+}
+.graduation-subject-credits {
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  line-height: 20px;
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  right: 4px;
+  bottom: 6px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
 }

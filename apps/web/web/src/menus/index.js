@@ -24,6 +24,7 @@ export default [
   {
     title: 'Planejamento',
     featured: false,
+    private: true,
     icon: 'mdi-file-document-box-multiple',
     route: '/planning',
   },

@@ -98,7 +98,7 @@
     </div>
     <ve-line :data="crDistributionOptions" :mark-point="markPoint" :xAxis="crDistributionxAxis" :yAxis="crDistributionyAxis" :settings="crDistributionSettings"></ve-line>
   </div>
-  {{  }}
+
   <center v-if="!crHistoryOptions.rows.length && !crHistoryLoading && !crDistributionLoading" class="mt-5">
     <h2>Parece que não encontramos os dados do seu histórico :( <br />
       É necessário instalar a <a href="https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk" style="text-decoration: none;" target="_blank">extensão</a> e acessar a tela de Fichas Individuais no <a href="https://aluno.ufabc.edu.br/fichas_individuais" target="_blank" style="text-decoration: none;">Portal do Aluno.</a></h2>

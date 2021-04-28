@@ -1,9 +1,181 @@
-<div class="column align-center justify-middle flex mt-3 mb-4 pa-4">
-  <center class="mt-5" style="filter: blur(8px);">
-    <img src="@/assets/planejamento-ilustra.svg" width="80%" />
+<div class="column flex mx-4 mt-3 mb-4 ra-1" >
+  <center class="mt-5" v-if="!hasStudentHistory">
+    <h2>Parece que não encontramos os dados do seu histórico :( <br />
+      É necessário instalar a <a href="https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk" style="text-decoration: none;" target="_blank">extensão</a> e acessar a tela de Fichas Individuais no <a href="https://aluno.ufabc.edu.br/fichas_individuais" target="_blank" style="text-decoration: none;">Portal do Aluno.</a></h2>
+    <img src="@/assets/missing_history.svg" width="100%" />
   </center>
-  <div class="column align-center under-construction white ra-3 elevate-3 pa-4">
-    <span class="f-16">Estamos construindo uma feature que vai te ajudar a planejar sua grade!</span>
-    <span class="f-16">Aguenta ai, que logo mais ela já vai estar disponível. 😉</span>
-  </div>
+
+  <template v-else>
+    <v-layout row :wrap="$vuetify.breakpoint.xsOnly">
+      <v-flex xs12 md6>
+        <v-combobox
+          solo
+          item-text="curso"
+          v-model="selectedGraduation"
+          :items="graduations"
+          label="Selecione o seu curso"
+        >
+          <template v-slot:item="data">
+            <v-chip
+            :key="JSON.stringify(data.item)"
+            :selected="data.selected"
+            :disabled="data.disabled"
+            class="v-chip--select-multi mr-2"
+            @click.stop="data.parent.selectedIndex = data.index"
+            @input="data.parent.selectItem(data.item)"
+            label 
+            color="blue" 
+            text-color="white"
+          >
+            {{ data.item.grade }}
+          </v-chip>
+            {{ data.item.curso }}
+          </template>
+          <template v-slot:selection="data">
+            <div>
+              {{ data.item.curso }}
+              <v-chip
+                :key="JSON.stringify(data.item)"
+                :selected="data.selected"
+                :disabled="data.disabled"
+                class="v-chip--select-multi ml-2"
+                @click.stop="data.parent.selectedIndex = data.index"
+                @input="data.parent.selectItem(data.item)"
+                label 
+                color="blue" 
+                text-color="white"
+              >
+                {{ data.item.grade }}
+              </v-chip>
+            </div>
+          </template>
+        </v-combobox>
+      </v-flex>
+
+      <v-flex xs12 md6>
+        <v-layout align-center>
+          <v-radio-group v-model="mode" row class="planning-options">
+            <v-radio label="Quadrimestre ideal" value="ideal"></v-radio>
+            <v-radio label="Planejamento" value="planning"></v-radio>
+          </v-radio-group>
+        </v-layout>
+      </v-flex>
+    </v-layout>
+
+    <v-layout class="card-group-stats mb-4" row style="min-height: 145px; flex: none" :class="{ 'wrap': !$vuetify.breakpoint.lgOnly }">
+      <v-flex xs12 sm3 md3 lg3 class="card-stats">
+        <v-layout row align-center>
+          <v-icon class="mb-1" color="ufabcnext-orange" style="display: block;">mdi-brain</v-icon>
+          <span class="stats-subtitle f-14 ml-2">Obrigatórias</span>
+        </v-layout>
+        <div class="stats-counter">{{ mandatoryCreditsCompleted }} / <span class="f-16">{{ mandatoryCreditsTotal }} </span>
+          <span class="stats-subtitle f-16">créditos</span>
+        </div>
+        <div class="stats-subtitle">{{mandatoryCreditsPercentage}}% completo</div>
+        <div v-if='!$vuetify.breakpoint.xsOnly'>
+          <v-progress-linear
+            color="ufabcnext-orange"
+            height="6"
+            :value="mandatoryCreditsPercentage"
+            style="border-radius: .25rem;"
+          ></v-progress-linear>
+        </div>
+      </v-flex>
+  
+      <v-flex xs12 sm3 md3 lg3 class="card-stats">
+        <v-layout row align-center>
+          <v-icon class="mb-1" color="ufabcnext-blue-light" style="display: block;">mdi-bullseye-arrow          </v-icon>
+          <span class="stats-subtitle f-14 ml-2">Limitadas</span>
+        </v-layout>
+        <div class="stats-counter">{{ limitedCreditsCompleted }} / <span class="f-16">{{ limitedCreditsTotal }} </span>
+          <span class="stats-subtitle f-16">créditos</span>
+        </div>
+        <div class="stats-subtitle">{{limitedCreditsPercentage}}% completo</div>
+        <div v-if='!$vuetify.breakpoint.xsOnly'>
+          <v-progress-linear
+            color="ufabcnext-blue-light"
+            height="6"
+            :value="limitedCreditsPercentage"
+            style="border-radius: .25rem;"
+          ></v-progress-linear>
+        </div>
+      </v-flex>
+  
+      <v-flex xs12 sm3 md3 lg3 class="card-stats">
+        <v-layout row align-center>
+          <v-icon class="mb-1" color="ufabcnext-pink" style="display: block;">mdi-balloon</v-icon>
+          <span class="stats-subtitle f-14 ml-2">Livres</span>
+        </v-layout>
+        <div class="stats-counter">{{ freeCreditsCompleted }} / <span class="f-16">{{ freeCreditsTotal }} </span>
+          <span class="stats-subtitle f-16">créditos</span>
+        </div>
+        <div class="stats-subtitle">{{ freeCreditsPercentage }}% completo</div>
+        <div v-if='!$vuetify.breakpoint.xsOnly'>
+          <v-progress-linear
+            color="ufabcnext-pink"
+            height="6"
+            :value="freeCreditsPercentage"
+            style="border-radius: .25rem;"
+          ></v-progress-linear>
+        </div>
+      </v-flex>
+  
+      <v-flex xs12 sm3 md3 lg3 class="card-stats">
+        <v-layout row align-center>
+          <v-icon class="mb-1" color="ufabcnext-green" style="display: block;">mdi-school</v-icon>
+          <span class="stats-subtitle f-14 ml-2">Progresso total</span>
+        </v-layout>
+        <div class="stats-counter">{{ totalCreditsCompleted }} / <span class="f-16">{{ creditsTotal }} </span>
+          <span class="stats-subtitle f-16">créditos</span>
+        </div>
+        <div class="stats-subtitle">{{ totalCreditsPercentage }}% completo</div>
+        <div v-if='!$vuetify.breakpoint.xsOnly'>
+          <v-progress-linear
+            color="ufabcnext-green"
+            height="6"
+            :value="totalCreditsPercentage"
+            style="border-radius: .25rem;"
+          ></v-progress-linear>
+        </div>
+      </v-flex>
+    </v-layout>
+    
+
+    <v-layout column v-loading="loadingSubjects || loadingHistory">
+      <div class="graduation-year mb-3" v-for="(year, i) in Object.keys(termsByYear)" :key="i">
+        <div class="graduation-year-chip f-16 white--text">
+          {{ year }}º ano
+        </div>
+        <div class="graduation-term" v-for="(term, j) in termsByYear[year]" :key="j">
+          <div class="graduation-term-title white--text ufabcnext-purple">
+            <div class="graduation-term-title-top">
+              <div class="graduation-term-title-year">{{ ((year - 1) * 3) + term.quad }}º QUAD</div>
+              <div>{{ getCurrentYearQuad(((year - 1) * 3) + term.quad) }}</div>
+            </div>
+            <div class="graduation-term-title-credits">
+              {{ sumAllCompletedCredits(filterSubjects(term.quad, term.year)) }} de {{ sumAllCredits(filterSubjects(term.quad, term.year)) }} créditos
+            </div>
+          </div>
+          
+          <div class="graduation-subjects ml-2 mb-3">
+            <div 
+              class="graduation-term-subjects mr-2 elevate-3d" 
+              v-for="subject in filterSubjects(term.quad, term.year)" 
+              :class="isCompleted(subject.subject.name) ? 'completed' : subject.category"
+              :key="subject.id">
+              <div class="graduation-subject-name">{{ subject.subject.name }}</div>
+              <div class="graduation-subject-code">{{ subject.codigo }}</div>
+
+              <div class="graduation-subject-credits">
+                <v-icon v-if="isCompleted(subject.subject.name)" color="white" size="20">
+                  mdi-check
+                </v-icon>
+                <template v-else>{{ subject.creditos || '?' }}</template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </v-layout>
+  </template>
 </div>

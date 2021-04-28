@@ -1,20 +1,23 @@
 :root {
   --ufabcnext-green: #3fcf8c;
-  --ufabcnext-blue: #4F60ED;
-  --ufabcnext-darkgrey: rgba(0,0,0,0.8);
+  --ufabcnext-blue: #4f60ed;
+  --ufabcnext-darkgrey: rgba(0, 0, 0, 0.8);
   --ufabcnext-yellow: #ffcb17;
-  --ufabcnext-grey: rgba(0,0,0,0.5);
-  --ufabcnext-lightgrey: rgba(0,0,0,0.3);
+  --ufabcnext-grey: rgba(0, 0, 0, 0.5);
+  --ufabcnext-lightgrey: rgba(0, 0, 0, 0.3);
   --ufabcnext-navigation: #215096; /*#4527A0;*/
   --ufabcnext-red: #e17472;
-  --ufabcnext-nav-blue: #409EFF;
+  --ufabcnext-nav-blue: #409eff;
+  --ufabcnext-blue-light: #6e6fda;
   --ufabcnext-like: #909090;
   --ufabcnext-liked: #065fd4;
   --ufabcnext-primary: #2e7eed;
   --ufabcnext-secondary: #393e56;
   --ufabcnext-charcoal-grey: #323544;
+  --ufabcnext-orange: #ffc618;
+  --ufabcnext-purple: #9007fb;
+  --ufabcnext-pink: #d87dc6;
 }
-
 
 /*
  * Colors to components
@@ -31,7 +34,6 @@
 .ufabcnext-green--text {
   color: var(--ufabcnext-green) !important;
 }
-
 
 /* 
   Blue - Text color, border color and background color
@@ -59,7 +61,6 @@
   color: var(--ufabcnext-grey) !important;
 }
 
-
 /* 
   Light Grey - Text color, border color and background color
 */
@@ -85,7 +86,6 @@
 .ufabcnext-darkgrey--text {
   color: var(--ufabcnext-darkgrey) !important;
 }
-
 
 /* 
   Yellow - Text color, border color and background color
@@ -126,7 +126,6 @@
   color: var(--ufabcnext-red) !important;
 }
 
-
 /* 
   Nav blue - Text color, border color and background color
 */
@@ -140,12 +139,25 @@
   color: var(--ufabcnext-nav-blue) !important;
 }
 
+/* 
+  Blue Light - Text color, border color and background color
+*/
+.ufabcnext-blue-light {
+  background-color: var(--ufabcnext-blue-light) !important;
+}
+.ufabcnext-blue-light-outline {
+  border-color: var(--ufabcnext-blue-light) !important;
+}
+.ufabcnext-blue-light--text {
+  color: var(--ufabcnext-blue-light) !important;
+}
+
 /*
   Link color - Text color, border color and background color
 */
 
 .ufabcnext-link {
-  background-color: #4a90e2 !important;;
+  background-color: #4a90e2 !important;
 }
 .ufabcnext-link-outline {
   border-color: #4a90e2 !important;
@@ -183,7 +195,7 @@
   Primary - Text color, border color and background color
 */
 .ufabcnext-primary {
-  background-color: var(--ufabcnext-primary) !important;;
+  background-color: var(--ufabcnext-primary) !important;
 }
 .ufabcnext-primary-outline {
   border-color: var(--ufabcnext-primary) !important;
@@ -196,7 +208,7 @@
   Secondary - Text color, border color and background color
 */
 .ufabcnext-secondary {
-  background-color: var(--ufabcnext-secondary) !important;;
+  background-color: var(--ufabcnext-secondary) !important;
 }
 .ufabcnext-secondary-outline {
   border-color: var(--ufabcnext-secondary) !important;
@@ -209,11 +221,50 @@
   Charcoal-grey - Text color, border color and background color
 */
 .ufabcnext-charcoal-grey {
-  background-color: var(--ufabcnext-charcoal-grey) !important;;
+  background-color: var(--ufabcnext-charcoal-grey) !important;
 }
 .ufabcnext-charcoal-grey-outline {
   border-color: var(--ufabcnext-charcoal-grey) !important;
 }
 .ufabcnext-charcoal-grey--text {
   color: var(--ufabcnext-charcoal-grey) !important;
+}
+
+/*
+  Orange - Text color, border color and background color
+*/
+.ufabcnext-orange {
+  background-color: var(--ufabcnext-orange) !important;
+}
+.ufabcnext-orange-outline {
+  border-color: var(--ufabcnext-orange) !important;
+}
+.ufabcnext-orange--text {
+  color: var(--ufabcnext-orange) !important;
+}
+
+/*
+  Purple - Text color, border color and background color
+*/
+.ufabcnext-purple {
+  background-color: var(--ufabcnext-purple) !important;
+}
+.ufabcnext-purple-outline {
+  border-color: var(--ufabcnext-purple) !important;
+}
+.ufabcnext-purple--text {
+  color: var(--ufabcnext-purple) !important;
+}
+
+/*
+  Pink - Text color, border color and background color
+*/
+.ufabcnext-pink {
+  background-color: var(--ufabcnext-pink) !important;
+}
+.ufabcnext-pink-outline {
+  border-color: var(--ufabcnext-pink) !important;
+}
+.ufabcnext-pink--text {
+  color: var(--ufabcnext-pink) !important;
 }

@@ -1,12 +1,16 @@
-import Axios from 'axios'
-import Vue from 'vue'
+import Axios from "axios";
+import Vue from "vue";
 
 class Histories {
-  constructor(){}
+  constructor() {}
 
   async getCourses(body) {
-    return await Axios.get('/histories/courses/', { body })
+    return await Axios.get("/histories/courses/", { body });
+  }
+
+  async getHistoriesGraduations(body) {
+    return await Axios.get("/histories/courses/", { body });
   }
 }
 
-export default (new Histories)
+export default new Histories();

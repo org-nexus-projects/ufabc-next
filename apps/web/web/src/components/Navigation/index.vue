@@ -25,6 +25,7 @@
           v-for='(menu, i) in menus'
           :key="menu.title + menu.route"
           @click="open(menu)"
+          v-if="!menu.private || (menu.private && userLogin == 'felipeo.silva')"
           exact>
           <v-list-tile-action style="min-width: 36px;">
             <v-icon>{{ menu.icon }}</v-icon>
