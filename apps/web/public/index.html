@@ -562,6 +562,10 @@
     <script src="assets/js/contact.js"></script>
     <script src="assets/js/custom.js"></script>
     <script type="text/javascript">
+      const token = localStorage.getItem('token')
+      if(token) {
+        window.location = 'https://ufabcnext.com/app/#/'
+      }
       var template = $('#stats-counter').html();
       Mustache.parse(template);
       var rendered = Mustache.render(template, {
