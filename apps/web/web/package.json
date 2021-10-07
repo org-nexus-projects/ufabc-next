@@ -21,7 +21,8 @@
     "cordova-serve-ios": "yarn buildApp && cross-env CORDOVA_PLATFORM=ios vue-cli-service cordova-serve-ios",
     "cordova-serve-osx": "yarn buildApp && cross-env CORDOVA_PLATFORM=osx vue-cli-service cordova-serve-osx",
     "prestart": "yarn buildWeb",
-    "start": "vue-cli-service serve"
+    "start": "vue-cli-service serve",
+    "start-prod": "rm -rf .env && cat .env.production >> .env && yarn start"
   },
   "dependencies": {
     "@mdi/font": "^3.3.92",
