@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "build": "cp -a public/. dist && cd web && yarn install && yarn build"
+    "build": "cp -a public/. dist && cd web && yarn install && yarn build",
+    "start": "cd web && yarn start",
+    "start-prod": "cd web && rm -rf .env.development.local && cat .env.production >> .env.development.local && yarn start"
   }
 }
