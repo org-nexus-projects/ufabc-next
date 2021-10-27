@@ -54,6 +54,13 @@ export default [
     featured: false,
     icon: 'settings',
     route: '/settings',
+  },
+
+  {
+    title: 'Grupos no WhatsApp',
+    featured: false,
+    icon: 'settings',
+    route: '/whatsapp',
   }
 
   // {
