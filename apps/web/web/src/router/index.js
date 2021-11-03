@@ -15,7 +15,6 @@ import Stats from '@/pages/Stats'
 import Admin from '@/pages/Admin'
 import Relationship from '@/pages/Relationship'
 import Recovery from '@/pages/Recovery'
-import WhatsApp from '@/pages/WhatsApp'
 
 import Auth from '@/services/Auth'
 
@@ -192,14 +191,6 @@ const router = new VueRouter({
       name: 'register',
       path: '/register',
       component: Register
-    },
-    {
-      name: 'whatsapp',
-      path: '/whatsapp',
-      component: WhatsApp,
-      meta: {
-        title: 'Grupos no WhatsApp'
-      },
     },
 
     // { path: '*', redirect: '/login' }

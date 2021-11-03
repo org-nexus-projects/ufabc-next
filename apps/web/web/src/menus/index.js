@@ -60,7 +60,7 @@ export default [
     title: 'Grupos no WhatsApp',
     featured: false,
     icon: 'settings',
-    route: '/whatsapp',
+    route: 'https://rebrand.ly/kp7ib9l',
   }
 
   // {
