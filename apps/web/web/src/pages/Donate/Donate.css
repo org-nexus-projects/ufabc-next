@@ -1,8 +1,51 @@
-.donate-btn{
-    color:white !important;
-    width: 80%;
-    align-self: center;
-    border-radius: 20px;
-    font-family: Ubuntu;
+.donate-container {
+  font-family: Lato, Roboto;
 }
 
+.donate-btn {
+  font-family: Ubuntu;
+  color: white !important;
+  width: 80%;
+  height: 50px;
+  font-size: 25px;
+  align-self: center;
+  border-radius: 20px;
+}
+
+.donate-dialog-card {
+  padding: 40px;
+  border-radius: 10px;
+}
+
+.donate-dialog-card-title {
+  font-size: 30px;
+}
+
+.donate-dialog-card-content {
+  margin: 30px 0 30px 0;
+  justify-content: flex-end;
+  display: flex;
+}
+
+.donate-dialog-card-account {
+  flex: 1;
+  flex-direction: column;
+  display: flex;
+  padding-top: 40px;
+  justify-content: space-between;
+  font-size: 22px;
+  line-height: 20px;
+}
+
+.donate-dialog-card-qrcode {
+  text-align: center;
+}
+
+.donate-dialog-card-description-line {
+  margin-bottom: 20px;
+}
+
+.donate-dialog-card-footer {
+  font-size: 18px;
+  text-align: center;
+}

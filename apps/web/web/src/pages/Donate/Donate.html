@@ -1,11 +1,64 @@
-<v-container style="display: flex; flex-direction: column; min-height: 100%;">
-  <v-btn
-    rounded
-    depressed
-    elevation="2"
-    outlined
-    class="donate-btn ufabcnext-primary"
-    @click="showModal()"
-    >Quero ajudar!</v-btn
-  >
+<v-container
+  style="display: flex; flex-direction: column; min-height: 100%;"
+  class="donate-container"
+>
+  <v-dialog v-model="dialog" width="700px">
+    <template v-slot:activator="{ on, attrs }">
+      <v-btn
+        rounded
+        depressed
+        elevation="2"
+        outlined
+        class="donate-btn ufabcnext-primary"
+        v-bind="attrs"
+        v-on="on"
+        >Quero ajudar!</v-btn
+      >
+    </template>
+
+    <v-card class="donate-dialog-card">
+      <v-card-title class="donate-dialog-card-title ufabcnext-darkgrey--text">
+        Informações da conta:
+      </v-card-title>
+
+      <v-card-text
+        class="donate-dialog-card-content"
+        :style="{'display': $vuetify.breakpoint.smAndDown ? 'block' : 'flex',
+          'padding': $vuetify.breakpoint.smAndDown ? '0' : '0 40px'
+          }"
+      >
+        <div class="donate-dialog-card-qrcode">
+          <img
+            src="@/assets/pix-fe.png"
+            :style="{'width': $vuetify.breakpoint.smAndDown ? '200px' : '185px'}"
+          />
+        </div>
+        <div
+          class="donate-dialog-card-account"
+          :style="{'marginLeft': $vuetify.breakpoint.smAndDown ? '10px' : '30px'}"
+        >
+          <p class="donate-dialog-card-description-line">Nome: Felipe</p>
+          <p class="donate-dialog-card-description-line">
+            Chave Pix: 11 99999-9999
+          </p>
+          <a href="https://nubank.com.br/pagar/1b0zby/HVkAkLCsHr"
+            ><p>Clique e contribua!</p></a
+          >
+        </div>
+      </v-card-text>
+
+      <v-card-text class="donate-dialog-card-footer">
+        <div>
+          O NEXT SÓ EXISTE POR PESSOAS COMO VOCÊ 😍
+        </div>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="primary" text @click="dialog = false">
+          OK
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </v-container>
