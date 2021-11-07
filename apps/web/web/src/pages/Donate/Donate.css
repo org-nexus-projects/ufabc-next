@@ -1,8 +1,10 @@
-.donate-container {
-  font-family: Lato, Roboto;
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
 }
 
-.donate-btn {
+.dialog-open-btn {
   font-family: Ubuntu;
   color: white !important;
   width: 80%;
@@ -12,55 +14,54 @@
   border-radius: 20px;
 }
 
-.donate-dialog-card {
+.dialog-content {
   padding: 20px;
   border-radius: 10px;
   transition: all 2s;
 }
 
-.donate-dialog-card-header {
+.dialog-header {
   display: flex;
   justify-content: space-between;
 }
 
-.donate-dialog-card-title {
+.dialog-title {
   font-weight: 500;
   padding-top: 30px;
   font-size: 30px;
 }
 
-.donate-dialog-card-close {
+.dialog-close-btn {
   align-items: flex-start;
 }
 
-.donate-dialog-card-content {
+.dialog-body {
   margin: 20px 0 20px 0;
   justify-content: flex-end;
   display: flex;
   transition: all 1s;
 }
 
-.donate-dialog-card-account {
-  flex: 1;
-  flex-direction: column;
-  display: flex;
+.dialog-body-qrcode {
+  text-align: center;
+  transition: all 1s;
+}
+
+.dialog-body-account {
   padding-top: 40px;
+  display: flex;
+  flex-direction: column;
   justify-content: space-between;
   font-size: 22px;
   line-height: 20px;
   transition: all 1s;
 }
 
-.donate-dialog-card-qrcode {
-  text-align: center;
-  transition: all 1s;
-}
-
-.donate-dialog-card-description-line {
+.dialog-body-account-item {
   margin-bottom: 20px;
 }
 
-.donate-dialog-card-footer {
+.dialog-footer {
   font-size: 18px;
   text-align: center;
 }
