@@ -17,9 +17,18 @@
     </template>
 
     <v-card class="donate-dialog-card">
-      <v-card-title class="donate-dialog-card-title ufabcnext-darkgrey--text">
-        Informações da conta:
-      </v-card-title>
+      <div class="donate-dialog-card-header">
+        <v-card-title class="donate-dialog-card-title ufabcnext-darkgrey--text">
+          Informações da conta:
+        </v-card-title>
+        <v-card-actions class="donate-dialog-card-close">
+          <v-btn icon large>
+            <v-icon color="ufabcnext-darkgrey" @click="dialog = false"
+              >close</v-icon
+            >
+          </v-btn>
+        </v-card-actions>
+      </div>
 
       <v-card-text
         class="donate-dialog-card-content"
@@ -53,12 +62,12 @@
         </div>
       </v-card-text>
 
-      <v-card-actions>
+      <!-- <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="primary" text @click="dialog = false">
           OK
         </v-btn>
-      </v-card-actions>
+      </v-card-actions> -->
     </v-card>
   </v-dialog>
 </v-container>
