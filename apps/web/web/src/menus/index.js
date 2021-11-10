@@ -58,9 +58,8 @@ export default [
 
   {
     title: 'Grupos no WhatsApp',
-    featured: false,
-    icon: 'settings',
-    route: 'https://rebrand.ly/kp7ib9l',
+    icon: 'mdi-whatsapp',
+    url: 'https://rebrand.ly/kp7ib9l',
   }
 
   // {
