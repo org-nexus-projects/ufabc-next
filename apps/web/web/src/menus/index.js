@@ -54,6 +54,13 @@ export default [
     featured: false,
     icon: 'settings',
     route: '/settings',
+  },
+
+  {
+    title: 'Apoie o UFABC next',
+    featured: true,
+    icon: 'account_balance',
+    route: '/donate',
   }
 
   // {
