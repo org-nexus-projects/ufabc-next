@@ -1,7 +1,8 @@
-.teste {
-    background-color: tomato;
+.donate-btn{
+    color:white !important;
+    width: 80%;
+    align-self: center;
     border-radius: 20px;
-    margin-left: 10px;
-    padding: 5px;
-    border: 5px solid purple;
+    font-family: Ubuntu;
 }
+
