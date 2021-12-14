@@ -57,6 +57,13 @@ export default [
   },
 
   {
+    title: 'Grupos no WhatsApp',
+    featured: true,
+    icon: 'mdi-whatsapp',
+    url: 'https://rebrand.ly/ufabc-grupos-whatsapp',
+  },
+  
+  {
     title: 'Apoie o UFABC next',
     featured: true,
     icon: 'account_balance',
