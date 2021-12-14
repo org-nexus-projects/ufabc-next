@@ -59,7 +59,7 @@ export default [
   {
     title: 'Grupos no WhatsApp',
     icon: 'mdi-whatsapp',
-    url: 'https://rebrand.ly/kp7ib9l',
+    url: 'https://rebrand.ly/ufabc-grupos-whatsapp',
   }
 
   // {
