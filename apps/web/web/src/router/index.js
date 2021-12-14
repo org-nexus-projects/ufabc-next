@@ -15,6 +15,7 @@ import Stats from '@/pages/Stats'
 import Admin from '@/pages/Admin'
 import Relationship from '@/pages/Relationship'
 import Recovery from '@/pages/Recovery'
+import Donate from '@/pages/Donate'
 
 import Auth from '@/services/Auth'
 
@@ -193,6 +194,14 @@ const router = new VueRouter({
       component: Register
     },
 
+    {
+      name: 'donate',
+      path: '/donate',
+      component: Donate,
+      meta: {
+        title: 'Ajude o Next'
+      },
+    },
     // { path: '*', redirect: '/login' }
   ]
 })
