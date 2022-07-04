@@ -16,9 +16,7 @@
     ]
   },
   "permissions": [
-    "tabs",
     "storage",
-    "activeTab",
     "http://*.ufabc.edu.br/*",
     "https://*.ufabc.edu.br/*",
     "http://localhost:8000/*",
