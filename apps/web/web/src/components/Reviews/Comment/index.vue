@@ -196,7 +196,7 @@ export default {
         this.comment.enrollment.season ||
         this.comment.enrollment.year + ":" + this.comment.enrollment.quad;
 
-      const possibles = ["2020:1", "2020:2", "2020:3", "2021:1", "2021:2"];
+      const possibles = ["2020:1", "2020:2", "2020:3", "2021:1", "2021:2", "2021:3", "2022:1", "2022:2"];
       return _.includes(possibles, season);
     },
 
