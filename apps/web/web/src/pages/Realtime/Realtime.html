@@ -74,18 +74,18 @@
       </el-tabs>
   
       <v-layout class="enrollments-subtitle stats-subtitle mb-2" v-if='total >= 0 && !loading' wrap align-center>
-        <v-flex> 
+        <!-- <v-flex> 
           {{ total }} resultados encontrados
-        </v-flex> 
+        </v-flex> -->
   
-        <el-select v-model="orderby" placeholder="Ordenar por" :style="{ 'minWidth': $vuetify.breakpoint.xsOnly ? '100%' : '200px' }">
+        <!-- <el-select v-model="orderby" placeholder="Ordenar por" :style="{ 'minWidth': $vuetify.breakpoint.xsOnly ? '100%' : '200px' }">
           <el-option
             v-for="order in orders"
             :key="order.value"
             :label="order.label"
             :value="order.value">
           </el-option>
-        </el-select>
+        </el-select> -->
       </v-layout>
   
       <el-table
@@ -97,32 +97,32 @@
         <el-table-column
           fixed="left"
           min-width="200"
-          label="Nome">
+          label="Nome da disciplina">
           <template slot-scope="scope">
             {{ matriculaNameLabel(scope.row)}}
           </template>
         </el-table-column>
         <el-table-column
           prop="vagas"
-          label="Vagas"
+          label="Cód. Disciplina"
           align="center"
           width="150">
         </el-table-column>
         <el-table-column
           prop="requisicoes"
-          label="Requisições"
+          label="Cr de Corte"
           align="center"
           width="150">
         </el-table-column>
         <el-table-column
           prop="deficit"
-          label="Deficit"
+          label="Cp de Corte"
           align="center"
           width="150">
         </el-table-column>
         <el-table-column
           prop="ratio"
-          label="Pessoas por vaga"
+          label="Turno"
           align="center"
           width="160">
           <template slot-scope="scope">
