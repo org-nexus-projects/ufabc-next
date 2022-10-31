@@ -9,7 +9,7 @@
       </v-flex>
   
       <v-flex xs12 sm3 md3 lg3 class="card-stats" v-if='usage'>
-        <v-icon class="mb-1" color="ufabcnext-green" style="display: block;">mdi-account-group</v-icon>
+        <v-icon class="mb-1" color="ufabcnext-green" style="display: block;">mdi-emoticon-happy-outline</v-icon>
         <div class="stats-counter">{{ usage.currentAlunos.toLocaleString() }} <small class="ufabcnext-grey--text">/ {{ usage.totalAlunos.toLocaleString() }}</small>
           <small class="ufabcnext-grey--text" style="font-size: 11px;">
             ({{ ((usage.currentAlunos / usage.totalAlunos) * 100).toFixed(1) }}%)
@@ -27,7 +27,7 @@
       </v-flex>
   
       <v-flex xs12 sm3 md3 lg3 class="card-stats" v-if='usage'>
-        <v-icon class="mb-1" color="ufabcnext-blue" style="display: block;">mdi-book-open-variant</v-icon>
+        <v-icon class="mb-1" color="ufabcnext-yellow" style="display: block;">mdi-emoticon-neutral-outline</v-icon>
         <div class="stats-counter">{{ usage.subjects }}</div>
         <div class="stats-subtitle">turmas</div>
         <div v-if='!$vuetify.breakpoint.xsOnly'>
@@ -41,7 +41,7 @@
       </v-flex>
   
       <v-flex xs12 sm3 md3 lg3 class="card-stats" v-if='usage'>
-        <v-icon class="mb-1" color="ufabcnext-nav-blue" style="display: block;">mdi-teach</v-icon>
+        <v-icon class="mb-1" color="ufabcnext-red" style="display: block;">mdi-emoticon-sad-outline</v-icon>
         <div class="stats-counter">{{ usage.teachers }}</div>
         <div class="stats-subtitle">professores</div>
         <div v-if='!$vuetify.breakpoint.xsOnly'>
