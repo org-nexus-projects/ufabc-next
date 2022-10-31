@@ -1,0 +1,153 @@
+<v-container style="display: flex; flex-direction: column; min-height: 100%;">  
+    <v-layout class="card-group-stats" row style="min-height: 145px; flex: none" :class="{ 'wrap': !$vuetify.breakpoint.lgOnly }">
+      <v-flex xs12 lg3 class="card-stats" justify-center>
+        <div class="stats-counter" justify-center v-if='$vuetify.breakpoint.lgOnly'>
+          {{ prettySeason }}
+          <v-btn icon @click="changeTargetSeason()" class="mt-0 ml-0"><v-icon color="ufabcnext-grey">mdi-swap-vertical</v-icon></v-btn>
+        </div>
+        <div class="stats-counter text-center" v-else>{{ prettySeason }}</small></div>
+      </v-flex>
+  
+      <v-flex xs12 sm3 md3 lg3 class="card-stats" v-if='usage'>
+        <v-icon class="mb-1" color="ufabcnext-green" style="display: block;">mdi-account-group</v-icon>
+        <div class="stats-counter">{{ usage.currentAlunos.toLocaleString() }} <small class="ufabcnext-grey--text">/ {{ usage.totalAlunos.toLocaleString() }}</small>
+          <small class="ufabcnext-grey--text" style="font-size: 11px;">
+            ({{ ((usage.currentAlunos / usage.totalAlunos) * 100).toFixed(1) }}%)
+          </small>
+        </div>
+        <div class="stats-subtitle">alunos usando a extensão</div>
+        <div>
+          <v-progress-linear
+            color="ufabcnext-green"
+            height="6"
+            :value="(usage.currentAlunos / usage.totalAlunos) * 100"
+            style="border-radius: .25rem;"
+          ></v-progress-linear>
+        </div>
+      </v-flex>
+  
+      <v-flex xs12 sm3 md3 lg3 class="card-stats" v-if='usage'>
+        <v-icon class="mb-1" color="ufabcnext-blue" style="display: block;">mdi-book-open-variant</v-icon>
+        <div class="stats-counter">{{ usage.subjects }}</div>
+        <div class="stats-subtitle">turmas</div>
+        <div v-if='!$vuetify.breakpoint.xsOnly'>
+          <v-progress-linear
+            color="ufabcnext-blue"
+            height="6"
+            value="100"
+            style="border-radius: .25rem;"
+          ></v-progress-linear>
+        </div>
+      </v-flex>
+  
+      <v-flex xs12 sm3 md3 lg3 class="card-stats" v-if='usage'>
+        <v-icon class="mb-1" color="ufabcnext-nav-blue" style="display: block;">mdi-teach</v-icon>
+        <div class="stats-counter">{{ usage.teachers }}</div>
+        <div class="stats-subtitle">professores</div>
+        <div v-if='!$vuetify.breakpoint.xsOnly'>
+          <v-progress-linear
+            color="ufabcnext-nav-blue"
+            height="6"
+            value="100"
+            style="border-radius: .25rem;"
+          ></v-progress-linear>
+        </div>
+      </v-flex>
+  
+      <v-flex xs12 sm3 md3 lg3 class="card-stats" v-if='overview'>
+        <v-icon class="mb-1" color="ufabcnext-red" style="display: block;">mdi-import</v-icon>
+        <div class="stats-counter">{{ Math.abs(overview.deficit) }}</div>
+        <div class="stats-subtitle">{{ deficitLabel }}</div>
+        <div v-if='!$vuetify.breakpoint.xsOnly'>
+          <v-progress-linear
+            color="ufabcnext-red"
+            height="6"
+            value="100"
+            style="border-radius: .25rem;"
+          ></v-progress-linear>
+        </div>
+      </v-flex>
+  
+    </v-layout>
+    <v-layout column wrap class="white mt-3 pa-4" style="border-radius: 4px;">
+      <div class="enrollments-title stats-counter">Informações da matrícula</div>
+      <div class="enrollments-subtitle stats-subtitle mb-2">Saiba mais sobre a concorrência nas disciplinas, turmas e cursos presentes na UFABC.</div>
+  
+      <el-tabs v-model="tab">
+        <el-tab-pane label="Turmas" name="">
+        </el-tab-pane>
+        <el-tab-pane label="Cursos" name="courses">
+        </el-tab-pane>
+        <el-tab-pane label="Disciplinas" name="disciplines">
+        </el-tab-pane>
+      </el-tabs>
+  
+      <v-layout class="enrollments-subtitle stats-subtitle mb-2" v-if='total >= 0 && !loading' wrap align-center>
+        <v-flex>
+          {{ total }} resultados encontrados
+        </v-flex> 
+  
+        <el-checkbox-group v-model="filterByPeriod" style="min-width: 200px" v-if='!$vuetify.breakpoint.xsOnly'>
+          <el-checkbox label="diurno">Matutino</el-checkbox>
+          <el-checkbox label="noturno">Noturno</el-checkbox>
+        </el-checkbox-group>
+        <div class="ml-5" style="min-width: 120px" v-if='!$vuetify.breakpoint.xsOnly'>
+          Ordenar por
+        </div>
+        <el-select v-model="orderby" placeholder="Ordenar por" :style="{ 'minWidth': $vuetify.breakpoint.xsOnly ? '100%' : '200px' }">
+          <el-option
+            v-for="order in orders"
+            :key="order.value"
+            :label="order.label"
+            :value="order.value">
+          </el-option>
+        </el-select>
+      </v-layout>
+  
+      <el-table
+        empty-text="Nenhum dado encontrado"
+        ref="disciplinas"
+        v-loading='loading'
+        :data="disciplinas"
+        style="width: 100%">
+        <el-table-column
+          fixed="left"
+          min-width="200"
+          label="Nome">
+          <template slot-scope="scope">
+            {{ matriculaNameLabel(scope.row)}}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="vagas"
+          label="Vagas"
+          align="center"
+          width="150">
+        </el-table-column>
+        <el-table-column
+          prop="requisicoes"
+          label="Requisições"
+          align="center"
+          width="150">
+        </el-table-column>
+        <el-table-column
+          prop="deficit"
+          label="Deficit"
+          align="center"
+          width="150">
+        </el-table-column>
+        <el-table-column
+          prop="ratio"
+          label="Pessoas por vaga"
+          align="center"
+          width="160">
+          <template slot-scope="scope">
+            {{ scope.row.ratio.toFixed(2)}}
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-button class="load-more" @click="fetch(true)" v-if='more' :loading="moreLoading">
+        Carregar mais <i class="el-icon-arrow-down el-icon-right"></i>
+      </el-button>
+    </v-layout>
+  </v-container>
