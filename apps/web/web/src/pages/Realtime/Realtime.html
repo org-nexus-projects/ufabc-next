@@ -129,6 +129,12 @@
             {{ scope.row.ratio.toFixed(2)}}
           </template>
         </el-table-column>
+        <el-table-column
+          prop="status"
+          label="Status"
+          align="center"
+          width="150">
+        </el-table-column>
       </el-table>
       <el-button class="load-more" @click="fetch(true)" v-if='more' :loading="moreLoading">
         Carregar mais <i class="el-icon-arrow-down el-icon-right"></i>
