@@ -68,12 +68,6 @@ export default [
     featured: true,
     icon: 'account_balance',
     route: '/donate',
-  },
-  {
-    title: 'Realtime da Matrícula',
-    featured: true,
-    icon: 'account_balance',
-    route: '/realtime',
   }
 
   // {
