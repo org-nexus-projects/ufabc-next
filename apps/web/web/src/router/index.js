@@ -16,9 +16,6 @@ import Admin from '@/pages/Admin'
 import Relationship from '@/pages/Relationship'
 import Recovery from '@/pages/Recovery'
 import Donate from '@/pages/Donate'
-
-
-
 import Auth from '@/services/Auth'
 
 function RedirectIfLogged(params) {
