@@ -16,7 +16,7 @@ import Admin from '@/pages/Admin'
 import Relationship from '@/pages/Relationship'
 import Recovery from '@/pages/Recovery'
 import Donate from '@/pages/Donate'
-import Realtime from '@/pages/Realtime'
+
 
 
 import Auth from '@/services/Auth'
@@ -164,15 +164,6 @@ const router = new VueRouter({
         title: 'Recuperar conta'
       },
     },
-    {
-      name:'realtime',
-      path: '/realtime',
-      component: Realtime,
-      meta:{
-        title:'Realtime da Matrícula'
-      }
-    },
-
     {
       name: 'settings',
       path: '/settings',
