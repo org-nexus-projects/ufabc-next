@@ -33,12 +33,13 @@ class Auth {
       }
       localStorage.setItem('token', token)
       this.user = JwtDecode(token)
-
       this.token = token
+      
     } catch (e) {
       localStorage.removeItem('token')
       this.token = null
       this.user = null
+      
     }
 
     for (var k in this._listeners) {
