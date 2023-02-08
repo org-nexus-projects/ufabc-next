@@ -150,7 +150,7 @@
         </v-flex>
         <v-flex v-show="currentStep != 0" sm5 md5 lg5 class="border-top" style="display: flex;">
           <v-btn flat round large class="mr-2" @click="back()">
-            < Anterior
+            &lt Anterior
           </v-btn>
           <v-flex></v-flex>
           <v-btn v-if="showNextButton" style="background-color: #00EB5E; color: white;" round large @click="next()">

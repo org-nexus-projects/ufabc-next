@@ -16,7 +16,6 @@ import Admin from '@/pages/Admin'
 import Relationship from '@/pages/Relationship'
 import Recovery from '@/pages/Recovery'
 import Donate from '@/pages/Donate'
-
 import Auth from '@/services/Auth'
 
 function RedirectIfLogged(params) {
@@ -36,6 +35,10 @@ function RedirectIfLogged(params) {
       }
 
       Auth.setToken(token)
+
+      if(token == 'DEVTOKEN' && process.env.NODE_ENV !== 'production') {
+        return next()
+      }
 
       let decodedToken = jsonwebtoken.decode(token)
       if(!decodedToken || !decodedToken.confirmed || !decodedToken.active) {
@@ -157,7 +160,6 @@ const router = new VueRouter({
         title: 'Recuperar conta'
       },
     },
-
     {
       name: 'settings',
       path: '/settings',
@@ -193,7 +195,6 @@ const router = new VueRouter({
       path: '/register',
       component: Register
     },
-
     {
       name: 'donate',
       path: '/donate',
