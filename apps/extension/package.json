@@ -4,7 +4,7 @@
   "version": "1.1.7",
   "description": "Adiciona funcionalidades novas ao sistema de matricula da UFABC",
   "scripts": {
-    "start": "node -v && ls -la && yarn build && node server/app.js",
+    "start": "node -v && ls -la && cat /root/.npm/_logs/2023-03-16T19_29_56_179Z-debug.log && yarn build && node server/app.js",
     "deploy": "caprover deploy",
     "build": "npm run build:chrome",
     "build:chrome": "gulp pack --production --vendor=chrome",
