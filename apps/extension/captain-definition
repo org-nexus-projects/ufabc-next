@@ -2,6 +2,7 @@
   "schemaVersion" : 2,
   "dockerfileLines" :[
     "FROM node:8.11.1-alpine",
+    "RUN node -v",
     "RUN mkdir -p /usr/src/app",
     "RUN apk --no-cache add pkgconfig autoconf automake libtool nasm build-base zlib-dev",
     "WORKDIR /usr/src/app",
