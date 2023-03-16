@@ -3,6 +3,9 @@
   "private": true,
   "version": "1.1.7",
   "description": "Adiciona funcionalidades novas ao sistema de matricula da UFABC",
+  "engines": { 
+    "npm": "6.5.0"
+  },
   "scripts": {
     "start": "node -v && ls -la && yarn build && node server/app.js",
     "deploy": "caprover deploy",
@@ -25,11 +28,11 @@
     ]
   },
   "devDependencies": {
+    "npm": "6.5.0",
     "babel-cli": "6.x.x",
     "babel-core": "6.x.x",
     "babel-loader": "7.x.x",
     "babel-preset-env": "1.x.x",
-    "captainduckduck": "^1.0.15",
     "chai": "4.x.x",
     "chromereload": "0.x.x",
     "debounce": "1.x.x",
@@ -46,7 +49,7 @@
     "gulp-less": "3.x.x",
     "gulp-livereload": "3.x.x",
     "gulp-plumber": "1.x.x",
-    "gulp-sass": "^3.x.x",
+    "gulp-sass": "3.2.1",
     "gulp-sequence": "0.x.x",
     "gulp-sourcemaps": "^2.x.x",
     "gulp-tag-version": "1.x.x",
@@ -97,7 +100,7 @@
     "vuedraggable": "^2.16.0",
     "vueify": "^9.4.1",
     "vueify-insert-css": "^1.0.0",
-    "vuetify": "^1.2.6",
+    "vuetify": "1.2.6",
     "webui-popover": "^1.2.18"
   }
 }
