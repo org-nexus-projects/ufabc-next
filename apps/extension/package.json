@@ -7,7 +7,7 @@
     "npm": "6.5.0"
   },
   "scripts": {
-    "start": "node -v && ls -la && yarn build && node server/app.js",
+    "start": "node -v && python --version && ls -la && cat Dockerfile && yarn build && node server/app.js",
     "deploy": "caprover deploy",
     "build": "npm run build:chrome",
     "build:chrome": "gulp pack --production --vendor=chrome",
