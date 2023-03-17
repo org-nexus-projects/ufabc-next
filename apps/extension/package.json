@@ -7,7 +7,7 @@
     "npm": "6.5.0"
   },
   "scripts": {
-    "start": "rm -rf node_modules && yarn install && ls -la && yarn build:chrome && node server/app.js",
+    "start": "rm -rf node_modules && yarn add global gulp@3.9.0 && yarn install && ls -la && yarn build:chrome && node server/app.js",
     "deploy": "caprover deploy",
     "build": "npm run build:chrome",
     "build:chrome": "gulp pack --production --vendor=chrome",
