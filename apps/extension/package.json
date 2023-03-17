@@ -7,7 +7,7 @@
     "npm": "6.5.0"
   },
   "scripts": {
-    "start": "yarn add node-gyp && yarn build && node server/app.js",
+    "start": "yarn install && yarn build && node server/app.js",
     "deploy": "caprover deploy",
     "build": "npm run build:chrome",
     "build:chrome": "gulp pack --production --vendor=chrome",
@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "npm": "6.5.0",
+    "node-gyp": "3.8.0",
     "babel-cli": "6.x.x",
     "babel-core": "6.x.x",
     "babel-loader": "7.x.x",
