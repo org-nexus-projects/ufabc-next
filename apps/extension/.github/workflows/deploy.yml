@@ -8,10 +8,17 @@ jobs:
     if: github.ref == 'refs/heads/master'
 
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v1
-
-      - name: Deploy
-        run: yarn deploy -h https://captain.sv.ufabcnext.com -a next-extension -p "${{ secrets.CAPROVER_PASSWORD }}" -b master
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - name: Use Node.js 16.13.2
+        uses: actions/setup-node@v2
         with:
           node-version: 16.13.2
+      - name: Install
+        run: |
+          yarn install
+      - name: Deploy
+        run: |
+          yarn deploy -h https://captain.sv.ufabcnext.com -a next-extension -p "${{ secrets.CAPROVER_PASSWORD }}" -b master
