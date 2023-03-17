@@ -4,7 +4,7 @@
     "FROM node:16.13.2-alpine",
     "RUN node -v",
     "RUN mkdir -p /usr/src/app",
-    "RUN apk --no-cache add pkgconfig autoconf automake libtool nasm build-base zlib-dev python",
+    "RUN apk --no-cache add pkgconfig autoconf automake libtool nasm build-base zlib-dev",
     "WORKDIR /usr/src/app",
     "COPY ./package.json /usr/src/app/",
     "COPY ./yarn.lock /usr/src/app/",
