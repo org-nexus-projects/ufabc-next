@@ -1,0 +1,17 @@
+name: Build/release
+
+on: push
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+      - name: Deploy
+        run: yarn deploy -h https://captain.sv.ufabcnext.com -a next-extension -p "${{ secrets.CAPROVER_PASSWORD }}" -b master
+        with:
+          node-version: 16.13.2
