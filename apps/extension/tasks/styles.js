@@ -3,7 +3,11 @@ import gulpif from 'gulp-if'
 import gutil from 'gulp-util'
 import sourcemaps from 'gulp-sourcemaps'
 import less from 'gulp-less'
-import sass from 'gulp-sass'
+
+import dartSass from 'sass';
+import gulpSass from 'gulp-sass';
+const sass = gulpSass(dartSass);
+
 import cleanCSS from 'gulp-clean-css'
 import livereload from 'gulp-livereload'
 import cssimport from 'gulp-cssimport'
@@ -46,8 +50,8 @@ gulp.task('styles:sass', function () {
     .pipe(gulpif(args.watch, livereload()))
 })
 
-gulp.task('styles', [
+gulp.task('styles', gulp.series(
   'styles:css',
   'styles:less',
   'styles:sass'
-])
+))

@@ -3,13 +3,13 @@
   "private": true,
   "version": "1.1.7",
   "description": "Adiciona funcionalidades novas ao sistema de matricula da UFABC",
-  "engines": { 
+  "engines": {
     "npm": "6.5.0"
   },
   "scripts": {
-    "start": "yarn build && node server/app.js",
+    "start": "node server/app.js",
     "deploy": "caprover deploy",
-    "build": "npm run build:chrome",
+    "build": "yarn build:chrome",
     "build:chrome": "gulp pack --production --vendor=chrome",
     "build:firefox": "gulp pack --production --vendor=firefox",
     "build:opera": "gulp pack --production --vendor=opera",
@@ -28,7 +28,6 @@
     ]
   },
   "devDependencies": {
-    "npm": "6.5.0",
     "babel-cli": "6.x.x",
     "babel-core": "6.x.x",
     "babel-loader": "7.x.x",
@@ -37,7 +36,7 @@
     "chromereload": "0.x.x",
     "debounce": "1.x.x",
     "del": "3.x.x",
-    "gulp": "3.9.0",
+    "gulp": "4.x.x",
     "gulp-bump": "2.x.x",
     "gulp-cache": "0.x.x",
     "gulp-clean-css": "^3.x.x",
@@ -49,13 +48,15 @@
     "gulp-less": "3.x.x",
     "gulp-livereload": "3.x.x",
     "gulp-plumber": "1.x.x",
-    "gulp-sass": "3.2.1",
-    "gulp-sequence": "0.x.x",
+    "gulp-sass": "5.1.0",
+    "gulp-sequence": "1.x.x",
     "gulp-sourcemaps": "^2.x.x",
     "gulp-tag-version": "1.x.x",
     "gulp-util": "3.x.x",
     "gulp-zip": "^4.x.x",
+    "npm": "6.5.0",
     "require-dir": "0.x.x",
+    "sass": "^1.59.3",
     "standard": "^10.0.2",
     "vinyl-named": "1.x.x",
     "webpack": "3.x.x",
