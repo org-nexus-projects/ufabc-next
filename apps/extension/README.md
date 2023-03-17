@@ -1,4 +1,3 @@
-
 # UFABC Next - Extension
 
 Instalando a extensão
@@ -6,7 +5,7 @@ Instalando a extensão
 OBS: se já tiver a extensão instalada, desinstalar
 Acessar: chrome://extensions/
 
-Node version: 9
+Node version: 16.13.2
 
 1. `yarn install`
 2. `yarn build`
