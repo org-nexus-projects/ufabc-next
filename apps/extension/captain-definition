@@ -9,11 +9,11 @@
     "COPY ./package.json /usr/src/app/",
     "COPY ./yarn.lock /usr/src/app/",
     "RUN yarn install",
+    "RUN yarn build"
     "COPY ./ /usr/src/app",
     "ENV NODE_ENV production",
     "ENV PORT 80",
     "EXPOSE 80",
-    "CMD [ \"yarn\", \"build\" ]",
     "CMD [ \"yarn\", \"start\" ]"
   ]
  }
