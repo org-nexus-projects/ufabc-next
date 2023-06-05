@@ -50,7 +50,7 @@
                 placeholder="joão"
                 v-model="email"
                 name="studentEmail"
-                v-validate="{required: true, email: true}"
+                v-validate="'required|regex:^[A-Za-z0-9._%+-]+@aluno\.ufabc\.edu\.br$'"
                 data-vv-as="email institucional"
                 :error-messages="errors.collect('studentEmail')"
                 solo
@@ -75,6 +75,7 @@
                 <slot name="title">
                   <div class="pa-2">
                     O time do UFABC Next está trabalhando para resolver seu problema e continuar te ajudando na sua jornada pela UFABC.
+                    <br />
                     Envie uma DM para nosso <a href="https://www.instagram.com/ufabcnext/?hl=pt-br">Instagram</a> e te atenderemos!
                     <br />
                     Não esqueça de informar RA e e-mail institucional.
