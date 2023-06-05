@@ -13,7 +13,7 @@
         </v-flex>
 
         <v-flex sm12 md5 lg5 :class="$vuetify.breakpoint.smAndUp ? 'mt-5' : ''">
-          <v-layout column fill-width v-if='wasRecovered'>
+          <v-layout column fill-width v-if='wasRecovered === 2'>
               <div class="step-title mb-2">
                 Sua conta será recuperada! 🎉
               </div>
@@ -41,33 +41,61 @@
               </v-btn>
           </v-layout>
 
-          <v-layout column fill-width v-else>
+          <v-layout column fill-width v-else-if="wasRecovered === 1">
               <div class="step-title mb-2">
                 Criou uma conta no Next e não consegue acessar?
               </div>
               <div class="step-subtitle mb-2">Insira seu email institucional</div>
               <v-text-field
                 placeholder="joão"
-                :suffix="notDefaultEmail ? '' : emailSuffix"
                 v-model="email"
                 name="studentEmail"
-                v-validate="{required: true}"
+                v-validate="{required: true, email: true}"
                 data-vv-as="email institucional"
                 :error-messages="errors.collect('studentEmail')"
                 solo
               >
               </v-text-field>
-              <div class="ufabcnext-grey--text mb-4" style="font-size: 13px">
-                Caso você não tenha um e-mail {{ emailSuffix }}, <a @click='notDefaultEmail = true' class='ufabcnext-link--text' target='_blank' style='text-decoration: none'>clique aqui</a>
-              </div>
           </v-layout>
+
+          <v-layout column fill-width v-else-if='wasRecovered === 3'>
+            <div class="step-title mb-2">
+              Não foi possível recuperar sua conta 😔
+            </div>
+
+            <div>
+              Mas calma, nem tudo está perdido!
+            </div>
+
+              <el-alert
+                type="warning"
+                class="my-3"
+                :closable="false"
+                show-icon>
+                <slot name="title">
+                  <div class="pa-2">
+                    O time do UFABC Next está trabalhando para resolver seu problema e continuar te ajudando na sua jornada pela UFABC.
+                    Envie uma DM para nosso <a href="https://www.instagram.com/ufabcnext/?hl=pt-br">Instagram</a> e te atenderemos!
+                    <br />
+                    Não esqueça de informar RA e e-mail institucional.
+                    <br /><br />
+                    Aproveite e conheça o projeto no <a href="https://github.com/ufabc-next/ufabc-next-web">GitHub</a>, sua ajuda será bem-vinda! 
+                  </div>
+                </slot>
+            </el-alert>
+
+            <v-btn color="ufabcnext-link" class="mt-3" style="color: white; width: 200px;" round large @click="$router.push('/')">
+              Voltar para a home >
+            </v-btn>
+        </v-layout>
+
         </v-flex>
       </v-layout>
 
       <v-layout align-end row style="width: 100%; flex: none; height:57px;" >
         <v-flex sm7 md7 lg7>
         </v-flex>
-        <v-flex v-show="!wasRecovered" sm5 md5 lg5 class="border-top" style="display: flex;">
+        <v-flex v-show="wasRecovered === 1" sm5 md5 lg5 class="border-top" style="display: flex;">
           <v-btn flat round large class="mr-2" @click="$router.go(-1)">
             < Anterior
           </v-btn>

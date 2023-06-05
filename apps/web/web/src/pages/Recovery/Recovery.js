@@ -8,25 +8,21 @@ export default {
   data() {
     return {
       email: null,
-      notDefaultEmail: false,
-      wasRecovered: false,
+      wasRecovered: 1,
       loading: false,
       emailSuffix: '@aluno.ufabc.edu.br',
     }
   },
   methods: {
     async next() {
-      if(!this.notDefaultEmail) {
-        this.email = this.email + this.emailSuffix
-      }
       try {
         this.loading = true
         let res = await User.recovery(this.email)
-        this.wasRecovered = true
+        this.wasRecovered = 2
         this.loading = false
       } catch(err) {
         this.loading = false
-
+        this.wasRecovered = 3
         this.$message({
           type: 'error',
           message: ErrorMessage(err),
