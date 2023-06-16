@@ -30,7 +30,7 @@ if (isIndexPortalAluno()) {
   Utils.injectScript('scripts/portal.js')
 
   Utils.injectStyle('styles/portal.css')
-  toastr.info("Clique em <a href='https://aluno.ufabc.edu.br/fichas_individuais' style='color: #FFF !important;'>Ficha Individual</a> para atualizar suas informações!");
+  toastr.info("Clique em <a href='https://aluno.ufabc.edu.br/fichas_individuais' style='color: #FFF !important;'>teste</a> para atualizar suas informações!");
 }  else if (isFichasIndividuaisPath()) {
   Utils.injectStyle('styles/portal.css');
 
