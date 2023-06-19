@@ -7,10 +7,21 @@ export default {
 
   data() {
     return {
-      email: null,
+      email: '',
+      validEmail: false,
+
+      // wasRecovered === 1: enter email 
+      // wasRecovered === 2: success 
+      // wasRecovered === 3: recovery error
       wasRecovered: 1,
+
       loading: false,
       emailSuffix: '@aluno.ufabc.edu.br',
+    }
+  },
+  computed: {
+    disableBtn() {
+      return !this.validEmail || this.email.length === 0 
     }
   },
   methods: {

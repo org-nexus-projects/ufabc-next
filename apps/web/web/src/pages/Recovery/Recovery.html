@@ -29,7 +29,7 @@
                   show-icon>
                   <slot name="title">
                     <div class="pa-2">
-                      Caso você não tenha recebido o email de recuperação de conta, envie uma mensagem para <a class="ufabcnext-link--text" href="https://www.facebook.com/ufabcnext" target="_blank" style="text-decoration: none;">nosso Facebook</a> (respondemos mais rápido), ou mande um email para <span class="ufabcnext-grey--text">contato@ufabcnext.com</span> (mais demorado).
+                      Caso você não tenha recebido o email de recuperação de conta, envie uma DM para nosso <a href="https://www.instagram.com/ufabcnext/?hl=pt-br">Instagram</a> e te atenderemos!
                       <br /><br />
                       Não esqueça de informar seu RA e email institucional
                     </div>
@@ -46,16 +46,18 @@
                 Criou uma conta no Next e não consegue acessar?
               </div>
               <div class="step-subtitle mb-2">Insira seu email institucional</div>
-              <v-text-field
-                placeholder="joão"
-                v-model="email"
-                name="studentEmail"
-                v-validate="'required|regex:^[A-Za-z0-9._%+-]+@aluno\.ufabc\.edu\.br$'"
-                data-vv-as="email institucional"
-                :error-messages="errors.collect('studentEmail')"
-                solo
-              >
-              </v-text-field>
+              <v-form v-model="validEmail">
+                <v-text-field
+                  placeholder="joão"
+                  v-model="email"
+                  name="studentEmail"
+                  v-validate="'required|regex:^[A-Za-z0-9._%+-]+@aluno\.ufabc\.edu\.br$'"
+                  data-vv-as="email institucional"
+                  :error-messages="errors.collect('studentEmail')"
+                  solo
+                >
+                </v-text-field>
+              </v-form>
           </v-layout>
 
           <v-layout column fill-width v-else-if='wasRecovered === 3'>
@@ -75,7 +77,7 @@
                 <slot name="title">
                   <div class="pa-2">
                     O time do UFABC Next está trabalhando para resolver seu problema e continuar te ajudando na sua jornada pela UFABC.
-                    <br />
+                    <br /><br />
                     Envie uma DM para nosso <a href="https://www.instagram.com/ufabcnext/?hl=pt-br">Instagram</a> e te atenderemos!
                     <br />
                     Não esqueça de informar RA e e-mail institucional.
@@ -101,7 +103,7 @@
             < Anterior
           </v-btn>
           <v-flex></v-flex>
-          <v-btn style="background-color: #00EB5E; color: white;" round large @click="next()">
+          <v-btn style="background-color: #00EB5E; color: white;" :disabled="disableBtn" round large @click="next()">
             Próximo >
           </v-btn>
         </v-flex>
