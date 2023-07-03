@@ -1,4 +1,4 @@
-import Auth from '@/services/Auth'
+// import Auth from '@/services/Auth'
 import User from '@/services/User'
 import ErrorMessage from '@/helpers/ErrorMessage'
 
@@ -7,26 +7,33 @@ export default {
 
   data() {
     return {
-      email: null,
-      notDefaultEmail: false,
-      wasRecovered: false,
+      email: '',
+      validEmail: false,
+
+      // wasRecovered === 1: enter email 
+      // wasRecovered === 2: success 
+      // wasRecovered === 3: recovery error
+      wasRecovered: 1,
+
       loading: false,
       emailSuffix: '@aluno.ufabc.edu.br',
     }
   },
+  computed: {
+    disableBtn() {
+      return !this.validEmail || this.email.length === 0 
+    }
+  },
   methods: {
     async next() {
-      if(!this.notDefaultEmail) {
-        this.email = this.email + this.emailSuffix
-      }
       try {
         this.loading = true
         let res = await User.recovery(this.email)
-        this.wasRecovered = true
+        this.wasRecovered = 2
         this.loading = false
       } catch(err) {
         this.loading = false
-
+        this.wasRecovered = 3
         this.$message({
           type: 'error',
           message: ErrorMessage(err),
