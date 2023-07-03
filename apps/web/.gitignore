@@ -38,3 +38,6 @@ testem.log
 Thumbs.db
 *.log
 *.keystore
+
+# Local Netlify folder
+.netlify
