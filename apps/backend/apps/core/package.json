@@ -4,7 +4,11 @@
   "description": "Core logic of the backend, mainly users",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts"
+    "dev": "tsx watch src/server.ts",
+    "dev:prod": "NODE_ENV=prod node .",
+    "build": "tsup --config tsup.config.ts",
+    "build:type-check": "tsc",
+    "lint": "eslint ./src --ext .ts"
   },
   "keywords": [],
   "author": "Joabe Silva <joabevarjao123@gmail.com>",
