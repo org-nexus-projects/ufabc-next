@@ -30,19 +30,5 @@
         "ignoreVoid": true
       }
     ]
-  },
-  "overrides": [
-    {
-      "files": ["src/plugins/**/*", "src/modules/user/**"],
-      "rules": {
-        "import/no-default-export": "off"
-      }
-    },
-    {
-      "files": ["src/app.ts", "src/server.ts"],
-      "rules": {
-        "@typescript-eslint/no-floating-promises": "off"
-      }
-    }
-  ]
+  }
 }

@@ -11,8 +11,8 @@
   "author": "Joabe Varjao <joabevarjao123@gmail.com>",
   "license": "ISC",
   "devDependencies": {
-    "@ufabcnext/tsconfig": "workspace:^",
-    "eslint-config-custom": "workspace:^",
+    "@ufabcnext/tsconfig": "workspace:*",
+    "eslint-config-custom": "workspace:*",
     "tsup": "^7.2.0",
     "typescript": "^5.1.6"
   }

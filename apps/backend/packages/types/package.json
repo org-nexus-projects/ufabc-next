@@ -10,8 +10,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@ufabcnext/tsconfig": "workspace:^",
-    "eslint-config-custom": "workspace:^",
+    "@ufabcnext/tsconfig": "workspace:*",
+    "eslint-config-custom": "workspace:*",
     "mongoose": "^7.4.2"
   }
 }
