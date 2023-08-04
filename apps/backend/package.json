@@ -8,6 +8,8 @@
     "format": "prettier --write \"**/*.ts\""
   },
   "devDependencies": {
+    "@commitlint/cli": "17.6.1",
+    "@commitlint/config-conventional": "17.6.1",
     "eslint": "^8.46.0",
     "eslint-config-custom": "workspace:*",
     "prettier": "^3.0.1",
