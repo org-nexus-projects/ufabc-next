@@ -1,6 +1,7 @@
 import { fastify, type FastifyServerOptions } from 'fastify';
 import { fastifyAutoload } from '@fastify/autoload';
 import { join } from 'node:path';
+import { Config } from './config';
 
 export async function buildApp(opts: FastifyServerOptions = {}) {
   const app = fastify(opts);
@@ -11,6 +12,7 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
       dirNameRoutePrefix: false,
       encapsulate: false,
       maxDepth: 1,
+      options: Config,
     });
     app.register(fastifyAutoload, {
       dir: join(__dirname, 'modules'),
