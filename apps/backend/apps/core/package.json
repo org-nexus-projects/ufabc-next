@@ -4,7 +4,7 @@
   "description": "Core logic of the backend, mainly users",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch server.ts"
+    "dev": "tsx watch src/server.ts"
   },
   "keywords": [],
   "author": "Joabe Silva <joabevarjao123@gmail.com>",
@@ -13,6 +13,8 @@
     "@types/node": "^20.4.7",
     "@ufabcnext/tsconfig": "workspace:*",
     "eslint-config-custom": "workspace:*",
+    "pino": "^8.15.0",
+    "pino-pretty": "^10.2.0",
     "tsup": "^7.2.0",
     "tsx": "^3.12.6",
     "typescript": "^5.1.6"
@@ -21,6 +23,7 @@
     "@fastify/autoload": "^5.7.1",
     "close-with-grace": "^1.2.0",
     "dotenv": "^16.3.1",
-    "fastify": "^4.15.0"
+    "fastify": "^4.15.0",
+    "zod": "^3.21.4"
   }
 }

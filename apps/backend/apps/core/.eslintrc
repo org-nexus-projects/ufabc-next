@@ -3,7 +3,7 @@
   "extends": ["custom"],
   "overrides": [
     {
-      "files": ["app.ts", "server.ts"],
+      "files": ["src/app.ts", "src/server.ts"],
       "rules": {
         "@typescript-eslint/no-floating-promises": "off"
       }
