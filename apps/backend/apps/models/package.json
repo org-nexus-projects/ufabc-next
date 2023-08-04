@@ -2,7 +2,7 @@
   "name": "@ufabcnext/models",
   "version": "1.0.0",
   "description": "Database entities from the backend",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "build:type-check": "tsc"
   },
