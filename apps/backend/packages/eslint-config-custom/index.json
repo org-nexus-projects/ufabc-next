@@ -19,7 +19,6 @@
     ]
   },
   "rules": {
-    "import/no-default-export": "error",
     "no-console": "error",
     "no-redeclare": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
