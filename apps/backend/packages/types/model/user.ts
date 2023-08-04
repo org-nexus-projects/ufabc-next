@@ -20,14 +20,13 @@ export type User = {
   }[];
 };
 
-type UserMethods = {
-  addDevice(device: User['devices']): void
-  removeDevice(deviceId: ObjectId): ObjectId[]
-  sendConfirmation(): Promise<void>
+export type UserMethods = {
+  addDevice(device: User['devices']): void;
+  removeDevice(deviceId: ObjectId): ObjectId[];
+  sendConfirmation(): Promise<void>;
   generateJWT(): string;
-}
+};
 
 export type UserModel = Model<User, unknown, UserMethods>;
 // Just in case
-type UserSchema = Schema<User, UserModel, UserMethods>;
-
+export type UserSchema = Schema<User, UserModel, UserMethods>;

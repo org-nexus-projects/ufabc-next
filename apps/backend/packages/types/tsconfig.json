@@ -1,4 +1,4 @@
 {
   "extends": "@ufabcnext/tsconfig/base.json",
-  "include": ["*.d.ts"]
+  "include": ["**/*.ts"]
 }

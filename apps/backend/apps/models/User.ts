@@ -52,6 +52,4 @@ const userSchema = new Schema<User, UserModelType, UserMethods>(
   { timestamps: true },
 );
 
-// Need to understand here
-// eslint-disable-next-line
 export const UserModel = model<User, UserModelType>('User', userSchema);
