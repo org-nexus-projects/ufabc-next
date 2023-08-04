@@ -1,0 +1,5 @@
+{
+  "extends": "@ufabcnext/tsconfig/fastify.json",
+  "include": ["*.ts"],
+  "exclude": ["./dist/**"]
+}

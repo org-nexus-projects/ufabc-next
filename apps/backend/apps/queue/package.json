@@ -1,0 +1,16 @@
+{
+  "name": "@ufabcnext/queue",
+  "version": "1.0.0",
+  "description": "Queued jobs from the backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Joabe Silva <joabevarjao123@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "@ufabcnext/tsconfig": "workspace:^",
+    "eslint-config-custom": "workspace:^"
+  }
+}

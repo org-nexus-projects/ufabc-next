@@ -1,0 +1,16 @@
+{
+  "eslint.format.enable": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "editor.formatOnSave": true,
+  "editor.inlayHints.enabled": "on",
+  "dotenv.enableAutocloaking": false,
+  "material-icon-theme.folders.associations": {
+    "oauth2": "secure",
+    "modules": "components"
+  },
+  "cSpell.words": [
+    "Ufabc"
+  ]
+}

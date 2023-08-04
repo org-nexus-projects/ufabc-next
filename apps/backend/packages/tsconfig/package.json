@@ -1,6 +1,10 @@
 {
   "name": "@ufabcnext/tsconfig",
   "version": "1.0.0",
+  "files": [
+    "base.json",
+    "fastify.json"
+  ],
   "private": true,
   "license": "MIT",
   "publishConfig": {
