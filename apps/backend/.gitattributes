@@ -1,0 +1,3 @@
+# exclude package-lock from git diff
+pnpm-lock.yaml -diff
+package-lock.json -diff
