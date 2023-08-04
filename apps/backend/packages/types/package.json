@@ -1,0 +1,17 @@
+{
+  "name": "@ufabcnext/types",
+  "version": "1.0.0",
+  "description": "",
+  "types": "index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@ufabcnext/tsconfig": "workspace:^",
+    "eslint-config-custom": "workspace:^",
+    "mongoose": "^7.4.2"
+  }
+}
