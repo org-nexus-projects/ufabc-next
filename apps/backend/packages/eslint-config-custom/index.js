@@ -16,7 +16,7 @@ module.exports = {
   parserOptions: {
     // eslint-disable-next-line
     tsconfigRootDir: __dirname,
-    project: ['./tsconfig.eslint.json', ''],
+    project: ['./tsconfig.eslint.json'],
   },
   rules: {
     'import/no-default-export': 'error',
@@ -44,6 +44,5 @@ module.exports = {
         '@typescript-eslint/no-floating-promises': 'off',
       },
     },
-    
   ],
 };

@@ -1,0 +1,20 @@
+{
+  "name": "@ufabcnext/common",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "description": "Common functions for the backend",
+  "scripts": {
+    "build": "pnpm tsup index.ts --dts"
+  },
+  "keywords": [],
+  "author": "Joabe Varjao <joabevarjao123@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "@ufabcnext/tsconfig": "workspace:^"
+  },
+  "devDependencies": {
+    "tsup": "^7.2.0",
+    "typescript": "^4.5.3"
+  }
+}
