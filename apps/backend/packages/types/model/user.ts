@@ -1,5 +1,11 @@
 import type { Model, ObjectId, Schema } from 'mongoose';
 
+export type Device = {
+  deviceId: string;
+  token: string;
+  phone: string;
+};
+
 export type User = {
   email: string;
   oauth: {
@@ -13,11 +19,7 @@ export type User = {
   active: boolean;
   permissions: string[];
   createdAt: string;
-  devices: {
-    deviceId: string;
-    token: string;
-    phone: string;
-  }[];
+  devices: Device[];
 };
 
 export type UserMethods = {
@@ -27,6 +29,10 @@ export type UserMethods = {
   generateJWT(): string;
 };
 
-export type UserModel = Model<User, unknown, UserMethods>;
+export type UserVirtuals = {
+  isFilled(): string | number;
+};
+
+export type UserModel = Model<User, unknown, UserMethods, UserVirtuals>;
 // Just in case
 export type UserSchema = Schema<User, UserModel, UserMethods>;
