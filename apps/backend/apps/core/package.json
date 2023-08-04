@@ -25,9 +25,11 @@
   },
   "dependencies": {
     "@fastify/autoload": "^5.7.1",
+    "@ufabcnext/models": "workspace:*",
     "close-with-grace": "^1.2.0",
     "dotenv": "^16.3.1",
     "fastify": "^4.15.0",
+    "mongoose": "^7.4.2",
     "zod": "^3.21.4"
   }
 }

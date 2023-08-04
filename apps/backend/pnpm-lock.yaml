@@ -29,7 +29,7 @@ importers:
         specifier: ^5.7.1
         version: 5.7.1
       '@ufabcnext/models':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../models
       close-with-grace:
         specifier: ^1.2.0
@@ -40,6 +40,9 @@ importers:
       fastify:
         specifier: ^4.15.0
         version: 4.21.0
+      mongoose:
+        specifier: ^7.4.2
+        version: 7.4.2
       zod:
         specifier: ^3.21.4
         version: 3.21.4
