@@ -1,4 +1,12 @@
 {
   "root": true,
-  "extends": ["custom"]
+  "extends": ["custom"],
+  "overrides": [
+    {
+      "files": ["app.ts", "server.ts"],
+      "rules": {
+        "@typescript-eslint/no-floating-promises": "off"
+      }
+    }
+  ]
 }

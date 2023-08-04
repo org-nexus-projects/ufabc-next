@@ -1,5 +1,5 @@
 {
-  "extends": "@ufabcnext/tsconfig/fastify.json",
-  "include": ["*.ts"],
-  "exclude": ["./dist/**"]
+  "extends": ["@ufabcnext/tsconfig/fastify.json"],
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules/**/*"]
 }

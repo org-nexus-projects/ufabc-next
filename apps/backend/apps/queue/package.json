@@ -10,7 +10,7 @@
   "author": "Joabe Silva <joabevarjao123@gmail.com>",
   "license": "ISC",
   "devDependencies": {
-    "@ufabcnext/tsconfig": "workspace:^",
-    "eslint-config-custom": "workspace:^"
+    "@ufabcnext/tsconfig": "workspace:*",
+    "eslint-config-custom": "workspace:*"
   }
 }

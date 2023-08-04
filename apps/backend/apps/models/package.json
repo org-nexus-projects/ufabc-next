@@ -11,9 +11,9 @@
   "license": "ISC",
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.2",
-    "@ufabcnext/tsconfig": "workspace:^",
-    "@ufabcnext/types": "workspace:^",
-    "eslint-config-custom": "workspace:^",
+    "@ufabcnext/tsconfig": "workspace:*",
+    "@ufabcnext/types": "workspace:*",
+    "eslint-config-custom": "workspace:*",
     "jsonwebtoken": "^9.0.1",
     "tsup": "^7.2.0",
     "typescript": "^5.1.6"
