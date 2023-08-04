@@ -11,10 +11,13 @@
   "license": "ISC",
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.2",
+    "@types/lodash": "^4.14.196",
+    "@ufabcnext/common": "workspace:^",
     "@ufabcnext/tsconfig": "workspace:*",
     "@ufabcnext/types": "workspace:*",
     "eslint-config-custom": "workspace:*",
     "jsonwebtoken": "^9.0.1",
+    "lodash": "^4.17.21",
     "tsup": "^7.2.0",
     "typescript": "^5.1.6"
   },
