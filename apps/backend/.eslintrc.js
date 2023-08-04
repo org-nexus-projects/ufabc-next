@@ -7,4 +7,10 @@ module.exports = {
       rootDir: ["apps/*/", "packages/*/"],
     },
   },
+  overrides: [
+    {
+      extends: ['plugin:@typescript-eslint/disable-type-checked'],
+      files: ['./**/*.js'],
+    },
+  ],
 };

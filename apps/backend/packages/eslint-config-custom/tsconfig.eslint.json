@@ -1,0 +1,6 @@
+{
+ "extends": "@ufabcnext/tsconfig/base.json",
+ "compilerOptions": {
+  "types": ["vitest/globals", "node"]
+ } 
+}
