@@ -1,12 +1,22 @@
 import { Schema, model } from 'mongoose';
-import { Group } from './zod/GroupSchema';
 
-const groupSchema = new Schema<Group>(
+const groupSchema = new Schema(
   {
+    disciplina: String,
+    season: String,
+
     mainTeacher: {
       type: Schema.Types.ObjectId,
-      ref: 'Teachers',
+      ref: 'teachers',
+      required: true,
     },
+
+    users: [
+      {
+        type: Number,
+        required: true,
+      },
+    ],
   },
   { timestamps: true },
 );
@@ -14,4 +24,4 @@ const groupSchema = new Schema<Group>(
 groupSchema.index({ users: -1 });
 groupSchema.index({ mainTeacher: -1, season: -1, disciplina: -1 });
 
-export const GroupModel = model('Groups', groupSchema);
+export const GroupModel = model('groups', groupSchema);

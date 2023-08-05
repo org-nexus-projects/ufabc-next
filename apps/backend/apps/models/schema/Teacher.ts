@@ -3,7 +3,7 @@ import { startCase, camelCase } from 'lodash';
 
 const teacherSchema = new Schema(
   {
-    name: String,
+    name: { type: String, required: true },
     alias: [String],
   },
   {

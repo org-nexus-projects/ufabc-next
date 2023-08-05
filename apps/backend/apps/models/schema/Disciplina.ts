@@ -3,17 +3,54 @@ import { findQuarter } from '@ufabcnext/common';
 
 const disciplinaSchema = new Schema(
   {
+    disciplina_id: Number,
+    disciplina: String,
+    turno: String,
+    turma: String,
+    vagas: Number,
+    obrigatorias: [Number],
+    codigo: String,
+    campus: String,
+    ideal_quad: Boolean,
+
     subject: {
       type: Schema.Types.ObjectId,
-      ref: 'Subjects',
+      ref: 'subjects',
     },
+
+    identifier: {
+      type: String,
+      required: true,
+    },
+
+    // lista de alunos matriculados no momento
+    alunos_matriculados: {
+      type: [Number],
+      default: [],
+    },
+
+    // como estava o estado da matrícula antes do chute
+    before_kick: {
+      type: [Number],
+      default: [],
+    },
+
+    // como estava o estado da matrícula após o chute
+    after_kick: {
+      type: [Number],
+      default: [],
+    },
+
+    year: Number,
+    quad: Number,
+
     teoria: {
       type: Schema.Types.ObjectId,
-      ref: 'Teachers',
+      ref: 'teachers',
     },
     pratica: {
       type: Schema.Types.ObjectId,
-      ref: 'Teachers',
+      ref: 'teachers',
     },
   },
   { timestamps: true },
@@ -30,6 +67,7 @@ disciplinaSchema.pre(
   // eslint-disable-next-line
   function (this) {
     const disciplina = this.getUpdate();
+    // eslint-disable-next-line
     // @ts-ignore The season, come from the referenced tables
     if (!disciplina?.season) {
       const { year, quad } = findQuarter();
@@ -40,4 +78,4 @@ disciplinaSchema.pre(
 );
 
 // eslint-disable-next-line
-export const DisciplinaModel = model('Disciplinas', disciplinaSchema);
+export const DisciplinaModel = model('disciplinas', disciplinaSchema);

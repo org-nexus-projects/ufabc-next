@@ -1,74 +1,70 @@
 import { Document, Schema, model } from 'mongoose';
 import { get } from 'lodash';
-import { Enrollment } from './zod/EnrollmentSchema';
 import { GroupModel } from './Group';
 
-type EnrollmentDocument = Document & Enrollment;
+type Enrollment = Document<unknown, unknown, typeof enrollmentSchema>;
 
-const enrollmentSchema = new Schema<Enrollment>(
+const enrollmentSchema = new Schema(
   {
-    subject: {
-      type: Schema.Types.ObjectId,
-      ref: 'Subjects',
+    year: {
+      type: Number,
+      required: true,
     },
-    teoria: {
-      type: Schema.Types.ObjectId,
-      ref: 'Teachers',
+    quad: {
+      type: Number,
+      required: true,
     },
-    pratica: {
-      type: Schema.Types.ObjectId,
-      ref: 'Teachers',
-    },
-    mainTeacher: {
-      type: Schema.Types.ObjectId,
-      ref: 'Teachers',
-    },
-
     identifier: String,
     ra: Number,
     disciplina: String,
+    subject: {
+      type: Schema.Types.ObjectId,
+      ref: 'subjects',
+    },
     campus: String,
-    season: String,
     turno: String,
     turma: String,
-    comments: [String],
-    ca_acumulado: Number,
+    teoria: {
+      type: Schema.Types.ObjectId,
+      ref: 'teachers',
+    },
+    pratica: {
+      type: Schema.Types.ObjectId,
+      ref: 'teachers',
+    },
+    mainTeacher: {
+      type: Schema.Types.ObjectId,
+      ref: 'teachers',
+    },
+    comments: [
+      {
+        type: String,
+        enum: ['teoria', 'pratica'],
+      },
+    ],
+    // vem do portal
     conceito: String,
     creditos: Number,
-    cp_acumulado: Number,
+    ca_acumulado: Number,
     cr_acumulado: Number,
-    year: Number,
-    quad: Number,
+    cp_acumulado: Number,
   },
   { timestamps: true },
 );
 
-enrollmentSchema.index({ identifier: 1, ra: 1 });
-enrollmentSchema.index({ ra: 1 });
-enrollmentSchema.index({ conceito: 1 });
-enrollmentSchema.index({
-  mainTeacher: 1,
-  subject: 1,
-  cr_acumulado: 1,
-  conceito: 1,
-});
-
-function setTheoryAndPractice(enrollment: EnrollmentDocument) {
+function setTheoryAndPractice(enrollment: Enrollment) {
   if ('teoria' in enrollment || 'teoria' in enrollment) {
+    // the morning never happened lol.
     // TODO: refactor this in the morning
+    // eslint-disable-next-line
+    // @ts-ignore fix after understand how the FUCK i'm going to receive the types from a mongoose ref
     enrollment.mainTeacher =
       get(enrollment, 'teoria._id', enrollment.teoria) ||
       get(enrollment, 'pratica._id', enrollment.teoria);
   }
 }
 
-enrollmentSchema.pre('save', async function (this: EnrollmentDocument) {
-  setTheoryAndPractice(this);
-
-  await addEnrollmentToGroup(this);
-});
-
-async function addEnrollmentToGroup(enrollment: EnrollmentDocument) {
+async function addEnrollmentToGroup(enrollment: Enrollment) {
   /*
    * If is a new enrollment, must create a new
    * group or insert doc.ra in group.users
@@ -94,4 +90,20 @@ async function addEnrollmentToGroup(enrollment: EnrollmentDocument) {
   }
 }
 
-export const EnrollmentModel = model('Enrollments', enrollmentSchema);
+enrollmentSchema.index({ identifier: 1, ra: 1 });
+enrollmentSchema.index({ ra: 1 });
+enrollmentSchema.index({ conceito: 1 });
+enrollmentSchema.index({
+  mainTeacher: 1,
+  subject: 1,
+  cr_acumulado: 1,
+  conceito: 1,
+});
+
+enrollmentSchema.pre('save', async function (this) {
+  setTheoryAndPractice(this);
+
+  await addEnrollmentToGroup(this);
+});
+
+export const EnrollmentModel = model('enrollments', enrollmentSchema);

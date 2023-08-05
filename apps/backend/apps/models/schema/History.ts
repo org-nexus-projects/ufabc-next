@@ -1,7 +1,6 @@
 import { Schema, model } from 'mongoose';
-import { History } from './zod/HistorySchema';
 
-const historySchema = new Schema<History>(
+const historySchema = new Schema(
   {
     ra: Number,
     disciplinas: Object,

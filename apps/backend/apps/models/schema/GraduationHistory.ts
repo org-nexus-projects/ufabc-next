@@ -1,11 +1,17 @@
 import { Schema, model } from 'mongoose';
-import type { GraduationHistory } from './zod/GraduationHistorySchema';
 
-const graduationSchema = new Schema<GraduationHistory>(
+const graduationSchema = new Schema(
   {
+    ra: Number,
+    coefficients: Object,
+
+    disciplinas: Object,
+
+    curso: String,
+    grade: String,
     graduation: {
       type: Schema.Types.ObjectId,
-      ref: 'Graduations',
+      ref: 'graduation',
     },
   },
   { timestamps: true },
