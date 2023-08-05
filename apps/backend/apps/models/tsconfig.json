@@ -1,4 +1,4 @@
 {
   "extends": "@ufabcnext/tsconfig/fastify.json",
-  "include": ["schema/**.ts"]
+  "include": ["schema/**.ts", "index.ts"]
 }
