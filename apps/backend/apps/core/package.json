@@ -4,6 +4,7 @@
   "description": "Core logic of the backend, mainly users",
   "main": "dist/server.js",
   "scripts": {
+    "populate": "tsx cli/populate",
     "dev": "tsx watch src/server.ts",
     "dev:prod": "NODE_ENV=prod node .",
     "build": "tsup --config tsup.config.ts",

@@ -1,5 +1,10 @@
 {
   "extends": ["@ufabcnext/tsconfig/fastify.json"],
-  "include": ["**/*.ts"],
-  "exclude": ["node_modules/**/*"]
+  "compilerOptions": {
+    "paths": {
+      "@*": ["./src/*"],
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules/**/*"],
 }
