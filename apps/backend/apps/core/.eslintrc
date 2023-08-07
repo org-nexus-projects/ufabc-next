@@ -10,8 +10,6 @@
     }
   ],
   "rules": {
-    "@typescript-eslint/consistent-type-imports": ["error", {
-      "fix-style": "inline-type-imports"
-    }]
+    "@typescript-eslint/consistent-type-imports": ["error"]
   }
 }
