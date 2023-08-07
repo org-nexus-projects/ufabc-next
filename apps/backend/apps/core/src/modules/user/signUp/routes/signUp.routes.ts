@@ -32,7 +32,7 @@ export default async function (app: FastifyInstance) {
   });
 
   app.post(
-    '/account/confirm',
+    '/users/confirm',
     async (request: FastifyRequest<{ Body: { token: string } }>, reply) => {
       const { token } = request.body;
       const userNotConfirmed = confirmToken(token, Config.JWT_SECRET);

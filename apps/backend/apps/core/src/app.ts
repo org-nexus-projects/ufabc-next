@@ -18,7 +18,7 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
       dir: join(__dirname, 'modules'),
       dirNameRoutePrefix: false,
       encapsulate: false,
-      maxDepth: 1,
+      maxDepth: 2,
     });
   } catch (error) {
     app.log.fatal({ error }, 'build app error');
