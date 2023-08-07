@@ -1,7 +1,18 @@
-import { Schema, model } from 'mongoose';
+import { Schema, UpdateQuery, model } from 'mongoose';
 import { findQuarter } from '@ufabcnext/common';
+import {
+  Disciplina,
+  DisciplinaModel as DisciplinaModelType,
+  DisciplinaQuery,
+  DisciplinaVirtuals,
+} from '@ufabcnext/types';
 
-const disciplinaSchema = new Schema(
+const disciplinaSchema = new Schema<
+  Disciplina,
+  DisciplinaModelType,
+  unknown,
+  DisciplinaVirtuals
+>(
   {
     disciplina_id: Number,
     disciplina: String,
@@ -56,6 +67,12 @@ const disciplinaSchema = new Schema(
   { timestamps: true },
 );
 
+function setQuarter(disciplina: UpdateQuery<Disciplina>) {
+  const { year, quad } = findQuarter();
+  disciplina.year = year;
+  disciplina.quad = quad;
+}
+
 disciplinaSchema.virtual('requisicoes').get(function () {
   return (this.alunos_matriculados || []).length;
 });
@@ -65,17 +82,15 @@ disciplinaSchema.index({ identifier: 1 });
 disciplinaSchema.pre(
   'findOneAndUpdate',
   // eslint-disable-next-line
-  function (this) {
-    const disciplina = this.getUpdate();
+  function (this: DisciplinaQuery) {
+    const updatedDisciplina = this.getUpdate() as UpdateQuery<Disciplina>;
     // eslint-disable-next-line
     // @ts-ignore The season, come from the referenced tables
-    if (!disciplina?.season) {
-      const { year, quad } = findQuarter();
-      this.year = year;
-      this.quad = quad;
+    if (!updatedDisciplina?.season) {
+      setQuarter(updatedDisciplina);
     }
   },
 );
 
 // eslint-disable-next-line
-export const DisciplinaModel = model('disciplinas', disciplinaSchema);
+export const DisciplinaModel = model<Disciplina, DisciplinaModelType>('disciplinas', disciplinaSchema);

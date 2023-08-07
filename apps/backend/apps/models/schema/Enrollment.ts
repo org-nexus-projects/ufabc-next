@@ -1,10 +1,9 @@
-import { Document, Schema, model } from 'mongoose';
+import type { Enrollment, EnrollmentDocument } from '@ufabcnext/types';
+import { Schema, model } from 'mongoose';
 import { get } from 'lodash';
 import { GroupModel } from './Group';
 
-type Enrollment = Document<unknown, unknown, typeof enrollmentSchema>;
-
-const enrollmentSchema = new Schema(
+const enrollmentSchema = new Schema<Enrollment>(
   {
     year: {
       type: Number,
@@ -56,15 +55,15 @@ function setTheoryAndPractice(enrollment: Enrollment) {
   if ('teoria' in enrollment || 'teoria' in enrollment) {
     // the morning never happened lol.
     // TODO: refactor this in the morning
-    // eslint-disable-next-line
-    // @ts-ignore fix after understand how the FUCK i'm going to receive the types from a mongoose ref
     enrollment.mainTeacher =
       get(enrollment, 'teoria._id', enrollment.teoria) ||
       get(enrollment, 'pratica._id', enrollment.teoria);
   }
 }
 
-async function addEnrollmentToGroup(enrollment: Enrollment) {
+async function addEnrollmentToGroup(
+  enrollment: EnrollmentDocument & Enrollment,
+) {
   /*
    * If is a new enrollment, must create a new
    * group or insert doc.ra in group.users
@@ -106,4 +105,7 @@ enrollmentSchema.pre('save', async function (this) {
   await addEnrollmentToGroup(this);
 });
 
-export const EnrollmentModel = model('enrollments', enrollmentSchema);
+export const EnrollmentModel = model<Enrollment>(
+  'enrollments',
+  enrollmentSchema,
+);

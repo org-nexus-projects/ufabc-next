@@ -1,3 +1,4 @@
+import type { Reaction, ReactionDocument } from '@ufabcnext/types';
 import { isObjectIdOrHexString } from 'mongoose';
 import { Schema } from 'mongoose';
 import { UserModel } from './User';
@@ -5,7 +6,7 @@ import { CommentModel } from './Comment';
 import { EnrollmentModel } from './Enrollment';
 import { model } from 'mongoose';
 
-const reactionSchema = new Schema(
+const reactionSchema = new Schema<Reaction>(
   {
     kind: {
       type: String,
@@ -37,7 +38,7 @@ const reactionSchema = new Schema(
   { timestamps: true },
 );
 
-async function validateRules(reaction: unknown) {
+async function validateRules(reaction: ReactionDocument) {
   if (reaction.kind == 'recommendation') {
     const isValidId = isObjectIdOrHexString;
 
@@ -50,8 +51,8 @@ async function validateRules(reaction: unknown) {
       : reaction.comment;
 
     const isValid = await EnrollmentModel.findOne({
-      ra: user.ra,
-      $or: [{ teoria: comment.teacher }, { pratica: comment.teacher }],
+      ra: user?._id,
+      $or: [{ teoria: comment?.teacher }, { pratica: comment?.teacher }],
     });
     if (!isValid)
       throw new Error(
@@ -60,15 +61,26 @@ async function validateRules(reaction: unknown) {
   }
 }
 
-async function computeReactions(doc: unknown) {
-  const commentId = doc.comment._id && doc.comment;
+// TODO: understand and fix this later
+async function computeReactions(reaction: ReactionDocument) {
+  const commentId = reaction.comment._id && reaction.comment;
+
+  // eslint-disable-next-line
+  // @ts-ignore
+  // eslint-disable-next-line
+  const reactionCount = await reaction.constructor.count({
+    comment: commentId,
+    kind: reaction.kind,
+  });
+
+  const updateReactionKind = {
+    // eslint-disable-next-line
+    [`reactionsCount.${reaction.kind}`]: reactionCount,
+  };
   await CommentModel.findOneAndUpdate(
     { _id: commentId },
     {
-      [`reactionsCount.${doc.kind}`]: await doc.constructor.count({
-        comment: commentId,
-        kind: doc.kind,
-      }),
+      $set: updateReactionKind,
     },
   );
 }
@@ -76,6 +88,9 @@ async function computeReactions(doc: unknown) {
 reactionSchema.pre('save', async function () {
   const slug = `${this.kind}:${this.comment._id}:${this.user._id}`;
   if (this.isNew) {
+    // eslint-disable-next-line
+    // @ts-ignore
+    // eslint-disable-next-line
     const equalReaction = await this.constructor.findOne({ slug });
     if (equalReaction) {
       throw new Error(
@@ -92,10 +107,11 @@ reactionSchema.post('save', async function () {
   await computeReactions(this);
 });
 
-reactionSchema.post('deleteOne', async function () {
+// This Type is WRONG, but it will do for now
+reactionSchema.post('deleteOne', async function (this: ReactionDocument) {
   await computeReactions(this);
 });
 
 reactionSchema.index({ comment: 1, kind: 1 });
 
-export const ReactionModel = model('reactions', reactionSchema);
+export const ReactionModel = model<Reaction>('reactions', reactionSchema);

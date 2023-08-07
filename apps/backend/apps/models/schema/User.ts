@@ -76,6 +76,8 @@ userSchema.method('sendConfirmation', async function (this) {});
 
 userSchema.pre('save', async function (this) {
   // Make it possible to point to the `isFilled` virtual
+  // eslint-disable-next-line
+  // @ts-expect-error Object is created dynamically
   if (this.isFilled && !this.confirmed) {
     await this.sendConfirmation();
   }

@@ -1,4 +1,7 @@
 {
   "root": true,
-  "extends": ["custom"]
+  "extends": ["custom"],
+  "rules": {
+    "@typescript-eslint/restrict-template-expressions": "off"
+  }
 }

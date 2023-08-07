@@ -1,8 +1,9 @@
-import { Schema, model } from 'mongoose';
+import type { Comment, ICommentModel } from '@ufabcnext/types';
+import { FilterQuery, Schema, model } from 'mongoose';
 import { EnrollmentModel } from './Enrollment';
 import { ReactionModel } from './Reaction';
 
-const commentSchema = new Schema(
+const commentSchema = new Schema<Comment, ICommentModel>(
   {
     comment: {
       type: String,
@@ -53,11 +54,68 @@ const commentSchema = new Schema(
   { toObject: { virtuals: true }, timestamps: true },
 );
 
+commentSchema.static(
+  'commentsByReaction',
+  async function (
+    query: FilterQuery<Comment>,
+    userId: string,
+    populateFields: string[] = ['enrollment', 'subject'],
+    limit: number = 10,
+    page: number = 0,
+  ) {
+    if (!userId) {
+      throw new Error(`Usuário Não Encontrado ${userId}`);
+    }
+
+    const comments = await this.find(query)
+      .lean(true)
+      .populate(populateFields)
+      .skip(page * limit)
+      .limit(limit)
+      .sort({
+        'reactionsCount.recommendation': -1,
+        'reactionsCount.likes': -1,
+        createdAt: -1,
+      });
+
+    const mapCommentsReaction = comments.map(async (comment) => {
+      const likes = await ReactionModel.countDocuments({
+        comment: comment._id,
+        user: userId,
+        kind: 'like',
+      });
+      const recommendations = await ReactionModel.countDocuments({
+        comment: comment._id,
+        user: userId,
+        kind: 'recommendation',
+      });
+      const stars = await ReactionModel.countDocuments({
+        comment: comment._id,
+        user: userId,
+        kind: 'star',
+      });
+      // eslint-disable-next-line
+      // @ts-expect-error Object is created dynamically
+      comment.myReactions = {
+        like: !!likes,
+        recommendation: !!recommendations,
+        star: !!stars,
+      };
+
+      return comment;
+    });
+    await Promise.all(mapCommentsReaction);
+    return { data: mapCommentsReaction, total: await this.count(query) };
+  },
+);
+
 commentSchema.pre('save', async function () {
   if (this.isNew) {
+    // eslint-disable-next-line
     const enrollment = await this.constructor
-      // @ts-ignore
       // This one here, it only work, if in your service, you create a instance of `CommentModel`
+      // eslint-disable-next-line
+      // @ts-ignore
       .findOne({
         enrollment: this.enrollment,
         active: true,
@@ -84,57 +142,6 @@ commentSchema.post('find', async function () {
   await this.model.updateMany(this.getQuery(), { $inc: { viewers: 1 } });
 });
 
-commentSchema.static(
-  'commentsByReactions',
-  async function (
-    query,
-    userId,
-    populateFields = ['enrollment', 'subject'],
-    limit = 10,
-    page = 0,
-  ) {
-    if (!userId) {
-      throw new Error(`Usuário Não Encontrado ${userId}`);
-    }
-
-    const response = await this.find(query)
-      .lean(true)
-      .populate(populateFields)
-      .skip(page * limit)
-      .limit(limit)
-      .sort({
-        'reactionsCount.recommendation': -1,
-        'reactionsCount.likes': -1,
-        createdAt: -1,
-      });
-    await Promise.all(
-      // TODO: refactor this monster
-      response.map(async (r: any) => {
-        r.myReactions = {
-          like: !!(await ReactionModel.count({
-            comment: String(r._id),
-            user: String(userId),
-            kind: 'like',
-          })),
-          recommendation: !!(await ReactionModel.count({
-            comment: String(r._id),
-            user: String(userId),
-            kind: 'recommendation',
-          })),
-          star: !!(await ReactionModel.count({
-            comment: String(r._id),
-            user: String(userId),
-            kind: 'star',
-          })),
-        };
-        return r;
-      }),
-    );
-
-    return { data: response, total: await this.count(query) };
-  },
-);
-
 commentSchema.index({ comment: 1, user: 1 });
 commentSchema.index({ reactionsCount: -1 });
 
@@ -144,4 +151,7 @@ commentSchema.index({
   createdAt: -1,
 });
 
-export const CommentModel = model('comments', commentSchema);
+export const CommentModel = model<Comment, ICommentModel>(
+  'comments',
+  commentSchema,
+);
