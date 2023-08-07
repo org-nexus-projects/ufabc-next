@@ -18,6 +18,7 @@
     "@total-typescript/ts-reset": "^0.4.2",
     "@types/node": "^20.4.7",
     "@ufabcnext/tsconfig": "workspace:*",
+    "@ufabcnext/types": "workspace:^",
     "eslint-config-custom": "workspace:*",
     "pino": "^8.15.0",
     "pino-pretty": "^10.2.0",
@@ -29,12 +30,14 @@
     "@fastify/autoload": "^5.7.1",
     "@fastify/cors": "^8.3.0",
     "@fastify/jwt": "^7.2.0",
+    "@fastify/oauth2": "^7.2.2",
     "@fastify/redis": "^6.1.1",
     "@ufabcnext/models": "workspace:*",
     "close-with-grace": "^1.2.0",
     "dotenv": "^16.3.1",
     "fastify": "^4.15.0",
     "mongoose": "^7.4.2",
+    "ofetch": "^1.1.1",
     "zod": "^3.21.4"
   }
 }
