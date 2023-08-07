@@ -8,5 +8,10 @@
         "@typescript-eslint/no-floating-promises": "off"
       }
     }
-  ]
+  ],
+  "rules": {
+    "@typescript-eslint/consistent-type-imports": ["error", {
+      "fix-style": "inline-type-imports"
+    }]
+  }
 }
