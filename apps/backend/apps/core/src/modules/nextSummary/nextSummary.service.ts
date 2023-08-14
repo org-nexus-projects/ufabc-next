@@ -6,7 +6,7 @@ import {
   StudentModel,
   UserModel,
 } from '@ufabcnext/models';
-import { logger } from '../../config';
+import { logger } from '@ufabcnext/common';
 
 type DisciplinaStats = {
   teachers: number;

@@ -1,7 +1,7 @@
 import type { onRequestAsyncHookHandler } from 'fastify';
 import type { SignPayloadType, JwtHeader } from '@fastify/jwt';
 import { UserModel } from '@ufabcnext/models';
-import { logger } from '@config';
+import { logger } from '@ufabcnext/common';
 
 type Decoded = {
   header: JwtHeader;
@@ -13,7 +13,6 @@ type Decoded = {
 export const authenticate: onRequestAsyncHookHandler = async (request) => {
   try {
     const token = request.headers['authorization']?.replace('Bearer ', '');
-
     if (!token) {
       throw new Error('Header de autenticação inválido ou não fornecido');
     }

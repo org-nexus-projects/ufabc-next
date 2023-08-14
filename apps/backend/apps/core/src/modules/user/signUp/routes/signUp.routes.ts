@@ -1,7 +1,8 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import type { Document, ObjectId } from 'mongoose';
 import type { User } from '@ufabcnext/types';
-import { Config, logger } from '@config';
+import { logger } from '@ufabcnext/common';
+import { Config } from '@config';
 import { authenticate } from '@modules/user/hooks/authenticate';
 import { ParsedUserToken, UfabcUser } from '../schema/signUp.schema';
 import { confirmToken } from '@modules/user/helpers/emailToken';

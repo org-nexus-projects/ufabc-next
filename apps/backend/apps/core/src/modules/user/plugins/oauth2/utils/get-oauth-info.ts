@@ -1,7 +1,7 @@
 import type { Token } from '@fastify/oauth2';
 import type { GoogleUser, UfabcNextOAuth2User } from '@ufabcnext/types';
+import { logger } from '@ufabcnext/common';
 import { ofetch } from 'ofetch';
-import { logger } from '@config';
 
 // Implement here the helpers for respective providers
 

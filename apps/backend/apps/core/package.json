@@ -17,6 +17,7 @@
   "devDependencies": {
     "@total-typescript/ts-reset": "^0.4.2",
     "@types/node": "^20.4.7",
+    "@ufabcnext/common": "workspace:^",
     "@ufabcnext/tsconfig": "workspace:*",
     "@ufabcnext/types": "workspace:^",
     "eslint-config-custom": "workspace:*",

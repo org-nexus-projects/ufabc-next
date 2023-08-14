@@ -1,7 +1,8 @@
 import type { FastifyServerOptions } from 'fastify';
 import gracefullyShutdown from 'close-with-grace';
+import { logger } from '@ufabcnext/common';
+import { Config } from './config';
 import { buildApp } from './app';
-import { Config, logger } from './config';
 
 const appOptions = {
   logger,

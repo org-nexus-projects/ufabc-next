@@ -72,6 +72,9 @@ importers:
       '@types/node':
         specifier: ^20.4.7
         version: 20.4.7
+      '@ufabcnext/common':
+        specifier: workspace:^
+        version: link:../../packages/common
       '@ufabcnext/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
@@ -145,6 +148,9 @@ importers:
       bullmq:
         specifier: ^4.7.0
         version: 4.7.0
+      fastify:
+        specifier: ^4.15.0
+        version: 4.21.0
       ofetch:
         specifier: ^1.1.1
         version: 1.1.1
@@ -160,6 +166,16 @@ importers:
         version: link:../../packages/eslint-config-custom
 
   packages/common:
+    dependencies:
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.1
+      pino:
+        specifier: ^8.15.0
+        version: 8.15.0
+      zod:
+        specifier: ^3.21.4
+        version: 3.21.4
     devDependencies:
       '@types/node':
         specifier: ^20.4.7
@@ -170,6 +186,9 @@ importers:
       eslint-config-custom:
         specifier: workspace:*
         version: link:../eslint-config-custom
+      pino-pretty:
+        specifier: ^10.2.0
+        version: 10.2.0
       tsup:
         specifier: ^7.2.0
         version: 7.2.0(ts-node@10.9.1)(typescript@5.1.6)
@@ -3898,6 +3917,7 @@ packages:
   /node-gyp-build-optional-packages@5.0.7:
     resolution: {integrity: sha512-YlCCc6Wffkx0kHkmam79GKvDQ6x+QZkMjFGrIMxgFNILFvGSbCp2fCBC55pGTT9gVaz8Na5CLmxt/urtzRv36w==}
     hasBin: true
+    requiresBuild: true
     dev: false
     optional: true
 
