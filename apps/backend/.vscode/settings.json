@@ -8,7 +8,8 @@
   "dotenv.enableAutocloaking": false,
   "material-icon-theme.folders.associations": {
     "oauth2": "secure",
-    "modules": "components"
+    "modules": "components",
+    "workers": "controller"
   },
   "cSpell.words": [
     "Ufabc"

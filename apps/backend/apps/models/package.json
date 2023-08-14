@@ -22,6 +22,7 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
+    "@ufabcnext/queue": "workspace:*",
     "mongoose": "^7.4.2",
     "remeda": "^1.24.0"
   }

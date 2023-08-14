@@ -2,7 +2,7 @@
   "name": "@ufabcnext/queue",
   "version": "1.0.0",
   "description": "Queued jobs from the backend",
-  "main": "index.js",
+  "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,6 +11,11 @@
   "license": "ISC",
   "devDependencies": {
     "@ufabcnext/tsconfig": "workspace:*",
+    "@ufabcnext/types": "workspace:^",
     "eslint-config-custom": "workspace:*"
+  },
+  "dependencies": {
+    "bullmq": "^4.7.0",
+    "ofetch": "^1.1.1"
   }
 }

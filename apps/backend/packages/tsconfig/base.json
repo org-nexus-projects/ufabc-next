@@ -10,6 +10,7 @@
     "moduleResolution": "node",
     "noUnusedLocals": false,
     "noUnusedParameters": false,
+    "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
