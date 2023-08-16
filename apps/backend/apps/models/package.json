@@ -23,7 +23,9 @@
   },
   "dependencies": {
     "@ufabcnext/queue": "workspace:*",
+    "dotenv": "^16.3.1",
     "mongoose": "^7.4.2",
-    "remeda": "^1.24.0"
+    "remeda": "^1.24.0",
+    "zod": "^3.21.4"
   }
 }

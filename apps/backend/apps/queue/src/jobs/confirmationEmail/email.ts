@@ -1,6 +1,8 @@
+import { logger } from '@ufabcnext/common';
 import { createToken } from '../../helpers/createToken';
 import { sendEmail } from '../../integration/sendgrid';
 import { createQueue, queueProcessor } from '../../setup';
+import { Config } from '@/config/config';
 
 type UfabcUser = {
   email: string;
@@ -8,7 +10,7 @@ type UfabcUser = {
 };
 
 async function sendConfirmationEmail(nextUser: UfabcUser) {
-  console.log({ email: nextUser.email, ra: nextUser.ra }, 'sendConfirmation');
+  logger.info({ email: nextUser.email, ra: nextUser.ra }, 'sendConfirmation');
   const token = createToken(JSON.stringify({ email: nextUser.email }));
   const emailRequest = {
     recipient: nextUser.email,
@@ -17,25 +19,22 @@ async function sendConfirmationEmail(nextUser: UfabcUser) {
     },
   };
 
-  const emailTemplate = Config.EMAIL_TEMPLATE_ID;
+  const emailTemplate = Config.EMAIL_CONFIRMATION_TEMPLATE;
   try {
     await sendEmail(emailRequest, {}, emailTemplate);
     return {
-      jobId: `Returned value ${nextUser.id}`,
-      job: nextUser,
+      dataId: `Returned value ${nextUser.ra}`,
+      data: nextUser,
     };
   } catch (error) {
-    console.error('worker error', error);
+    logger.error({ error }, 'Error Sending email');
     throw error;
   }
 }
 
-const sendEmail;
-
 export const sendEmailJob = async (user: UfabcUser) => {
   const emailQueue = createQueue('Send:Email');
-  const { job } = await sendConfirmationEmail(user);
-  console.log('jobs', job);
-  await queueProcessor(emailQueue.name, job);
+  await sendConfirmationEmail(user);
+  await queueProcessor(emailQueue.name);
   await emailQueue.add('Send:Email', user);
 };

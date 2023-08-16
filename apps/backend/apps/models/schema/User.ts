@@ -9,6 +9,7 @@ import { sendEmailJob } from '@ufabcnext/queue';
 import { Document, Schema, model } from 'mongoose';
 import { uniqBy } from 'remeda';
 import { sign as jwtSign } from 'jsonwebtoken';
+import { Config } from '../config/config';
 
 const userSchema = new Schema<User, UserModelType, UserMethods, UserVirtuals>(
   {

@@ -7,6 +7,7 @@ export type Device = {
 };
 
 export type User = {
+  _id?: string;
   email: string;
   oauth: {
     email: string;

@@ -15,10 +15,6 @@ const envSchema = z.object({
   WEB_URL: z.string().url(),
   JWT_SECRET: z.string().min(32),
 
-  // EMAIL
-  EMAIL_CONFIRMATION_TEMPLATE: z.string(),
-  MAILER_ID: z.string(),
-
   // OAUTH2
   OAUTH_FACEBOOK_CLIENT_ID: z.string(),
   OAUTH_FACEBOOK_SECRET: z.string().min(16),
@@ -33,7 +29,7 @@ const envSchema = z.object({
 
   // Redis
   REDIS_NAME: z.string(),
-  REDIS_USER: z.string(),
+  REDIS_USER: z.string().default('default'),
   REDIS_PASSWORD: z.string().min(8),
   REDIS_PORT: z.coerce.number().default(6379),
 

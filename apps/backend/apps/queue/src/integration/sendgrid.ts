@@ -1,4 +1,6 @@
 import { ofetch, FetchError } from 'ofetch';
+import { logger } from '@ufabcnext/common';
+import { Config } from '@/config/config';
 
 type Email = {
   recipient: string;
@@ -11,7 +13,6 @@ type Sender = {
 };
 
 export async function sendEmail(
-  // eslint-disable-next-line
   emails: Email[] | Email,
   sender: Partial<Sender> = {},
   templateId: string,
@@ -25,7 +26,7 @@ export async function sendEmail(
 
   const headers = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${Config.SENDGRID_TOKEN}`,
+    Authorization: `Bearer ${Config.MAILER_ID}`,
   };
 
   const payload = {
@@ -42,22 +43,20 @@ export async function sendEmail(
   };
 
   try {
-    const response = await ofetch('https://api.sendgrid.com/v3/mail/send', {
+    await ofetch('https://api.sendgrid.com/v3/mail/send', {
       method: 'POST',
       body: JSON.stringify(payload),
       headers,
     });
-    console.log('sendgrid', response);
-    return response;
   } catch (error) {
     if (error instanceof FetchError) {
-      console.error(
+      logger.error(
         { reason: error.name, issues: error.message },
         'Error while requesting sendGrid',
       );
       throw error.data;
     }
-    console.error({ error }, 'Unknown Request error');
+    logger.error({ error }, 'Unknown Request error');
     throw error;
   }
 }
