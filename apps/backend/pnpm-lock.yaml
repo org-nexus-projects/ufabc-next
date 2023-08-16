@@ -159,7 +159,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/tsconfig
       '@ufabcnext/types':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/types
       eslint-config-custom:
         specifier: workspace:*
