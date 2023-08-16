@@ -5,9 +5,10 @@ import type {
   UserModel as UserModelType,
   UserVirtuals,
 } from '@ufabcnext/types';
-import { Schema, model } from 'mongoose';
+import { sendEmailJob } from '@ufabcnext/queue';
+import { Document, Schema, model } from 'mongoose';
 import { uniqBy } from 'remeda';
-// import { sign as jwtSign } from 'jsonwebtoken';
+import { sign as jwtSign } from 'jsonwebtoken';
 
 const userSchema = new Schema<User, UserModelType, UserMethods, UserVirtuals>(
   {
@@ -70,9 +71,23 @@ userSchema.method('removeDevice', function (this: User, deviceId: string) {
   this.devices = this.devices.filter((device) => device.deviceId !== deviceId);
 });
 
-userSchema.method('generateJWT', function (this: User) {});
+userSchema.method('generateJWT', function (this: User) {
+  return jwtSign(
+    {
+      _id: this._id,
+      ra: this.ra,
+      confirmed: this.confirmed,
+      email: this.email,
+      permissions: this.permissions,
+    },
+    Config.JWT_SECRET,
+  );
+});
 
-userSchema.method('sendConfirmation', async function (this) {});
+userSchema.method('sendConfirmation', async function (this: Document) {
+  const nextUser = this.toObject<User>({ virtuals: true });
+  await sendEmailJob(nextUser);
+});
 
 userSchema.pre('save', async function (this) {
   // Make it possible to point to the `isFilled` virtual
