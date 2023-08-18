@@ -24,7 +24,6 @@ const envSchema = z.object({
 });
 
 const _env = envSchema.safeParse(process.env);
-
 if (!_env.success) {
   logger.error({ issues: _env.error.format() }, '[QUEUE] Invalid Envs');
   throw new Error('Invalid environments variables');

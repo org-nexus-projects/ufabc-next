@@ -14,7 +14,9 @@ const envSchema = z.object({
   HOST: z.string().min(4).default('localhost'),
   WEB_URL: z.string().url(),
   JWT_SECRET: z.string().min(32),
-
+  // EMAIL
+  EMAIL_CONFIRMATION_TEMPLATE: z.string(),
+  MAILER_ID: z.string(),
   // OAUTH2
   OAUTH_FACEBOOK_CLIENT_ID: z.string(),
   OAUTH_FACEBOOK_SECRET: z.string().min(16),

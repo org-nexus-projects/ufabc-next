@@ -23,7 +23,6 @@ export async function sendEmail(
     to: [{ email: email.recipient }],
     dynamic_template_data: email.body || {},
   }));
-
   const headers = {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${Config.MAILER_ID}`,
