@@ -38,6 +38,10 @@ const envSchema = z.object({
   // Docker URL
   MONGODB_CONNECTION_URL: z.string(),
   REDIS_CONNECTION_URL: z.string(),
+
+  // Aws
+  secretAccessKey: z.string().optional(),
+  accessKeyId: z.string().optional(),
 });
 
 const _env = envSchema.safeParse(process.env);
