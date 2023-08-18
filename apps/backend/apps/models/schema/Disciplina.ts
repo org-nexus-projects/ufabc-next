@@ -93,4 +93,7 @@ disciplinaSchema.pre(
 );
 
 // eslint-disable-next-line
-export const DisciplinaModel = model<Disciplina, DisciplinaModelType>('disciplinas', disciplinaSchema);
+export const DisciplinaModel = model<Disciplina, DisciplinaModelType>(
+  'disciplinas',
+  disciplinaSchema,
+);

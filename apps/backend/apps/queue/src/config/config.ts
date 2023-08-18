@@ -1,3 +1,4 @@
+import { logger } from '@ufabcnext/common';
 import { config as dotEnvConfig } from 'dotenv';
 import { z } from 'zod';
 
@@ -23,8 +24,9 @@ const envSchema = z.object({
 });
 
 const _env = envSchema.safeParse(process.env);
+
 if (!_env.success) {
-  console.error('[QUEUE] Invalid Envs', _env.error.format());
+  logger.error({ issues: _env.error.format() }, '[QUEUE] Invalid Envs');
   throw new Error('Invalid environments variables');
 }
 

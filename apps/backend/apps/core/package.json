@@ -3,11 +3,16 @@
   "version": "1.0.0",
   "description": "Core logic of the backend, mainly users",
   "main": "dist/server.js",
+  "packageManager": "pnpm@8.6.5",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "populate": "tsx cli/populate",
     "dev": "tsx watch src/server.ts",
-    "dev:prod": "NODE_ENV=prod node .",
-    "build": "tsup --config tsup.config.ts",
+    "start": "NODE_ENV=prod node dist/server.js",
+    "start:watch": "NODE_ENV=prod node --watch dist/server.js",
+    "build": "tsup-node --config tsup.config.ts",
     "build:type-check": "tsc",
     "lint": "eslint ./src --ext .ts"
   },
@@ -17,9 +22,9 @@
   "devDependencies": {
     "@total-typescript/ts-reset": "^0.4.2",
     "@types/node": "^20.4.7",
-    "@ufabcnext/common": "workspace:^",
+    "@ufabcnext/common": "workspace:*",
     "@ufabcnext/tsconfig": "workspace:*",
-    "@ufabcnext/types": "workspace:^",
+    "@ufabcnext/types": "workspace:*",
     "eslint-config-custom": "workspace:*",
     "pino": "^8.15.0",
     "pino-pretty": "^10.2.0",

@@ -4,6 +4,8 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
+    "start": "turbo run start",
+    "start:watch": "turbo run start:watch",
     "build:type-check": "turbo run build:type-check",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.ts\""

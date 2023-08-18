@@ -10,8 +10,8 @@
     "moduleResolution": "node",
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
+    "noUncheckedIndexedAccess": true,
     "strict": true,
     "noEmit": true,
     "resolveJsonModule": true

@@ -14,6 +14,13 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "start": {
+      "cache": true
+    },
+    "start:watch": {
+      "cache": false,
+      "persistent": true
     }
   }
 }
