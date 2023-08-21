@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 import { startCase, camelCase } from 'lodash';
 
 type Teacher = {
@@ -20,4 +20,5 @@ teacherSchema.pre('save', async function () {
   this.name = startCase(camelCase(this.name));
 });
 
-export const TeacherModel = model<Teacher>('teachers', teacherSchema);
+export const TeacherModel =
+  models['teachers'] || model<Teacher>('teachers', teacherSchema);

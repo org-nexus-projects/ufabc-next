@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 
 const graduationSchema = new Schema(
   {
@@ -17,7 +17,6 @@ const graduationSchema = new Schema(
   { timestamps: true },
 );
 
-export const GraduationHistoryModel = model(
-  'historiesgraduations',
-  graduationSchema,
-);
+export const GraduationHistoryModel =
+  models['historiesgraduations'] ||
+  model('historiesgraduations', graduationSchema);

@@ -6,7 +6,7 @@ import type {
   UserVirtuals,
 } from '@ufabcnext/types';
 import { sendEmailJob } from '@ufabcnext/queue';
-import { Document, Schema, model } from 'mongoose';
+import { Document, Schema, models, model } from 'mongoose';
 import { uniqBy } from 'remeda';
 import { sign as jwtSign } from 'jsonwebtoken';
 import { Config } from '../config/config';
@@ -99,4 +99,5 @@ userSchema.pre('save', async function (this) {
   }
 });
 
-export const UserModel = model<User, UserModelType>('User', userSchema);
+export const UserModel =
+  models['users'] || model<User, UserModelType>('users', userSchema);

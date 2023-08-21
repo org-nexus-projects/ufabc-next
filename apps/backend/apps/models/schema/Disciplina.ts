@@ -1,4 +1,4 @@
-import { Schema, UpdateQuery, model } from 'mongoose';
+import { Schema, UpdateQuery, model, models } from 'mongoose';
 import { findQuarter } from '@ufabcnext/common';
 import {
   Disciplina,
@@ -93,7 +93,7 @@ disciplinaSchema.pre(
 );
 
 // eslint-disable-next-line
-export const DisciplinaModel = model<Disciplina, DisciplinaModelType>(
+export const DisciplinaModel = models['disciplinas'] || model<Disciplina, DisciplinaModelType>(
   'disciplinas',
   disciplinaSchema,
 );

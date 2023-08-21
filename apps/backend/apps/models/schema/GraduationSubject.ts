@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 
 const graduationSubjectSchema = new Schema(
   {
@@ -37,7 +37,6 @@ const graduationSubjectSchema = new Schema(
 
 graduationSubjectSchema.index({ graduation: 1 });
 
-export const GraduationSubjectModel = model(
-  'subjectgraduations',
-  graduationSubjectSchema,
-);
+export const GraduationSubjectModel =
+  models['subjectgraduations'] ||
+  model('subjectgraduations', graduationSubjectSchema);

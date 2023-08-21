@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 import { startCase, camelCase } from 'lodash';
 
 type Subject = {
@@ -23,4 +23,5 @@ subjectSchema.pre('save', function () {
   this.search = startCase(camelCase(this.name));
 });
 
-export const SubjectModel = model<Subject>('subjects', subjectSchema);
+export const SubjectModel =
+  models['subjects'] || model<Subject>('subjects', subjectSchema);

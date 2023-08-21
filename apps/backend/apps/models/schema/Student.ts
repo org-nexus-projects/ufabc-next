@@ -1,6 +1,6 @@
 import { Student, StudentQuery } from '@ufabcnext/types';
 import { findQuarter } from '@ufabcnext/common';
-import { Schema, UpdateQuery, model } from 'mongoose';
+import { Schema, UpdateQuery, model, models } from 'mongoose';
 
 const studentSchema = new Schema<Student>(
   {
@@ -44,4 +44,5 @@ studentSchema.pre('findOneAndUpdate', function (this: StudentQuery) {
   }
 });
 
-export const StudentModel = model<Student>('alunos', studentSchema);
+export const StudentModel =
+  models['alunos'] || model<Student>('alunos', studentSchema);
