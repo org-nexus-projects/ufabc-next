@@ -1,8 +1,8 @@
 import { logger } from '@ufabcnext/common';
 import { createToken } from '../../helpers/createToken';
-import { sendEmail } from '../../integration/sendgrid';
+import { Config } from '../../config/config';
 import { createQueue, queueProcessor } from '../../setup';
-import { Config } from '@/config/config';
+import { sesSendEmail } from '../../integration/ses';
 
 type UfabcUser = {
   email: string;
@@ -11,6 +11,7 @@ type UfabcUser = {
 
 async function sendConfirmationEmail(nextUser: UfabcUser) {
   logger.info({ email: nextUser.email, ra: nextUser.ra }, 'sendConfirmation');
+  const emailTemplate = Config.EMAIL_CONFIRMATION_TEMPLATE;
   const token = createToken(JSON.stringify({ email: nextUser.email }));
   const emailRequest = {
     recipient: nextUser.email,
@@ -19,9 +20,8 @@ async function sendConfirmationEmail(nextUser: UfabcUser) {
     },
   };
 
-  const emailTemplate = Config.EMAIL_CONFIRMATION_TEMPLATE;
   try {
-    await sendEmail(emailRequest, {}, emailTemplate);
+    await sesSendEmail(nextUser, emailTemplate, emailRequest);
     return {
       dataId: `Returned value ${nextUser.ra}`,
       data: nextUser,

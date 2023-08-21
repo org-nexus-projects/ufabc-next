@@ -14,6 +14,10 @@ const envSchema = z.object({
   HOST: z.string().min(4).default('localhost'),
   WEB_URL: z.string().url(),
   JWT_SECRET: z.string().min(32),
+  // AWS credentials
+  AWS_REGION: z.string(),
+  AWS_ACCESS_KEY_ID: z.string(),
+  AWS_SECRET_ACCESS_KEY: z.string(),
   // EMAIL
   EMAIL_CONFIRMATION_TEMPLATE: z.string(),
   MAILER_ID: z.string(),

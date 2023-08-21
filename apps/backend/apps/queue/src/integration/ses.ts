@@ -1,40 +1,57 @@
-import { Config } from '../config/config';
 import {
   SESClient,
-  SendEmailCommand,
-  type SendEmailCommandInput,
+  SendTemplatedEmailCommand,
+  type SendTemplatedEmailCommandInput,
 } from '@aws-sdk/client-ses';
 import { logger } from '@ufabcnext/common';
+import { Config } from '../config/config';
 
-const sesClient = new SESClient({
-  region: 'us-east-1',
-  credentials: {
-    accessKeyId: Config.accessKeyId,
-    secretAccessKey: Config.secretAccessKey,
-  },
-});
+type Email = {
+  recipient: string;
+  body: {
+    url: string;
+    recovery_facebook?: string;
+    recovery_google?: string;
+  };
+};
 
-async function sesSendEmail() {
+type UfabcUser = {
+  email: string;
+  ra: number;
+};
+
+export async function sesSendEmail(
+  user: UfabcUser,
+  templateId: 'Confirmation' | 'Recover',
+  email: Email,
+) {
+  const sesClient = new SESClient({
+    region: Config.AWS_REGION,
+    credentials: {
+      accessKeyId: Config.AWS_ACCESS_KEY_ID,
+      secretAccessKey: Config.AWS_SECRET_ACCESS_KEY,
+    },
+  });
+  let templateData;
+  if (templateId === 'Confirmation') {
+    templateData = JSON.stringify({ url: email.body.url });
+  } else {
+    templateData = JSON.stringify({
+      recovery_facebook: email.body.recovery_facebook,
+      recovery_google: email.body.recovery_google,
+    });
+  }
+
   try {
-    const sendEmailCommandInput = {
+    const sendTemplatedEmailCommand = {
+      Source: 'UFABC next <contato@ufabcnext.com>',
       Destination: {
-        CcAddresses: ['joabevarjao123@gmail.com'],
-        ToAddresses: ['joabevarjao123@gmail.com'],
+        ToAddresses: [user.email],
       },
-      Message: {
-        Body: {
-          Html: {
-            Data: 'Vamos ver kct',
-          },
-        },
-        Subject: {
-          Data: 'Testando ses',
-        },
-      },
-      Source: 'joabevarjao123@gmail.com',
-      ReplyToAddresses: ['joabevarjao123@gmail.com'],
-    } satisfies SendEmailCommandInput;
-    const command = new SendEmailCommand(sendEmailCommandInput);
+      TemplateData: templateData,
+      Template: templateId,
+    } satisfies SendTemplatedEmailCommandInput;
+    const command = new SendTemplatedEmailCommand(sendTemplatedEmailCommand);
     const data = await sesClient.send(command);
     return data;
   } catch (error) {
@@ -43,5 +60,3 @@ async function sesSendEmail() {
     sesClient.destroy();
   }
 }
-
-sesSendEmail();

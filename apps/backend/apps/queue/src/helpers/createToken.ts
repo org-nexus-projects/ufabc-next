@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
 import { Buffer } from 'node:buffer';
-import { Config } from '@/config/config';
+import { Config } from '../config/config';
 
 const ALGORITHM = 'aes-256-ctr';
 const ENCRYPTION_KEY = Buffer.from(Config.JWT_SECRET, 'hex');
