@@ -100,4 +100,5 @@ userSchema.pre('save', async function (this) {
 });
 
 export const UserModel =
-  models['users'] || model<User, UserModelType>('users', userSchema);
+  (models['users'] as UserModelType) ||
+  model<User, UserModelType>('users', userSchema);

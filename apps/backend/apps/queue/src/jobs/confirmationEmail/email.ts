@@ -10,13 +10,12 @@ type UfabcUser = {
 };
 
 async function sendConfirmationEmail(nextUser: UfabcUser) {
-  logger.info({ email: nextUser.email, ra: nextUser.ra }, 'sendConfirmation');
   const emailTemplate = Config.EMAIL_CONFIRMATION_TEMPLATE;
   const token = createToken(JSON.stringify({ email: nextUser.email }));
   const emailRequest = {
     recipient: nextUser.email,
     body: {
-      url: `http://localhost:7500/confirm?token=${token}`,
+      url: `${Config.WEB_URL}/confirm?token=${token}`,
     },
   };
 

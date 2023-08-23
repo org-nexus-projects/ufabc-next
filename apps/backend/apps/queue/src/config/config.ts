@@ -12,6 +12,7 @@ const envSchema = z.object({
   // Local machine
   NODE_ENV: z.enum(['dev', 'test', 'prod']).default('dev'),
   HOST: z.string().min(4).default('localhost'),
+  WEB_URL: z.string().default('http://localhost:7500/app/#'),
   JWT_SECRET: z.string().min(32),
   // AWS credentials
   AWS_REGION: z.string(),
