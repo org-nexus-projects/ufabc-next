@@ -2,12 +2,13 @@
   "name": "ufabc-next-backend",
   "private": true,
   "scripts": {
+    "populate": "turbo run populate -- ",
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "start": "turbo run start",
-    "start:watch": "turbo run start:watch",
     "build:type-check": "turbo run build:type-check",
     "lint": "turbo run lint",
+    "preview": "turbo run preview",
+    "start": "turbo run start",
     "format": "prettier --write \"**/*.ts\""
   },
   "devDependencies": {

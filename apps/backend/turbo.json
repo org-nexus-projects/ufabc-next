@@ -1,7 +1,14 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["**/.env.*local"],
+  "globalDotEnv": [".env"],
   "pipeline": {
+    "populate": {
+      "cache": true    
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
@@ -9,18 +16,14 @@
     "build:type-check": {
       "dependsOn": ["^build"]
     },
-    "lint": {},
-    "test": {},
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "start": {
+    "preview": {
       "cache": true
     },
-    "start:watch": {
+    "start": {
       "cache": false,
-      "persistent": true
-    }
+      "persistent": true   
+    },
+    "lint": {},
+    "test": {}
   }
 }

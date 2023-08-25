@@ -10,11 +10,10 @@
   "scripts": {
     "populate": "tsx cli/populate",
     "dev": "tsx watch src/server.ts",
-    "start": "NODE_ENV=prod node dist/server.js",
-    "start:watch": "NODE_ENV=prod node --watch dist/server.js",
     "build": "tsup-node --config tsup.config.ts",
     "build:type-check": "tsc",
-    "lint": "eslint ./src --ext .ts"
+    "preview": "NODE_ENV=prod node dist/server.js",
+    "start": "NODE_ENV=prod tsup src/server.ts --watch --onSuccess=\"dist/server.js\""
   },
   "keywords": [],
   "author": "Joabe Silva <joabevarjao123@gmail.com>",
