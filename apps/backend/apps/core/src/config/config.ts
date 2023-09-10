@@ -31,7 +31,7 @@ const envSchema = z.object({
   EMAIL: z.string().email().default('contato@ufabcnext.com'),
 
   // OAUTH2 - Change with the one you generate
-  OAUTH_FACEBOOK_CLIENT_ID: z.coerce.number().default(4859485948),
+  OAUTH_FACEBOOK_CLIENT_ID: z.string().default('4859485948'),
   OAUTH_FACEBOOK_SECRET: z.string().min(16).default('0sraUa6lA7oSdewe'),
   OAUTH_GOOGLE_CLIENT_ID: z
     .string()
