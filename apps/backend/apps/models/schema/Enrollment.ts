@@ -1,5 +1,5 @@
 import type { Enrollment, EnrollmentDocument } from '@ufabcnext/types';
-import { Schema, model } from 'mongoose';
+import { Model, Schema, model } from 'mongoose';
 import { get } from 'lodash';
 import { GroupModel } from './Group';
 import { models } from 'mongoose';
@@ -106,5 +106,4 @@ enrollmentSchema.pre('save', async function (this) {
   await addEnrollmentToGroup(this);
 });
 
-export const EnrollmentModel =
-  model<Enrollment>('enrollments', enrollmentSchema) || models['enrollments'];
+export const EnrollmentModel: Model<Enrollment> = models['enrollments'] || model<Enrollment>('enrollments', enrollmentSchema);

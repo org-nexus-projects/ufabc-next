@@ -1,5 +1,5 @@
 import type { Reaction, ReactionDocument } from '@ufabcnext/types';
-import { isObjectIdOrHexString, Schema, model, models } from 'mongoose';
+import { isObjectIdOrHexString, Schema, model, models, Model } from 'mongoose';
 import { UserModel } from './User';
 import { CommentModel } from './Comment';
 import { EnrollmentModel } from './Enrollment';
@@ -112,5 +112,4 @@ reactionSchema.post('deleteOne', async function (this: ReactionDocument) {
 
 reactionSchema.index({ comment: 1, kind: 1 });
 
-export const ReactionModel =
-  model<Reaction>('reactions', reactionSchema) || models['reactions'];
+export const ReactionModel: Model<Reaction> = models['reactions'] || model<Reaction>('reactions', reactionSchema);
