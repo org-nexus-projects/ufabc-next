@@ -107,4 +107,4 @@ enrollmentSchema.pre('save', async function (this) {
 });
 
 export const EnrollmentModel =
-  models['enrollments'] || model<Enrollment>('enrollments', enrollmentSchema);
+  model<Enrollment>('enrollments', enrollmentSchema) || models['enrollments'];

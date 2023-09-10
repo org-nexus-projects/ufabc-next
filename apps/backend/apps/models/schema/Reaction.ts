@@ -113,4 +113,4 @@ reactionSchema.post('deleteOne', async function (this: ReactionDocument) {
 reactionSchema.index({ comment: 1, kind: 1 });
 
 export const ReactionModel =
-  models['reactions'] || model<Reaction>('reactions', reactionSchema);
+  model<Reaction>('reactions', reactionSchema) || models['reactions'];

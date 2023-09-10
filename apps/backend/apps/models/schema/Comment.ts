@@ -152,5 +152,5 @@ commentSchema.index({
 });
 
 export const CommentModel =
-  models['comments'] ||
-  model<Comment, ICommentModel>('comments', commentSchema);
+  model<Comment, ICommentModel>('comments', commentSchema) ||
+  models['comments'];
