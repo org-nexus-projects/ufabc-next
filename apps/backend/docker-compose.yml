@@ -1,7 +1,20 @@
 version: "3.8"
 
 services:
-  mongodb:
+  ufabc-next-backend:
+    env_file:
+      - .env
+    container_name: ufabc-next-backend
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - ufabc-next-db
+      - ufabc-next-redis
+
+  ufabc-next-db:
     image: mongo:latest
     env_file:
       - .env
@@ -14,7 +27,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: $MONGODB_PASSWORD
       MONGO_INITDB_DATABASE: $MONGODB_NAME
   
-  redis:
+  ufabc-next-redis:
     image: redis:latest
     env_file:
       - .env

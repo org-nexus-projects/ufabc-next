@@ -1,4 +1,5 @@
 # Run with `docker build --secret id=env,src=.env -f ./Dockerfile . -t teste-docker:0.0.2 --no-cache`
+# see a way to use this later --mount=type=secret,id=env,required=true,target=/workspace/.env
 
 ARG NODE_VERSION="18.17.1"
 
@@ -23,12 +24,10 @@ ENV APP_NAME=${APP_NAME}
 WORKDIR /workspace
 COPY . .
 
-RUN --mount=type=secret,id=env,required=true,target=/workspace/.env \
-  pnpm install --frozen-lockfile --offline --silent
+RUN pnpm install --frozen-lockfile --offline --silent
 
 # build app
-RUN --mount=type=secret,id=env,required=true,target=/workspace/.env \
-  --mount=type=cache,target=/workspace/node_modules/.cache \
+RUN  --mount=type=cache,target=/workspace/node_modules/.cache \
   pnpm turbo run build --filter="${APP_NAME}"
 
 # deploy app
