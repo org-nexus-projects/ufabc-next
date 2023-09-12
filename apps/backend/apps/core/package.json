@@ -10,7 +10,7 @@
   "scripts": {
     "populate": "node --no-warnings --loader tsx cli/populate",
     "dev": "tsx watch src/server.ts",
-    "build": "rimraf dist && node --no-warnings --loader tsx esbuild.ts",
+    "build": "rimraf dist && node --no-warnings=ExperimentalLoader --loader tsx esbuild.ts",
     "build:type-check": "tsc",
     "preview": "NODE_ENV=prod node dist/server.js"
   },
