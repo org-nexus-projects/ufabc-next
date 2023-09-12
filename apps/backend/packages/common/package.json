@@ -5,7 +5,7 @@
   "types": "./dist/index.d.ts",
   "description": "Common functions for the backend",
   "scripts": {
-    "build": "tsup-node index.ts --dts",
+    "build": "tsup index.ts --dts",
     "build:type-check": "tsc"
   },
   "keywords": [],

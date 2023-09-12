@@ -2,7 +2,7 @@
 
 ARG NODE_VERSION="18.17.1"
 
-FROM --platform=linux/arm64 node:${NODE_VERSION}-alpine AS runtime 
+FROM node:${NODE_VERSION}-alpine AS runtime 
 RUN apk add --no-cache libc6-compat
 RUN apk update
 WORKDIR /workspace
@@ -14,7 +14,7 @@ COPY pnpm*.yaml ./
 # COPY patches ./patches
 # mount pnpm store as cache & fetch dependencies
 RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm-store \
-  pnpm fetch --ignore-scripts
+  pnpm fetch
 
 FROM fetcher as builder
 # specify the app in apps/ we want to build
@@ -33,7 +33,7 @@ RUN --mount=type=secret,id=env,required=true,target=/workspace/.env \
 FROM builder as deployer
 WORKDIR /workspace
 # deploy app
-RUN pnpm --filter ${APP_NAME} deploy --prod --ignore-scripts ./out
+RUN pnpm --filter ${APP_NAME} deploy --prod ./out
 
 FROM runtime as runner
 WORKDIR /workspace
@@ -48,5 +48,7 @@ COPY --chown=core:backend --from=deployer /workspace/out/package.json .
 COPY --chown=core:backend --from=deployer /workspace/out/node_modules/ ./node_modules
 COPY --chown=core:backend --from=deployer /workspace/out/dist/ ./dist
 
+EXPOSE 5000
+
 # start the app
-CMD pnpm run start
+CMD pnpm run preview
