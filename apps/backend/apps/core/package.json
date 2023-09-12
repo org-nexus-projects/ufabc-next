@@ -8,9 +8,9 @@
     "node": ">=18"
   },
   "scripts": {
-    "populate": "tsx cli/populate",
+    "populate": "node --no-warnings --loader tsx cli/populate",
     "dev": "tsx watch src/server.ts",
-    "build": "tsup-node --config tsup.config.ts",
+    "build": "rimraf dist && node --no-warnings --loader tsx esbuild.ts",
     "build:type-check": "tsc",
     "preview": "NODE_ENV=prod node dist/server.js"
   },
@@ -23,10 +23,12 @@
     "@ufabcnext/common": "workspace:*",
     "@ufabcnext/tsconfig": "workspace:*",
     "@ufabcnext/types": "workspace:*",
+    "esbuild": "^0.19.2",
+    "esbuild-plugin-pino": "^2.0.1",
     "eslint-config-custom": "workspace:*",
-    "pino": "^8.15.1",
     "pino-pretty": "^10.2.0",
-    "tsup": "^7.2.0",
+    "rimraf": "^5.0.1",
+    "tiny-glob": "^0.2.9",
     "tsx": "^3.12.8",
     "typescript": "^5.2.2"
   },
@@ -42,6 +44,7 @@
     "fastify": "^4.22.2",
     "mongoose": "^7.5.0",
     "ofetch": "^1.3.3",
+    "pino": "^8.15.0",
     "zod": "^3.22.2"
   }
 }

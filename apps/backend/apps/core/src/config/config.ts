@@ -29,7 +29,7 @@ const envSchema = z.object({
   EMAIL_CONFIRMATION_TEMPLATE: z.string().default('Confirmation'),
   EMAIL_RECOVERY_TEMPLATE: z.string().default('Recovery'),
   EMAIL: z.string().email().default('contato@ufabcnext.com'),
-  MAILER_ID: z.string(),
+  MAILER_ID: z.string().optional(),
 
   // OAUTH2 - Change with the one you generate
   OAUTH_FACEBOOK_CLIENT_ID: z.string().default('4859485948'),
