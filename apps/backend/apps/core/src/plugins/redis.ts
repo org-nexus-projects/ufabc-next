@@ -6,7 +6,7 @@ export default async function redis(app: FastifyInstance, opts: Config) {
   const redisOpts = {
     username: opts.REDIS_USER,
     password: opts.REDIS_PASSWORD,
-    host: opts.HOST,
+    host: opts.REDIS_HOST,
     port: opts.REDIS_PORT,
     family: 4, // IPV4,
     closeClient: true,

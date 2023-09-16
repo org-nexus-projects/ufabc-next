@@ -1,23 +1,11 @@
 version: "3.8"
 
 services:
-  ufabc-next-backend:
-    env_file:
-      - .env
-    container_name: ufabc-next-backend
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "5000:5000"
-    depends_on:
-      - ufabc-next-db
-      - ufabc-next-redis
 
   ufabc-next-db:
     image: mongo:latest
     env_file:
-      - .env
+      - .env.local
     container_name: $MONGODB_NAME
     restart: always
     ports:
@@ -30,7 +18,7 @@ services:
   ufabc-next-redis:
     image: redis:latest
     env_file:
-      - .env
+      - .env.local
     container_name: $REDIS_NAME
     restart: always
     ports:

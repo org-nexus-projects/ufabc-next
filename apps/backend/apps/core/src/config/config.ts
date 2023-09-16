@@ -52,6 +52,7 @@ const envSchema = z.object({
   REDIS_NAME: z.string().default('ufabc-next-redis'),
   REDIS_USER: z.string().default('default'),
   REDIS_PASSWORD: z.string().min(8).default('localRedis'),
+  REDIS_HOST: z.string().default('localhost'),
   REDIS_PORT: z.coerce.number().default(6379),
 
   // Docker URL
