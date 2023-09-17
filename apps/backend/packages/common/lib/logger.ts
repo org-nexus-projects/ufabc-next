@@ -1,6 +1,6 @@
 import { pino } from 'pino';
 import { PrettyOptions } from 'pino-pretty';
-import { Config } from './config/config';
+import { Config } from '../config';
 
 const pinoPrettyOptions = {
   destination: 1,

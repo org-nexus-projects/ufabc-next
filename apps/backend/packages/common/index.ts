@@ -1,2 +1,2 @@
-export * from './src/find-quad';
-export * from './src/logger';
+export * from './lib/find-quad';
+export * from './lib/logger';
