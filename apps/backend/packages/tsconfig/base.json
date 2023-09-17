@@ -14,7 +14,8 @@
     "noUncheckedIndexedAccess": true,
     "strict": true,
     "noEmit": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "removeComments": true
   },
   "exclude": ["node_modules"]
 }

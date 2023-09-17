@@ -46,7 +46,7 @@ USER core
 COPY --chown=core:backend --from=deployer /workspace/out/package.json .
 COPY --chown=core:backend --from=deployer /workspace/out/node_modules/ ./node_modules
 COPY --chown=core:backend --from=deployer /workspace/out/dist/ ./dist
-COPY --chown=core:backend --from=deployer /workspace/.env .
+COPY --chown=core:backend --from=deployer /workspace/.env.production .
 
 EXPOSE 5000
 
