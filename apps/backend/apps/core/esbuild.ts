@@ -12,6 +12,7 @@ void (async () => {
     bundle: true,
     platform: 'node',
     format: 'cjs',
+    external: ['mongoose'],
     plugins: [esbuildPluginPino({ transports: ['pino-pretty'] })],
   });
 })();
