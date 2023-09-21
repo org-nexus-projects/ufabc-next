@@ -4,6 +4,7 @@
 ARG NODE_VERSION="18.17.1"
 
 FROM node:${NODE_VERSION}-alpine AS runtime 
+# Necessary for turborepo
 RUN apk add --no-cache libc6-compat
 RUN apk update
 WORKDIR /workspace

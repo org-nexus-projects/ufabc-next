@@ -5,7 +5,7 @@ services:
   ufabc-next-db:
     image: mongo:latest
     env_file:
-      - .env.local
+      - .env
     container_name: $MONGODB_NAME
     restart: always
     ports:
@@ -18,7 +18,7 @@ services:
   ufabc-next-redis:
     image: redis:latest
     env_file:
-      - .env.local
+      - .env
     container_name: $REDIS_NAME
     restart: always
     ports:

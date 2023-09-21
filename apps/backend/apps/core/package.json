@@ -8,7 +8,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "populate": "node --no-warnings --loader tsx cli/populate",
+    "populate": "tsx cli/populate",
     "dev": "tsx watch src/server.ts",
     "build": "rimraf dist && tsx esbuild.ts",
     "build:type-check": "tsc",
