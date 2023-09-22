@@ -106,4 +106,5 @@ enrollmentSchema.pre('save', async function (this) {
   await addEnrollmentToGroup(this);
 });
 
-export const EnrollmentModel: Model<Enrollment> = models['enrollments'] || model<Enrollment>('enrollments', enrollmentSchema);
+export const EnrollmentModel: Model<Enrollment> =
+  models['enrollments'] || model<Enrollment>('enrollments', enrollmentSchema);
