@@ -6,6 +6,6 @@ import { enrollment } from './handlers/enrollment';
 // TODO: fix prefix
 export default async function (app: FastifyInstance) {
   // app.addHook('onRequest', authenticate);
-  app.get('/v2/enrollments', { onRequest: [authenticate] }, listEnrollments);
-  app.get('/v2/enrollments/:id', { onRequest: [authenticate] }, enrollment);
+  app.get('/v2/enrollments', listEnrollments);
+  app.get('/v2/enrollments/:id', enrollment);
 }

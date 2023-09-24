@@ -81,6 +81,7 @@ async function createDatabases({ whichModels }: PopulateOptions) {
       }
     });
     await Promise.all(content);
+    console.log('populating database...');
   }
   return ids;
 }
