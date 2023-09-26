@@ -7,10 +7,10 @@ export async function healthCheckHandler(
 ) {
   try {
     const { redis } = request.server;
+    const redisConn = await redis.ping();
     const isDatabaseUp = `${STATES[connection.readyState]}`;
     // eslint-disable-next-line
-    const isRedisUp = await redis.ping() === 'PONG' ? 'connected' : 'not connected';
-
+    const isRedisUp = redisConn === 'PONG' ? 'connected' : 'not connected';
     return reply.send({
       msg: 'App is healthy',
       databaseStatus: isDatabaseUp,

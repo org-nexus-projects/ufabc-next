@@ -3,7 +3,6 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ObjectId } from 'mongoose';
 
 export type RouteParams = { enrollmentId: ObjectId };
-
 export async function enrollment(
   request: FastifyRequest<{ Params: RouteParams }>,
   reply: FastifyReply,
@@ -16,7 +15,7 @@ export async function enrollment(
   }
 
   if (!enrollmentId) {
-    request.log.info({ params: request.params }, 'Route params');
+    request.log.error({ params: request.params }, 'Route params');
     throw new Error('Missing enrollmentId');
   }
 
@@ -27,5 +26,5 @@ export async function enrollment(
     .lean(true);
 
   const comments = await CommentModel.findOne({ enrollment: enrollmentId });
-  return reply.code(200).send({ comments, enrollment });
+  return reply.code(200).send({ enrollment, comments });
 }
