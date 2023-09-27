@@ -2,11 +2,16 @@ import { CommentModel } from '@ufabcnext/models';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ObjectId } from 'mongoose';
 
-export type RouteParams = { commentId: ObjectId };
-export type RouteBody = { comment: string };
+type UpdateCommentParams = { commentId: ObjectId };
+type UpdateCommentBody = { comment: string };
+
+export type UpdateCommentRequest = {
+  Body: UpdateCommentBody;
+  Params: UpdateCommentParams;
+};
 
 export async function updateComment(
-  request: FastifyRequest<{ Params: RouteParams; Body: RouteBody }>,
+  request: FastifyRequest<UpdateCommentRequest>,
   reply: FastifyReply,
 ) {
   const { commentId } = request.params;

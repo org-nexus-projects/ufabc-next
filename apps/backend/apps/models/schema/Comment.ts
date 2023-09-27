@@ -151,4 +151,6 @@ commentSchema.index({
   createdAt: -1,
 });
 
-export const CommentModel: Model<Comment> = models['comments'] || model<Comment, ICommentModel>('comments', commentSchema) ;
+export const CommentModel: Model<Comment> =
+  models['comments'] ||
+  model<Comment, ICommentModel>('comments', commentSchema);

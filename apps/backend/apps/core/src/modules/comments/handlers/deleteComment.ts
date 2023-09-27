@@ -2,10 +2,10 @@ import { CommentModel } from '@ufabcnext/models';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ObjectId } from 'mongoose';
 
-export type RouteParams = { commentId: ObjectId };
+export type DeleteCommentParams = { commentId: ObjectId };
 
 export async function deleteComment(
-  request: FastifyRequest<{ Params: RouteParams }>,
+  request: FastifyRequest<{ Params: DeleteCommentParams }>,
   reply: FastifyReply,
 ) {
   const { commentId } = request.params;
