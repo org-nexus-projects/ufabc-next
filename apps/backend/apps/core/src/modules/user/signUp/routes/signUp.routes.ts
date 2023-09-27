@@ -16,7 +16,6 @@ export default async function (app: FastifyInstance) {
     try {
       // TODO: Need help to fix this type
       const user = request.user as unknown as Document<ObjectId, unknown, User>;
-      logger.info({ user }, 'show the user');
       const { email, ra } = UfabcUser.parse(request.body);
       if (!user) {
         throw new Error('User not found');
