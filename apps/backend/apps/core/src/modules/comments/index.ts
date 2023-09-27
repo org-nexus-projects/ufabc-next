@@ -15,9 +15,16 @@ import {
   teacherComment,
   type TeacherCommentRequest,
 } from './handlers/teacherComment';
+import {
+  createComment,
+  type CreateCommentBody,
+} from './handlers/createComment';
+import { authenticate } from '@modules/user/hooks/authenticate';
 
 export const autoPrefix = '/v2';
 export default async function (app: FastifyInstance) {
+  app.addHook('onRequest', authenticate);
+
   app.get<{ Params: CommentMissingParams }>(
     '/comments/:userId/missing',
     missingComment,
@@ -27,6 +34,7 @@ export default async function (app: FastifyInstance) {
     '/comments/:teacherId/:subjectId',
     teacherComment,
   );
+  app.post<{ Body: CreateCommentBody }>('/comments', createComment);
   app.put<UpdateCommentRequest>('/comments/:commentId', updateComment);
   app.delete<{ Params: DeleteCommentParams }>(
     '/comments/:commentId',
