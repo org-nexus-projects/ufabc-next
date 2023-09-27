@@ -6,11 +6,11 @@ import type { ObjectId } from 'mongoose';
 
 type RouteParams = { enrollmentId: ObjectId };
 
-// TODO: fix prefix
+export const autoPrefix = '/v2';
 export default async function (app: FastifyInstance) {
-  app.get('/v2/enrollments', { onRequest: [authenticate] }, listEnrollments);
+  app.get('/enrollments', { onRequest: [authenticate] }, listEnrollments);
   app.get<{ Params: RouteParams }>(
-    '/v2/enrollments/:enrollmentId',
+    '/enrollments/:enrollmentId',
     { onRequest: [authenticate] },
     enrollment,
   );

@@ -17,7 +17,7 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
     app.register(fastifyAutoload, {
       dir: join(__dirname, 'modules'),
       dirNameRoutePrefix: false,
-      encapsulate: false,
+      encapsulate: true,
       maxDepth: 2,
     });
   } catch (error) {
