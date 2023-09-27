@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "populate": "dotenv -- turbo run populate -- ",
-    "dev": "dotenv -- turbo run dev",
+    "dev": "turbo run dev",
     "build": "turbo run build",
     "build:type-check": "turbo run build:type-check",
     "lint": "turbo run lint",

@@ -2,8 +2,14 @@
   "name": "@ufabcnext/models",
   "version": "1.0.0",
   "description": "Database entities from the backend",
-  "main": "index.ts",
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.js"
+  },
   "scripts": {
+    "build": "rimraf dist && esbuild index.ts --bundle --outdir=dist --platform=node --format=esm --sourcemap --packages=external",
     "build:type-check": "tsc"
   },
   "keywords": [],
@@ -15,9 +21,11 @@
     "@ufabcnext/common": "workspace:^",
     "@ufabcnext/tsconfig": "workspace:*",
     "@ufabcnext/types": "workspace:*",
+    "esbuild": "^0.19.2",
     "eslint-config-custom": "workspace:*",
     "jsonwebtoken": "^9.0.1",
     "lodash": "^4.17.21",
+    "rimraf": "^5.0.1",
     "tsup": "^7.2.0",
     "typescript": "^5.1.6"
   },

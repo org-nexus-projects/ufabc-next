@@ -3,16 +3,17 @@
   "version": "1.0.0",
   "description": "Core logic of the backend, mainly users",
   "main": "dist/server.js",
+  "type": "module",
   "packageManager": "pnpm@8.6.5",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
     "populate": "tsx cli/populate",
-    "dev": "tsx watch src/server.ts",
+    "dev": "tsx watch --env-file=.env.production src/server.ts",
     "build": "rimraf dist && tsx esbuild.ts",
     "build:type-check": "tsc",
-    "preview": "NODE_ENV=prod node dist/server.js"
+    "preview": "NODE_ENV=prod node --trace-warnings dist/server.js"
   },
   "keywords": [],
   "author": "Joabe Silva <joabevarjao123@gmail.com>",
