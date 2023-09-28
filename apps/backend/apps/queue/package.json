@@ -2,8 +2,14 @@
   "name": "@ufabcnext/queue",
   "version": "1.0.0",
   "description": "Queued jobs from the backend",
-  "main": "src/index.ts",
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.js"
+  },
   "scripts": {
+    "build": "rimraf dist && esbuild src/index.ts --bundle --outdir=dist --platform=node --format=esm --sourcemap --packages=external",
     "build:type-check": "tsc"
   },
   "keywords": [],
@@ -13,7 +19,9 @@
     "@ufabcnext/common": "workspace:*",
     "@ufabcnext/tsconfig": "workspace:*",
     "@ufabcnext/types": "workspace:*",
+    "esbuild": "^0.19.2",
     "eslint-config-custom": "workspace:*",
+    "rimraf": "^5.0.1",
     "typescript": "^5.1.6"
   },
   "dependencies": {

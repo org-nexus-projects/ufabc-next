@@ -1,4 +1,4 @@
-import { Schema, model, models } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
 const groupSchema = new Schema(
   {
@@ -23,5 +23,5 @@ const groupSchema = new Schema(
 
 groupSchema.index({ users: -1 });
 groupSchema.index({ mainTeacher: -1, season: -1, disciplina: -1 });
-
-export const GroupModel = models['groups'] || model('groups', groupSchema);
+//  models['groups'] ||
+export const GroupModel = model('groups', groupSchema);

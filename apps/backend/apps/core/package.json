@@ -13,7 +13,7 @@
     "dev": "tsx watch --env-file=.env.production src/server.ts",
     "build": "rimraf dist && tsx esbuild.ts",
     "build:type-check": "tsc",
-    "preview": "NODE_ENV=prod node --trace-warnings dist/server.js"
+    "preview": "NODE_ENV=prod node --watch dist/server.js"
   },
   "keywords": [],
   "author": "Joabe Silva <joabevarjao123@gmail.com>",

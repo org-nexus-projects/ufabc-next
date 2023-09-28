@@ -6,9 +6,9 @@ import type {
   UserVirtuals,
 } from '@ufabcnext/types';
 import { sendEmailJob } from '@ufabcnext/queue';
-import { Document, Schema, models, model } from 'mongoose';
+import { Document, Schema, model } from 'mongoose';
 import { uniqBy } from 'remeda';
-import { sign as jwtSign } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { Config } from '../config/config';
 
 const userSchema = new Schema<User, UserModelType, UserMethods, UserVirtuals>(
@@ -73,7 +73,7 @@ userSchema.method('removeDevice', function (this: User, deviceId: string) {
 });
 
 userSchema.method('generateJWT', function (this: User) {
-  return jwtSign(
+  return jwt.sign(
     {
       _id: this._id,
       ra: this.ra,
@@ -100,5 +100,5 @@ userSchema.pre('save', async function (this) {
 });
 
 export const UserModel =
-  (models['users'] as UserModelType) ||
+  // (models['users'] as UserModelType) ||
   model<User, UserModelType>('users', userSchema);

@@ -1,4 +1,4 @@
-import { Schema, model, models } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
 const historySchema = new Schema(
   {
@@ -46,6 +46,5 @@ historySchema.post('save', async function () {
   // config.NODE_ENV === 'prod' &&
   //   app.agenda.now('updateUserEnrollments', this.toObject({ virtuals: true }));
 });
-
-export const HistoryModel =
-  models['histories'] || model('histories', historySchema);
+// models['histories'] ||
+export const HistoryModel = model('histories', historySchema);

@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { STATES, connection } from 'mongoose';
+import { STATES, connections } from 'mongoose';
 
 export async function healthCheckHandler(
   request: FastifyRequest,
@@ -7,6 +7,7 @@ export async function healthCheckHandler(
 ) {
   try {
     const { redis } = request.server;
+    const connection = connections[0];
     const redisConn = await redis.ping();
     const isDatabaseUp = `${STATES[connection.readyState]}`;
     // eslint-disable-next-line

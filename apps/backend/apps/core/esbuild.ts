@@ -8,6 +8,7 @@ void (async () => {
     entryPoints,
     logLevel: 'info',
     outdir: 'dist',
+    target: 'esnext',
     bundle: true,
     sourcemap: true,
     platform: 'node',

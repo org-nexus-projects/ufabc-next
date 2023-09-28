@@ -21,7 +21,7 @@ import {
 } from './handlers/createComment';
 import { authenticate } from '@modules/user/hooks/authenticate';
 
-export const autoPrefix = '/v2';
+const autoPrefix = '/v2';
 export default async function (app: FastifyInstance) {
   app.addHook('onRequest', authenticate);
 

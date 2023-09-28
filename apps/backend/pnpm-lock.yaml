@@ -120,6 +120,9 @@ importers:
       dotenv:
         specifier: ^16.3.1
         version: 16.3.1
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.17.21
       mongoose:
         specifier: ^7.5.2
         version: 7.5.2
@@ -133,9 +136,9 @@ importers:
       '@types/jsonwebtoken':
         specifier: ^9.0.2
         version: 9.0.2
-      '@types/lodash':
-        specifier: ^4.14.196
-        version: 4.14.196
+      '@types/lodash-es':
+        specifier: ^4.17.9
+        version: 4.17.9
       '@ufabcnext/common':
         specifier: workspace:^
         version: link:../../packages/common
@@ -154,9 +157,6 @@ importers:
       jsonwebtoken:
         specifier: ^9.0.1
         version: 9.0.1
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
       rimraf:
         specifier: ^5.0.1
         version: 5.0.1
@@ -197,9 +197,15 @@ importers:
       '@ufabcnext/types':
         specifier: workspace:*
         version: link:../../packages/types
+      esbuild:
+        specifier: ^0.19.2
+        version: 0.19.2
       eslint-config-custom:
         specifier: workspace:*
         version: link:../../packages/eslint-config-custom
+      rimraf:
+        specifier: ^5.0.1
+        version: 5.0.1
       typescript:
         specifier: ^5.1.6
         version: 5.1.6
@@ -2074,8 +2080,14 @@ packages:
       '@types/node': 20.6.0
     dev: true
 
-  /@types/lodash@4.14.196:
-    resolution: {integrity: sha512-22y3o88f4a94mKljsZcanlNWPzO0uBsBdzLAngf2tp533LzZcQzb6+eZPJ+vCTt+bqF2XnvT9gejTLsAcJAJyQ==}
+  /@types/lodash-es@4.17.9:
+    resolution: {integrity: sha512-ZTcmhiI3NNU7dEvWLZJkzG6ao49zOIjEgIE0RgV7wbPxU0f2xT3VSAHw2gmst8swH6V0YkLRGp4qPlX/6I90MQ==}
+    dependencies:
+      '@types/lodash': 4.14.199
+    dev: true
+
+  /@types/lodash@4.14.199:
+    resolution: {integrity: sha512-Vrjz5N5Ia4SEzWWgIVwnHNEnb1UE1XMkvY5DGXrAeOGE9imk0hgTHh5GyDjLDJi9OTCn9oo9dXH1uToK1VRfrg==}
     dev: true
 
   /@types/minimist@1.2.2:
@@ -4627,6 +4639,10 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       p-locate: 5.0.0
+
+  /lodash-es@4.17.21:
+    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
+    dev: false
 
   /lodash.camelcase@4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}

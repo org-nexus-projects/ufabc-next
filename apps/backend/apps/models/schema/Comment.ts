@@ -1,5 +1,5 @@
 import type { Comment, ICommentModel } from '@ufabcnext/types';
-import { FilterQuery, Model, Schema, model, models } from 'mongoose';
+import { FilterQuery, Model, Schema, model } from 'mongoose';
 import { EnrollmentModel } from './Enrollment';
 import { ReactionModel } from './Reaction';
 
@@ -152,5 +152,5 @@ commentSchema.index({
 });
 
 export const CommentModel: Model<Comment> =
-  models['comments'] ||
+  // models['comments'] ||
   model<Comment, ICommentModel>('comments', commentSchema);

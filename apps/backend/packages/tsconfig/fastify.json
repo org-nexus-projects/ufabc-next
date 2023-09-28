@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "fastify-tsconfig",
   "compilerOptions": {
-    "moduleResolution": "Bundler",
+    "moduleResolution": "NodeNext",
     "module": "ESNext",
     "noEmit": true
   }
