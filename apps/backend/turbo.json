@@ -3,7 +3,7 @@
   "globalDotEnv": [".env"],
   "pipeline": {
     "populate": {
-      "cache": true    
+      "cache": false    
     },
     "dev": {
       "cache": false,

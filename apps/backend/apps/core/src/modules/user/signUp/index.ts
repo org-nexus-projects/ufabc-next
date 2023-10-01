@@ -8,10 +8,7 @@ type UserRouteOptions = {
   prefix: string;
 };
 
-export default async function users(
-  app: FastifyInstance,
-  opts: UserRouteOptions,
-) {
+export default async function (app: FastifyInstance, opts: UserRouteOptions) {
   await app.register(fastifyAutoload, {
     dir: join(__dirname, '../plugins'),
     options: Config,

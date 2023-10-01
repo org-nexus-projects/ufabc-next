@@ -7,7 +7,7 @@
     "build": "turbo run build",
     "build:type-check": "turbo run build:type-check",
     "lint": "turbo run lint",
-    "preview": "dotenv -- turbo run preview",
+    "preview": "dotenv -e .env.production -- turbo run preview",
     "format": "prettier --write \"**/*.ts\""
   },
   "devDependencies": {
