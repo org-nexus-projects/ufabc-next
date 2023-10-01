@@ -21,23 +21,14 @@ import {
 } from './handlers/createComment.js';
 import { authenticate } from '@/modules/user/hooks/authenticate.js';
 
-export const autoPrefix = '/v2';
+export const autoPrefix = '/comments';
 export default async function (app: FastifyInstance) {
   app.addHook('onRequest', authenticate);
 
-  app.get<{ Params: CommentMissingParams }>(
-    '/comments/:userId/missing',
-    missingComment,
-  );
-  app.get<TeacherCommentRequest>('/comments/:teacherId', teacherComment);
-  app.get<TeacherCommentRequest>(
-    '/comments/:teacherId/:subjectId',
-    teacherComment,
-  );
-  app.post<{ Body: CreateCommentBody }>('/comments', createComment);
-  app.put<UpdateCommentRequest>('/comments/:commentId', updateComment);
-  app.delete<{ Params: DeleteCommentParams }>(
-    '/comments/:commentId',
-    deleteComment,
-  );
+  app.get<{ Params: CommentMissingParams }>('/:userId/missing', missingComment);
+  app.get<TeacherCommentRequest>('/:teacherId', teacherComment);
+  app.get<TeacherCommentRequest>('/:teacherId/:subjectId', teacherComment);
+  app.post<{ Body: CreateCommentBody }>('', createComment);
+  app.put<UpdateCommentRequest>('/:commentId', updateComment);
+  app.delete<{ Params: DeleteCommentParams }>('/:commentId', deleteComment);
 }

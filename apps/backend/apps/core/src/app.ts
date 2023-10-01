@@ -22,6 +22,9 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
       dirNameRoutePrefix: false,
       encapsulate: true,
       maxDepth: 1,
+      options: {
+        prefix: '/v2',
+      },
       // It`s useless now, but i'm gonna keep it just in case
       ignorePattern: /^.*(?:handlers)$/,
     });
