@@ -14,7 +14,6 @@ async function start() {
     app.log.info(app.printRoutes());
   }
 
-  app.log.info(app.printRoutes());
   await app.listen({ port: Config.PORT, host: Config.HOST });
 
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {

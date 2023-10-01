@@ -1,12 +1,10 @@
 import { build } from 'esbuild';
 import esbuildPluginPino from 'esbuild-plugin-pino';
 import glob from 'tiny-glob';
-const allFiles = await glob('src/**/*.ts');
-const handlersFiles = await glob('src/**/handlers/*.ts');
-const entryPoints = allFiles.filter((files) => !handlersFiles.includes(files));
+const entryPoints = await glob('src/**/*.ts');
 
 await build({
-  entryPoints: allFiles,
+  entryPoints,
   logLevel: 'info',
   outdir: 'dist',
   target: 'esnext',
@@ -14,7 +12,6 @@ await build({
   sourcemap: true,
   platform: 'node',
   format: 'esm',
-  // packages: 'external',
   packages: 'external',
   // @ts-expect-error Library problem
   plugins: [esbuildPluginPino({ transports: ['pino-pretty'] })],

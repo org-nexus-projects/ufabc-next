@@ -18,7 +18,7 @@ type Query = {
 };
 
 // TODO: implement session token
-export default async function oauth2(app: FastifyInstance, opts: Config) {
+export async function oauth2(app: FastifyInstance, opts: Config) {
   const providers = {
     google: {
       credentials: {

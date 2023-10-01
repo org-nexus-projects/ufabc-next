@@ -3,7 +3,7 @@ import { logger } from '@ufabcnext/common';
 import { UserModel } from '@ufabcnext/models';
 import { Config } from '@/config/config.js';
 import { ParsedUserToken } from '../schema/signUp.schema.js';
-import { confirmToken } from '../../helpers/emailToken.js';
+import { confirmToken } from '../helpers/emailToken.js';
 
 export async function confirmUser(
   request: FastifyRequest<{ Body: { token: string } }>,
