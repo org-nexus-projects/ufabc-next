@@ -1,13 +1,13 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify';
-import type { Config } from '@config';
+import type { Config } from '@/config/config.js';
 import type { Providers } from '@ufabcnext/types';
 import { UserModel } from '@ufabcnext/models';
 import { fastifyOauth2 } from '@fastify/oauth2';
 import {
   getFacebookUserDetails,
   getGoogleUserDetails,
-} from './utils/get-oauth-info';
-import { objectKeys } from './utils/objectKeys';
+} from './utils/get-oauth-info.js';
+import { objectKeys } from './utils/objectKeys.js';
 
 type Query = {
   // Is User in mobile
@@ -67,7 +67,10 @@ export default async function oauth2(app: FastifyInstance, opts: Config) {
         try {
           const { inApp = '', userId = '' } = request.query;
           // eslint-disable-next-line
-          const { token } = await this[provider].getAccessTokenFromAuthorizationCodeFlow(request);
+          const { token } =
+            await this[provider].getAccessTokenFromAuthorizationCodeFlow(
+              request,
+            );
           const oauthUser = await providers[provider].getUserDetails(token);
           const findUserQuery: Record<string, unknown>[] = [
             { 'oauth.providerId': oauthUser.providerId },

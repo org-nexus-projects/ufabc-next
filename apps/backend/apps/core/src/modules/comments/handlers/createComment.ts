@@ -13,30 +13,32 @@ export async function createComment(
   request: FastifyRequest<{ Body: CreateCommentBody }>,
   reply: FastifyReply,
 ) {
-  const { comment, enrollment, type } = request.body;
+  const t = request.body;
 
-  if (!comment && !enrollment && !type) {
+  if (!t.comment && !t.enrollment && !t.type) {
     request.log.error({ body: request.body }, 'Incomplete response');
     throw new Error(`Body must have all obligatory fields`);
   }
 
-  const enrollmentExists = await EnrollmentModel.findById({ enrollment });
+  const enrollmentExists = await EnrollmentModel.findById({
+    enrollment: t.enrollment,
+  });
 
   if (!enrollmentExists) {
     // eslint-disable-next-line
-    throw new Error(`This enrollment does not exists ${enrollment}`);
+    throw new Error(`This enrollment does not exists ${t.enrollment}`);
   }
 
   const createComment = {
-    comment,
-    type,
+    comment: t.comment,
+    type: t.type,
     // eslint-disable-next-line
-    enrollment: enrollment.id,
+    enrollment: t.enrollment.id,
     // eslint-disable-next-line
-    teacher: enrollment[type],
-    disciplina: enrollment.disciplina,
-    subject: enrollment.subject,
-    ra: enrollment.ra,
+    teacher: t.enrollment[t.type],
+    disciplina: t.enrollment.disciplina,
+    subject: t.enrollment.subject,
+    ra: t.enrollment.ra,
   };
 
   const insertedComment = await CommentModel.create(createComment);

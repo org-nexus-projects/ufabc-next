@@ -2,26 +2,26 @@ import type { FastifyInstance } from 'fastify';
 import {
   deleteComment,
   type DeleteCommentParams,
-} from './handlers/deleteComment';
+} from './handlers/deleteComment.js';
 import {
   updateComment,
   type UpdateCommentRequest,
-} from './handlers/updateComment';
+} from './handlers/updateComment.js';
 import {
   missingComment,
   type CommentMissingParams,
-} from './handlers/missingComment';
+} from './handlers/missingComment.js';
 import {
   teacherComment,
   type TeacherCommentRequest,
-} from './handlers/teacherComment';
+} from './handlers/teacherComment.js';
 import {
   createComment,
   type CreateCommentBody,
-} from './handlers/createComment';
-import { authenticate } from '@modules/user/hooks/authenticate';
+} from './handlers/createComment.js';
+import { authenticate } from '@/modules/user/hooks/authenticate.js';
 
-const autoPrefix = '/v2';
+export const autoPrefix = '/v2';
 export default async function (app: FastifyInstance) {
   app.addHook('onRequest', authenticate);
 

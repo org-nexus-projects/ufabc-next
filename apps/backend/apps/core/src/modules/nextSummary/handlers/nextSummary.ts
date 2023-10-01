@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { nextUsageInfo } from './nextSummary.service';
+import { nextUsageInfo } from './nextSummaryQuery.js';
 
-export async function nextSummaryHandler(
+export async function nextSummary(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {

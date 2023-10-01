@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
-import { authenticate } from '../hooks/authenticate';
+import { authenticate } from '../hooks/authenticate.js';
 
-// export const autoPrefix = '/v2';
+export const autoPrefix = '/v2';
 export default async function (app: FastifyInstance) {
   app.get(
     '/users/info',

@@ -1,8 +1,8 @@
 import type { FastifyServerOptions } from 'fastify';
 import gracefullyShutdown from 'close-with-grace';
 import { logger } from '@ufabcnext/common';
-import { Config } from './config';
-import { buildApp } from './app';
+import { Config } from './config/index.js';
+import { buildApp } from './app.js';
 
 const appOptions = {
   logger,
@@ -14,6 +14,7 @@ async function start() {
     app.log.info(app.printRoutes());
   }
 
+  app.log.info(app.printRoutes());
   await app.listen({ port: Config.PORT, host: Config.HOST });
 
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {

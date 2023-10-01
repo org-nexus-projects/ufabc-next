@@ -78,14 +78,14 @@ export async function nextUsageInfo() {
         DisciplinaModel.aggregate<DisciplinaStats>(disciplinaStatsFacetQuery),
       ]);
 
-    const [allStudents] = disciplinaStats!.studentTotal.map(
+    const [allStudents] = disciplinaStats.studentTotal.map(
       ({ total }) => total,
     );
 
     return {
-      teachers: disciplinaStats!.teachers,
+      teachers: disciplinaStats.teachers,
       studentTotal: allStudents,
-      subjects: disciplinaStats!.subjects,
+      subjects: disciplinaStats.subjects,
       users,
       currentStudents,
       comments,

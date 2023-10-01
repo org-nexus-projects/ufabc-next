@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import type { Config } from '../config';
+import type { Config } from '../config/config.js';
 import { connect } from 'mongoose';
 
 export default async function mongoose(app: FastifyInstance, opts: Config) {

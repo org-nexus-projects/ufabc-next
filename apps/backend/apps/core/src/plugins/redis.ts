@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import type { Config } from '../config';
+import type { Config } from '../config/config.js';
 import { type FastifyRedisPluginOptions, fastifyRedis } from '@fastify/redis';
 
 export default async function redis(app: FastifyInstance, opts: Config) {
