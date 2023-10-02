@@ -1,15 +1,10 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "./base.json",
+  "extends": "fastify-tsconfig",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "noUncheckedIndexedAccess": true,
-    "resolveJsonModule": true,
-    "newLine": "lf",
-    "noFallthroughCasesInSwitch": true,
-    "isolatedModules": true
+    "module": "NodeNext",
+    "noEmit": true
   }
 }
 

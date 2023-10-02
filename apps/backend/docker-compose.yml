@@ -4,26 +4,15 @@ services:
 
   ufabc-next-db:
     image: mongo:latest
-    env_file:
-      - .env
-    container_name: $MONGODB_NAME
-    restart: always
+    container_name: ufabc-next-db
     ports:
-      - $MONGODB_PORT:$MONGODB_PORT
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: $MONGODB_USER
-      MONGO_INITDB_ROOT_PASSWORD: $MONGODB_PASSWORD
-      MONGO_INITDB_DATABASE: $MONGODB_NAME
-  
+      - 27017:27017  
   ufabc-next-redis:
     image: redis:latest
-    env_file:
-      - .env
-    container_name: $REDIS_NAME
-    restart: always
+    container_name: ufabc-next-redis
     ports:
-      - "$REDIS_PORT:$REDIS_PORT"
+      - 6379:6379
     environment:
-      REDIS_USER: $REDIS_USER
-      REDIS_PORT: $REDIS_PORT
-      REDIS_PASSWORD: $REDIS_PASSWORD
+      REDIS_USER: default
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: qj6wGxXINcQyWXdN

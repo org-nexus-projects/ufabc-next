@@ -1,8 +1,8 @@
 import type { Reaction, ReactionDocument } from '@ufabcnext/types';
-import { isObjectIdOrHexString, Schema, model, models, Model } from 'mongoose';
-import { UserModel } from './User';
-import { CommentModel } from './Comment';
-import { EnrollmentModel } from './Enrollment';
+import { isObjectIdOrHexString, Schema, model, Model } from 'mongoose';
+import { UserModel } from './User.js';
+import { CommentModel } from './Comment.js';
+import { EnrollmentModel } from './Enrollment.js';
 
 const reactionSchema = new Schema<Reaction>(
   {
@@ -111,5 +111,8 @@ reactionSchema.post('deleteOne', async function (this: ReactionDocument) {
 });
 
 reactionSchema.index({ comment: 1, kind: 1 });
-
-export const ReactionModel: Model<Reaction> = models['reactions'] || model<Reaction>('reactions', reactionSchema);
+// models['reactions'] ||
+export const ReactionModel: Model<Reaction> = model<Reaction>(
+  'reactions',
+  reactionSchema,
+);

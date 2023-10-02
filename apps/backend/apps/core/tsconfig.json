@@ -1,8 +1,9 @@
 {
   "extends": ["@ufabcnext/tsconfig/fastify.json"],
   "compilerOptions": {
+    "module": "NodeNext",
     "paths": {
-      "@*": ["./src/*"],
+      "@/*": ["./src/*"],
     },
   },
   "include": ["src/**/*.ts", "**.config.ts", "esbuild.ts"],

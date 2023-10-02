@@ -6,21 +6,24 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 export type CreateCommentBody = {
   enrollment: Enrollment;
   comment: Comment;
-  type: string;
+  type: 'teoria' | 'pratica';
 };
 
 export async function createComment(
   request: FastifyRequest<{ Body: CreateCommentBody }>,
   reply: FastifyReply,
 ) {
-  const { comment, enrollment, type } = request.body;
+  const { enrollment, comment, type } = request.body;
 
   if (!comment && !enrollment && !type) {
     request.log.error({ body: request.body }, 'Incomplete response');
     throw new Error(`Body must have all obligatory fields`);
   }
 
-  const enrollmentExists = await EnrollmentModel.findById({ enrollment });
+  // eslint-disable-next-line
+  const enrollmentExists = await EnrollmentModel.findById({
+    enrollment,
+  });
 
   if (!enrollmentExists) {
     // eslint-disable-next-line
@@ -30,16 +33,15 @@ export async function createComment(
   const createComment = {
     comment,
     type,
-    // eslint-disable-next-line
     enrollment: enrollment.id,
-    // eslint-disable-next-line
     teacher: enrollment[type],
     disciplina: enrollment.disciplina,
     subject: enrollment.subject,
     ra: enrollment.ra,
   };
 
-  const insertedComment = await CommentModel.create(createComment);
+  // eslint-disable-next-line
+  const insertedComment = new CommentModel(createComment).save();
 
   return reply.status(201).send(insertedComment);
 }

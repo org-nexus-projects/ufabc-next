@@ -6,10 +6,10 @@ import type {
   UserVirtuals,
 } from '@ufabcnext/types';
 import { sendEmailJob } from '@ufabcnext/queue';
-import { Document, Schema, models, model } from 'mongoose';
+import { Document, Schema, type ValidatorProps, model } from 'mongoose';
 import { uniqBy } from 'remeda';
-import { sign as jwtSign } from 'jsonwebtoken';
-import { Config } from '../config/config';
+import jwt from 'jsonwebtoken';
+import { Config } from '../config/config.js';
 
 const userSchema = new Schema<User, UserModelType, UserMethods, UserVirtuals>(
   {
@@ -22,7 +22,8 @@ const userSchema = new Schema<User, UserModelType, UserMethods, UserVirtuals>(
       type: String,
       validate: {
         validator: (v: string) => v.indexOf('ufabc.edu.br') !== -1,
-        message: (props) => `${props.value} não é um e-mail válido.`,
+        message: (props: ValidatorProps) =>
+          `${props.value} não é um e-mail válido.`,
       },
       unique: true,
       partialFilterExpression: { email: { $exists: true } },
@@ -73,7 +74,7 @@ userSchema.method('removeDevice', function (this: User, deviceId: string) {
 });
 
 userSchema.method('generateJWT', function (this: User) {
-  return jwtSign(
+  return jwt.sign(
     {
       _id: this._id,
       ra: this.ra,
@@ -100,5 +101,5 @@ userSchema.pre('save', async function (this) {
 });
 
 export const UserModel =
-  (models['users'] as UserModelType) ||
+  // (models['users'] as UserModelType) ||
   model<User, UserModelType>('users', userSchema);

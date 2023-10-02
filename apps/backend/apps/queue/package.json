@@ -2,8 +2,16 @@
   "name": "@ufabcnext/queue",
   "version": "1.0.0",
   "description": "Queued jobs from the backend",
-  "main": "src/index.ts",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.js",
+    "types": "./dist/index.d.ts"
+  },
   "scripts": {
+    "build": "tsup-node --config tsup.config.ts",
     "build:type-check": "tsc"
   },
   "keywords": [],
@@ -14,6 +22,7 @@
     "@ufabcnext/tsconfig": "workspace:*",
     "@ufabcnext/types": "workspace:*",
     "eslint-config-custom": "workspace:*",
+    "tsup": "^7.2.0",
     "typescript": "^5.1.6"
   },
   "dependencies": {

@@ -1,4 +1,4 @@
-import { Config } from '@config';
+import { Config } from '@/config/config.js';
 import { connect } from 'mongoose';
 
 // TODO: MIgrate to a plugin so i can log stuff

@@ -1,7 +1,6 @@
 import type { FastifyInstance } from 'fastify';
-import { nextSummaryHandler } from './nextSummary.routes';
+import { nextSummary } from './handlers/nextSummary.js';
 
-export const autoPrefix = '/v2';
-export default async function nextSummary(app: FastifyInstance) {
-  app.get('/summary', nextSummaryHandler);
+export default async function (app: FastifyInstance) {
+  app.get('/summary', nextSummary);
 }

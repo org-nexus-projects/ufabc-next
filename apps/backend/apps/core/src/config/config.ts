@@ -42,12 +42,6 @@ const envSchema = z.object({
     .min(16)
     .default('GOCSPX-random-generated-token'),
 
-  // MONGODB
-  MONGODB_NAME: z.string().default('ufabc-next-backend'),
-  MONGODB_USER: z.string().default('localUser'),
-  MONGODB_PASSWORD: z.string().min(6).default('localSecret'),
-  MONGODB_PORT: z.coerce.number().default(27017),
-
   // Redis
   REDIS_NAME: z.string().default('ufabc-next-redis'),
   REDIS_USER: z.string().default('default'),
@@ -58,7 +52,7 @@ const envSchema = z.object({
   // Docker URL
   MONGODB_CONNECTION_URL: z
     .string()
-    .default(`mongodb://localUser:localSecret@127.0.0.1:27017`),
+    .default(`mongodb://127.0.0.1:27017/ufabc-next-db`),
   REDIS_CONNECTION_URL: z
     .string()
     .default('redis://default:localRedis@127.0.0.1:6379'),

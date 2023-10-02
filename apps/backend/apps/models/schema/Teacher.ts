@@ -1,5 +1,5 @@
-import { Schema, model, models } from 'mongoose';
-import { startCase, camelCase } from 'lodash';
+import { Schema, model } from 'mongoose';
+import { startCase, camelCase } from 'lodash-es';
 
 type Teacher = {
   name: string;
@@ -20,5 +20,5 @@ teacherSchema.pre('save', async function () {
   this.name = startCase(camelCase(this.name));
 });
 
-export const TeacherModel =
-  models['teachers'] || model<Teacher>('teachers', teacherSchema);
+// models['teachers'] ||
+export const TeacherModel = model<Teacher>('teachers', teacherSchema);

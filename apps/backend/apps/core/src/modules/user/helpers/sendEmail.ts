@@ -1,6 +1,6 @@
 import { ofetch, FetchError } from 'ofetch';
 import { logger } from '@ufabcnext/common';
-import { Config } from '@config';
+import { Config } from '@/config/config.js';
 
 type Email = {
   recipient: string;
