@@ -1,5 +1,5 @@
 import type { Comment, ICommentModel } from '@ufabcnext/types';
-import { FilterQuery, Model, Schema, model } from 'mongoose';
+import { FilterQuery, Schema, model } from 'mongoose';
 import { EnrollmentModel } from './Enrollment.js';
 import { ReactionModel } from './Reaction.js';
 
@@ -57,17 +57,17 @@ const commentSchema = new Schema<Comment, ICommentModel>(
 commentSchema.static(
   'commentsByReaction',
   async function (
-    query: FilterQuery<Comment>,
     userId: string,
     populateFields: string[] = ['enrollment', 'subject'],
     limit: number = 10,
     page: number = 0,
+    query?: FilterQuery<Comment>,
   ) {
     if (!userId) {
       throw new Error(`Usuário Não Encontrado ${userId}`);
     }
 
-    const comments = await this.find(query)
+    const comments = await this.find(query!)
       .lean(true)
       .populate(populateFields)
       .skip(page * limit)
@@ -151,6 +151,7 @@ commentSchema.index({
   createdAt: -1,
 });
 
-export const CommentModel: Model<Comment> =
-  // models['comments'] ||
-  model<Comment, ICommentModel>('comments', commentSchema);
+export const CommentModel = model<Comment, ICommentModel>(
+  'comments',
+  commentSchema,
+);
