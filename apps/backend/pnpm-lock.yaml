@@ -148,18 +148,12 @@ importers:
       '@ufabcnext/types':
         specifier: workspace:*
         version: link:../../packages/types
-      esbuild:
-        specifier: ^0.19.2
-        version: 0.19.2
       eslint-config-custom:
         specifier: workspace:*
         version: link:../../packages/eslint-config-custom
       jsonwebtoken:
         specifier: ^9.0.1
         version: 9.0.1
-      rimraf:
-        specifier: ^5.0.1
-        version: 5.0.1
       tsup:
         specifier: ^7.2.0
         version: 7.2.0(ts-node@10.9.1)(typescript@5.1.6)
@@ -197,15 +191,12 @@ importers:
       '@ufabcnext/types':
         specifier: workspace:*
         version: link:../../packages/types
-      esbuild:
-        specifier: ^0.19.2
-        version: 0.19.2
       eslint-config-custom:
         specifier: workspace:*
         version: link:../../packages/eslint-config-custom
-      rimraf:
-        specifier: ^5.0.1
-        version: 5.0.1
+      tsup:
+        specifier: ^7.2.0
+        version: 7.2.0(ts-node@10.9.1)(typescript@5.1.6)
       typescript:
         specifier: ^5.1.6
         version: 5.1.6

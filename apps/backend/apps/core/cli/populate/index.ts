@@ -1,8 +1,8 @@
-import { join } from 'node:path';
-import { Config } from '@config';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { Config } from '@/config/config.js';
 import { connectToMongo } from '../database/connection';
 import { loadCoreModels, loadMockedData } from './dynamic-import-all-files';
-import * as coreModels from '@ufabcnext/models';
 
 // TODO: refactor this for the monorepo
 
@@ -60,7 +60,9 @@ async function populate() {
 }
 
 async function createDatabases({ whichModels }: PopulateOptions) {
-  const data = join(__dirname, './data');
+  const dirEsm = dirname(fileURLToPath(import.meta.url));
+
+  const data = join(dirEsm, './data');
   const files = await loadMockedData(data);
   const appModels = await loadCoreModels();
   const ids: Record<string, string[]> = {};

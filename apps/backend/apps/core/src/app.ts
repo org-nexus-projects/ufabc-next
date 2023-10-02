@@ -1,12 +1,11 @@
 import { fastify, type FastifyServerOptions } from 'fastify';
-import fastifyAutoload from '@fastify/autoload';
+import { fastifyAutoload } from '@fastify/autoload';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Config } from './config/config.js';
 
-const dirEsm = dirname(fileURLToPath(import.meta.url));
-
 export async function buildApp(opts: FastifyServerOptions = {}) {
+  const dirEsm = dirname(fileURLToPath(import.meta.url));
   const app = fastify(opts);
   try {
     app.register(fastifyAutoload, {

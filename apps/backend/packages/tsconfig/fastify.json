@@ -3,7 +3,7 @@
   "extends": "fastify-tsconfig",
   "compilerOptions": {
     "moduleResolution": "NodeNext",
-    "module": "ESNext",
+    "module": "NodeNext",
     "noEmit": true
   }
 }
