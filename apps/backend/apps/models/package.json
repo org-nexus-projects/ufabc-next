@@ -4,12 +4,14 @@
   "description": "Database entities from the backend",
   "type": "module",
   "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     "import": "./dist/index.js",
-    "require": "./dist/index.js"
+    "require": "./dist/index.js",
+    "types": "./dist/index.d.ts"
   },
   "scripts": {
-    "build": "rimraf dist && esbuild index.ts --bundle --outdir=dist --platform=node --format=esm --sourcemap --packages=external",
+    "build": "tsup-node --config tsup.config.ts",
     "build:type-check": "tsc"
   },
   "keywords": [],
@@ -21,10 +23,8 @@
     "@ufabcnext/common": "workspace:^",
     "@ufabcnext/tsconfig": "workspace:*",
     "@ufabcnext/types": "workspace:*",
-    "esbuild": "^0.19.2",
     "eslint-config-custom": "workspace:*",
     "jsonwebtoken": "^9.0.1",
-    "rimraf": "^5.0.1",
     "tsup": "^7.2.0",
     "typescript": "^5.1.6"
   },

@@ -1,8 +1,8 @@
 import type { Reaction, ReactionDocument } from '@ufabcnext/types';
 import { isObjectIdOrHexString, Schema, model, Model } from 'mongoose';
-import { UserModel } from './User';
-import { CommentModel } from './Comment';
-import { EnrollmentModel } from './Enrollment';
+import { UserModel } from './User.js';
+import { CommentModel } from './Comment.js';
+import { EnrollmentModel } from './Enrollment.js';
 
 const reactionSchema = new Schema<Reaction>(
   {

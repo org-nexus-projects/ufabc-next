@@ -1,5 +1,5 @@
 import { Queue, Worker, type RedisOptions, type Processor } from 'bullmq';
-import { Config } from './config/config';
+import { Config } from './config/config.js';
 
 const connection = {
   username: Config.REDIS_USER,

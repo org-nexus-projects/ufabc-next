@@ -1,8 +1,7 @@
 import type { Enrollment, EnrollmentDocument } from '@ufabcnext/types';
 import { Model, Schema, model } from 'mongoose';
 import { get } from 'lodash-es';
-import { GroupModel } from './Group';
-// import { models } from 'mongoose';
+import { GroupModel } from './Group.js';
 
 const enrollmentSchema = new Schema<Enrollment>(
   {

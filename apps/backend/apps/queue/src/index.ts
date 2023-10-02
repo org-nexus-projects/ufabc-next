@@ -1,2 +1,2 @@
-export * from './setup';
-export * from './jobs/confirmationEmail/email';
+export * from './setup.js';
+export * from './jobs/confirmationEmail/email.js';

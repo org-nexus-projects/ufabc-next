@@ -6,10 +6,10 @@ import type {
   UserVirtuals,
 } from '@ufabcnext/types';
 import { sendEmailJob } from '@ufabcnext/queue';
-import { Document, Schema, model } from 'mongoose';
+import { Document, Schema, type ValidatorProps, model } from 'mongoose';
 import { uniqBy } from 'remeda';
 import jwt from 'jsonwebtoken';
-import { Config } from '../config/config';
+import { Config } from '../config/config.js';
 
 const userSchema = new Schema<User, UserModelType, UserMethods, UserVirtuals>(
   {
@@ -22,7 +22,8 @@ const userSchema = new Schema<User, UserModelType, UserMethods, UserVirtuals>(
       type: String,
       validate: {
         validator: (v: string) => v.indexOf('ufabc.edu.br') !== -1,
-        message: (props) => `${props.value} não é um e-mail válido.`,
+        message: (props: ValidatorProps) =>
+          `${props.value} não é um e-mail válido.`,
       },
       unique: true,
       partialFilterExpression: { email: { $exists: true } },

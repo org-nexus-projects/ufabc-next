@@ -1,8 +1,8 @@
 import { logger } from '@ufabcnext/common';
-import { createToken } from '../../helpers/createToken';
-import { Config } from '../../config/config';
-import { createQueue, queueProcessor } from '../../setup';
-import { sesSendEmail } from '../../integration/ses';
+import { createToken } from '../../helpers/createToken.js';
+import { Config } from '../../config/config.js';
+import { createQueue, queueProcessor } from '../../setup.js';
+import { sesSendEmail } from '../../integration/ses.js';
 
 type UfabcUser = {
   email: string;
