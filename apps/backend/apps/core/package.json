@@ -1,19 +1,16 @@
 {
   "name": "@ufabcnext/core",
   "version": "1.0.0",
-  "description": "Core logic of the backend, mainly users",
+  "description": "Core logic of the backend",
   "main": "dist/server.js",
   "type": "module",
-  "packageManager": "pnpm@8.6.5",
-  "engines": {
-    "node": ">=18"
-  },
   "scripts": {
-    "populate": "tsx cli/populate",
-    "dev": "tsx watch src/server.ts",
-    "build": "rimraf dist && tsx esbuild.ts",
+    "populate": "node --env-file=.env --loader=tsx/esm cli/populate",
+    "dev": "tsx watch --env-file=.env src/server.ts",
+    "build": "rimraf dist && node --loader=tsx/esm esbuild.ts",
     "build:type-check": "tsc",
-    "preview": "node dist/server.js"
+    "start": "node --env-file=.env.production --watch dist/server.js",
+    "preview": "node --env-file=.env.production dist/server.js"
   },
   "keywords": [],
   "author": "Joabe Silva <joabevarjao123@gmail.com>",
@@ -30,7 +27,7 @@
     "pino-pretty": "^10.2.0",
     "rimraf": "^5.0.1",
     "tiny-glob": "^0.2.9",
-    "tsx": "^3.12.8",
+    "tsx": "^3.13.0",
     "typescript": "^5.2.2"
   },
   "dependencies": {

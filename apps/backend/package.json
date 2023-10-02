@@ -1,23 +1,25 @@
 {
   "name": "ufabc-next-backend",
   "private": true,
+  "engines": {
+    "node": "^20",
+    "pnpm": "^8"
+  },
   "scripts": {
-    "populate": "dotenv -- turbo run populate -- ",
-    "dev": "dotenv -- turbo run dev",
+    "populate": "turbo run populate -- ",
+    "dev": "turbo run dev",
     "build": "turbo run build",
     "build:type-check": "turbo run build:type-check",
+    "start": "turbo run start",
     "lint": "turbo run lint",
-    "preview": "dotenv -e .env.production -- turbo run preview",
-    "format": "prettier --write \"**/*.ts\""
+    "preview": "turbo run preview"
   },
   "devDependencies": {
     "@commitlint/cli": "17.6.7",
     "@commitlint/config-conventional": "17.6.7",
-    "dotenv-cli": "^7.3.0",
     "eslint": "^8.49.0",
     "eslint-config-custom": "workspace:*",
     "prettier": "^3.0.3",
     "turbo": "^1.10.13"
-  },
-  "packageManager": "pnpm@8.6.10"
+  }
 }
