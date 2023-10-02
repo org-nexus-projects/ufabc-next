@@ -10,10 +10,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@fastify/oauth2": "^7.2.2",
+    "@fastify/oauth2": "^7.4.0",
     "@ufabcnext/tsconfig": "workspace:*",
     "eslint-config-custom": "workspace:*",
-    "mongoose": "^7.4.2",
-    "typescript": "^5.1.6"
+    "mongoose": "^7.5.3",
+    "typescript": "^5.2.2"
   }
 }
