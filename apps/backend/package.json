@@ -6,13 +6,15 @@
     "pnpm": "^8"
   },
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "populate": "turbo run populate -- ",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "build:type-check": "turbo run build:type-check",
     "start": "turbo run start",
     "lint": "turbo run lint",
-    "preview": "turbo run preview"
+    "preview": "turbo run preview",
+    "check-updates": "pnpm outdated --recursive"
   },
   "devDependencies": {
     "@commitlint/cli": "17.6.7",
