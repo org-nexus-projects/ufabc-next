@@ -6,42 +6,42 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 export type CreateCommentBody = {
   enrollment: Enrollment;
   comment: Comment;
-  type: string;
+  type: 'teoria' | 'pratica';
 };
 
 export async function createComment(
   request: FastifyRequest<{ Body: CreateCommentBody }>,
   reply: FastifyReply,
 ) {
-  const t = request.body;
+  const { enrollment, comment, type } = request.body;
 
-  if (!t.comment && !t.enrollment && !t.type) {
+  if (!comment && !enrollment && !type) {
     request.log.error({ body: request.body }, 'Incomplete response');
     throw new Error(`Body must have all obligatory fields`);
   }
 
+  // eslint-disable-next-line
   const enrollmentExists = await EnrollmentModel.findById({
-    enrollment: t.enrollment,
+    enrollment,
   });
 
   if (!enrollmentExists) {
     // eslint-disable-next-line
-    throw new Error(`This enrollment does not exists ${t.enrollment}`);
+    throw new Error(`This enrollment does not exists ${enrollment}`);
   }
 
   const createComment = {
-    comment: t.comment,
-    type: t.type,
-    // eslint-disable-next-line
-    enrollment: t.enrollment.id,
-    // eslint-disable-next-line
-    teacher: t.enrollment[t.type],
-    disciplina: t.enrollment.disciplina,
-    subject: t.enrollment.subject,
-    ra: t.enrollment.ra,
+    comment,
+    type,
+    enrollment: enrollment.id,
+    teacher: enrollment[type],
+    disciplina: enrollment.disciplina,
+    subject: enrollment.subject,
+    ra: enrollment.ra,
   };
 
-  const insertedComment = await CommentModel.create(createComment);
+  // eslint-disable-next-line
+  const insertedComment = new CommentModel(createComment).save();
 
   return reply.status(201).send(insertedComment);
 }

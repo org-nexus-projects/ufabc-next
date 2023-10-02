@@ -1,6 +1,8 @@
-import type { Document, Types } from 'mongoose';
+import type { Document, ObjectId, Types } from 'mongoose';
 
 export type Enrollment = {
+  _id: ObjectId;
+  id: ObjectId;
   year: number;
   quad: number;
   identifier: string;

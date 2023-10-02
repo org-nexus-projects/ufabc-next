@@ -102,9 +102,9 @@ enrollmentSchema.index({
 enrollmentSchema.pre('save', async function (this) {
   setTheoryAndPractice(this);
 
-  await addEnrollmentToGroup(this);
+  // eslint-disable-next-line
+  await addEnrollmentToGroup(this as any);
 });
-// models['enrollments'] ||
 export const EnrollmentModel: Model<Enrollment> = model<Enrollment>(
   'enrollments',
   enrollmentSchema,
