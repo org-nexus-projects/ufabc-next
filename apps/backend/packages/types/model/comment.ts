@@ -15,10 +15,10 @@ export type Comment = {
 
 export interface ICommentModel extends Model<Comment> {
   commentsByReactions(
-    query: unknown,
-    userId: string,
+    userId: string | Record<string, unknown>,
     populateFields: string[],
     limit: number,
     page: number,
+    query?: unknown,
   ): Promise<{ data: unknown; total: number }>;
 }
