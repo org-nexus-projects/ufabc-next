@@ -1,7 +1,7 @@
 # Run with `docker build --secret id=env,src=.env -f ./Dockerfile . -t teste-docker:0.0.2 --no-cache`
 # see a way to use this later --mount=type=secret,id=env,required=true,target=/workspace/.env
 
-ARG NODE_VERSION="18.17.1"
+ARG NODE_VERSION="20.8.0"
 
 FROM node:${NODE_VERSION}-alpine AS runtime 
 # Necessary for turborepo

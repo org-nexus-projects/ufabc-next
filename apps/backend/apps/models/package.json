@@ -24,13 +24,13 @@
     "@ufabcnext/tsconfig": "workspace:*",
     "@ufabcnext/types": "workspace:*",
     "eslint-config-custom": "workspace:*",
-    "jsonwebtoken": "^9.0.1",
     "tsup": "^7.2.0",
     "typescript": "^5.1.6"
   },
   "dependencies": {
     "@ufabcnext/queue": "workspace:*",
     "dotenv": "^16.3.1",
+    "jsonwebtoken": "^9.0.1",
     "lodash-es": "^4.17.21",
     "mongoose": "^7.5.2",
     "remeda": "^1.24.0",
