@@ -5,6 +5,7 @@ export default async function cors(app: FastifyInstance) {
   // TODO: update when deploying
   try {
     await app.register(fastifyCors, {
+      methods: ['GET', 'POST', 'PUT', 'UPDATE', 'DELETE'],
       origin: '*',
     });
     app.log.info('[PLUGIN] Cors');
