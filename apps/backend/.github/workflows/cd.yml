@@ -20,6 +20,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      - name: Retrieve AWS Secret
+        id: get-secret
+        run: |
+          SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id staging/next-staging --region us-east-1 --query SecretString --output text)
+          echo "::set-output name=secret::$SECRET_VALUE"
+
       - name: Login to Amazon ECR
         id: login-ecr
         run: |
@@ -27,13 +33,13 @@ jobs:
 
       - name: Build and push Docker image to ECR
         run: |
-          docker build -t ufabc-next-backend .
+          docker build --build-arg ENV_FILE="${{ steps.get-secret.outputs.secret }}" -t ufabc-next-backend .
           docker tag ufabc-next-backend:latest ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:latest
           docker push ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:latest
 
       - name: SSH into EC2 instance and pull the latest image
         run: |
-          ssh -i ${{ secrets.EC2_KEY }} ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker pull ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/my-app:latest'
+          ssh -i ${{ secrets.EC2_KEY }} ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker pull ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:latest'
 
       - name: SSH into EC2 instance and restart Docker container
         run: |
