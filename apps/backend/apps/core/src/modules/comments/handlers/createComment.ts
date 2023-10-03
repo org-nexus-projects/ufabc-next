@@ -20,28 +20,22 @@ export async function createComment(
     throw new Error(`Body must have all obligatory fields`);
   }
 
-  // eslint-disable-next-line
-  const enrollmentExists = await EnrollmentModel.findById({
-    enrollment,
-  });
+  const enrollmentExists =
+    await EnrollmentModel.findById<Enrollment>(enrollment);
 
   if (!enrollmentExists) {
     // eslint-disable-next-line
     throw new Error(`This enrollment does not exists ${enrollment}`);
   }
 
-  const createComment = {
+  const insertedComment = await CommentModel.create({
     comment,
     type,
-    enrollment: enrollment.id,
-    teacher: enrollment[type],
-    disciplina: enrollment.disciplina,
-    subject: enrollment.subject,
-    ra: enrollment.ra,
-  };
-
-  // eslint-disable-next-line
-  const insertedComment = new CommentModel(createComment).save();
+    enrollment: enrollmentExists.id,
+    teacher: enrollmentExists[type],
+    subject: enrollmentExists.subject,
+    ra: enrollmentExists.ra,
+  });
 
   return reply.status(201).send(insertedComment);
 }
