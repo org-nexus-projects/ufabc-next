@@ -23,7 +23,7 @@ export async function teacherComment(
   reply: FastifyReply,
 ) {
   const { teacherId, subjectId } = request.params;
-  // 10 per page, starting from 0
+  // 10 per page
   const { limit = 10, page = 0 } = request.query;
   const userId = request.user?._id;
 
@@ -35,8 +35,7 @@ export async function teacherComment(
     throw new Error(`Missing UserId: ${userId}`);
   }
 
-  // Todo: Fix this later
-  // eslint-disable-next-line
+  // Theres a very `Tricky` bug here
   const comment = await CommentModel.commentsByReactions(
     {
       teacher: teacherId,

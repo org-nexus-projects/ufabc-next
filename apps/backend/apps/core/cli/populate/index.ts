@@ -76,7 +76,7 @@ async function createDatabases({ whichModels }: PopulateOptions) {
     const content = data.map(async (value: any) => {
       try {
         const createdInstance = await Model.create(value);
-        ids[model].push(createdInstance._id.toString());
+        ids[model].push(createdInstance._id);
       } catch (error) {
         console.log(error);
         throw error;

@@ -18,7 +18,6 @@ export async function updateComment(
 
   if (!commentId) {
     request.log.warn({ params: request.params }, 'Missing commentId');
-    // eslint-disable-next-line
     throw new Error(`CommentId was not passed`);
   }
 
@@ -33,5 +32,5 @@ export async function updateComment(
 
   await comment.save();
 
-  return reply.status(200).send(comment);
+  return reply.status(204).send(comment);
 }
