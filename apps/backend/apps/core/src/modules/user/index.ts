@@ -1,20 +1,31 @@
 import type { FastifyInstance } from 'fastify';
+import { fastifyAutoload } from '@fastify/autoload';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Config } from '@/config/config.js';
 import { completeUser } from './handlers/completeUser.js';
 import { confirmUser } from './handlers/confirmUser.js';
 import { resendUserEmail } from './handlers/resendUserEmail.js';
 import { loggedUser } from './handlers/loggedUser.js';
-import { oauth2 } from './plugins/oauth2/oauth2.js';
 import { authenticate } from './hooks/authenticate.js';
 
-export const autoPrefix = '/users';
 export default async function (app: FastifyInstance) {
-  await app.register(oauth2, Config);
+  const dirEsm = dirname(fileURLToPath(import.meta.url));
 
-  app.addHook('onRequest', authenticate);
+  // avoid the plugin of receiving an auth hook
+  await app.register(fastifyAutoload, {
+    dir: join(dirEsm, './plugins'),
+    encapsulate: false,
+    maxDepth: 1,
+    options: Config,
+  });
 
-  app.post('/complete', completeUser);
-  app.post('/confirm', confirmUser);
-  app.post('/resend', resendUserEmail);
-  app.get('/info', loggedUser);
+  app.put('/users/complete', { onRequest: [authenticate] }, completeUser);
+  app.post<{ Body: { token: string } }>(
+    '/users/confirm',
+    { onRequest: [authenticate] },
+    confirmUser,
+  );
+  app.post('/users/resend', { onRequest: [authenticate] }, resendUserEmail);
+  app.get('/users/info', { onRequest: [authenticate] }, loggedUser);
 }

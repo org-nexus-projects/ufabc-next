@@ -1,8 +1,8 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import type { Config } from '@/config/config.js';
 import type { Providers } from '@ufabcnext/types';
-import { UserModel } from '@ufabcnext/models';
 import { fastifyOauth2 } from '@fastify/oauth2';
+import { UserModel } from '@ufabcnext/models';
 import {
   getFacebookUserDetails,
   getGoogleUserDetails,
@@ -18,7 +18,7 @@ type Query = {
 };
 
 // TODO: implement session token
-export async function oauth2(app: FastifyInstance, opts: Config) {
+export default async function oauth2(app: FastifyInstance, opts: Config) {
   const providers = {
     google: {
       credentials: {
@@ -46,7 +46,7 @@ export async function oauth2(app: FastifyInstance, opts: Config) {
 
   for (const provider of objectKeys(providers)) {
     const startRedirectPath = `/login/${provider}`;
-    const callbackUri = `http://localhost:5000/login/${provider}/callback`;
+    const callbackUri = `http://localhost:5000/v2/login/${provider}/callback`;
 
     await app.register(fastifyOauth2, {
       name: provider,
@@ -61,6 +61,7 @@ export async function oauth2(app: FastifyInstance, opts: Config) {
       startRedirectPath,
       callbackUri,
     });
+
     app.get(
       `/login/${provider}/callback`,
       async function (request: FastifyRequest<{ Querystring: Query }>, reply) {
