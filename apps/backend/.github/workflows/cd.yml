@@ -44,7 +44,7 @@ jobs:
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
       - name: Deploy to EC2 Instance
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
