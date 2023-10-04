@@ -22,10 +22,11 @@ jobs:
           aws-region: us-east-1
 
       - name: Retrieve AWS Secret
-        id: get-secret
-        run: |
-          SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id staging/next-staging --region us-east-1 --query SecretString --output text)
-          echo "::set-output name=secret::$SECRET_VALUE"
+        uses: aws-actions/aws-secretsmanager-get-secrets@v1
+        with:
+          secret-ids: |
+            staging/next-staging
+          parse-json-secrets: true
 
       - name: Login to Amazon ECR
         id: login-ecr
