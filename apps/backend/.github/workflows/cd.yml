@@ -26,7 +26,7 @@ jobs:
         with:
           secret-ids: |
             staging/next-staging
-          parse-json-secrets: true
+          # parse-json-secrets: true
 
       - name: Login to Amazon ECR
         id: login-ecr
