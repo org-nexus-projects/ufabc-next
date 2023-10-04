@@ -9,8 +9,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      SSH_KEY: ${{ secrets.EC2_KEY }}
 
     steps:
       - name: Checkout code
@@ -23,7 +21,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Retrieve AWS Secret
+      - name: Retrieve AWS Secrets
         uses: aws-actions/aws-secretsmanager-get-secrets@v1
         with:
           secret-ids: |
@@ -32,27 +30,33 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        run: |
-          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          mask-password: true
 
-      - name: Build and push Docker image to ECR
+      - name: Build, tag and push Image to Amazon ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ufabc-next-backend
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build --build-arg ENV_FILE="${{ env }}" -t ufabc-next-backend .
-          docker tag ufabc-next-backend:latest ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:latest
-          docker push ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:latest
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
-      - name: SSH into EC2 instance and pull the latest image
-        run: |
-          echo "$SSH_KEY" > pipeline.pem
-          chmod 400 pipeline.pem
-          sudo ssh -o StrictHostKeyChecking=no -i pipeline.pem ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker pull ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:latest'
-          rm pipeline.pem
+      - name: Deploy to EC2 Instance
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            # Connect to the EC2 instance and pull the Docker image
+            ssh-keyscan ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+            ssh -o "StrictHostKeyChecking=no" ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "docker pull ${{secrets.EC2_REGISTRY}}/ufabc-next-backend:latest"
 
-      - name: SSH into EC2 instance and restart Docker container
-        run: |
-          echo "$SSH_KEY" > pipeline.pem
-          chmod 400 pipeline.pem
-          sudo ssh -o StrictHostKeyChecking=no -i pipeline.pem ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker stop ufabc-next-backend'
-          sudo ssh -o StrictHostKeyChecking=no -i pipeline.pem ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker rm ufabc-next-backend'
-          sudo ssh -o StrictHostKeyChecking=no -i pipeline.pem ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker run -d --name ufabc-next-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:latest'
-          rm pipeline.pem
+            # Stop and remove any existing containers running the same image
+            ssh -o "StrictHostKeyChecking=no" ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "docker stop ufabc-next-backend"
+            ssh -o "StrictHostKeyChecking=no" ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "docker rm ufabc-next-backend"
+
+            # Start a new container with the updated image
+            ssh -o "StrictHostKeyChecking=no" ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "docker run -d --name ufabc-next-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ufabc-next-backend:latest"
