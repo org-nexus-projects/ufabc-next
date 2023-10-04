@@ -50,13 +50,15 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            whoami
+            ls -al
             # Connect to the EC2 instance and pull the Docker image
-            ssh-keyscan ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-            ssh -o "StrictHostKeyChecking=no" ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "docker pull ${{secrets.EC2_REGISTRY}}/ufabc-next-backend:latest"
+            # ssh-keyscan ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+            # ssh -o "StrictHostKeyChecking=no" ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "docker pull ${{secrets.EC2_REGISTRY}}/ufabc-next-backend:latest"
 
             # Stop and remove any existing containers running the same image
-            ssh -o "StrictHostKeyChecking=no" ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "docker stop ufabc-next-backend"
-            ssh -o "StrictHostKeyChecking=no" ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "docker rm ufabc-next-backend"
+            # ssh -o "StrictHostKeyChecking=no" ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "docker stop ufabc-next-backend"
+            # ssh -o "StrictHostKeyChecking=no" ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "docker rm ufabc-next-backend"
 
             # Start a new container with the updated image
-            ssh -o "StrictHostKeyChecking=no" ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "docker run -d --name ufabc-next-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ufabc-next-backend:latest"
+            # ssh -o "StrictHostKeyChecking=no" ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "docker run -d --name ufabc-next-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ufabc-next-backend:latest"
