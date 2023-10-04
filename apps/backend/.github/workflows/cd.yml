@@ -45,14 +45,14 @@ jobs:
         run: |
           echo "$SSH_KEY" > pipeline.pem
           chmod 400 pipeline.pem
-          ssh -o StrictHostKeyChecking=no -i pipeline.pem ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker pull ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:latest'
+          sudo ssh -o StrictHostKeyChecking=no -i pipeline.pem ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker pull ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:latest'
           rm pipeline.pem
 
       - name: SSH into EC2 instance and restart Docker container
         run: |
           echo "$SSH_KEY" > pipeline.pem
           chmod 400 pipeline.pem
-          ssh -o StrictHostKeyChecking=no -i pipeline.pem ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker stop ufabc-next-backend'
-          ssh -o StrictHostKeyChecking=no -i pipeline.pem ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker rm ufabc-next-backend'
-          ssh -o StrictHostKeyChecking=no -i pipeline.pem ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker run -d --name ufabc-next-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:latest'
+          sudo ssh -o StrictHostKeyChecking=no -i pipeline.pem ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker stop ufabc-next-backend'
+          sudo ssh -o StrictHostKeyChecking=no -i pipeline.pem ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker rm ufabc-next-backend'
+          sudo ssh -o StrictHostKeyChecking=no -i pipeline.pem ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker run -d --name ufabc-next-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:latest'
           rm pipeline.pem
