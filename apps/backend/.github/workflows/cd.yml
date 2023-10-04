@@ -35,7 +35,7 @@ jobs:
 
       - name: Build and push Docker image to ECR
         run: |
-          docker build --build-arg ENV_FILE="${{ steps.get-secret.outputs.secret }}" -t ufabc-next-backend .
+          docker build --build-arg ENV_FILE="${{ env }}" -t ufabc-next-backend .
           docker tag ufabc-next-backend:latest ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:latest
           docker push ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:latest
 
