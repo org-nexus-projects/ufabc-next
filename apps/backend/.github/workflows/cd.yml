@@ -41,10 +41,15 @@ jobs:
 
       - name: SSH into EC2 instance and pull the latest image
         run: |
-          ssh -i ${{ secrets.EC2_KEY }} ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker pull ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:latest'
-
+          echo ${{secrets.EC2_KEY}} > pipeline_temp.pem
+          chmod 400 pipeline_temp.pem
+          ssh -i pipeline_temp.pem ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker pull ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:latest'
+          rm pipeline_temp.pem
       - name: SSH into EC2 instance and restart Docker container
         run: |
-          ssh -i ${{ secrets.EC2_KEY }} ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker stop ufabc-next-backend'
-          ssh -i ${{ secrets.EC2_KEY }} ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker rm ufabc-next-backend'
-          ssh -i ${{ secrets.EC2_KEY }} ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker run -d --name ufabc-next-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:latest'
+          echo ${{ secrets.EC2_KEY }} > pipeline_temp.pem
+          chmod 400 pipeline_temp.pem
+          ssh -i pipeline_temp.pem ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker stop ufabc-next-backend'
+          ssh -i pipeline_temp.pem ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker rm ufabc-next-backend'
+          ssh -i pipeline_temp.pem ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker run -d --name ufabc-next-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:latest'
+          rm pipeline_temp.pem
