@@ -12,7 +12,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    env:
+      $PRIVATE_KEY: ${{ secrets.EC2_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -43,14 +44,14 @@ jobs:
       - name: SSH into EC2 instance and pull the latest image
         run: |
           touch deploy.pem
-          echo "${{ secrets.EC2_KEY }}"" > deploy.pem
+          echo "$PRIVATE_KEY" > deploy.pem
           ssh -i deploy.pem ec2-user@${{ secrets.EC2_HOST }} 'docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:${{ github.sha }}'
           rm deploy.pem
 
       - name: SSH into EC2 instance and restart Docker container
         run: |
           touch deploy.pem
-          echo "${{ secrets.EC2_KEY }}"" > deploy.pem
+          echo "$PRIVATE_KEY" > deploy.pem
           ssh -i deploy.pem ec2-user@${{ secrets.EC2_HOST }} 'docker stop ufabc-next-backend'
           ssh -i deploy.pem ec2-user@${{ secrets.EC2_HOST }} 'docker rm ufabc-next-backend'
           ssh -i deploy.pem ec2-user@${{ secrets.EC2_HOST }} 'docker run -d --name ufabc-next-backend -p 3000:3000 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:${{ github.sha }}'
