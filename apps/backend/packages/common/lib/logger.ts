@@ -1,6 +1,5 @@
 import { pino } from 'pino';
 import { PrettyOptions } from 'pino-pretty';
-import { Config } from '../config';
 
 const pinoPrettyOptions = {
   destination: 1,
@@ -20,7 +19,7 @@ const loggerSetup = {
   test: false,
 };
 
-function buildLogger(nodeEnv: Config['NODE_ENV']) {
+function buildLogger(nodeEnv: string = 'dev') {
   if (nodeEnv === 'dev') {
     const logger = pino(loggerSetup.dev);
     return logger;
@@ -30,4 +29,4 @@ function buildLogger(nodeEnv: Config['NODE_ENV']) {
   }
 }
 
-export const logger = buildLogger(Config.NODE_ENV);
+export const logger = buildLogger(process.env.NODE_ENV);
