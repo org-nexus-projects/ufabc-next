@@ -200,15 +200,9 @@ importers:
 
   packages/common:
     dependencies:
-      dotenv:
-        specifier: ^16.3.1
-        version: 16.3.1
       pino:
         specifier: ^8.15.3
         version: 8.15.3
-      zod:
-        specifier: ^3.22.2
-        version: 3.22.2
     devDependencies:
       '@types/node':
         specifier: ^20.8.0

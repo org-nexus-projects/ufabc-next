@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    # keep only for debugging
+    types: [opened, synchronize]
   workflow_dispatch:
 
 jobs:
@@ -40,14 +43,15 @@ jobs:
           REPOSITORY: ufabc-next-backend
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          echo ${{ secrets }} > .env.production
+          docker build --build-arg=ARG_VALUE -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
-      - name: Deploy to EC2 Instance
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_KEY }}
-          script: |
-            cat ~/.ssh/id_rsa
+      - name: Deploy to my EC2 instance
+        uses: easingthemes/ssh-deploy@v4.1.0
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_KEY }}
+          SOURCE: './'
+          REMOTE_HOST: ${{ secrets.EC2_HOST }}
+          REMOTE_USER: ${{ secrets.EC2_USERNAME }}
+          TARGET: '/home/ec2-user/workspace'
