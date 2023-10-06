@@ -25,6 +25,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Get Github action IP
+        id: ip
+        uses: haythem/public-ip@v1.2
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
@@ -41,18 +45,21 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
-      - name: SSH into EC2 instance and pull the latest image
+      - name: Add Github Actions IP to Security group
         run: |
-          touch deploy.pem
-          echo "$PRIVATE_KEY" > deploy.pem
-          ssh StrictHostKeyChecking=no -i deploy.pem ec2-user@${{ secrets.EC2_HOST }} 'docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:${{ github.sha }}'
-          rm deploy.pem
+          aws ec2 authorize-security-group-ingress --group-name ${{ secrets.AWS_SG_NAME }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
 
-      - name: SSH into EC2 instance and restart Docker container
-        run: |
-          touch deploy.pem
-          echo "$PRIVATE_KEY" > deploy.pem
-          ssh StrictHostKeyChecking=no -i deploy.pem ec2-user@${{ secrets.EC2_HOST }} 'docker stop ufabc-next-backend'
-          ssh StrictHostKeyChecking=no -i deploy.pem ec2-user@${{ secrets.EC2_HOST }} 'docker rm ufabc-next-backend'
-          ssh StrictHostKeyChecking=no -i deploy.pem ec2-user@${{ secrets.EC2_HOST }} 'docker run -d --name ufabc-next-backend -p 3000:3000 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:${{ github.sha }}'
-          rm deploy.pem
+      - name: Deploy to prod server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:${{ github.sha }}'
+
+            ssh 'docker run -d --name ufabc-next-backend -p 3000:3000 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:${{ github.sha }}'
