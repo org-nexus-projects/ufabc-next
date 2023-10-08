@@ -45,13 +45,13 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
-      - name: Add Github Actions IP to Security group
-        run: |
-          aws ec2 authorize-security-group-ingress --group-name ${{ secrets.AWS_SG_NAME }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+      # - name: Add Github Actions IP to Security group
+      #   run: |
+      #     aws ec2 authorize-security-group-ingress --group-name ${{ secrets.AWS_SG_NAME }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
 
       - name: Deploy to prod server
         uses: appleboy/ssh-action@master
@@ -60,6 +60,6 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.SECRET_SSH_KEY }}
           script: |
-            ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:${{ github.sha }}'
+            ssh ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker pull 643837240126.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:${{ github.sha }}'
 
-            ssh 'docker run -d --name ufabc-next-backend -p 3000:3000 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:${{ github.sha }}'
+            ssh 'docker run -d --name ufabc-next-backend -p 3000:3000 643837240126.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:${{ github.sha }}'
