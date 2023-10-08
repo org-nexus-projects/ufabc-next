@@ -58,7 +58,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_KEY }}
+          key: ${{ secrets.SECRET_SSH_KEY }}
           script: |
             ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:${{ github.sha }}'
 
