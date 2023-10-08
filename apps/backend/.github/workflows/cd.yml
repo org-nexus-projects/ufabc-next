@@ -12,8 +12,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      $PRIVATE_KEY: ${{ secrets.EC2_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -56,8 +54,8 @@ jobs:
       - name: Deploy to prod server
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
+          host: ${{ secrets.HOSTNAME }}
+          username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SECRET_SSH_KEY }}
           script: |
             ssh ec2-user@ec2-3-90-140-60.compute-1.amazonaws.com 'docker pull 643837240126.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:${{ github.sha }}'
