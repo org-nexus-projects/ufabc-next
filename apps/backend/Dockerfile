@@ -45,11 +45,11 @@ RUN addgroup --system --gid 1001 backend
 RUN adduser --system --uid 1001 core
 USER core
 
-# copy files needed to run the app
+#  copy files needed to run the app
 COPY --chown=core:backend --from=deployer /workspace/out/package.json .
 COPY --chown=core:backend --from=deployer /workspace/out/node_modules/ ./node_modules
 COPY --chown=core:backend --from=deployer /workspace/out/dist/ ./dist
-# COPY --chown=core:backend --from=deployer /workspace/out/.env.production .
+COPY --chown=core:backend --from=deployer /workspace/out/.env.production .
 
 EXPOSE 5000
 
