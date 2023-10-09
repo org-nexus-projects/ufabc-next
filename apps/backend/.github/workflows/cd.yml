@@ -34,16 +34,18 @@ jobs:
           REPOSITORY: ufabc-next-backend
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          echo ${{ secrets.PRODUCTION_ENV }} > .env.production
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
       - name: Deploy and start container
         uses: appleboy/ssh-action@v1.0.0
+        env:
+          PRODUCTION_ENV: ${{ secrets.PRODUCTION_ENV }}
         with:
           host: ${{ secrets.HOSTNAME }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SECRET_SSH_KEY }}
           script: |
+            echo $PRODUCTION_ENV > .env.production
             docker pull ${{ secrets.AWS_ACCOUNT_ID }}.${{ secrets.ECR_REGISTRY }}/ufabc-next-backend:${{ github.sha }}
-            docker run -d --name ufabc-next-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.AWS_ACCOUNT_ID }}.${{ secrets.ECR_REGISTRY }}/ufabc-next-backend:${{ github.sha }}
+            docker run --name ufabc-next-backend --env-file ./.env.production -d -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.AWS_ACCOUNT_ID }}.${{ secrets.ECR_REGISTRY }}/ufabc-next-backend:${{ github.sha }}
