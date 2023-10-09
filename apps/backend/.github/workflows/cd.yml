@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    # keep only for debugging
-    types: [opened, synchronize]
   workflow_dispatch:
 
 jobs:
