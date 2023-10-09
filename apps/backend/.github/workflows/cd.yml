@@ -46,4 +46,4 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SECRET_SSH_KEY }}
           script: |
-            aws ecr get-login-password
+            docker pull 643837240126.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:${{ github.sha }}
