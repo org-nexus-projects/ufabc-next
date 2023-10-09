@@ -1,4 +1,4 @@
-name: Deploy
+name: CD
 
 on:
   push:
@@ -47,4 +47,4 @@ jobs:
           key: ${{ secrets.SECRET_SSH_KEY }}
           script: |
             docker pull ${{ secrets.AWS_ACCOUNT_ID }}.${{ steps.login-ecr.outputs.registry }}/ufabc-next-backend:${{ github.sha }}
-            docker run -d --name ufabc-next-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.AWS_ACCOUNT_ID }}.${{ steps.login-ecr.outputs.registry }}/ufabc-next-backend:${{ github.sha }}
+          # docker run -d --name ufabc-next-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.AWS_ACCOUNT_ID }}.${{ steps.login-ecr.outputs.registry }}/ufabc-next-backend:${{ github.sha }}
