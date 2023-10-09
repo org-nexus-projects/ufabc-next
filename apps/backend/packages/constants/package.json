@@ -1,0 +1,26 @@
+{
+  "name": "constants",
+  "version": "0.0.1",
+  "description": "Project constants values",
+  "type": "module",
+  "main": "./dist/index.js",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs",
+    "types": "./dist/index.d.ts"
+  },
+  "scripts": {
+    "build": "tsup index.ts --dts",
+    "build:type-check": "tsc"
+  },
+  "keywords": [],
+  "author": "Joabe Varjao <joabevarjao123@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "@ufabcnext/tsconfig": "workspace:*",
+    "eslint-config-custom": "workspace:*",
+    "@types/node": "^20.8.0",
+    "tsup": "^7.2.0",
+    "typescript": "^5.2.2"
+  }
+}
