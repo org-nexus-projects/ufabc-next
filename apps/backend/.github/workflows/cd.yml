@@ -1,4 +1,4 @@
-name: Deploy
+name: CD
 
 on:
   push:
@@ -9,7 +9,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,16 +16,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Retrieve AWS Secrets
-        uses: aws-actions/aws-secretsmanager-get-secrets@v1
-        with:
-          secret-ids: |
-            staging/next-staging
-          # parse-json-secrets: true
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -40,14 +32,16 @@ jobs:
           REPOSITORY: ufabc-next-backend
           IMAGE_TAG: ${{ github.sha }}
         run: |
+          echo ${{ secrets.PRODUCTION_ENV }} > .env.production
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
-      - name: Deploy to EC2 Instance
+      - name: Deploy and start container
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_KEY }}
+          host: ${{ secrets.HOSTNAME }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SECRET_SSH_KEY }}
           script: |
-            cat ~/.ssh/id_rsa
+            docker pull ${{ secrets.AWS_ACCOUNT_ID }}.${{ secrets.ECR_REGISTRY }}/ufabc-next-backend:${{ github.sha }}
+            docker run -d --name ufabc-next-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.AWS_ACCOUNT_ID }}.${{ secrets.ECR_REGISTRY }}/ufabc-next-backend:${{ github.sha }}

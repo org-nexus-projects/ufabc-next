@@ -16,7 +16,7 @@ COPY pnpm*.yaml ./
 
 # mount pnpm store as cache & fetch dependencies
 RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm-store \
-  pnpm fetch
+  pnpm fetch --ignore-scripts
 
 FROM fetcher as builder
 # specify the app in apps/ we want to build
@@ -25,16 +25,18 @@ ENV APP_NAME=${APP_NAME}
 WORKDIR /workspace
 COPY . .
 
-RUN pnpm install --frozen-lockfile --offline --silent
+RUN pnpm i --frozen-lockfile --offline --silent
 
 # build app
+
 RUN  --mount=type=cache,target=/workspace/node_modules/.cache \
   pnpm turbo run build --filter="${APP_NAME}"
 
 # deploy app
 FROM builder as deployer
 WORKDIR /workspace
-RUN pnpm --filter ${APP_NAME} deploy --prod ./out
+RUN export NODE_ENV=prod
+RUN pnpm --filter ${APP_NAME} deploy --prod --ignore-scripts ./out
 
 FROM runtime as runner
 WORKDIR /workspace
