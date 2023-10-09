@@ -39,11 +39,12 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
-      - name: Deploy to prod server
-        uses: appleboy/ssh-action@master
+      - name: Deploy and start container
+        uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.HOSTNAME }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SECRET_SSH_KEY }}
           script: |
-            docker pull 643837240126.dkr.ecr.us-east-1.amazonaws.com/ufabc-next-backend:${{ github.sha }}
+            docker pull ${{ secrets.AWS_ACCOUNT_ID }}.${{ steps.login-ecr.outputs.registry }}/ufabc-next-backend:${{ github.sha }}
+            docker run -d --name ufabc-next-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.AWS_ACCOUNT_ID }}.${{ steps.login-ecr.outputs.registry }}/ufabc-next-backend:${{ github.sha }}
