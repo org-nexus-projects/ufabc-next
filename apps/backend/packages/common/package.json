@@ -11,7 +11,7 @@
   },
   "description": "Common functions for the backend",
   "scripts": {
-    "build": "tsup index.ts --dts --format=esm",
+    "build": "tsup index.ts --dts --format=esm --clean",
     "build:type-check": "tsc"
   },
   "keywords": [],

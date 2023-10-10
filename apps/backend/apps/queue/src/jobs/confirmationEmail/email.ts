@@ -1,4 +1,5 @@
 import { logger } from '@ufabcnext/common';
+import { MAILER_CONFIG, WEB_URL, WEB_URL_LOCAL } from '@next/constants';
 import { createToken } from '../../helpers/createToken.js';
 import { Config } from '../../config/config.js';
 import { createQueue, queueProcessor } from '../../setup.js';
@@ -10,12 +11,13 @@ type UfabcUser = {
 };
 
 async function sendConfirmationEmail(nextUser: UfabcUser) {
-  const emailTemplate = Config.EMAIL_CONFIRMATION_TEMPLATE;
+  const emailTemplate = MAILER_CONFIG.EMAIL_CONFIRMATION_TEMPLATE;
+  const isDev = Config.NODE_ENV === 'dev';
   const token = createToken(JSON.stringify({ email: nextUser.email }));
   const emailRequest = {
     recipient: nextUser.email,
     body: {
-      url: `${Config.WEB_URL}/confirm?token=${token}`,
+      url: `${isDev ? WEB_URL_LOCAL : WEB_URL}/confirm?token=${token}`,
     },
   };
 

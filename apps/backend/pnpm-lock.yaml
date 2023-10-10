@@ -44,6 +44,9 @@ importers:
       '@fastify/redis':
         specifier: ^6.1.1
         version: 6.1.1
+      '@next/constants':
+        specifier: workspace:^
+        version: link:../../packages/constants
       '@ufabcnext/common':
         specifier: workspace:^
         version: link:../../packages/common
@@ -163,6 +166,9 @@ importers:
       '@aws-sdk/client-ses':
         specifier: ^3.421.0
         version: 3.421.0
+      '@next/constants':
+        specifier: workspace:^
+        version: link:../../packages/constants
       bullmq:
         specifier: ^4.12.0
         version: 4.12.0

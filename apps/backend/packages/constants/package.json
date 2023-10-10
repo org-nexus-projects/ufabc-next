@@ -1,16 +1,16 @@
 {
-  "name": "constants",
+  "name": "@next/constants",
   "version": "0.0.1",
   "description": "Project constants values",
   "type": "module",
   "main": "./dist/index.js",
   "exports": {
     "import": "./dist/index.js",
-    "require": "./dist/index.cjs",
+    "require": "./dist/index.js",
     "types": "./dist/index.d.ts"
   },
   "scripts": {
-    "build": "tsup index.ts --dts",
+    "build": "tsup index.ts --dts --format=esm --clean",
     "build:type-check": "tsc"
   },
   "keywords": [],

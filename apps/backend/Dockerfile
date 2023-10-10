@@ -22,6 +22,8 @@ FROM fetcher as builder
 # specify the app in apps/ we want to build
 ARG APP_NAME=@ufabcnext/core
 ENV APP_NAME=${APP_NAME}
+
+
 WORKDIR /workspace
 COPY . .
 
