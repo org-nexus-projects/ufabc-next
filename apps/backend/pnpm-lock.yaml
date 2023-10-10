@@ -44,6 +44,9 @@ importers:
       '@fastify/redis':
         specifier: ^6.1.1
         version: 6.1.1
+      '@next/constants':
+        specifier: workspace:^
+        version: link:../../packages/constants
       '@ufabcnext/common':
         specifier: workspace:^
         version: link:../../packages/common
@@ -163,6 +166,9 @@ importers:
       '@aws-sdk/client-ses':
         specifier: ^3.421.0
         version: 3.421.0
+      '@next/constants':
+        specifier: workspace:^
+        version: link:../../packages/constants
       bullmq:
         specifier: ^4.12.0
         version: 4.12.0
@@ -216,6 +222,24 @@ importers:
       pino-pretty:
         specifier: ^10.2.0
         version: 10.2.0
+      tsup:
+        specifier: ^7.2.0
+        version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
+      typescript:
+        specifier: ^5.2.2
+        version: 5.2.2
+
+  packages/constants:
+    devDependencies:
+      '@types/node':
+        specifier: ^20.8.0
+        version: 20.8.0
+      '@ufabcnext/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      eslint-config-custom:
+        specifier: workspace:*
+        version: link:../eslint-config-custom
       tsup:
         specifier: ^7.2.0
         version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)

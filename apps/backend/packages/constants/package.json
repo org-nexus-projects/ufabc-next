@@ -1,15 +1,14 @@
 {
-  "name": "@ufabcnext/common",
-  "version": "1.0.0",
+  "name": "@next/constants",
+  "version": "0.0.1",
+  "description": "Project constants values",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
   "exports": {
     "import": "./dist/index.js",
     "require": "./dist/index.js",
     "types": "./dist/index.d.ts"
   },
-  "description": "Common functions for the backend",
   "scripts": {
     "build": "tsup index.ts --dts --format=esm --clean",
     "build:type-check": "tsc"
@@ -18,14 +17,10 @@
   "author": "Joabe Varjao <joabevarjao123@gmail.com>",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^20.8.0",
     "@ufabcnext/tsconfig": "workspace:*",
     "eslint-config-custom": "workspace:*",
-    "pino-pretty": "^10.2.0",
+    "@types/node": "^20.8.0",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
-  },
-  "dependencies": {
-    "pino": "^8.15.3"
   }
 }

@@ -9,19 +9,12 @@ if (process.env.NODE_ENV === 'test') {
 }
 
 const envSchema = z.object({
-  // Local machine
   NODE_ENV: z.enum(['dev', 'test', 'prod']).default('dev'),
   HOST: z.string().min(4).default('localhost'),
-  WEB_URL: z.string().default('http://localhost:7500/app/#'),
   JWT_SECRET: z.string().min(32),
-  // AWS credentials
   AWS_REGION: z.string(),
   AWS_ACCESS_KEY_ID: z.string(),
   AWS_SECRET_ACCESS_KEY: z.string(),
-  // EMAIL
-  EMAIL_CONFIRMATION_TEMPLATE: z.enum(['Confirmation', 'Recover']),
-  MAILER_ID: z.string(),
-  // Redis
   REDIS_NAME: z.string(),
   REDIS_USER: z.string().default('default'),
   REDIS_PASSWORD: z.string().min(8),

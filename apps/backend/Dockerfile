@@ -22,6 +22,8 @@ FROM fetcher as builder
 # specify the app in apps/ we want to build
 ARG APP_NAME=@ufabcnext/core
 ENV APP_NAME=${APP_NAME}
+
+
 WORKDIR /workspace
 COPY . .
 
@@ -45,7 +47,7 @@ RUN addgroup --system --gid 1001 backend
 RUN adduser --system --uid 1001 core
 USER core
 
-# copy files needed to run the app
+#  copy files needed to run the app
 COPY --chown=core:backend --from=deployer /workspace/out/package.json .
 COPY --chown=core:backend --from=deployer /workspace/out/node_modules/ ./node_modules
 COPY --chown=core:backend --from=deployer /workspace/out/dist/ ./dist

@@ -3,6 +3,7 @@ import type { Config } from '@/config/config.js';
 import type { Providers } from '@ufabcnext/types';
 import { fastifyOauth2 } from '@fastify/oauth2';
 import { UserModel } from '@ufabcnext/models';
+import { WEB_URL, WEB_URL_LOCAL } from '@next/constants';
 import {
   getFacebookUserDetails,
   getGoogleUserDetails,
@@ -107,8 +108,9 @@ export default async function oauth2(app: FastifyInstance, opts: Config) {
 
           const isLocal =
             opts.NODE_ENV === 'dev'
-              ? `${opts.WEB_URL}/login?token=${user.generateJWT()}`
-              : '';
+              ? `${WEB_URL_LOCAL}/login?token=${user.generateJWT()}`
+              : `${WEB_URL}/login/token=${user.generateJWT()}`;
+
           const isMobile =
             inApp.split('?')[0] === 'true'
               ? `ufabcnext://login?token=${user.generateJWT()}`

@@ -32,7 +32,6 @@ jobs:
           REPOSITORY: ufabc-next-backend
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          echo ${{ secrets.PRODUCTION_ENV }} > .env.production
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
@@ -44,4 +43,6 @@ jobs:
           key: ${{ secrets.SECRET_SSH_KEY }}
           script: |
             docker pull ${{ secrets.AWS_ACCOUNT_ID }}.${{ secrets.ECR_REGISTRY }}/ufabc-next-backend:${{ github.sha }}
+            docker stop ufabc-next-backend
+            docker rm ufabc-next-backend
             docker run -d --name ufabc-next-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.AWS_ACCOUNT_ID }}.${{ secrets.ECR_REGISTRY }}/ufabc-next-backend:${{ github.sha }}

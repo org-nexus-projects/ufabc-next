@@ -20,7 +20,7 @@ export async function sendEmail(
 ) {
   const emailList = Array.isArray(emails) ? emails : [emails];
 
-  const personalizations = emailList.map((email: Email) => ({
+  const personalizations = emailList.map((email) => ({
     to: [{ email: email.recipient }],
     dynamic_template_data: email.body || {},
   }));
