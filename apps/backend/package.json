@@ -9,7 +9,7 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "populate": "turbo run populate -- ",
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --parallel",
     "build": "turbo run build",
     "build:type-check": "turbo run build:type-check",
     "start": "turbo run start",
