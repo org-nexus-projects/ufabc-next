@@ -1,6 +1,6 @@
 {
   "name": "ufabc-next-backend",
-  "private": true,
+  "private": false,
   "type": "module",
   "engines": {
     "node": "^20",
