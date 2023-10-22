@@ -10,7 +10,9 @@
     "build": "rimraf dist && node --loader=tsx/esm esbuild.ts",
     "build:type-check": "tsc",
     "start": "node --env-file=.env.production --watch dist/server.js",
-    "preview": "node --env-file=.env.production dist/server.js"
+    "preview": "node --env-file=.env.production dist/server.js",
+    "lint": "eslint .",
+    "lint:fix": "pnpm run lint --fix"
   },
   "keywords": [],
   "author": "Joabe Silva <joabevarjao123@gmail.com>",

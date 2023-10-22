@@ -12,7 +12,9 @@
   },
   "scripts": {
     "build": "tsup-node --config tsup.config.ts",
-    "build:type-check": "tsc"
+    "build:type-check": "tsc",
+    "lint": "eslint .",
+    "lint:fix": "pnpm run lint --fix"
   },
   "keywords": [],
   "author": "Joabe Silva <joabevarjao123@gmail.com>",

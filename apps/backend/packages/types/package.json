@@ -4,7 +4,9 @@
   "description": "",
   "types": "index.ts",
   "scripts": {
-    "build:type-check": "tsc"
+    "build:type-check": "tsc",
+    "lint": "eslint .",
+    "lint:fix": "pnpm run lint --fix"
   },
   "keywords": [],
   "author": "",

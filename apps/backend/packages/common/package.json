@@ -12,7 +12,9 @@
   "description": "Common functions for the backend",
   "scripts": {
     "build": "tsup index.ts --dts --format=esm --clean",
-    "build:type-check": "tsc"
+    "build:type-check": "tsc",
+    "lint": "eslint .",
+    "lint:fix": "pnpm run lint --fix"
   },
   "keywords": [],
   "author": "Joabe Varjao <joabevarjao123@gmail.com>",
