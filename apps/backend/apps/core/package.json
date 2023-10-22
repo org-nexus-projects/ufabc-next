@@ -24,7 +24,6 @@
     "@ufabcnext/types": "workspace:*",
     "esbuild": "^0.19.4",
     "esbuild-plugin-pino": "^2.0.1",
-    "eslint-config-custom": "workspace:*",
     "pino-pretty": "^10.2.0",
     "rimraf": "^5.0.5",
     "tiny-glob": "^0.2.9",

@@ -20,9 +20,6 @@ importers:
       eslint:
         specifier: ^8.50.0
         version: 8.50.0
-      eslint-config-custom:
-        specifier: workspace:*
-        version: link:packages/eslint-config-custom
       prettier:
         specifier: ^3.0.3
         version: 3.0.3
@@ -96,9 +93,6 @@ importers:
       esbuild-plugin-pino:
         specifier: ^2.0.1
         version: 2.0.1(esbuild@0.19.4)
-      eslint-config-custom:
-        specifier: workspace:*
-        version: link:../../packages/eslint-config-custom
       pino-pretty:
         specifier: ^10.2.0
         version: 10.2.0
@@ -154,9 +148,6 @@ importers:
       '@ufabcnext/types':
         specifier: workspace:*
         version: link:../../packages/types
-      eslint-config-custom:
-        specifier: workspace:*
-        version: link:../../packages/eslint-config-custom
       tsup:
         specifier: ^7.2.0
         version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
@@ -197,9 +188,6 @@ importers:
       '@ufabcnext/types':
         specifier: workspace:*
         version: link:../../packages/types
-      eslint-config-custom:
-        specifier: workspace:*
-        version: link:../../packages/eslint-config-custom
       tsup:
         specifier: ^7.2.0
         version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
@@ -219,9 +207,6 @@ importers:
       '@ufabcnext/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
-      eslint-config-custom:
-        specifier: workspace:*
-        version: link:../eslint-config-custom
       pino-pretty:
         specifier: ^10.2.0
         version: 10.2.0
@@ -240,9 +225,6 @@ importers:
       '@ufabcnext/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
-      eslint-config-custom:
-        specifier: workspace:*
-        version: link:../eslint-config-custom
       tsup:
         specifier: ^7.2.0
         version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
@@ -297,9 +279,6 @@ importers:
       '@ufabcnext/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
-      eslint-config-custom:
-        specifier: workspace:*
-        version: link:../eslint-config-custom
       mongoose:
         specifier: ^7.5.3
         version: 7.5.3
