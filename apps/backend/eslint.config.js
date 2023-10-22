@@ -1,6 +1,9 @@
-import { sxzz } from '@sxzz/eslint-config';
+import { sxzz as eslintConfig } from '@sxzz/eslint-config';
 
-export default sxzz(
-  { ignores: ['node_modules/*', 'dist/*', 'out/*'] },
+export default eslintConfig(
+  {
+    ignores: ['node_modules/*', 'dist/*', 'out/*'],
+    rules: { '@typescript-eslint/no-redeclare': ['off'] },
+  },
   { unocss: false, vue: false },
 );
