@@ -12,7 +12,7 @@
     "populate": "turbo run populate -- ",
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
-    "build:type-check": "turbo run build:type-check",
+    "build:type-check": "turbo run build:type-check --parallel",
     "start": "turbo run start",
     "lint": "turbo run lint --parallel",
     "lint:fix": "turbo run lint --parallel",
