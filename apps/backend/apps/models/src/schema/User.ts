@@ -1,4 +1,3 @@
-import { TextEncoder } from 'node:util';
 import {
   type InferSchemaType,
   Schema,
@@ -6,7 +5,7 @@ import {
   model,
 } from 'mongoose';
 import { uniqBy } from 'remeda';
-import { SignJWT } from 'jose';
+import jwt from 'jsonwebtoken';
 import { sendEmailJob } from '@ufabcnext/queue';
 import { Config } from '../config/config.js';
 
@@ -81,16 +80,16 @@ const userSchema = new Schema(
         await sendEmailJob(nextUser);
       },
       generateJWT() {
-        const alg = 'HS256';
-        const encodedSecret = new TextEncoder().encode(Config.JWT_SECRET);
-        const signedPayload = new SignJWT({
-          _id: this._id,
-          ra: this.ra,
-          confirmed: this.confirmed,
-          email: this.email,
-          permissions: this.permissions,
-        });
-        return signedPayload.setProtectedHeader({ alg }).sign(encodedSecret);
+        return jwt.sign(
+          {
+            _id: this._id,
+            ra: this.ra,
+            confirmed: this.confirmed,
+            email: this.email,
+            permissions: this.permissions,
+          },
+          Config.JWT_SECRET,
+        );
       },
     },
     virtuals: {

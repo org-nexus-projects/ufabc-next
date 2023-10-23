@@ -22,7 +22,6 @@
   "dependencies": {
     "@ufabcnext/queue": "workspace:*",
     "dotenv": "^16.3.1",
-    "jose": "^4.15.4",
     "jsonwebtoken": "^9.0.2",
     "lodash-es": "^4.17.21",
     "mongoose": "^7.6.3",
