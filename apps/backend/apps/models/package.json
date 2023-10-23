@@ -31,7 +31,6 @@
     "@types/lodash-es": "^4.17.9",
     "@ufabcnext/common": "workspace:^",
     "@ufabcnext/tsconfig": "workspace:*",
-    "@ufabcnext/types": "workspace:*",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
   }

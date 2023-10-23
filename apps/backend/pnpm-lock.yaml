@@ -75,6 +75,9 @@ importers:
         specifier: ^3.22.2
         version: 3.22.2
     devDependencies:
+      '@next/types':
+        specifier: workspace:^
+        version: link:../../packages/types
       '@total-typescript/ts-reset':
         specifier: ^0.4.2
         version: 0.4.2
@@ -84,9 +87,6 @@ importers:
       '@ufabcnext/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
-      '@ufabcnext/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       esbuild:
         specifier: ^0.19.4
         version: 0.19.4
@@ -139,9 +139,6 @@ importers:
       '@ufabcnext/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
-      '@ufabcnext/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       tsup:
         specifier: ^7.2.0
         version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
@@ -179,9 +176,6 @@ importers:
       '@ufabcnext/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
-      '@ufabcnext/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       tsup:
         specifier: ^7.2.0
         version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)

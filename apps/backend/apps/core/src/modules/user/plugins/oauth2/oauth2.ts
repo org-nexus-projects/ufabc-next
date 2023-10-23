@@ -6,7 +6,7 @@ import {
   getGoogleUserDetails,
 } from './utils/get-oauth-info.js';
 import { objectKeys } from './utils/objectKeys.js';
-import type { Providers } from '@ufabcnext/types';
+import type { Providers } from '@next/types';
 import type { Config } from '@/config/config.js';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 
