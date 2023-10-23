@@ -1,5 +1,5 @@
 {
-  "name": "@ufabcnext/types",
+  "name": "@next/types",
   "version": "1.0.0",
   "description": "",
   "keywords": [],
@@ -14,7 +14,6 @@
   "devDependencies": {
     "@fastify/oauth2": "^7.4.0",
     "@ufabcnext/tsconfig": "workspace:*",
-    "mongoose": "^7.6.3",
     "typescript": "^5.2.2"
   }
 }
