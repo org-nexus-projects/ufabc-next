@@ -1,25 +1,32 @@
-import { sendEmailJob } from '@ufabcnext/queue';
-import { type Document, Schema, type ValidatorProps, model } from 'mongoose';
+import { TextEncoder } from 'node:util';
+import {
+  type InferSchemaType,
+  Schema,
+  type ValidatorProps,
+  model,
+} from 'mongoose';
 import { uniqBy } from 'remeda';
-import jwt from 'jsonwebtoken';
+import { SignJWT } from 'jose';
+import { sendEmailJob } from '@ufabcnext/queue';
 import { Config } from '../config/config.js';
-import type {
-  Device,
-  User,
-  UserMethods,
-  UserModel as UserModelType,
-  UserVirtuals,
-} from '@ufabcnext/types';
 
-const userSchema = new Schema<User, UserModelType, UserMethods, UserVirtuals>(
+type Device = {
+  deviceId: string;
+  token: string;
+  phone: string;
+};
+
+const userSchema = new Schema(
   {
     ra: {
       type: Number,
       unique: true,
       partialFilterExpression: { ra: { $exists: true } },
+      required: true,
     },
     email: {
       type: String,
+      required: true,
       validate: {
         validator: (v: string) => v.includes('ufabc.edu.br'),
         message: (props: ValidatorProps) =>
@@ -55,50 +62,54 @@ const userSchema = new Schema<User, UserModelType, UserMethods, UserVirtuals>(
         },
       },
     ],
+    permissions: [String],
+    createdAt: NativeDate,
+    updatedAt: NativeDate,
   },
-  { timestamps: true },
+  {
+    methods: {
+      addDevice(device: Device) {
+        this.devices.unshift(device);
+        const uniqueDevice = uniqBy(this.devices, (device) => device.deviceId);
+        this.devices = uniqueDevice;
+      },
+      removeDevice(deviceId: string) {
+        this.devices = this.devices.filter(
+          (device) => device.deviceId !== deviceId,
+        );
+      },
+      async sendConfirmation() {
+        const nextUser = this.toObject({ virtuals: true });
+        await sendEmailJob(nextUser);
+      },
+      generateJWT() {
+        const encodedSecret = new TextEncoder().encode(Config.JWT_SECRET);
+        const signedPayload = new SignJWT({
+          _id: this._id,
+          ra: this.ra,
+          confirmed: this.confirmed,
+          email: this.email,
+          permissions: this.permissions,
+        });
+        return signedPayload.sign(encodedSecret);
+      },
+    },
+    virtuals: {
+      isFilled: {
+        get() {
+          return this.ra && this.email;
+        },
+      },
+    },
+  },
 );
 
-userSchema.virtual('isFilled').get(function () {
-  return this.ra && this.email;
-});
-
-userSchema.method('addDevice', function (this: User, device: Device) {
-  this.devices.unshift(device);
-  const uniqueDevice = uniqBy(this.devices, (device) => device.deviceId);
-  this.devices = uniqueDevice;
-});
-
-userSchema.method('removeDevice', function (this: User, deviceId: string) {
-  this.devices = this.devices.filter((device) => device.deviceId !== deviceId);
-});
-
-userSchema.method('generateJWT', function (this: User) {
-  return jwt.sign(
-    {
-      _id: this._id,
-      ra: this.ra,
-      confirmed: this.confirmed,
-      email: this.email,
-      permissions: this.permissions,
-    },
-    Config.JWT_SECRET,
-  );
-});
-
-userSchema.method('sendConfirmation', async function (this: Document) {
-  const nextUser = this.toObject<User>({ virtuals: true });
-  await sendEmailJob(nextUser);
-});
-
-userSchema.pre('save', async function (this) {
-  // Make it possible to point to the `isFilled` virtual
-  // @ts-expect-error Object is created dynamically
+userSchema.pre<UserDocument>('save', async function () {
   if (this.isFilled && !this.confirmed) {
     await this.sendConfirmation();
   }
 });
 
-export const UserModel =
-  // (models['users'] as UserModelType) ||
-  model<User, UserModelType>('users', userSchema);
+export type User = InferSchemaType<typeof userSchema>;
+export type UserDocument = ReturnType<(typeof UserModel)['hydrate']>;
+export const UserModel = model('users', userSchema);

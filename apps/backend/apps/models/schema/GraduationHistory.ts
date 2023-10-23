@@ -1,6 +1,6 @@
-import { Schema, model } from 'mongoose';
+import { type InferSchemaType, Schema, Types, model } from 'mongoose';
 
-const graduationSchema = new Schema(
+const graduationHistorySchema = new Schema(
   {
     ra: Number,
     coefficients: Object,
@@ -10,13 +10,15 @@ const graduationSchema = new Schema(
     curso: String,
     grade: String,
     graduation: {
-      type: Schema.Types.ObjectId,
+      type: Types.ObjectId,
       ref: 'graduation',
     },
   },
   { timestamps: true },
 );
 
-export const GraduationHistoryModel =
-  // models['historiesgraduations'] ||
-  model('historiesgraduations', graduationSchema);
+export type GraduationHistory = InferSchemaType<typeof graduationHistorySchema>;
+export const GraduationHistoryModel = model(
+  'historiesgraduations',
+  graduationHistorySchema,
+);

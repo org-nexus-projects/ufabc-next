@@ -1,12 +1,7 @@
-import { Schema, model } from 'mongoose';
+import { type InferSchemaType, Schema, model } from 'mongoose';
 import { camelCase, startCase } from 'lodash-es';
 
-type Teacher = {
-  name: string;
-  alias: string[];
-};
-
-const teacherSchema = new Schema<Teacher>(
+const teacherSchema = new Schema(
   {
     name: { type: String, required: true },
     alias: [String],
@@ -20,5 +15,5 @@ teacherSchema.pre('save', function () {
   this.name = startCase(camelCase(this.name));
 });
 
-// models['teachers'] ||
+export type Teacher = InferSchemaType<typeof teacherSchema>;
 export const TeacherModel = model<Teacher>('teachers', teacherSchema);

@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { type InferSchemaType, Schema, model } from 'mongoose';
 
 const historySchema = new Schema(
   {
@@ -7,16 +7,19 @@ const historySchema = new Schema(
     coefficients: Object,
     curso: String,
     grade: String,
+    createdAt: NativeDate,
+    updatedAt: NativeDate,
   },
-  { timestamps: true },
+  {
+    methods: {
+      async updateEnrollments() {
+        // app.agenda.now('updateUserEnrollments', this.toObject({ virtuals: true }))
+      },
+    },
+  },
 );
 
-historySchema.index({ curso: 1, grade: 1 });
-
-historySchema.method('updateEnrollments', async function () {
-  // Call cron job here
-  // app.agenda.now('updateUserEnrollments', this.toObject({ virtuals: true }))
-});
+historySchema.index({ curso: 'asc', grade: 'asc' });
 
 historySchema.pre('findOneAndUpdate', async function () {
   // calls cron job here
@@ -46,5 +49,6 @@ historySchema.post('save', async function () {
   // config.NODE_ENV === 'prod' &&
   //   app.agenda.now('updateUserEnrollments', this.toObject({ virtuals: true }));
 });
-// models['histories'] ||
+
+export type History = InferSchemaType<typeof historySchema>;
 export const HistoryModel = model('histories', historySchema);

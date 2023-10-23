@@ -1,11 +1,5 @@
 import type { Model, ObjectId, Schema } from 'mongoose';
 
-export type Device = {
-  deviceId: string;
-  token: string;
-  phone: string;
-};
-
 export type User = {
   _id?: string;
   email: string;
@@ -20,11 +14,11 @@ export type User = {
   active: boolean;
   permissions: string[];
   createdAt: string;
-  devices: Device[];
+  // devices: Device[];
 };
 
 export type UserMethods = {
-  addDevice(device: User['devices']): void;
+  // addDevice(device: User['devices']): void;
   removeDevice(deviceId: ObjectId): ObjectId[];
   sendConfirmation(): Promise<void>;
   generateJWT(): string;

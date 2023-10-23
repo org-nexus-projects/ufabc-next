@@ -96,7 +96,4 @@ export type DisciplinaDocument = ReturnType<
   (typeof DisciplinaModel)['hydrate']
 >;
 
-export const DisciplinaModel = model<Disciplina>(
-  'disciplinas',
-  disciplinaSchema,
-);
+export const DisciplinaModel = model('disciplinas', disciplinaSchema);

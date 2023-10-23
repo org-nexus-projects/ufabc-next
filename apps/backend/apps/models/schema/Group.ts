@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { type InferSchemaType, Schema, model } from 'mongoose';
 
 const groupSchema = new Schema(
   {
@@ -21,7 +21,8 @@ const groupSchema = new Schema(
   { timestamps: true },
 );
 
-groupSchema.index({ users: -1 });
-groupSchema.index({ mainTeacher: -1, season: -1, disciplina: -1 });
-//  models['groups'] ||
-export const GroupModel = model('groups', groupSchema);
+groupSchema.index({ users: 'desc' });
+groupSchema.index({ mainTeacher: 'desc', season: 'desc', disciplina: 'desc' });
+
+export type Group = InferSchemaType<typeof groupSchema>;
+export const GroupModel = model<Group>('groups', groupSchema);

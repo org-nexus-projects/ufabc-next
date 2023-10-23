@@ -1,8 +1,12 @@
+import {
+  type InferSchemaType,
+  Schema,
+  type UpdateQuery,
+  model,
+} from 'mongoose';
 import { findQuarter } from '@ufabcnext/common';
-import { Schema, type UpdateQuery, model } from 'mongoose';
-import type { Student, StudentQuery } from '@ufabcnext/types';
 
-const studentSchema = new Schema<Student>(
+const studentSchema = new Schema(
   {
     ra: Number,
     login: String,
@@ -24,8 +28,11 @@ const studentSchema = new Schema<Student>(
   { timestamps: true },
 );
 
-function setQuarter(student: UpdateQuery<Student>) {
+function setQuarter(student: UpdateQuery<Student> | null) {
   const { year, quad } = findQuarter();
+  if (!student) {
+    return;
+  }
   student.year = year;
   student.quad = quad;
 }
@@ -36,12 +43,13 @@ studentSchema.pre('save', function () {
   }
 });
 
-studentSchema.pre('findOneAndUpdate', function (this: StudentQuery) {
+studentSchema.pre('findOneAndUpdate', function () {
   // it's equivalent to this._update, but without type errors
-  const updatedStudent = this?.getUpdate() as UpdateQuery<Student>;
+  const updatedStudent: UpdateQuery<Student> | null = this.getUpdate();
   if (!updatedStudent?.quads) {
     setQuarter(updatedStudent);
   }
 });
-// models['alunos'] ||
+
+export type Student = InferSchemaType<typeof studentSchema>;
 export const StudentModel = model<Student>('alunos', studentSchema);

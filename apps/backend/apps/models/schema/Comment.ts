@@ -1,4 +1,4 @@
-import { type InferSchemaType, Schema, Types, model } from 'mongoose';
+import { type InferSchemaType, Schema, model } from 'mongoose';
 import { EnrollmentModel } from './Enrollment.js';
 import { ReactionModel } from './Reaction.js';
 
@@ -17,7 +17,7 @@ const commentSchema = new Schema(
     },
 
     enrollment: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       required: true,
       ref: 'enrollments',
     },
@@ -39,13 +39,13 @@ const commentSchema = new Schema(
     },
 
     teacher: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'teachers',
       required: true,
     },
 
     subject: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'subjects',
       required: true,
     },
@@ -113,16 +113,12 @@ const commentSchema = new Schema(
 
 commentSchema.pre('save', async function () {
   if (this.isNew) {
-    const enrollment = await this.constructor
-      // This one here, it only work, if in your service, you create a instance of `CommentModel`
-      // @ts-expect-error
-      .findOne({
-        enrollment: this.enrollment,
-        active: true,
-        type: this.type,
-      })
-      .lean(true);
-
+    const enrollmentDocument = this.collection;
+    const enrollment = await enrollmentDocument.findOne({
+      enrollment: this.enrollment,
+      active: true,
+      type: this.type,
+    });
     if (enrollment) {
       throw new Error(
         `Você só pode comentar uma vez neste vinculo ${this.enrollment}`,
@@ -152,4 +148,4 @@ commentSchema.index({
 });
 
 export type Comment = InferSchemaType<typeof commentSchema>;
-export const CommentModel = model<Comment>('comments', commentSchema);
+export const CommentModel = model('comments', commentSchema);

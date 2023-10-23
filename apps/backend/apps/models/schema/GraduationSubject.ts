@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { type InferSchemaType, Schema, Types, model } from 'mongoose';
 
 const graduationSubjectSchema = new Schema(
   {
@@ -16,27 +16,25 @@ const graduationSubjectSchema = new Schema(
     quad: Number,
 
     /** Array of codes for equivalents */
-    equivalents: [
-      {
-        type: String,
-      },
-    ],
+    equivalents: [String],
 
     subject: {
-      type: Schema.Types.ObjectId,
+      type: Types.ObjectId,
       ref: 'subjects',
     },
 
     graduation: {
-      type: Schema.Types.ObjectId,
+      type: Types.ObjectId,
       ref: 'graduation',
     },
   },
   { timestamps: true },
 );
 
-graduationSubjectSchema.index({ graduation: 1 });
+graduationSubjectSchema.index({ graduation: 'asc' });
 
-export const GraduationSubjectModel =
-  // models['subjectgraduations'] ||
-  model('subjectgraduations', graduationSubjectSchema);
+export type GraduationSubject = InferSchemaType<typeof graduationSubjectSchema>;
+export const GraduationSubjectModel = model<GraduationSubject>(
+  'subjectgraduations',
+  graduationSubjectSchema,
+);

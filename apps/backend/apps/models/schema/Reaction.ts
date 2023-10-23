@@ -1,15 +1,20 @@
-import { type Model, Schema, isObjectIdOrHexString, model } from 'mongoose';
+import {
+  type InferSchemaType,
+  Schema,
+  isObjectIdOrHexString,
+  model,
+} from 'mongoose';
 import { UserModel } from './User.js';
 import { CommentModel } from './Comment.js';
 import { EnrollmentModel } from './Enrollment.js';
-import type { Reaction, ReactionDocument } from '@ufabcnext/types';
 
-const reactionSchema = new Schema<Reaction>(
+const REACTIONS_KIND = ['like', 'recommendation', 'star'] as const;
+const reactionSchema = new Schema(
   {
     kind: {
       type: String,
       required: true,
-      enum: ['like', 'recommendation', 'star'],
+      enum: REACTIONS_KIND,
     },
 
     comment: {
@@ -49,9 +54,12 @@ async function validateRules(reaction: ReactionDocument) {
       : reaction.comment;
 
     const isValid = await EnrollmentModel.findOne({
-      ra: user?._id,
+      // @ts-expect-error dont know the error here
+      ra: user?.ra,
+      // @ts-expect-error dont know the error here
       $or: [{ teoria: comment?.teacher }, { pratica: comment?.teacher }],
     });
+
     if (!isValid)
       throw new Error(
         'Você não pode recomendar este comentário, pois não fez nenhuma matéria com este professor',
@@ -59,12 +67,10 @@ async function validateRules(reaction: ReactionDocument) {
   }
 }
 
-// TODO: understand and fix this later
 async function computeReactions(reaction: ReactionDocument) {
   const commentId = reaction.comment._id && reaction.comment;
 
-  // @ts-expect-error
-  const reactionCount = await reaction.constructor.count({
+  const reactionCount = await reaction.collection.countDocuments({
     comment: commentId,
     kind: reaction.kind,
   });
@@ -83,8 +89,7 @@ async function computeReactions(reaction: ReactionDocument) {
 reactionSchema.pre('save', async function () {
   const slug = `${this.kind}:${this.comment._id}:${this.user._id}`;
   if (this.isNew) {
-    // @ts-expect-error
-    const equalReaction = await this.constructor.findOne({ slug });
+    const equalReaction = await this.collection.findOne({ slug });
     if (equalReaction) {
       throw new Error(
         'Você não pode reagir duas vezes iguais ao mesmo comentário',
@@ -101,12 +106,12 @@ reactionSchema.post('save', async function () {
 });
 
 // This Type is WRONG, but it will do for now
-reactionSchema.post('deleteOne', async function (this: ReactionDocument) {
+reactionSchema.post<ReactionDocument>('deleteOne', async function () {
   await computeReactions(this);
 });
 
-reactionSchema.index({ comment: 1, kind: 1 });
-export const ReactionModel: Model<Reaction> = model<Reaction>(
-  'reactions',
-  reactionSchema,
-);
+reactionSchema.index({ comment: 'asc', kind: 'asc' });
+
+export type Reaction = InferSchemaType<typeof reactionSchema>;
+export type ReactionDocument = ReturnType<(typeof ReactionModel)['hydrate']>;
+export const ReactionModel = model('reactions', reactionSchema);
