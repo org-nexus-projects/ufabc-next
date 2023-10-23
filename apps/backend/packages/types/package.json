@@ -12,7 +12,7 @@
     "lint:fix": "pnpm run lint --fix"
   },
   "devDependencies": {
-    "@fastify/oauth2": "^7.4.0",
+    "@fastify/oauth2": "^7.5.0",
     "@ufabcnext/tsconfig": "workspace:*",
     "typescript": "^5.2.2"
   }

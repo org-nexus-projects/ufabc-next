@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@sxzz/eslint-config": "^3.7.0",
-    "eslint": "^8.50.0",
+    "eslint": "^8.52.0",
     "lint-staged": "^15.0.2",
     "prettier": "^3.0.3",
     "simple-git-hooks": "^2.9.0",

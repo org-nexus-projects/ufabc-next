@@ -24,11 +24,11 @@
     "jsonwebtoken": "^9.0.2",
     "lodash-es": "^4.17.21",
     "mongoose": "^7.6.3",
-    "remeda": "^1.27.0"
+    "remeda": "^1.27.1"
   },
   "devDependencies": {
-    "@types/jsonwebtoken": "^9.0.3",
-    "@types/lodash-es": "^4.17.9",
+    "@types/jsonwebtoken": "^9.0.4",
+    "@types/lodash-es": "^4.17.10",
     "@ufabcnext/common": "workspace:^",
     "@ufabcnext/tsconfig": "workspace:*",
     "tsup": "^7.2.0",
