@@ -49,4 +49,4 @@ if (!_env.success) {
 }
 
 export type Config = z.infer<typeof envSchema>;
-export const Config = _env.data;
+export const Config = Object.freeze(_env.data);
