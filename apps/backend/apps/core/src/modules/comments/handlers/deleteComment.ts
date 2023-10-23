@@ -1,4 +1,4 @@
-import { CommentModel } from '@ufabcnext/models';
+import { CommentModel } from '@next/models';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ObjectId } from 'mongoose';
 

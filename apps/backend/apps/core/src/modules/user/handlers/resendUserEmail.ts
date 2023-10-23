@@ -1,4 +1,4 @@
-import { UserModel } from '@ufabcnext/models';
+import { UserModel } from '@next/models';
 import type { FastifyRequest } from 'fastify';
 
 export async function resendUserEmail(request: FastifyRequest) {

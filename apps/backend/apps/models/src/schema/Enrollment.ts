@@ -1,9 +1,8 @@
-import { type Model, Schema, model } from 'mongoose';
-import { get } from 'lodash-es';
+import { type InferSchemaType, Schema, model } from 'mongoose';
 import { GroupModel } from './Group.js';
-import type { Enrollment, EnrollmentDocument } from '@ufabcnext/types';
 
-const enrollmentSchema = new Schema<Enrollment>(
+const COMMENT_TYPE = ['teoria', 'pratica'] as const;
+const enrollmentSchema = new Schema(
   {
     year: {
       type: Number,
@@ -38,7 +37,7 @@ const enrollmentSchema = new Schema<Enrollment>(
     comments: [
       {
         type: String,
-        enum: ['teoria', 'pratica'],
+        enum: COMMENT_TYPE,
       },
     ],
     // vem do portal
@@ -47,23 +46,20 @@ const enrollmentSchema = new Schema<Enrollment>(
     ca_acumulado: Number,
     cr_acumulado: Number,
     cp_acumulado: Number,
+    season: String,
   },
   { timestamps: true },
 );
 
 function setTheoryAndPractice(enrollment: Enrollment) {
-  if ('teoria' in enrollment || 'teoria' in enrollment) {
-    // the morning never happened lol.
-    // TODO: refactor this in the morning
-    enrollment.mainTeacher =
-      get(enrollment, 'teoria._id', enrollment.teoria) ||
-      get(enrollment, 'pratica._id', enrollment.teoria);
+  if ('teoria' in enrollment || 'pratica' in enrollment) {
+    const theoryTeacher = enrollment.teoria?._id ?? enrollment.teoria;
+    const practiceTeacher = enrollment.pratica?._id ?? enrollment.pratica;
+    enrollment.mainTeacher = theoryTeacher || practiceTeacher;
   }
 }
 
-async function addEnrollmentToGroup(
-  enrollment: EnrollmentDocument & Enrollment,
-) {
+async function addEnrollmentToGroup(enrollment: EnrollmentDocument) {
   /*
    * If is a new enrollment, must create a new
    * group or insert doc.ra in group.users
@@ -79,32 +75,31 @@ async function addEnrollmentToGroup(
       {
         $push: { users: enrollment.ra },
       },
-      {
-        // TODO: THIS IS TEMPORARY, MUST BE CHANGED
-        // TO TRUE AFTER FINDING OUT WHAT THE SEASON FIELD IS
-        strict: false,
-        upsert: false,
-      },
     );
   }
 }
 
-enrollmentSchema.index({ identifier: 1, ra: 1 });
-enrollmentSchema.index({ ra: 1 });
-enrollmentSchema.index({ conceito: 1 });
+enrollmentSchema.index({ identifier: 'asc', ra: 'asc' });
+enrollmentSchema.index({ ra: 'asc' });
+enrollmentSchema.index({ conceito: 'asc' });
 enrollmentSchema.index({
-  mainTeacher: 1,
-  subject: 1,
-  cr_acumulado: 1,
-  conceito: 1,
+  mainTeacher: 'asc',
+  subject: 'asc',
+  cr_acumulado: 'asc',
+  conceito: 'asc',
 });
 
-enrollmentSchema.pre('save', async function (this) {
+enrollmentSchema.pre('save', async function () {
   setTheoryAndPractice(this);
 
-  await addEnrollmentToGroup(this as any);
+  await addEnrollmentToGroup(this);
 });
-export const EnrollmentModel: Model<Enrollment> = model<Enrollment>(
+
+export type Enrollment = InferSchemaType<typeof enrollmentSchema>;
+export type EnrollmentDocument = ReturnType<
+  (typeof EnrollmentModel)['hydrate']
+>;
+export const EnrollmentModel = model<Enrollment>(
   'enrollments',
   enrollmentSchema,
 );

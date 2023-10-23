@@ -33,9 +33,9 @@ async function sendConfirmationEmail(nextUser: UfabcUser) {
   }
 }
 
-export const sendEmailJob = async (user: UfabcUser) => {
+export const sendEmailJob = async (user: Partial<UfabcUser>) => {
   const emailQueue = createQueue('Send:Email');
-  await sendConfirmationEmail(user);
+  await sendConfirmationEmail(user as UfabcUser);
   await queueProcessor(emailQueue.name);
   await emailQueue.add('Send:Email', user);
 };

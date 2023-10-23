@@ -1,12 +1,12 @@
 import { fastifyOauth2 } from '@fastify/oauth2';
-import { UserModel } from '@ufabcnext/models';
+import { UserModel } from '@next/models';
 import { WEB_URL, WEB_URL_LOCAL } from '@next/constants';
 import {
   getFacebookUserDetails,
   getGoogleUserDetails,
 } from './utils/get-oauth-info.js';
 import { objectKeys } from './utils/objectKeys.js';
-import type { Providers } from '@ufabcnext/types';
+import type { Providers } from '@next/types';
 import type { Config } from '@/config/config.js';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 

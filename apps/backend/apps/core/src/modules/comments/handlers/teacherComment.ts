@@ -1,7 +1,5 @@
-import { CommentModel } from '@ufabcnext/models';
+import { CommentModel } from '@next/models';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-/* eslint @typescript-eslint/no-unsafe-assignment: 0 */
-/* eslint @typescript-eslint/no-unsafe-member-access: 0 */
 
 type TeacherCommentParams = {
   teacherId: string;
@@ -36,15 +34,15 @@ export async function teacherComment(
   }
 
   // Theres a very `Tricky` bug here
-  const comment = await CommentModel.commentsByReactions(
-    {
-      teacher: teacherId,
-      ...(subjectId && { subject: subjectId }),
-      userId,
-    },
+  const comment = await CommentModel.commentsByReaction(
+    userId,
     ['enrollment', 'subject'],
     limit,
     page,
+    {
+      teacher: teacherId,
+      ...(subjectId && { subject: subjectId }),
+    },
   );
 
   return reply.status(200).send({

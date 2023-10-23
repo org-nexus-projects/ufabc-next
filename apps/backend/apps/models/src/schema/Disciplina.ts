@@ -1,18 +1,13 @@
-import { Schema, type UpdateQuery, model } from 'mongoose';
+import {
+  type InferSchemaType,
+  Schema,
+  Types,
+  type UpdateQuery,
+  model,
+} from 'mongoose';
 import { findQuarter } from '@ufabcnext/common';
-import type {
-  Disciplina,
-  DisciplinaModel as DisciplinaModelType,
-  DisciplinaQuery,
-  DisciplinaVirtuals,
-} from '@ufabcnext/types';
 
-const disciplinaSchema = new Schema<
-  Disciplina,
-  DisciplinaModelType,
-  unknown,
-  DisciplinaVirtuals
->(
+const disciplinaSchema = new Schema(
   {
     disciplina_id: Number,
     disciplina: String,
@@ -25,7 +20,7 @@ const disciplinaSchema = new Schema<
     ideal_quad: Boolean,
 
     subject: {
-      type: Schema.Types.ObjectId,
+      type: Types.ObjectId,
       ref: 'subjects',
     },
 
@@ -54,39 +49,50 @@ const disciplinaSchema = new Schema<
 
     year: Number,
     quad: Number,
-
+    season: String,
     teoria: {
-      type: Schema.Types.ObjectId,
+      type: Types.ObjectId,
       ref: 'teachers',
     },
     pratica: {
-      type: Schema.Types.ObjectId,
+      type: Types.ObjectId,
       ref: 'teachers',
     },
   },
-  { timestamps: true },
+  {
+    virtuals: {
+      requisicoes: {
+        get() {
+          const students: number[] = this.alunos_matriculados ?? [];
+          return students.length;
+        },
+      },
+    },
+    timestamps: true,
+  },
 );
 
-function setQuarter(disciplina: UpdateQuery<Disciplina>) {
+function setQuarter(disciplina: UpdateQuery<Disciplina> | null) {
   const { year, quad } = findQuarter();
+  if (!disciplina) {
+    return;
+  }
   disciplina.year = year;
   disciplina.quad = quad;
 }
 
-disciplinaSchema.virtual('requisicoes').get(function () {
-  return (this.alunos_matriculados || []).length;
-});
+disciplinaSchema.index({ identifier: 'asc' });
 
-disciplinaSchema.index({ identifier: 1 });
-
-disciplinaSchema.pre('findOneAndUpdate', function (this: DisciplinaQuery) {
-  const updatedDisciplina = this.getUpdate() as UpdateQuery<Disciplina>;
+disciplinaSchema.pre('findOneAndUpdate', function () {
+  const updatedDisciplina: UpdateQuery<Disciplina> | null = this.getUpdate();
   if (!updatedDisciplina?.season) {
     setQuarter(updatedDisciplina);
   }
 });
 
-export const DisciplinaModel = model<Disciplina, DisciplinaModelType>(
-  'disciplinas',
-  disciplinaSchema,
-);
+export type Disciplina = InferSchemaType<typeof disciplinaSchema>;
+export type DisciplinaDocument = ReturnType<
+  (typeof DisciplinaModel)['hydrate']
+>;
+
+export const DisciplinaModel = model('disciplinas', disciplinaSchema);

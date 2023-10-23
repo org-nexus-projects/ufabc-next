@@ -31,7 +31,6 @@
   "devDependencies": {
     "@ufabcnext/common": "workspace:*",
     "@ufabcnext/tsconfig": "workspace:*",
-    "@ufabcnext/types": "workspace:*",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
   }

@@ -1,8 +1,6 @@
 import { logger } from '@ufabcnext/common';
 import { UfabcUser } from '../schema/signUp.schema.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import type { Document, ObjectId } from 'mongoose';
-import type { User } from '@ufabcnext/types';
 
 export async function completeUser(
   request: FastifyRequest,
@@ -10,7 +8,7 @@ export async function completeUser(
 ) {
   try {
     // TODO: Need help to fix this type
-    const user = request.user as unknown as Document<ObjectId, unknown, User>;
+    const user = request.user;
     const { email, ra } = UfabcUser.parse(request.body);
     if (!user) {
       throw new Error('User not found');
