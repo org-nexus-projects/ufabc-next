@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@next/types": "workspace:^",
-    "@total-typescript/ts-reset": "^0.4.2",
+    "@total-typescript/ts-reset": "^0.5.0",
     "@types/node": "^20.8.0",
     "@ufabcnext/tsconfig": "workspace:*",
     "esbuild": "^0.19.4",
