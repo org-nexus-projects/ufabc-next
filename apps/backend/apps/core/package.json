@@ -35,10 +35,10 @@
     "zod": "^3.22.2"
   },
   "devDependencies": {
+    "@next/types": "workspace:^",
     "@total-typescript/ts-reset": "^0.4.2",
     "@types/node": "^20.8.0",
     "@ufabcnext/tsconfig": "workspace:*",
-    "@ufabcnext/types": "workspace:*",
     "esbuild": "^0.19.4",
     "esbuild-plugin-pino": "^2.0.1",
     "pino-pretty": "^10.2.0",

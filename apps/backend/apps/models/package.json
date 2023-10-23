@@ -21,19 +21,16 @@
   },
   "dependencies": {
     "@ufabcnext/queue": "workspace:*",
-    "dotenv": "^16.3.1",
     "jsonwebtoken": "^9.0.2",
     "lodash-es": "^4.17.21",
     "mongoose": "^7.6.3",
-    "remeda": "^1.27.0",
-    "zod": "^3.22.2"
+    "remeda": "^1.27.0"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.3",
     "@types/lodash-es": "^4.17.9",
     "@ufabcnext/common": "workspace:^",
     "@ufabcnext/tsconfig": "workspace:*",
-    "@ufabcnext/types": "workspace:*",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
   }
