@@ -7,7 +7,6 @@ import {
 import { uniqBy } from 'remeda';
 import jwt from 'jsonwebtoken';
 import { sendEmailJob } from '@ufabcnext/queue';
-import { Config } from '../config/config.js';
 
 type Device = {
   deviceId: string;
@@ -88,7 +87,7 @@ const userSchema = new Schema(
             email: this.email,
             permissions: this.permissions,
           },
-          Config.JWT_SECRET,
+          process.env.JWT_SECRET!,
         );
       },
     },
