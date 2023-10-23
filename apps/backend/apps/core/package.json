@@ -8,9 +8,9 @@
   "author": "Joabe Silva <joabevarjao123@gmail.com>",
   "main": "dist/server.js",
   "scripts": {
-    "populate": "node --env-file=.env --loader=tsx/esm cli/populate",
+    "populate": "node --env-file=.env --import=tsx/esm cli/populate",
     "dev": "tsx watch --env-file=.env src/server.ts",
-    "build": "rimraf dist && node --loader=tsx/esm esbuild.ts",
+    "build": "rimraf dist && node --import=tsx esbuild.ts",
     "build:type-check": "tsc",
     "start": "node --env-file=.env.production --watch dist/server.js",
     "preview": "node --env-file=.env.production dist/server.js",
