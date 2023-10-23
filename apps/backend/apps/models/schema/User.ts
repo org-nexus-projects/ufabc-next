@@ -22,11 +22,9 @@ const userSchema = new Schema(
       type: Number,
       unique: true,
       partialFilterExpression: { ra: { $exists: true } },
-      required: true,
     },
     email: {
       type: String,
-      required: true,
       validate: {
         validator: (v: string) => v.includes('ufabc.edu.br'),
         message: (props: ValidatorProps) =>
@@ -63,8 +61,8 @@ const userSchema = new Schema(
       },
     ],
     permissions: [String],
-    createdAt: NativeDate,
-    updatedAt: NativeDate,
+    // updatedAt: NativeDate,
+    // createdAt: NativeDate,
   },
   {
     methods: {
@@ -83,6 +81,7 @@ const userSchema = new Schema(
         await sendEmailJob(nextUser);
       },
       generateJWT() {
+        const alg = 'HS256';
         const encodedSecret = new TextEncoder().encode(Config.JWT_SECRET);
         const signedPayload = new SignJWT({
           _id: this._id,
@@ -91,7 +90,7 @@ const userSchema = new Schema(
           email: this.email,
           permissions: this.permissions,
         });
-        return signedPayload.sign(encodedSecret);
+        return signedPayload.setProtectedHeader({ alg }).sign(encodedSecret);
       },
     },
     virtuals: {
@@ -101,6 +100,7 @@ const userSchema = new Schema(
         },
       },
     },
+    timestamps: true,
   },
 );
 

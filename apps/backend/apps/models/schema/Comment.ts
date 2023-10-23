@@ -1,4 +1,4 @@
-import { type InferSchemaType, Schema, model } from 'mongoose';
+import { type InferSchemaType, Schema, type Types, model } from 'mongoose';
 import { EnrollmentModel } from './Enrollment.js';
 import { ReactionModel } from './Reaction.js';
 
@@ -51,13 +51,11 @@ const commentSchema = new Schema(
     },
 
     reactionsCount: Object,
-    createdAt: NativeDate,
-    updatedAt: NativeDate,
   },
   {
     statics: {
       async commentsByReaction(
-        userId: string,
+        userId: Types.ObjectId,
         populateFields: string[] = ['enrollment', 'subject'],
         limit: number = 10,
         page: number = 0,
@@ -108,6 +106,7 @@ const commentSchema = new Schema(
       },
     },
     toObject: { virtuals: true },
+    timestamps: true,
   },
 );
 

@@ -58,8 +58,6 @@ const disciplinaSchema = new Schema(
       type: Types.ObjectId,
       ref: 'teachers',
     },
-    createdAt: NativeDate,
-    updatedAtdAt: NativeDate,
   },
   {
     virtuals: {
@@ -70,6 +68,7 @@ const disciplinaSchema = new Schema(
         },
       },
     },
+    timestamps: true,
   },
 );
 

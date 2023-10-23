@@ -7,8 +7,8 @@ const historySchema = new Schema(
     coefficients: Object,
     curso: String,
     grade: String,
-    createdAt: NativeDate,
-    updatedAt: NativeDate,
+    // createdAt: NativeDate,
+    // updatedAt: NativeDate,
   },
   {
     methods: {
@@ -16,6 +16,7 @@ const historySchema = new Schema(
         // app.agenda.now('updateUserEnrollments', this.toObject({ virtuals: true }))
       },
     },
+    timestamps: true,
   },
 );
 
