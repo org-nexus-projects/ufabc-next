@@ -24,7 +24,7 @@
     "dotenv": "^16.3.1",
     "jsonwebtoken": "^9.0.2",
     "lodash-es": "^4.17.21",
-    "mongoose": "^7.5.3",
+    "mongoose": "^7.6.3",
     "remeda": "^1.27.0",
     "zod": "^3.22.2"
   },
