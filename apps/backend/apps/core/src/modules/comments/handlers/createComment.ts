@@ -1,11 +1,15 @@
-import { CommentModel, EnrollmentModel } from '@ufabcnext/models';
-import type { Comment, Enrollment } from '@ufabcnext/types';
+import {
+  type Comment,
+  CommentModel,
+  type Enrollment,
+  EnrollmentModel,
+} from '@next/models';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export type CreateCommentBody = {
   enrollment: Enrollment;
   comment: Comment;
-  type: 'teoria' | 'pratica';
+  type: Comment['type'];
 };
 
 export async function createComment(
@@ -19,8 +23,7 @@ export async function createComment(
     throw new Error(`Body must have all obligatory fields`);
   }
 
-  const enrollmentExists =
-    await EnrollmentModel.findById<Enrollment>(enrollment);
+  const enrollmentExists = await EnrollmentModel.findById(enrollment);
 
   if (!enrollmentExists) {
     throw new Error(`This enrollment does not exists ${enrollment}`);
@@ -29,7 +32,7 @@ export async function createComment(
   const insertedComment = await CommentModel.create({
     comment,
     type,
-    enrollment: enrollmentExists.id,
+    enrollment: enrollmentExists._id,
     teacher: enrollmentExists[type],
     subject: enrollmentExists.subject,
     ra: enrollmentExists.ra,

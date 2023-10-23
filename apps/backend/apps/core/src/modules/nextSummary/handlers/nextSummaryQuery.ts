@@ -4,7 +4,7 @@ import {
   EnrollmentModel,
   StudentModel,
   UserModel,
-} from '@ufabcnext/models';
+} from '@next/models';
 import { logger } from '@ufabcnext/common';
 import type { PipelineStage } from 'mongoose';
 

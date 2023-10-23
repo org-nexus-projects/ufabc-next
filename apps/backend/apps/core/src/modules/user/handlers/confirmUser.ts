@@ -1,5 +1,5 @@
 import { logger } from '@ufabcnext/common';
-import { UserModel } from '@ufabcnext/models';
+import { UserModel } from '@next/models';
 import { Config } from '@/config/config.js';
 import { ParsedUserToken } from '../schema/signUp.schema.js';
 import { confirmToken } from '../helpers/emailToken.js';

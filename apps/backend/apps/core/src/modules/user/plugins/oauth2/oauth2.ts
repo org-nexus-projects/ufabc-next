@@ -1,5 +1,5 @@
 import { fastifyOauth2 } from '@fastify/oauth2';
-import { UserModel } from '@ufabcnext/models';
+import { UserModel } from '@next/models';
 import { WEB_URL, WEB_URL_LOCAL } from '@next/constants';
 import {
   getFacebookUserDetails,

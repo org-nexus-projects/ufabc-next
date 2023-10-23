@@ -1,4 +1,4 @@
-import { EnrollmentModel } from '@ufabcnext/models';
+import { EnrollmentModel } from '@next/models';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export async function listEnrollments(
