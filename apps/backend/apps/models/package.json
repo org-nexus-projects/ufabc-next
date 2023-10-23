@@ -3,29 +3,21 @@
   "version": "1.0.0",
   "description": "Database entities from the backend",
   "type": "module",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
   "main": "dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    "import": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "require": "./dist/index.js",
-    "types": "./dist/index.d.ts"
+    "import": "./dist/index.js"
   },
   "scripts": {
     "build": "tsup-node --config tsup.config.ts",
-    "build:type-check": "tsc"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@types/jsonwebtoken": "^9.0.3",
-    "@types/lodash-es": "^4.17.9",
-    "@ufabcnext/common": "workspace:^",
-    "@ufabcnext/tsconfig": "workspace:*",
-    "@ufabcnext/types": "workspace:*",
-    "eslint-config-custom": "workspace:*",
-    "tsup": "^7.2.0",
-    "typescript": "^5.2.2"
+    "build:type-check": "tsc",
+    "lint": "eslint .",
+    "lint:fix": "pnpm run lint --fix"
   },
   "dependencies": {
     "@ufabcnext/queue": "workspace:*",
@@ -35,5 +27,14 @@
     "mongoose": "^7.5.3",
     "remeda": "^1.27.0",
     "zod": "^3.22.2"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.3",
+    "@types/lodash-es": "^4.17.9",
+    "@ufabcnext/common": "workspace:^",
+    "@ufabcnext/tsconfig": "workspace:*",
+    "@ufabcnext/types": "workspace:*",
+    "tsup": "^7.2.0",
+    "typescript": "^5.2.2"
   }
 }

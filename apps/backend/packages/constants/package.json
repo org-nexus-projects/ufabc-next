@@ -3,23 +3,24 @@
   "version": "0.0.1",
   "description": "Project constants values",
   "type": "module",
+  "keywords": [],
+  "license": "ISC",
+  "author": "Joabe Varjao <joabevarjao123@gmail.com>",
   "main": "./dist/index.js",
   "exports": {
-    "import": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "require": "./dist/index.js",
-    "types": "./dist/index.d.ts"
+    "import": "./dist/index.js"
   },
   "scripts": {
     "build": "tsup index.ts --dts --format=esm --clean",
-    "build:type-check": "tsc"
+    "build:type-check": "tsc",
+    "lint": "eslint .",
+    "lint:fix": "pnpm run lint --fix"
   },
-  "keywords": [],
-  "author": "Joabe Varjao <joabevarjao123@gmail.com>",
-  "license": "ISC",
   "devDependencies": {
-    "@ufabcnext/tsconfig": "workspace:*",
-    "eslint-config-custom": "workspace:*",
     "@types/node": "^20.8.0",
+    "@ufabcnext/tsconfig": "workspace:*",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
   }

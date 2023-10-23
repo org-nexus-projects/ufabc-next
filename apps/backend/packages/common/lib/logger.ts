@@ -1,5 +1,5 @@
 import { pino } from 'pino';
-import { PrettyOptions } from 'pino-pretty';
+import type { PrettyOptions } from 'pino-pretty';
 
 const pinoPrettyOptions = {
   destination: 1,

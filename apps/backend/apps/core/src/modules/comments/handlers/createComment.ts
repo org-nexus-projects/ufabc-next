@@ -1,6 +1,5 @@
 import { CommentModel, EnrollmentModel } from '@ufabcnext/models';
-import type { Comment } from '@ufabcnext/types';
-import type { Enrollment } from '@ufabcnext/types';
+import type { Comment, Enrollment } from '@ufabcnext/types';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export type CreateCommentBody = {
@@ -24,7 +23,6 @@ export async function createComment(
     await EnrollmentModel.findById<Enrollment>(enrollment);
 
   if (!enrollmentExists) {
-    // eslint-disable-next-line
     throw new Error(`This enrollment does not exists ${enrollment}`);
   }
 

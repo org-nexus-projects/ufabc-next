@@ -1,14 +1,14 @@
-import { fastify, type FastifyServerOptions } from 'fastify';
-import { fastifyAutoload } from '@fastify/autoload';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { type FastifyServerOptions, fastify } from 'fastify';
+import { fastifyAutoload } from '@fastify/autoload';
 import { Config } from './config/config.js';
 
 export async function buildApp(opts: FastifyServerOptions = {}) {
   const dirEsm = dirname(fileURLToPath(import.meta.url));
   const app = fastify(opts);
   try {
-    app.register(fastifyAutoload, {
+    await app.register(fastifyAutoload, {
       dir: join(dirEsm, 'plugins'),
       dirNameRoutePrefix: false,
       encapsulate: false,
@@ -16,7 +16,7 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
       options: Config,
       forceESM: true,
     });
-    app.register(fastifyAutoload, {
+    await app.register(fastifyAutoload, {
       dir: join(dirEsm, 'modules'),
       dirNameRoutePrefix: false,
       encapsulate: true,
@@ -25,7 +25,7 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
         prefix: '/v2',
       },
       // It`s useless now, but i'm gonna keep it just in case
-      ignorePattern: /^.*(?:handlers)$/,
+      ignorePattern: /^.*handlers$/,
     });
   } catch (error) {
     app.log.fatal({ error }, 'build app error');

@@ -1,5 +1,5 @@
-import { Config } from '@/config/config.js';
 import { connect } from 'mongoose';
+import { Config } from '@/config/config.js';
 
 // TODO: MIgrate to a plugin so i can log stuff
 export async function connectToMongo() {

@@ -1,5 +1,5 @@
-import type { FastifyRequest } from 'fastify';
 import { UserModel } from '@ufabcnext/models';
+import type { FastifyRequest } from 'fastify';
 
 export async function resendUserEmail(request: FastifyRequest) {
   const user = await UserModel.findOne({

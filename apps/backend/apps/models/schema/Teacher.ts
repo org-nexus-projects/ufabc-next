@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { startCase, camelCase } from 'lodash-es';
+import { camelCase, startCase } from 'lodash-es';
 
 type Teacher = {
   name: string;
@@ -16,7 +16,7 @@ const teacherSchema = new Schema<Teacher>(
   },
 );
 
-teacherSchema.pre('save', async function () {
+teacherSchema.pre('save', function () {
   this.name = startCase(camelCase(this.name));
 });
 

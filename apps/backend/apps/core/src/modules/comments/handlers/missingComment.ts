@@ -29,7 +29,6 @@ export async function missingComment(
 
   for (const enrollment of enrollments) {
     // TODO: fix this type
-    // eslint-disable-next-line
     if (!commentsInEnrollment.includes(enrollment.id)) {
       enrollmentsToComment.push(enrollment);
     }

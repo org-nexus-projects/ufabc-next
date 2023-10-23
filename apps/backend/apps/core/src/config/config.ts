@@ -1,7 +1,6 @@
 import { config as dotEnvConfig } from 'dotenv';
 import { z } from 'zod';
 
-// eslint-disable-next-line
 if (process.env.NODE_ENV === 'test') {
   dotEnvConfig({ path: '.env.test' });
 } else {

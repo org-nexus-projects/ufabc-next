@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { startCase, camelCase } from 'lodash-es';
+import { camelCase, startCase } from 'lodash-es';
 
 type Subject = {
   name: string;

@@ -1,11 +1,11 @@
 {
   "extends": "@ufabcnext/tsconfig/base.json",
   "compilerOptions": {
-    "outDir": "./dist",
     "resolveJsonModule": true,
     "declaration": true,
-    "sourceMap": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "outDir": "./dist",
+    "sourceMap": true
   },
   "include": ["./lib/**/*", "./index.ts", "./config.ts"],
   "exclude": ["node_modules/**/*", "./dist/**/*"]

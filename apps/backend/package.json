@@ -1,6 +1,7 @@
 {
   "name": "ufabc-next-backend",
-  "private": true,
+  "private": false,
+  "type": "module",
   "engines": {
     "node": "^20",
     "pnpm": "^8"
@@ -11,18 +12,19 @@
     "populate": "turbo run populate -- ",
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
-    "build:type-check": "turbo run build:type-check",
+    "build:type-check": "turbo run build:type-check --parallel",
     "start": "turbo run start",
-    "lint": "turbo run lint",
+    "lint": "turbo run lint --parallel",
+    "lint:fix": "turbo run lint:fix --parallel",
     "preview": "turbo run preview",
     "check-updates": "pnpm outdated --recursive"
   },
   "devDependencies": {
     "@commitlint/cli": "17.6.7",
     "@commitlint/config-conventional": "17.6.7",
+    "@sxzz/eslint-config": "^3.7.0",
     "eslint": "^8.50.0",
-    "eslint-config-custom": "workspace:*",
     "prettier": "^3.0.3",
-    "turbo": "^1.10.14"
+    "turbo": "^1.10.16"
   }
 }

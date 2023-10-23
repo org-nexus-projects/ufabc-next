@@ -1,8 +1,8 @@
+import { logger } from '@ufabcnext/common';
+import { UfabcUser } from '../schema/signUp.schema.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { Document, ObjectId } from 'mongoose';
 import type { User } from '@ufabcnext/types';
-import { logger } from '@ufabcnext/common';
-import { UfabcUser } from '../schema/signUp.schema.js';
 
 export async function completeUser(
   request: FastifyRequest,

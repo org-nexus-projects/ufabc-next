@@ -1,6 +1,6 @@
 type PopulateIds = { TeacherModel: string[]; SubjectModel: string[] };
 
-export  function EnrollmentModel(ids: PopulateIds) {
+export function EnrollmentModel(ids: PopulateIds) {
   return [
     {
       _id: '000000000000000000000001',

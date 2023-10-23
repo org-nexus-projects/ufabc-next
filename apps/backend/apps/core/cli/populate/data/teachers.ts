@@ -1,4 +1,4 @@
-export  function TeacherModel() {
+export function TeacherModel() {
   return [
     { name: 'Abrahao Fontes Baptista' },
     { name: 'Acacio Sidinei Almeida Santos' },

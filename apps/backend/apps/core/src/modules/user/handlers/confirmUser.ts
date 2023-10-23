@@ -1,9 +1,9 @@
-import type { FastifyReply, FastifyRequest } from 'fastify';
 import { logger } from '@ufabcnext/common';
 import { UserModel } from '@ufabcnext/models';
 import { Config } from '@/config/config.js';
 import { ParsedUserToken } from '../schema/signUp.schema.js';
 import { confirmToken } from '../helpers/emailToken.js';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export async function confirmUser(
   request: FastifyRequest<{ Body: { token: string } }>,

@@ -3,9 +3,9 @@
   "compilerOptions": {
     "module": "NodeNext",
     "paths": {
-      "@/*": ["./src/*"],
-    },
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src/**/*.ts", "**.config.ts", "esbuild.ts"],
-  "exclude": ["node_modules/**/*"],
+  "exclude": ["node_modules/**/*"]
 }

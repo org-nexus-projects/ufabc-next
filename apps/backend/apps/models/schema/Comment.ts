@@ -1,7 +1,7 @@
-import type { Comment, ICommentModel } from '@ufabcnext/types';
-import { FilterQuery, Schema, model } from 'mongoose';
+import { type FilterQuery, Schema, model } from 'mongoose';
 import { EnrollmentModel } from './Enrollment.js';
 import { ReactionModel } from './Reaction.js';
+import type { Comment, ICommentModel } from '@ufabcnext/types';
 
 const commentSchema = new Schema<Comment, ICommentModel>(
   {
@@ -94,7 +94,6 @@ commentSchema.static(
         user: userId,
         kind: 'star',
       });
-      // eslint-disable-next-line
       // @ts-expect-error Object is created dynamically
       comment.myReactions = {
         like: !!likes,
@@ -111,11 +110,9 @@ commentSchema.static(
 
 commentSchema.pre('save', async function () {
   if (this.isNew) {
-    // eslint-disable-next-line
     const enrollment = await this.constructor
       // This one here, it only work, if in your service, you create a instance of `CommentModel`
-      // eslint-disable-next-line
-      // @ts-ignore
+      // @ts-expect-error
       .findOne({
         enrollment: this.enrollment,
         active: true,
