@@ -1,13 +1,13 @@
-import type { FastifyInstance } from 'fastify';
-import { fastifyAutoload } from '@fastify/autoload';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { fastifyAutoload } from '@fastify/autoload';
 import { Config } from '@/config/config.js';
 import { completeUser } from './handlers/completeUser.js';
 import { confirmUser } from './handlers/confirmUser.js';
 import { resendUserEmail } from './handlers/resendUserEmail.js';
 import { loggedUser } from './handlers/loggedUser.js';
 import { authenticate } from './hooks/authenticate.js';
+import type { FastifyInstance } from 'fastify';
 
 export default async function (app: FastifyInstance) {
   const dirEsm = dirname(fileURLToPath(import.meta.url));

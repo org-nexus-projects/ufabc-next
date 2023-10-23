@@ -2,15 +2,15 @@
   "name": "@ufabcnext/types",
   "version": "1.0.0",
   "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
   "types": "index.ts",
   "scripts": {
     "build:type-check": "tsc",
     "lint": "eslint .",
     "lint:fix": "pnpm run lint --fix"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@fastify/oauth2": "^7.4.0",
     "@ufabcnext/tsconfig": "workspace:*",

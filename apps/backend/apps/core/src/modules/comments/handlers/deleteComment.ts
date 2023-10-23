@@ -12,7 +12,6 @@ export async function deleteComment(
 
   if (!commentId) {
     request.log.warn({ params: request.params }, 'Missing commentId');
-    // eslint-disable-next-line
     throw new Error(`CommentId was not passed`);
   }
 

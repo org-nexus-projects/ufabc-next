@@ -1,8 +1,8 @@
-import type { Reaction, ReactionDocument } from '@ufabcnext/types';
-import { isObjectIdOrHexString, Schema, model, Model } from 'mongoose';
+import { type Model, Schema, isObjectIdOrHexString, model } from 'mongoose';
 import { UserModel } from './User.js';
 import { CommentModel } from './Comment.js';
 import { EnrollmentModel } from './Enrollment.js';
+import type { Reaction, ReactionDocument } from '@ufabcnext/types';
 
 const reactionSchema = new Schema<Reaction>(
   {
@@ -37,7 +37,7 @@ const reactionSchema = new Schema<Reaction>(
 );
 
 async function validateRules(reaction: ReactionDocument) {
-  if (reaction.kind == 'recommendation') {
+  if (reaction.kind === 'recommendation') {
     const isValidId = isObjectIdOrHexString;
 
     const user = isValidId(reaction.user)
@@ -63,16 +63,13 @@ async function validateRules(reaction: ReactionDocument) {
 async function computeReactions(reaction: ReactionDocument) {
   const commentId = reaction.comment._id && reaction.comment;
 
-  // eslint-disable-next-line
-  // @ts-ignore
-  // eslint-disable-next-line
+  // @ts-expect-error
   const reactionCount = await reaction.constructor.count({
     comment: commentId,
     kind: reaction.kind,
   });
 
   const updateReactionKind = {
-    // eslint-disable-next-line
     [`reactionsCount.${reaction.kind}`]: reactionCount,
   };
   await CommentModel.findOneAndUpdate(
@@ -86,9 +83,7 @@ async function computeReactions(reaction: ReactionDocument) {
 reactionSchema.pre('save', async function () {
   const slug = `${this.kind}:${this.comment._id}:${this.user._id}`;
   if (this.isNew) {
-    // eslint-disable-next-line
-    // @ts-ignore
-    // eslint-disable-next-line
+    // @ts-expect-error
     const equalReaction = await this.constructor.findOne({ slug });
     if (equalReaction) {
       throw new Error(
@@ -111,7 +106,6 @@ reactionSchema.post('deleteOne', async function (this: ReactionDocument) {
 });
 
 reactionSchema.index({ comment: 1, kind: 1 });
-// models['reactions'] ||
 export const ReactionModel: Model<Reaction> = model<Reaction>(
   'reactions',
   reactionSchema,

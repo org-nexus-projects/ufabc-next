@@ -1,3 +1,3 @@
-export  function DisciplinasModel() {
+export function DisciplinasModel() {
   return [];
 }

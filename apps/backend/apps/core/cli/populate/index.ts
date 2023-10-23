@@ -1,4 +1,6 @@
-import { join, dirname } from 'node:path';
+/* eslint-disable no-console  */
+/* eslint-disable unicorn/prefer-top-level-await  */
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Config } from '@/config/config.js';
 import { connectToMongo } from '../database/connection';
@@ -17,8 +19,8 @@ type PopulateOptions = {
   try {
     await populate();
     process.exit(0);
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
     process.exit(1);
   }
 })();

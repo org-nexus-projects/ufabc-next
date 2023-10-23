@@ -1,5 +1,5 @@
-import type { FastifyReply, FastifyRequest } from 'fastify';
 import { STATES, connections } from 'mongoose';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export async function healthCheck(
   request: FastifyRequest,

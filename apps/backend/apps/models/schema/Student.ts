@@ -1,6 +1,6 @@
-import { Student, StudentQuery } from '@ufabcnext/types';
 import { findQuarter } from '@ufabcnext/common';
-import { Schema, UpdateQuery, model } from 'mongoose';
+import { Schema, type UpdateQuery, model } from 'mongoose';
+import type { Student, StudentQuery } from '@ufabcnext/types';
 
 const studentSchema = new Schema<Student>(
   {

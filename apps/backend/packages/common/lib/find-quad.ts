@@ -15,7 +15,7 @@ export function findQuarter(date = new Date()) {
 
   if (!quadKey) {
     // maybe sentry to track error
-    throw Error('Quadkey cannot be empty');
+    throw new Error('Quadkey cannot be empty');
   }
 
   const quarterMap = {

@@ -1,4 +1,4 @@
-import { Queue, Worker, type RedisOptions, type Processor } from 'bullmq';
+import { type Processor, Queue, type RedisOptions, Worker } from 'bullmq';
 import { Config } from './config/config.js';
 
 const connection = {
@@ -10,7 +10,7 @@ const connection = {
 
 export const createQueue = (name: string) => new Queue(name, { connection });
 
-export async function queueProcessor<TJobData>(
+export function queueProcessor<TJobData>(
   name: string,
   processor?: Processor<TJobData>,
 ) {

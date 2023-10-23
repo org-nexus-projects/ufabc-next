@@ -1,27 +1,28 @@
-import type { FastifyInstance } from 'fastify';
+import { authenticate } from '@/modules/user/hooks/authenticate.js';
 import {
-  deleteComment,
   type DeleteCommentParams,
+  deleteComment,
 } from './handlers/deleteComment.js';
 import {
-  updateComment,
   type UpdateCommentRequest,
+  updateComment,
 } from './handlers/updateComment.js';
 import {
-  missingComment,
   type CommentMissingParams,
+  missingComment,
 } from './handlers/missingComment.js';
 import {
-  teacherComment,
   type TeacherCommentRequest,
+  teacherComment,
 } from './handlers/teacherComment.js';
 import {
-  createComment,
   type CreateCommentBody,
+  createComment,
 } from './handlers/createComment.js';
-import { authenticate } from '@/modules/user/hooks/authenticate.js';
+import type { FastifyInstance } from 'fastify';
 
 export const autoPrefix = '/comments';
+// eslint-disable-next-line require-await
 export default async function (app: FastifyInstance) {
   app.addHook('onRequest', authenticate);
   app.get<{ Params: CommentMissingParams }>('/:userId/missing', missingComment);

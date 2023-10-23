@@ -15,7 +15,7 @@
     "build:type-check": "turbo run build:type-check --parallel",
     "start": "turbo run start",
     "lint": "turbo run lint --parallel",
-    "lint:fix": "turbo run lint --parallel",
+    "lint:fix": "turbo run lint:fix --parallel",
     "preview": "turbo run preview",
     "check-updates": "pnpm outdated --recursive"
   },

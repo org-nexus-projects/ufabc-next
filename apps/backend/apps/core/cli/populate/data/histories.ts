@@ -1,4 +1,4 @@
-export  function HistoryModel() {
+export function HistoryModel() {
   return [
     {
       ra: 11086610,

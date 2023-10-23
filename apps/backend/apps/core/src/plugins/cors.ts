@@ -1,5 +1,5 @@
-import type { FastifyInstance } from 'fastify';
 import { fastifyCors } from '@fastify/cors';
+import type { FastifyInstance } from 'fastify';
 
 export default async function cors(app: FastifyInstance) {
   // TODO: update when deploying

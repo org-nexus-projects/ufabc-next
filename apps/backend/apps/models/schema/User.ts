@@ -1,3 +1,8 @@
+import { sendEmailJob } from '@ufabcnext/queue';
+import { type Document, Schema, type ValidatorProps, model } from 'mongoose';
+import { uniqBy } from 'remeda';
+import jwt from 'jsonwebtoken';
+import { Config } from '../config/config.js';
 import type {
   Device,
   User,
@@ -5,11 +10,6 @@ import type {
   UserModel as UserModelType,
   UserVirtuals,
 } from '@ufabcnext/types';
-import { sendEmailJob } from '@ufabcnext/queue';
-import { Document, Schema, type ValidatorProps, model } from 'mongoose';
-import { uniqBy } from 'remeda';
-import jwt from 'jsonwebtoken';
-import { Config } from '../config/config.js';
 
 const userSchema = new Schema<User, UserModelType, UserMethods, UserVirtuals>(
   {
@@ -21,7 +21,7 @@ const userSchema = new Schema<User, UserModelType, UserMethods, UserVirtuals>(
     email: {
       type: String,
       validate: {
-        validator: (v: string) => v.indexOf('ufabc.edu.br') !== -1,
+        validator: (v: string) => v.includes('ufabc.edu.br'),
         message: (props: ValidatorProps) =>
           `${props.value} não é um e-mail válido.`,
       },
@@ -93,7 +93,6 @@ userSchema.method('sendConfirmation', async function (this: Document) {
 
 userSchema.pre('save', async function (this) {
   // Make it possible to point to the `isFilled` virtual
-  // eslint-disable-next-line
   // @ts-expect-error Object is created dynamically
   if (this.isFilled && !this.confirmed) {
     await this.sendConfirmation();

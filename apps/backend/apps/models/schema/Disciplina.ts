@@ -1,6 +1,6 @@
-import { Schema, UpdateQuery, model } from 'mongoose';
+import { Schema, type UpdateQuery, model } from 'mongoose';
 import { findQuarter } from '@ufabcnext/common';
-import {
+import type {
   Disciplina,
   DisciplinaModel as DisciplinaModelType,
   DisciplinaQuery,
@@ -79,21 +79,13 @@ disciplinaSchema.virtual('requisicoes').get(function () {
 
 disciplinaSchema.index({ identifier: 1 });
 
-disciplinaSchema.pre(
-  'findOneAndUpdate',
-  // eslint-disable-next-line
-  function (this: DisciplinaQuery) {
-    const updatedDisciplina = this.getUpdate() as UpdateQuery<Disciplina>;
-    // eslint-disable-next-line
-    // @ts-ignore The season, come from the referenced tables
-    if (!updatedDisciplina?.season) {
-      setQuarter(updatedDisciplina);
-    }
-  },
-);
+disciplinaSchema.pre('findOneAndUpdate', function (this: DisciplinaQuery) {
+  const updatedDisciplina = this.getUpdate() as UpdateQuery<Disciplina>;
+  if (!updatedDisciplina?.season) {
+    setQuarter(updatedDisciplina);
+  }
+});
 
-// eslint-disable-next-line
-// models['disciplinas'] ||
 export const DisciplinaModel = model<Disciplina, DisciplinaModelType>(
   'disciplinas',
   disciplinaSchema,

@@ -14,5 +14,5 @@ export function createToken(text: string) {
   );
   let encrypted = cipher.update(text);
   encrypted = Buffer.concat([encrypted, cipher.final()]);
-  return iv.toString('hex') + ':' + encrypted.toString('hex');
+  return `${iv.toString('hex')}:${encrypted.toString('hex')}`;
 }
