@@ -1,9 +1,10 @@
-import { type FilterQuery, Schema, model } from 'mongoose';
+import { type InferSchemaType, Schema, Types, model } from 'mongoose';
 import { EnrollmentModel } from './Enrollment.js';
 import { ReactionModel } from './Reaction.js';
-import type { Comment, ICommentModel } from '@ufabcnext/types';
 
-const commentSchema = new Schema<Comment, ICommentModel>(
+const COMMENT_TYPE = ['teoria', 'pratica'] as const;
+
+const commentSchema = new Schema(
   {
     comment: {
       type: String,
@@ -16,7 +17,7 @@ const commentSchema = new Schema<Comment, ICommentModel>(
     },
 
     enrollment: {
-      type: Schema.Types.ObjectId,
+      type: Types.ObjectId,
       required: true,
       ref: 'enrollments',
     },
@@ -24,7 +25,7 @@ const commentSchema = new Schema<Comment, ICommentModel>(
     type: {
       type: String,
       required: true,
-      enum: ['teoria', 'pratica'],
+      enum: COMMENT_TYPE,
     },
 
     ra: {
@@ -38,73 +39,75 @@ const commentSchema = new Schema<Comment, ICommentModel>(
     },
 
     teacher: {
-      type: Schema.Types.ObjectId,
+      type: Types.ObjectId,
       ref: 'teachers',
       required: true,
     },
 
     subject: {
-      type: Schema.Types.ObjectId,
+      type: Types.ObjectId,
       ref: 'subjects',
       required: true,
     },
 
     reactionsCount: Object,
+    createdAt: NativeDate,
+    updatedAt: NativeDate,
   },
-  { toObject: { virtuals: true }, timestamps: true },
-);
+  {
+    statics: {
+      async commentsByReaction(
+        userId: string,
+        populateFields: string[] = ['enrollment', 'subject'],
+        limit: number = 10,
+        page: number = 0,
+        query,
+      ) {
+        if (!userId) {
+          throw new Error(`Usuário Não Encontrado ${userId}`);
+        }
 
-commentSchema.static(
-  'commentsByReaction',
-  async function (
-    userId: string,
-    populateFields: string[] = ['enrollment', 'subject'],
-    limit: number = 10,
-    page: number = 0,
-    query?: FilterQuery<Comment>,
-  ) {
-    if (!userId) {
-      throw new Error(`Usuário Não Encontrado ${userId}`);
-    }
+        const comments = await this.find(query)
+          .lean(true)
+          .populate(populateFields)
+          .skip(page * limit)
+          .sort({
+            'reactionsCount.recommendation': 'desc',
+            'reactionsCount.likes': 'desc',
+            createdAt: 'desc',
+          });
 
-    const comments = await this.find(query!)
-      .lean(true)
-      .populate(populateFields)
-      .skip(page * limit)
-      .limit(limit)
-      .sort({
-        'reactionsCount.recommendation': -1,
-        'reactionsCount.likes': -1,
-        createdAt: -1,
-      });
+        const commentsReaction = comments.map(async (comment) => {
+          const likes = await ReactionModel.countDocuments({
+            comment: comment._id,
+            user: userId,
+            kind: 'like',
+          });
+          const recommendations = await ReactionModel.countDocuments({
+            comment: comment._id,
+            user: userId,
+            kind: 'recommendation',
+          });
+          const stars = await ReactionModel.countDocuments({
+            comment: comment._id,
+            user: userId,
+            kind: 'star',
+          });
+          // @ts-expect-error Object is created dynamically
+          comment.myReactions = {
+            like: !!likes,
+            recommendation: !!recommendations,
+            star: !!stars,
+          };
 
-    const mapCommentsReaction = comments.map(async (comment) => {
-      const likes = await ReactionModel.countDocuments({
-        comment: comment._id,
-        user: userId,
-        kind: 'like',
-      });
-      const recommendations = await ReactionModel.countDocuments({
-        comment: comment._id,
-        user: userId,
-        kind: 'recommendation',
-      });
-      const stars = await ReactionModel.countDocuments({
-        comment: comment._id,
-        user: userId,
-        kind: 'star',
-      });
-      // @ts-expect-error Object is created dynamically
-      comment.myReactions = {
-        like: !!likes,
-        recommendation: !!recommendations,
-        star: !!stars,
-      };
+          return comment;
+        });
 
-      return comment;
-    });
-    await Promise.all(mapCommentsReaction);
-    return { data: mapCommentsReaction, total: await this.count(query) };
+        await Promise.all(commentsReaction);
+        return { data: commentsReaction, total: await this.count(query) };
+      },
+    },
+    toObject: { virtuals: true },
   },
 );
 
@@ -139,16 +142,14 @@ commentSchema.post('find', async function () {
   await this.model.updateMany(this.getQuery(), { $inc: { viewers: 1 } });
 });
 
-commentSchema.index({ comment: 1, user: 1 });
-commentSchema.index({ reactionsCount: -1 });
+commentSchema.index({ comment: 'asc', user: 'asc' });
+commentSchema.index({ reactionsCount: 'desc' });
 
 commentSchema.index({
-  'reactionsCount.recommendation': -1,
-  'reactionsCount.likes': -1,
-  createdAt: -1,
+  'reactionsCount.recommendation': 'desc',
+  'reactionsCount.likes': 'desc',
+  createdAt: 'desc',
 });
 
-export const CommentModel = model<Comment, ICommentModel>(
-  'comments',
-  commentSchema,
-);
+export type Comment = InferSchemaType<typeof commentSchema>;
+export const CommentModel = model<Comment>('comments', commentSchema);
