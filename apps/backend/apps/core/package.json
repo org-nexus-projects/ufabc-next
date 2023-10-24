@@ -14,6 +14,9 @@
     "build:type-check": "tsc",
     "start": "node --env-file=.env.production --watch dist/server.js",
     "preview": "node --env-file=.env.production dist/server.js",
+    "test": "NODE_ENV=test mocha",
+    "test:watch": "NODE_ENV=test mocha --watch",
+    "test:coverage": "c8 --check-coverage=true mocha",
     "lint": "eslint .",
     "lint:fix": "pnpm run lint --fix"
   },
@@ -39,6 +42,7 @@
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/node": "^20.8.7",
     "@ufabcnext/tsconfig": "workspace:*",
+    "c8": "^8.0.1",
     "esbuild": "^0.19.5",
     "esbuild-plugin-pino": "^2.0.2",
     "pino-pretty": "^10.2.3",

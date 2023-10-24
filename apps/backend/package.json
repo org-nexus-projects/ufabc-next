@@ -1,12 +1,8 @@
 {
   "name": "ufabc-next-backend",
   "private": false,
-  "type": "module",
-  "engines": {
-    "node": "^20.7.0",
-    "pnpm": "^8"
-  },
   "packageManager": "pnpm@8.7.6",
+  "type": "module",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "populate": "turbo run populate -- ",
@@ -17,6 +13,7 @@
     "lint": "turbo run lint --parallel",
     "lint:fix": "turbo run lint:fix --parallel",
     "preview": "turbo run preview",
+    "test": "turbo run test",
     "check-updates": "pnpm outdated --recursive",
     "prepare": "simple-git-hooks"
   },
@@ -27,6 +24,10 @@
     "prettier": "^3.0.3",
     "simple-git-hooks": "^2.9.0",
     "turbo": "^1.10.16"
+  },
+  "engines": {
+    "node": "^20.7.0",
+    "pnpm": "^8"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged"
