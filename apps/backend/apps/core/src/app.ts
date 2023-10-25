@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { type FastifyServerOptions, fastify } from 'fastify';
 import { fastifyAutoload } from '@fastify/autoload';
 import { Config } from './config/config.js';
-import { publicRoutes } from './modules/routes.js';
+import { nextRoutes, publicRoutes } from './modules/routes.js';
 
 export async function buildApp(opts: FastifyServerOptions = {}) {
   const dirEsm = dirname(fileURLToPath(import.meta.url));
@@ -29,6 +29,9 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
     //   ignorePattern: /^.*handlers$/,
     // });
     await app.register(publicRoutes);
+    await app.register(nextRoutes, {
+      prefix: '/v2',
+    });
   } catch (error) {
     app.log.fatal({ error }, 'build app error');
     throw error;
