@@ -25,3 +25,7 @@ export async function redis(app: FastifyInstance, opts: RedisOptions) {
     app.log.error({ error }, '[PLUGIN] Error Connecting to Redis');
   }
 }
+
+// For somem unknown reason, redis need to be global to work
+// @ts-expect-error
+redis[Symbol.for('skip-override')] = true;
