@@ -2,7 +2,7 @@ import { type FastifyRedisPluginOptions, fastifyRedis } from '@fastify/redis';
 import type { FastifyInstance } from 'fastify';
 import type { Config } from '../config/config.js';
 
-export default async function redis(app: FastifyInstance, opts: Config) {
+export async function redis(app: FastifyInstance, opts: Config) {
   const redisOpts = {
     username: opts.REDIS_USER,
     password: opts.REDIS_PASSWORD,
