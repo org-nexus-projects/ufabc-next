@@ -1,14 +1,21 @@
 import { fastifyOauth2 } from '@fastify/oauth2';
 import { UserModel } from '@next/models';
 import { WEB_URL, WEB_URL_LOCAL } from '@next/constants';
+import { Config } from '@/config/config.js';
 import {
   getFacebookUserDetails,
   getGoogleUserDetails,
 } from './utils/get-oauth-info.js';
 import { objectKeys } from './utils/objectKeys.js';
 import type { Providers } from '@next/types';
-import type { Config } from '@/config/config.js';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
+
+type NextOauthOptions = {
+  googleId: Config['OAUTH_GOOGLE_CLIENT_ID'];
+  googleSecret: Config['OAUTH_GOOGLE_SECRET'];
+  facebookId: Config['OAUTH_FACEBOOK_CLIENT_ID'];
+  facebookSecret: Config['OAUTH_FACEBOOK_SECRET'];
+};
 
 type Query = {
   // Is User in mobile
@@ -19,13 +26,13 @@ type Query = {
 };
 
 // TODO: implement session token
-export async function oauth2(app: FastifyInstance, opts: Config) {
+export async function oauth2(app: FastifyInstance, opts: NextOauthOptions) {
   const providers = {
     google: {
       credentials: {
         client: {
-          id: opts.OAUTH_GOOGLE_CLIENT_ID,
-          secret: opts.OAUTH_GOOGLE_SECRET,
+          id: opts.googleId,
+          secret: opts.googleSecret,
         },
       },
       config: fastifyOauth2.GOOGLE_CONFIGURATION,
@@ -35,8 +42,8 @@ export async function oauth2(app: FastifyInstance, opts: Config) {
     facebook: {
       credentials: {
         client: {
-          id: opts.OAUTH_FACEBOOK_CLIENT_ID,
-          secret: opts.OAUTH_FACEBOOK_SECRET,
+          id: opts.facebookId,
+          secret: opts.facebookSecret,
         },
       },
       config: fastifyOauth2.FACEBOOK_CONFIGURATION,
@@ -106,7 +113,7 @@ export async function oauth2(app: FastifyInstance, opts: Config) {
           await user.save();
 
           const isLocal =
-            opts.NODE_ENV === 'dev'
+            Config.NODE_ENV === 'dev'
               ? `${WEB_URL_LOCAL}/login?token=${user.generateJWT()}`
               : `${WEB_URL}/login/token=${user.generateJWT()}`;
 

@@ -14,10 +14,22 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
     await app.register(mongoose, {
       connectionUrl: Config.MONGODB_CONNECTION_URL,
     });
-    await app.register(redis, Config);
-    await app.register(jwtAuth, Config);
+    await app.register(redis, {
+      username: Config.REDIS_USER,
+      password: Config.REDIS_PASSWORD,
+      host: Config.REDIS_HOST,
+      port: Config.REDIS_PORT,
+    });
+    await app.register(jwtAuth, {
+      secret: Config.JWT_SECRET,
+    });
     await app.register(cors);
-    await app.register(oauth2, Config);
+    await app.register(oauth2, {
+      googleId: Config.OAUTH_GOOGLE_CLIENT_ID,
+      googleSecret: Config.OAUTH_GOOGLE_CLIENT_ID,
+      facebookId: Config.OAUTH_GOOGLE_CLIENT_ID,
+      facebookSecret: Config.OAUTH_GOOGLE_CLIENT_ID,
+    });
     // routes
     await app.register(publicRoutes);
     await app.register(nextRoutes, {
