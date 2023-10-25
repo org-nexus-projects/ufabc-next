@@ -1,33 +1,20 @@
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { type FastifyServerOptions, fastify } from 'fastify';
-import { fastifyAutoload } from '@fastify/autoload';
 import { Config } from './config/config.js';
 import { nextRoutes, publicRoutes } from './modules/routes.js';
+import oauth2 from './plugins/oauth2/oauth2.js';
 
 export async function buildApp(opts: FastifyServerOptions = {}) {
-  const dirEsm = dirname(fileURLToPath(import.meta.url));
   const app = fastify(opts);
   try {
-    await app.register(fastifyAutoload, {
-      dir: join(dirEsm, 'plugins'),
-      dirNameRoutePrefix: false,
-      encapsulate: false,
-      maxDepth: 1,
-      options: Config,
-      forceESM: true,
-    });
     // await app.register(fastifyAutoload, {
-    //   dir: join(dirEsm, 'modules'),
+    //   dir: join(dirEsm, 'plugins'),
     //   dirNameRoutePrefix: false,
-    //   encapsulate: true,
+    //   encapsulate: false,
     //   maxDepth: 1,
-    //   options: {
-    //     prefix: '/v2',
-    //   },
-    //   // It`s useless now, but i'm gonna keep it just in case
-    //   ignorePattern: /^.*handlers$/,
+    //   options: Config,
+    //   forceESM: true,
     // });
+    await app.register(oauth2, Config);
     await app.register(publicRoutes);
     await app.register(nextRoutes, {
       prefix: '/v2',
