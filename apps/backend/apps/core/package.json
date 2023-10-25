@@ -8,7 +8,7 @@
   "author": "Joabe Silva <joabevarjao123@gmail.com>",
   "main": "dist/server.js",
   "scripts": {
-    "populate": "node --env-file=.env --import=tsx/esm cli/populate",
+    "populate": "node --env-file=.env --import=tsx cli/populate",
     "dev": "tsx watch --env-file=.env src/server.ts",
     "build": "rimraf dist && node --import=tsx esbuild.ts",
     "build:type-check": "tsc",
@@ -47,7 +47,6 @@
     "esbuild-plugin-pino": "^2.0.2",
     "pino-pretty": "^10.2.3",
     "rimraf": "^5.0.5",
-    "tiny-glob": "^0.2.9",
     "tsx": "^3.14.0",
     "typescript": "^5.2.2"
   }
