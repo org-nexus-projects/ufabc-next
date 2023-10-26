@@ -1,4 +1,4 @@
-import { logger } from '@ufabcnext/common';
+import { logger } from '@next/common';
 import { UserModel } from '@next/models';
 import { Config } from '@/config/config.js';
 import { ParsedUserToken } from '../sign-up-schema.js';

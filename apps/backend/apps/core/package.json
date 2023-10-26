@@ -1,5 +1,5 @@
 {
-  "name": "@ufabcnext/core",
+  "name": "@next/core",
   "version": "1.0.0",
   "description": "Core logic of the backend",
   "type": "module",
@@ -25,9 +25,9 @@
     "@fastify/jwt": "^7.2.2",
     "@fastify/oauth2": "^7.5.0",
     "@fastify/redis": "^6.1.1",
+    "@next/common": "workspace:*",
     "@next/constants": "workspace:^",
     "@next/models": "workspace:^",
-    "@ufabcnext/common": "workspace:^",
     "close-with-grace": "^1.2.0",
     "fastify": "^4.24.3",
     "fastify-plugin": "^4.5.1",
@@ -36,10 +36,10 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@next/tsconfig": "workspace:^",
     "@next/types": "workspace:^",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/node": "^20.8.7",
-    "@ufabcnext/tsconfig": "workspace:*",
     "c8": "^8.0.1",
     "esbuild": "^0.19.5",
     "esbuild-plugin-pino": "^2.0.2",

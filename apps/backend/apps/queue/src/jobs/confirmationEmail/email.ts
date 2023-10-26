@@ -1,4 +1,4 @@
-import { logger } from '@ufabcnext/common';
+import { logger } from '@next/common';
 import { MAILER_CONFIG, WEB_URL, WEB_URL_LOCAL } from '@next/constants';
 import { createToken } from '../../helpers/create-token.js';
 import { Config } from '../../config/config.js';

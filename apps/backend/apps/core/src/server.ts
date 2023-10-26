@@ -1,5 +1,5 @@
 import gracefullyShutdown from 'close-with-grace';
-import { logger } from '@ufabcnext/common';
+import { logger } from '@next/common';
 import { Config } from './config/config.js';
 import { buildApp } from './app.js';
 import type { FastifyServerOptions } from 'fastify';

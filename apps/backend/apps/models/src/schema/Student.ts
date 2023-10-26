@@ -4,7 +4,7 @@ import {
   type UpdateQuery,
   model,
 } from 'mongoose';
-import { findQuarter } from '@ufabcnext/common';
+import { findQuarter } from '@next/common';
 
 const studentSchema = new Schema(
   {

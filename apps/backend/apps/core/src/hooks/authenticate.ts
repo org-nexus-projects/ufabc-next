@@ -1,5 +1,5 @@
 import { UserModel } from '@next/models';
-import { logger } from '@ufabcnext/common';
+import { logger } from '@next/common';
 import type { onRequestAsyncHookHandler } from 'fastify';
 import type { JwtHeader, SignPayloadType } from '@fastify/jwt';
 

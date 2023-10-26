@@ -5,7 +5,7 @@ import {
   StudentModel,
   UserModel,
 } from '@next/models';
-import { logger } from '@ufabcnext/common';
+import { logger } from '@next/common';
 import type { PipelineStage } from 'mongoose';
 
 type DisciplinaStats = {

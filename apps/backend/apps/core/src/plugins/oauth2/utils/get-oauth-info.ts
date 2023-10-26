@@ -1,4 +1,4 @@
-import { logger } from '@ufabcnext/common';
+import { logger } from '@next/common';
 import { ofetch } from 'ofetch';
 import type { Token } from '@fastify/oauth2';
 import type { GoogleUser, NextOAuth2User } from '@next/types';

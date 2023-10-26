@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "@fastify/oauth2": "^7.5.0",
-    "@ufabcnext/tsconfig": "workspace:*",
+    "@next/tsconfig": "workspace:^",
     "typescript": "^5.2.2"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "extends": ["@ufabcnext/tsconfig/fastify.json"],
+  "extends": ["@next/tsconfig/fastify.json"],
   "compilerOptions": {
     "module": "NodeNext",
     "paths": {

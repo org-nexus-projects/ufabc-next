@@ -1,4 +1,4 @@
-import { logger } from '@ufabcnext/common';
+import { logger } from '@next/common';
 import { UfabcUser } from '../sign-up-schema.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 

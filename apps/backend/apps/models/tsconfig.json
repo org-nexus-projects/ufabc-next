@@ -1,5 +1,5 @@
 {
-  "extends": "@ufabcnext/tsconfig/fastify.json",
+  "extends": "@next/tsconfig/fastify.json",
   "include": [
     "src/schema/**.ts",
     "src/index.ts",

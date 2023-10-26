@@ -1,5 +1,5 @@
 {
-  "extends": "@ufabcnext/tsconfig/base.json",
+  "extends": "@next/tsconfig/base.json",
   "compilerOptions": {
     "resolveJsonModule": true,
     "declaration": true,
