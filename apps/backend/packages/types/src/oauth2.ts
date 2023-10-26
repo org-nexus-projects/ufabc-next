@@ -6,12 +6,12 @@ import type {
   Token,
 } from '@fastify/oauth2';
 
-type ProviderName = 'google' | 'facebook';
+export type ProviderName = 'google' | 'facebook';
 type ProviderConfig = {
   config: ProviderConfiguration;
   scope: string[];
   credentials: Omit<Credentials, 'auth'>;
-  getUserDetails: (token: Token) => Promise<UfabcNextOAuth2User>;
+  getUserDetails: (token: Token) => Promise<NextOAuth2User>;
 };
 export type Providers = Record<ProviderName, ProviderConfig>;
 
@@ -49,7 +49,7 @@ export type GoogleUser = {
   emailAddresses: EmailAddresses[];
 };
 
-export type UfabcNextOAuth2User = {
+export type NextOAuth2User = {
   email: string;
   providerId: string;
   provider: string;

@@ -4,7 +4,6 @@
   "packageManager": "pnpm@8.7.6",
   "type": "module",
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
     "populate": "turbo run populate -- ",
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
@@ -26,7 +25,7 @@
     "turbo": "^1.10.16"
   },
   "engines": {
-    "node": "^20.7.0",
+    "node": ">=20.7.0",
     "pnpm": "^8"
   },
   "simple-git-hooks": {
