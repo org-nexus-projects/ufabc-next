@@ -36,7 +36,7 @@ importers:
         specifier: ^7.2.2
         version: 7.2.2
       '@fastify/oauth2':
-        specifier: ^7.4.0
+        specifier: ^7.5.0
         version: 7.5.0
       '@fastify/redis':
         specifier: ^6.1.1
