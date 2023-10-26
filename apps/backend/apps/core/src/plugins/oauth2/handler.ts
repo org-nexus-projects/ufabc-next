@@ -1,6 +1,6 @@
 import { WEB_URL, WEB_URL_LOCAL } from '@next/constants';
-import { UserModel } from '@next/models';
 import { Config } from '@/config/config.js';
+import { createIfNotExists } from './query.js';
 import type { ProviderName, Providers } from '@next/types';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
@@ -20,49 +20,15 @@ export async function handleOauth(
   const { token } =
     await this[provider].getAccessTokenFromAuthorizationCodeFlow(request);
   const oauthUser = await providers[provider].getUserDetails(token);
-  const findUserQuery: Record<string, unknown>[] = [
-    { 'oauth.providerId': oauthUser.providerId },
-  ];
+  const user = await createIfNotExists(oauthUser, userId);
 
-  if (userId) {
-    findUserQuery.push({ _id: userId.split('?')[0] });
-  }
+  const isDev = Config.NODE_ENV === 'dev';
+  const isUserInApp = inApp.split('?')[0] === 'true';
 
-  let user = await UserModel.findOne({
-    $or: findUserQuery,
-  });
+  const webUrl = isDev ? WEB_URL_LOCAL : WEB_URL;
+  const tokenParam = `?token=${user.generateJWT()}`;
+  const isWeb = `${webUrl}/login${tokenParam}`;
+  const redirectURL = isUserInApp ? `ufabcnext://login${tokenParam}` : isWeb;
 
-  if (user) {
-    if (userId) {
-      user.set('active', true);
-    }
-    user.set({
-      'oauth.providerId': oauthUser.providerId,
-      'oauth.email': oauthUser.email,
-      'oauth.provider': oauthUser.provider,
-    });
-  } else {
-    user = new UserModel({
-      oauth: {
-        email: oauthUser.email,
-        providerId: oauthUser.providerId,
-        provider: oauthUser.provider,
-      },
-    });
-  }
-
-  await user.save();
-
-  const isLocal =
-    Config.NODE_ENV === 'dev'
-      ? `${WEB_URL_LOCAL}/login?token=${user.generateJWT()}`
-      : `${WEB_URL}/login/token=${user.generateJWT()}`;
-
-  const isMobile =
-    inApp.split('?')[0] === 'true'
-      ? `ufabcnext://login?token=${user.generateJWT()}`
-      : isLocal;
-
-  const redirectTo = isMobile || isLocal;
-  return reply.redirect(redirectTo);
+  return reply.redirect(redirectURL);
 }

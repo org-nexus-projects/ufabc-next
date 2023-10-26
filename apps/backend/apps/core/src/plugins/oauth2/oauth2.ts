@@ -1,16 +1,12 @@
 import { fastifyOauth2 } from '@fastify/oauth2';
 import { fastifyPlugin as fp } from 'fastify-plugin';
-import {
-  getFacebookUserDetails,
-  getGoogleUserDetails,
-} from './utils/get-oauth-info.js';
 import { objectKeys } from './utils/objectKeys.js';
 import { type Querystring, handleOauth } from './handler.js';
+import { supportedProviders } from './supportedProviders.js';
 import type { Config } from '@/config/config.js';
-import type { Providers } from '@next/types';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 
-type NextOauthOptions = {
+export type NextOauthOptions = {
   googleId: Config['OAUTH_GOOGLE_CLIENT_ID'];
   googleSecret: Config['OAUTH_GOOGLE_SECRET'];
   facebookId: Config['OAUTH_FACEBOOK_CLIENT_ID'];
@@ -18,30 +14,7 @@ type NextOauthOptions = {
 };
 
 async function oauth2(app: FastifyInstance, opts: NextOauthOptions) {
-  const providers = {
-    google: {
-      credentials: {
-        client: {
-          id: opts.googleId,
-          secret: opts.googleSecret,
-        },
-      },
-      config: fastifyOauth2.GOOGLE_CONFIGURATION,
-      scope: ['profile', 'email'],
-      getUserDetails: getGoogleUserDetails,
-    },
-    facebook: {
-      credentials: {
-        client: {
-          id: opts.facebookId,
-          secret: opts.facebookSecret,
-        },
-      },
-      config: fastifyOauth2.FACEBOOK_CONFIGURATION,
-      scope: ['public_profile', 'email'],
-      getUserDetails: getFacebookUserDetails,
-    },
-  } satisfies Providers;
+  const providers = supportedProviders(opts, fastifyOauth2);
 
   for (const provider of objectKeys(providers)) {
     const startRedirectPath = `/login/${provider}`;
@@ -70,7 +43,9 @@ async function oauth2(app: FastifyInstance, opts: NextOauthOptions) {
         try {
           await handleOauth.call(this, provider, request, reply, providers);
         } catch (error) {
+          // @ts-expect-error fix types
           reply.log.error({ error: error.data.payload }, 'Error in oauth2');
+          // @ts-expect-error fix types
           return error.data.payload;
         }
       },
