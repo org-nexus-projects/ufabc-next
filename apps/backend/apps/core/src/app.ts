@@ -30,7 +30,7 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
     });
     await app.register(oauth2, {
       googleId: Config.OAUTH_GOOGLE_CLIENT_ID,
-      googleSecret: Config.OAUTH_GOOGLE_CLIENT_ID,
+      googleSecret: Config.OAUTH_GOOGLE_SECRET,
       facebookId: Config.OAUTH_FACEBOOK_CLIENT_ID,
       facebookSecret: Config.OAUTH_FACEBOOK_SECRET,
     });
