@@ -1,4 +1,5 @@
 import { fastifyJwt } from '@fastify/jwt';
+import { fastifyPlugin as fp } from 'fastify-plugin';
 import type { FastifyInstance } from 'fastify';
 import type { Config } from '@/config/config.js';
 
@@ -16,3 +17,5 @@ export async function jwtAuth(app: FastifyInstance, opts: JWTOptions) {
     app.log.error({ error }, '[PLUGIN] error in JsonWebToken');
   }
 }
+
+export default fp(jwtAuth, { name: 'JsonWebToken' });

@@ -1,4 +1,5 @@
 import { type FastifyRedisPluginOptions, fastifyRedis } from '@fastify/redis';
+import { fastifyPlugin as fp } from 'fastify-plugin';
 import type { FastifyInstance } from 'fastify';
 import type { Config } from '../config/config.js';
 
@@ -26,6 +27,4 @@ export async function redis(app: FastifyInstance, opts: RedisOptions) {
   }
 }
 
-// For somem unknown reason, redis need to be global to work
-// @ts-expect-error
-redis[Symbol.for('skip-override')] = true;
+export default fp(redis, { name: 'mongoose' });

@@ -1,4 +1,5 @@
 import { connect } from 'mongoose';
+import { fastifyPlugin as fp } from 'fastify-plugin';
 import type { FastifyInstance } from 'fastify';
 import type { Config } from '../config/config.js';
 
@@ -6,7 +7,7 @@ type MongooseOptions = {
   connectionUrl: Config['MONGODB_CONNECTION_URL'];
 };
 
-export async function mongoose(app: FastifyInstance, opts: MongooseOptions) {
+async function mongoose(app: FastifyInstance, opts: MongooseOptions) {
   const connection = await connect(opts.connectionUrl);
   try {
     app.decorate('mongoose', connection);
@@ -19,3 +20,5 @@ export async function mongoose(app: FastifyInstance, opts: MongooseOptions) {
     });
   }
 }
+
+export default fp(mongoose, { name: 'mongoose' });
