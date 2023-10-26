@@ -5,15 +5,15 @@
   "type": "module",
   "scripts": {
     "populate": "turbo run populate -- ",
+    "check-updates": "pnpm outdated --recursive",
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
     "build:type-check": "turbo run build:type-check --parallel",
     "start": "turbo run start",
+    "start:watch": "turbo run start:watch",
     "lint": "turbo run lint --parallel",
     "lint:fix": "turbo run lint:fix --parallel",
-    "preview": "turbo run preview",
     "test": "turbo run test",
-    "check-updates": "pnpm outdated --recursive",
     "prepare": "simple-git-hooks"
   },
   "devDependencies": {

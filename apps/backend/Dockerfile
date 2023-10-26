@@ -56,4 +56,4 @@ COPY --chown=core:backend --from=deployer /workspace/out/dist/ ./dist
 EXPOSE 5000
 
 # start the app
-CMD pnpm run preview
+CMD pnpm run start
