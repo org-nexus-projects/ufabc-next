@@ -1,8 +1,8 @@
 import { logger } from '@ufabcnext/common';
 import { UserModel } from '@next/models';
 import { Config } from '@/config/config.js';
-import { ParsedUserToken } from '../schema/signUp.schema.js';
-import { confirmToken } from '../helpers/emailToken.js';
+import { ParsedUserToken } from '../sign-up-schema.js';
+import { confirmToken } from '../email-token.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export async function confirmUser(

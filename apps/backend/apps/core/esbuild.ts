@@ -1,15 +1,12 @@
 import { build } from 'esbuild';
 import esbuildPluginPino from 'esbuild-plugin-pino';
-import glob from 'tiny-glob';
-const entryPoints = await glob('src/**/*.ts');
 
 await build({
-  entryPoints,
+  entryPoints: ['src/server.ts'],
   logLevel: 'info',
   outdir: 'dist',
-  target: 'esnext',
+  target: 'node18',
   bundle: true,
-  sourcemap: true,
   platform: 'node',
   format: 'esm',
   packages: 'external',

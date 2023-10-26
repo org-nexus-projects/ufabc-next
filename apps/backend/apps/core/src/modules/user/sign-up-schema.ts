@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const UfabcUser = z.object({
   email: z.string().email(),
-  ra: z.string(),
+  ra: z.number(),
 });
 export const ParsedUserToken = z.object({
   email: z.string().email(),

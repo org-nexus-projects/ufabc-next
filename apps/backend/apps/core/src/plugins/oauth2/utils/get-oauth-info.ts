@@ -1,13 +1,13 @@
 import { logger } from '@ufabcnext/common';
 import { ofetch } from 'ofetch';
 import type { Token } from '@fastify/oauth2';
-import type { GoogleUser, UfabcNextOAuth2User } from '@next/types';
+import type { GoogleUser, NextOAuth2User } from '@next/types';
 
 // Implement here the helpers for respective providers
 
 export async function getGoogleUserDetails(
   token: Token,
-): Promise<UfabcNextOAuth2User> {
+): Promise<NextOAuth2User> {
   try {
     const user = await ofetch<GoogleUser>(
       'https://people.googleapis.com/v1/people/me?personFields=emailAddresses',
@@ -39,7 +39,7 @@ export async function getGoogleUserDetails(
 
 export async function getFacebookUserDetails(
   token: Token,
-): Promise<UfabcNextOAuth2User> {
+): Promise<NextOAuth2User> {
   // TODO: Do later with HTTPS
   const user = await ofetch(`https://graph.facebook.com/v6.0/me`, {
     headers: {

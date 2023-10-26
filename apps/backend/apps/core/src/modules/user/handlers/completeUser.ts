@@ -1,5 +1,5 @@
 import { logger } from '@ufabcnext/common';
-import { UfabcUser } from '../schema/signUp.schema.js';
+import { UfabcUser } from '../sign-up-schema.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export async function completeUser(
