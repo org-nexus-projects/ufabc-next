@@ -1,11 +1,11 @@
-import type { FastifyInstance } from 'fastify';
 import { fastifyCors } from '@fastify/cors';
+import { fastifyPlugin as fp } from 'fastify-plugin';
+import type { FastifyInstance } from 'fastify';
 
-export default async function cors(app: FastifyInstance) {
+export async function cors(app: FastifyInstance) {
   // TODO: update when deploying
   try {
     await app.register(fastifyCors, {
-      methods: ['GET', 'POST', 'PUT', 'UPDATE', 'DELETE'],
       origin: '*',
     });
     app.log.info('[PLUGIN] Cors');
@@ -13,3 +13,5 @@ export default async function cors(app: FastifyInstance) {
     app.log.error({ error }, '[PLUGIN] error in Cors');
   }
 }
+
+export default fp(cors, { name: 'Cors' });

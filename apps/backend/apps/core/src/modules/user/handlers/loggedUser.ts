@@ -1,6 +1,6 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
-export async function loggedUser(request: FastifyRequest, reply: FastifyReply) {
+export function loggedUser(request: FastifyRequest, reply: FastifyReply) {
   const user = request.user;
 
   if (!user) {

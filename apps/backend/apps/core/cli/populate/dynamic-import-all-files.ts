@@ -1,9 +1,8 @@
 import { statSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
-import * as coreModels from '@ufabcnext/models';
+import * as coreModels from '@next/models';
 
-
-export async function loadCoreModels() {
+export function loadCoreModels() {
   const orderedModels = [coreModels].reverse();
   const result = Object.assign({}, ...orderedModels);
   return result;

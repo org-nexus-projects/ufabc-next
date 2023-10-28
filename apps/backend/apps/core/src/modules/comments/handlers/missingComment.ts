@@ -1,8 +1,9 @@
-import { CommentModel, EnrollmentModel, UserModel } from '@ufabcnext/models';
+import { CommentModel, EnrollmentModel, UserModel } from '@next/models';
+import type { Types } from 'mongoose';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export type CommentMissingParams = {
-  userId: string;
+  userId: Types.ObjectId;
 };
 
 export async function missingComment(
@@ -28,8 +29,6 @@ export async function missingComment(
   const enrollmentsToComment = [];
 
   for (const enrollment of enrollments) {
-    // TODO: fix this type
-    // eslint-disable-next-line
     if (!commentsInEnrollment.includes(enrollment.id)) {
       enrollmentsToComment.push(enrollment);
     }

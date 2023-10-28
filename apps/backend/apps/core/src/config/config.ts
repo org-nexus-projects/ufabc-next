@@ -1,12 +1,4 @@
-import { config as dotEnvConfig } from 'dotenv';
 import { z } from 'zod';
-
-// eslint-disable-next-line
-if (process.env.NODE_ENV === 'test') {
-  dotEnvConfig({ path: '.env.test' });
-} else {
-  dotEnvConfig();
-}
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['dev', 'test', 'prod']).default('dev'),
@@ -50,4 +42,4 @@ if (!_env.success) {
 }
 
 export type Config = z.infer<typeof envSchema>;
-export const Config = _env.data;
+export const Config = Object.freeze(_env.data);

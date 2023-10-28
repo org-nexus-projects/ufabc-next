@@ -1,5 +1,5 @@
 import type { ObjectId } from 'mongoose';
-import type { User } from '@ufabcnext/types';
+import type { UserDocument } from '@next/models';
 
 declare module '@fastify/jwt' {
   interface FastifyJWT {
@@ -8,7 +8,6 @@ declare module '@fastify/jwt' {
       confirmed: boolean;
       iat: number;
     };
-    // TODO: fix this type
-    user: User | null;
+    user: UserDocument | null;
   }
 }

@@ -3,7 +3,7 @@
   "globalDotEnv": [".env"],
   "pipeline": {
     "populate": {
-      "cache": false    
+      "cache": false
     },
     "dev": {
       "cache": false,
@@ -11,19 +11,30 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**"],
+      "cache": true
     },
     "build:type-check": {
-      "dependsOn": ["^build"]
-    },
-    "preview": {
+      "dependsOn": ["^build"],
       "cache": true
     },
     "start": {
-      "cache": false,
-      "persistent": true   
+      "cache": true
+    },
+    "start:watch": {
+      "cache": true,
+      "persistent": true
     },
     "lint": {},
-    "test": {}
+    "lint:fix": {},
+    "test": {},
+    "test:watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:coverage": {
+      "dependsOn": ["^test"],
+      "cache": true
+    }
   }
 }

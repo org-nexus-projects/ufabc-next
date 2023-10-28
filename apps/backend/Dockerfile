@@ -20,7 +20,7 @@ RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm-store \
 
 FROM fetcher as builder
 # specify the app in apps/ we want to build
-ARG APP_NAME=@ufabcnext/core
+ARG APP_NAME=@next/core
 ENV APP_NAME=${APP_NAME}
 
 
@@ -56,4 +56,4 @@ COPY --chown=core:backend --from=deployer /workspace/out/dist/ ./dist
 EXPOSE 5000
 
 # start the app
-CMD pnpm run preview
+CMD pnpm run start

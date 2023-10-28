@@ -1,4 +1,4 @@
-import { logger } from '@ufabcnext/common';
+import { logger } from '@next/common';
 import { config as dotEnvConfig } from 'dotenv';
 import { z } from 'zod';
 

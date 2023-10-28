@@ -1,12 +1,12 @@
-import type { PipelineStage } from 'mongoose';
 import {
   CommentModel,
   DisciplinaModel,
   EnrollmentModel,
   StudentModel,
   UserModel,
-} from '@ufabcnext/models';
-import { logger } from '@ufabcnext/common';
+} from '@next/models';
+import { logger } from '@next/common';
+import type { PipelineStage } from 'mongoose';
 
 type DisciplinaStats = {
   teachers: number;

@@ -1,11 +1,17 @@
 {
-  "extends": ["@ufabcnext/tsconfig/fastify.json"],
+  "extends": ["@next/tsconfig/fastify.json"],
   "compilerOptions": {
     "module": "NodeNext",
     "paths": {
-      "@/*": ["./src/*"],
-    },
+      "@/*": ["./src/*"]
+    }
   },
-  "include": ["src/**/*.ts", "**.config.ts", "esbuild.ts"],
-  "exclude": ["node_modules/**/*"],
+  "include": [
+    "src/**/*.ts",
+    "**.config.ts",
+    "esbuild.ts",
+    "test/**/*.spec.ts",
+    "test/**/*.ts"
+  ],
+  "exclude": ["node_modules/**/*"]
 }

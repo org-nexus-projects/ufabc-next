@@ -1,28 +1,39 @@
 {
   "name": "ufabc-next-backend",
-  "private": true,
-  "engines": {
-    "node": "^20",
-    "pnpm": "^8"
-  },
-  "packageManager": "pnpm@8.7.6",
+  "private": false,
+  "packageManager": "pnpm@8.10.0",
+  "type": "module",
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
     "populate": "turbo run populate -- ",
+    "check-updates": "pnpm outdated --recursive",
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
-    "build:type-check": "turbo run build:type-check",
+    "build:type-check": "turbo run build:type-check --parallel",
     "start": "turbo run start",
-    "lint": "turbo run lint",
-    "preview": "turbo run preview",
-    "check-updates": "pnpm outdated --recursive"
+    "start:watch": "turbo run start:watch",
+    "lint": "turbo run lint --parallel",
+    "lint:fix": "turbo run lint:fix --parallel",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch",
+    "test:coverage": "turbo run test:coverage",
+    "prepare": "simple-git-hooks"
   },
   "devDependencies": {
-    "@commitlint/cli": "17.6.7",
-    "@commitlint/config-conventional": "17.6.7",
-    "eslint": "^8.50.0",
-    "eslint-config-custom": "workspace:*",
+    "@sxzz/eslint-config": "^3.7.0",
+    "eslint": "^8.52.0",
+    "lint-staged": "^15.0.2",
     "prettier": "^3.0.3",
-    "turbo": "^1.10.14"
+    "simple-git-hooks": "^2.9.0",
+    "turbo": "^1.10.16"
+  },
+  "engines": {
+    "node": ">=20.7.0",
+    "pnpm": "^8"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
   }
 }

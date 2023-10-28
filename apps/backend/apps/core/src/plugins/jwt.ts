@@ -1,14 +1,21 @@
+import { fastifyJwt } from '@fastify/jwt';
+import { fastifyPlugin as fp } from 'fastify-plugin';
 import type { FastifyInstance } from 'fastify';
 import type { Config } from '@/config/config.js';
-import { fastifyJwt } from '@fastify/jwt';
 
-export default async function jwtAuth(app: FastifyInstance, opts: Config) {
+type JWTOptions = {
+  secret: Config['JWT_SECRET'];
+};
+
+export async function jwtAuth(app: FastifyInstance, opts: JWTOptions) {
   try {
     await app.register(fastifyJwt, {
-      secret: opts.JWT_SECRET,
+      secret: opts.secret,
     });
     app.log.info('[PLUGIN] JsonWebToken');
   } catch (error) {
     app.log.error({ error }, '[PLUGIN] error in JsonWebToken');
   }
 }
+
+export default fp(jwtAuth, { name: 'JsonWebToken' });

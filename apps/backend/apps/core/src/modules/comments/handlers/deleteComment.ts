@@ -1,4 +1,4 @@
-import { CommentModel } from '@ufabcnext/models';
+import { CommentModel } from '@next/models';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ObjectId } from 'mongoose';
 
@@ -12,7 +12,6 @@ export async function deleteComment(
 
   if (!commentId) {
     request.log.warn({ params: request.params }, 'Missing commentId');
-    // eslint-disable-next-line
     throw new Error(`CommentId was not passed`);
   }
 

@@ -1,0 +1,8 @@
+{
+  "exit": true,
+  "timeout": 5000,
+  "extension": ["ts"],
+  "spec": ["test/**/*.spec.ts"],
+  "node-option": ["import=tsx,env-file=.env"],
+  "reporter": "spec"
+}

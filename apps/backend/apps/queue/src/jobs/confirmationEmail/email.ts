@@ -1,6 +1,6 @@
-import { logger } from '@ufabcnext/common';
+import { logger } from '@next/common';
 import { MAILER_CONFIG, WEB_URL, WEB_URL_LOCAL } from '@next/constants';
-import { createToken } from '../../helpers/createToken.js';
+import { createToken } from '../../helpers/create-token.js';
 import { Config } from '../../config/config.js';
 import { createQueue, queueProcessor } from '../../setup.js';
 import { sesSendEmail } from '../../integration/ses.js';
@@ -33,9 +33,9 @@ async function sendConfirmationEmail(nextUser: UfabcUser) {
   }
 }
 
-export const sendEmailJob = async (user: UfabcUser) => {
+export const sendEmailJob = async (user: Partial<UfabcUser>) => {
   const emailQueue = createQueue('Send:Email');
-  await sendConfirmationEmail(user);
+  await sendConfirmationEmail(user as UfabcUser);
   await queueProcessor(emailQueue.name);
   await emailQueue.add('Send:Email', user);
 };

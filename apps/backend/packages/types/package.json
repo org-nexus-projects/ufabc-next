@@ -1,19 +1,19 @@
 {
-  "name": "@ufabcnext/types",
+  "name": "@next/types",
   "version": "1.0.0",
   "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
   "types": "index.ts",
   "scripts": {
-    "build:type-check": "tsc"
+    "build:type-check": "tsc",
+    "lint": "eslint .",
+    "lint:fix": "pnpm run lint --fix"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
-    "@fastify/oauth2": "^7.4.0",
-    "@ufabcnext/tsconfig": "workspace:*",
-    "eslint-config-custom": "workspace:*",
-    "mongoose": "^7.5.3",
+    "@fastify/oauth2": "^7.5.0",
+    "@next/tsconfig": "workspace:^",
     "typescript": "^5.2.2"
   }
 }

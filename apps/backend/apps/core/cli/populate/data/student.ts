@@ -1,4 +1,4 @@
-export  function StudentModel() {
+export function StudentModel() {
   return [
     {
       _id: '5b6482562a9d8100149d3c57',
