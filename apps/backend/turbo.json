@@ -27,6 +27,14 @@
     },
     "lint": {},
     "lint:fix": {},
-    "test": {}
+    "test": {},
+    "test:watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:coverage": {
+      "dependsOn": ["^test"],
+      "cache": true
+    }
   }
 }

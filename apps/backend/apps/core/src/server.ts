@@ -20,8 +20,10 @@ async function start() {
     if (err) {
       app.log.fatal({ err }, 'error starting app');
     }
+
     app.log.info({ signal }, 'Gracefully exiting app');
     await app.close();
+    process.exit(1);
   });
 }
 

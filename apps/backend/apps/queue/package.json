@@ -14,7 +14,7 @@
     "import": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsup-node --config tsup.config.ts",
+    "build": "tsup-node",
     "build:type-check": "tsc",
     "lint": "eslint .",
     "lint:fix": "pnpm run lint --fix"
