@@ -6,6 +6,7 @@ import mongoose from './plugins/mongoose.js';
 import redis from './plugins/redis.js';
 import jwtAuth from './plugins/jwt.js';
 import cors from './plugins/cors.js';
+import { swagger } from './plugins/swagger.js';
 import oauth2 from './plugins/oauth2/oauth2.js';
 
 // Routes
@@ -34,6 +35,7 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
       facebookId: Config.OAUTH_FACEBOOK_CLIENT_ID,
       facebookSecret: Config.OAUTH_FACEBOOK_SECRET,
     });
+    await app.register(swagger);
     // routes
     await app.register(publicRoutes);
     await app.register(nextRoutes, {

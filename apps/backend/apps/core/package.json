@@ -25,6 +25,8 @@
     "@fastify/jwt": "^7.2.2",
     "@fastify/oauth2": "^7.5.0",
     "@fastify/redis": "^6.1.1",
+    "@fastify/swagger": "^8.12.0",
+    "@fastify/swagger-ui": "^1.10.1",
     "@next/common": "workspace:*",
     "@next/constants": "workspace:^",
     "@next/models": "workspace:^",
