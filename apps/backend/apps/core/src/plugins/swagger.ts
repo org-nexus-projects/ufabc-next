@@ -21,7 +21,9 @@ export async function swagger(app: FastifyInstance) {
     transform: jsonSchemaTransform,
     hideUntagged: true,
   });
-  await app.register(fastifySwaggerUi);
+  await app.register(fastifySwaggerUi, {
+    theme: { title: 'Next - Documentação' },
+  });
   app.log.info('[PLUGIN] Swagger');
 }
 

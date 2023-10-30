@@ -8,7 +8,7 @@ const healthCheckSuccessResponse = z.object({
 
 export const healthCheckSchema = {
   $id: 'healthCheckSchema',
-  tags: ['healthcheck', 'public'],
+  tags: ['public'],
   description:
     'Rota para validar que o app e a conexão com terceiros esta de pé',
   response: {
