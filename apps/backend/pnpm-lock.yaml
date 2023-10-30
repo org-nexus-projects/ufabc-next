@@ -65,6 +65,9 @@ importers:
       fastify-plugin:
         specifier: ^4.5.1
         version: 4.5.1
+      fastify-type-provider-zod:
+        specifier: ^1.1.9
+        version: 1.1.9(fastify@4.24.3)(zod@3.22.4)
       mongoose:
         specifier: ^7.6.3
         version: 7.6.3
@@ -3452,6 +3455,17 @@ packages:
     engines: {node: '>=18.0.0'}
     dev: true
 
+  /fastify-type-provider-zod@1.1.9(fastify@4.24.3)(zod@3.22.4):
+    resolution: {integrity: sha512-Ztnu1ZWJEKJouZvdTyfgjuVqS+A4JLoCbWBvFqFhfnrg6YQvEvW+5cJvP98kNbuV5gjfpWmHSOTi3BpkidJPQg==}
+    peerDependencies:
+      fastify: ^4.0.0
+      zod: ^3.14.2
+    dependencies:
+      fastify: 4.24.3
+      zod: 3.22.4
+      zod-to-json-schema: 3.21.4(zod@3.22.4)
+    dev: false
+
   /fastify@4.24.3:
     resolution: {integrity: sha512-6HHJ+R2x2LS3y1PqxnwEIjOTZxFl+8h4kSC/TuDPXtA+v2JnV9yEtOsNSKK1RMD7sIR2y1ZsA4BEFaid/cK5pg==}
     dependencies:
@@ -6132,6 +6146,14 @@ packages:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
     dev: true
+
+  /zod-to-json-schema@3.21.4(zod@3.22.4):
+    resolution: {integrity: sha512-fjUZh4nQ1s6HMccgIeE0VP4QG/YRGPmyjO9sAh890aQKPEk3nqbfUXhMFaC+Dr5KvYBm8BCyvfpZf2jY9aGSsw==}
+    peerDependencies:
+      zod: ^3.21.4
+    dependencies:
+      zod: 3.22.4
+    dev: false
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
