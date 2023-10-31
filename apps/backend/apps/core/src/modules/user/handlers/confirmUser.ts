@@ -1,4 +1,3 @@
-import { logger } from '@next/common';
 import { UserModel } from '@next/models';
 import { Config } from '@/config/config.js';
 import { ParsedUserToken } from '../sign-up-schema.js';
@@ -10,7 +9,6 @@ export async function confirmUser(
   reply: FastifyReply,
 ) {
   const { token } = request.body;
-  logger.info({ token }, 'token on confirm');
   const userNotConfirmed = confirmToken(token, Config.JWT_SECRET);
   if (!token) {
     throw new Error(`Missing Parameter ${token}`);

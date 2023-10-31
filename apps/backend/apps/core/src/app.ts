@@ -1,4 +1,8 @@
 import { type FastifyServerOptions, fastify } from 'fastify';
+import {
+  serializerCompiler,
+  validatorCompiler,
+} from 'fastify-type-provider-zod';
 import { Config } from './config/config.js';
 
 // Plugins
@@ -6,6 +10,7 @@ import mongoose from './plugins/mongoose.js';
 import redis from './plugins/redis.js';
 import jwtAuth from './plugins/jwt.js';
 import cors from './plugins/cors.js';
+import swagger from './plugins/swagger.js';
 import oauth2 from './plugins/oauth2/oauth2.js';
 
 // Routes
@@ -13,6 +18,9 @@ import { nextRoutes, publicRoutes } from './modules/routes.js';
 
 export async function buildApp(opts: FastifyServerOptions = {}) {
   const app = fastify(opts);
+  // Zod validation
+  app.setValidatorCompiler(validatorCompiler);
+  app.setSerializerCompiler(serializerCompiler);
   try {
     // plugins
     await app.register(cors);
@@ -34,6 +42,7 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
       facebookId: Config.OAUTH_FACEBOOK_CLIENT_ID,
       facebookSecret: Config.OAUTH_FACEBOOK_SECRET,
     });
+    await app.register(swagger);
     // routes
     await app.register(publicRoutes);
     await app.register(nextRoutes, {
