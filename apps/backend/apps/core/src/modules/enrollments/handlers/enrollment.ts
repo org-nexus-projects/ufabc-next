@@ -2,14 +2,13 @@ import { CommentModel, EnrollmentModel } from '@next/models';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ObjectId } from 'mongoose';
 
-export type RouteParams = { enrollmentId: ObjectId };
+type RouteParams = { enrollmentId: ObjectId };
 export async function enrollment(
   request: FastifyRequest<{ Params: RouteParams }>,
   reply: FastifyReply,
 ) {
   const { enrollmentId } = request.params;
   const user = request.user;
-
   if (!user?.ra) {
     return {};
   }

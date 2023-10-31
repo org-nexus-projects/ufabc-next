@@ -29,7 +29,7 @@ const usersInfoResponse = z
     updatedAt: z.date(),
     __v: z.number(),
     email: z.string().email(),
-    ra: z.string(),
+    ra: z.number(),
   })
   .describe('Informações do usuário da sessão');
 
