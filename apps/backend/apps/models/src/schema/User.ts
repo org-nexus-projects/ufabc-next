@@ -41,7 +41,10 @@ const userSchema = new Schema(
     },
     oauth: {
       email: String,
-      provider: String,
+      provider: {
+        type: String,
+        enum: ['facebook', 'google'],
+      },
       providerId: String,
       picture: String,
     },
