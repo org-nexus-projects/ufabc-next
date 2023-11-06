@@ -4,11 +4,11 @@ import type { FastifyInstance } from 'fastify';
 
 describe('Server', () => {
   let app: FastifyInstance;
-  before(async () => {
+  beforeAll(async () => {
     app = await buildApp();
   });
 
-  after(async () => {
+  afterEach(async () => {
     await app.close();
   });
 
