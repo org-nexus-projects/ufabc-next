@@ -1,81 +1,63 @@
-# Turborepo starter
+# UFABC Next Backend
 
-This is an official starter Turborepo.
+Repositório que contém todo o código que se refere ao backend que mantém o site de pé!
 
-## Using this example
+## Ferramentas necessárias para rodar o projeto
+- Runtime: [Nodejs](https://nodejs.org/en), v20.6
+- Package Manager: [pnpm](https://pnpm.io/) v8
+- Conteinerização: [Docker](https://www.docker.com/) v24 e [Docker Compose](https://docs.docker.com/engine/reference/commandline/compose/) v2
+- Sistema Operacional: Pode usar o que preferir, garanto suporte a MacOS, Linux e WSL. Caso enfrente algum problema com Windows, clique [aqui](https://github.com/ufabc-next/ufabc-next-backend/issues/new) e descreva seu problema, para que possamos te auxiliar :)
 
-Run the following command:
-
+## Rodando o projeto
+Com as ferramentas necessárias instaladas, clone o repositório
 ```sh
-npx create-turbo@latest
+# Clone o repositório
+git clone https://github.com/ufabc-next/ufabc-next-backend.git
+
+# Vá para o diretório do repo
+cd ufabc-next-backend
+
+# instale as dependências na raiz 
+pnpm i
+
+# Rode o comando `build` para que o código tenha acesso as libs internas
+pnpm build
+
+# Suba o container docker
+docker compose up -d
+
+# Realize a copia das variaveis de ambiente para o arquivo .env
+cp -r apps/core/.env.example apps/core/.env
+
+# De `start` no projeto
+pnpm dev
+
+# Simule o projeto com dados
+pnpm populate reset
 ```
+## O que temos no repo?
 
-## What's inside?
+O projeto tem os seguintes packages e apps, cada um desenvolvido com 100% Typescript
 
-This Turborepo includes the following packages/apps:
+### Apps
+- `core`: Uma api [Fastify](https://fastify.dev/), que contém todas as rotas do backend.
+- `models`: Schemas do banco utilizando [Mongoose](https://mongoosejs.com/), definimos aqui o modelo de dados
+- `queue`: Processamentos assíncronos utilizando [Bullmq](https://docs.bullmq.io/) que o backend realiza periodicamente para 
+manter consistência no banco de dados
 
-### Apps and Packages
+### Packages
+- `common`: funções utilitárias que podem ser consumidas por um ou mais packages, logger do app é configurado aqui
+- `constants`: Valores constantes que o app depende
+- `tsconfig`: `tsconfig.json`s utilizados ao longo do monorepo
+- `types`: Tipos comuns do backend
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `ui`: a stub React component library shared by both `web` and `docs` applications
-- `eslint-config-custom`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `tsconfig`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 
 ### Utilities
 
-This Turborepo has some additional tools already setup for you:
+Utilitários que o monorepo possui ja configurado
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm build
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm dev
-```
-
-### Remote Caching
-
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the following commands:
-
-```
-cd my-turborepo
-npx turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-npx turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+- [TypeScript](https://www.typescriptlang.org/) para tipagem estática
+- [ESLint](https://eslint.org/) para padronizar e realizar o lint do código
+- [Prettier](https://prettier.io) para formatar o código
+- [Vitest](https://vitest.dev/) para realização de testes unitários
+- [Renovate](https://docs.renovatebot.com/) para manter a saúde das dependências do projeto
