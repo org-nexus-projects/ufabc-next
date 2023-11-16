@@ -37,7 +37,7 @@ export default {
 
   computed: {
     disableBtn() {
-      return !this.validForm;
+      return !this.validForm || this.studentData.email.length === 0 || this.studentData.ra.length === 0;
     },
   },
 
@@ -177,14 +177,6 @@ export default {
       <v-layout row wrap style="width: 100%; flex: none" v-if="!loading">
         <v-flex xs3 sm1 md2 lg2>
           <img style="max-width: 100%; height: auto;" src="@/assets/logo.svg" />
-        </v-flex>
-        <v-flex sm5 md5 lg5></v-flex>
-        <v-flex sm5 md5 lg5>
-          <el-steps :active="currentStep" finish-status="success">
-            <el-step title="Passo 1"></el-step>
-            <el-step title="Passo 2"></el-step>
-            <el-step title="Passo 3"></el-step>
-          </el-steps>
         </v-flex>
       </v-layout>
 
