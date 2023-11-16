@@ -68,7 +68,7 @@ export default {
         
           let res  = await User.facebookAuth(payload);
           console.log(res.data.userId)
-          const teste = `http://localhost:8011/connect/google?userId=${res.data.userId}`
+          const teste = `https://api.ufabcnext.com/connect/google?userId=${res.data.userId}`
           await axios.get(teste).catch(err => console.log(err))
           this.loading = false;
         } catch (err) {
