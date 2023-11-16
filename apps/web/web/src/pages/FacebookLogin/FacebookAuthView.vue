@@ -2,6 +2,8 @@
 import ErrorMessage from '@/helpers/ErrorMessage';
 import User from '@/services/User';
 import Auth from '@/services/Auth';
+import environment from '@/environment'
+import axios from 'axios';
 
 export default {
   name: 'SignupForm',
@@ -43,45 +45,34 @@ export default {
 
   methods: {
     async next() {
-      if (this.currentStep == 1) {
-        if (await this.confirmAccount()) {
-          this.currentStep++;
-          this.resent = false;
-          return;
-        } else {
-          return;
-        }
-      }
+      // if (this.currentStep == 1) {
+      //   if (await this.confirmAccount()) {
+      //     this.currentStep++;
+      //     this.resent = false;
+      //     return;
+      //   } else {
+      //     return;
+      //   }
+      // }
 
-      if (this.currentStep++ > 2) {
-        this.currentStep = 0;
-      }
-    },
-
-    back() {
-      if (this.currentStep-- < 0) this.currentStep = 0;
-    },
-
-    async confirmAccount() {
-      let email = this.studentData.email.concat(this.emailSuffix);
-
-      return this.$validator.validateAll().then(async (isValid) => {
-        if (!isValid) {
-          return false;
-        }
-
-        //Call confirmation route
-        try {
+      // if (this.currentStep++ > 2) {
+      //   this.currentStep = 0;
+      // }
+      try {
           this.loading = true;
 
           let payload = {
-            email: email,
+            email: this.studentData.email,
             ra: this.studentData.ra,
           };
-
-          let res = await User.completeSignup(payload);
+        
+          let res  = await User.facebookAuth(payload);
+          console.log(res.data.userId)
+          const teste = `http://localhost:8011/connect/google?userId=${res.data.userId}`
+          await axios.get(teste).catch(err => console.log(err))
           this.loading = false;
         } catch (err) {
+          console.log(err)
           this.loading = false;
 
           if (err.response.data.error == 'Essa conta foi desativada') {
@@ -108,25 +99,12 @@ export default {
           return false;
         }
 
-        return true;
-      });
     },
 
-    async resendEmail() {
-      try {
-        this.loadingResend = true;
-
-        let res = await User.resendEmail();
-        this.loadingResend = false;
-        this.resent = true;
-      } catch (err) {
-        this.loadingResend = false;
-        this.$message({
-          type: 'error',
-          message: ErrorMessage(err),
-        });
-      }
+    back() {
+      if (this.currentStep-- < 0) this.currentStep = 0;
     },
+
 
     async login() {
       try {
@@ -237,83 +215,8 @@ export default {
               >
               </v-text-field>
             </v-form>
-            {{ validForm }}
           </v-layout>
 
-          <!-- Step 2 -->
-          <v-layout column fill-width v-if="currentStep == 1">
-            <div>
-              <div class="step-title mb-4">
-                Falta pouco para completar o seu cadastro
-              </div>
-              <div class="step-subtitle mb-2">
-                Insira seu email institucional
-              </div>
-              <v-text-field
-                placeholder="joão"
-                suffix="@aluno.ufabc.edu.br"
-                v-model="studentData.email"
-                name="studentEmail"
-                v-validate="{ required: true }"
-                data-vv-as="email institucional"
-                :error-messages="errors.collect('studentEmail')"
-                persistent-hint
-                :hint="
-                  `Caso você não tenha um e-mail @aluno.ufabc.edu.br, <a href='${LOGIN_PROBLEMS_FORM}' class='ufabcnext-link--text' target='_blank' style='text-decoration: none'>clique aqui</a>`
-                "
-                solo
-              ></v-text-field>
-              <div class="step-subtitle mt-3 mb-2">Insira seu RA</div>
-              <v-text-field
-                v-model="studentData.ra"
-                name="ra"
-                v-validate="{ required: true, min: 8 }"
-                data-vv-as="RA"
-                :error-messages="errors.collect('ra')"
-                ref="ra"
-                placeholder="Ex: 11012014"
-                solo
-              ></v-text-field>
-              <div>
-                <span
-                  class="v-messages error--text"
-                  style="padding-left: 12px;"
-                  v-show="errors.has('terms')"
-                  >{{ errors.first('terms') }}</span
-                >
-              </div>
-            </div>
-          </v-layout>
-
-          <!-- Step 3 -->
-          <div v-if="currentStep == 2">
-            <div>
-              <div class="step-title mb-4">
-                Enviamos um email de confirmação para
-                <span class="ufabcnext-nav-blue--text">{{
-                  `${studentData.email}${emailSuffix}`
-                }}</span>
-              </div>
-
-              <div class="mt-3">
-                <v-btn color="ufabcnext-yellow" @click="back()">
-                  <v-icon class="mr-2">edit</v-icon> Digitei o email errado
-                </v-btn>
-                <v-btn
-                  :loading="loadingResend"
-                  :disabled="loadingResend || resent"
-                  color="ufabcnext-blue"
-                  :dark="!resent"
-                  @click="resendEmail()"
-                >
-                  <v-icon class="mr-2">{{
-                    resent ? 'mdi-check-circle' : 'email'
-                  }}</v-icon>
-                  {{ resent ? 'Email enviado' : 'Reenviar email' }}
-                </v-btn>
-              </div>
-            </div>
-          </div>
         </v-flex>
       </v-layout>
 
