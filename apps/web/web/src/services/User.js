@@ -28,6 +28,10 @@ class User {
     return await Axios.post('/users/me/recover', { email })
   }
 
+  async facebookAuth(userData) {
+    return await Axios.post('/users/me/recover', userData)  // mudar essa rota
+  }
+
   async delete() {
     return await Axios.delete('/users/me/delete')
   }
