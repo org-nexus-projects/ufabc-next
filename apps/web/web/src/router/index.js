@@ -17,6 +17,7 @@ import Relationship from '@/pages/Relationship'
 import Recovery from '@/pages/Recovery'
 import Donate from '@/pages/Donate'
 import Auth from '@/services/Auth'
+import FacebookAuthView from '@/pages/FacebookLogin/FacebookAuthView.vue'
 
 function RedirectIfLogged(params) {
   return function (to, from, next) {
@@ -160,6 +161,16 @@ const router = new VueRouter({
         title: 'Recuperar conta'
       },
     },
+    // --------
+    {
+      name: 'facebookAuth',
+      path: '/autenticar-facebook',
+      component: FacebookAuthView,
+      meta: {
+        title: 'Autenticação Next'
+      },
+    },
+    // ------------
     {
       name: 'settings',
       path: '/settings',
