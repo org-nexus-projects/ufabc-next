@@ -53,19 +53,17 @@ export default {
       };
     
       await User.facebookAuth(payload).then(({data}) => {
-        Auth.setToken(data.jwt)
+        Auth.setToken(data.token)
         this.$router.push('/reviews')
         // const teste = `https://api.ufabcnext.com/connect/google?userId=${res.data.userId}`
         // await axios.get(teste).catch(err => console.log(err))
 
-      }).catch(() => {
-        if (err.response.data.error == 'Essa conta foi desativada') {
-        this.$dialog({
-          title: 'Sua conta foi desativada',
-          html: `Para ativar novamente a sua conta, preencha este <a href="https://ufabcnext.com/app/#/recovery" target="_blank">formulário</a>.`,
+      }).catch(async () => {  
+        await this.$dialog({
+          title: 'Você possui conta no UFABC Next?',
+          html: `Entre no UFABC Next utilizando seu login Google, beleza? Para criar sua conta, clique aqui<a href="window.location.pathname = '/'">aqui</a>.`,
           buttons: [{ name: 'OK', class: 'grey--text' }],
         });
-      }
       }).finally(() => this.loading = false)
     },
 
