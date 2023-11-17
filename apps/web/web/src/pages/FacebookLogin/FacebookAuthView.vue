@@ -45,66 +45,33 @@ export default {
 
   methods: {
     async next() {
-      // if (this.currentStep == 1) {
-      //   if (await this.confirmAccount()) {
-      //     this.currentStep++;
-      //     this.resent = false;
-      //     return;
-      //   } else {
-      //     return;
-      //   }
-      // }
+      this.loading = true;
 
-      // if (this.currentStep++ > 2) {
-      //   this.currentStep = 0;
-      // }
-      try {
-          this.loading = true;
+      let payload = {
+        email: this.studentData.email,
+        ra: this.studentData.ra,
+      };
+    
+      await User.facebookAuth(payload).then(({data}) => {
+        Auth.setToken(data.jwt)
+        this.$router.push('/reviews')
+        // const teste = `https://api.ufabcnext.com/connect/google?userId=${res.data.userId}`
+        // await axios.get(teste).catch(err => console.log(err))
 
-          let payload = {
-            email: this.studentData.email,
-            ra: this.studentData.ra,
-          };
-        
-          let res  = await User.facebookAuth(payload);
-          console.log(res.data.userId)
-          const teste = `https://api.ufabcnext.com/connect/google?userId=${res.data.userId}`
-          await axios.get(teste).catch(err => console.log(err))
-          this.loading = false;
-        } catch (err) {
-          console.log(err)
-          this.loading = false;
-
-          if (err.response.data.error == 'Essa conta foi desativada') {
-            await this.$dialog({
-              title: 'Sua conta foi desativada',
-              html: `Para ativar novamente a sua conta, preencha este <a href="https://ufabcnext.com/app/#/recovery" target="_blank">formulário</a>.`,
-              buttons: [{ name: 'OK', class: 'grey--text' }],
-            });
-          }
-
-          if (err.response.data.status == 409) {
-            await this.$dialog({
-              title: `Já existe alguem usando este ${err.response.data.error}`,
-              html:
-                'Caso não seja você que esteja usando, preencha esse <a href="https://ufabcnext.com/app/#/recovery" target="_blank">formulário</a>.',
-              buttons: [{ name: 'OK', class: 'grey--text' }],
-            });
-          }
-
-          this.$message({
-            type: 'error',
-            message: ErrorMessage(err),
-          });
-          return false;
-        }
-
+      }).catch(() => {
+        if (err.response.data.error == 'Essa conta foi desativada') {
+        this.$dialog({
+          title: 'Sua conta foi desativada',
+          html: `Para ativar novamente a sua conta, preencha este <a href="https://ufabcnext.com/app/#/recovery" target="_blank">formulário</a>.`,
+          buttons: [{ name: 'OK', class: 'grey--text' }],
+        });
+      }
+      }).finally(() => this.loading = false)
     },
 
     back() {
       if (this.currentStep-- < 0) this.currentStep = 0;
     },
-
 
     async login() {
       try {
