@@ -53,6 +53,7 @@ export default {
       };
     
       await User.facebookAuth(payload).then(({data}) => {
+        console.log('request data', data)
         Auth.setToken(data.token)
         this.$router.push('/reviews')
         // const teste = `https://api.ufabcnext.com/connect/google?userId=${res.data.userId}`
