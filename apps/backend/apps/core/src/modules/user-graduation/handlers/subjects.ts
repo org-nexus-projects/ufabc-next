@@ -25,6 +25,6 @@ export const subjectGraduation: SubjectRouteHandler = async (
       .populate(populate);
     return reply.status(200).send(subjectsGraduation);
   } catch (error) {
-    return reply.send({ error, msg: 'could not get graduations' });
+    return reply.send({ error, msg: 'could not get subjects' });
   }
 };
