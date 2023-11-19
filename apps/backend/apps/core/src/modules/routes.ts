@@ -4,7 +4,7 @@ import { enrollmentsRoute } from './enrollments/route.js';
 import { healthCheckRoute } from './healthCheck/route.js';
 import { commentsRoute } from './comments/route.js';
 import { userRoute } from './user/route.js';
-import { graduationsRoute } from './graduation/route.js';
+import { graduationsRoute } from './user-graduation/route.js';
 import type { FastifyInstance } from 'fastify';
 
 export async function publicRoutes(app: FastifyInstance) {
