@@ -15,6 +15,9 @@ export const removeComment: RouteHandler<CreateReactionRequest> = async (
 ) => {
   const user = request.user;
   const { commentId, kind } = request.params;
+  if (!commentId && !kind) {
+    throw new Error('CommentId and Kind are necessary');
+  }
   const reaction = await ReactionModel.findOne({
     comment: commentId,
     kind,

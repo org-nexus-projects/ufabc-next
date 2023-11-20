@@ -16,8 +16,18 @@ export const createReaction: RouteHandler<CreateReactionRequest> = async (
   reply,
 ) => {
   const { commentId } = request.params;
+
+  if (!commentId) {
+    throw new Error('CommentId was not passed');
+  }
+
   const user = request.user;
   const { kind } = request.body;
+
+  if (!kind) {
+    throw new Error('Please, provide the kind of the comment');
+  }
+
   const comment = await CommentModel.findOne({
     _id: commentId,
     active: true,
