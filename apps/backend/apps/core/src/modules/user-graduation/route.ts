@@ -19,7 +19,7 @@ export async function graduationsRoute(app: FastifyInstance) {
   );
   app.get<{ Querystring: { graduation: ObjectId } }>(
     '/histories',
-    { onSend: addUserRa },
+    { onSend: [addUserRa] },
     histories,
   );
 }
