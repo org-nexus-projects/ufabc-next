@@ -35,16 +35,15 @@ export async function teacherComment(
 
   // Theres a very `Tricky` bug here
   const comment = await CommentModel.commentsByReaction(
-    userId,
-    ['enrollment', 'subject'],
-    limit,
-    page,
     {
       teacher: teacherId,
       ...(subjectId && { subject: subjectId }),
     },
+    userId,
+    ['enrollment', 'subject'],
+    limit,
+    page,
   );
-
   return reply.status(200).send({
     data: comment.data,
     total: comment.total,

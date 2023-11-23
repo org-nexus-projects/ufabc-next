@@ -32,5 +32,5 @@ export async function updateComment(
 
   await comment.save();
 
-  return reply.status(204).send(comment);
+  return reply.status(200).send(comment);
 }
