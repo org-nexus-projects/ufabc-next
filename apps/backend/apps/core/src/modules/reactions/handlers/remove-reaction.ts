@@ -9,7 +9,7 @@ type CreateReactionRequest = {
   };
 };
 
-export const removeComment: RouteHandler<CreateReactionRequest> = async (
+export const removeReaction: RouteHandler<CreateReactionRequest> = async (
   request,
   reply,
 ) => {
@@ -23,13 +23,17 @@ export const removeComment: RouteHandler<CreateReactionRequest> = async (
     kind,
     user: user?._id,
     active: true,
-  }).lean(true);
+  });
+
+  request.log.info(reaction);
 
   if (!reaction) {
     throw new Error(`Reação não encontrada no comentário: ${commentId}`);
   }
 
-  // TODO: validate here
-  await reaction.remove();
+  await reaction.deleteOne({
+    comment: commentId,
+  });
+
   reply.send();
 };
