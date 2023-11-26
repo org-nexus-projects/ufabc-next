@@ -1,6 +1,6 @@
 <template>
   <VueQueryDevtools v-if="isLocal" />
-  <AppBar :showAppBar="confirmedUser ?? undefined">
+  <AppBar>
     <v-main style="background-color: #f5f5f5">
       <v-container
         id="app-container"

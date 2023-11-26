@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-navigation-drawer
-      v-if="props.showAppBar"
+      v-if="user?.confirmed"
       v-model="drawer"
       color="navigation"
       width="240"
@@ -50,7 +50,7 @@
     </v-navigation-drawer>
 
     <v-app-bar
-      v-if="props.showAppBar"
+      v-if="user?.confirmed"
       app
       height="min-content"
       class="py-2 header"
@@ -107,7 +107,7 @@
         </v-menu>
       </v-btn>
     </v-app-bar>
-    <div v-if="props.showAppBar" style="height: 64px"></div>
+    <div v-if="user?.confirmed" style="height: 64px"></div>
     <slot />
   </v-app>
 </template>
@@ -121,14 +121,6 @@ import dayjs from 'dayjs';
 import { computed, ref } from 'vue';
 import { useAuth } from '@/stores/useAuth';
 import { useAliasInitials } from '@/utils/composables/aliasInitials';
-
-const props = defineProps({
-  showAppBar: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-});
 
 const { logOut, user } = useAuth();
 const handleLogout = () => {

@@ -76,24 +76,4 @@ describe('<AppBar />', () => {
       expect(useAuth.getState().user).toBeNull();
     });
   });
-  test('not show app bar if props is false', async () => {
-    render(AppBar, {
-      props: {
-        showAppBar: false,
-      },
-      slots: {
-        default: 'slot',
-      },
-    });
-
-    expect(screen.queryByText('slot')).toBeInTheDocument();
-
-    expect(
-      screen.queryAllByRole('img', { name: 'logo do UFABC Next' }),
-    ).toHaveLength(0);
-    expect(screen.queryByText('Reviews')).not.toBeInTheDocument();
-    expect(screen.queryByText('Performance')).not.toBeInTheDocument();
-    expect(screen.queryByText('Snapshot da Matrícula')).not.toBeInTheDocument();
-    expect(screen.queryByText('Grupos no WhatsApp')).not.toBeInTheDocument();
-  });
 });
