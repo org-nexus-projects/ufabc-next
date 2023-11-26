@@ -1,39 +1,17 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import { ReviewsView } from '@/views/Reviews';
+import { PerformanceView } from '@/views/Performance';
+import { PlanningView } from '@/views/Planning';
+import { HistoryView } from '@/views/History';
+import { StatsView } from '@/views/Stats';
+import { SettingsView } from '@/views/Settings';
+import { DonateView } from '@/views/Donate';
 import { authStore } from 'stores';
-const ReviewsView = import('@/views/Reviews').then(
-  ({ ReviewsView }) => ReviewsView,
-);
-const PerformanceView = import('@/views/Performance').then(
-  ({ PerformanceView }) => PerformanceView,
-);
-const PlanningView = import('@/views/Planning').then(
-  ({ PlanningView }) => PlanningView,
-);
-const HistoryView = import('@/views/History').then(
-  ({ HistoryView }) => HistoryView,
-);
-const StatsView = import('@/views/Stats').then(({ StatsView }) => StatsView);
-const SettingsView = import('@/views/Settings').then(
-  ({ SettingsView }) => SettingsView,
-);
-const DonateView = import('@/views/Donate').then(
-  ({ DonateView }) => DonateView,
-);
-const SignUpView = import('@/views/SignUp').then(
-  ({ SignUpView }) => SignUpView,
-);
-const ConfirmationView = import('@/views/Confirmation').then(
-  ({ ConfirmationView }) => ConfirmationView,
-);
-const RecoveryView = import('@/views/Recovery').then(
-  ({ RecoveryView }) => RecoveryView,
-);
-const CalengradeView = import('@/views/Calengrade').then(
-  ({ CalengradeView }) => CalengradeView,
-);
-const FacebookView = import('@/views/Facebook').then(
-  ({ FacebookView }) => FacebookView,
-);
+import { SignUpView } from '@/views/SignUp';
+import { ConfirmationView } from '@/views/Confirmation';
+import { RecoveryView } from '@/views/Recovery';
+import { CalengradeView } from '@/views/Calengrade';
+import { FacebookView } from '@/views/Facebook';
 
 const isJWT = (token: string) =>
   /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/=]*$/.test(token);
