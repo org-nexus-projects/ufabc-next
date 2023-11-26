@@ -1,0 +1,28 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env.*local"],
+  "globalDotEnv": [".env"],
+  "pipeline": {
+    "build": {
+      "env": ["VUE_APP_MF_ENV", "VUE_APP_BASE_URL"],
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "build:staging": {
+      "env": ["VUE_APP_MF_ENV", "VUE_APP_BASE_URL"],
+      "dependsOn": ["^build:staging"],
+      "outputs": ["dist/**"]
+    },
+    "lint": {},
+    "lint:fix": {},
+    "tsc": {},
+    "test": {},
+    "test:watch": {
+      "cache": false
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

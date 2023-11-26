@@ -1,0 +1,21 @@
+{
+  "name": "services",
+  "version": "0.0.0",
+  "main": "./index.ts",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint src/**/*",
+    "lint:fix": "eslint src/**/* --fix",
+    "tsc": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "eslint-config-custom": "*",
+    "tsconfig": "*",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "stores": "*",
+    "types": "*"
+  }
+}

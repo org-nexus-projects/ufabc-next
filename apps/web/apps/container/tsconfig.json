@@ -1,0 +1,10 @@
+{
+  "extends": "tsconfig/vue.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "types": ["node", "@testing-library/jest-dom", "vitest/globals"]
+  }
+}

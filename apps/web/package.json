@@ -1,10 +1,26 @@
 {
-  "name": "UFABC-Next",
-  "version": "1.0.0",
-  "license": "MIT",
+  "private": true,
   "scripts": {
-    "build": "cp -a public/. dist && cd web && yarn install && yarn build",
-    "start": "cd web && yarn start",
-    "start-prod": "cd web && rm -rf .env.development.local && cat .env.production >> .env.development.local && yarn start"
-  }
+    "build": "turbo run build",
+    "build:staging": "turbo run build:staging",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "test": "turbo run test",
+    "tsc": "turbo run tsc"
+  },
+  "devDependencies": {
+    "eslint": "^8.52.0",
+    "eslint-config-custom": "*",
+    "prettier": "^3.0.3",
+    "turbo": "1.10.16",
+    "@commitlint/cli": "18.2.0",
+    "@commitlint/config-conventional": "18.1.0"
+  },
+  "name": "ufabc-next-web",
+  "packageManager": "yarn@1.22.19",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
 }
