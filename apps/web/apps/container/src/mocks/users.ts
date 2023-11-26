@@ -1,6 +1,6 @@
-import { User } from 'services';
+import type { User } from 'types';
 
-export const user: User = {
+export const user = {
   _id: '123',
   confirmed: true,
   createdAt: '2021-01-01',
@@ -11,10 +11,11 @@ export const user: User = {
     facebook: 'facebook',
     picture: 'picture',
     google: 'google',
+    emailGoogle: 'emailGoogle',
   },
   ra: 11201810622,
   email: 'email@aluno.ufabc.edu.br',
-};
+} satisfies User;
 
 export const userGrades = [
   {

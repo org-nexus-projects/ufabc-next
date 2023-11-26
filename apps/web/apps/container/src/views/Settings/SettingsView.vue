@@ -10,30 +10,15 @@
             </p>
             <p class="text-box-settings">
               Tente novamente
-              <span @click="reloadPage" class="text-decoration-underline"
-                >clicando aqui</span
-              >
+              <span @click="reloadPage" class="text-decoration-underline">clicando aqui</span>
             </p>
           </div>
         </v-row>
       </PaperCard>
-      <PaperCard
-        title="Configurações da conta"
-        v-else
-        class="text-md-left text-center"
-      >
+      <PaperCard title="Configurações da conta" v-else class="text-md-left text-center">
         <v-row class="mt-4">
-          <v-col
-            cols="12"
-            md="2"
-            class="mb-3 d-flex justify-center d align-center"
-          >
-            <v-avatar
-              :size="80"
-              color="primary"
-              class="white--text"
-              style="font-size: 32px; text-transform: uppercase"
-            >
+          <v-col cols="12" md="2" class="mb-3 d-flex justify-center d align-center">
+            <v-avatar :size="80" color="primary" class="white--text" style="font-size: 32px; text-transform: uppercase">
               {{ userInitials }}
             </v-avatar>
           </v-col>
@@ -50,15 +35,8 @@
                   Conta do Facebook associada
                 </a>
 
-                <a
-                  :href="addFacebookAccount"
-                  target="_blank"
-                  class="links-settings add-account"
-                  v-else-if="user"
-                >
-                  <v-icon color="ufabcnext-blue" class="mr-2"
-                    >mdi-plus-circle-outline</v-icon
-                  >
+                <a :href="addFacebookAccount" target="_blank" class="links-settings add-account" v-else-if="user">
+                  <v-icon color="ufabcnext-blue" class="mr-2">mdi-plus-circle-outline</v-icon>
                   Associar à uma conta do Facebook
                 </a>
 
@@ -67,32 +45,15 @@
                   Conta do Google associada
                 </a>
 
-                <a
-                  :href="addGoogleAccount"
-                  target="_blank"
-                  class="links-settings add-account"
-                  v-else-if="user"
-                >
-                  <v-icon color="ufabcnext-blue" class="mr-2"
-                    >mdi-plus-circle-outline</v-icon
-                  >
+                <a :href="addGoogleAccount" target="_blank" class="links-settings add-account" v-else-if="user">
+                  <v-icon color="ufabcnext-blue" class="mr-2">mdi-plus-circle-outline</v-icon>
                   Associar à uma conta do Google
                 </a>
               </div>
             </section>
           </v-col>
-          <v-col
-            cols="12"
-            md="3"
-            class="d-flex justify-center justify-md-end align-center"
-          >
-            <v-btn
-              class="settings-button error--text"
-              outlined
-              variant="outlined"
-              color="error"
-              @click="dialog = true"
-            >
+          <v-col cols="12" md="3" class="d-flex justify-center justify-md-end align-center">
+            <v-btn class="settings-button error--text" outlined variant="outlined" color="error" @click="dialog = true">
               Desativar Conta
             </v-btn>
           </v-col>
@@ -118,10 +79,8 @@
     <v-dialog v-model="dialog" width="450px">
       <v-card>
         <v-card-title class="text-h5">Excluir conta</v-card-title>
-        <v-card-text
-          >Tem certeza que deseja excluir seu usuário? <br /><br />Caso deseje
-          voltar, tudo estará aqui 😀</v-card-text
-        >
+        <v-card-text>Tem certeza que deseja excluir seu usuário? <br /><br />Caso deseje
+          voltar, tudo estará aqui 😀</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="green-darken-1" variant="text" @click="dialog = false">
@@ -158,7 +117,7 @@ const {
 });
 
 const userLogin = computed(() => {
-  return user.value?.email.replace('@aluno.ufabc.edu.br', '');
+  return user.value?.email?.replace('@aluno.ufabc.edu.br', '');
 });
 
 const apiPath = api.defaults.baseURL?.replace('/v1', '');
@@ -243,6 +202,7 @@ const reloadPage = () => window.location.reload();
   font-size: 26px;
   line-height: 1.3;
 }
+
 .text-box-settings {
   color: #676767;
   font-size: 16px;

@@ -295,6 +295,7 @@ import { useDisplay } from 'vuetify';
 import { watch } from 'vue';
 import { useAuth } from '@/stores/useAuth';
 const { logOut } = useAuth();
+
 const handleLogout = () => {
   logOut.value();
 };
@@ -379,6 +380,7 @@ const { mutate: mutateSignUp, isPending: isPendingSubmit } = useMutation({
     });
   },
 });
+
 const onSubmit = handleSubmit(({ email, ra }) =>
   mutateSignUp({ email: email + '@aluno.ufabc.edu.br', ra: Number(ra.ra) }),
 );
@@ -388,18 +390,18 @@ const { mutate: mutateResendEmail, isPending: isPendingResendEmail } =
     mutationFn: Users.resendEmail,
     onSuccess: () => {
       ElMessage({
-      message: 'Email reenviado com sucesso',
-      type: 'success',
-      showClose: true,
-    });
+        message: 'Email reenviado com sucesso',
+        type: 'success',
+        showClose: true,
+      });
       enableResendEmail.value = false;
     },
     onError: (error: AxiosError<RequestError>) => {
       ElMessage({
-      message: error.response?.data.error,
-      type: 'error',
-      showClose: true,
-    });
+        message: error.response?.data.error,
+        type: 'error',
+        showClose: true,
+      });
     },
   });
 

@@ -1,16 +1,42 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import { ReviewsView } from '@/views/Reviews';
-import { PerformanceView } from '@/views/Performance';
-import { PlanningView } from '@/views/Planning';
-import { HistoryView } from '@/views/History';
-import { StatsView } from '@/views/Stats';
-import { SettingsView } from '@/views/Settings';
-import { DonateView } from '@/views/Donate';
 import { authStore } from 'stores';
-import { SignUpView } from '@/views/SignUp';
-import { ConfirmationView } from '@/views/Confirmation';
-import { RecoveryView } from '@/views/Recovery';
-import { CalengradeView } from '@/views/Calengrade';
+const ReviewsView = import('@/views/Reviews').then(
+  ({ ReviewsView }) => ReviewsView,
+);
+const PerformanceView = import('@/views/Performance').then(
+  ({ PerformanceView }) => PerformanceView,
+);
+const PlanningView = import('@/views/Planning').then(
+  ({ PlanningView }) => PlanningView,
+);
+const HistoryView = import('@/views/History').then(
+  ({ HistoryView }) => HistoryView,
+);
+const StatsView = import('@/views/Stats').then(({ StatsView }) => StatsView);
+const SettingsView = import('@/views/Settings').then(
+  ({ SettingsView }) => SettingsView,
+);
+const DonateView = import('@/views/Donate').then(
+  ({ DonateView }) => DonateView,
+);
+const SignUpView = import('@/views/SignUp').then(
+  ({ SignUpView }) => SignUpView,
+);
+const ConfirmationView = import('@/views/Confirmation').then(
+  ({ ConfirmationView }) => ConfirmationView,
+);
+const RecoveryView = import('@/views/Recovery').then(
+  ({ RecoveryView }) => RecoveryView,
+);
+const CalengradeView = import('@/views/Calengrade').then(
+  ({ CalengradeView }) => CalengradeView,
+);
+const FacebookView = import('@/views/Facebook').then(
+  ({ FacebookView }) => FacebookView,
+);
+
+const isJWT = (token: string) =>
+  /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/=]*$/.test(token);
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -19,7 +45,7 @@ const routes: Array<RouteRecordRaw> = [
     component: ReviewsView,
     meta: {
       title: 'Reviews',
-      auth: true,
+      confirmed: true,
     },
   },
   {
@@ -112,6 +138,15 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
   {
+    path: '/autenticar-facebook',
+    name: 'Autenticar Facebook',
+    component: FacebookView,
+    meta: {
+      title: 'Autenticar Facebook',
+      auth: false,
+    },
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: (to) => {
       if (to.hash) {
@@ -139,10 +174,13 @@ const router = createRouter({
 router.beforeEach(async (to, _from, next) => {
   document.title = (to.meta.title as string) || 'UFABC Next';
 
-  const params = new URLSearchParams(window.location.search);
+  const tokenParam = to.query.token;
 
-  if (params.get('token')) {
-    return next();
+  const { authenticate } = authStore.getState();
+
+  if (isJWT(tokenParam as string)) {
+    authenticate(tokenParam as string);
+    return next({ query: { token: undefined } });
   }
 
   const requireAuth = to.matched.some((record) => record.meta.auth === true);
@@ -154,31 +192,34 @@ router.beforeEach(async (to, _from, next) => {
     (record) => record.meta.confirmed === false,
   );
 
-  const userToken = authStore.getState().token;
-  const userConfirmed = authStore.getState().user?.confirmed;
+  const { isLoggedIn, user } = authStore.getState();
+
+  const userConfirmed = user?.confirmed;
+
+  const isLocal = process.env.VUE_APP_MF_ENV === 'local';
+
+  const notConfirmedRedirectPath = '/signup';
+  const authenticatedRedirectPath = '/reviews';
+  const notAuthenticatedRedirect = () =>
+    isLocal ? next(notConfirmedRedirectPath) : (window.location.pathname = '/');
 
   if (requireAuth) {
-    if (userToken) return next();
-    else if (process.env.VUE_APP_MF_ENV !== 'local') {
-      return (window.location.pathname = '/');
-    }
-    return next();
+    if (isLoggedIn()) return next();
+    return notAuthenticatedRedirect();
   }
   if (requireConfirmed) {
-    if (userToken) {
+    if (isLoggedIn()) {
       if (userConfirmed) return next();
-      return next('/signup');
-    } else if (process.env.VUE_APP_MF_ENV !== 'local') {
-      return (window.location.pathname = '/');
+      return next(notConfirmedRedirectPath);
     }
-    next('/reviews');
+    return notAuthenticatedRedirect();
   }
   if (notAllowAuth) {
-    if (userToken) return next('/reviews');
+    if (isLoggedIn()) return next(authenticatedRedirectPath);
     return next();
   }
   if (notAllowConfirmed) {
-    if (userConfirmed) return next('/reviews');
+    if (userConfirmed) return next(authenticatedRedirectPath);
     return next();
   }
   return next();

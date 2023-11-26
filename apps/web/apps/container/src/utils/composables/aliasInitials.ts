@@ -9,7 +9,7 @@ export function useAliasInitials() {
   const { user } = useAuth();
   const alias = ref('');
 
-  const userLogin = user.value?.email.replace('@aluno.ufabc.edu.br', '');
+  const userLogin = user.value?.email?.replace('@aluno.ufabc.edu.br', '');
 
   if (userLogin) {
     const userSplited = userLogin.split('.');

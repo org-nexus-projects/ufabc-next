@@ -21,32 +21,16 @@ import create from 'vue-zustand';
 import { ElMessage } from 'element-plus';
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools';
 
-import { useRouter } from 'vue-router';
-
 const isLocal = process.env.VUE_APP_MF_ENV === 'local';
-
-const router = useRouter();
 
 import { AppBar } from '@/layouts/AppBar';
 
 const useAuth = create(authStore);
-const { authenticate, user } = useAuth();
+const { user } = useAuth();
 
-const confirmedUser = computed(() => user.value && user.value.confirmed);
-
-const isJWT = (token: string) =>
-  /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/=]*$/.test(token);
+const confirmedUser = computed(() => !!user.value?.confirmed);
 
 onMounted(async () => {
-  await router.isReady();
-  const { query } = router.currentRoute.value;
-  const { token: tokenParam, ...otherQueries } = query;
-  if (isJWT(tokenParam as string)) {
-    authenticate.value(tokenParam as string);
-    router.replace({
-      query: otherQueries,
-    });
-  }
   window.Toaster = ElMessage;
 });
 </script>

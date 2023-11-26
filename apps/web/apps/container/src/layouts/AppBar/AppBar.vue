@@ -129,7 +129,7 @@ const handleLogout = () => {
 
 const drawer = ref(true);
 const userLogin = computed(
-  () => user.value?.email.replace('@aluno.ufabc.edu.br', ''),
+  () => user.value?.email?.replace('@aluno.ufabc.edu.br', ''),
 );
 const userInitials = useAliasInitials();
 
@@ -195,6 +195,7 @@ const externalNavigationItems = [
 .header {
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05) !important;
 }
+
 .featured-chip {
   background-color: #37bba3;
   border-radius: 4px;

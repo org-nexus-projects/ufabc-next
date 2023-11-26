@@ -40,6 +40,7 @@
   },
   "engineStrict": true,
   "dependencies": {
+    "@tanstack/query-core": "5.4.3",
     "@tanstack/react-query": "5.4.3",
     "dayjs": "^1.11.10",
     "ics": "^3.5.0",

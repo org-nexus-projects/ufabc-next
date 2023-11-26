@@ -1,21 +1,6 @@
-import { User } from 'services';
+import type { User } from 'types';
 import { persist } from 'zustand/middleware';
 import { createStore } from 'zustand/vanilla';
-
-export type OAuth = {
-  email: string;
-  google: string;
-  facebook: string;
-  picture: string;
-  emailFacebook: string;
-};
-
-export type Device = {
-  _id: string;
-  deviceId: string;
-  token: string;
-  phone: string;
-};
 
 type UseAuthStore = {
   user: User | null;
