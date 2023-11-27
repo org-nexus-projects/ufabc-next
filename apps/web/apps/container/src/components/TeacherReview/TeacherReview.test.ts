@@ -1,7 +1,7 @@
 import { render, screen } from '@/test-utils';
 import { TeacherReview } from '.';
 import { useRouter } from 'vue-router';
-import { concepts, teacherSearch } from '@/mocks/reviews';
+import { teacherSearch } from '@/mocks/reviews';
 import { HttpResponse, http } from 'msw';
 import { server } from '@/mocks/server';
 
@@ -14,8 +14,6 @@ vi.mock('vue-router', async () => ({
 }));
 
 const replaceMock = vi.fn();
-
-const total = Object.values(concepts).reduce((acc, curr) => acc + curr, 0);
 
 describe('<TeacherReview />', () => {
   beforeEach(() => {
@@ -32,41 +30,6 @@ describe('<TeacherReview />', () => {
         },
       },
     } as unknown as ReturnType<typeof useRouter>);
-  });
-
-  test.skip('render teacher review', async () => {
-    vi.mocked(useRouter).mockReturnValue({
-      useRouter: vi.fn(),
-      createRouter: vi.fn(() => ({
-        beforeEach: vi.fn(),
-      })),
-      replace: replaceMock,
-      currentRoute: {
-        value: {
-          query: {
-            q: teacherSearch.data[0].name,
-            teacherId: teacherSearch.data[0]._id,
-          },
-        },
-      },
-    } as unknown as ReturnType<typeof useRouter>);
-
-    render(TeacherReview, {
-      props: {
-        teacherId: teacherSearch.data[0]._id,
-      },
-    });
-    expect(
-      await screen.findByText(/Provavelmente esse professor cobra presença/i),
-    ).toBeInTheDocument();
-
-    Object.values(concepts).forEach(async (concept) => {
-      expect(
-        await screen.findByText(
-          RegExp(((100 * concept) / total).toFixed(1), 'i'),
-        ),
-      ).toBeInTheDocument();
-    });
   });
   test('fetching teacher error toaster', async () => {
     server.use(

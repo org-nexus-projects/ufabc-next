@@ -1,17 +1,18 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import { ReviewsView } from '@/views/Reviews';
-import { PerformanceView } from '@/views/Performance';
-import { PlanningView } from '@/views/Planning';
-import { HistoryView } from '@/views/History';
-import { StatsView } from '@/views/Stats';
-import { SettingsView } from '@/views/Settings';
-import { DonateView } from '@/views/Donate';
 import { authStore } from 'stores';
-import { SignUpView } from '@/views/SignUp';
-import { ConfirmationView } from '@/views/Confirmation';
-import { RecoveryView } from '@/views/Recovery';
-import { CalengradeView } from '@/views/Calengrade';
-import { FacebookView } from '@/views/Facebook';
+const ReviewsView = () => import('@/views/Reviews/ReviewsView.vue');
+const PerformanceView = () => import('@/views/Performance/PerformanceView.vue');
+const PlanningView = () => import('@/views/Planning/PlanningView.vue');
+const HistoryView = () => import('@/views/History/HistoryView.vue');
+const StatsView = () => import('@/views/Stats/StatsView.vue');
+const SettingsView = () => import('@/views/Settings/SettingsView.vue');
+const DonateView = () => import('@/views/Donate/DonateView.vue');
+const SignUpView = () => import('@/views/SignUp/SignUpView.vue');
+const ConfirmationView = () =>
+  import('@/views/Confirmation/ConfirmationView.vue');
+const RecoveryView = () => import('@/views/Recovery/RecoveryView.vue');
+const CalengradeView = () => import('@/views/Calengrade/CalengradeView.vue');
+const FacebookView = () => import('@/views/Facebook/FacebookView.vue');
 
 const isJWT = (token: string) =>
   /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/=]*$/.test(token);
