@@ -158,7 +158,7 @@
               Professor(a), estamos construindo algumas ferramentas especiais
               para você, por enquanto você pode verificar sua distribuição de
               notas por disciplinas
-              <router-link to="/reviews">aqui</router-link>
+              <a href="https://docs.google.com/forms/d/e/1FAIpQLSfbwaJCw-t4SlHJ4akwQNCMNAEBREDcdfrqHs7ROhkuUUwDRQ/viewform">aqui</a>
             </p>
           </div>
           <div
