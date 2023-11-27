@@ -9,7 +9,7 @@
   "main": "dist/server.js",
   "scripts": {
     "populate": "node --env-file=.env --import=tsx cli/populate",
-    "dev": "tsx watch --env-file=.env.staging src/server.ts",
+    "dev": "tsx watch --env-file=.env src/server.ts",
     "build": "rimraf dist && node --import=tsx esbuild.ts",
     "build:type-check": "tsc",
     "start": "node --env-file=.env.production dist/server.js",
