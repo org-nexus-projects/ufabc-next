@@ -24,22 +24,15 @@ yarn-error.log*
 
 # local env files
 .env
-.env.local
-.env.prod
 .env.staging
+.env.local
 .env.development.local
 .env.test.local
 .env.production.local
-.env.prod
 
 # turbo
 .turbo
 
 # vercel
 .vercel
-sftp.json
-test.html
 dist
-build
-
-.gitsecret/keys/random_seed
