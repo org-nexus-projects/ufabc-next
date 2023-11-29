@@ -1,46 +1,24 @@
 <template>
   <v-app>
-    <v-navigation-drawer
-      v-if="user?.confirmed"
-      v-model="drawer"
-      color="navigation"
-      width="240"
-    >
+    <v-navigation-drawer v-if="user?.confirmed" v-model="drawer" color="navigation" width="240">
       <v-list>
         <div class="py-4 d-flex justify-center align-center">
-          <img
-            class="logo-white"
-            src="@/assets/logo_white.svg"
-            height="44"
-            alt="logo do UFABC Next"
-          />
+          <img class="logo-white" src="@/assets/logo_white.svg" height="44" alt="logo do UFABC Next" />
         </div>
         <v-divider />
-        <v-list-item
-          v-for="item in internalNavigationItems"
-          :to="item.route"
-          :key="item.title"
-        >
+        <v-list-item v-for="item in internalNavigationItems" :to="item.route" :key="item.title">
           <v-layout class="d-flex">
             <v-icon :icon="item.icon" class="mr-3" />
             <p class="font-weight-medium text-caption">{{ item.title }}</p>
-            <span
-              v-if="item.releaseDate?.add(3, 'month').isAfter(dayjs())"
-              class="featured-chip font-weight-black"
-              >Novo</span
-            >
+            <span v-if="item.releaseDate?.add(3, 'month').isAfter(dayjs())"
+              class="featured-chip font-weight-black">Novo</span>
           </v-layout>
         </v-list-item>
       </v-list>
       <v-divider />
       <v-list>
-        <v-list-item
-          v-for="item in externalNavigationItems"
-          :href="item.url"
-          :target="item.url && '_blank'"
-          :rel="item.url && 'noopener noreferrer'"
-          :key="item.title"
-        >
+        <v-list-item v-for="item in externalNavigationItems" :href="item.url" :target="item.url && '_blank'"
+          :rel="item.url && 'noopener noreferrer'" :key="item.title">
           <v-layout>
             <v-icon :icon="item.icon" class="mr-3" />
             <p class="font-weight-medium text-caption">{{ item.title }}</p>
@@ -49,35 +27,16 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar
-      v-if="user?.confirmed"
-      app
-      height="min-content"
-      class="py-2 header"
-    >
-      <v-app-bar-nav-icon
-        app
-        variant="text"
-        color="primary"
-        @click.stop="drawer = !drawer"
-        class="d-lg-none"
-      ></v-app-bar-nav-icon>
+    <v-app-bar v-if="user?.confirmed" app height="min-content" class="py-2 header">
+      <v-app-bar-nav-icon app variant="text" color="primary" @click.stop="drawer = !drawer"
+        class="d-lg-none"></v-app-bar-nav-icon>
 
       <v-spacer></v-spacer>
 
-      <img
-        class="logo-white"
-        src="@/assets/logo.svg"
-        height="32"
-        alt="logo do UFABC Next"
-      />
+      <img class="logo-white" src="@/assets/logo.svg" height="32" alt="logo do UFABC Next" />
 
       <v-spacer></v-spacer>
-      <v-btn
-        color="primary"
-        icon="mdi-dots-vertical"
-        aria-label="Expandir menu de usuário"
-      >
+      <v-btn color="primary" icon="mdi-dots-vertical" aria-label="Expandir menu de usuário">
         <v-icon></v-icon>
         <v-menu activator="parent">
           <v-list class="px-2">
@@ -95,13 +54,8 @@
               </v-layout>
             </v-list-item>
             <v-list-item>
-              <v-btn
-                @click="handleLogout"
-                prepend-icon="mdi-exit-to-app"
-                variant="text"
-                class="text-capitalize text-body-2"
-                >Sair</v-btn
-              >
+              <v-btn @click="handleLogout" prepend-icon="mdi-exit-to-app" variant="text"
+                class="text-capitalize text-body-2">Sair</v-btn>
             </v-list-item>
           </v-list>
         </v-menu>
