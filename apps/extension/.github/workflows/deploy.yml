@@ -21,4 +21,4 @@ jobs:
           yarn install
       - name: Deploy
         run: |
-          yarn deploy -h https://captain.sv.ufabcnext.com -a next-extension -p "${{ secrets.CAPROVER_PASSWORD }}" -b master
+          yarn deploy -h https://captain.captain.sv.ufabcnext.com -a next-extension -p "${{ secrets.CAPROVER_PASSWORD }}" -b master
