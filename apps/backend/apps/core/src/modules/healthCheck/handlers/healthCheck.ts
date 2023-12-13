@@ -12,7 +12,7 @@ export async function healthCheck(
     const isDatabaseUp = `${STATES[connection.readyState]}`;
     const isRedisUp = redisConn === 'PONG' ? 'connected' : 'not connected';
     return reply.send({
-      msg: 'App is healthy',
+      msg: 'listening...',
       databaseStatus: isDatabaseUp,
       redisStatus: isRedisUp,
     });

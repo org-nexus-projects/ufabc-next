@@ -10,33 +10,39 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: 📦 Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
+      - name: ⚙️ Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Login to Amazon ECR
+      - name: 🔐 Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
         with:
           mask-password: true
 
-      - name: Build, tag and push Image to Amazon ECR
+      - name: 🏗️ Build, tag and push Image to Amazon ECR
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: ufabc-next-backend
           IMAGE_TAG: ${{ github.sha }}
+          GIT_SECRET_PRIVATE_KEY: ${{ secrets.GIT_SECRET_PRIVATE_KEY }}
+          GIT_SECRET_PASSWORD: ${{ secrets.GIT_SECRET_PASSWORD }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG \
+          --build-arg GIT_SECRET_PRIVATE_KEY="$GIT_SECRET_PRIVATE_KEY" \
+          --build-arg GIT_SECRET_PASSWORD="$GIT_SECRET_PASSWORD" \
+          --no-cache --progress=plain .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
-      - name: Deploy and start container
+      - name: 🚀 Deploy and start container
         uses: appleboy/ssh-action@v1.0.0
+
         with:
           host: ${{ secrets.HOSTNAME }}
           username: ${{ secrets.USERNAME }}

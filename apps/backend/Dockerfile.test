@@ -1,0 +1,34 @@
+FROM node:20-alpine
+
+
+
+COPY . . 
+
+
+RUN apk update
+RUN apk upgrade
+RUN apk add git
+RUN  sh -c "echo 'https://gitsecret.jfrog.io/artifactory/git-secret-apk/latest-stable/main'" >> /etc/apk/repositories
+RUN  wget -O /etc/apk/keys/git-secret-apk.rsa.pub 'https://gitsecret.jfrog.io/artifactory/api/security/keypair/public/repositories/git-secret-apk'
+RUN  apk add --update --no-cache git-secret
+
+
+
+RUN git init
+
+
+RUN git clone git@github.com:ufabc-next/Access-Member-Keys.git
+
+RUN cp ./Access-Member-Keys/public-key.gpg ./
+RUN git secret reveal -p "teste"
+RUN echo .env.production
+# Create private key file
+#RUN echo "$GPG_PRIVATE_KEY" > ./private_key.gpg
+# Import private key and avoid the "Inappropriate ioctl for device" error
+#RUN gpg --batch --yes --pinentry-mode loopback --import private_key.gpg
+# Reveal secrets without user interaction and with passphrase. If no passphrase
+# is created for the key, remove `-p $GPG_PASSPHRASE`
+RUN git secret reveal -p "Ubuntu_gabriel"
+# carry on with your build script, secret files are available ...
+
+RUN cat ./.env.production

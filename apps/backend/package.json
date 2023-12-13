@@ -1,7 +1,7 @@
 {
   "name": "ufabc-next-backend",
   "private": false,
-  "packageManager": "pnpm@8.10.0",
+  "packageManager": "pnpm@8.11.0",
   "type": "module",
   "scripts": {
     "populate": "turbo run populate -- ",
@@ -19,10 +19,10 @@
     "prepare": "simple-git-hooks"
   },
   "devDependencies": {
-    "@sxzz/eslint-config": "^3.7.0",
-    "eslint": "^8.52.0",
-    "lint-staged": "^15.0.2",
-    "prettier": "^3.0.3",
+    "@sxzz/eslint-config": "^3.7.5",
+    "eslint": "^8.54.0",
+    "lint-staged": "^15.1.0",
+    "prettier": "^3.1.0",
     "simple-git-hooks": "^2.9.0",
     "turbo": "^1.10.16"
   },
@@ -37,3 +37,4 @@
     "*": "eslint --fix"
   }
 }
+

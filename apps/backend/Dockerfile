@@ -4,9 +4,17 @@
 ARG NODE_VERSION="20.8.0"
 
 FROM node:${NODE_VERSION}-alpine AS runtime 
+
+#Env git secret private key
+ARG GIT_SECRET_PRIVATE_KEY
+ENV GIT_SECRET_PRIVATE_KEY=$GIT_SECRET_PRIVATE_KEY
+
+#Env git secret password 
+ARG GIT_SECRET_PASSWORD
+ENV GIT_SECRET_PASSWORD=$GIT_SECRET_PASSWORD
+
 # Necessary for turborepo
-RUN apk add --no-cache libc6-compat
-RUN apk update
+RUN apk update && apk add --no-cache libc6-compat
 WORKDIR /workspace
 # enable corepack for pnpm
 RUN corepack enable
@@ -42,16 +50,38 @@ RUN pnpm --filter ${APP_NAME} deploy --prod --ignore-scripts ./out
 
 FROM runtime as runner
 WORKDIR /workspace
+
+RUN apk update && apk upgrade
+RUN apk add --no-cache git
+RUN  sh -c "echo 'https://gitsecret.jfrog.io/artifactory/git-secret-apk/latest-stable/main'" >> /etc/apk/repositories
+RUN  wget -O /etc/apk/keys/git-secret-apk.rsa.pub 'https://gitsecret.jfrog.io/artifactory/api/security/keypair/public/repositories/git-secret-apk'
+RUN  apk add --update --no-cache git-secret
+RUN  git init
+RUN git config --global --add safe.directory /workspace
+
+
+
 # Don't run production as root
 RUN addgroup --system --gid 1001 backend
 RUN adduser --system --uid 1001 core
-USER core
+USER root
 
 #  copy files needed to run the app
+
 COPY --chown=core:backend --from=deployer /workspace/out/package.json .
 COPY --chown=core:backend --from=deployer /workspace/out/node_modules/ ./node_modules
 COPY --chown=core:backend --from=deployer /workspace/out/dist/ ./dist
-# COPY --chown=core:backend --from=deployer /workspace/out/.env.production .
+COPY --chown=core:backend --from=deployer /workspace/.env.prod.secret .
+COPY --chown=core:backend --from=deployer /workspace/.gitsecret  ./.gitsecret
+
+# Decrypt .env.prod file
+RUN echo "$GIT_SECRET_PRIVATE_KEY" >> ./private-container-file-key
+RUN gpg --batch --yes --pinentry-mode loopback --import ./private-container-file-key
+
+RUN git secret reveal -p ${GIT_SECRET_PASSWORD}
+
+# Remove the secret key file after decryption
+RUN rm -f ./private-container-file-key
 
 EXPOSE 5000
 

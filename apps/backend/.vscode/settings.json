@@ -12,7 +12,8 @@
     "modules": "components",
     "workers": "controller"
   },
-  "cSpell.words": [
-    "Ufabc"
-  ]
+  "material-icon-theme.files.associations": {
+    ".env.prod.secret": "tune"
+  },
+  "cSpell.words": ["Ufabc"]
 }

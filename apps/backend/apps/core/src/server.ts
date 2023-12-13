@@ -2,6 +2,7 @@ import gracefullyShutdown from 'close-with-grace';
 import { logger } from '@next/common';
 import { Config } from './config/config.js';
 import { buildApp } from './app.js';
+import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import type { FastifyServerOptions } from 'fastify';
 
 const appOptions = {
@@ -14,6 +15,7 @@ async function start() {
     app.log.info(app.printRoutes());
   }
 
+  app.withTypeProvider<ZodTypeProvider>();
   await app.listen({ port: Config.PORT, host: Config.HOST });
 
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {

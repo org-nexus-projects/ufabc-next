@@ -55,11 +55,11 @@ const commentSchema = new Schema(
   {
     statics: {
       async commentsByReaction(
+        query,
         userId: Types.ObjectId,
         populateFields: string[] = ['enrollment', 'subject'],
         limit: number = 10,
         page: number = 0,
-        query,
       ) {
         if (!userId) {
           throw new Error(`Usuário Não Encontrado ${userId}`);
@@ -69,6 +69,7 @@ const commentSchema = new Schema(
           .lean(true)
           .populate(populateFields)
           .skip(page * limit)
+          .limit(limit)
           .sort({
             'reactionsCount.recommendation': 'desc',
             'reactionsCount.likes': 'desc',
@@ -102,7 +103,7 @@ const commentSchema = new Schema(
         });
 
         await Promise.all(commentsReaction);
-        return { data: commentsReaction, total: await this.count(query) };
+        return { data: comments, total: await this.count(query) };
       },
     },
     toObject: { virtuals: true },

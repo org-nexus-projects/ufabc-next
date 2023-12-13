@@ -4,7 +4,8 @@
     "module": "NodeNext",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["vitest/globals"]
   },
   "include": [
     "src/**/*.ts",
