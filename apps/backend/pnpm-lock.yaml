@@ -180,10 +180,10 @@ importers:
         version: 3.22.4
     devDependencies:
       '@next/common':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/common
       '@next/tsconfig':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/tsconfig
       tsup:
         specifier: ^7.2.0
