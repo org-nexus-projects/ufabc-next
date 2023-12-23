@@ -17,7 +17,7 @@ async function sendConfirmationEmail(nextUser: UfabcUser) {
   const emailRequest = {
     recipient: nextUser.email,
     body: {
-      url: `${isDev ? WEB_URL_LOCAL : WEB_URL}/confirm?token=${token}`,
+      url: `${isDev ? WEB_URL_LOCAL : WEB_URL}confirm?token=${token}`,
     },
   };
 
