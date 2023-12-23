@@ -34,7 +34,11 @@ jobs:
           GIT_SECRET_PRIVATE_KEY: ${{ secrets.GIT_SECRET_PRIVATE_KEY }}
           GIT_SECRET_PASSWORD: ${{ secrets.GIT_SECRET_PASSWORD }}
         run: |
-          echo ${{secrets.GIT_SECRET_PASSWORD}} | sed 's/./& /g'
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG \
+          --build-arg GIT_SECRET_PRIVATE_KEY="$GIT_SECRET_PRIVATE_KEY" \
+          --build-arg GIT_SECRET_PASSWORD="$GIT_SECRET_PASSWORD" \
+          --no-cache --progress=plain .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
       - name: 🚀 Deploy and start container
         uses: appleboy/ssh-action@v1.0.0
