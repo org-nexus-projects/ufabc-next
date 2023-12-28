@@ -18,4 +18,5 @@ subjectSchema.pre('save', function () {
 });
 
 export type Subject = InferSchemaType<typeof subjectSchema>;
+export type SubjectDocument = ReturnType<(typeof SubjectModel)['hydrate']>;
 export const SubjectModel = model<Subject>('subjects', subjectSchema);

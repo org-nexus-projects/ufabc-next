@@ -1,9 +1,9 @@
 import { logger } from '@next/common';
 import { MAILER_CONFIG, WEB_URL, WEB_URL_LOCAL } from '@next/constants';
+import { createQueue } from '@/helpers/queueUtil.js';
 import { createToken } from '../../helpers/create-token.js';
-import { Config } from '../../config/config.js';
-import { createQueue, queueProcessor } from '../../setup.js';
 import { sesSendEmail } from '../../integration/ses.js';
+import type { Job } from 'bullmq';
 
 type UfabcUser = {
   email: string;
@@ -12,7 +12,8 @@ type UfabcUser = {
 
 async function sendConfirmationEmail(nextUser: UfabcUser) {
   const emailTemplate = MAILER_CONFIG.EMAIL_CONFIRMATION_TEMPLATE;
-  const isDev = Config.NODE_ENV === 'dev';
+  const isDev = process.env.NODE_ENV === 'dev';
+
   const token = createToken(JSON.stringify({ email: nextUser.email }));
   const emailRequest = {
     recipient: nextUser.email,
@@ -33,9 +34,24 @@ async function sendConfirmationEmail(nextUser: UfabcUser) {
   }
 }
 
-export const sendEmailJob = async (user: Partial<UfabcUser>) => {
-  const emailQueue = createQueue('Send:Email');
-  await sendConfirmationEmail(user as UfabcUser);
-  await queueProcessor(emailQueue.name);
+export const emailQueue = createQueue('Send:Email');
+
+export const addEmailToConfirmationQueue = async (user: UfabcUser) => {
   await emailQueue.add('Send:Email', user);
+};
+
+export const sendEmailWorker = async (job: Job<UfabcUser>) => {
+  const user = job.data;
+
+  try {
+    const result = await sendConfirmationEmail(user);
+    logger.info({
+      msg: 'Email sent to',
+      email: result.data.email,
+      ra: result.data.ra,
+    });
+  } catch (error) {
+    logger.error({ error }, 'sendEmailWorker: Error sending email');
+    throw error;
+  }
 };

@@ -19,7 +19,7 @@ const loggerSetup = {
   test: false,
 };
 
-function buildLogger(nodeEnv: string = 'dev') {
+export function buildLogger(nodeEnv: string = 'dev') {
   if (nodeEnv === 'dev') {
     const logger = pino(loggerSetup.dev);
     return logger;

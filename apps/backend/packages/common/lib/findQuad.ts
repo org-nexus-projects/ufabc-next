@@ -1,4 +1,4 @@
-function findQuadFromDate(month: number) {
+export function findQuadFromDate(month: number) {
   if ([0, 1, 10, 11].includes(month)) return 1;
   if ([2, 3, 4].includes(month)) return 2;
   if ([5, 6, 7, 8, 9].includes(month)) return 3;
@@ -9,13 +9,18 @@ export function currentQuad(date?: Date) {
   return `${year}:${quad}`;
 }
 
-export function findQuarter(date = new Date()) {
+type FindQuarter = {
+  quad: number;
+  year: number;
+};
+
+export function findQuarter(date = new Date()): FindQuarter {
   const month = date.getMonth();
   const quadKey = findQuadFromDate(month);
 
   if (!quadKey) {
     // maybe sentry to track error
-    throw new Error('Quadkey cannot be empty');
+    throw new Error('Quad key cannot be empty');
   }
 
   const quarterMap = {

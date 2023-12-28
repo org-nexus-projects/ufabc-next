@@ -8,7 +8,7 @@ describe('Server', () => {
     app = await buildApp();
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await app.close();
   });
 

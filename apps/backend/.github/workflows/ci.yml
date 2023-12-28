@@ -50,5 +50,5 @@ jobs:
       - name: 💼 Type Check
         run: pnpm build:type-check
 
-      # - name: 🧪 Test
-      #   run: pnpm test
+      - name: 🧪 Test
+        run: pnpm test

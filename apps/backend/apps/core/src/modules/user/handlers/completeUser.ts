@@ -1,4 +1,3 @@
-import { logger } from '@next/common';
 import { UfabcUser } from '../sign-up-schema.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
@@ -7,7 +6,6 @@ export async function completeUser(
   reply: FastifyReply,
 ) {
   try {
-    // TODO: Need help to fix this type
     const user = request.user;
     const { email, ra } = UfabcUser.parse(request.body);
     if (!user) {
@@ -15,7 +13,6 @@ export async function completeUser(
     }
 
     user.set({ email, ra });
-    logger.info({ email, ra }, 'Successfully inserted Email and RA');
 
     await user.save();
     return reply.send(user);

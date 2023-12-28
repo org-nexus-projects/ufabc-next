@@ -4,7 +4,7 @@ import {
   type SendTemplatedEmailCommandInput,
 } from '@aws-sdk/client-ses';
 import { logger } from '@next/common';
-import { Config } from '../config/config.js';
+import { Config } from '@/config/config.js';
 
 type Email = {
   recipient: string;

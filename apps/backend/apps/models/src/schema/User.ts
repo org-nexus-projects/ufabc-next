@@ -6,7 +6,7 @@ import {
 } from 'mongoose';
 import { uniqBy } from 'remeda';
 import jwt from 'jsonwebtoken';
-import { sendEmailJob } from '@ufabcnext/queue';
+import { addEmailToConfirmationQueue } from '@next/queue';
 
 type Device = {
   deviceId: string;
@@ -62,8 +62,6 @@ const userSchema = new Schema(
       },
     ],
     permissions: [String],
-    // updatedAt: NativeDate,
-    // createdAt: NativeDate,
   },
   {
     methods: {
@@ -78,8 +76,10 @@ const userSchema = new Schema(
         );
       },
       async sendConfirmation() {
-        const nextUser = this.toObject({ virtuals: true });
-        await sendEmailJob(nextUser);
+        const nextUser = this.toObject<{ ra: number; email: string }>({
+          virtuals: true,
+        });
+        await addEmailToConfirmationQueue(nextUser);
       },
       generateJWT() {
         return jwt.sign(

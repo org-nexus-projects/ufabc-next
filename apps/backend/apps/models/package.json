@@ -20,7 +20,6 @@
     "lint:fix": "pnpm run lint --fix"
   },
   "dependencies": {
-    "@ufabcnext/queue": "workspace:*",
     "jsonwebtoken": "^9.0.2",
     "lodash-es": "^4.17.21",
     "mongoose": "^7.6.5",
@@ -28,6 +27,7 @@
   },
   "devDependencies": {
     "@next/common": "workspace:*",
+    "@next/queue": "workspace:*",
     "@next/tsconfig": "workspace:^",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/lodash-es": "^4.17.12",

@@ -3,6 +3,8 @@ import {
   serializerCompiler,
   validatorCompiler,
 } from 'fastify-type-provider-zod';
+import { addSyncToQueue } from '@next/queue';
+import { DisciplinaModel } from '@next/models';
 import { Config } from './config/config.js';
 
 // Plugins
@@ -14,7 +16,7 @@ import swagger from './plugins/swagger.js';
 import oauth2 from './plugins/oauth2/oauth2.js';
 
 // Routes
-import { nextRoutes, publicRoutes } from './modules/routes.js';
+import { internalRoutes, nextRoutes, publicRoutes } from './modules/routes.js';
 
 export async function buildApp(opts: FastifyServerOptions = {}) {
   const app = fastify(opts);
@@ -48,6 +50,13 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
     await app.register(nextRoutes, {
       prefix: '/v2',
     });
+    await app.register(internalRoutes, {
+      prefix: '/v2',
+    });
+
+    //start running matriculas sync cron job
+    // @ts-expect-error Mongoose Types
+    await addSyncToQueue({ operation: '', disciplinaModel: DisciplinaModel });
   } catch (error) {
     app.log.fatal({ error }, 'build app error');
     throw error;

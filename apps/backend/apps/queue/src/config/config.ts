@@ -1,31 +1,34 @@
-import { logger } from '@next/common';
-import { config as dotEnvConfig } from 'dotenv';
 import { z } from 'zod';
-
-if (process.env.NODE_ENV === 'test') {
-  dotEnvConfig({ path: '.env.test' });
-} else {
-  dotEnvConfig();
-}
+// only in dev - Vitest doesn't support node --env-file
+import 'dotenv/config';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['dev', 'test', 'prod']).default('dev'),
-  HOST: z.string().min(4).default('localhost'),
   JWT_SECRET: z.string().min(32),
+
+  // Replace with your own
   AWS_REGION: z.string(),
   AWS_ACCESS_KEY_ID: z.string(),
   AWS_SECRET_ACCESS_KEY: z.string(),
+
   REDIS_NAME: z.string(),
-  REDIS_USER: z.string().default('default'),
+  REDIS_USER: z.string(),
   REDIS_PASSWORD: z.string().min(8),
-  REDIS_PORT: z.coerce.number().default(6379),
+  REDIS_HOST: z.string().optional(),
+  REDIS_PORT: z.coerce.number(),
 });
 
 const _env = envSchema.safeParse(process.env);
+
 if (!_env.success) {
-  logger.error({ issues: _env.error.format() }, '[QUEUE] Invalid Envs');
-  throw new Error('Invalid environments variables');
+  const { fieldErrors } = _env.error.flatten();
+  const errorMessage = Object.entries(fieldErrors)
+    .map(([field, errors]) =>
+      errors ? `${field}: ${errors.join(', ')}` : field,
+    )
+    .join('\n  ');
+  throw new Error(`Missing environment variables:\n  ${errorMessage}`);
 }
 
 export type Config = z.infer<typeof envSchema>;
-export const Config = _env.data;
+export const Config = Object.freeze(_env.data);
