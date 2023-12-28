@@ -31,7 +31,7 @@
     "@next/tsconfig": "workspace:^",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/lodash-es": "^4.17.12",
-    "tsup": "^7.2.0",
+    "tsup": "^8.0.1",
     "typescript": "^5.3.2"
   }
 }
