@@ -1,9 +1,5 @@
 import { createHash } from 'node:crypto';
-import {
-  DisciplinaModel,
-  type Enrollment,
-  EnrollmentModel,
-} from '@next/models';
+import { DisciplinaModel, type Enrollment } from '@next/models';
 import { ofetch } from 'ofetch';
 import { convertUfabcDisciplinas, generateIdentifier } from '@next/common';
 import { updateEnrollmentsQueue } from '@next/queue';
@@ -71,6 +67,7 @@ export async function syncEnrollments(
     );
   const enrollments = filteredEnrollments.map((enrollment) => {
     const enrollmentIdentifier = generateIdentifier(enrollment);
+    // @ts-expect-error Ignore
     const { id, _id, ...disciplinasWithoutId } =
       disciplinasMap.get(enrollmentIdentifier) || {};
     const identifiers = {
@@ -105,8 +102,8 @@ export async function syncEnrollments(
     chunks.push(enrollments.slice(i, i + chunkSize));
   }
 
-  const TW0_MINUTES = 1_000 * 120;
-  const FOUR_MINUTES = 1_000 * 240;
+  // const TW0_MINUTES = 1_000 * 120;
+  // const FOUR_MINUTES = 1_000 * 240;
 
   updateEnrollmentsQueue.add(
     'Update:Enrollments',

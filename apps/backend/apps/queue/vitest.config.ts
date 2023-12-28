@@ -8,12 +8,13 @@ export default defineConfig({
       '@/': new URL('./src/', import.meta.url).pathname,
     },
     coverage: {
-      all: true,
+      thresholds: {
+        statements: 10,
+        functions: 10,
+        lines: 10,
+        branches: 10,
+      },
       reportOnFailure: true,
-      statements: 10,
-      branches: 10,
-      functions: 10,
-      lines: 10,
     },
   },
 });
