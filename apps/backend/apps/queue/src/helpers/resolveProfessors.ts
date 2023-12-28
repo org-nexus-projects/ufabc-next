@@ -19,7 +19,7 @@ export function resolveProfessors(
     return null;
   }
   const isTeacherPresent = (t: Teacher) =>
-    t.name === normalizedName ?? (t.alias || []).includes(normalizedName);
+    t.name === normalizedName || (t.alias || []).includes(normalizedName);
   const foundTeacher = teachers.find((teacher) => isTeacherPresent(teacher));
 
   if (foundTeacher) {
