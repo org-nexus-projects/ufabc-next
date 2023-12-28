@@ -22,8 +22,8 @@
   "dependencies": {
     "jsonwebtoken": "^9.0.2",
     "lodash-es": "^4.17.21",
-    "mongoose": "^7.6.5",
-    "remeda": "^1.29.0"
+    "mongoose": "^7.6.7",
+    "remeda": "^1.33.0"
   },
   "devDependencies": {
     "@next/common": "workspace:*",
