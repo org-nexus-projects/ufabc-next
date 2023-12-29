@@ -1,5 +1,5 @@
 import { assert, describe, it } from 'vitest';
-import { calculateCoefficients } from '../src/helpers/calculateCoefficients.js';
+import { calculateCoefficients } from './calculateCoefficients.js';
 
 describe('calculateCoefficients', () => {
   it('should calculate coefficients', () => {
