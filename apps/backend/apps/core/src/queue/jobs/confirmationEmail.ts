@@ -1,8 +1,8 @@
 import { logger } from '@next/common';
 import { MAILER_CONFIG, WEB_URL, WEB_URL_LOCAL } from '@next/constants';
-import { createQueue } from '@/helpers/queueUtil.js';
-import { createToken } from '../../helpers/create-token.js';
-import { sesSendEmail } from '../../integration/ses.js';
+import { sesSendEmail } from '@/services/ses.js';
+import { createQueue } from '../utils/queue.js';
+import { createToken } from '../utils/createToken.js';
 import type { Job } from 'bullmq';
 
 type UfabcUser = {

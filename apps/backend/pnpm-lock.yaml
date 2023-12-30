@@ -29,6 +29,9 @@ importers:
 
   apps/core:
     dependencies:
+      '@aws-sdk/client-ses':
+        specifier: ^3.481.0
+        version: 3.481.0
       '@fastify/cors':
         specifier: ^8.4.1
         version: 8.5.0
@@ -56,6 +59,9 @@ importers:
       '@next/queue':
         specifier: workspace:^
         version: link:../queue
+      bullmq:
+        specifier: ^4.14.3
+        version: 4.16.0
       close-with-grace:
         specifier: ^1.2.0
         version: 1.2.0
@@ -622,9 +628,9 @@ packages:
     engines: {node: '>=14.0.0'}
     dependencies:
       '@aws-sdk/types': 3.468.0
-      '@smithy/property-provider': 2.0.13
+      '@smithy/property-provider': 2.0.16
       '@smithy/protocol-http': 3.0.11
-      '@smithy/signature-v4': 2.0.12
+      '@smithy/signature-v4': 2.0.18
       '@smithy/types': 2.7.0
       '@smithy/util-middleware': 2.0.8
       tslib: 2.6.2
@@ -1538,15 +1544,6 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /@smithy/eventstream-codec@2.0.12:
-    resolution: {integrity: sha512-ZZQLzHBJkbiAAdj2C5K+lBlYp/XJ+eH2uy+jgJgYIFW/o5AM59Hlj7zyI44/ZTDIQWmBxb3EFv/c5t44V8/g8A==}
-    dependencies:
-      '@aws-crypto/crc32': 3.0.0
-      '@smithy/types': 2.7.0
-      '@smithy/util-hex-encoding': 2.0.0
-      tslib: 2.6.2
-    dev: false
-
   /@smithy/eventstream-codec@2.0.15:
     resolution: {integrity: sha512-crjvz3j1gGPwA0us6cwS7+5gAn35CTmqu/oIxVbYJo2Qm/sGAye6zGJnMDk3BKhWZw5kcU1G4MxciTkuBpOZPg==}
     dependencies:
@@ -1664,14 +1661,6 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /@smithy/property-provider@2.0.13:
-    resolution: {integrity: sha512-VJqUf2CbsQX6uUiC5dUPuoEATuFjkbkW3lJHbRnpk9EDC9X+iKqhfTK+WP+lve5EQ9TcCI1Q6R7hrg41FyC54w==}
-    engines: {node: '>=14.0.0'}
-    dependencies:
-      '@smithy/types': 2.7.0
-      tslib: 2.6.2
-    dev: false
-
   /@smithy/property-provider@2.0.16:
     resolution: {integrity: sha512-28Ky0LlOqtEjwg5CdHmwwaDRHcTWfPRzkT6HrhwOSRS2RryAvuDfJrZpM+BMcrdeCyEg1mbcgIMoqTla+rdL8Q==}
     engines: {node: '>=14.0.0'}
@@ -1717,20 +1706,6 @@ packages:
     engines: {node: '>=14.0.0'}
     dependencies:
       '@smithy/types': 2.7.0
-      tslib: 2.6.2
-    dev: false
-
-  /@smithy/signature-v4@2.0.12:
-    resolution: {integrity: sha512-6Kc2lCZEVmb1nNYngyNbWpq0d82OZwITH11SW/Q0U6PX5fH7B2cIcFe7o6eGEFPkTZTP8itTzmYiGcECL0D0Lw==}
-    engines: {node: '>=14.0.0'}
-    dependencies:
-      '@smithy/eventstream-codec': 2.0.12
-      '@smithy/is-array-buffer': 2.0.0
-      '@smithy/types': 2.7.0
-      '@smithy/util-hex-encoding': 2.0.0
-      '@smithy/util-middleware': 2.0.5
-      '@smithy/util-uri-escape': 2.0.0
-      '@smithy/util-utf8': 2.0.2
       tslib: 2.6.2
     dev: false
 
@@ -1848,14 +1823,6 @@ packages:
     resolution: {integrity: sha512-c5xY+NUnFqG6d7HFh1IFfrm3mGl29lC+vF+geHv4ToiuJCBmIfzx6IeHLg+OgRdPFKDXIw6pvi+p3CsscaMcMA==}
     engines: {node: '>=14.0.0'}
     dependencies:
-      tslib: 2.6.2
-    dev: false
-
-  /@smithy/util-middleware@2.0.5:
-    resolution: {integrity: sha512-1lyT3TcaMJQe+OFfVI+TlomDkPuVzb27NZYdYtmSTltVmLaUjdCyt4KE+OH1CnhZKsz4/cdCL420Lg9UH5Z2Mw==}
-    engines: {node: '>=14.0.0'}
-    dependencies:
-      '@smithy/types': 2.7.0
       tslib: 2.6.2
     dev: false
 
