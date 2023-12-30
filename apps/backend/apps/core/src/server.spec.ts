@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { buildApp } from '@/app.js';
+import { buildApp } from './app.js';
 import type { FastifyInstance } from 'fastify';
 
 describe('Server', () => {
