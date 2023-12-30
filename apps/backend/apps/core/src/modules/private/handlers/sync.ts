@@ -1,5 +1,5 @@
-import { DisciplinaModel } from '@next/models';
-import { syncMatriculas } from '@next/queue';
+import { syncMatriculas } from '@/queue/jobs/syncMatriculas.js';
+import { DisciplinaModel } from '@/models/index.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export async function sync(
@@ -10,7 +10,6 @@ export async function sync(
 ) {
   const operation = request.query;
 
-  // @ts-expect-error Mongoose Types
   const result = await syncMatriculas(operation, DisciplinaModel);
 
   reply.send(result);

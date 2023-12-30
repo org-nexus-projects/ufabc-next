@@ -1,7 +1,8 @@
-import { assert, describe, it } from 'vitest';
-import { calculateCoefficients } from './calculateCoefficients.js';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { calculateCoefficients } from './calculateCoefficients';
 
-describe('calculateCoefficients', () => {
+describe('common.lib.calculateCoefficients', () => {
   it('should calculate coefficients', () => {
     const mockedDisciplines = [
       {
@@ -73,8 +74,11 @@ describe('calculateCoefficients', () => {
       mandatory_credits_number: 90,
     };
 
-    const result = calculateCoefficients(mockedDisciplines, mockedGraduation);
-    assert.equal(0.089, result['2020'][3].cp_acumulado);
-    assert.equal(0.211, result['2021'][1].cp_acumulado);
+    const result: any = calculateCoefficients(
+      mockedDisciplines as any,
+      mockedGraduation as any,
+    );
+    assert.deepEqual(0.089, result['2020'][3].cp_acumulado);
+    assert.deepEqual(0.211, result['2021'][1].cp_acumulado);
   });
 });

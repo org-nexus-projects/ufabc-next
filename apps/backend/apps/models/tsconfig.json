@@ -1,9 +1,0 @@
-{
-  "extends": "@next/tsconfig/fastify.json",
-  "include": [
-    "src/schema/**.ts",
-    "src/index.ts",
-    "src/config/**.ts",
-    "*.config.ts"
-  ]
-}

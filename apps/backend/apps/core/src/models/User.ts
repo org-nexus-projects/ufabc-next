@@ -6,7 +6,7 @@ import {
 } from 'mongoose';
 import { uniqBy } from 'remeda';
 import jwt from 'jsonwebtoken';
-import { addEmailToConfirmationQueue } from '@next/queue';
+import { addEmailToConfirmationQueue } from '@/queue/jobs/confirmationEmail.js';
 
 type Device = {
   deviceId: string;

@@ -1,4 +1,4 @@
-import { GraduationHistoryModel } from '@next/models';
+import { GraduationHistoryModel } from '@/models/index.js';
 import type { ObjectId } from 'mongoose';
 import type { RouteHandler } from 'fastify';
 

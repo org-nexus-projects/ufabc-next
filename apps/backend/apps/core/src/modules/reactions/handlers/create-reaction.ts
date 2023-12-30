@@ -1,4 +1,4 @@
-import { CommentModel, type Reaction, ReactionModel } from '@next/models';
+import { CommentModel, type Reaction, ReactionModel } from '@/models/index.js';
 import type { ObjectId } from 'mongoose';
 import type { RouteHandler } from 'fastify';
 

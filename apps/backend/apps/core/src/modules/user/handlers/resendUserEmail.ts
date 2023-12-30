@@ -1,4 +1,4 @@
-import { UserModel } from '@next/models';
+import { UserModel } from '@/models/index.js';
 import type { FastifyRequest } from 'fastify';
 
 export async function resendUserEmail(request: FastifyRequest) {

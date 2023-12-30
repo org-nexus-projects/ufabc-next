@@ -1,10 +1,10 @@
-import { addUserEnrollmentsToQueue } from '@next/queue';
 import {
   type InferSchemaType,
   Schema,
   type UpdateQuery,
   model,
 } from 'mongoose';
+import { addUserEnrollmentsToQueue } from '@/queue/jobs/userEnrollmentsUpdate.js';
 import { EnrollmentModel } from './Enrollment.js';
 import { GraduationModel } from './Graduation.js';
 import { GraduationHistoryModel } from './GraduationHistory.js';

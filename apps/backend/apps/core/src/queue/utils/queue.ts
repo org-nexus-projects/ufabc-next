@@ -5,6 +5,7 @@ import {
   Worker,
   type WorkerOptions,
 } from 'bullmq';
+import { logger } from '@next/common';
 import { Config } from '@/config/config.js';
 
 const DEFAULT_REDIS_PORT = 6379;
@@ -29,5 +30,6 @@ export function createWorker<TJobData>(
   processor?: Processor<TJobData>,
   opts?: WorkerOptions,
 ) {
+  logger.info({ msg: `[QUEUE] Worker ${queueName} was created` });
   return new Worker(queueName, processor, { connection, ...opts });
 }

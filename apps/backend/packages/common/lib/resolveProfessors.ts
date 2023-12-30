@@ -1,6 +1,10 @@
 import { diffChars } from 'diff';
 import { camelCase, startCase } from 'lodash-es';
-import type { Teacher } from '@/types/models.js';
+
+type Teacher = {
+  alias: string[];
+  name: string;
+};
 
 export function resolveProfessors(
   name: string,

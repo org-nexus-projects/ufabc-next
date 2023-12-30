@@ -1,11 +1,11 @@
 import { asyncParallelMap, generateIdentifier, logger } from '@next/common';
-import { createQueue } from '@/helpers/queueUtil.js';
-import type { EnrollmentDocument, EnrollmentModel } from '@/types/models.js';
+import { createQueue } from '../utils/queue.js';
+import type { EnrollmentDocument, EnrollmentModel } from '@/models/index.js';
 import type { Job } from 'bullmq';
 
 type UpdateEnrollments = {
   payload: { json: EnrollmentDocument[] };
-  enrollmentModel: EnrollmentModel;
+  enrollmentModel: typeof EnrollmentModel;
 };
 
 function updateEnrollments(data: any) {
@@ -51,7 +51,7 @@ function updateEnrollments(data: any) {
   return asyncParallelMap(data, updateEnrollment, 10);
 }
 
-export const updateEnrollmentsQueue = createQueue('Update:Enrollments');
+export const updateEnrollmentsQueue = createQueue('Enrollments:Update');
 
 export const addEnrollmentsToQueue = async (
   payload: Job<UpdateEnrollments>,

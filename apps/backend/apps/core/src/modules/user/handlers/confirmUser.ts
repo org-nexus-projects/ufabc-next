@@ -1,4 +1,4 @@
-import { UserModel } from '@next/models';
+import { UserModel } from '@/models/index.js';
 import { Config } from '@/config/config.js';
 import { ParsedUserToken } from '../sign-up-schema.js';
 import { confirmToken } from '../email-token.js';

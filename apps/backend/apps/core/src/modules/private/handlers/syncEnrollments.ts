@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto';
-import { DisciplinaModel, type Enrollment } from '@next/models';
 import { ofetch } from 'ofetch';
 import { convertUfabcDisciplinas, generateIdentifier } from '@next/common';
-import { updateEnrollmentsQueue } from '@next/queue';
+import { updateEnrollmentsQueue } from '@/queue/jobs/enrollmentsUpdate.js';
+import { DisciplinaModel, type Enrollment } from '@/models/index.js';
 import { type ParseXlSXBody, parseXlsx } from '../utils/parseXlsx.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 

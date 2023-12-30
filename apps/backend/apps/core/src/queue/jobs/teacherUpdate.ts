@@ -1,7 +1,11 @@
-import { asyncParallelMap, generateIdentifier, logger } from '@next/common';
-import { createQueue } from '@/helpers/queueUtil.js';
-import { resolveProfessors } from '@/helpers/resolveProfessors.js';
-import type { EnrollmentModel, TeacherModel } from '@/types/models.js';
+import {
+  asyncParallelMap,
+  generateIdentifier,
+  logger,
+  resolveProfessors,
+} from '@next/common';
+import { createQueue } from '../utils/queue.js';
+import type { EnrollmentModel, TeacherModel } from '@/models/index.js';
 import type { Job } from 'bullmq';
 
 //TODO: Check if this is the correct type (pratica and teoria are not in the spreadsheet)
@@ -18,8 +22,8 @@ type parsedData = {
 
 type UpdateTeachers = {
   payload: { json: parsedData[] };
-  teacherModel: TeacherModel;
-  enrollmentModel: EnrollmentModel;
+  teacherModel: typeof TeacherModel;
+  enrollmentModel: typeof EnrollmentModel;
 };
 
 export async function updateTeachers({
@@ -64,10 +68,10 @@ export async function updateTeachers({
   return asyncParallelMap(data, updateTeacherInEnrollments, 10);
 }
 
-export const updateTeachersQueue = createQueue('Update:TeachersEnrollments');
+export const updateTeachersQueue = createQueue('Teacher:UpdateEnrollments');
 
 export const addTeachersToQueue = async (payload: { json: unknown }) => {
-  await updateTeachersQueue.add('Update:TeachersEnrollments', payload);
+  await updateTeachersQueue.add('Teacher:UpdateEnrollments', payload);
 };
 
 export const updateTeachersWorker = async (job: Job<UpdateTeachers>) => {

@@ -1,18 +1,22 @@
-import { asyncParallelMap, generateIdentifier, logger } from '@next/common';
+import {
+  type HistoryDiscipline,
+  asyncParallelMap,
+  calculateCoefficients,
+  generateIdentifier,
+  logger,
+  modifyPayload,
+} from '@next/common';
 import { get } from 'lodash-es';
-import { calculateCoefficients } from '@/helpers/calculateCoefficients.js';
-import { createQueue } from '@/helpers/queueUtil.js';
-import { modifyPayload } from '@/helpers/validateSubjects.js';
+import { createQueue } from '../utils/queue.js';
 import type {
   EnrollmentModel,
   GraduationDocument,
   GraduationHistoryModel,
   GraduationModel,
   History,
-  HistoryDiscipline,
   SubjectDocument,
   SubjectModel,
-} from '@/types/models.js';
+} from '@/models/index.js';
 import type { Job } from 'bullmq';
 
 //TODO: Add cache for main teacher and subject
@@ -21,10 +25,10 @@ import type { Job } from 'bullmq';
 
 type UpdateUserEnrollments = {
   doc: History;
-  enrollmentModel: EnrollmentModel;
-  graduationModel: GraduationModel;
-  graduationHistoryModel: GraduationHistoryModel;
-  subjectModel: SubjectModel;
+  enrollmentModel: typeof EnrollmentModel;
+  graduationModel: typeof GraduationModel;
+  graduationHistoryModel: typeof GraduationHistoryModel;
+  subjectModel: typeof SubjectModel;
 };
 
 export async function updateUserEnrollments({
@@ -169,16 +173,16 @@ function getLastPeriod(
 }
 
 export const updaterUserEnrollmentsQueue = createQueue(
-  'Update:UserEnrollments',
+  'UserEnrollments:Update',
 );
 
 export const addUserEnrollmentsToQueue = async (
   payload: Job<UpdateUserEnrollments>,
 ) => {
-  await updaterUserEnrollmentsQueue.add('Update:UserEnrollments', payload);
+  await updaterUserEnrollmentsQueue.add('UserEnrollments:Update', payload);
 };
 
-export const updateUserEnrollmentsWorker = async (
+export const userEnrollmentsUpdateWorker = async (
   job: Job<UpdateUserEnrollments>,
 ) => {
   const payload = job.data;
