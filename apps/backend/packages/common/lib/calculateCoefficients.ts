@@ -1,6 +1,6 @@
 //this type is the same as the disciplina field in the history model
 
-type HistoryDiscipline = {
+export type HistoryDiscipline = {
   ano: number;
   categoria: string;
   situacao: string;

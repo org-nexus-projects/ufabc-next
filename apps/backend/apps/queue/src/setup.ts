@@ -8,10 +8,6 @@
 
 // logger.info('[QUEUE] Starting workers');
 
-// const enrollmentsWorker = createWorker(
-//   'Update:Enrollments',
-//   updateEnrollmentsWorker,
-// );
 // const userEnrollmentsWorker = createWorker(
 //   'Update:UserEnrollments',
 //   updateUserEnrollmentsWorker,
