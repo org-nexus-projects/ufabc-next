@@ -2,7 +2,7 @@ import gracefullyShutdown from 'close-with-grace';
 import { logger } from '@next/common';
 import { Config } from './config/config.js';
 import { buildApp } from './app.js';
-import { emailWorker } from './queue/setup.js';
+import { emailWorker, enrollmentsWorker } from './queue/setup.js';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import type { FastifyServerOptions } from 'fastify';
 
@@ -26,7 +26,7 @@ async function start() {
     }
 
     app.log.info({ signal }, 'Gracefully exiting app');
-    await Promise.all([emailWorker.close()]);
+    await Promise.all([emailWorker.close(), enrollmentsWorker.close()]);
     await app.close();
     process.exit(1);
   });
