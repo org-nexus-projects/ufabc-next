@@ -9,6 +9,7 @@ import {
   teachersUpdateWorker,
   userEnrollmentsWorker,
 } from './queue/setup.js';
+import { addSyncToQueue } from './queue/jobs/syncMatriculas.js';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import type { FastifyServerOptions } from 'fastify';
 
@@ -26,6 +27,8 @@ async function start() {
   await app.listen({ port: Config.PORT, host: Config.HOST });
   // start queue right after the app
   await import('./queue/setup.js');
+  await addSyncToQueue({ operation: 'alunos_matriculados', redis: app.redis });
+
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {
     if (err) {
       app.log.fatal({ err }, 'error starting app');

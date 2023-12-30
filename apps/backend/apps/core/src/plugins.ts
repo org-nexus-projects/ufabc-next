@@ -13,21 +13,21 @@ export async function loadPlugins(app: FastifyInstance) {
     await app.register(Mongoose, {
       connectionUrl: Config.MONGODB_CONNECTION_URL,
     }),
-    await app.register(Redis, {
+    app.register(Redis, {
       username: Config.REDIS_USER,
       password: Config.REDIS_PASSWORD,
       host: Config.REDIS_HOST,
       port: Config.REDIS_PORT,
     }),
-    await app.register(JwtAuth, {
+    app.register(JwtAuth, {
       secret: Config.JWT_SECRET,
     }),
-    await app.register(Oauth2, {
+    app.register(Oauth2, {
       googleId: Config.OAUTH_GOOGLE_CLIENT_ID,
       googleSecret: Config.OAUTH_GOOGLE_SECRET,
       facebookId: Config.OAUTH_FACEBOOK_CLIENT_ID,
       facebookSecret: Config.OAUTH_FACEBOOK_SECRET,
     }),
-    await app.register(Swagger),
+    app.register(Swagger),
   ]);
 }

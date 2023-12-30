@@ -6,7 +6,6 @@ import {
 
 import { loadPlugins } from './plugins.js';
 import { internalRoutes, nextRoutes, publicRoutes } from './modules/routes.js';
-import { addSyncToQueue } from './queue/jobs/syncMatriculas.js';
 
 export async function buildApp(opts: FastifyServerOptions = {}) {
   const app = fastify(opts);
@@ -14,7 +13,6 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
   try {
-    await loadPlugins(app);
     await loadPlugins(app);
     await app.register(publicRoutes);
     await app.register(nextRoutes, {
