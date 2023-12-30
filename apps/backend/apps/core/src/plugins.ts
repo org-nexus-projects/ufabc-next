@@ -10,7 +10,7 @@ import type { FastifyInstance } from 'fastify';
 export async function loadPlugins(app: FastifyInstance) {
   await Promise.all([
     app.register(Cors),
-    await app.register(Mongoose, {
+    app.register(Mongoose, {
       connectionUrl: Config.MONGODB_CONNECTION_URL,
     }),
     app.register(Redis, {

@@ -1,7 +1,6 @@
 import {
   type InferSchemaType,
   Schema,
-  Types,
   type UpdateQuery,
   model,
 } from 'mongoose';
@@ -20,7 +19,7 @@ const disciplinaSchema = new Schema(
     ideal_quad: Boolean,
 
     subject: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'subjects',
     },
 
@@ -51,11 +50,11 @@ const disciplinaSchema = new Schema(
     quad: Number,
     season: String,
     teoria: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'teachers',
     },
     pratica: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'teachers',
     },
   },

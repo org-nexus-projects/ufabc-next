@@ -99,7 +99,4 @@ export type Enrollment = InferSchemaType<typeof enrollmentSchema>;
 export type EnrollmentDocument = ReturnType<
   (typeof EnrollmentModel)['hydrate']
 >;
-export const EnrollmentModel = model<Enrollment>(
-  'enrollments',
-  enrollmentSchema,
-);
+export const EnrollmentModel = model('enrollments', enrollmentSchema);

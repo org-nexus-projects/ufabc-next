@@ -1,4 +1,6 @@
-import { type InferSchemaType, Schema, Types, model } from 'mongoose';
+import { type InferSchemaType, Schema, model } from 'mongoose';
+
+// TODO: refactor the shit out of this models
 
 const graduationHistorySchema = new Schema(
   {
@@ -10,7 +12,7 @@ const graduationHistorySchema = new Schema(
     curso: String,
     grade: String,
     graduation: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'graduation',
     },
   },
