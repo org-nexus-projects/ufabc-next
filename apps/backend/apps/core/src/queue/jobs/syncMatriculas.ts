@@ -1,16 +1,16 @@
 import { currentQuad, logger } from '@next/common';
 import { ofetch } from 'ofetch';
-import { Redis } from 'ioredis';
-import { createQueue } from '@/helpers/queueUtil.js';
-import { batchInsertItems } from '@/helpers/batch-insert.js';
-import { Config } from '@/config/config.js';
-import type { DisciplinaModel } from '@/types/models.js';
+// import { Redis } from 'ioredis';
+// import { Config } from '@/config/config.js';
+import { createQueue } from '../utils/queue.js';
+import { batchInsertItems } from '../utils/batch-insert.js';
+import type { DisciplinaModel } from '@/models/index.js';
 import type { Job, JobsOptions } from 'bullmq';
 import type { ObjectId } from 'mongoose';
 
 type SyncParams = {
   operation: 'alunos_matriculados' | 'before_kick' | 'after_kick' | '';
-  disciplinaModel: DisciplinaModel;
+  disciplinaModel: typeof DisciplinaModel;
 };
 
 type SyncDisciplinas = {
@@ -60,7 +60,7 @@ const parseEnrollments = (data: Record<string, number[]>) => {
 //so it can be used by the queue and by the route
 export async function syncMatriculas(
   operation: string = '',
-  disciplinaModel: DisciplinaModel,
+  disciplinaModel: typeof DisciplinaModel,
 ) {
   const season = currentQuad();
   const operationMap = new Map([
@@ -86,12 +86,12 @@ export async function syncMatriculas(
   //but for now this will do
   //TODO: find a bulletproof way to handle redis connections
   // so we don't have to create a new connection every time
-  const redis = new Redis({
-    username: Config.REDIS_USER,
-    password: Config.REDIS_PASSWORD,
-    host: Config.REDIS_HOST,
-    port: Config.REDIS_PORT,
-  });
+  // const redis = new Redis({
+  //   username: Config.REDIS_USER,
+  //   password: Config.REDIS_PASSWORD,
+  //   host: Config.REDIS_HOST,
+  //   port: Config.REDIS_PORT,
+  // });
 
   const updateEnrolledStudents = async (
     enrollmentId: string,
@@ -99,7 +99,8 @@ export async function syncMatriculas(
   ): Promise<'OK' | SyncDisciplinas | null> => {
     const cacheKey = `disciplina_${season}_${enrollmentId}`;
     // only get cache result if we are doing a sync operation
-    const cachedMatriculas = isSync ? await redis.get(cacheKey) : {};
+    // const cachedMatriculas = isSync ? await redis.get(cacheKey) : {};
+    const cachedMatriculas = {};
     const isPayloadEqual =
       JSON.stringify(cachedMatriculas) ===
       JSON.stringify(payload[enrollmentId]);
@@ -127,13 +128,13 @@ export async function syncMatriculas(
     );
     // save matriculas for this disciplina on cache if is sync operation
     if (isSync) {
-      await redis.set(
-        cacheKey,
-        JSON.stringify(payload[enrollmentId]),
-        'EX',
-        60 * 2,
-        'NX',
-      );
+      // await redis.set(
+      //   cacheKey,
+      //   JSON.stringify(payload[enrollmentId]),
+      //   'EX',
+      //   60 * 2,
+      //   'NX',
+      // );
 
       await disciplinaModel.findOneAndUpdate(
         {
@@ -161,7 +162,7 @@ export async function syncMatriculas(
     },
   );
 
-  await redis.quit();
+  // await redis.quit();
 
   return {
     status: 'Sync has been successfully',

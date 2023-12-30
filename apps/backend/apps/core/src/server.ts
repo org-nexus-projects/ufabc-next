@@ -5,6 +5,7 @@ import { buildApp } from './app.js';
 import {
   emailWorker,
   enrollmentsWorker,
+  syncMatriculasWorker,
   teachersUpdateWorker,
   userEnrollmentsWorker,
 } from './queue/setup.js';
@@ -36,6 +37,7 @@ async function start() {
       enrollmentsWorker.close(),
       userEnrollmentsWorker.close(),
       teachersUpdateWorker.close(),
+      syncMatriculasWorker.close(),
     ]);
     await app.close();
     process.exit(1);
