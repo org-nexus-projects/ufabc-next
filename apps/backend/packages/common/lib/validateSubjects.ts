@@ -1,5 +1,4 @@
 import { camelCase, startCase } from 'lodash-es';
-import type { Enrollment, SubjectDocument } from '@/types/models.js';
 
 export function validateSubjects(
   payload: Enrollment,
@@ -23,6 +22,36 @@ export function validateSubjects(
     )
     .map((resultPayload) => resultPayload.disciplina!);
 }
+
+type Enrollment = {
+  year: number;
+  quad: number;
+  comments?: string;
+  type?: 'teoria' | 'pratica';
+  ra: number;
+  creditos?: number;
+  turno?: string;
+  disciplina?: string;
+  season?: string;
+  mainTeacher?: string;
+  teoria?: string;
+  pratica?: string;
+  identifier?: string;
+  campus?: string;
+  turma?: string;
+  conceito?: string;
+  ca_acumulado?: number;
+  cr_acumulado?: number;
+  cp_acumulado?: number;
+  subject?: string;
+};
+
+type SubjectDocument = {
+  _id: string;
+  name: string;
+  search?: string;
+  creditos?: number;
+};
 
 export function modifyPayload(
   payload: Enrollment,
