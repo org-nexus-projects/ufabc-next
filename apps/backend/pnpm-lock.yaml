@@ -53,9 +53,6 @@ importers:
       '@next/constants':
         specifier: workspace:^
         version: link:../../packages/constants
-      '@next/models':
-        specifier: workspace:^
-        version: link:../models
       '@next/queue':
         specifier: workspace:^
         version: link:../queue
@@ -74,12 +71,18 @@ importers:
       fastify-type-provider-zod:
         specifier: ^1.1.9
         version: 1.1.9(fastify@4.25.2)(zod@3.22.4)
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
       mongoose:
         specifier: ^7.6.7
         version: 7.6.7
       ofetch:
         specifier: ^1.3.3
         version: 1.3.3
+      remeda:
+        specifier: ^1.33.0
+        version: 1.33.0
       xlsx:
         specifier: https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz
         version: '@cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz'
@@ -96,6 +99,9 @@ importers:
       '@total-typescript/ts-reset':
         specifier: ^0.5.1
         version: 0.5.1
+      '@types/jsonwebtoken':
+        specifier: ^9.0.5
+        version: 9.0.5
       '@types/node':
         specifier: ^20.10.0
         version: 20.10.5
