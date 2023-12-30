@@ -1,5 +1,5 @@
-import { DisciplinaModel } from '@next/models';
 import { syncMatriculas } from '@next/queue';
+import { DisciplinaModel } from '@/models/index.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export async function sync(

@@ -1,6 +1,6 @@
 import { statSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
-import * as coreModels from '@next/models';
+import * as coreModels from '../../src/models';
 
 export function loadCoreModels() {
   const orderedModels = [coreModels].reverse();

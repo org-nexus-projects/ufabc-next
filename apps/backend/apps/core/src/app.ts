@@ -4,7 +4,7 @@ import {
   validatorCompiler,
 } from 'fastify-type-provider-zod';
 import { addSyncToQueue } from '@next/queue';
-import { DisciplinaModel } from '@next/models';
+import { DisciplinaModel } from './models/index.js';
 import { Config } from './config/config.js';
 
 // Plugins

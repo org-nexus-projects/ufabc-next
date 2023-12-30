@@ -1,4 +1,4 @@
-import { CommentModel } from '@next/models';
+import { CommentModel } from '@/models/index.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 type TeacherCommentParams = {

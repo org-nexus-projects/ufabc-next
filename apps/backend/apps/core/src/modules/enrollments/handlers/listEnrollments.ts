@@ -1,4 +1,4 @@
-import { EnrollmentModel } from '@next/models';
+import { EnrollmentModel } from '@/models/index.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export async function listEnrollments(
