@@ -202,6 +202,9 @@ importers:
 
   packages/common:
     dependencies:
+      diff:
+        specifier: ^5.1.0
+        version: 5.1.0
       latinize:
         specifier: ^2.0.0
         version: 2.0.0
@@ -212,6 +215,9 @@ importers:
       '@next/tsconfig':
         specifier: workspace:^
         version: link:../tsconfig
+      '@types/diff':
+        specifier: ^5.0.9
+        version: 5.0.9
       '@types/latinize':
         specifier: ^0.2.18
         version: 0.2.18
