@@ -2,6 +2,7 @@ import gracefullyShutdown from 'close-with-grace';
 import { logger } from '@next/common';
 import { Config } from './config/config.js';
 import { buildApp } from './app.js';
+import { emailWorker } from './queue/setup.js';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import type { FastifyServerOptions } from 'fastify';
 
@@ -17,13 +18,15 @@ async function start() {
 
   app.withTypeProvider<ZodTypeProvider>();
   await app.listen({ port: Config.PORT, host: Config.HOST });
-
+  // start queue right after the app
+  await import('./queue/setup.js');
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {
     if (err) {
       app.log.fatal({ err }, 'error starting app');
     }
 
     app.log.info({ signal }, 'Gracefully exiting app');
+    await Promise.all([emailWorker.close()]);
     await app.close();
     process.exit(1);
   });

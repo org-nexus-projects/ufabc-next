@@ -44,12 +44,7 @@ export const sendEmailWorker = async (job: Job<UfabcUser>) => {
   const user = job.data;
 
   try {
-    const result = await sendConfirmationEmail(user);
-    logger.info({
-      msg: 'Email sent to',
-      email: result.data.email,
-      ra: result.data.ra,
-    });
+    await sendConfirmationEmail(user);
   } catch (error) {
     logger.error({ error }, 'sendEmailWorker: Error sending email');
     throw error;
