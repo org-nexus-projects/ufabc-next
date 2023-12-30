@@ -36,18 +36,6 @@ export type GraduationHistoryDocument = {
 
 export type GraduationHistoryModel = Model<GraduationHistoryDocument>;
 
-export type HistoryDiscipline = {
-  ano: number;
-  categoria: string;
-  situacao: string;
-  periodo: number;
-  creditos: number;
-  conceito: string;
-  codigo: string;
-  disciplina: string;
-  identifier: string;
-};
-
 export type Disciplina = {
   identifier: string;
   obrigatorias: number[];

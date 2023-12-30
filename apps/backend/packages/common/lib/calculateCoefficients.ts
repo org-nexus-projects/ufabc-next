@@ -1,6 +1,31 @@
-import type { Graduation, HistoryDiscipline } from '@/types/models.js';
-
 //this type is the same as the disciplina field in the history model
+
+type HistoryDiscipline = {
+  ano: number;
+  categoria: string;
+  situacao: string;
+  periodo: number;
+  creditos: number;
+  conceito: string;
+  codigo: string;
+  disciplina: string;
+  identifier: string;
+};
+
+type Graduation = {
+  locked: boolean;
+  creditsBreakdown: {
+    year?: number;
+    quad?: number;
+    choosableCredits?: number;
+  }[];
+  curso?: string;
+  grade?: string;
+  mandatory_credits_number?: number;
+  limited_credits_number?: number;
+  free_credits_number?: number;
+  credits_total?: number;
+};
 
 export function calculateCoefficients(
   disciplinas: HistoryDiscipline[],
