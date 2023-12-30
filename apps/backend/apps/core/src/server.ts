@@ -5,6 +5,7 @@ import { buildApp } from './app.js';
 import {
   emailWorker,
   enrollmentsWorker,
+  teachersUpdateWorker,
   userEnrollmentsWorker,
 } from './queue/setup.js';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
@@ -34,6 +35,7 @@ async function start() {
       emailWorker.close(),
       enrollmentsWorker.close(),
       userEnrollmentsWorker.close(),
+      teachersUpdateWorker.close(),
     ]);
     await app.close();
     process.exit(1);
