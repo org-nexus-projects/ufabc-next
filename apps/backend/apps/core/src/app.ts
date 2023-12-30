@@ -6,6 +6,7 @@ import {
 
 import { loadPlugins } from './plugins.js';
 import { internalRoutes, nextRoutes, publicRoutes } from './modules/routes.js';
+import { addSyncToQueue } from './queue/jobs/syncMatriculas.js';
 
 export async function buildApp(opts: FastifyServerOptions = {}) {
   const app = fastify(opts);
@@ -20,6 +21,10 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
     });
     await app.register(internalRoutes, {
       prefix: '/v2',
+    });
+    await addSyncToQueue({
+      operation: 'alunos_matriculados',
+      redis: app.redis,
     });
   } catch (error) {
     app.log.fatal({ error }, 'build app error');

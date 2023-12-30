@@ -2,7 +2,7 @@ import {
   type SyncEnrollmentsRequest,
   syncEnrollments,
 } from './handlers/syncEnrollments.js';
-import { sync } from './handlers/sync.js';
+import { syncMatriculasHandler } from './handlers/syncMatriculas.js';
 import { isAdminValidator } from './isAdmin.js';
 import type { FastifyInstance } from 'fastify';
 
@@ -10,7 +10,11 @@ import type { FastifyInstance } from 'fastify';
 export async function privateRoutes(app: FastifyInstance) {
   app.get<{
     Querystring: 'alunos_matriculados' | 'before_kick' | 'after_kick';
-  }>('/matriculas/sync', { preValidation: [isAdminValidator] }, sync);
+  }>(
+    '/matriculas/sync',
+    { preValidation: [isAdminValidator] },
+    syncMatriculasHandler,
+  );
   app.post<SyncEnrollmentsRequest>(
     '/enrollments/sync',
     { preValidation: [isAdminValidator] },
