@@ -173,13 +173,13 @@ function getLastPeriod(
 }
 
 export const updaterUserEnrollmentsQueue = createQueue(
-  'Update:UserEnrollments',
+  'UserEnrollments:Update',
 );
 
 export const addUserEnrollmentsToQueue = async (
   payload: Job<UpdateUserEnrollments>,
 ) => {
-  await updaterUserEnrollmentsQueue.add('Update:UserEnrollments', payload);
+  await updaterUserEnrollmentsQueue.add('UserEnrollments:Update', payload);
 };
 
 export const userEnrollmentsUpdateWorker = async (

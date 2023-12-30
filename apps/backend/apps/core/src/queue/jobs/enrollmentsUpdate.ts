@@ -51,7 +51,7 @@ function updateEnrollments(data: any) {
   return asyncParallelMap(data, updateEnrollment, 10);
 }
 
-export const updateEnrollmentsQueue = createQueue('Update:Enrollments');
+export const updateEnrollmentsQueue = createQueue('Enrollments:Update');
 
 export const addEnrollmentsToQueue = async (
   payload: Job<UpdateEnrollments>,

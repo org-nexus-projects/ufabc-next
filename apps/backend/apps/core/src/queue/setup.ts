@@ -16,7 +16,7 @@ export const userEnrollmentsWorker = createWorker(
   userEnrollmentsUpdateWorker,
 );
 export const teachersUpdateWorker = createWorker(
-  'Teacher:Update',
+  'Teacher:UpdateEnrollments',
   updateTeachersWorker,
 );
 export const syncMatriculasWorker = createWorker('Matriculas:Sync', syncWorker);
