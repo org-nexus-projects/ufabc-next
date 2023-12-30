@@ -52,4 +52,4 @@ studentSchema.pre('findOneAndUpdate', function () {
 });
 
 export type Student = InferSchemaType<typeof studentSchema>;
-export const StudentModel = model<Student>('alunos', studentSchema);
+export const StudentModel = model('alunos', studentSchema);

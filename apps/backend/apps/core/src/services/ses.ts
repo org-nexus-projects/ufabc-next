@@ -5,6 +5,7 @@ import {
 } from '@aws-sdk/client-ses';
 import { logger } from '@next/common';
 import { Config } from '@/config/config.js';
+import type { User } from '@/models/User.js';
 
 type Email = {
   recipient: string;
@@ -15,13 +16,8 @@ type Email = {
   };
 };
 
-type UfabcUser = {
-  email: string;
-  ra: number;
-};
-
 export async function sesSendEmail(
-  user: UfabcUser,
+  user: Partial<User>,
   templateId: 'Confirmation' | 'Recover',
   email: Email,
 ) {
@@ -46,7 +42,7 @@ export async function sesSendEmail(
     const sendTemplatedEmailCommand = {
       Source: 'UFABC next <contato@ufabcnext.com>',
       Destination: {
-        ToAddresses: [user.email],
+        ToAddresses: [user.email!],
       },
       TemplateData: templateData,
       Template: templateId,
