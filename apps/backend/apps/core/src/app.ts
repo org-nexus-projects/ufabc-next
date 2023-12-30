@@ -15,16 +15,13 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
   app.setSerializerCompiler(serializerCompiler);
   try {
     await loadPlugins(app);
+    await loadPlugins(app);
     await app.register(publicRoutes);
     await app.register(nextRoutes, {
       prefix: '/v2',
     });
     await app.register(internalRoutes, {
       prefix: '/v2',
-    });
-    await addSyncToQueue({
-      operation: 'alunos_matriculados',
-      redis: app.redis,
     });
   } catch (error) {
     app.log.fatal({ error }, 'build app error');
