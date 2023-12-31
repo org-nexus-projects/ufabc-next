@@ -1,25 +1,57 @@
 import { type InferSchemaType, Schema, model } from 'mongoose';
 // let userEnrollmentsJob: any;
 
-const historyDisciplinaSchema = new Schema(
+const CONCEITOS = ['A', 'B', 'C', 'D', 'O', 'F', '-'] as const;
+const POSSIBLE_SITUATIONS = [
+  'Repr.Freq',
+  'Aprovado',
+  'Reprovado',
+  'Trt. Total',
+  'Apr.S.Nota',
+  'Aproveitamento',
+] as const;
+
+const historiesDisciplinasSchema = new Schema(
   {
     periodo: String,
     codigo: String,
     disciplina: String,
     ano: Number,
-    situacao: String,
+    situacao: {
+      type: String,
+      enum: POSSIBLE_SITUATIONS,
+    },
     creditos: Number,
     categoria: String,
-    conceito: String,
+    conceito: {
+      type: String,
+      enum: CONCEITOS,
+    },
+    identifier: String,
   },
   { _id: false },
 );
 
+type Coefficients = {
+  ca_quad: number;
+  ca_acumulado: number;
+  cr_quad: number;
+  cr_acumulado: number;
+  cp_acumulado: number;
+  percentage_approved: number;
+  accumulated_credits: number;
+  period_credits: number;
+};
+
+type CoefficientsMap = Record<1 | 2 | 3, Coefficients>;
+
+type HistoryCoefficients = Record<number, CoefficientsMap>;
+
 const historySchema = new Schema(
   {
     ra: Number,
-    disciplinas: [historyDisciplinaSchema],
-    coefficients: Object,
+    disciplinas: [historiesDisciplinasSchema],
+    coefficients: Object as unknown as HistoryCoefficients,
     curso: String,
     grade: String,
   },
