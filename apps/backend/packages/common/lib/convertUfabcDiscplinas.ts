@@ -9,6 +9,8 @@ import latinize from 'latinize';
 export type Disciplina = {
   nome: string;
   id: string;
+  obrigatorias: string[];
+  obrigatoriedades: Array<{ curso_id: string }>;
   campus?: 'santo andre' | 'sao bernardo' | null;
   turno?: 'noturno' | 'diurno' | 'tarde' | null;
   horarios: string | string[];
@@ -26,6 +28,9 @@ export function convertUfabcDisciplinas(
   const clonedDisciplinas = structuredClone(disciplina);
   clonedDisciplinas.campus = undefined;
   clonedDisciplinas.turno = undefined;
+  clonedDisciplinas.obrigatorias = clonedDisciplinas.obrigatoriedades.map(
+    (item) => item.curso_id,
+  );
 
   let afterNoon = false;
 
