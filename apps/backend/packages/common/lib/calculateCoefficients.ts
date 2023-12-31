@@ -28,7 +28,7 @@ type Graduation = {
 };
 
 export function calculateCoefficients(
-  disciplinas: HistoryDiscipline[],
+  disciplinas: Partial<HistoryDiscipline[]>,
   graduation: Graduation | null,
 ) {
   const disciplinesPerYearAndQuad: Map<
@@ -42,7 +42,7 @@ export function calculateCoefficients(
   > = new Map();
 
   disciplinas.forEach((disciplina) => {
-    const { ano, periodo } = disciplina;
+    const { ano, periodo } = disciplina!;
 
     if (!disciplinesPerYearAndQuad.has(ano)) {
       disciplinesPerYearAndQuad.set(ano, new Map());
@@ -60,7 +60,7 @@ export function calculateCoefficients(
       disciplinesCoefficient.get(ano)!.set(periodo, {});
     }
 
-    disciplinesPerYearAndQuad.get(ano)!.get(periodo)!.push(disciplina);
+    disciplinesPerYearAndQuad.get(ano)!.get(periodo)!.push(disciplina!);
   });
   const unique: Record<string, boolean> = {};
   const uniqueDisc: Record<string, boolean> = {};

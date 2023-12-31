@@ -1,5 +1,4 @@
 import {
-  type HistoryDiscipline,
   asyncParallelMap,
   calculateCoefficients,
   generateIdentifier,
@@ -14,7 +13,6 @@ import type {
   GraduationHistoryModel,
   GraduationModel,
   History,
-  SubjectDocument,
   SubjectModel,
 } from '@/models/index.js';
 import type { Job } from 'bullmq';
@@ -41,11 +39,12 @@ export async function updateUserEnrollments({
   if (!doc.disciplinas) {
     return;
   }
+
   const isDisciplines = Array.isArray(doc.disciplinas)
     ? doc.disciplinas
-    : [doc.disciplinas];
+    : ([doc.disciplinas] as unknown as History['disciplinas']);
 
-  const disciplinesArr: HistoryDiscipline[] = isDisciplines.filter(Boolean);
+  const disciplinesArr = isDisciplines.filter(Boolean);
 
   let graduation: GraduationDocument | null = null;
 
@@ -58,6 +57,7 @@ export async function updateUserEnrollments({
       .lean(true);
   }
 
+  // @ts-expect-error I hate mongoose
   const coefficients = calculateCoefficients(disciplinesArr, graduation);
 
   await graduationHistoryModel.findOneAndUpdate(
@@ -77,36 +77,39 @@ export async function updateUserEnrollments({
     { upsert: true },
   );
 
-  const updateOrCreateEnrollments = async (discipline: HistoryDiscipline) => {
+  const updateOrCreateEnrollments = async (
+    discipline: History['disciplinas'][number],
+  ) => {
     const disc = {
       ra: doc.ra,
       year: discipline.ano,
-      quad: discipline.periodo,
+      quad: Number.parseInt(discipline.periodo!),
       disciplina: discipline.disciplina,
     };
 
     const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
 
     const coef = getLastPeriod(
-      doc.coefficients,
-      discipline.ano,
-      discipline.periodo,
+      doc.coefficients!,
+      discipline.ano!,
+      Number.parseInt(discipline.periodo!),
     );
 
     const enrollmentPayload = {
       ra: disc.ra!,
-      year: disc.year,
+      year: disc.year!,
       quad: disc.quad,
-      disciplina: disc.disciplina,
-      conceito: discipline.conceito,
-      creditos: discipline.creditos,
-      cr_acumulado: get(coef, 'cr_acumulado'),
-      ca_acumulado: get(coef, 'ca_acumulado'),
-      cp_acumulado: get(coef, 'cp_acumulado'),
+      disciplina: disc.disciplina!,
+      conceito: discipline.conceito!,
+      creditos: discipline.creditos!,
+      cr_acumulado: get(coef, 'cr_acumulado')!,
+      ca_acumulado: get(coef, 'ca_acumulado')!,
+      cp_acumulado: get(coef, 'cp_acumulado')!,
     };
 
     //for some reason the cache that is supposed to be in the subject model is not working
-    const subjects: SubjectDocument[] = await subjectModel.find({}).lean(true);
+    const subjects = await subjectModel.find({}).lean(true);
+    // @ts-expect-error I hate mongoose
     const modifiedPayload = modifyPayload(enrollmentPayload, subjects, {});
 
     await enrollmentModel.findOneAndUpdate(

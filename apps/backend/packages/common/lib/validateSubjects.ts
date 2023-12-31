@@ -1,4 +1,5 @@
 import { camelCase, startCase } from 'lodash-es';
+import type { ObjectId } from 'mongoose';
 
 export function validateSubjects(
   payload: Enrollment,
@@ -47,7 +48,7 @@ type Enrollment = {
 };
 
 type SubjectDocument = {
-  _id: string;
+  _id: ObjectId;
   name: string;
   search?: string;
   creditos?: number;
@@ -64,7 +65,6 @@ export function modifyPayload(
 
   const converted = searchDisciplina(disciplina);
   const convertedMapping = searchDisciplina(mapping[disciplina ?? '']);
-
   const mapSubjects = subjects.map((subject) => subject.search);
   const subject = subjects.find((s) => s.search === converted);
   const subjectMapping = subjects.find((s) => s.search === convertedMapping);
