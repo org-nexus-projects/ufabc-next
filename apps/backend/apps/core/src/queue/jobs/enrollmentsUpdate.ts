@@ -1,68 +1,53 @@
-import { asyncParallelMap, generateIdentifier, logger } from '@next/common';
+import { generateIdentifier, logger } from '@next/common';
+import { omit as lodashOmit } from 'lodash-es';
+import { type EnrollmentDocument, EnrollmentModel } from '@/models/index.js';
 import { createQueue } from '../utils/queue.js';
-import type { EnrollmentDocument, EnrollmentModel } from '@/models/index.js';
+import { batchInsertItems } from '../utils/batch-insert.js';
 import type { Job } from 'bullmq';
 
-type UpdateEnrollments = {
-  payload: { json: EnrollmentDocument[] };
-  enrollmentModel: typeof EnrollmentModel;
-};
+async function updateEnrollments(data: EnrollmentDocument[]) {
+  const errors = await batchInsertItems(
+    data,
+    async (enrollment: EnrollmentDocument): Promise<any> => {
+      const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
 
-function updateEnrollments(data: any) {
-  logger.info({ msg: 'qual a fitaaaaa', data });
-  const updateEnrollment = async (enrollment: EnrollmentDocument) => {
-    const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
-    const enrollmentModel: any = {};
-    const key = {
-      ra: enrollment.ra,
-      year: enrollment.year,
-      quad: enrollment.quad,
-      disciplina: enrollment.disciplina,
-    };
+      const key = {
+        ra: enrollment.ra,
+        year: enrollment.year,
+        quad: enrollment.quad,
+        disciplina: enrollment.disciplina,
+      };
 
-    // TODO: remove any later
-    const identifier = generateIdentifier(key, keys as any);
+      const identifier = generateIdentifier(key, keys);
 
-    try {
-      const insertOpts = { new: true, upsert: true };
-      const {
-        ra,
-        year,
-        quad,
-        disciplina,
-        identifier: ignored,
-        _id,
-        ...updateData
-      } = enrollment;
-      // this piece of code right here is a MASSIVE query
-      // for the record: since its inserting it needs to be a document and being a document means
-      // it has and _id
-      await enrollmentModel.findOneAndUpdate(
-        { identifier },
-        { $set: updateData },
-        insertOpts,
+      await EnrollmentModel.findOneAndUpdate(
+        {
+          identifier,
+        },
+        lodashOmit(enrollment, ['identifier', 'id', '_id']),
+        {
+          new: true,
+          upsert: true,
+        },
       );
-    } catch (error) {
-      logger.error(error);
-      throw error;
-    }
-  };
-
-  return asyncParallelMap(data, updateEnrollment, 10);
+    },
+  );
+  return errors;
 }
 
 export const updateEnrollmentsQueue = createQueue('Enrollments:Update');
 
 export const addEnrollmentsToQueue = async (
-  payload: Job<UpdateEnrollments>,
+  payload: Job<EnrollmentDocument[]>,
 ) => {
-  await updateEnrollmentsQueue.add('Update:Enrollments', payload);
+  await updateEnrollmentsQueue.add('Enrollments:Update', payload);
 };
 
-export const updateEnrollmentsWorker = async (job: Job<UpdateEnrollments>) => {
+export const updateEnrollmentsWorker = async (
+  job: Job<EnrollmentDocument[]>,
+) => {
   try {
-    const payload = job.data;
-    await updateEnrollments(payload);
+    await updateEnrollments(job.data);
   } catch (error) {
     logger.error(
       { error },
