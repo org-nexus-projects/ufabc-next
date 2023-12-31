@@ -25,4 +25,4 @@ groupSchema.index({ users: 'desc' });
 groupSchema.index({ mainTeacher: 'desc', season: 'desc', disciplina: 'desc' });
 
 export type Group = InferSchemaType<typeof groupSchema>;
-export const GroupModel = model<Group>('groups', groupSchema);
+export const GroupModel = model('groups', groupSchema);

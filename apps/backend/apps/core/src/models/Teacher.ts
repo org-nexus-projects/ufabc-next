@@ -16,4 +16,4 @@ teacherSchema.pre('save', function () {
 });
 
 export type Teacher = InferSchemaType<typeof teacherSchema>;
-export const TeacherModel = model<Teacher>('teachers', teacherSchema);
+export const TeacherModel = model('teachers', teacherSchema);

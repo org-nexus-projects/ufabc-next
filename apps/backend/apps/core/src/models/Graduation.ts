@@ -32,7 +32,4 @@ export type Graduation = InferSchemaType<typeof graduationSchema>;
 export type GraduationDocument = ReturnType<
   (typeof GraduationModel)['hydrate']
 >;
-export const GraduationModel = model<Graduation>(
-  'graduations',
-  graduationSchema,
-);
+export const GraduationModel = model('graduations', graduationSchema);

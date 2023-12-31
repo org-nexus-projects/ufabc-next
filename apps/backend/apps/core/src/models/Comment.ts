@@ -50,7 +50,20 @@ const commentSchema = new Schema(
       required: true,
     },
 
-    reactionsCount: Object,
+    reactionsCount: {
+      like: {
+        type: Number,
+        default: 0,
+      },
+      recommendation: {
+        type: Number,
+        default: 0,
+      },
+      star: {
+        type: Number,
+        default: 0,
+      },
+    },
   },
   {
     statics: {
