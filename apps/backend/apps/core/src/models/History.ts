@@ -43,7 +43,7 @@ type Coefficients = {
   period_credits: number;
 };
 
-type CoefficientsMap = Record<1 | 2 | 3, Coefficients>;
+export type CoefficientsMap = Record<1 | 2 | 3, Coefficients>;
 
 type HistoryCoefficients = Record<number, CoefficientsMap>;
 
