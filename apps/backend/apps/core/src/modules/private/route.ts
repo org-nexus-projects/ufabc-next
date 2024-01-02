@@ -1,16 +1,23 @@
+import { syncDisciplinasHandler } from './handlers/syncDisciplinas.js';
 import {
   type SyncEnrollmentsRequest,
   syncEnrollments,
 } from './handlers/syncEnrollments.js';
-import { syncMatriculasHandler } from './handlers/syncMatriculas.js';
+import {
+  type SyncMatriculasRequest,
+  syncMatriculasHandler,
+} from './handlers/syncMatriculas.js';
 import { isAdminValidator } from './isAdmin.js';
 import type { FastifyInstance } from 'fastify';
 
 // eslint-disable-next-line require-await
 export async function privateRoutes(app: FastifyInstance) {
-  app.get<{
-    Querystring: 'alunos_matriculados' | 'before_kick' | 'after_kick';
-  }>(
+  app.post(
+    '/disciplinas/sync',
+    { preValidation: [isAdminValidator] },
+    syncDisciplinasHandler,
+  );
+  app.get<SyncMatriculasRequest>(
     '/matriculas/sync',
     { preValidation: [isAdminValidator] },
     syncMatriculasHandler,
