@@ -10,7 +10,10 @@ export type Disciplina = {
   nome: string;
   id: string;
   obrigatorias: string[];
-  obrigatoriedades: Array<{ curso_id: string }>;
+  obrigatoriedades: Array<{
+    curso_id: string;
+    obrigatoriedade: 'limitada' | 'obrigatoria' | 'livre';
+  }>;
   campus?: 'santo andre' | 'sao bernardo' | null;
   turno?: 'noturno' | 'diurno' | 'tarde' | null;
   horarios: string | string[];

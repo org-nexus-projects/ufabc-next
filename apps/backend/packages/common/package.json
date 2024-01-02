@@ -9,20 +9,9 @@
   "main": "dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "development": {
-        "types": "./index.ts",
-        "import": "./index.ts"
-      },
-      "production": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js"
-      },
-      "default": {
-        "types": "./index.ts",
-        "import": "./dist/index.js"
-      }
-    }
+    "types": "./dist/index.d.ts",
+    "require": "./dist/index.js",
+    "import": "./dist/index.js"
   },
   "scripts": {
     "build": "tsup index.ts --dts --format=esm --clean",
