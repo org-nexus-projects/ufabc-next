@@ -39,7 +39,7 @@ export async function syncDisciplinasHandler(
     return reply.badRequest('Could not parse disciplinas');
   }
 
-  const subjects = await SubjectModel.find({}).lean(true);
+  const subjects = await SubjectModel.find({});
   // check if subjects actually exists before creating the relation
   const missingSubjects = validateSubjects(
     UfabcDisciplinas,
@@ -73,7 +73,7 @@ export async function syncDisciplinasHandler(
     },
   );
 
-  if (insertDisciplinasErrors) {
+  if (insertDisciplinasErrors.length > 0) {
     request.log.error({
       msg: 'Something bad happened',
       insertDisciplinasErrors,
