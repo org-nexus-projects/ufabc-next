@@ -2,19 +2,19 @@ import {
   convertUfabcDisciplinas,
   currentQuad,
   generateIdentifier,
-  validateSubjects,
 } from '@next/common';
 import { ofetch } from 'ofetch';
 import { DisciplinaModel } from '@/models/Disciplina.js';
 import { SubjectModel } from '@/models/Subject.js';
 import { batchInsertItems } from '@/queue/utils/batch-insert.js';
 import { valueToJson } from '../utils/valueToJson.js';
+import { validateSubjects } from '../utils/validateSubjects.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export type SyncDisciplinasRequest = {
+  // Rename subjects that we already have
   Body: { mappings?: Record<string, string> };
 };
-
 type UfabcDisciplina = ReturnType<typeof convertUfabcDisciplinas>;
 
 export async function syncDisciplinasHandler(
@@ -23,7 +23,6 @@ export async function syncDisciplinasHandler(
 ) {
   const { mappings } = request.body || {};
   const season = currentQuad();
-
   const rawUfabcDisciplinas = await ofetch(
     'https://matricula.ufabc.edu.br/cache/todasDisciplinas.js',
     {
@@ -36,8 +35,8 @@ export async function syncDisciplinasHandler(
   );
 
   if (!UfabcDisciplinas) {
-    request.log.error({ msg: 'Error in ufabc Disciplinas', UfabcDisciplinas });
-    throw new Error('Could not parse disciplinas');
+    request.log.warn({ msg: 'Error in Ufabc Disciplinas', UfabcDisciplinas });
+    return reply.badRequest('Could not parse disciplinas');
   }
 
   const subjects = await SubjectModel.find({}).lean(true);
@@ -53,32 +52,37 @@ export async function syncDisciplinasHandler(
       msg: 'Some subjects are missing',
       missing: uniqSubjects,
     });
-    return reply.status(400).send({
-      msg: 'Subject not in the database, check logs to see missing subjects',
-      status: 400,
-    });
+    return reply.badRequest(
+      'Subject not in the database, check logs to see missing subjects',
+    );
   }
 
   const start = Date.now();
-
-  const errors = await batchInsertItems(
+  const insertDisciplinasErrors = await batchInsertItems(
     UfabcDisciplinas,
-    (disciplina: UfabcDisciplina) => {
+    (disciplina) => {
       return DisciplinaModel.findOneAndUpdate(
         {
           disciplina_id: disciplina?.disciplina_id,
           identifier: generateIdentifier(disciplina),
           season,
         },
-        { disciplina },
+        disciplina,
         { upsert: true, new: true },
       );
     },
   );
 
+  if (insertDisciplinasErrors) {
+    request.log.error({
+      msg: 'Something bad happened',
+      insertDisciplinasErrors,
+    });
+    return reply.internalServerError('Error inserting disciplinas');
+  }
+
   return {
     status: 'Sync disciplinas successfully',
     time: Date.now() - start,
-    errors,
   };
 }
