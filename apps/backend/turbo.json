@@ -34,6 +34,7 @@
       "outputMode": "errors-only"
     },
     "test": {
+      "cache": true,
       "outputMode": "errors-only"
     },
     "test:watch": {
