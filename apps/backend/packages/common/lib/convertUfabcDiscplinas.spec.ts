@@ -34,24 +34,24 @@ describe('common.lib.convertUfabcDisciplinas', () => {
   });
 
   it('should parse everything correctly', () => {
-    const parsedDisciplinas: any = disciplinas.map((disciplina) =>
+    const parsedDisciplinas = disciplinas.map((disciplina) =>
       lodashPick(convertUfabcDisciplinas(disciplina), pick),
     );
 
     assert.ok(
-      parsedDisciplinas?.every((disciplina: Disciplina) =>
+      parsedDisciplinas?.every((disciplina) =>
         ['diurno', 'noturno', 'tarde'].includes(disciplina.turno!),
       ),
     );
     assert.ok(
-      parsedDisciplinas.every((disciplina: Disciplina) =>
+      parsedDisciplinas.every((disciplina) =>
         ['sao bernardo', 'santo andre'].includes(disciplina.campus!),
       ),
     );
     assert.ok(
       parsedDisciplinas.every(
-        (disciplina: Disciplina) =>
-          disciplina.turma!.length > 0 && disciplina.turma!.length <= 3,
+        (disciplina) =>
+          disciplina.turma!.length! > 0 && disciplina.turma!.length! <= 3,
       ),
     );
   });
@@ -62,15 +62,11 @@ describe('common.lib.convertUfabcDisciplinas', () => {
       nome: 'Aeronáutica I-A (quantas coisas e ---) A3   -    São Bernardo Noturno',
     });
     assert.strictEqual(
-      // @ts-expect-error Unit test and types are difficult
       resp?.disciplina,
       'Aeronáutica I-A (quantas coisas e ---)',
     );
-    // @ts-expect-error Unit test and types are difficult
     assert.strictEqual(resp?.turma, 'A3');
-    // @ts-expect-error Unit test and types are difficult
     assert.strictEqual(resp?.campus, 'sao bernardo');
-    // @ts-expect-error Unit test and types are difficult
     assert.strictEqual(resp?.turno, 'noturno');
   });
 
@@ -79,7 +75,6 @@ describe('common.lib.convertUfabcDisciplinas', () => {
     const resp = convertUfabcDisciplinas({
       nome: 'Dinâmica de Fluidos Computacional A-diurno (Santo André) - MINISTRADA EM INGLÊS',
     });
-    // @ts-expect-error Unit test and types are hard
     assert.deepEqual(resp!.disciplina, 'Dinâmica de Fluidos Computacional');
   });
 

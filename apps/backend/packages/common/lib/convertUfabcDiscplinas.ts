@@ -14,7 +14,7 @@ export type Disciplina = {
   horarios:
     | string
     | {
-        horas: any;
+        horas: string[];
       }[];
   turma: string;
   disciplina: string;
@@ -31,7 +31,7 @@ export function convertUfabcDisciplinas(disciplina: Disciplina) {
   // @ts-expect-error Will not set as undefined, to avoid letting the type too widen
   clonedDisciplinas.turno = undefined;
 
-  clonedDisciplinas.obrigatorias = clonedDisciplinas.obrigatoriedades.map(
+  clonedDisciplinas.obrigatorias = clonedDisciplinas.obrigatoriedades?.map(
     (item) => item.curso_id,
   );
 
