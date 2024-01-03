@@ -27,6 +27,7 @@
     "@fastify/jwt": "^7.2.4",
     "@fastify/oauth2": "^7.7.0",
     "@fastify/redis": "^6.1.1",
+    "@fastify/sensible": "^5.5.0",
     "@fastify/swagger": "^8.13.0",
     "@fastify/swagger-ui": "^1.10.2",
     "@next/common": "workspace:*",

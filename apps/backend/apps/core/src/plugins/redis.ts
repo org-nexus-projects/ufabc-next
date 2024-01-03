@@ -27,4 +27,4 @@ export async function redis(app: FastifyInstance, opts: RedisOptions) {
   }
 }
 
-export default fp(redis, { name: 'mongoose' });
+export default fp(redis, { name: 'redis' });
