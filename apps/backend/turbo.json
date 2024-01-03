@@ -33,7 +33,9 @@
     "lint:fix": {
       "outputMode": "errors-only"
     },
-    "test": {},
+    "test": {
+      "outputMode": "errors-only"
+    },
     "test:watch": {
       "cache": false,
       "persistent": true
