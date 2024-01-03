@@ -1,12 +1,14 @@
 import { camelCase, chunk as lodashChunk, startCase } from 'lodash-es';
 import latinize from 'latinize';
 
+// TODO: implement IDEAL_QUAD
+
 export type Disciplina = {
   nome: string;
   id: string;
-  obrigatorias: string[];
+  obrigatorias: number[];
   obrigatoriedades: Array<{
-    curso_id: string;
+    curso_id: number;
     obrigatoriedade: 'limitada' | 'obrigatoria' | 'livre';
   }>;
   campus: 'santo andre' | 'sao bernardo' | null;
@@ -56,11 +58,7 @@ export function convertUfabcDisciplinas(disciplina: Disciplina) {
 
     const matched = clonedDisciplinas.horarios.match(/\d{2}:\d{2}/g);
 
-    if (!matched) {
-      return null;
-    }
-
-    if (matched?.length % 2 === 0) {
+    if (matched!.length % 2 === 0) {
       const hours = lodashChunk(matched, 2);
       hours.forEach((hour) => {
         const [start] = hour.map((h) => Number.parseInt(h.split(':')[0]!));
@@ -103,10 +101,7 @@ export function convertUfabcDisciplinas(disciplina: Disciplina) {
   }
 
   if (!clonedDisciplinas.campus) {
-    if (!turnoIndex) {
-      return null;
-    }
-    const secondPath = splitted.slice(turnoIndex + 1, splitted.length);
+    const secondPath = splitted.slice(turnoIndex! + 1, splitted.length);
     clonedDisciplinas.campus = extractCampus(secondPath.join(breakRule));
   }
 
@@ -170,6 +165,7 @@ const cleanTeacher = (teacher: string) => {
     .replaceAll(/-+.*?-+/g, '')
     .replaceAll(/\(+.*?\)+/g, '');
 };
+
 function cleanTeoriaAndPraticaFields(disciplina: Disciplina) {
   if (disciplina.teoria !== null) {
     disciplina.teoria = cleanTeacher(removeLineBreaks(disciplina.teoria));
