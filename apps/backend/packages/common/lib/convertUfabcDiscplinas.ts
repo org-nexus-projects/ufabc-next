@@ -117,28 +117,15 @@ export function convertUfabcDisciplinas(disciplina: Disciplina) {
   const ufabcDisciplina = splitted.join('-').split(/\s+/).filter(Boolean);
   clonedDisciplinas.turma = ufabcDisciplina.at(-1)!;
   ufabcDisciplina.pop();
+
   // fix disciplina
   clonedDisciplinas.disciplina = ufabcDisciplina.join(' ').trim();
 
   clonedDisciplinas.disciplina_id = clonedDisciplinas.id;
+  clonedDisciplinas.teoria = clonedDisciplinas.pratica ?? null;
+  clonedDisciplinas.pratica = clonedDisciplinas.pratica ?? null;
 
-  if (clonedDisciplinas.teoria === '0' || clonedDisciplinas.teoria === '') {
-    clonedDisciplinas.teoria = null;
-  }
-  if (clonedDisciplinas.pratica === '0' || clonedDisciplinas.pratica === '') {
-    clonedDisciplinas.pratica = null;
-  }
-
-  if (clonedDisciplinas.teoria !== null) {
-    clonedDisciplinas.teoria = cleanTeacher(
-      removeLineBreaks(clonedDisciplinas.teoria),
-    );
-  }
-  if (clonedDisciplinas.pratica !== null) {
-    clonedDisciplinas.pratica = cleanTeacher(
-      removeLineBreaks(clonedDisciplinas.pratica),
-    );
-  }
+  cleanTeoriaAndPraticaFields(clonedDisciplinas);
 
   return clonedDisciplinas;
 }
@@ -183,3 +170,11 @@ const cleanTeacher = (teacher: string) => {
     .replaceAll(/-+.*?-+/g, '')
     .replaceAll(/\(+.*?\)+/g, '');
 };
+function cleanTeoriaAndPraticaFields(disciplina: Disciplina) {
+  if (disciplina.teoria !== null) {
+    disciplina.teoria = cleanTeacher(removeLineBreaks(disciplina.teoria));
+  }
+  if (disciplina.pratica !== null) {
+    disciplina.pratica = cleanTeacher(removeLineBreaks(disciplina.pratica));
+  }
+}
