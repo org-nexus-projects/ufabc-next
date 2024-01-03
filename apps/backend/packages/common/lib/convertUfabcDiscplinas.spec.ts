@@ -84,15 +84,11 @@ describe('common.lib.convertUfabcDisciplinas', () => {
       nome: 'Introdução às Humanidades e Ciências Sociais A\rdiurno (São Bernardo do Campo)',
     });
     assert.equal(
-      // @ts-expect-error Unit test and types are hard
       resp.disciplina,
       'Introdução às Humanidades e Ciências Sociais',
     );
-    // @ts-expect-error Unit test and types are hard
     assert.equal(resp.turma, 'A');
-    // @ts-expect-error Unit test and types are hard
     assert.equal(resp.campus, 'sao bernardo');
-    // @ts-expect-error Unit test and types are hard
     assert.equal(resp.turno, 'diurno');
   });
 });

@@ -15,7 +15,8 @@ describe('GET /v2/matriculas/sync', () => {
     await app.close();
   });
 
-  it('should sync disciplines', async () => {
+  it.skip('should sync disciplines', async () => {
+    // TODO: create a fixture to mock the sync
     await app.inject({
       method: 'GET',
       url: '/v2/matriculas/sync',

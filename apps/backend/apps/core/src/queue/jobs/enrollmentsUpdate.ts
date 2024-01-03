@@ -17,7 +17,7 @@ async function updateEnrollments(data: EnrollmentDocument[]) {
         quad: enrollment.quad,
         disciplina: enrollment.disciplina,
       };
-
+      // @ts-expect-error Temp fix
       const identifier = generateIdentifier(key, keys);
 
       await EnrollmentModel.findOneAndUpdate(

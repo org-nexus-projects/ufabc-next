@@ -1,4 +1,7 @@
-import { syncDisciplinasHandler } from './handlers/syncDisciplinas.js';
+import {
+  type SyncDisciplinasRequest,
+  syncDisciplinasHandler,
+} from './handlers/syncDisciplinas.js';
 import {
   type SyncEnrollmentsRequest,
   syncEnrollments,
@@ -12,7 +15,7 @@ import type { FastifyInstance } from 'fastify';
 
 // eslint-disable-next-line require-await
 export async function privateRoutes(app: FastifyInstance) {
-  app.post(
+  app.post<SyncDisciplinasRequest>(
     '/disciplinas/sync',
     { preValidation: [isAdminValidator] },
     syncDisciplinasHandler,
