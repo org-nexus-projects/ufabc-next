@@ -1,4 +1,8 @@
 import {
+  type CreateSubjectRequest,
+  createSubjectHandler,
+} from './handlers/createSubject.js';
+import {
   type SyncDisciplinasRequest,
   syncDisciplinasHandler,
 } from './handlers/syncDisciplinas.js';
@@ -29,5 +33,10 @@ export async function privateRoutes(app: FastifyInstance) {
     '/enrollments/sync',
     { preValidation: [isAdminValidator] },
     syncEnrollments,
+  );
+  app.post<CreateSubjectRequest>(
+    '/subjects',
+    { preValidation: [isAdminValidator] },
+    createSubjectHandler,
   );
 }

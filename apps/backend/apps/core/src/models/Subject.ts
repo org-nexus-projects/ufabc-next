@@ -7,7 +7,7 @@ const subjectSchema = new Schema(
       type: String,
       required: true,
     },
-    search: { type: String, required: true },
+    search: String,
     creditos: { type: Number },
   },
   { timestamps: true },
