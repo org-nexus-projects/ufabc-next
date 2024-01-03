@@ -2,7 +2,6 @@ import {
   convertUfabcDisciplinas,
   currentQuad,
   generateIdentifier,
-  logger,
   validateSubjects,
 } from '@next/common';
 import { ofetch } from 'ofetch';
@@ -37,26 +36,34 @@ export async function syncDisciplinasHandler(
   );
 
   if (!UfabcDisciplinas) {
-    logger.error({ msg: 'Error in ufabc Disciplinas', UfabcDisciplinas });
+    request.log.error({ msg: 'Error in ufabc Disciplinas', UfabcDisciplinas });
     throw new Error('Could not parse disciplinas');
   }
 
   const subjects = await SubjectModel.find({}).lean(true);
-
   // check if subjects actually exists before creating the relation
-  const err = validateSubjects(UfabcDisciplinas, subjects, mappings);
-
-  if (err.length > 0) {
-    return reply
-      .status(400)
-      .send({ msg: 'Subject not in the database', status: 400, err });
+  const missingSubjects = validateSubjects(
+    UfabcDisciplinas,
+    subjects,
+    mappings,
+  );
+  const uniqSubjects = [...new Set(missingSubjects)];
+  if (missingSubjects.length > 0) {
+    request.log.warn({
+      msg: 'Some subjects are missing',
+      missing: uniqSubjects,
+    });
+    return reply.status(400).send({
+      msg: 'Subject not in the database, check logs to see missing subjects',
+      status: 400,
+    });
   }
 
   const start = Date.now();
 
   const errors = await batchInsertItems(
     UfabcDisciplinas,
-    async (disciplina: UfabcDisciplina) => {
+    (disciplina: UfabcDisciplina) => {
       return DisciplinaModel.findOneAndUpdate(
         {
           disciplina_id: disciplina?.disciplina_id,

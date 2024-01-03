@@ -85,7 +85,6 @@ export function modifyPayload(
       disciplina: payload.disciplina,
     };
   }
-
   return {
     ...modifiedPayload,
     subject: getSubjectId(subject, subjectMapping),
