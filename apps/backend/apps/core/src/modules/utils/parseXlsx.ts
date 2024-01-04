@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { ofetch } from 'ofetch';
 import { set_fs, stream, read as xlsxRead, utils as xlsxUtils } from 'xlsx';
 import { logger } from '@next/common';
-import type { Disciplina } from '@/models/index.js';
+import type { Disciplina } from '@/models/Disciplina.js';
 
 set_fs(fs);
 stream.set_readable(Readable);
@@ -45,7 +45,10 @@ export async function parseXlsx<TBody extends ParseXlSXBody>(
   const { SheetNames, Sheets } = xlsxRead(file);
   const fileData = xlsxUtils.sheet_to_json<JSONFileData>(Sheets[SheetNames[0]]);
   const columns = Object.keys(fileData[0]);
-  logger.info({ msg: 'File Columns', columns });
+  logger.info({
+    msg: 'File Columns',
+    columns,
+  });
 
   const parsedEnrollments = fileData.map((enrollment) => {
     const updatedEnrollment = {};
