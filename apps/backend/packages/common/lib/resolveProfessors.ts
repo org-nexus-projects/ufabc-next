@@ -7,15 +7,15 @@ type Teacher = {
 };
 
 export function resolveProfessors(
-  name: string,
+  name: string | null,
   teachers: Teacher[],
   mappings: Record<string, string> = {},
 ) {
-  if (name in mappings) {
-    return mappings[name];
+  if (name! in mappings) {
+    return mappings[name!];
   }
 
-  const normalizedName = startCase(camelCase(name));
+  const normalizedName = startCase(camelCase(name!));
   const isNameInvalid =
     !normalizedName || ['N D', 'Falso'].includes(normalizedName);
 
