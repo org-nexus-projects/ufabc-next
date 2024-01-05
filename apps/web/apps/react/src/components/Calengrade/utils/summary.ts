@@ -13,13 +13,16 @@ const DATE_REGEX = /([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?/gi;
 const REPEAT_REGEX = /(?!\s-\s)(semanal|quinzenal\s\(i\)|quinzenal\s\(ii\))/gi;
 
 const matchOrFallback =
-  (string: string) => (regex: RegExp, fallback: string | null) => {
+  (string: string) =>
+  (regex: RegExp, fallback: string | null, index = 0) => {
     const match = string.match(regex);
-    return match ? match[0] : fallback;
+    return match ? match[index] : fallback;
   };
 
-const matchOrNull = (string: string) => (regex: RegExp) =>
-  matchOrFallback(string)(regex, null);
+const matchOrNull =
+  (string: string) =>
+  (regex: RegExp, index = 0) =>
+    matchOrFallback(string)(regex, null, index);
 
 export const handleSummary = (summary: string): Classes => {
   // Get all classes codes
@@ -95,7 +98,7 @@ export const handleSummary = (summary: string): Classes => {
         .map((t) => ({
           day: matchOrNull(t)(DAY_REGEX),
           start: matchOrNull(t)(DATE_REGEX),
-          end: matchOrNull(t)(DATE_REGEX),
+          end: matchOrNull(t)(DATE_REGEX, 1),
           repeat: matchOrNull(t)(REPEAT_REGEX),
         }))
         .filter((time) => time.day && time.start && time.end && time.repeat),

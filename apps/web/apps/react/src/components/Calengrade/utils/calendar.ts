@@ -37,13 +37,14 @@ const dayOfWeekReturnMappings = {
 type DayOfWeekReturnMappings = typeof dayOfWeekReturnMappings;
 
 const getDayInfo = (day: string | null) => {
+  let value;
   Object.keys(dayOfWeekReturnMappings).forEach((dayOfWeek) => {
     if (day?.indexOf(dayOfWeek) !== -1) {
-      return dayOfWeekReturnMappings[
-        dayOfWeek as keyof DayOfWeekReturnMappings
-      ];
+      value =
+        dayOfWeekReturnMappings[dayOfWeek as keyof DayOfWeekReturnMappings];
     }
   });
+  if (value) return value;
   return dayOfWeekReturnMappings.Domingo;
 };
 
@@ -58,28 +59,28 @@ export const handleCalendar = ({ classes, startDate, endDate }: Calendar) => {
 
   classes.forEach((subject) => {
     subject.times.forEach((time) => {
-      const startOfPeriod = dayjs(`${startDate}T00:00:00.000`);
+      let startOfPeriod = dayjs(`${startDate}T00:00:00.000`);
 
       const day = getDayInfo(time.day).number;
 
-      if (startOfPeriod.day() <= day)
-        startOfPeriod.add(day - startOfPeriod.day(), 'days');
-      else {
-        startOfPeriod.add(startOfPeriod.day() + day, 'days');
+      if (startOfPeriod.day() <= day) {
+        startOfPeriod = startOfPeriod.add(day - startOfPeriod.day(), 'days');
+      } else {
+        startOfPeriod = startOfPeriod.add(startOfPeriod.day() + day, 'days');
       }
 
       if (time.repeat?.indexOf('quinzenal (II)') !== -1) {
-        startOfPeriod.add(7, 'days');
+        startOfPeriod = startOfPeriod.add(7, 'days');
       }
 
-      const start = startOfPeriod.clone();
-      const end = startOfPeriod.clone();
+      let start = startOfPeriod.clone();
+      let end = startOfPeriod.clone();
 
-      start.add(Number(time.start?.split(':')[0]), 'hours');
-      start.add(Number(time.start?.split(':')[1]), 'minutes');
+      start = start.add(Number(time.start?.split(':')[0]), 'hours');
+      start = start.add(Number(time.start?.split(':')[1]), 'minutes');
 
-      end.add(Number(time.end?.split(':')[0]), 'hours');
-      end.add(Number(time.end?.split(':')[1]), 'minutes');
+      end = end.add(Number(time.end?.split(':')[0]), 'hours');
+      end = end.add(Number(time.end?.split(':')[1]), 'minutes');
 
       let recurrenceRule = `FREQ=WEEKLY;`;
       recurrenceRule += `BYDAY=${getDayInfo(time.day).short};`;
