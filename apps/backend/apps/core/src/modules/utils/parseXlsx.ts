@@ -64,5 +64,5 @@ export async function parseXlsx<TBody extends ParseXlSXBody>(
     );
   });
 
-  return parsedEnrollments as XLSXOutput[];
+  return parsedEnrollments as Disciplina[];
 }
