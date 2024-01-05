@@ -1,4 +1,3 @@
-/* eslint-disable eqeqeq */
 import { camelCase, startCase } from 'lodash-es';
 import { SequenceMatcher, getCloseMatches } from 'difflib';
 
@@ -7,37 +6,60 @@ type Teacher = {
   alias?: string[];
 };
 
+const getTypeOrDefault = (
+  type: string | null,
+  mappings: Record<string, string>,
+) => {
+  if (type! in mappings) {
+    return mappings[type!]!;
+  }
+
+  return startCase(camelCase(type!));
+};
+
+const isValidTeacherType = (type: string) => {
+  return type !== 'N D' && type !== 'Falso';
+};
+
+const handleBestMatch = (type: string, teachers: Teacher[]) => {
+  const bestMatch = getCloseMatches(
+    type,
+    teachers.map((teacher) => teacher.name),
+  )[0];
+
+  const s = new SequenceMatcher(null, bestMatch, type);
+  if (s.ratio() > 0.8) {
+    return teachers.find((teacher) => teacher.name === bestMatch)!;
+  } else {
+    return { error: `Missing Teacher: ${type}` };
+  }
+};
+
 export function resolveProfessor(
   teacherType: string | null,
   teachers: Teacher[],
   mappings: Record<string, string> = {},
 ) {
-  if (teacherType! in mappings) {
-    return mappings[teacherType!]!;
-  }
+  const findTeacher = (type: string) => {
+    return (
+      teachers.find((teacher) => type === teacher.name) ||
+      teachers.find((teacher) => (teacher.alias || []).includes(type))!
+    );
+  };
 
-  teacherType = startCase(camelCase(teacherType!));
-
-  const foundTeacher =
-    teachers.find((teacher) => teacherType === teacher.name) ||
-    teachers.find((teacher) => (teacher.alias || []).includes(teacherType!));
+  teacherType = getTypeOrDefault(teacherType, mappings);
   if (!teacherType) {
     return null;
-  } else if (teacherType == 'N D' || teacherType == 'Falso') {
-    return null;
-  } else if (foundTeacher) {
-    return foundTeacher;
-  } else {
-    const bestMatch = getCloseMatches(
-      teacherType,
-      teachers.map((teacher) => teacher.name),
-    )[0];
-
-    const s = new SequenceMatcher(null, bestMatch, teacherType);
-    if (s.ratio() > 0.8) {
-      return teachers.find((teacher) => teacher.name === bestMatch);
-    } else {
-      return { error: `Missing Teacher: ${teacherType}` };
-    }
   }
+
+  if (!isValidTeacherType(teacherType)) {
+    return null;
+  }
+
+  const foundTeacher = findTeacher(teacherType);
+  if (foundTeacher) {
+    return foundTeacher;
+  }
+
+  return handleBestMatch(teacherType, teachers);
 }
