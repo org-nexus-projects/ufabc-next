@@ -5,5 +5,5 @@ export { convertUfabcDisciplinas } from './lib/convertUfabcDiscplinas';
 export { generateIdentifier } from './lib/identifier';
 export { calculateCoefficients } from './lib/calculateCoefficients';
 export type { HistoryDiscipline } from './lib/calculateCoefficients';
-export { resolveProfessors } from './lib/resolveProfessors';
+export { resolveProfessor } from './lib/resolveProfessors';
 export { validateSubjects, modifyPayload } from './lib/validateSubjects';

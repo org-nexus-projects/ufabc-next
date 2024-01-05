@@ -2,7 +2,7 @@ import {
   asyncParallelMap,
   generateIdentifier,
   logger,
-  resolveProfessors,
+  resolveProfessor,
 } from '@next/common';
 import { createQueue } from '../utils/queue.js';
 import type { EnrollmentModel, TeacherModel } from '@/models/index.js';
@@ -54,8 +54,8 @@ export async function updateTeachers({
         { identifier },
         {
           //TODO: Find out if the teoria and pratica fields objectId are being populated
-          teoria: resolveProfessors(enrollment.teoria, teachers),
-          pratica: resolveProfessors(enrollment.pratica, teachers),
+          teoria: resolveProfessor(enrollment.teoria, teachers),
+          pratica: resolveProfessor(enrollment.pratica, teachers),
         },
         insertOpts,
       );

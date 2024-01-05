@@ -1,58 +1,43 @@
-import { diffChars } from 'diff';
+/* eslint-disable eqeqeq */
 import { camelCase, startCase } from 'lodash-es';
+import { SequenceMatcher, getCloseMatches } from 'difflib';
 
 type Teacher = {
   name: string;
   alias?: string[];
 };
 
-type ResolveProfessors = string | Teacher | { error: string } | null;
-
-export function resolveProfessors(
+export function resolveProfessor(
   teacherType: string | null,
   teachers: Teacher[],
   mappings: Record<string, string> = {},
-): ResolveProfessors {
+) {
   if (teacherType! in mappings) {
     return mappings[teacherType!]!;
   }
 
-  const normalizedName = startCase(camelCase(teacherType!));
-  const isNameInvalid =
-    !normalizedName || ['N D', 'Falso'].includes(normalizedName);
+  teacherType = startCase(camelCase(teacherType!));
 
-  if (isNameInvalid) {
+  const foundTeacher =
+    teachers.find((teacher) => teacherType === teacher.name) ||
+    teachers.find((teacher) => (teacher.alias || []).includes(teacherType!));
+  if (!teacherType) {
     return null;
-  }
-
-  const isTeacherPresent = (t: Teacher) =>
-    t.name === normalizedName || (t.alias || []).includes(normalizedName);
-  const foundTeacher = teachers.find((teacher) => isTeacherPresent(teacher));
-
-  if (foundTeacher) {
+  } else if (teacherType == 'N D' || teacherType == 'Falso') {
+    return null;
+  } else if (foundTeacher) {
     return foundTeacher;
-  }
+  } else {
+    const bestMatch = getCloseMatches(
+      teacherType,
+      teachers.map((teacher) => teacher.name),
+    )[0];
 
-  let bestMatch: string;
-  let bestMatchScore = 0;
-
-  for (const teacher of teachers) {
-    const diff = diffChars(normalizedName, teacher.name);
-    const score = diff.reduce(
-      (acc, part) => (part.added ? acc : acc + part.count!),
-      0,
-    );
-
-    if (score > bestMatchScore) {
-      bestMatch = teacher.name;
-      bestMatchScore = score;
+    const s = new SequenceMatcher(null, bestMatch, teacherType);
+    if (s.ratio() > 0.8) {
+      return teachers.find((teacher) => teacher.name === bestMatch);
+    } else {
+      return { error: `Missing Teacher: ${teacherType}` };
     }
   }
-
-  const similarityThreshold = 0.8;
-  if (bestMatchScore > similarityThreshold) {
-    return teachers.find((t) => t.name === bestMatch)!;
-  }
-
-  return { error: `Missing Teacher: ${normalizedName}` };
 }

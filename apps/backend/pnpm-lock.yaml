@@ -147,9 +147,9 @@ importers:
 
   packages/common:
     dependencies:
-      diff:
-        specifier: ^5.1.0
-        version: 5.1.0
+      difflib:
+        specifier: ^0.2.4
+        version: 0.2.4
       latinize:
         specifier: ^2.0.0
         version: 2.0.0
@@ -160,9 +160,9 @@ importers:
       '@next/tsconfig':
         specifier: workspace:^
         version: link:../tsconfig
-      '@types/diff':
-        specifier: ^5.0.9
-        version: 5.0.9
+      '@types/difflib':
+        specifier: ^0.2.6
+        version: 0.2.6
       '@types/latinize':
         specifier: ^0.2.18
         version: 0.2.18
@@ -1876,8 +1876,8 @@ packages:
     resolution: {integrity: sha512-AqlrT8YA1o7Ff5wPfMOL0pvL+1X+sw60NN6CcOCqs658emD6RfiXhF7Gu9QcfKBH7ELY2nInLhKSCWVoNL70MQ==}
     dev: true
 
-  /@types/diff@5.0.9:
-    resolution: {integrity: sha512-RWVEhh/zGXpAVF/ZChwNnv7r4rvqzJ7lYNSmZSVTxjV0PBLf6Qu7RNg+SUtkpzxmiNkjCx0Xn2tPp7FIkshJwQ==}
+  /@types/difflib@0.2.6:
+    resolution: {integrity: sha512-INnmE+S5gGRTdXmxd4YDByQkdueYVfEj+A2ULK9H8jR2fYO4hD2Lv695274ArE4lJoFU2o3atKZ5xb6hKaCe/g==}
     dev: true
 
   /@types/istanbul-lib-coverage@2.0.5:
@@ -2746,9 +2746,10 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dev: true
 
-  /diff@5.1.0:
-    resolution: {integrity: sha512-D+mk+qE8VC/PAUrlAU34N+VfXev0ghe5ywmpqrawphmVZc1bEfn56uo9qpyGp1p4xpzOHkSW4ztBd6L7Xx4ACw==}
-    engines: {node: '>=0.3.1'}
+  /difflib@0.2.4:
+    resolution: {integrity: sha512-9YVwmMb0wQHQNr5J9m6BSj6fk4pfGITGQOOs+D9Fl+INODWFOfvhIU1hNv6GgR1RBoC/9NJcwu77zShxV0kT7w==}
+    dependencies:
+      heap: 0.2.7
     dev: false
 
   /dir-glob@3.0.1:
@@ -3633,6 +3634,10 @@ packages:
     dependencies:
       function-bind: 1.1.2
     dev: true
+
+  /heap@0.2.7:
+    resolution: {integrity: sha512-2bsegYkkHO+h/9MGbn6KWcE45cHZgPANo5LXF7EvWdT0yT2EguSVO1nDgU5c8+ZOPwp2vMNa7YFsJhVcDR9Sdg==}
+    dev: false
 
   /help-me@5.0.0:
     resolution: {integrity: sha512-7xgomUX6ADmcYzFik0HzAxh/73YlKR9bmFzf51CZwR+b6YtzU2m0u49hQCqV6SvlqIqsaxovfwdvbnsw3b/zpg==}
