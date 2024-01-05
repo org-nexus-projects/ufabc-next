@@ -26,8 +26,6 @@ export type ParseTeachersRequest = {
   };
 };
 
-type Disciplina = ReturnType<typeof convertUfabcDisciplinas>;
-
 export async function parseTeachersHandler(
   request: FastifyRequest<ParseTeachersRequest>,
   reply: FastifyReply,
@@ -38,15 +36,16 @@ export async function parseTeachersHandler(
   const rawDisciplinas = rawSheetDisciplinas.map((rawDisciplina) =>
     convertUfabcDisciplinas(rawDisciplina),
   );
-  const disciplinas = rawDisciplinas.map((disciplina) =>
-    Object.assign<any, Disciplina, any>({}, disciplina, {
-      teoria: resolveProfessors(disciplina?.teoria, teachers),
-      pratica: resolveProfessors(disciplina?.pratica, teachers),
-    }),
+  const disciplinas = rawDisciplinas.map(
+    (disciplina) =>
+      Object.assign({}, disciplina, {
+        teoria: resolveProfessors(disciplina?.teoria, teachers),
+        pratica: resolveProfessors(disciplina?.pratica, teachers),
+      }) as any,
   );
 
   const errors = validateTeachers(disciplinas);
-
+  request.log.warn(errors);
   const disciplinaHash = createHash('md5')
     .update(JSON.stringify(disciplinas))
     .digest('hex');
@@ -71,8 +70,8 @@ export async function parseTeachersHandler(
           season,
         },
         {
-          teoria: disciplina.teoria?._id ?? null,
-          pratica: disciplina.pratica?._id ?? null,
+          teoria: disciplina.teoria?._id || null,
+          pratica: disciplina.pratica?._id || null,
         },
         {
           new: true,
@@ -83,8 +82,8 @@ export async function parseTeachersHandler(
 
   if (insertDisciplinasErrors.length > 0) {
     request.log.error({
-      msg: 'Something bad happened',
-      insertDisciplinasErrors,
+      msg: 'errors happened during insert',
+      errors: insertDisciplinasErrors,
     });
     return reply.internalServerError('Error inserting disciplinas');
   }

@@ -1,5 +1,5 @@
 import { currentQuad } from '@next/common';
-import { DisciplinaModel } from '@/models/Disciplina.js';
+import { type Disciplina, DisciplinaModel } from '@/models/Disciplina.js';
 import type { RouteHandler } from 'fastify';
 
 export const listDisciplinas: RouteHandler = async () => {
@@ -24,7 +24,7 @@ export const listDisciplinas: RouteHandler = async () => {
     },
   )
     .populate(['teoria', 'pratica'])
-    .lean({ virtuals: true });
+    .lean<Disciplina>({ virtuals: true });
 
   return disciplinas;
 };
