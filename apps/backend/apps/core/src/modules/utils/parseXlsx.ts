@@ -2,8 +2,7 @@ import { Readable } from 'node:stream';
 import fs from 'node:fs';
 import { ofetch } from 'ofetch';
 import { set_fs, stream, read as xlsxRead, utils as xlsxUtils } from 'xlsx';
-import { logger } from '@next/common';
-import type { Disciplina } from '@/models/Disciplina.js';
+import { type convertUfabcDisciplinas, logger } from '@next/common';
 
 set_fs(fs);
 stream.set_readable(Readable);
@@ -24,11 +23,8 @@ type JSONFileData = {
   CODIGO_DA_TURMA: string;
 };
 
-type XLSXOutput = Partial<Disciplina>;
-
-export async function parseXlsx<TBody extends ParseXlSXBody>(
-  body: TBody,
-): Promise<XLSXOutput[]> {
+type Disciplina = ReturnType<typeof convertUfabcDisciplinas>;
+export async function parseXlsx<TBody extends ParseXlSXBody>(body: TBody) {
   const bodyDefaults = {
     link: '',
     rename: [

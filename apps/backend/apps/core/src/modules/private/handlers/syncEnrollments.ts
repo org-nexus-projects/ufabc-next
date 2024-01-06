@@ -62,7 +62,6 @@ export async function syncEnrollments(
   const disciplinasMap = new Map([...disciplinas.map((d) => [d._id, d])]);
   const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
   const rawEnrollments = (await parseXlsx(request.body)).map(
-    // @ts-expect-error Temp fix
     // eslint-disable-next-line unicorn/no-array-callback-reference
     convertUfabcDisciplinas,
   );
