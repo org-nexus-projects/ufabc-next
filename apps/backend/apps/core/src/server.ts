@@ -2,13 +2,7 @@ import gracefullyShutdown from 'close-with-grace';
 import { logger } from '@next/common';
 import { Config } from './config/config.js';
 import { buildApp } from './app.js';
-import {
-  emailWorker,
-  enrollmentsWorker,
-  syncMatriculasWorker,
-  teachersUpdateWorker,
-  userEnrollmentsWorker,
-} from './queue/setup.js';
+import { workersSetup } from './queue/setup.js';
 import { addSyncToQueue } from './queue/jobs/syncMatriculas.js';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import type { FastifyServerOptions } from 'fastify';
@@ -16,6 +10,14 @@ import type { FastifyServerOptions } from 'fastify';
 const appOptions = {
   logger,
 } satisfies FastifyServerOptions;
+
+const {
+  emailWorker,
+  enrollmentsWorker,
+  syncMatriculasWorker,
+  teachersUpdateWorker,
+  userEnrollmentsWorker,
+} = workersSetup();
 
 async function start() {
   const app = await buildApp(appOptions);
@@ -25,8 +27,6 @@ async function start() {
 
   app.withTypeProvider<ZodTypeProvider>();
   await app.listen({ port: Config.PORT, host: Config.HOST });
-  // start queue right after the app
-  await import('./queue/setup.js');
   await addSyncToQueue({ operation: 'alunos_matriculados', redis: app.redis });
 
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {

@@ -6,57 +6,45 @@ import { userEnrollmentsUpdateWorker } from './jobs/userEnrollmentsUpdate.js';
 import { updateTeachersWorker } from './jobs/teacherUpdate.js';
 import { syncWorker } from './jobs/syncMatriculas.js';
 
-export const emailWorker = createWorker('Send:Email', sendEmailWorker);
-export const enrollmentsWorker = createWorker(
-  'Enrollments:Update',
-  updateEnrollmentsWorker,
-);
-export const userEnrollmentsWorker = createWorker(
-  'UserEnrollments:Update',
-  userEnrollmentsUpdateWorker,
-);
-export const teachersUpdateWorker = createWorker(
-  'Teacher:UpdateEnrollments',
-  updateTeachersWorker,
-);
-export const syncMatriculasWorker = createWorker('Matriculas:Sync', syncWorker);
+type NextWorker<TJobData> = ReturnType<typeof createWorker<TJobData>>;
 
-emailWorker.on('completed', (job) => {
-  logger.info({
-    msg: `[QUEUE] Job ${job.queueName} completed`,
-    id: job.id,
-    data: job.data,
-  });
-});
+export function workersSetup() {
+  const emailWorker = createWorker('Send:Email', sendEmailWorker);
+  const enrollmentsWorker = createWorker(
+    'Enrollments:Update',
+    updateEnrollmentsWorker,
+  );
+  const userEnrollmentsWorker = createWorker(
+    'UserEnrollments:Update',
+    userEnrollmentsUpdateWorker,
+  );
+  const teachersUpdateWorker = createWorker(
+    'Teacher:UpdateEnrollments',
+    updateTeachersWorker,
+  );
+  const syncMatriculasWorker = createWorker('Matriculas:Sync', syncWorker);
 
-enrollmentsWorker.on('completed', (job) => {
-  logger.info({
-    msg: `[QUEUE] Job ${job.queueName} completed`,
-    id: job.id,
-    data: job.data,
-  });
-});
+  const setupListener = <TJobData>(worker: NextWorker<TJobData>) => {
+    worker.on('completed', (job) => {
+      logger.info({
+        msg: `[QUEUE] Job ${job.queueName} completed`,
+        id: job.id,
+        data: job.data,
+      });
+    });
+  };
 
-userEnrollmentsWorker.on('completed', (job) => {
-  logger.info({
-    msg: `[QUEUE] Job ${job.queueName} completed`,
-    id: job.id,
-    data: job.data,
-  });
-});
+  setupListener(emailWorker);
+  setupListener(enrollmentsWorker);
+  setupListener(userEnrollmentsWorker);
+  setupListener(teachersUpdateWorker);
+  setupListener(syncMatriculasWorker);
 
-teachersUpdateWorker.on('completed', (job) => {
-  logger.info({
-    msg: `[QUEUE] Job ${job.queueName} completed`,
-    id: job.id,
-    data: job.data,
-  });
-});
-
-syncMatriculasWorker.on('completed', (job) => {
-  logger.info({
-    msg: `[QUEUE] Job ${job.queueName} completed`,
-    id: job.id,
-    data: job.data,
-  });
-});
+  return {
+    emailWorker,
+    enrollmentsWorker,
+    userEnrollmentsWorker,
+    teachersUpdateWorker,
+    syncMatriculasWorker,
+  };
+}
