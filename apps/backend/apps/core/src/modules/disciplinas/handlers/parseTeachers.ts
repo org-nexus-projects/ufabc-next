@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import {
   convertUfabcDisciplinas,
   generateIdentifier,
-  resolveProfessors,
+  resolveProfessor,
 } from '@next/common';
 import { TeacherModel } from '@/models/Teacher.js';
 import { batchInsertItems } from '@/queue/utils/batch-insert.js';
@@ -39,13 +39,12 @@ export async function parseTeachersHandler(
   const disciplinas = rawDisciplinas.map(
     (disciplina) =>
       Object.assign({}, disciplina, {
-        teoria: resolveProfessors(disciplina?.teoria, teachers),
-        pratica: resolveProfessors(disciplina?.pratica, teachers),
+        teoria: resolveProfessor(disciplina?.teoria, teachers),
+        pratica: resolveProfessor(disciplina?.pratica, teachers),
       }) as any,
   );
 
   const errors = validateTeachers(disciplinas);
-  request.log.warn(errors);
   const disciplinaHash = createHash('md5')
     .update(JSON.stringify(disciplinas))
     .digest('hex');
@@ -91,5 +90,6 @@ export async function parseTeachersHandler(
   return {
     status: 'ok',
     time: Date.now() - start,
+    errors,
   };
 }
