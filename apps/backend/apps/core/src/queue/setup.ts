@@ -4,7 +4,7 @@ import { createWorker } from './utils/queue.js';
 import { updateEnrollmentsWorker } from './jobs/enrollmentsUpdate.js';
 import { userEnrollmentsUpdateWorker } from './jobs/userEnrollmentsUpdate.js';
 import { updateTeachersWorker } from './jobs/teacherUpdate.js';
-import { syncWorker } from './jobs/syncMatriculas.js';
+// import { syncWorker } from './jobs/syncMatriculas.js';
 
 type NextWorker<TJobData> = ReturnType<typeof createWorker<TJobData>>;
 
@@ -22,7 +22,7 @@ export function workersSetup() {
     'Teacher:UpdateEnrollments',
     updateTeachersWorker,
   );
-  const syncMatriculasWorker = createWorker('Matriculas:Sync', syncWorker);
+  // const syncMatriculasWorker = createWorker('Matriculas:Sync', syncWorker);
 
   const setupListener = <TJobData>(worker: NextWorker<TJobData>) => {
     worker.on('completed', (job) => {
@@ -38,13 +38,13 @@ export function workersSetup() {
   setupListener(enrollmentsWorker);
   setupListener(userEnrollmentsWorker);
   setupListener(teachersUpdateWorker);
-  setupListener(syncMatriculasWorker);
+  // setupListener(syncMatriculasWorker);
 
   return {
     emailWorker,
     enrollmentsWorker,
     userEnrollmentsWorker,
     teachersUpdateWorker,
-    syncMatriculasWorker,
+    // syncMatriculasWorker,
   };
 }
