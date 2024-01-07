@@ -1,5 +1,4 @@
-import { type InferSchemaType, Schema, model } from 'mongoose';
-// let userEnrollmentsJob: any;
+import { type InferSchemaType, type Model, Schema, model } from 'mongoose';
 
 const CONCEITOS = ['A', 'B', 'C', 'D', 'O', 'F', '-'] as const;
 const POSSIBLE_SITUATIONS = [
@@ -10,6 +9,21 @@ const POSSIBLE_SITUATIONS = [
   'Apr.S.Nota',
   'Aproveitamento',
 ] as const;
+
+type Coefficients = {
+  ca_quad: number;
+  ca_acumulado: number;
+  cr_quad: number;
+  cr_acumulado: number;
+  cp_acumulado: number;
+  percentage_approved: number;
+  accumulated_credits: number;
+  period_credits: number;
+};
+
+export type CoefficientsMap = Record<1 | 2 | 3, Coefficients>;
+
+type HistoryCoefficients = Record<number, CoefficientsMap>;
 
 const historiesDisciplinasSchema = new Schema(
   {
@@ -32,26 +46,25 @@ const historiesDisciplinasSchema = new Schema(
   { _id: false },
 );
 
-type Coefficients = {
-  ca_quad: number;
-  ca_acumulado: number;
-  cr_quad: number;
-  cr_acumulado: number;
-  cp_acumulado: number;
-  percentage_approved: number;
-  accumulated_credits: number;
-  period_credits: number;
+export type History = {
+  ra: number;
+  disciplinas: InferSchemaType<typeof historiesDisciplinasSchema>[];
+  coefficients: HistoryCoefficients;
+  curso: string | undefined;
+  grade: string | undefined;
 };
 
-export type CoefficientsMap = Record<1 | 2 | 3, Coefficients>;
+type HistoryMethods = {
+  updateEnrollments(): Promise<void>;
+};
 
-type HistoryCoefficients = Record<number, CoefficientsMap>;
+type THistoryModel = Model<History, {}, HistoryMethods>;
 
-const historySchema = new Schema(
+const historySchema = new Schema<History, THistoryModel, HistoryMethods>(
   {
-    ra: Number,
+    ra: { type: Number, required: true },
     disciplinas: [historiesDisciplinasSchema],
-    coefficients: Object as unknown as HistoryCoefficients,
+    coefficients: Object,
     curso: String,
     grade: String,
   },
@@ -112,5 +125,7 @@ historySchema.post('save', async function () {
   // await addUserEnrollmentsToQueue(userEnrollmentsJob);
 });
 
-export type History = InferSchemaType<typeof historySchema>;
-export const HistoryModel = model('histories', historySchema);
+export const HistoryModel = model<History, THistoryModel>(
+  'histories',
+  historySchema,
+);
