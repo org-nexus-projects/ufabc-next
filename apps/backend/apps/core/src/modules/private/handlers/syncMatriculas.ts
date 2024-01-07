@@ -36,13 +36,16 @@ export async function syncMatriculasHandler(
   const start = Date.now();
   const errors = await batchInsertItems(
     Object.keys(ufabcMatricula),
+    // @ts-expect-error Ignore
     async (ufabcMatriculaIds) => {
       const cacheKey = `disciplina_${season}_${ufabcMatriculaIds}`;
       const cachedUfabcMatriculas = isSyncMatriculas
         ? await redis.get(cacheKey)
         : {};
 
-      if (isEqual(cachedUfabcMatriculas, ufabcMatricula[ufabcMatriculaIds])) {
+      if (
+        isEqual(cachedUfabcMatriculas, ufabcMatricula[ufabcMatriculaIds as any])
+      ) {
         return cachedUfabcMatriculas;
       }
 
@@ -51,14 +54,14 @@ export async function syncMatriculasHandler(
           season,
           disciplina_id: ufabcMatriculaIds,
         },
-        { [operationMap]: ufabcMatricula[ufabcMatriculaIds] },
+        { [operationMap]: ufabcMatricula[ufabcMatriculaIds as any] },
         { upsert: true, new: true },
       );
 
       if (isSyncMatriculas) {
         await redis.set(
           cacheKey,
-          JSON.stringify(ufabcMatricula[ufabcMatriculaIds]),
+          JSON.stringify(ufabcMatricula[ufabcMatriculaIds as any]),
         );
       }
       return updatedDisciplinas;
