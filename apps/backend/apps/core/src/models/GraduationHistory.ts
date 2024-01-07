@@ -40,7 +40,7 @@ const graduationHistorySchema = new Schema(
 
     disciplinas: [GraduationHistoryDisciplinasSchema],
 
-    curso: String,
+    curso: { type: String, required: true },
     grade: String,
     graduation: {
       type: Schema.Types.ObjectId,

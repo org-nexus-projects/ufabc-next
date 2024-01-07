@@ -1,4 +1,5 @@
 import { type InferSchemaType, type Model, Schema, model } from 'mongoose';
+import { addUserEnrollmentsToQueue } from '@/queue/jobs/userEnrollmentsUpdate.js';
 
 const CONCEITOS = ['A', 'B', 'C', 'D', 'O', 'F', '-'] as const;
 const POSSIBLE_SITUATIONS = [
@@ -10,7 +11,7 @@ const POSSIBLE_SITUATIONS = [
   'Aproveitamento',
 ] as const;
 
-type Coefficients = {
+export type Coefficient = {
   ca_quad: number;
   ca_acumulado: number;
   cr_quad: number;
@@ -21,7 +22,7 @@ type Coefficients = {
   period_credits: number;
 };
 
-export type CoefficientsMap = Record<1 | 2 | 3, Coefficients>;
+export type CoefficientsMap = Record<1 | 2 | 3, Coefficient>;
 
 type HistoryCoefficients = Record<number, CoefficientsMap>;
 
@@ -54,13 +55,9 @@ export type History = {
   grade: string | undefined;
 };
 
-type HistoryMethods = {
-  updateEnrollments(): Promise<void>;
-};
+type THistoryModel = Model<History, {}>;
 
-type THistoryModel = Model<History, {}, HistoryMethods>;
-
-const historySchema = new Schema<History, THistoryModel, HistoryMethods>(
+const historySchema = new Schema<History, THistoryModel>(
   {
     ra: { type: Number, required: true },
     disciplinas: [historiesDisciplinasSchema],
@@ -71,14 +68,7 @@ const historySchema = new Schema<History, THistoryModel, HistoryMethods>(
   {
     methods: {
       async updateEnrollments() {
-        // userEnrollmentsJob = {
-        //   doc: this.toObject<History>({ virtuals: true }),
-        //   enrollmentModel: EnrollmentModel,
-        //   graduationModel: GraduationModel,
-        //   graduationHistoryModel: GraduationHistoryModel,
-        //   subjectModel: SubjectModel,
-        // };
-        // await addUserEnrollmentsToQueue(userEnrollmentsJob);
+        await addUserEnrollmentsToQueue(this.toObject({ virtuals: true }));
       },
     },
     timestamps: true,
@@ -90,39 +80,16 @@ historySchema.index({ curso: 'asc', grade: 'asc' });
 historySchema.pre('findOneAndUpdate', async function () {
   //why does the legacy code pass things that aren't in the schema?
   //also, the updateUserEnrollments cron job in the legacy code doesn't use the mandatory_credits_number, limited_credits_number, free_credits_number, credits_total properties
-  // calls cron job here
-  // const update: UpdateQuery<History> | null = this.getUpdate();
-  // if (!update) {
-  //   // if theres nothing to update, do nothing
-  //   return;
-  // }
-  // const updateJob = {
-  //   ra: update.ra,
-  //   disciplinas: update.disciplinas,
-  //   curso: update.curso,
-  //   grade: update.grade,
-  //   mandatory_credits_number: update.mandatory_credits_number,
-  //   limited_credits_number: update.limited_credits_number,
-  //   free_credits_number: update.free_credits_number,
-  //   credits_total: update.credits_total,
-  // };
-  // userEnrollmentsJob.doc = updateJob;
-  // await addUserEnrollmentsToQueue(userEnrollmentsJob);
-  // app.agenda.now('updateUserEnrollments', [
-  //   ra,
-  //   disciplinas,
-  //   curso,
-  //   grade,
-  //   mandatory_credits_number,
-  //   limited_credits_number,
-  //   free_credits_number,
-  //   credits_total,
-  // ]);
+  // it does check for everything that are in the schema, only as a nested property
+  // and the cron job does check for those values to calculate the coefficients
+  const update = this.getUpdate() as History;
+  await addUserEnrollmentsToQueue(update);
 });
 
 historySchema.post('save', async function () {
   // userEnrollmentsJob.doc = this.toObject({ virtuals: true });
   // await addUserEnrollmentsToQueue(userEnrollmentsJob);
+  await addUserEnrollmentsToQueue(this.toObject({ virtuals: true }));
 });
 
 export const HistoryModel = model<History, THistoryModel>(
