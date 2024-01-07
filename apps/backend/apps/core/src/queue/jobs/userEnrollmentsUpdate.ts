@@ -1,75 +1,61 @@
 import {
-  asyncParallelMap,
   calculateCoefficients,
   generateIdentifier,
   logger,
   modifyPayload,
 } from '@next/common';
 import { get } from 'lodash-es';
-import { createQueue } from '../utils/queue.js';
-import type {
+import {
+  type Coefficient,
   EnrollmentModel,
-  GraduationDocument,
+  type GraduationDocument,
   GraduationHistoryModel,
   GraduationModel,
-  History,
+  type History,
   SubjectModel,
 } from '@/models/index.js';
+import { createQueue } from '../utils/queue.js';
+import { batchInsertItems } from '../utils/batch-insert.js';
 import type { Job } from 'bullmq';
 
 //TODO: Add cache for main teacher and subject
 //TODO: fix the subject model cache
 //TODO: replace _.get with a native function
 
-type UpdateUserEnrollments = {
-  doc: History;
-  enrollmentModel: typeof EnrollmentModel;
-  graduationModel: typeof GraduationModel;
-  graduationHistoryModel: typeof GraduationHistoryModel;
-  subjectModel: typeof SubjectModel;
-};
-
-export async function updateUserEnrollments({
-  doc,
-  enrollmentModel,
-  graduationModel,
-  graduationHistoryModel,
-  subjectModel,
-}: UpdateUserEnrollments) {
-  if (!doc.disciplinas) {
+export async function updateUserEnrollments(history: History) {
+  if (!history.disciplinas) {
     return;
   }
 
-  const isDisciplines = Array.isArray(doc.disciplinas)
-    ? doc.disciplinas
-    : ([doc.disciplinas] as unknown as History['disciplinas']);
+  const isDisciplines = Array.isArray(history.disciplinas)
+    ? history.disciplinas
+    : [history.disciplinas];
 
   const disciplinesArr = isDisciplines.filter(Boolean);
+  logger.warn({ msg: 'Disciplines arr debug', disciplinesArr });
 
   let graduation: GraduationDocument | null = null;
-
-  if (doc.curso && doc.grade) {
-    graduation = await graduationModel
-      .findOne({
-        curso: doc.curso,
-        grade: doc.grade,
-      })
-      .lean(true);
+  if (history.curso && history.grade) {
+    graduation = await GraduationModel.findOne({
+      curso: history.curso,
+      grade: history.grade,
+    }).lean(true);
   }
 
   // @ts-expect-error I hate mongoose
-  const coefficients = calculateCoefficients(disciplinesArr, graduation);
+  const coefficients: any = calculateCoefficients(disciplinesArr, graduation);
+  history.coefficients = coefficients;
 
-  await graduationHistoryModel.findOneAndUpdate(
+  await GraduationHistoryModel.findOneAndUpdate(
     {
-      curso: checkAndFixCourseName(doc.curso),
-      grade: doc.grade,
-      ra: doc.ra,
+      curso: checkAndFixCourseName(history.curso!),
+      grade: history.grade,
+      ra: history.ra,
     },
     {
-      curso: checkAndFixCourseName(doc.curso),
-      grade: doc.grade,
-      ra: doc.ra,
+      curso: checkAndFixCourseName(history.curso!),
+      grade: history.grade,
+      ra: history.ra,
       coefficients,
       disciplinas: disciplinesArr,
       graduation: graduation ? graduation._id : null,
@@ -77,24 +63,36 @@ export async function updateUserEnrollments({
     { upsert: true },
   );
 
+  const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
+
   const updateOrCreateEnrollments = async (
     discipline: History['disciplinas'][number],
   ) => {
     const disc = {
-      ra: doc.ra,
+      ra: history.ra,
       year: discipline.ano,
       quad: Number.parseInt(discipline.periodo!),
       disciplina: discipline.disciplina,
     };
 
-    const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
+    // calculate identifier for this discipline
+    discipline.identifier =
+      discipline.identifier || generateIdentifier(disc, keys as any);
 
+    // find coef for this period
     const coef = getLastPeriod(
-      doc.coefficients!,
+      history.coefficients!,
       discipline.ano!,
       Number.parseInt(discipline.periodo!),
     );
 
+    logger.warn({ msg: 'Job update debug', coef });
+
+    //for some reason the cache that is supposed to be in the subject model is not working
+    // the cache key is not native its from a lib
+    const subjects = await SubjectModel.find({}).lean(true);
+
+    // create enrollment payload
     const enrollmentPayload = {
       ra: disc.ra!,
       year: disc.year!,
@@ -102,21 +100,18 @@ export async function updateUserEnrollments({
       disciplina: disc.disciplina!,
       conceito: discipline.conceito!,
       creditos: discipline.creditos!,
-      cr_acumulado: get(coef, 'cr_acumulado')!,
-      ca_acumulado: get(coef, 'ca_acumulado')!,
-      cp_acumulado: get(coef, 'cp_acumulado')!,
+      cr_acumulado: coef?.cr_acumulado ?? get(coef, 'cr_acumulado'),
+      ca_acumulado: coef?.ca_acumulado ?? get(coef, 'ca_acumulado'),
+      cp_acumulado: coef?.cp_acumulado ?? get(coef, 'cp_acumulado'),
     };
 
-    //for some reason the cache that is supposed to be in the subject model is not working
-    const subjects = await subjectModel.find({}).lean(true);
     // @ts-expect-error I hate mongoose
     const modifiedPayload = modifyPayload(enrollmentPayload, subjects, {});
 
-    await enrollmentModel.findOneAndUpdate(
+    await EnrollmentModel.findOneAndUpdate(
       {
         // TODO: remove any later
-        identifier:
-          discipline.identifier || generateIdentifier(disc, keys as any),
+        identifier: discipline.identifier,
       },
       modifiedPayload,
       {
@@ -135,10 +130,14 @@ export async function updateUserEnrollments({
       // }
     );
   };
-  return asyncParallelMap(disciplinesArr, updateOrCreateEnrollments, 10);
+
+  return batchInsertItems(disciplinesArr, (discipline) =>
+    // @ts-expect-error
+    updateOrCreateEnrollments(discipline),
+  );
 }
 
-function checkAndFixCourseName(courseName?: string) {
+function checkAndFixCourseName(courseName: string) {
   return courseName === 'Bacharelado em CIências e Humanidades'
     ? 'Bacharelado em Ciências e Humanidades'
     : courseName;
@@ -149,11 +148,11 @@ function getLastPeriod(
   year: number,
   quad: number,
   begin?: string,
-) {
+): Coefficient | null {
   if (!begin) {
     const firstYear = Object.keys(disciplines)[0];
     const firstMonth = Object.keys(disciplines[firstYear]!)[0];
-    begin = `${firstYear}.${firstMonth}`;
+    begin = `${firstYear}.${firstMonth}`!;
   }
 
   if (quad === 1) {
@@ -169,25 +168,21 @@ function getLastPeriod(
 
   const resp = get(disciplines, `${year}.${quad}`, null);
   if (resp === null) {
-    return getLastPeriod(disciplines, year, quad, begin);
+    return getLastPeriod(disciplines, year, quad, begin)!;
   }
 
-  return resp;
+  return resp as Coefficient;
 }
 
 export const updaterUserEnrollmentsQueue = createQueue(
   'UserEnrollments:Update',
 );
 
-export const addUserEnrollmentsToQueue = async (
-  payload: Job<UpdateUserEnrollments>,
-) => {
+export const addUserEnrollmentsToQueue = async (payload: History) => {
   await updaterUserEnrollmentsQueue.add('UserEnrollments:Update', payload);
 };
 
-export const userEnrollmentsUpdateWorker = async (
-  job: Job<UpdateUserEnrollments>,
-) => {
+export const userEnrollmentsUpdateWorker = async (job: Job<History>) => {
   const payload = job.data;
   try {
     // TODO: pass models here
