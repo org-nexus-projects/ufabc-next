@@ -1,7 +1,7 @@
 import { type Job, type RedisOptions, Worker } from 'bullmq';
 import { logger } from '@next/common';
 import { Config } from '@/config/config.js';
-import { NEXT_JOBS, NEXT_QUEUE_JOBS } from './jobs.js';
+import { NEXT_JOBS, NEXT_QUEUE_JOBS } from './jobsDefinitions.js';
 
 type NextJobNames = keyof typeof NEXT_JOBS;
 export type JobParameters<T extends NextJobNames> = Parameters<

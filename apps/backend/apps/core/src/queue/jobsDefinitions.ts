@@ -65,7 +65,7 @@ export const NEXT_JOBS = {
   NextSyncMatriculas: {
     queue: 'Sync:Matriculas',
     handler: syncMatriculasJob,
-    every: '2 minutes',
+    every: '1 minutes',
   },
   NextEnrollmentsUpdate: {
     queue: 'Enrollments:Update',

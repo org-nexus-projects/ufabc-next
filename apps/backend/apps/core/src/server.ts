@@ -18,7 +18,7 @@ async function start() {
 
   app.withTypeProvider<ZodTypeProvider>();
   await app.listen({ port: Config.PORT, host: Config.HOST });
-  await nextWorker.setup();
+  nextWorker.setup();
 
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {
     if (err) {
