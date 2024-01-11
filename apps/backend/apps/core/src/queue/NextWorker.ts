@@ -3,11 +3,11 @@ import { logger } from '@next/common';
 import { Config } from '@/config/config.js';
 import { NEXT_JOBS, NEXT_QUEUE_JOBS } from './jobsDefinitions.js';
 
-type NextJobNames = keyof typeof NEXT_JOBS;
+export type NextJobNames = keyof typeof NEXT_JOBS;
 export type JobParameters<T extends NextJobNames> = Parameters<
   (typeof NEXT_JOBS)[T]['handler']
 >[0];
-type JobFn<T extends NextJobNames> = (typeof NEXT_JOBS)[T]['handler'];
+export type JobFn<T extends NextJobNames> = (typeof NEXT_JOBS)[T]['handler'];
 
 export class NextWorker {
   private workers: Record<string, Worker> = {};
