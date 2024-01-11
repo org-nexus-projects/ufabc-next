@@ -1,5 +1,6 @@
 import { sendConfirmationEmail } from './jobs/confirmationEmail.js';
 import { updateEnrollments } from './jobs/enrollmentsUpdate.js';
+import { syncMatriculasJob } from './jobs/syncMatriculas.js';
 import { updateTeachers } from './jobs/teacherUpdate.js';
 import { updateUserEnrollments } from './jobs/userEnrollmentsUpdate.js';
 import type { WorkerOptions } from 'bullmq';
@@ -22,7 +23,9 @@ export const NEXT_QUEUE_JOBS = {
    */
   'Enrollments:Update': {
     concurrency: 5,
-    removeOnComplete: true,
+    removeOnComplete: {
+      age: 0,
+    },
   },
   /**
    * Queue for updating enrollments the teacher had lectures in
@@ -61,7 +64,7 @@ export const NEXT_JOBS = {
   },
   NextSyncMatriculas: {
     queue: 'Sync:Matriculas',
-    handler: () => {},
+    handler: syncMatriculasJob,
     every: '2 minutes',
   },
   NextEnrollmentsUpdate: {
