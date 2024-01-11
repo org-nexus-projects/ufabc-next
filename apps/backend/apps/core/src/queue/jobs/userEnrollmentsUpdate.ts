@@ -14,9 +14,7 @@ import {
   type History,
   SubjectModel,
 } from '@/models/index.js';
-import { createQueue } from '../utils/queue.js';
 import { batchInsertItems } from '../utils/batch-insert.js';
-import type { Job } from 'bullmq';
 
 //TODO: Add cache for main teacher and subject
 //TODO: fix the subject model cache
@@ -173,25 +171,3 @@ function getLastPeriod(
 
   return resp as Coefficient;
 }
-
-export const updaterUserEnrollmentsQueue = createQueue(
-  'UserEnrollments:Update',
-);
-
-export const addUserEnrollmentsToQueue = async (payload: History) => {
-  await updaterUserEnrollmentsQueue.add('UserEnrollments:Update', payload);
-};
-
-export const userEnrollmentsUpdateWorker = async (job: Job<History>) => {
-  const payload = job.data;
-  try {
-    // TODO: pass models here
-    await updateUserEnrollments(payload);
-  } catch (error) {
-    logger.error(
-      { error },
-      'updateUserEnrollmentsWorker: Error updating user enrollments',
-    );
-    throw error;
-  }
-};
