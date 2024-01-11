@@ -8,7 +8,7 @@ type QueueDefinition = Record<string, WorkerOptions>;
 
 const MONTH = 60 * 60 * 24 * 30;
 
-export const Next_QueueJobs = {
+export const NEXT_QUEUE_JOBS = {
   /**
    * Queue for sending emails
    */
@@ -46,7 +46,7 @@ export const Next_QueueJobs = {
 type JobsDefinition = Record<
   string,
   {
-    queue: keyof typeof Next_QueueJobs;
+    queue: keyof typeof NEXT_QUEUE_JOBS;
     // TODO: remove any
     handler: (params: any) => Promise<unknown>;
     every?: string;
