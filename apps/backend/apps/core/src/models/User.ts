@@ -6,7 +6,7 @@ import {
 } from 'mongoose';
 import { uniqBy } from 'remeda';
 import jwt from 'jsonwebtoken';
-import { addEmailToConfirmationQueue } from '@/queue/jobs/confirmationEmail.js';
+import { sendConfirmationEmail } from '@/queue/jobs/confirmationEmail.js';
 import { Config } from '@/config/config.js';
 
 type Device = {
@@ -82,7 +82,7 @@ const userSchema = new Schema(
         const nextUser = this.toObject({
           virtuals: true,
         });
-        await addEmailToConfirmationQueue(nextUser);
+        await sendConfirmationEmail(nextUser);
       },
       generateJWT() {
         return jwt.sign(

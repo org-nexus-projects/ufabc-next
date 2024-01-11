@@ -22,6 +22,7 @@ export const NEXT_QUEUE_JOBS = {
    */
   'Enrollments:Update': {
     concurrency: 5,
+    removeOnComplete: true,
   },
   /**
    * Queue for updating enrollments the teacher had lectures in

@@ -1,5 +1,5 @@
 import { type InferSchemaType, type Model, Schema, model } from 'mongoose';
-import { addUserEnrollmentsToQueue } from '@/queue/jobs/userEnrollmentsUpdate.js';
+import { updateUserEnrollments } from '@/queue/jobs/userEnrollmentsUpdate.js';
 
 const CONCEITOS = ['A', 'B', 'C', 'D', 'O', 'F', '-'] as const;
 const POSSIBLE_SITUATIONS = [
@@ -68,7 +68,7 @@ const historySchema = new Schema<History, THistoryModel>(
   {
     methods: {
       async updateEnrollments() {
-        await addUserEnrollmentsToQueue(this.toObject({ virtuals: true }));
+        await updateUserEnrollments(this.toObject({ virtuals: true }));
       },
     },
     timestamps: true,
@@ -83,13 +83,13 @@ historySchema.pre('findOneAndUpdate', async function () {
   // it does check for everything that are in the schema, only as a nested property
   // and the cron job does check for those values to calculate the coefficients
   const update = this.getUpdate() as History;
-  await addUserEnrollmentsToQueue(update);
+  await updateUserEnrollments(update);
 });
 
 historySchema.post('save', async function () {
   // userEnrollmentsJob.doc = this.toObject({ virtuals: true });
   // await addUserEnrollmentsToQueue(userEnrollmentsJob);
-  await addUserEnrollmentsToQueue(this.toObject({ virtuals: true }));
+  await updateUserEnrollments(this.toObject({ virtuals: true }));
 });
 
 export const HistoryModel = model<History, THistoryModel>(
