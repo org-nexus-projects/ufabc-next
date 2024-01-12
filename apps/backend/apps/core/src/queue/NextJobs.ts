@@ -70,7 +70,7 @@ class NextJobs implements NextJob {
   schedule<T extends NextJobNames>(
     jobName: T,
     jobParameters: JobParameters<T>,
-    { toWait, toWaitInMs }: { toWait?: string; toWaitInMs?: number },
+    { toWait, toWaitInMs }: { toWait?: string; toWaitInMs?: number } = {},
   ) {
     const options: JobsOptions = {
       jobId: randomUUID(),
