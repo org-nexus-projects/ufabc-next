@@ -10,7 +10,7 @@ export type JobParameters<T extends NextJobNames> = Parameters<
 export type JobFn<T extends NextJobNames> = (typeof NEXT_JOBS)[T]['handler'];
 
 export class NextWorker {
-  private workers: Record<string, Worker> = {};
+  private workers: Record<string, Worker<any, unknown, NextJobNames>> = {};
   private readonly DEFAULT_REDIS_PORT = 6379;
   private readonly RedisConnection = {
     username: Config.REDIS_USER,
@@ -27,12 +27,16 @@ export class NextWorker {
     }
 
     for (const [queueName, queueSettings] of Object.entries(NEXT_QUEUE_JOBS)) {
-      this.workers[queueName] = new Worker(queueName, this.WorkerHandler, {
-        connection: {
-          ...this.RedisConnection,
+      this.workers[queueName] = new Worker(
+        queueName,
+        (job: Job<any, unknown, NextJobNames>) => this.WorkerHandler(job),
+        {
+          connection: {
+            ...this.RedisConnection,
+          },
+          ...queueSettings,
         },
-        ...queueSettings,
-      });
+      );
     }
   }
 
