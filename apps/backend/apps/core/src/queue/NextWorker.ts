@@ -63,6 +63,7 @@ export class NextWorker {
         data: jobParameters,
       });
       try {
+        // @ts-expect-error
         const response = await handler(jobParameters);
         return response;
       } catch (error) {

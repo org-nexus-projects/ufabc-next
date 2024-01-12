@@ -33,6 +33,7 @@ export async function syncMatriculasJob(params: SyncMatriculasParams) {
         disciplina_id: enrollmentId,
         season,
       };
+      // @ts-expect-error
       const toUpdate = { [params.operation]: enrollments[enrollmentId] };
       const opts = {
         // returns the updated document
