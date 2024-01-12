@@ -15,6 +15,10 @@ jobs:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
+    strategy:
+      matrix:
+        command: [lint, 'build:type-check', test, build]
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -41,14 +45,14 @@ jobs:
       - name: 📦 Install dependencies
         run: pnpm i
 
-      - name: 🛠 Build
-        run: pnpm build
-
       - name: 💪 Lint
-        run: pnpm lint
+        run: pnpm ${{matrix.command[0]}}
 
       - name: 💼 Type Check
-        run: pnpm build:type-check
+        run: pnpm ${{matrix.command[1]}}
 
       - name: 🧪 Test
-        run: pnpm test
+        run: pnpm ${{matrix.command[2]}}
+
+      - name: 🛠 Build
+        run: pnpm ${{matrix.command[3]}}
