@@ -17,8 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        command: [lint, test]
-        command_release: [build, 'build:type-check']
+        command: [build, 'build:type-check', lint, test]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,8 +44,5 @@ jobs:
       - name: 📦 Install dependencies
         run: pnpm i
 
-      - name: 💼 Type Check & 🛠 Build
-        run: pnpm ${{ matrix.command_release }}
-
-      - name: 💪 Lint & 🧪 Test
+      - name: 🛠 Build & 💼 Type Check & 💪 Lint & 🧪 Test
         run: pnpm ${{ matrix.command }}
