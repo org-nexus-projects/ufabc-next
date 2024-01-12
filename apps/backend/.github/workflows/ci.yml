@@ -44,8 +44,14 @@ jobs:
       - name: 📦 Install dependencies
         run: pnpm i
 
-      - name: 💼 Type Check & 💪 Lint & 🧪 Test
-        run: pnpm ${{ matrix.command }}
-
       - name: 🛠 Build
         run: pnpm build
+
+      - name: 💪 Lint
+        run: pnpm lint
+
+      - name: 💼 Type Check
+        run: pnpm build:type-check
+
+      - name: 🧪 Test
+        run: pnpm test
