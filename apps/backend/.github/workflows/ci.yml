@@ -15,9 +15,6 @@ jobs:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
-    strategy:
-      matrix:
-        command: ['build:type-check', lint, test]
     steps:
       - uses: actions/checkout@v4
         with:
