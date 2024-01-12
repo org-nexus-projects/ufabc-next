@@ -26,7 +26,8 @@ export async function syncMatriculasJob(params: SyncMatriculasParams) {
 
   const errors = await batchInsertItems(
     Object.keys(enrollments),
-    async (enrollmentId): Promise<any> => {
+    // @ts-expect-error Ignore
+    async (enrollmentId) => {
       // find and update disciplina
       const query = {
         disciplina_id: enrollmentId,
