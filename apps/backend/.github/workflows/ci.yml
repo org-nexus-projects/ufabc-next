@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  install-and-build:
-    name: 📦 Install node modules
+  ci:
+    name: 🔄 CI Workflow
     runs-on: [ubuntu-latest]
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         command: [lint, test]
-        command_release: ['build:type-check', build]
+        command_release: [build, 'build:type-check']
     steps:
       - uses: actions/checkout@v4
         with:
