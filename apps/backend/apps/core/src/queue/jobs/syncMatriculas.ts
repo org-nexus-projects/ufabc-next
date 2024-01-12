@@ -8,7 +8,12 @@ import { batchInsertItems } from '../utils/batch-insert.js';
 // // Here the job that runs is only the sync job, so it dont make sense to cover other cases
 // // it dont make sense to cache either, since everything is going to the redis server
 // // the ideal behavior is to skip  `not cache` the already known data
-export async function syncMatriculasJob() {
+
+type SyncMatriculasParams = {
+  operation: 'alunos_matriculados';
+};
+
+export async function syncMatriculasJob(params: SyncMatriculasParams) {
   const season = currentQuad();
 
   const matriculas = await ofetch(
@@ -19,7 +24,7 @@ export async function syncMatriculasJob() {
   );
   const enrollments = parseEnrollments(matriculas);
 
-  await batchInsertItems(
+  const errors = await batchInsertItems(
     Object.keys(enrollments),
     async (enrollmentId): Promise<any> => {
       // find and update disciplina
@@ -27,7 +32,7 @@ export async function syncMatriculasJob() {
         disciplina_id: enrollmentId,
         season,
       };
-      const toUpdate = { alunos_matriculados: enrollments[enrollmentId] };
+      const toUpdate = { [params.operation]: enrollments[enrollmentId] };
       const opts = {
         // returns the updated document
         upsert: true,
@@ -43,6 +48,8 @@ export async function syncMatriculasJob() {
       return saved;
     },
   );
+
+  return errors;
 }
 
 const valueToJson = (payload: string, max?: number) => {
