@@ -3,12 +3,6 @@ import { ofetch } from 'ofetch';
 import { DisciplinaModel } from '@/models/index.js';
 import { batchInsertItems } from '../utils/batch-insert.js';
 
-// //this function encapsulate the logic to sync stuff from matriculas
-// //so it can be used by the queue and by the route
-// // Here the job that runs is only the sync job, so it dont make sense to cover other cases
-// // it dont make sense to cache either, since everything is going to the redis server
-// // the ideal behavior is to skip  `not cache` the already known data
-
 type SyncMatriculasParams = {
   operation: 'alunos_matriculados';
 };

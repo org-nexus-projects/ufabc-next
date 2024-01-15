@@ -105,7 +105,6 @@ reactionSchema.post('save', async function () {
   await computeReactions(this);
 });
 
-// This Type is WRONG, but it will do for now
 reactionSchema.post<ReactionDocument>('deleteOne', async function () {
   await computeReactions(this);
 });

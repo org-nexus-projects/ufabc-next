@@ -78,17 +78,11 @@ const historySchema = new Schema<History, THistoryModel>(
 historySchema.index({ curso: 'asc', grade: 'asc' });
 
 historySchema.pre('findOneAndUpdate', async function () {
-  //why does the legacy code pass things that aren't in the schema?
-  //also, the updateUserEnrollments cron job in the legacy code doesn't use the mandatory_credits_number, limited_credits_number, free_credits_number, credits_total properties
-  // it does check for everything that are in the schema, only as a nested property
-  // and the cron job does check for those values to calculate the coefficients
   const update = this.getUpdate() as History;
   await updateUserEnrollments(update);
 });
 
 historySchema.post('save', async function () {
-  // userEnrollmentsJob.doc = this.toObject({ virtuals: true });
-  // await addUserEnrollmentsToQueue(userEnrollmentsJob);
   await updateUserEnrollments(this.toObject({ virtuals: true }));
 });
 
