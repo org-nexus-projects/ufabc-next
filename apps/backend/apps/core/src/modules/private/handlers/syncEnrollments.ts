@@ -5,7 +5,7 @@ import {
   generateIdentifier,
   logger,
 } from '@next/common';
-import { updateEnrollmentsQueue } from '@/queue/jobs/enrollmentsUpdate.js';
+import { updateEnrollments } from '@/queue/jobs/enrollmentsUpdate.js';
 import { DisciplinaModel, type Enrollment } from '@/models/index.js';
 import { type ParseXlSXBody, parseXlsx } from '../../utils/parseXlsx.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
@@ -109,13 +109,7 @@ export async function syncEnrollments(
   for (let i = 0; i < enrollments.length; i += chunkSize) {
     chunks.push(enrollments.slice(i, i + chunkSize));
   }
-  const errors = updateEnrollmentsQueue.add(
-    'Enrollments:Update',
-    enrollments[0],
-    {
-      removeOnComplete: true,
-    },
-  );
+  const errors = updateEnrollments(enrollments[0]);
 
   // const TW0_MINUTES = 1_000 * 120;
   // const FOUR_MINUTES = 1_000 * 240;

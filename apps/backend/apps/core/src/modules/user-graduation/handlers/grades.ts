@@ -8,6 +8,7 @@ export const grades: GradesRouteHandler = async (request) => {
   const INTERVAL = 4 / POINTS;
 
   const distribution = await HistoryModel.aggregate(
+    // @ts-expect-error
     DistributionAggregateQuery(POINTS, INTERVAL),
   );
   const normalizedDistribution = distribution.map((interval) => {

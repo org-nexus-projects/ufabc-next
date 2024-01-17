@@ -8,6 +8,7 @@ on:
 
 jobs:
   deploy:
+    name: 🚀 CD Workflow
     runs-on: ubuntu-latest
     steps:
       - name: 📦 Checkout code

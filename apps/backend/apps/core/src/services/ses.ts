@@ -7,6 +7,7 @@ import { logger } from '@next/common';
 import { Config } from '@/config/config.js';
 import type { User } from '@/models/User.js';
 
+type NextUser = Pick<User, 'email' | 'ra'>;
 type Email = {
   recipient: string;
   body: {
@@ -17,7 +18,7 @@ type Email = {
 };
 
 export async function sesSendEmail(
-  user: Partial<User>,
+  user: NextUser,
   templateId: 'Confirmation' | 'Recover',
   email: Email,
 ) {
@@ -39,10 +40,14 @@ export async function sesSendEmail(
   }
 
   try {
+    if (!user.email) {
+      throw new Error('Email not found, the email must be provided');
+    }
+
     const sendTemplatedEmailCommand = {
       Source: 'UFABC next <contato@ufabcnext.com>',
       Destination: {
-        ToAddresses: [user.email!],
+        ToAddresses: [user.email],
       },
       TemplateData: templateData,
       Template: templateId,

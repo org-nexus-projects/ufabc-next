@@ -19,7 +19,7 @@
     "lint:fix": "pnpm run lint --fix"
   },
   "devDependencies": {
-    "@next/tsconfig": "workspace:^",
+    "@next/tsconfig": "workspace:*",
     "@types/node": "^20.10.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.2"
