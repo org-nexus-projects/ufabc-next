@@ -6,6 +6,7 @@ import {
 } from 'mongoose';
 import { uniqBy } from 'remeda';
 import jwt from 'jsonwebtoken';
+import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 import { sendConfirmationEmail } from '@/queue/jobs/confirmationEmail.js';
 import { Config } from '@/config/config.js';
 
@@ -107,6 +108,8 @@ const userSchema = new Schema(
     timestamps: true,
   },
 );
+
+userSchema.plugin(mongooseLeanVirtuals);
 
 userSchema.pre<UserDocument>('save', async function () {
   if (this.isFilled && !this.confirmed) {
