@@ -5,6 +5,7 @@ import {
   model,
 } from 'mongoose';
 import { findQuarter } from '@next/common';
+import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 
 const CAMPUS = ['sao bernardo', 'santo andre'] as const;
 
@@ -67,6 +68,8 @@ const disciplinaSchema = new Schema(
     timestamps: true,
   },
 );
+
+disciplinaSchema.plugin(mongooseLeanVirtuals);
 
 function setQuarter(disciplina: UpdateQuery<Disciplina> | null) {
   const { year, quad } = findQuarter();

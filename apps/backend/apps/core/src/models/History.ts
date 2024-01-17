@@ -1,4 +1,5 @@
 import { type InferSchemaType, type Model, Schema, model } from 'mongoose';
+import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 import { updateUserEnrollments } from '@/queue/jobs/userEnrollmentsUpdate.js';
 
 const CONCEITOS = ['A', 'B', 'C', 'D', 'O', 'F', '-'] as const;
@@ -74,6 +75,8 @@ const historySchema = new Schema<History, THistoryModel>(
     timestamps: true,
   },
 );
+
+historySchema.plugin(mongooseLeanVirtuals);
 
 historySchema.index({ curso: 'asc', grade: 'asc' });
 
