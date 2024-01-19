@@ -1,12 +1,9 @@
 import { createHash } from 'node:crypto';
 import { ofetch } from 'ofetch';
-import {
-  convertUfabcDisciplinas,
-  generateIdentifier,
-  logger,
-} from '@next/common';
+import { convertUfabcDisciplinas, generateIdentifier } from '@next/common';
+import { omit as LodashOmit } from 'lodash-es';
 import { updateEnrollments } from '@/queue/jobs/enrollmentsUpdate.js';
-import { DisciplinaModel, type Enrollment } from '@/models/index.js';
+import { type Disciplina, DisciplinaModel } from '@/models/index.js';
 import { type ParseXlSXBody, parseXlsx } from '../../utils/parseXlsx.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
@@ -43,53 +40,48 @@ export async function syncEnrollments(
     throw new Error(`O link enviado deve existir`, { cause: link });
   }
 
-  const currentQuadDisciplinas = DisciplinaModel.find({
-    season,
-  });
-  const disciplinas = await currentQuadDisciplinas
-    .find(
-      {},
-      {
-        identifier: 1,
-        subject: 1,
-        teoria: 1,
-        pratica: 1,
-      },
-    )
-    .lean({ virtuals: true });
+  const disciplinasMapper = {
+    identifier: 1,
+    subject: 1,
+    teoria: 1,
+    pratica: 1,
+  };
 
-  // @ts-expect-error Experimenting
-  const disciplinasMap = new Map([...disciplinas.map((d) => [d._id, d])]);
-  const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
-  const rawEnrollments = (await parseXlsx(request.body)).map(
-    // eslint-disable-next-line unicorn/no-array-callback-reference
-    convertUfabcDisciplinas,
+  const disciplinas = await DisciplinaModel.find(
+    { season },
+    disciplinasMapper,
+  ).lean<Disciplina[]>({ virtuals: true });
+
+  const disciplinasMap = new Map<string, Disciplina>(
+    disciplinas.map((d) => [d.identifier, d]),
   );
-  logger.info(rawEnrollments);
 
-  const filteredEnrollments: any[] = rawEnrollments
-    // @ts-expect-error Temp fix
-    .filter((enrollment: Enrollment) => enrollment?.ra)
-    .map((studentEnrollment) =>
-      Object.assign({}, studentEnrollment, { year, quad }),
-    );
-  const enrollments = filteredEnrollments.map((enrollment) => {
+  const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
+
+  const sheetEnrollments = await parseXlsx(request.body);
+  const rawEnrollments = sheetEnrollments.map((sheetEnrollment) =>
+    convertUfabcDisciplinas(sheetEnrollment),
+  );
+
+  const userEnrollments = rawEnrollments.filter(
+    // @ts-expect-error need to comport both disciplinas and enrollments collection
+    (enrollment) => enrollment.ra && enrollment.disciplina,
+  );
+
+  const assignYearAndQuadToEnrollments = userEnrollments.map(
+    (userEnrollments) => Object.assign(userEnrollments, { year, quad }),
+  );
+
+  const enrollments = assignYearAndQuadToEnrollments.map((enrollment) => {
     const enrollmentIdentifier = generateIdentifier(enrollment);
-    // @ts-expect-error Ignore
-    const { id, _id, ...disciplinasWithoutId } =
-      disciplinasMap.get(enrollmentIdentifier) || {};
-    const identifiers = {
+    const neededDisciplinasFields = LodashOmit(
+      disciplinasMap.get(enrollmentIdentifier) || {},
+      ['id', '_id'],
+    );
+    return Object.assign(neededDisciplinasFields, {
       identifier: generateIdentifier(enrollment, keys as any),
       disciplina_identifier: generateIdentifier(enrollment),
-    };
-    const shallowEnrollment = Object.assign(
-      {},
-      enrollment,
-      identifiers,
-      disciplinasWithoutId,
-    );
-
-    return shallowEnrollment;
+    });
   });
 
   const enrollmentsHash = createHash('md5')
@@ -99,7 +91,8 @@ export async function syncEnrollments(
   if (enrollmentsHash !== hash) {
     return {
       hash: enrollmentsHash,
-      size: enrollments.slice(0, 500),
+      size: enrollments.length,
+      sample: enrollments.slice(0, 500),
     };
   }
 
@@ -109,32 +102,8 @@ export async function syncEnrollments(
   for (let i = 0; i < enrollments.length; i += chunkSize) {
     chunks.push(enrollments.slice(i, i + chunkSize));
   }
-  const errors = updateEnrollments(enrollments[0]);
 
-  // const TW0_MINUTES = 1_000 * 120;
-  // const FOUR_MINUTES = 1_000 * 240;
+  const errors = await updateEnrollments(enrollments);
 
-  // updateEnrollmentsQueue.add(
-  //   'Update:Enrollments',
-  //   {
-  //     json: chunks[1],
-  //     enrollmentModel: EnrollmentModel,
-  //   },
-  //   {
-  //     delay: TW0_MINUTES,
-  //     removeOnComplete: true,
-  //   },
-  // );
-  // updateEnrollmentsQueue.add(
-  //   'Update:Enrollments',
-  //   {
-  //     json: chunks[1],
-  //     enrollmentModel: EnrollmentModel,
-  //   },
-  //   {
-  //     delay: FOUR_MINUTES,
-  //     removeOnComplete: true,
-  //   },
-  // );
-  return reply.send({ published: true, errors });
+  return reply.send({ published: true, msg: 'Enrollments Synced', errors });
 }
