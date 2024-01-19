@@ -1,5 +1,6 @@
 import { currentQuad } from '@next/common';
 import { type Disciplina, DisciplinaModel } from '@/models/Disciplina.js';
+import type { ProjectionType } from 'mongoose';
 import type { RouteHandler } from 'fastify';
 
 export const listDisciplinas: RouteHandler = async () => {
@@ -11,7 +12,8 @@ export const listDisciplinas: RouteHandler = async () => {
     subject: 1,
     teoria: 1,
     pratica: 1,
-  };
+    requisicoes: 1,
+  } satisfies ProjectionType<Disciplina>;
 
   const disciplinas = await DisciplinaModel.find(
     {
@@ -20,7 +22,7 @@ export const listDisciplinas: RouteHandler = async () => {
     disciplinasMapper,
   )
     .populate(['teoria', 'pratica'])
-    .lean<Disciplina>({ virtuals: true });
+    .lean<Disciplina[]>({ virtuals: true });
 
   return disciplinas;
 };
