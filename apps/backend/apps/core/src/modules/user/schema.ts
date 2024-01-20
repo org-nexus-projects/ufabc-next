@@ -23,13 +23,13 @@ const usersInfoResponse = z
     _id: z.custom<ObjectId>(),
     confirmed: z.boolean(),
     active: z.boolean(),
-    permissions: z.array(z.string()),
-    devices: devicesSchema.array(),
+    permissions: z.array(z.string()).optional(),
+    devices: devicesSchema.array().optional(),
     createdAt: z.date(),
     updatedAt: z.date(),
     __v: z.number(),
-    email: z.string().email(),
-    ra: z.number(),
+    email: z.string().email().optional(),
+    ra: z.number().optional(),
   })
   .describe('Informações do usuário da sessão');
 

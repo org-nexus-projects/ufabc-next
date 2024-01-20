@@ -3,7 +3,7 @@ import {
   CommentModel,
   type Enrollment,
   EnrollmentModel,
-} from '@next/models';
+} from '@/models/index.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export type CreateCommentBody = {

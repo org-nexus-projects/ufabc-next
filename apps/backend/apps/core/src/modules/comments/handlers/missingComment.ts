@@ -1,4 +1,4 @@
-import { CommentModel, EnrollmentModel, UserModel } from '@next/models';
+import { CommentModel, EnrollmentModel, UserModel } from '@/models/index.js';
 import type { Types } from 'mongoose';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 

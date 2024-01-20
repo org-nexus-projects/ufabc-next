@@ -1,4 +1,4 @@
-import { GraduationModel } from '@next/models';
+import { GraduationModel } from '@/models/index.js';
 import type { RouteHandler } from 'fastify';
 
 type GraduationRouteHandler = RouteHandler<{ Querystring: { limit: number } }>;

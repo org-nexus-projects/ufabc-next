@@ -1,12 +1,11 @@
-version: "3.8"
+version: '3.8'
 
 services:
-
   ufabc-next-db:
     image: mongo:latest
     container_name: ufabc-next-db
     ports:
-      - 27017:27017  
+      - 27017:27017
   ufabc-next-redis:
     image: redis:latest
     container_name: ufabc-next-redis

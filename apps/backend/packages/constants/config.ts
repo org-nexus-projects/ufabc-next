@@ -4,5 +4,5 @@ export const MAILER_CONFIG = {
   EMAIL: 'contato@ufabcnext.com',
 } as const;
 
-export const WEB_URL_LOCAL = 'http://localhost:7500/app/#' as const;
-export const WEB_URL = 'https://ufabcnext.com/app/#/' as const;
+export const WEB_URL_LOCAL = 'http://localhost:3000/' as const;
+export const WEB_URL = 'https://www.ufabcnext.com/app/' as const;
