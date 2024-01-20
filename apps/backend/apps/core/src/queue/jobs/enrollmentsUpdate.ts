@@ -1,34 +1,40 @@
-import { generateIdentifier } from '@next/common';
-import { omit as lodashOmit } from 'lodash-es';
+import { generateIdentifier, logger } from '@next/common';
+import { omit as LodashOmit } from 'lodash-es';
 import { type EnrollmentDocument, EnrollmentModel } from '@/models/index.js';
 import { batchInsertItems } from '../utils/batch-insert.js';
 
-export async function updateEnrollments(data: EnrollmentDocument[]) {
-  const errors = await batchInsertItems(
-    data,
-    async (enrollment: EnrollmentDocument): Promise<any> => {
-      const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
+const processEnrollments = async (enrollment: EnrollmentDocument) => {
+  const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
+  const key = {
+    ra: enrollment.ra,
+    year: enrollment.year,
+    quad: enrollment.quad,
+    disciplina: enrollment.disciplina,
+  };
 
-      const key = {
-        ra: enrollment.ra,
-        year: enrollment.year,
-        quad: enrollment.quad,
-        disciplina: enrollment.disciplina,
-      };
-      // @ts-expect-error Temp fix
-      const identifier = generateIdentifier(key, keys);
-
-      await EnrollmentModel.findOneAndUpdate(
-        {
-          identifier,
-        },
-        lodashOmit(enrollment, ['identifier', 'id', '_id']),
-        {
-          new: true,
-          upsert: true,
-        },
-      );
+  const identifier = generateIdentifier(key, keys);
+  const enrollmentsToUpdate = LodashOmit(enrollment, [
+    'identifier',
+    'id',
+    '_id',
+  ]);
+  await EnrollmentModel.findOneAndUpdate(
+    {
+      identifier,
+    },
+    enrollmentsToUpdate,
+    {
+      new: true,
+      upsert: true,
     },
   );
-  return errors;
+};
+
+export function updateEnrollments(data: EnrollmentDocument[]) {
+  try {
+    return batchInsertItems(data, processEnrollments);
+  } catch (error) {
+    logger.error({ error }, 'Error updating enrollments');
+    throw error;
+  }
 }

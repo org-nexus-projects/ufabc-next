@@ -52,7 +52,7 @@ export async function syncEnrollments(
     disciplinasMapper,
   ).lean<Disciplina[]>({ virtuals: true });
 
-  const disciplinasMap = new Map<string, Disciplina>(
+  const disciplinasMapping = new Map<string, Disciplina>(
     disciplinas.map((d) => [d.identifier, d]),
   );
 
@@ -75,7 +75,7 @@ export async function syncEnrollments(
   const enrollments = assignYearAndQuadToEnrollments.map((enrollment) => {
     const enrollmentIdentifier = generateIdentifier(enrollment);
     const neededDisciplinasFields = LodashOmit(
-      disciplinasMap.get(enrollmentIdentifier) || {},
+      disciplinasMapping.get(enrollmentIdentifier) || {},
       ['id', '_id'],
     );
     return Object.assign(neededDisciplinasFields, {
@@ -95,15 +95,6 @@ export async function syncEnrollments(
       sample: enrollments.slice(0, 500),
     };
   }
-
-  const chunkSize = Math.ceil(enrollments.length / 3);
-  const chunks = [];
-
-  for (let i = 0; i < enrollments.length; i += chunkSize) {
-    chunks.push(enrollments.slice(i, i + chunkSize));
-  }
-
-  const errors = await updateEnrollments(enrollments);
-
-  return reply.send({ published: true, msg: 'Enrollments Synced', errors });
+  await updateEnrollments(enrollments);
+  return reply.send({ published: true, msg: 'Enrollments Synced' });
 }
