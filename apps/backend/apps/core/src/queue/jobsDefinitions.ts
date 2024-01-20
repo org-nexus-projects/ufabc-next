@@ -22,7 +22,7 @@ export const NEXT_QUEUE_JOBS = {
    * Queue for updating enrollments
    */
   'Enrollments:Update': {
-    concurrency: 5,
+    concurrency: 1,
     removeOnComplete: {
       age: 0,
     },

@@ -60,7 +60,6 @@ export class NextWorker {
     const processor = async (jobParameters: JobParameters<T>) => {
       logger.info({
         msg: `[QUEUE] Job ${jobName} is being processed`,
-        data: jobParameters,
       });
       try {
         // @ts-expect-error
