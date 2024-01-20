@@ -5,10 +5,11 @@ on:
     branches:
       - main
   workflow_dispatch:
-
+  
 jobs:
   deploy:
     runs-on: ubuntu-latest
+     timeout-minutes: 5
     steps:
       - name: 📦 Checkout code
         uses: actions/checkout@v4
