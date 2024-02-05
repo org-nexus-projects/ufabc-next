@@ -5,8 +5,8 @@ Vue.use(Vuetify)
 Vue.use(ElementUI)
 
 import App from './scripts/matricula/App.vue'
-import ReviewTeacher from './scripts/matricula/ReviewTeacher.vue'
-import ReviewSubject from './scripts/matricula/ReviewSubject.vue'
+import ReviewTeacher from './components/ReviewTeacher.vue'
+import ReviewSubject from './components/ReviewSubject.vue'
 import Modal from './components/Modal.vue'
 import MatriculaHelper from './scripts/helpers/matricula'
 
