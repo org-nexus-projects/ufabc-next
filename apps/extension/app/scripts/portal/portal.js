@@ -13,17 +13,24 @@ const errorSVG = require('./error.svg')
 const logoWhite = require('./logo-white.svg')
 
 const toast = new Toastify({
-  text: "<div class='toast-loading-text' style='width: 250px'><img src=" + logoWhite + " width='120' style='margin-bottom: 8px' /><p style='padding-bottom: 8px;'>Atualizando suas informações...</p>\n\n <b>NÃO SAIA DESSA PÁGINA,</b> <p>apenas aguarde, no máx. 5 min 🙏</p></div>",
+  text: `
+    <div class='toast-loading-text' style='width: 250px'>
+      <img src=${logoWhite} width="120" style="margin-bottom: 8px" />
+      <p style="padding-bottom: 8px;">Atualizando suas informações...</p>\n\n
+      <b>NÃO SAIA DESSA PÁGINA,</b>
+      <p>apenas aguarde, no máx. 5 min 🙏</p>
+    </div>`,
   duration: -1,
   close: false,
   gravity: "bottom",
-  position: 'right',
-  className: 'toast-loading',
+  position: "right",
+  className: "toast-loading",
+  escapeMarkup: false,
   avatar: loading,
   style: {
-    background: 'linear-gradient(to right, #2E7EED, rgba(46, 126, 237, 0.5));'
+    background: "linear-gradient(to right, #2E7EED, rgba(46, 126, 237, 0.5));",
   },
-})
+});
 
 if (isIndexPortalAluno()) {
   const anchor = document.createElement('div')
@@ -148,16 +155,21 @@ async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
   } catch(err) {
     console.log(err)
     Toastify({
-      text: "<div style='width: 228px; display: flex; align-items: end; margin-right: 12px;'><img style='margin-right: 16px;' width='32' height='32' src='" + errorSVG + "' /> Não foi possível salvar seus dados, recarregue a página e aguarde.</div>",
+      text:
+        `
+        <div style="width: 228px; display: flex; align-items: end; margin-right: 12px;">
+          <img style="margin-right: 16px;" width="32" height="32" src="${errorSVG}" />
+            Não foi possível salvar seus dados, recarregue a página e aguarde.
+        </div>`,
       duration: -1,
       close: true,
       gravity: "top",
-      position: 'right',
-      className: 'toast-error-container',
+      position: "right",
+      className: "toast-error-container",
       style: {
-        background: '#E74C3C;'
+        background: "#E74C3C;",
       },
-    }).showToast()
+    }).showToast();    
   }
 }
 
@@ -185,7 +197,14 @@ async function saveToLocalStorage(curso) {
   user = _.uniqBy(user, 'curso')
 
   await Utils.storage.setItem(storageUser, user)
-  toastr.success('Suas informações foram salvas! Disciplinas do curso do ' + curso.curso + ' para o usuário ' + getEmailAluno() + '.', { timeout: 100000})
+  
+  toastr.success(
+   `Suas informações foram salvas! Disciplinas do curso do ${curso.curso}
+      para o usuário ${getEmailAluno()}.,
+      `,
+    { timeout: 100000 }
+  );
+
 }
 
 

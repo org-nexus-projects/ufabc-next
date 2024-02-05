@@ -1,4 +1,4 @@
-<template>  
+<template>
   <div class="ufabc-row filters">
     <div class="mr-3 ufabc-row ufabc-align-center">
       <img :src="getUrl('/images/icon-128.png')" style="width: 32px; height: 32px;" />
@@ -6,9 +6,10 @@
     <div class="mr-5">
       <div class="title-filter">Câmpus</div>
       <div>
-        <el-checkbox 
-         v-for='filter in campusFilters' 
-         @change="applyFilter(filter)" 
+        <el-checkbox
+         v-for='(filter, index) in campusFilters'
+         :key="index"
+         @change="applyFilter(filter)"
          v-model="filter.val">
           {{ filter.name }}
         </el-checkbox>
@@ -18,9 +19,10 @@
     <div class="mr-5">
       <div class="title-filter">Turno</div>
       <div>
-        <el-checkbox 
-         v-for='filter in shiftFilters' 
-         @change="applyFilter(filter)" 
+        <el-checkbox
+         v-for='(filter, index) in shiftFilters'
+         :key="index"
+         @change="applyFilter(filter)"
          v-model="filter.val">
           {{ filter.name }}
         </el-checkbox>
@@ -30,17 +32,17 @@
     <div class="pr-5">
       <div class="title-filter">Filtros</div>
       <div>
-        <el-switch  
+        <el-switch
           class="mr-3 ufabc-element-switch"
-          active-text="Disciplinas escolhidas" 
-          v-model="selected" 
+          active-text="Disciplinas escolhidas"
+          v-model="selected"
           @change="changeSelected()"
           ></el-switch>
 
-        <el-switch  
+        <el-switch
           class="mr-3 ufabc-element-switch"
-          active-text="Disciplinas cursadas" 
-          v-model="cursadas" 
+          active-text="Disciplinas cursadas"
+          v-model="cursadas"
           @change="changeCursadas()"
           ></el-switch>
 
@@ -57,11 +59,11 @@
                   Atualizar dados agora
                 </a>
               </div>
-              <el-button 
+              <el-button
                 v-if="showWarning"
                 slot="reference"
-                type="danger" 
-                icon="el-icon-warning" 
+                type="danger"
+                icon="el-icon-warning"
                 class="ml-3"
                 circle
               ></el-button>
@@ -69,10 +71,10 @@
 
 
 
-<!--         <el-switch  
+<!--         <el-switch
           class="mr-3 ufabc-element-switch"
-          active-text="Professores" 
-          v-model="teachers" 
+          active-text="Professores"
+          v-model="teachers"
           @change="changeTeachers()"
           ></el-switch> -->
       </div>
@@ -84,7 +86,7 @@
   import MatriculaHelper from '../helpers/matricula'
   import Utils from '../helpers/utils'
   import Mustache from 'mustache'
-  // await MatriculaHelper.getTotalMatriculas() 
+  // await MatriculaHelper.getTotalMatriculas()
 
   export default {
     name: 'App',
@@ -213,8 +215,8 @@
         })
 
         // chrome.runtime.sendMessage(Utils.EXTENSION_ID, {
-        //   method: 'storage', 
-        //   key: 
+        //   method: 'storage',
+        //   key:
         // }, function(item) {
         //   if (item == null) {
         //     self.$notify({
@@ -222,7 +224,7 @@
         //     })
         //     return
         //   }
-          
+
         // })
       },
       changeTeachers() {
@@ -242,7 +244,7 @@
           if (item == null) {
             item = await MatriculaHelper.getProfessors()
           }
-          
+
           const disciplinaMap = new Map([...item.map(d => [d.disciplina_id.toString(), d])])
           const htmlPop = await Utils.fetchChromeUrl('pages/matricula/fragments/professorPopover.html')
           const corteHtml = await Utils.fetchChromeUrl('pages/matricula/corte.html')
@@ -252,7 +254,7 @@
             var subjectEl = $(this).find('td:nth-child(3) > span')
             var corteEl = $(this).find('td:nth-child(5)')
             var disciplinaId = el.parent().attr('value')
-            
+
             const disciplinaInfo = disciplinaMap.get(disciplinaId)
             if(!disciplinaInfo) return
 
@@ -275,7 +277,7 @@
 * {
   font-family: Ubuntu;
 }
-.filters { 
+.filters {
   position: sticky;
   top: 0px;
   background: #fff;
@@ -288,7 +290,7 @@
 }
 
 .title-filter {
-  font-size: 14px; 
+  font-size: 14px;
   margin-bottom: 2px;
   color: rgba(0,0,0,0.9);
 }
