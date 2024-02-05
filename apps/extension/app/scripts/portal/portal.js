@@ -14,13 +14,15 @@ const logoWhite = require('./logo-white.svg')
 
 const toast = new Toastify({
   text: "<div class='toast-loading-text' style='width: 250px'><img src=" + logoWhite + " width='120' style='margin-bottom: 8px' /><p style='padding-bottom: 8px;'>Atualizando suas informações...</p>\n\n <b>NÃO SAIA DESSA PÁGINA,</b> <p>apenas aguarde, no máx. 5 min 🙏</p></div>",
-  duration: -1, 
+  duration: -1,
   close: false,
   gravity: "bottom",
   position: 'right',
   className: 'toast-loading',
   avatar: loading,
-  backgroundColor: "linear-gradient(to right, #2E7EED, rgba(46, 126, 237, 0.5));",
+  style: {
+    background: 'linear-gradient(to right, #2E7EED, rgba(46, 126, 237, 0.5));'
+  },
 })
 
 if (isIndexPortalAluno()) {
@@ -62,11 +64,11 @@ function iterateTabelaCursosAndSaveToLocalStorage () {
 
   tabelaCursos.each(async function () {
     var linhaCurso = $(this).children();
-    
+
     var nomeDoCurso = $(linhaCurso[0]).children('a').text()
     var fichaAlunoUrl = $(linhaCurso[1]).children('a').attr('href');
     var anoDaGrade = $(linhaCurso[2]).text()
-    
+
     const curso = await getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade)
     if(count == 0) toast.hideToast()
     count++
@@ -142,17 +144,19 @@ async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
 
     curso.cursadas = jsonFicha.data;
 
-    return curso 
+    return curso
   } catch(err) {
     console.log(err)
     Toastify({
       text: "<div style='width: 228px; display: flex; align-items: end; margin-right: 12px;'><img style='margin-right: 16px;' width='32' height='32' src='" + errorSVG + "' /> Não foi possível salvar seus dados, recarregue a página e aguarde.</div>",
-      duration: -1, 
+      duration: -1,
       close: true,
       gravity: "top",
       position: 'right',
       className: 'toast-error-container',
-      backgroundColor: "#E74C3C",
+      style: {
+        background: '#E74C3C;'
+      },
     }).showToast()
   }
 }
