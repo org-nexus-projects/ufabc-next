@@ -5,7 +5,6 @@ import './scripts'
 import './styles'
 import './pages'
 import './images'
-import './fonts'
 import './chromereload'
 
 gulp.task('build', gulp.series(
@@ -15,6 +14,5 @@ gulp.task('build', gulp.series(
   'styles',
   'pages',
   'images',
-  'fonts',
   'chromereload',
 ))
