@@ -18,7 +18,7 @@ import _ from 'lodash'
 // })
 
 import Vue from 'vue';
-import App from './popup/App.vue';
+import App from '../views/popup.vue';
 
 var app = new Vue({
   el: '#app',

@@ -1,6 +1,6 @@
 <template>
   <div class="ufabc-next-popup">
-    <img src="./logo.svg" width="150" height="33" />
+    <img src="../images/logo.svg" width="150" height="33" />
 
     <div class="intro">
 
@@ -72,8 +72,8 @@ import Vue from 'vue'
 import Vuetify from 'vuetify'
 Vue.use(Vuetify)
 
-import Utils from '../helpers/utils'
-import setupStorage from '../helpers/setupStorage'
+import Utils from '../scripts/helpers/utils'
+import setupStorage from '../scripts/helpers/setupStorage'
 
 setupStorage()
 
