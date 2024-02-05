@@ -118,10 +118,10 @@
   import $ from 'jquery'
   import _ from 'lodash'
   import draggable from 'vuedraggable'
-  import Api from '../helpers/api'
-  import MatriculaHelper from '../helpers/matricula'
-  import TransformDisciplinas from '../helpers/disciplinas.js'
-  import findSeasonKey from '../helpers/findSeasonKey'
+  import Api from '../scripts/helpers/api'
+  import MatriculaHelper from '../scripts/helpers/matricula'
+  import TransformDisciplinas from '../scripts/helpers/disciplinas.js'
+  import findSeasonKey from '../scripts/helpers/findSeasonKey'
 
   export default {
     name: 'Modal',

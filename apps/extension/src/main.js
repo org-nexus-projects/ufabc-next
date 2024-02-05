@@ -7,7 +7,7 @@ Vue.use(ElementUI)
 import App from './scripts/matricula/App.vue'
 import ReviewTeacher from './scripts/matricula/ReviewTeacher.vue'
 import ReviewSubject from './scripts/matricula/ReviewSubject.vue'
-import Modal from './scripts/matricula/Modal.vue'
+import Modal from './components/Modal.vue'
 import MatriculaHelper from './scripts/helpers/matricula'
 
 // global const change modal data
