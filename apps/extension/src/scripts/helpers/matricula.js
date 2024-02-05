@@ -1,6 +1,6 @@
 import Axios from 'axios'
 import Api from './api'
-import var2json from './parse/var2json'
+import toJSON from '../../utils/toJSON'
 import _ from 'lodash'
 import $ from 'jquery'
 import Utils from './utils'
@@ -102,7 +102,7 @@ function Matricula() {
   // fetch matriculas again
   async function getMatriculas() {
     const disciplinas = await Axios.get(MATRICULAS_URL)
-    return var2json(disciplinas.data) || {}
+    return toJSON(disciplinas.data) || {}
   }
 
   // get total number of matriculas that was made until now
