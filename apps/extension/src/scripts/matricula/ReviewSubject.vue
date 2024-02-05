@@ -6,7 +6,7 @@
     width="800px"
     top="2vh"
     class="ufabc-element-dialog mt-1">
-    <div v-if='loading || (help_data && help_data.specific && help_data.specific.length)' 
+    <div v-if='loading || (help_data && help_data.specific && help_data.specific.length)'
       style="min-height: 200px"
       v-loading="loading"
       element-loading="Carregando">
@@ -44,7 +44,7 @@
   import Api from '../helpers/api'
   import Utils from '../helpers/utils'
   import MatriculaHelper from '../helpers/matricula'
-  import SubjectTeachersList from '../components/SubjectTeachersList/index.vue'
+  import SubjectTeachersList from '../../components/SubjectTeachersList.vue'
 
   Highcharts3D(Highcharts);
 
@@ -110,7 +110,7 @@
         ],
 
         student_cr: null,
-      } 
+      }
     },
 
     created() {
@@ -132,7 +132,7 @@
         return _.get(this.help_data, 'subject.name', '')
       },
 
-      possibleDisciplinas(){ 
+      possibleDisciplinas(){
         let disciplinas = [...this.help_data.specific]
         let generalDefaults = {
           _id: {
@@ -218,7 +218,7 @@
           }
           this.samplesCount = filter.count
 
-          pieChart.addSeries({  
+          pieChart.addSeries({
             data: _.sortBy(conceitosFiltered, 'name')
           })
           pieChart.hideLoading();
@@ -370,4 +370,4 @@
 .conceito-target.F {
   left: 174px;
 }
-</style> 
+</style>
