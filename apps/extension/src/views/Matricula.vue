@@ -83,8 +83,8 @@
 </template>
 <script>
   import $ from 'jquery'
-  import MatriculaHelper from '../helpers/matricula'
-  import Utils from '../helpers/utils'
+  import MatriculaHelper from '../scripts/helpers/matricula'
+  import Utils from '../scripts/helpers/utils'
   import Mustache from 'mustache'
   // await MatriculaHelper.getTotalMatriculas()
 

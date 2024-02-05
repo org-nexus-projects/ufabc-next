@@ -4,7 +4,7 @@ import ElementUI from 'element-ui'
 Vue.use(Vuetify)
 Vue.use(ElementUI)
 
-import App from './scripts/matricula/App.vue'
+import Matricula from './views/Matricula.vue'
 import ReviewTeacher from './components/ReviewTeacher.vue'
 import ReviewSubject from './components/ReviewSubject.vue'
 import Modal from './components/Modal.vue'
@@ -37,7 +37,7 @@ var app = new Vue({
   data:{
     name: 'ufabc-matricula-extension'
   },
-  render: h => h(App)
+  render: h => h(Matricula)
 })
 
 new Vue({
