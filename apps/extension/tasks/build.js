@@ -4,7 +4,6 @@ import './manifest'
 import './scripts'
 import './styles'
 import './pages'
-import './locales'
 import './images'
 import './fonts'
 import './chromereload'
@@ -15,7 +14,6 @@ gulp.task('build', gulp.series(
   'scripts',
   'styles',
   'pages',
-  'locales',
   'images',
   'fonts',
   'chromereload',

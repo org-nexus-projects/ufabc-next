@@ -169,7 +169,7 @@ async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
       style: {
         background: "#E74C3C;",
       },
-    }).showToast();    
+    }).showToast();
   }
 }
 
@@ -197,10 +197,10 @@ async function saveToLocalStorage(curso) {
   user = _.uniqBy(user, 'curso')
 
   await Utils.storage.setItem(storageUser, user)
-  
+
   toastr.success(
    `Suas informações foram salvas! Disciplinas do curso do ${curso.curso}
-      para o usuário ${getEmailAluno()}.,
+      para o usuário ${getEmailAluno()}.
       `,
     { timeout: 100000 }
   );
