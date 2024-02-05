@@ -4,8 +4,6 @@ import _ from 'lodash'
 import Utils from '../helpers/utils'
 import Api from '../helpers/api'
 import Axios from 'axios'
-import MatriculaHelper from '../helpers/matricula'
-import findSeasonKey from '../helpers/findSeasonKey'
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
 const loading = require('./loading.svg')

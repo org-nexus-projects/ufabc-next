@@ -121,7 +121,7 @@
   import Api from '../scripts/helpers/api'
   import MatriculaHelper from '../scripts/helpers/matricula'
   import TransformDisciplinas from '../scripts/helpers/disciplinas.js'
-  import findSeasonKey from '../scripts/helpers/findSeasonKey'
+  import { findSeasonKey } from '../utils/season'
 
   export default {
     name: 'Modal',
@@ -322,4 +322,4 @@
 .update-alert .el-alert__content{
   padding-left: 16px!important;
 }
-</style>../helpers/api.js../helpers/matricula.js../helpers/findSeasonKey.js
+</style>
