@@ -79,7 +79,7 @@ async function load() {
 
       // manda as informacoes para o servidor
       MatriculaHelper.sendAlunoData()
-      
+
       // load vue app modal
       const modal = document.createElement('div')
       modal.setAttribute('id', 'modal')

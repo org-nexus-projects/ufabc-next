@@ -4,11 +4,11 @@ import ElementUI from 'element-ui'
 Vue.use(Vuetify)
 Vue.use(ElementUI)
 
-import App from './matricula/App.vue'
-import ReviewTeacher from './matricula/ReviewTeacher.vue'
-import ReviewSubject from './matricula/ReviewSubject.vue'
-import Modal from './matricula/Modal.vue'
-import MatriculaHelper from './helpers/matricula'
+import App from './scripts/matricula/App.vue'
+import ReviewTeacher from './scripts/matricula/ReviewTeacher.vue'
+import ReviewSubject from './scripts/matricula/ReviewSubject.vue'
+import Modal from './scripts/matricula/Modal.vue'
+import MatriculaHelper from './scripts/helpers/matricula'
 
 // global const change modal data
 const modalData = {
@@ -40,7 +40,7 @@ var app = new Vue({
   render: h => h(App)
 })
 
-new Vue({ 
+new Vue({
   template: '<v-app v-show="$data.dialog"><Modal :value="$data"></Modal></v-app>',
   el: '#modal',
   data() {
@@ -49,7 +49,7 @@ new Vue({
   components: { Modal }
 })
 
-new Vue({ 
+new Vue({
   template: '<v-app v-show="$data.dialog"><ReviewTeacher :value="$data"></ReviewTeacher></v-app>',
   el: '#teacherReview',
   data() {
@@ -58,7 +58,7 @@ new Vue({
   components: { ReviewTeacher }
 })
 
-new Vue({ 
+new Vue({
   template: '<v-app v-show="$data.dialog"><ReviewSubject :value="$data"></ReviewSubject></v-app>',
   el: '#review-subject',
   data() {
@@ -85,7 +85,7 @@ $('body').on('click', '.ReviewTeacher', function (e) {
     id: teacherId,
     name: teacherName,
   }
-  
+
   teacherReviewData.dialog = true
 })
 
