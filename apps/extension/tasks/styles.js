@@ -16,7 +16,7 @@ import gulpWebpack from "webpack-stream";
 
 gulp.task("styles:css", function () {
   return gulp
-    .src("app/styles/*.css")
+    .src("src/styles/*.css")
     .pipe(cssimport())
     .pipe(gulpif(args.sourcemaps, sourcemaps.init()))
     .pipe(gulpif(args.production, cleanCSS()))
@@ -27,7 +27,7 @@ gulp.task("styles:css", function () {
 
 gulp.task("styles:sass", function () {
   return gulp
-    .src("app/styles/*.scss")
+    .src("src/styles/*.scss")
     .pipe(gulpif(args.sourcemaps, sourcemaps.init()))
     .pipe(
       sass({ includePaths: ["./app"] }).on("error", function (error) {

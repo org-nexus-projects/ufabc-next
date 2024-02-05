@@ -12,7 +12,7 @@
       <div class="border mb-3 pa-2">
         <div class="ufabc-row ufabc-align-center">
           <div>
-            Critérios 
+            Critérios
             <el-popover
               placement="top-start"
               width="340"
@@ -33,7 +33,7 @@
         </div>
 
         <draggable v-model="headers" @update="resort($event)">
-          <div v-for="h in headers" 
+          <div v-for="h in headers"
             :key="h.value"
             class="ufabc-cursor-grabbing"
             style="display: inline-block !important;">
@@ -168,7 +168,7 @@
 
       defaultHeaders() {
         let isIdeal = MatriculaHelper.findIdeais().includes(this.disciplina.codigo)
-        
+
         const base = [
           { text: 'Reserva', sortable: false, value: 'reserva' },
           { text: 'Turno', value: 'turno', sortable: false },
@@ -189,17 +189,17 @@
       },
 
       getRequests() {
-        return _.reduce(matriculas, (a, c) => c.includes(this.disciplina.id.toString()) ? a + 1 : a, 0) 
+        return _.reduce(matriculas, (a, c) => c.includes(this.disciplina.id.toString()) ? a + 1 : a, 0)
       },
 
       computeKicksForecast() {
         return (this.kicksData.length * this.disciplina.vagas) / this.getRequests
       },
-      
+
       parsedDisciplina() {
-        return TransformDisciplinas(this.disciplina) 
+        return TransformDisciplinas(this.disciplina)
       }
-      
+
     },
 
     methods: {
@@ -322,4 +322,4 @@
 .update-alert .el-alert__content{
   padding-left: 16px!important;
 }
-</style>
+</style>../helpers/api.js../helpers/matricula.js../helpers/findSeasonKey.js
