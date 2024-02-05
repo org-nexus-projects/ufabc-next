@@ -41,10 +41,8 @@
   import Highcharts from "highcharts"
 
   import _ from 'lodash'
-  import Api from '../helpers/api'
-  import Utils from '../helpers/utils'
-  import MatriculaHelper from '../helpers/matricula'
-  import SubjectTeachersList from '../../components/SubjectTeachersList.vue'
+  import Api from '../scripts/helpers/api'
+  import SubjectTeachersList from './SubjectTeachersList.vue'
 
   Highcharts3D(Highcharts);
 
