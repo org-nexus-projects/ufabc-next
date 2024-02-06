@@ -13,7 +13,17 @@
     "service_worker": "scripts/background.js"
   },
   "permissions": ["storage"],
-  "host_permissions": ["*://*/*"],
+  "host_permissions": [
+    "http://*.ufabc.edu.br/*",
+    "https://*.ufabc.edu.br/*",
+    "http://localhost:8000/*",
+    "http://*.felipecoder.com/*",
+    "https://*.felipecoder.com/*",
+    "http://*.naoseiprogramar.com.br/*",
+    "https://*.naoseiprogramar.com.br/*",
+    "http://*.ufabcnext.com/*",
+    "https://*.ufabcnext.com/*"
+  ],
   "content_scripts": [
     {
       "all_frames": true,
@@ -51,13 +61,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": [
-        "scripts/*",
-        "images/*",
-        "html/*",
-        "styles/*",
-        "pages/*"
-      ],
+      "resources": ["scripts/*", "images/*", "html/*", "styles/*", "pages/*"],
       "matches": [
         "http://*.ufabc.edu.br/*",
         "https://*.ufabc.edu.br/*",

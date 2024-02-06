@@ -22,7 +22,7 @@ const ENV = args.production
 gulp.task("scripts", (cb) => {
   var tmp = {};
   return gulp
-    .src(["src/scripts/**/**/*.js", "src/main.js"])
+    .src(["src/scripts/**/**/*.js", "src/main.js", "src/utils/**/*.js"])
     .pipe(
       plumber({
         // Webpack will log the errors

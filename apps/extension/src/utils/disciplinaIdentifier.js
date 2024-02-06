@@ -1,5 +1,5 @@
-import { createHash } from "node:crypto";
-import _ from "lodash-es";
+import { createHash } from "crypto";
+import _ from "lodash";
 
 const DEFAULT_FIELDS_TO_ENCODE = ["disciplina", "turno", "campus", "turma"];
 
