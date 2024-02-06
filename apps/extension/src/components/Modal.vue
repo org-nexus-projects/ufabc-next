@@ -115,13 +115,12 @@
   </el-dialog>
 </template>
 <script>
-  import $ from 'jquery'
   import _ from 'lodash'
   import draggable from 'vuedraggable'
   import { NextAPI } from '../services/NextAPI'
   import MatriculaHelper from '../scripts/helpers/matricula'
   import { convertDisciplina } from '../utils/convertUfabcDisciplina'
-  import { findSeasonKey } from '../utils/season'
+  import { findSeasonKey, findIdeais } from '../utils/season'
 
   const nextApi = NextAPI();
 
@@ -169,7 +168,7 @@
       },
 
       defaultHeaders() {
-        let isIdeal = MatriculaHelper.findIdeais().includes(this.disciplina.codigo)
+        let isIdeal = findIdeais().includes(this.disciplina.codigo)
 
         const base = [
           { text: 'Reserva', sortable: false, value: 'reserva' },
