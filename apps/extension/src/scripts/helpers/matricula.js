@@ -31,7 +31,7 @@ function Matricula() {
   // fetch professors url and save them into localStorage
   async function getProfessors () {
     try {
-      let professors = await nextApi.get('/disciplinas')
+      let { data: professors } = await nextApi.get('/disciplinas')
       await Utils.storage.setItem('ufabc-extension-last', Date.now())
       await Utils.storage.setItem('ufabc-extension-disciplinas', professors)
       return professors

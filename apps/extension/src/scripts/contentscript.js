@@ -14,7 +14,7 @@ import _ from 'lodash'
 
 // CSS imports
 import "element-ui/lib/theme-chalk/index.css"
-import setupStorage from './helpers/setupStorage'
+import { setupStorage } from '../utils/setupStorage'
 
 let matricula_url
 

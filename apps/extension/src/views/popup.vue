@@ -73,7 +73,7 @@ import Vuetify from 'vuetify'
 Vue.use(Vuetify)
 
 import Utils from '../scripts/helpers/utils'
-import setupStorage from '../scripts/helpers/setupStorage'
+import { setupStorage } from '../utils/setupStorage'
 
 setupStorage()
 

@@ -1,5 +1,7 @@
 // import Chart from 'chart.js'
 
+// i dont think this one is being used
+
 module.exports = new (function (){
   function getHTML (info, id) {
       var html = "<canvas id='pie" + id + "' width='200px'></canvas><br>";
@@ -23,7 +25,7 @@ module.exports = new (function (){
         "C": "rgb(168, 255, 150)",
         "D" : "rgb(255, 188, 117)"
       };
-      
+
       var info = [];
       var backColor = [];
       var hoverColor = [];
