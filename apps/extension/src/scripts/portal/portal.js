@@ -2,13 +2,15 @@ import toastr from 'toastr'
 import $ from 'jquery'
 import _ from 'lodash'
 import Utils from '../helpers/utils'
-import Api from '../helpers/api'
+import { NextAPI } from '../../utils/NextAPI'
 import Axios from 'axios'
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
 const loading = require('./loading.svg')
 const errorSVG = require('./error.svg')
 const logoWhite = require('./logo-white.svg')
+
+const nextApi = NextAPI();
 
 const toast = new Toastify({
   text: `
@@ -126,7 +128,7 @@ async function getFichaAluno(fichaAlunoUrl, nomeDoCurso, anoDaGrade) {
     const totalPercentageCoursedLimited = toNumber(disciplinasCategory[13])
     const totalCreditsLimited = Math.round(((totalCreditsCoursedLimited * 100) / totalPercentageCoursedLimited))
 
-    await Api.post('/histories', {
+    await nextApi.post('/histories', {
       ra: ra,
       disciplinas: jsonFicha.data,
       curso: nomeDoCurso,

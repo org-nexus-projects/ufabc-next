@@ -118,10 +118,12 @@
   import $ from 'jquery'
   import _ from 'lodash'
   import draggable from 'vuedraggable'
-  import Api from '../scripts/helpers/api'
+  import { NextAPI } from '../utils/NextAPI'
   import MatriculaHelper from '../scripts/helpers/matricula'
   import TransformDisciplinas from '../scripts/helpers/disciplinas.js'
   import { findSeasonKey } from '../utils/season'
+
+  const nextApi = NextAPI();
 
   export default {
     name: 'Modal',
@@ -210,7 +212,7 @@
 
         this.loading = true
 
-        Api.get(`/disciplinas/${corteId}/kicks?aluno_id=${aluno_id}`).then((res) => {
+        nextApi.get(`/disciplinas/${corteId}/kicks?aluno_id=${aluno_id}`).then((res) => {
           this.kicksData = res
           this.resort()
           this.loading = false

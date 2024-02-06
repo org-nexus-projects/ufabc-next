@@ -82,7 +82,7 @@
   import Highcharts from "highcharts";
 
   import _ from 'lodash'
-  import Api from '../scripts/helpers/api'
+  import { NextAPI } from '../utils/NextAPI'
   import Utils from '../scripts/helpers/utils'
   import MatriculaHelper from '../scripts/helpers/matricula'
 
@@ -122,6 +122,8 @@
     },
     series: []
   };
+
+  const nextApi = NextAPI();
 
   export default {
     name: 'ReviewTecher',
@@ -259,7 +261,7 @@
 
         this.loading = true
 
-        Api.get('/reviews/teachers/' + professorId).then((res) => {
+        nextApi.get('/reviews/teachers/' + professorId).then((res) => {
           this.review = res
           this.loading = false
 

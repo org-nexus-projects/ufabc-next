@@ -41,7 +41,7 @@
   import Highcharts from "highcharts"
 
   import _ from 'lodash'
-  import Api from '../scripts/helpers/api'
+  import { NextAPI } from '../utils/NextAPI'
   import SubjectTeachersList from './SubjectTeachersList.vue'
 
   Highcharts3D(Highcharts);
@@ -80,6 +80,8 @@
     },
     series: []
   };
+
+  const nextApi = NextAPI();
 
   export default {
     name: 'ReviewSubject',
@@ -171,7 +173,7 @@
         if(!subjectId) return
         this.loading = true
 
-        Api.get('/help/subjects/' + subjectId).then((res) => {
+        nextApi.get('/help/subjects/' + subjectId).then((res) => {
           this.help_data = res
           this.loading = false
 
