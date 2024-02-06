@@ -1,9 +1,11 @@
 import Axios from 'axios'
-import Api from './api'
+import { NextAPI } from '../../services/NextAPI'
 import toJSON from '../../utils/toJSON'
 import _ from 'lodash'
 import $ from 'jquery'
 import Utils from './utils'
+
+const nextApi = NextAPI();
 
 module.exports = new Matricula()
 
@@ -29,7 +31,7 @@ function Matricula() {
   // fetch professors url and save them into localStorage
   async function getProfessors () {
     try {
-      let professors = await Api.get('/disciplinas')
+      let professors = await nextApi.get('/disciplinas')
       await Utils.storage.setItem('ufabc-extension-last', Date.now())
       await Utils.storage.setItem('ufabc-extension-disciplinas', professors)
       return professors
@@ -167,7 +169,7 @@ function Matricula() {
       delete user[i].cursadas;
     }
 
-    await Api.post('/students', {
+    await nextApi.post('/students', {
       aluno_id: getAlunoId(),
       cursos: user.map(function(info){
         info.curso_id = findIdForCurso(info.curso);

@@ -120,7 +120,7 @@
   import draggable from 'vuedraggable'
   import { NextAPI } from '../services/NextAPI'
   import MatriculaHelper from '../scripts/helpers/matricula'
-  import TransformDisciplinas from '../scripts/helpers/disciplinas.js'
+  import { convertDisciplina } from '../utils/convertUfabcDisciplina'
   import { findSeasonKey } from '../utils/season'
 
   const nextApi = NextAPI();
@@ -199,7 +199,7 @@
       },
 
       parsedDisciplina() {
-        return TransformDisciplinas(this.disciplina)
+        return convertDisciplina(this.disciplina)
       }
 
     },
