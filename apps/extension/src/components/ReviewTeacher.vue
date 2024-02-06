@@ -6,15 +6,15 @@
     width="460px"
     top="2vh"
     class="ufabc-element-dialog mt-1">
-    <div v-if='loading || (review && review.specific && review.specific.length)' 
+    <div v-if='loading || (review && review.specific && review.specific.length)'
       style="min-height: 200px"
       v-loading="loading"
       element-loading="Carregando">
       <el-select
           class="ufabc-flex ufabc-row mb-2"
-          placeholder="Selecione a matéria" 
+          placeholder="Selecione a matéria"
           @change="updateFilter()"
-          v-model="filterSelected" 
+          v-model="filterSelected"
           v-if='review && review.specific && review.specific.length'>
         <el-option
           v-for="option in possibleDisciplinas"
@@ -55,10 +55,10 @@
               </div>
               <div class="square"></div>
             </div>
-            <div class="conceitos-cr ufabc-row" 
+            <div class="conceitos-cr ufabc-row"
                 v-for='(conceito, index) in conceitos'
                 :key="index">
-              <div class="conceito" :class="conceito.conceito">{{ conceito.conceito }} </div> 
+              <div class="conceito" :class="conceito.conceito">{{ conceito.conceito }} </div>
               <div class="cr">
                 {{ findConcept(conceito.conceito) }}
               </div>
@@ -82,7 +82,7 @@
   import Highcharts from "highcharts";
 
   import _ from 'lodash'
-  import { NextAPI } from '../utils/NextAPI'
+  import { NextAPI } from '../services/NextAPI'
   import Utils from '../scripts/helpers/utils'
   import MatriculaHelper from '../scripts/helpers/matricula'
 
@@ -151,7 +151,7 @@
         ],
 
         student_cr: null,
-      } 
+      }
     },
 
     created() {
@@ -173,7 +173,7 @@
         return _.get(this.value, 'professor.name', '')
       },
 
-      possibleDisciplinas(){ 
+      possibleDisciplinas(){
         let disciplinas = this.review.specific
         let generalDefaults = {
           _id: {
@@ -253,7 +253,7 @@
       findCount(concept) {
         let conceito = _.find(this.conceitoDistribution, { conceito: concept }, null)
         return conceito ? conceito.count : '-'
-      },  
+      },
       fetch() {
         let professorId = _.get(this.value, 'professor.id', '')
         if(!professorId) return
@@ -319,7 +319,7 @@
           //   subtitle: { text: 'Total de amostras: <b>' + filter.count + '<b/>'}
           // })
 
-          pieChart.addSeries({  
+          pieChart.addSeries({
             data: _.sortBy(conceitosFiltered, 'name')
           })
           pieChart.hideLoading();

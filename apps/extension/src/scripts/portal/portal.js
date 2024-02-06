@@ -2,7 +2,7 @@ import toastr from 'toastr'
 import $ from 'jquery'
 import _ from 'lodash'
 import Utils from '../helpers/utils'
-import { NextAPI } from '../../utils/NextAPI'
+import { NextAPI } from '../../services/NextAPI'
 import Axios from 'axios'
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"

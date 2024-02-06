@@ -41,7 +41,7 @@
   import Highcharts from "highcharts"
 
   import _ from 'lodash'
-  import { NextAPI } from '../utils/NextAPI'
+  import { NextAPI } from '../services/NextAPI'
   import SubjectTeachersList from './SubjectTeachersList.vue'
 
   Highcharts3D(Highcharts);

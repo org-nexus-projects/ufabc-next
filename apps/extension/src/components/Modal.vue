@@ -118,7 +118,7 @@
   import $ from 'jquery'
   import _ from 'lodash'
   import draggable from 'vuedraggable'
-  import { NextAPI } from '../utils/NextAPI'
+  import { NextAPI } from '../services/NextAPI'
   import MatriculaHelper from '../scripts/helpers/matricula'
   import TransformDisciplinas from '../scripts/helpers/disciplinas.js'
   import { findSeasonKey } from '../utils/season'
