@@ -5,6 +5,7 @@ Vue.use(Vuetify)
 Vue.use(ElementUI)
 
 import Matricula from './views/Matricula.vue'
+import Portal from './views/Portal.vue'
 import ReviewTeacher from './components/ReviewTeacher.vue'
 import ReviewSubject from './components/ReviewSubject.vue'
 import Modal from './components/Modal.vue'
@@ -65,6 +66,14 @@ new Vue({
     return reviewSubjectData
   },
   components: { ReviewSubject }
+})
+
+new Vue({
+  el: '#app',
+  data:{
+    name: 'portal-matricula-extension'
+  },
+  render: h =>h(Portal)
 })
 
 
