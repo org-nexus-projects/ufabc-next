@@ -61,7 +61,18 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["scripts/*", "images/*", "html/*", "styles/*", "pages/*"],
+      "resources": [
+        "components/*",
+        "images/*",
+        "lib/*",
+        "pages/*",
+        "scripts/*",
+        "services/*",
+        "styles/*",
+        "utils/*",
+        "views/*",
+        "html/*"
+      ],
       "matches": [
         "http://*.ufabc.edu.br/*",
         "https://*.ufabc.edu.br/*",

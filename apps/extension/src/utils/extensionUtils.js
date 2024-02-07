@@ -44,7 +44,7 @@ function ExtensionUtils() {
     s.href = getExtensionUrl(link);
     s.type = "text/css";
     s.rel = "stylesheet";
-    console.log(getExtensionUrl("pages/iframe.html"));
+
     document.head.appendChild(s);
   };
 
@@ -111,10 +111,7 @@ function ExtensionUtils() {
       const prefix = is.chrome() ? "chrome-extension://" : "moz-extension://";
       return prefix + EXTENSION_ID + "/" + link.replace(/^\//, "");
     } else {
-      return (
-        "https://next-extension.sv.ufabcnext.com/static/" +
-        link.replace(/^\//, "")
-      );
+      return `https://next-extension.captain.sv.ufabcnext.com/static/${link}`;
     }
   }
 

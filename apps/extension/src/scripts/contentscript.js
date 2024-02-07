@@ -49,9 +49,9 @@ if (!isBrowser) {
 async function load() {
   const currentUrl = document.location.href;
   // add cross-domain local storage
-  Utils.injectScript("scripts/lib/xdLocalStorage.min.js");
+  Utils.injectScript("lib/xdLocalStorage.min.js");
   Utils.injectIframe("pages/iframe.html");
-  Utils.injectScript("scripts/lib/init.js");
+  Utils.injectScript("lib/init.js");
 
   setupStorage();
   require("./contentScriptPortal");
