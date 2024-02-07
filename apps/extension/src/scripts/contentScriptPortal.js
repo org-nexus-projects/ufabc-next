@@ -1,7 +1,7 @@
 import toastr from "toastr";
 import $ from "jquery";
 import _ from "lodash";
-import Utils from "./helpers/utils";
+import Utils from "../utils/extensionUtils";
 import { NextAPI } from "../services/NextAPI";
 import Axios from "axios";
 import Toastify from "toastify-js";

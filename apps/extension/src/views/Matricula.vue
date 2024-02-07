@@ -91,7 +91,7 @@
 <script>
 import $ from "jquery";
 import matriculaUtils from "../utils/Matricula";
-import Utils from "../scripts/helpers/utils";
+import Utils from "../utils/extensionUtils";
 import Mustache from "mustache";
 // await MatriculaHelper.getTotalMatriculas()
 

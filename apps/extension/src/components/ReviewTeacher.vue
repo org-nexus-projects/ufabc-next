@@ -107,7 +107,7 @@ import Highcharts from "highcharts";
 
 import _ from "lodash";
 import { NextAPI } from "../services/NextAPI";
-import Utils from "../scripts/helpers/utils";
+import Utils from "../utils/extensionUtils";
 import matriculaUtils from "../utils/Matricula";
 
 Highcharts3D(Highcharts);

@@ -12,7 +12,7 @@ import _ from "lodash";
 import matriculaUtils from "../utils/Matricula";
 import { setupStorage } from "../utils/setupStorage";
 
-import Utils from "./helpers/utils";
+import Utils from "../utils/extensionUtils";
 
 // CSS imports
 import "element-ui/lib/theme-chalk/index.css";
@@ -48,7 +48,6 @@ if (!isBrowser) {
 
 async function load() {
   const currentUrl = document.location.href;
-
   // add cross-domain local storage
   Utils.injectScript("scripts/lib/xdLocalStorage.min.js");
   Utils.injectIframe("pages/iframe.html");
