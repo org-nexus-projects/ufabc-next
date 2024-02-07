@@ -3,7 +3,7 @@ import { NextAPI } from "../services/NextAPI";
 import toJSON from "./toJSON";
 import _ from "lodash";
 import $ from "jquery";
-import Utils from "./utils";
+import Utils from "../scripts/helpers/utils";
 
 const nextApi = NextAPI();
 

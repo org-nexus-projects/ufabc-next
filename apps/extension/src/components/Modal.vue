@@ -118,7 +118,7 @@
   import _ from 'lodash'
   import draggable from 'vuedraggable'
   import { NextAPI } from '../services/NextAPI'
-  import MatriculaHelper from '../scripts/helpers/matricula'
+  import matriculaUtils from '../utils/Matricula'
   import { convertDisciplina } from '../utils/convertUfabcDisciplina'
   import { findSeasonKey, findIdeais } from '../utils/season'
 
@@ -207,7 +207,7 @@
       fetch() {
         let corteId = _.get(this.value, 'corte_id', '')
         if(!corteId) return
-        var aluno_id = MatriculaHelper.getAlunoId()
+        const aluno_id = matriculaUtils.getAlunoId()
 
         this.loading = true
 
@@ -266,7 +266,7 @@
       // },
 
       tableRowClassName({row, rowIndex}) {
-        if (row.aluno_id == MatriculaHelper.getAlunoId()) {
+        if (row.aluno_id == matriculaUtils.getAlunoId()) {
           return 'aluno-row'
         } else if(rowIndex <= this.computeKicksForecast) {
           return 'not-kicked-row'

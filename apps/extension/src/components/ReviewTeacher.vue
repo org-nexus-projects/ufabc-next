@@ -5,330 +5,381 @@
     :visible="value.dialog"
     width="460px"
     top="2vh"
-    class="ufabc-element-dialog mt-1">
-    <div v-if='loading || (review && review.specific && review.specific.length)'
+    class="ufabc-element-dialog mt-1"
+  >
+    <div
+      v-if="loading || (review && review.specific && review.specific.length)"
       style="min-height: 200px"
       v-loading="loading"
-      element-loading="Carregando">
+      element-loading="Carregando"
+    >
       <el-select
-          class="ufabc-flex ufabc-row mb-2"
-          placeholder="Selecione a matéria"
-          @change="updateFilter()"
-          v-model="filterSelected"
-          v-if='review && review.specific && review.specific.length'>
+        class="ufabc-flex ufabc-row mb-2"
+        placeholder="Selecione a matéria"
+        @change="updateFilter()"
+        v-model="filterSelected"
+        v-if="review && review.specific && review.specific.length"
+      >
         <el-option
           v-for="option in possibleDisciplinas"
           :key="option._id._id"
           :label="option._id.name"
-          :value="option._id._id">
+          :value="option._id._id"
+        >
         </el-option>
       </el-select>
 
-      <div class="samples" v-if='samplesCount >= 0'>
-        Total de amostras <b>{{samplesCount}}</b>
+      <div class="samples" v-if="samplesCount >= 0">
+        Total de amostras <b>{{ samplesCount }}</b>
       </div>
 
       <vue-highcharts
         class="ufabc-row ufabc-align-center ufabc-justify-middle"
-          v-if='review && review.specific && review.specific.length'
-          :options="options"
-          :highcharts="Highcharts"
-          ref="pieChart"
+        v-if="review && review.specific && review.specific.length"
+        :options="options"
+        :highcharts="Highcharts"
+        ref="pieChart"
       ></vue-highcharts>
 
-      <div class="mt-2" style="text-align: center;">
+      <div class="mt-2" style="text-align: center">
         <b>* {{ cobraPresenca }}</b>
       </div>
 
       <div class="ufabc-column ufabc-align-center mt-3 ufabc-flex-wrap">
-        <div class="ufabc-row ufabc-align-center ufabc-justify-middle my-cr" v-if='student_cr'>
+        <div
+          class="ufabc-row ufabc-align-center ufabc-justify-middle my-cr"
+          v-if="student_cr"
+        >
           Seu CR é <b class="ml-1">{{ crCropped(student_cr) }}</b>
         </div>
-        <div class="conceitos" v-if='conceitoDistribution && conceitoDistribution.length && student_cr'>
+        <div
+          class="conceitos"
+          v-if="
+            conceitoDistribution && conceitoDistribution.length && student_cr
+          "
+        >
           <div class="conceitos-title">
-            Com seu CR {{ crCropped(student_cr) }}, seu conceito com este professor <b>provavelmente</b> será:
+            Com seu CR {{ crCropped(student_cr) }}, seu conceito com este
+            professor <b>provavelmente</b> será:
           </div>
           <div class="all-conceitos">
             <div class="conceito-target" :class="targetConceitoStudent">
               <div class="arrow">
-<!--                 <div class="arrow-text">você</div> -->
+                <!--                 <div class="arrow-text">você</div> -->
               </div>
               <div class="square"></div>
             </div>
-            <div class="conceitos-cr ufabc-row"
-                v-for='(conceito, index) in conceitos'
-                :key="index">
-              <div class="conceito" :class="conceito.conceito">{{ conceito.conceito }} </div>
+            <div
+              class="conceitos-cr ufabc-row"
+              v-for="(conceito, index) in conceitos"
+              :key="index"
+            >
+              <div class="conceito" :class="conceito.conceito">
+                {{ conceito.conceito }}
+              </div>
               <div class="cr">
                 {{ findConcept(conceito.conceito) }}
               </div>
-<!--               <div class="cr">{{ findCount(conceito.conceito) }}</div> -->
+              <!--               <div class="cr">{{ findCount(conceito.conceito) }}</div> -->
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="ufabc-row ufabc-align-center ufabc-justify-middle" style="min-height: 100px" v-else>
+    <div
+      class="ufabc-row ufabc-align-center ufabc-justify-middle"
+      style="min-height: 100px"
+      v-else
+    >
       Nenhum dado encontrado
     </div>
     <span slot="footer" class="dialog-footer">
-      <i class="information">* Dados baseados nos alunos que utilizam a extensão</i>
+      <i class="information"
+        >* Dados baseados nos alunos que utilizam a extensão</i
+      >
     </span>
   </el-dialog>
 </template>
 <script>
-  import VueHighcharts from 'vue2-highcharts'
-  import Highcharts3D from "highcharts/highcharts-3d";
-  import Highcharts from "highcharts";
+import VueHighcharts from "vue2-highcharts";
+import Highcharts3D from "highcharts/highcharts-3d";
+import Highcharts from "highcharts";
 
-  import _ from 'lodash'
-  import { NextAPI } from '../services/NextAPI'
-  import Utils from '../scripts/helpers/utils'
-  import MatriculaHelper from '../scripts/helpers/matricula'
+import _ from "lodash";
+import { NextAPI } from "../services/NextAPI";
+import Utils from "../scripts/helpers/utils";
+import matriculaUtils from "../utils/Matricula";
 
-  Highcharts3D(Highcharts);
+Highcharts3D(Highcharts);
 
-  const data = {
-    chart: {
-      type: "pie",
-      options3d: {
+const data = {
+  chart: {
+    type: "pie",
+    options3d: {
+      enabled: true,
+      alpha: 45,
+    },
+    width: 380,
+    height: 240,
+  },
+  title: {
+    text: "",
+  },
+  tooltip: {
+    pointFormat: "Porcentagem: <b>{point.percentage:.1f}%</b>",
+  },
+  plotOptions: {
+    pie: {
+      // innerSize: 100,
+      animation: {
+        duration: 200,
+      },
+      depth: 20,
+      allowPointSelect: true,
+      cursor: "pointer",
+      dataLabels: {
+        format: "{key}: <b>{point.percentage:.1f}%</b>",
         enabled: true,
-        alpha: 45
       },
-      width: 380,
-      height: 240
+      showInLegend: true,
     },
-    title: {
-        text: ''
+  },
+  series: [],
+};
+
+const nextApi = NextAPI();
+
+export default {
+  name: "ReviewTecher",
+  props: ["value"],
+  components: {
+    VueHighcharts,
+  },
+
+  data() {
+    return {
+      options: data,
+      Highcharts,
+      loading: false,
+
+      review: null,
+      filterSelected: null,
+      samplesCount: null,
+
+      conceitos: [
+        { conceito: "A" },
+        { conceito: "B" },
+        { conceito: "C" },
+        { conceito: "D" },
+        { conceito: "F" },
+      ],
+
+      student_cr: null,
+    };
+  },
+
+  created() {
+    this.fetch();
+  },
+
+  watch: {
+    "value.notifier"(val) {
+      if (val) this.$notify(val);
     },
-    tooltip: {
-        pointFormat: 'Porcentagem: <b>{point.percentage:.1f}%</b>'
+
+    "value.professor"(val) {
+      this.fetch();
     },
-    plotOptions: {
-      pie: {
-        // innerSize: 100,
-        animation: {
-          duration: 200,
+  },
+
+  computed: {
+    professorName() {
+      return _.get(this.value, "professor.name", "");
+    },
+
+    possibleDisciplinas() {
+      let disciplinas = this.review.specific;
+      let generalDefaults = {
+        _id: {
+          _id: "all",
+          name: "Todas as matérias",
         },
-        depth: 20,
-        allowPointSelect: true,
-        cursor: 'pointer',
-        dataLabels: {
-          format: '{key}: <b>{point.percentage:.1f}%</b>',
-          enabled: true
-        },
-        showInLegend: true
+      };
+      let general = Object.assign(generalDefaults, this.review.general);
+      disciplinas.push(general);
+
+      return disciplinas.reverse();
+    },
+
+    conceitoDistribution() {
+      if (!this.filterSelected) return [];
+
+      let filter;
+      if (this.filterSelected == "all") {
+        filter = this.review.general;
+      } else {
+        filter = _.find(this.review.specific, {
+          _id: { _id: this.filterSelected },
+        });
+      }
+
+      return (
+        filter &&
+        filter.distribution &&
+        _.sortBy(filter.distribution, "conceito")
+      );
+    },
+
+    cobraPresenca() {
+      if (!_.get(this.review, "general.distribution.length", 0)) return;
+
+      if (_.find(this.review.general.distribution, { conceito: "O" })) {
+        return "Provavelmente esse professor cobra presença 👎";
+      } else {
+        return "Provavelmente esse professor NÃO cobra presença 👍";
       }
     },
-    series: []
-  };
 
-  const nextApi = NextAPI();
+    targetConceitoStudent() {
+      if (
+        !this.student_cr ||
+        !this.conceitoDistribution ||
+        !this.conceitoDistribution.length
+      )
+        return;
 
-  export default {
-    name: 'ReviewTecher',
-    props: ['value'],
-    components: {
-      VueHighcharts
-    },
-
-    data() {
-      return {
-        options: data,
-        Highcharts,
-        loading: false,
-
-        review: null,
-        filterSelected: null,
-        samplesCount: null,
-
-        conceitos: [
-          { conceito: 'A' },
-          { conceito: 'B' },
-          { conceito: 'C' },
-          { conceito: 'D' },
-          { conceito: 'F' },
-        ],
-
-        student_cr: null,
+      let all_cr = [];
+      for (let conceito of this.conceitoDistribution) {
+        if (conceito.conceito != "O" && conceito.conceito != "E") {
+          all_cr.push(conceito && conceito.cr_medio);
+        }
       }
+      let closest = all_cr.sort(
+        (a, b) => Math.abs(this.student_cr - a) - Math.abs(this.student_cr - b)
+      )[0];
+      let targetConceito = _.find(this.conceitoDistribution, {
+        cr_medio: closest,
+      });
+
+      return targetConceito && targetConceito.conceito;
     },
+  },
 
-    created() {
-      this.fetch()
+  methods: {
+    resolveColorForConcept(concept) {
+      return (
+        {
+          A: "#3fcf8c",
+          B: "#b8e986",
+          C: "#f8b74c",
+          D: "#ffa004",
+          F: "#f95469",
+          O: "#A9A9A9",
+        }[concept] || "#A9A9A9"
+      );
     },
-
-    watch: {
-      'value.notifier'(val) {
-        if(val) this.$notify(val)
-      },
-
-      'value.professor'(val){
-        this.fetch()
-      },
+    crCropped(cr) {
+      return cr.toFixed(2);
     },
-
-    computed: {
-      professorName() {
-        return _.get(this.value, 'professor.name', '')
-      },
-
-      possibleDisciplinas(){
-        let disciplinas = this.review.specific
-        let generalDefaults = {
-          _id: {
-            _id: 'all',
-            name: 'Todas as matérias'
-          }
-        }
-        let general = Object.assign(generalDefaults, this.review.general)
-        disciplinas.push(general)
-
-        return disciplinas.reverse()
-      },
-
-      conceitoDistribution() {
-        if(!this.filterSelected) return []
-
-        let filter
-        if(this.filterSelected == 'all'){
-          filter = this.review.general
-        } else {
-          filter = _.find(this.review.specific, { _id: { _id: this.filterSelected }})
-        }
-
-        return filter && filter.distribution && _.sortBy(filter.distribution, 'conceito')
-      },
-
-      cobraPresenca() {
-        if(!_.get(this.review, 'general.distribution.length', 0)) return
-
-        if(_.find(this.review.general.distribution, { conceito: 'O'})) {
-          return 'Provavelmente esse professor cobra presença 👎'
-        } else {
-          return 'Provavelmente esse professor NÃO cobra presença 👍'
-        }
-      },
-
-      targetConceitoStudent() {
-        if(!this.student_cr || !this.conceitoDistribution || !this.conceitoDistribution.length) return
-
-        let all_cr = []
-        for(let conceito of this.conceitoDistribution) {
-          if(conceito.conceito != 'O' && conceito.conceito != 'E') {
-            all_cr.push(conceito && conceito.cr_medio)
-          }
-        }
-        let closest = all_cr.sort( (a, b) => Math.abs(this.student_cr - a) - Math.abs(this.student_cr - b) )[0]
-        let targetConceito = _.find(this.conceitoDistribution, { cr_medio: closest })
-
-        return targetConceito && targetConceito.conceito
-      },
+    closeDialog() {
+      this.value.dialog = false;
+      this.filterSelected = null;
+      this.review = null;
+      this.samplesCount = 0;
     },
+    findConcept(concept) {
+      let conceito = _.find(
+        this.conceitoDistribution,
+        { conceito: concept },
+        null
+      );
+      return conceito ? this.crCropped(conceito.cr_medio) : "-";
+    },
+    findCount(concept) {
+      let conceito = _.find(
+        this.conceitoDistribution,
+        { conceito: concept },
+        null
+      );
+      return conceito ? conceito.count : "-";
+    },
+    fetch() {
+      let professorId = _.get(this.value, "professor.id", "");
+      if (!professorId) return;
+      this.fetchStudent();
 
-    methods: {
-      resolveColorForConcept(concept) {
-        return {
-          'A': '#3fcf8c',
-          'B': '#b8e986',
-          'C': '#f8b74c',
-          'D': '#ffa004',
-          'F': '#f95469',
-          'O': '#A9A9A9'
-        }[concept] || '#A9A9A9'
-      },
-      crCropped(cr){
-        return cr.toFixed(2)
-      },
-      closeDialog(){
-        this.value.dialog = false
-        this.filterSelected = null
-        this.review = null
-        this.samplesCount = 0
-      },
-      findConcept(concept) {
-        let conceito = _.find(this.conceitoDistribution, { conceito: concept }, null)
-        return conceito ? this.crCropped(conceito.cr_medio) : '-'
-      },
-      findCount(concept) {
-        let conceito = _.find(this.conceitoDistribution, { conceito: concept }, null)
-        return conceito ? conceito.count : '-'
-      },
-      fetch() {
-        let professorId = _.get(this.value, 'professor.id', '')
-        if(!professorId) return
-        this.fetchStudent()
+      this.loading = true;
 
-        this.loading = true
+      nextApi
+        .get("/reviews/teachers/" + professorId)
+        .then((res) => {
+          this.review = res;
+          this.loading = false;
 
-        nextApi.get('/reviews/teachers/' + professorId).then((res) => {
-          this.review = res
-          this.loading = false
-
-          if(_.get(res, 'general.count', 0)) {
-            this.filterSelected = this.possibleDisciplinas[0]._id._id
+          if (_.get(res, "general.count", 0)) {
+            this.filterSelected = this.possibleDisciplinas[0]._id._id;
             setTimeout(() => {
-              this.updateFilter()
-            }, 500)
+              this.updateFilter();
+            }, 500);
           }
-        }).catch((e) => {
-          this.loading = false
+        })
+        .catch((e) => {
+          this.loading = false;
 
           // Show dialog with error
-          this.closeDialog()
-        })
-
-      },
-
-      fetchStudent() {
-        let self = this
-
-        const storageUser = 'ufabc-extension-' + MatriculaHelper.currentUser()
-        Utils.storage.getItem(storageUser).then(item => {
-          if (item == null) return
-          self.student_cr = _.get(item, '[1].cr', 0) || _.get(item, '[0].cr', 0)
-        })
-      },
-
-      updateFilter(){
-        let pieChart = this.$refs.pieChart
-        pieChart.delegateMethod('showLoading', 'Carregando...');
-
-        setTimeout(() => {
-          pieChart.removeSeries()
-
-          let filter
-          if(this.filterSelected == 'all'){
-            filter = this.review.general
-          } else {
-            filter = _.find(this.review.specific, { _id: { _id: this.filterSelected }})
-          }
-
-          let conceitosFiltered = []
-          let conceitos = filter.distribution
-          for(let conceito of conceitos){
-            conceitosFiltered.push({
-              name: conceito.conceito,
-              y: conceito.count,
-              color: this.resolveColorForConcept(conceito.conceito)
-            })
-          }
-          this.samplesCount = filter.count
-
-          // pieChart.mergeOption({
-          //   subtitle: { text: 'Total de amostras: <b>' + filter.count + '<b/>'}
-          // })
-
-          pieChart.addSeries({
-            data: _.sortBy(conceitosFiltered, 'name')
-          })
-          pieChart.hideLoading();
-        }, 500)
-      }
-
+          this.closeDialog();
+        });
     },
 
-  }
+    fetchStudent() {
+      let self = this;
+
+      const storageUser = "ufabc-extension-" + matriculaUtils.currentUser();
+      Utils.storage.getItem(storageUser).then((item) => {
+        if (item == null) return;
+        self.student_cr = _.get(item, "[1].cr", 0) || _.get(item, "[0].cr", 0);
+      });
+    },
+
+    updateFilter() {
+      let pieChart = this.$refs.pieChart;
+      pieChart.delegateMethod("showLoading", "Carregando...");
+
+      setTimeout(() => {
+        pieChart.removeSeries();
+
+        let filter;
+        if (this.filterSelected == "all") {
+          filter = this.review.general;
+        } else {
+          filter = _.find(this.review.specific, {
+            _id: { _id: this.filterSelected },
+          });
+        }
+
+        let conceitosFiltered = [];
+        let conceitos = filter.distribution;
+        for (let conceito of conceitos) {
+          conceitosFiltered.push({
+            name: conceito.conceito,
+            y: conceito.count,
+            color: this.resolveColorForConcept(conceito.conceito),
+          });
+        }
+        this.samplesCount = filter.count;
+
+        // pieChart.mergeOption({
+        //   subtitle: { text: 'Total de amostras: <b>' + filter.count + '<b/>'}
+        // })
+
+        pieChart.addSeries({
+          data: _.sortBy(conceitosFiltered, "name"),
+        });
+        pieChart.hideLoading();
+      }, 500);
+    },
+  },
+};
 </script>
 <style scoped>
 .information {
@@ -411,19 +462,19 @@
   color: rgba(0, 0, 0, 0.35);
 }
 
-.conceito.A{
+.conceito.A {
   background: #3fcf8c;
 }
-.conceito.B{
+.conceito.B {
   background: #b8e986;
 }
-.conceito.C{
+.conceito.C {
   background: #f8b74c;
 }
-.conceito.D{
+.conceito.D {
   background: #ffa004;
 }
-.conceito.F{
+.conceito.F {
   background: #f95469;
 }
 
@@ -454,7 +505,7 @@
 }
 .conceito-target {
   position: absolute;
-/*  height: 90px;*/
+  /*  height: 90px;*/
   bottom: 0px;
   left: -2px;
 }
