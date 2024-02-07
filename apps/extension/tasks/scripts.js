@@ -26,7 +26,7 @@ gulp.task("scripts", (cb) => {
       "src/scripts/**/**/*.js",
       "src/main.js",
       "src/utils/**/*.js",
-      "src/lib/**/*.js",
+      // "src/lib/**/*.js",
     ])
     .pipe(
       plumber({
