@@ -17,10 +17,6 @@
     "http://*.ufabc.edu.br/*",
     "https://*.ufabc.edu.br/*",
     "http://localhost:8000/*",
-    "http://*.felipecoder.com/*",
-    "https://*.felipecoder.com/*",
-    "http://*.naoseiprogramar.com.br/*",
-    "https://*.naoseiprogramar.com.br/*",
     "http://*.ufabcnext.com/*",
     "https://*.ufabcnext.com/*"
   ],
