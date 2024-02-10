@@ -4,19 +4,17 @@ import './manifest'
 import './scripts'
 import './styles'
 import './pages'
-import './locales'
 import './images'
-import './fonts'
 import './chromereload'
+import './xdLib'
 
 gulp.task('build', gulp.series(
   'clean',
   'manifest',
+  'xdLib',
   'scripts',
   'styles',
   'pages',
-  'locales',
   'images',
-  'fonts',
   'chromereload',
 ))
