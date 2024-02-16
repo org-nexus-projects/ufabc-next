@@ -12,7 +12,8 @@ const processEnrollments = async (enrollment: EnrollmentDocument) => {
     disciplina: enrollment.disciplina,
   };
 
-  const identifier = generateIdentifier(key, keys);
+  //TODO: remove any later
+  const identifier = generateIdentifier(key, keys as any);
   const enrollmentsToUpdate = LodashOmit(enrollment, [
     'identifier',
     'id',
