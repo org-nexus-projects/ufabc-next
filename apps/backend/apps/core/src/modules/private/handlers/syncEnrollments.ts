@@ -64,7 +64,7 @@ export async function syncEnrollments(
   );
 
   const userEnrollments = rawEnrollments.filter(
-    // @ts-expect-error need to comport both disciplinas and enrollments collection
+    //@ts-expect-error
     (enrollment) => enrollment.ra && enrollment.disciplina,
   );
 
@@ -81,6 +81,7 @@ export async function syncEnrollments(
     return Object.assign(neededDisciplinasFields, {
       identifier: generateIdentifier(enrollment, keys as any),
       disciplina_identifier: generateIdentifier(enrollment),
+      ...enrollment,
     });
   });
 
