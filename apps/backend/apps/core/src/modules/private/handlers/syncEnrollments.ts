@@ -81,7 +81,7 @@ export async function syncEnrollments(
     return Object.assign(neededDisciplinasFields, {
       identifier: generateIdentifier(enrollment, keys as any),
       disciplina_identifier: generateIdentifier(enrollment),
-      ...enrollment,
+      ...LodashOmit(enrollment, Object.keys(neededDisciplinasFields)),
     });
   });
 
