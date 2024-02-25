@@ -3,7 +3,7 @@ import { omit as LodashOmit } from 'lodash-es';
 import { type EnrollmentDocument, EnrollmentModel } from '@/models/index.js';
 import { batchInsertItems } from '../utils/batch-insert.js';
 
-const processEnrollments = async (enrollment: EnrollmentDocument) => {
+async function processEnrollments(enrollment: EnrollmentDocument) {
   const key = {
     ra: enrollment.ra,
     year: enrollment.year,
@@ -32,8 +32,9 @@ const processEnrollments = async (enrollment: EnrollmentDocument) => {
     );
   } catch (error) {
     logger.error({ error }, 'Error updating enrollment');
+    throw error;
   }
-};
+}
 
 export async function updateEnrollments(data: EnrollmentDocument[]) {
   try {
