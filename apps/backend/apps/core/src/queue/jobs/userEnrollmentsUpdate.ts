@@ -130,7 +130,6 @@ export async function updateUserEnrollments(history: History) {
   };
 
   return batchInsertItems(disciplinesArr, (discipline) =>
-    // @ts-expect-error
     updateOrCreateEnrollments(discipline),
   );
 }
