@@ -44,6 +44,11 @@ class NextJobs implements NextJob {
   }
 
   async setup() {
+    const isTest = Config.NODE_ENV === 'test';
+    if (isTest) {
+      return;
+    }
+
     for (const [jobName, jobDefinition] of Object.entries(NEXT_JOBS)) {
       if ('every' in jobDefinition) {
         const queue = this.queues[jobDefinition.queue];
