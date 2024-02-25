@@ -53,6 +53,7 @@ describe('common.lib.identifier', () => {
       teoria: null,
     };
 
+    // @ts-expect-error Unit test and types are hard
     const disciplinaHash = generateIdentifier(mockedDisciplinas, customKeys);
 
     assert(disciplinaHash);

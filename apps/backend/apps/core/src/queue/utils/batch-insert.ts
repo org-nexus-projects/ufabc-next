@@ -1,4 +1,4 @@
-export type ProcessFn<Param> = (item: Param, idx?: number) => Promise<Param>;
+export type ProcessFn<Param> = (item: Param, idx?: number) => Promise<unknown>;
 
 export async function batchInsertItems<Item>(
   items: Item[],

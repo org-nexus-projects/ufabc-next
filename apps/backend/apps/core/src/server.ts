@@ -2,13 +2,8 @@ import gracefullyShutdown from 'close-with-grace';
 import { logger } from '@next/common';
 import { Config } from './config/config.js';
 import { buildApp } from './app.js';
-import {
-  emailWorker,
-  enrollmentsWorker,
-  syncMatriculasWorker,
-  teachersUpdateWorker,
-  userEnrollmentsWorker,
-} from './queue/setup.js';
+import { nextWorker } from './queue/NextWorker.js';
+import { nextJobs } from './queue/NextJobs.js';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import type { FastifyServerOptions } from 'fastify';
 
@@ -24,21 +19,22 @@ async function start() {
 
   app.withTypeProvider<ZodTypeProvider>();
   await app.listen({ port: Config.PORT, host: Config.HOST });
-  // start queue right after the app
-  await import('./queue/setup.js');
+
+  nextJobs.setup();
+  nextWorker.setup();
+
+  nextJobs.schedule('NextSyncMatriculas', {
+    operation: 'alunos_matriculados',
+  });
+
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {
     if (err) {
       app.log.fatal({ err }, 'error starting app');
     }
 
     app.log.info({ signal }, 'Gracefully exiting app');
-    await Promise.all([
-      emailWorker.close(),
-      enrollmentsWorker.close(),
-      userEnrollmentsWorker.close(),
-      teachersUpdateWorker.close(),
-      syncMatriculasWorker.close(),
-    ]);
+    await nextJobs.close();
+    await nextWorker.close();
     await app.close();
     process.exit(1);
   });

@@ -1,55 +1,65 @@
-import { diffChars } from 'diff';
 import { camelCase, startCase } from 'lodash-es';
+import { SequenceMatcher, getCloseMatches } from 'difflib';
 
 type Teacher = {
-  alias: string[];
   name: string;
+  alias?: string[];
 };
 
-export function resolveProfessors(
-  name: string,
+const getTypeOrDefault = (
+  type: string | null,
+  mappings: Record<string, string>,
+) => {
+  if (type! in mappings) {
+    return mappings[type!]!;
+  }
+
+  return startCase(camelCase(type!));
+};
+
+const isValidTeacherType = (type: string) => {
+  return type !== 'N D' && type !== 'Falso';
+};
+
+const handleBestMatch = (type: string, teachers: Teacher[]) => {
+  const bestMatch = getCloseMatches(
+    type,
+    teachers.map((teacher) => teacher.name),
+  )[0];
+
+  const s = new SequenceMatcher(null, bestMatch, type);
+  if (s.ratio() > 0.8) {
+    return teachers.find((teacher) => teacher.name === bestMatch)!;
+  } else {
+    return { error: `Missing Teacher: ${type}` };
+  }
+};
+
+export function resolveProfessor(
+  teacherType: string | null,
   teachers: Teacher[],
   mappings: Record<string, string> = {},
 ) {
-  if (name in mappings) {
-    return mappings[name];
-  }
+  const findTeacher = (type: string) => {
+    return (
+      teachers.find((teacher) => type === teacher.name) ||
+      teachers.find((teacher) => (teacher.alias || []).includes(type))!
+    );
+  };
 
-  const normalizedName = startCase(camelCase(name));
-  const isNameInvalid =
-    !normalizedName || ['N D', 'Falso'].includes(normalizedName);
-
-  if (isNameInvalid) {
+  teacherType = getTypeOrDefault(teacherType, mappings);
+  if (!teacherType) {
     return null;
   }
-  const isTeacherPresent = (t: Teacher) =>
-    t.name === normalizedName || (t.alias || []).includes(normalizedName);
-  const foundTeacher = teachers.find((teacher) => isTeacherPresent(teacher));
 
+  if (!isValidTeacherType(teacherType)) {
+    return null;
+  }
+
+  const foundTeacher = findTeacher(teacherType);
   if (foundTeacher) {
     return foundTeacher;
   }
 
-  let bestMatch: string;
-  let bestMatchScore = 0;
-
-  for (const teacher of teachers) {
-    const diff = diffChars(normalizedName, teacher.name);
-    const score = diff.reduce(
-      (acc, part) => (part.added ? acc : acc + part.count!),
-      0,
-    );
-
-    if (score > bestMatchScore) {
-      bestMatch = teacher.name;
-      bestMatchScore = score;
-    }
-  }
-
-  const similarityThreshold = 0.8;
-  if (bestMatchScore > similarityThreshold) {
-    return teachers.find((t) => t.name === bestMatch);
-  }
-
-  return { error: `Missing Teacher: ${normalizedName}` };
+  return handleBestMatch(teacherType, teachers);
 }

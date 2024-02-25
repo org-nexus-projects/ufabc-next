@@ -2,12 +2,9 @@ import {
   asyncParallelMap,
   generateIdentifier,
   logger,
-  resolveProfessors,
+  resolveProfessor,
 } from '@next/common';
-import { createQueue } from '../utils/queue.js';
-import type { EnrollmentModel, TeacherModel } from '@/models/index.js';
-import type { Job } from 'bullmq';
-
+import { EnrollmentModel, TeacherModel } from '@/models/index.js';
 //TODO: Check if this is the correct type (pratica and teoria are not in the spreadsheet)
 //this is the type of the spreedsheet file that is being parsed
 // but the spreeadsheet file does not have the teoria and pratica fields
@@ -15,25 +12,15 @@ type parsedData = {
   year: number;
   quad: number;
   disciplina: string;
-  ra: string | number;
+  ra: number;
   teoria: string;
   pratica: string;
 };
 
-type UpdateTeachers = {
-  payload: { json: parsedData[] };
-  teacherModel: typeof TeacherModel;
-  enrollmentModel: typeof EnrollmentModel;
-};
+type UpdateTeachers = parsedData[];
 
-export async function updateTeachers({
-  payload,
-  teacherModel,
-  enrollmentModel,
-}: UpdateTeachers) {
-  const data = payload.json;
-
-  const teachers = await teacherModel.find({});
+export async function updateTeachers(data: UpdateTeachers) {
+  const teachers = await TeacherModel.find({});
 
   const updateTeacherInEnrollments = async (enrollment: parsedData) => {
     const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
@@ -50,12 +37,12 @@ export async function updateTeachers({
 
     try {
       const insertOpts = { new: true, upsert: true };
-      await enrollmentModel.findOneAndUpdate(
+      await EnrollmentModel.findOneAndUpdate(
         { identifier },
         {
           //TODO: Find out if the teoria and pratica fields objectId are being populated
-          teoria: resolveProfessors(enrollment.teoria, teachers),
-          pratica: resolveProfessors(enrollment.pratica, teachers),
+          teoria: resolveProfessor(enrollment.teoria, teachers),
+          pratica: resolveProfessor(enrollment.pratica, teachers),
         },
         insertOpts,
       );
@@ -67,13 +54,3 @@ export async function updateTeachers({
 
   return asyncParallelMap(data, updateTeacherInEnrollments, 10);
 }
-
-export const updateTeachersQueue = createQueue('Teacher:UpdateEnrollments');
-
-export const addTeachersToQueue = async (payload: { json: unknown }) => {
-  await updateTeachersQueue.add('Teacher:UpdateEnrollments', payload);
-};
-
-export const updateTeachersWorker = async (job: Job<UpdateTeachers>) => {
-  await updateTeachers(job.data);
-};

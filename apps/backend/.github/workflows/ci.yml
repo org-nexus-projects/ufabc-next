@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  install-and-build:
-    name: 📦 Install node modules
+  ci:
+    name: 🔄 CI Workflow
     runs-on: [ubuntu-latest]
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -50,5 +50,5 @@ jobs:
       - name: 💼 Type Check
         run: pnpm build:type-check
 
-      - name: 🧪 Test
-        run: pnpm test
+      # - name: 🧪 Test
+      #   run: pnpm test

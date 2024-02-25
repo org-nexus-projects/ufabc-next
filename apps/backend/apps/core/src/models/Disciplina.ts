@@ -1,61 +1,58 @@
 import {
   type InferSchemaType,
   Schema,
-  Types,
   type UpdateQuery,
   model,
 } from 'mongoose';
 import { findQuarter } from '@next/common';
+import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
+
+const CAMPUS = ['sao bernardo', 'santo andre'] as const;
 
 const disciplinaSchema = new Schema(
   {
-    disciplina_id: Number,
-    disciplina: String,
-    turno: String,
-    turma: String,
-    vagas: Number,
-    obrigatorias: [Number],
-    codigo: String,
-    campus: String,
+    disciplina_id: { type: Number, required: true },
+    disciplina: { type: String, required: true },
+    turno: { type: String, required: true },
+    turma: { type: String, required: true },
+    vagas: { type: Number, required: true },
+    obrigatorias: { type: [Number], default: [] },
+    codigo: { type: String, required: true },
+    campus: { type: String, enum: CAMPUS },
     ideal_quad: Boolean,
-
-    subject: {
-      type: Types.ObjectId,
-      ref: 'subjects',
-    },
-
     identifier: {
       type: String,
       required: true,
     },
-
     // lista de alunos matriculados no momento
     alunos_matriculados: {
       type: [Number],
       default: [],
     },
-
     // como estava o estado da matrícula antes do chute
     before_kick: {
       type: [Number],
       default: [],
     },
-
     // como estava o estado da matrícula após o chute
     after_kick: {
       type: [Number],
       default: [],
     },
+    year: { type: Number, required: true },
+    quad: { type: Number, required: true },
+    season: { type: String, required: true },
 
-    year: Number,
-    quad: Number,
-    season: String,
+    subject: {
+      type: Schema.Types.ObjectId,
+      ref: 'subjects',
+    },
     teoria: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'teachers',
     },
     pratica: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'teachers',
     },
   },
@@ -71,6 +68,8 @@ const disciplinaSchema = new Schema(
     timestamps: true,
   },
 );
+
+disciplinaSchema.plugin(mongooseLeanVirtuals);
 
 function setQuarter(disciplina: UpdateQuery<Disciplina> | null) {
   const { year, quad } = findQuarter();

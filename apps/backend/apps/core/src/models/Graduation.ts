@@ -7,12 +7,12 @@ const graduationSchema = new Schema(
       default: false,
     },
 
-    curso: String,
-    grade: String,
+    curso: { type: String, required: true },
+    grade: { type: String, required: true },
 
-    mandatory_credits_number: Number,
-    limited_credits_number: Number,
-    free_credits_number: Number,
+    mandatory_credits_number: { type: Number, required: true },
+    limited_credits_number: { type: Number, required: true },
+    free_credits_number: { type: Number, required: true },
     credits_total: Number,
 
     creditsBreakdown: [
@@ -32,7 +32,4 @@ export type Graduation = InferSchemaType<typeof graduationSchema>;
 export type GraduationDocument = ReturnType<
   (typeof GraduationModel)['hydrate']
 >;
-export const GraduationModel = model<Graduation>(
-  'graduations',
-  graduationSchema,
-);
+export const GraduationModel = model('graduations', graduationSchema);

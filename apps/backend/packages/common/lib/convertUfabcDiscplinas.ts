@@ -1,18 +1,24 @@
-import {
-  camelCase,
-  chunk as lodashChunk,
-  get as lodashGet,
-  startCase,
-} from 'lodash-es';
+import { camelCase, chunk as lodashChunk, startCase } from 'lodash-es';
 import latinize from 'latinize';
+
+// TODO: implement IDEAL_QUAD
 
 export type Disciplina = {
   nome: string;
   id: string;
-  campus?: 'santo andre' | 'sao bernardo' | null;
-  turno?: 'noturno' | 'diurno' | 'tarde' | null;
-  horarios: string | string[];
-  turma?: string;
+  obrigatorias: number[];
+  obrigatoriedades: Array<{
+    curso_id: number;
+    obrigatoriedade: 'limitada' | 'obrigatoria' | 'livre';
+  }>;
+  campus: 'santo andre' | 'sao bernardo' | null;
+  turno: 'noturno' | 'diurno' | 'tarde' | null;
+  horarios:
+    | string
+    | {
+        horas: string[];
+      }[];
+  turma: string;
   disciplina: string;
   disciplina_id: string;
   teoria: string | null;
@@ -20,26 +26,27 @@ export type Disciplina = {
 };
 
 // This convert an disciplina from the .json from matriculas.ufabc
-export function convertUfabcDisciplinas(
-  disciplina: Disciplina,
-): Disciplina | Disciplina[] | null {
+export function convertUfabcDisciplinas(disciplina: Disciplina) {
   const clonedDisciplinas = structuredClone(disciplina);
+  // @ts-expect-error Will not set as undefined, to avoid letting the type too widen
   clonedDisciplinas.campus = undefined;
+  // @ts-expect-error Will not set as undefined, to avoid letting the type too widen
   clonedDisciplinas.turno = undefined;
+
+  clonedDisciplinas.obrigatorias = clonedDisciplinas.obrigatoriedades?.map(
+    (item) => item.curso_id,
+  );
 
   let afterNoon = false;
 
   const isNoon =
     clonedDisciplinas.horarios &&
     typeof clonedDisciplinas.horarios === 'object';
+
   // handle horarios based on pdf or json
   if (isNoon) {
-    const startHours: string[] = lodashGet(
-      clonedDisciplinas.horarios,
-      '[0].horas',
-      [],
-    );
-
+    // @ts-expect-error ts is hard sometimes
+    const startHours = clonedDisciplinas.horarios[0]!.horas || [];
     afterNoon = ['14:00', '15:00', '16:00', '17:00'].some((hour) =>
       startHours.includes(hour),
     );
@@ -49,14 +56,10 @@ export function convertUfabcDisciplinas(
   ) {
     clonedDisciplinas.horarios = removeLineBreaks(clonedDisciplinas.horarios);
 
-    const matchedHorarios = clonedDisciplinas.horarios.match(/\d{2}:\d{2}/g);
+    const matched = clonedDisciplinas.horarios.match(/\d{2}:\d{2}/g);
 
-    if (!matchedHorarios) {
-      return [];
-    }
-
-    if (matchedHorarios?.length % 2 === 0) {
-      const hours = lodashChunk(matchedHorarios, 2);
+    if (matched!.length % 2 === 0) {
+      const hours = lodashChunk(matched, 2);
       hours.forEach((hour) => {
         const [start] = hour.map((h) => Number.parseInt(h.split(':')[0]!));
         if (start! >= 12 && start! < 18) {
@@ -73,6 +76,7 @@ export function convertUfabcDisciplinas(
 
   let turnoIndex: number | null = null;
   let breakRule = '-';
+
   let splitted = removeLineBreaks(clonedDisciplinas.nome).split(breakRule);
   if (splitted.length === 1) {
     breakRule = ' ';
@@ -81,8 +85,7 @@ export function convertUfabcDisciplinas(
   splitted.forEach((item, i) => {
     // Theres probably a bug in here
     clonedDisciplinas.campus = clonedDisciplinas.campus || extractCampus(item);
-    clonedDisciplinas.turno =
-      clonedDisciplinas.turno || extractTurno(item as Disciplina['turno']);
+    clonedDisciplinas.turno = clonedDisciplinas.turno || extractTurno(item);
 
     if (
       (clonedDisciplinas.turno || clonedDisciplinas.campus) &&
@@ -98,10 +101,7 @@ export function convertUfabcDisciplinas(
   }
 
   if (!clonedDisciplinas.campus) {
-    if (!turnoIndex) {
-      return null;
-    }
-    const secondPath = splitted.slice(turnoIndex + 1, splitted.length);
+    const secondPath = splitted.slice(turnoIndex! + 1, splitted.length);
     clonedDisciplinas.campus = extractCampus(secondPath.join(breakRule));
   }
 
@@ -110,38 +110,40 @@ export function convertUfabcDisciplinas(
 
   // separa a turma da disciplina
   const ufabcDisciplina = splitted.join('-').split(/\s+/).filter(Boolean);
-  clonedDisciplinas.turma = ufabcDisciplina.at(-1);
+  clonedDisciplinas.turma = ufabcDisciplina.at(-1)!;
   ufabcDisciplina.pop();
+
   // fix disciplina
   clonedDisciplinas.disciplina = ufabcDisciplina.join(' ').trim();
 
   clonedDisciplinas.disciplina_id = clonedDisciplinas.id;
 
-  if (clonedDisciplinas.teoria === '0' || clonedDisciplinas.teoria === '') {
-    clonedDisciplinas.teoria = null;
-  }
-  if (clonedDisciplinas.pratica === '0' || clonedDisciplinas.pratica === '') {
-    clonedDisciplinas.pratica = null;
-  }
-
-  if (clonedDisciplinas.teoria !== null) {
-    clonedDisciplinas.teoria = cleanTeacher(
-      removeLineBreaks(clonedDisciplinas.teoria),
-    );
-  }
-  if (clonedDisciplinas.pratica !== null) {
-    clonedDisciplinas.pratica = cleanTeacher(
-      removeLineBreaks(clonedDisciplinas.pratica),
-    );
-  }
+  cleanTeoriaAndPraticaFields(clonedDisciplinas);
 
   return clonedDisciplinas;
 }
 
-const removeLineBreaks = (str: string) => str?.replaceAll(/\r?\n|\r/g, ' ');
+const removeLineBreaks = (str: string) => str?.replace(/\r?\n|\r/g, ' ');
+
+const extractTurno = (disciplina: string) => {
+  // TODO: include `vespertino`
+  const lowerCaseDisciplinas = disciplina?.toLowerCase();
+  if (
+    lowerCaseDisciplinas?.includes('diurno') ||
+    lowerCaseDisciplinas?.includes('matutino')
+  ) {
+    return 'diurno';
+  }
+
+  if (lowerCaseDisciplinas?.includes('noturno')) {
+    return 'noturno';
+  }
+
+  return null;
+};
 
 const extractCampus = (disciplina: string) => {
-  const min = latinize(disciplina!.toLowerCase());
+  const min = latinize(disciplina.toLowerCase());
   if (!min) {
     return null;
   }
@@ -156,23 +158,31 @@ const extractCampus = (disciplina: string) => {
   return null;
 };
 
-const extractTurno = (disciplina: Disciplina['turno']) => {
-  // TODO: include `vespertino`
-
-  const min = disciplina?.toLowerCase();
-  if (min?.includes('diurno') || min?.includes('matutino')) {
-    return 'diurno';
-  }
-
-  if (min?.includes('noturno')) {
-    return 'noturno';
-  }
-
-  return null;
-};
-
-const cleanTeacher = (str: string) => {
-  return startCase(camelCase(str))
+const cleanTeacher = (teacher: string) => {
+  return startCase(camelCase(teacher))
     .replaceAll(/-+.*?-+/g, '')
     .replaceAll(/\(+.*?\)+/g, '');
 };
+
+function cleanTeoriaAndPraticaFields(disciplina: Disciplina) {
+  disciplina.teoria = disciplina.teoria ?? null;
+  disciplina.pratica = disciplina.pratica ?? null;
+
+  // edge case in parseTeachers where the xlsx, sets the empty teoria/pratica to 0
+  // eslint-disable-next-line eqeqeq
+  if (disciplina.teoria == '0') {
+    disciplina.teoria = null;
+  }
+
+  // eslint-disable-next-line eqeqeq
+  if (disciplina.pratica == '0') {
+    disciplina.pratica = null;
+  }
+
+  if (disciplina.teoria !== null) {
+    disciplina.teoria = cleanTeacher(removeLineBreaks(disciplina.teoria));
+  }
+  if (disciplina.pratica !== null) {
+    disciplina.pratica = cleanTeacher(removeLineBreaks(disciplina.pratica));
+  }
+}

@@ -1,36 +1,39 @@
-//this type is the same as the disciplina field in the history model
-
 export type HistoryDiscipline = {
-  ano: number;
-  categoria: string;
-  situacao: string;
   periodo: number;
-  creditos: number;
-  conceito: string;
   codigo: string;
   disciplina: string;
+  ano: number;
+  creditos: number;
+  categoria: string;
   identifier: string;
+  situacao:
+    | 'Repr.Freq'
+    | 'Aprovado'
+    | 'Reprovado'
+    | 'Trt. Total'
+    | 'Apr.S.Nota'
+    | 'Aproveitamento';
+  conceito: 'A' | 'B' | 'C' | 'D' | 'O' | 'F' | '-';
 };
 
 type Graduation = {
   locked: boolean;
+  curso: string;
+  grade: string;
+  mandatory_credits_number: number;
+  limited_credits_number: number;
+  free_credits_number: number;
   creditsBreakdown: {
-    year?: number;
-    quad?: number;
-    choosableCredits?: number;
+    year: number | undefined;
+    quad: number | undefined;
+    choosableCredits: number | undefined;
   }[];
-  curso?: string;
-  grade?: string;
-  mandatory_credits_number?: number;
-  limited_credits_number?: number;
-  free_credits_number?: number;
-  credits_total?: number;
+  credits_total: number | undefined;
 };
 
-export function calculateCoefficients(
-  disciplinas: HistoryDiscipline[],
-  graduation: Graduation | null,
-) {
+export function calculateCoefficients<
+  TDisciplinas extends Array<HistoryDiscipline>,
+>(disciplinas: TDisciplinas, graduation: Graduation | null) {
   const disciplinesPerYearAndQuad: Map<
     number,
     Map<number, HistoryDiscipline[]>
@@ -41,7 +44,7 @@ export function calculateCoefficients(
     Map<number, Record<string, unknown>>
   > = new Map();
 
-  disciplinas.forEach((disciplina) => {
+  for (const disciplina of disciplinas) {
     const { ano, periodo } = disciplina;
 
     if (!disciplinesPerYearAndQuad.has(ano)) {
@@ -52,16 +55,17 @@ export function calculateCoefficients(
       disciplinesCoefficient.set(ano, new Map());
     }
 
-    if (!disciplinesPerYearAndQuad.get(ano)!.has(periodo)) {
-      disciplinesPerYearAndQuad.get(ano)!.set(periodo, []);
+    if (!disciplinesPerYearAndQuad.get(ano)?.has(periodo)) {
+      disciplinesPerYearAndQuad.get(ano)?.set(periodo, []);
     }
 
-    if (!disciplinesCoefficient.get(ano)!.has(periodo)) {
-      disciplinesCoefficient.get(ano)!.set(periodo, {});
+    if (!disciplinesCoefficient.get(ano)?.has(periodo)) {
+      disciplinesCoefficient.get(ano)?.set(periodo, {});
     }
 
-    disciplinesPerYearAndQuad.get(ano)!.get(periodo)!.push(disciplina);
-  });
+    disciplinesPerYearAndQuad.get(ano)?.get(periodo)?.push(disciplina);
+  }
+
   const unique: Record<string, boolean> = {};
   const uniqueDisc: Record<string, boolean> = {};
   let accumulated_credits = 0;
@@ -142,24 +146,24 @@ export function calculateCoefficients(
       if (graduation !== null && graduation !== undefined) {
         const totalLimitedCredits = Math.min(
           accumulated_credits_limited,
-          graduation.limited_credits_number!,
+          graduation.limited_credits_number,
         );
         const totalMandatoryCredits = Math.min(
           accumulated_credits_mandatory,
-          graduation.mandatory_credits_number!,
+          graduation.mandatory_credits_number,
         );
 
         // excess limited credits are added to free credits
         let excessLimitedCredits = 0;
 
-        if (accumulated_credits_limited > graduation.limited_credits_number!) {
+        if (accumulated_credits_limited > graduation.limited_credits_number) {
           excessLimitedCredits =
             accumulated_credits_limited - totalLimitedCredits;
         }
 
         const totalFreeCredits = Math.min(
           accumulated_credits_free + excessLimitedCredits,
-          graduation.free_credits_number!,
+          graduation.free_credits_number,
         );
         const totalCredits =
           Math.max(totalFreeCredits, 0) +
@@ -182,7 +186,7 @@ export function calculateCoefficients(
         period_credits,
       };
 
-      disciplinesCoefficient.get(ano)!.set(periodo, result);
+      disciplinesCoefficient.get(ano)?.set(periodo, result);
     });
   });
 

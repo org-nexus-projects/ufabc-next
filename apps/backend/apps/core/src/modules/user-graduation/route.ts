@@ -6,6 +6,7 @@ import {
   subjectGraduation,
 } from './handlers/subjects.js';
 import { histories } from './handlers/histories.js';
+import { grades } from './handlers/grades.js';
 import type { ObjectId } from 'mongoose';
 import type { FastifyInstance } from 'fastify';
 
@@ -22,4 +23,5 @@ export async function graduationsRoute(app: FastifyInstance) {
     { onSend: [addUserRa] },
     histories,
   );
+  app.get('/grades', grades);
 }

@@ -1,52 +1,36 @@
 import { logger } from '@next/common';
 import { MAILER_CONFIG, WEB_URL, WEB_URL_LOCAL } from '@next/constants';
 import { sesSendEmail } from '@/services/ses.js';
-import { createQueue } from '../utils/queue.js';
+import { Config } from '@/config/config.js';
 import { createToken } from '../utils/createToken.js';
-import type { Job } from 'bullmq';
+import type { User } from '@/models/User.js';
 
-type UfabcUser = {
-  email: string;
-  ra: number;
-};
+type NextUser = Pick<User, 'email' | 'ra'>;
 
-async function sendConfirmationEmail(nextUser: UfabcUser) {
+export async function sendConfirmationEmail(data: NextUser) {
   const emailTemplate = MAILER_CONFIG.EMAIL_CONFIRMATION_TEMPLATE;
-  const isDev = process.env.NODE_ENV === 'dev';
+  const isDev = Config.NODE_ENV === 'dev';
 
-  const token = createToken(JSON.stringify({ email: nextUser.email }));
+  if (!data.email) {
+    throw new Error('Email not found');
+  }
+
+  const token = createToken(JSON.stringify({ email: data.email }));
   const emailRequest = {
-    recipient: nextUser.email,
+    recipient: data?.email,
     body: {
       url: `${isDev ? WEB_URL_LOCAL : WEB_URL}confirm?token=${token}`,
     },
   };
 
   try {
-    await sesSendEmail(nextUser, emailTemplate, emailRequest);
+    await sesSendEmail(data, emailTemplate, emailRequest);
     return {
-      dataId: `Returned value ${nextUser.ra}`,
-      data: nextUser,
+      dataId: `Returned value ${data.ra}`,
+      data,
     };
   } catch (error) {
     logger.error({ error }, 'Error Sending email');
     throw error;
   }
 }
-
-export const emailQueue = createQueue('Send:Email');
-
-export const addEmailToConfirmationQueue = async (user: UfabcUser) => {
-  await emailQueue.add('Send:Email', user);
-};
-
-export const sendEmailWorker = async (job: Job<UfabcUser>) => {
-  const user = job.data;
-
-  try {
-    await sendConfirmationEmail(user);
-  } catch (error) {
-    logger.error({ error }, 'sendEmailWorker: Error sending email');
-    throw error;
-  }
-};

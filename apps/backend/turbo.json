@@ -17,7 +17,8 @@
     },
     "build:type-check": {
       "dependsOn": ["^build"],
-      "cache": true
+      "cache": true,
+      "outputMode": "errors-only"
     },
     "start": {
       "cache": true
@@ -26,9 +27,16 @@
       "cache": true,
       "persistent": true
     },
-    "lint": {},
-    "lint:fix": {},
-    "test": {},
+    "lint": {
+      "outputMode": "errors-only"
+    },
+    "lint:fix": {
+      "outputMode": "errors-only"
+    },
+    "test": {
+      "cache": true,
+      "outputMode": "errors-only"
+    },
     "test:watch": {
       "cache": false,
       "persistent": true

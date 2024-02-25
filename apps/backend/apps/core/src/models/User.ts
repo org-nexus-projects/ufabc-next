@@ -6,13 +6,17 @@ import {
 } from 'mongoose';
 import { uniqBy } from 'remeda';
 import jwt from 'jsonwebtoken';
-import { addEmailToConfirmationQueue } from '@/queue/jobs/confirmationEmail.js';
+import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
+import { sendConfirmationEmail } from '@/queue/jobs/confirmationEmail.js';
+import { Config } from '@/config/config.js';
 
 type Device = {
   deviceId: string;
   token: string;
   phone: string;
 };
+
+const INTEGRATED_PROVIDERS = ['facebook', 'google'] as const;
 
 const userSchema = new Schema(
   {
@@ -43,7 +47,7 @@ const userSchema = new Schema(
       email: String,
       provider: {
         type: String,
-        enum: ['facebook', 'google'],
+        enum: INTEGRATED_PROVIDERS,
       },
       providerId: String,
       picture: String,
@@ -76,10 +80,10 @@ const userSchema = new Schema(
         );
       },
       async sendConfirmation() {
-        const nextUser = this.toObject<{ ra: number; email: string }>({
+        const nextUser = this.toObject({
           virtuals: true,
         });
-        await addEmailToConfirmationQueue(nextUser);
+        await sendConfirmationEmail(nextUser);
       },
       generateJWT() {
         return jwt.sign(
@@ -90,7 +94,7 @@ const userSchema = new Schema(
             email: this.email,
             permissions: this.permissions,
           },
-          process.env.JWT_SECRET!,
+          Config.JWT_SECRET,
         );
       },
     },
@@ -104,6 +108,8 @@ const userSchema = new Schema(
     timestamps: true,
   },
 );
+
+userSchema.plugin(mongooseLeanVirtuals);
 
 userSchema.pre<UserDocument>('save', async function () {
   if (this.isFilled && !this.confirmed) {

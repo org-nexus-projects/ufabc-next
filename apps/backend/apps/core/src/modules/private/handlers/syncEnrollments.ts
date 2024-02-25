@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto';
 import { ofetch } from 'ofetch';
 import { convertUfabcDisciplinas, generateIdentifier } from '@next/common';
-import { updateEnrollmentsQueue } from '@/queue/jobs/enrollmentsUpdate.js';
-import { DisciplinaModel, type Enrollment } from '@/models/index.js';
-import { type ParseXlSXBody, parseXlsx } from '../utils/parseXlsx.js';
+import { omit as LodashOmit } from 'lodash-es';
+import { type Disciplina, DisciplinaModel } from '@/models/index.js';
+import { nextJobs } from '@/queue/NextJobs.js';
+import { type ParseXlSXBody, parseXlsx } from '../../utils/parseXlsx.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export type SyncEnrollmentsRequest = {
@@ -39,49 +40,49 @@ export async function syncEnrollments(
     throw new Error(`O link enviado deve existir`, { cause: link });
   }
 
-  const currentQuadDisciplinas = DisciplinaModel.find({
-    season,
-  });
-  const disciplinas = await currentQuadDisciplinas
-    .find(
-      {},
-      {
-        identifier: 1,
-        subject: 1,
-        teoria: 1,
-        pratica: 1,
-      },
-    )
-    .lean({ virtuals: true });
+  const disciplinasMapper = {
+    identifier: 1,
+    subject: 1,
+    teoria: 1,
+    pratica: 1,
+  };
 
-  // @ts-expect-error Experimenting
-  const disciplinasMap = new Map([...disciplinas.map((d) => [d._id, d])]);
-  const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
-  const rawEnrollments = (await parseXlsx(request.body)).map(
-    (ufabcDisciplina): any => convertUfabcDisciplinas(ufabcDisciplina as any),
+  const disciplinas = await DisciplinaModel.find(
+    { season },
+    disciplinasMapper,
+  ).lean<Disciplina[]>({ virtuals: true });
+
+  const disciplinasMapping = new Map<string, Disciplina>(
+    disciplinas.map((d) => [d.identifier, d]),
   );
-  const filteredEnrollments: any[] = rawEnrollments
-    .filter((enrollment: Enrollment) => enrollment?.ra)
-    .map((studentEnrollment) =>
-      Object.assign({}, studentEnrollment, { year, quad }),
-    );
-  const enrollments = filteredEnrollments.map((enrollment) => {
+
+  const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
+
+  const sheetEnrollments = await parseXlsx(request.body);
+  const rawEnrollments = sheetEnrollments.map((sheetEnrollment) =>
+    convertUfabcDisciplinas(sheetEnrollment),
+  );
+
+  const userEnrollments = rawEnrollments.filter(
+    //@ts-expect-error
+    (enrollment) => enrollment.ra && enrollment.disciplina,
+  );
+
+  const assignYearAndQuadToEnrollments = userEnrollments.map(
+    (userEnrollments) => Object.assign(userEnrollments, { year, quad }),
+  );
+
+  const enrollments = assignYearAndQuadToEnrollments.map((enrollment) => {
     const enrollmentIdentifier = generateIdentifier(enrollment);
-    // @ts-expect-error Ignore
-    const { id, _id, ...disciplinasWithoutId } =
-      disciplinasMap.get(enrollmentIdentifier) || {};
-    const identifiers = {
+    const neededDisciplinasFields = LodashOmit(
+      disciplinasMapping.get(enrollmentIdentifier) || {},
+      ['id', '_id'],
+    );
+    return Object.assign(neededDisciplinasFields, {
       identifier: generateIdentifier(enrollment, keys as any),
       disciplina_identifier: generateIdentifier(enrollment),
-    };
-    const shallowEnrollment = Object.assign(
-      {},
-      enrollment,
-      identifiers,
-      disciplinasWithoutId,
-    );
-
-    return shallowEnrollment;
+      ...LodashOmit(enrollment, Object.keys(neededDisciplinasFields)),
+    });
   });
 
   const enrollmentsHash = createHash('md5')
@@ -91,51 +92,23 @@ export async function syncEnrollments(
   if (enrollmentsHash !== hash) {
     return {
       hash: enrollmentsHash,
-      size: enrollments.slice(0, 500),
+      size: enrollments.length,
+      sample: enrollments.slice(0, 500),
     };
   }
 
-  const chunkSize = Math.ceil(enrollments.length / 3);
-  const chunks = [];
+  const chunkedEnrollments = chunkArray(enrollments, 1000);
 
-  for (let i = 0; i < enrollments.length; i += chunkSize) {
-    chunks.push(enrollments.slice(i, i + chunkSize));
+  for (const chunk of chunkedEnrollments) {
+    //@ts-expect-error
+    await nextJobs.dispatch('NextEnrollmentsUpdate', chunk);
   }
 
-  // const TW0_MINUTES = 1_000 * 120;
-  // const FOUR_MINUTES = 1_000 * 240;
+  return reply.send({ published: true, msg: 'Enrollments Synced' });
+}
 
-  updateEnrollmentsQueue.add(
-    'Update:Enrollments',
-    {
-      enrollments,
-    },
-    {
-      removeOnComplete: true,
-    },
+function chunkArray<T>(arr: T[], chunkSize: number) {
+  return Array.from({ length: Math.ceil(arr.length / chunkSize) }, (_, i) =>
+    arr.slice(i * chunkSize, i * chunkSize + chunkSize),
   );
-
-  // updateEnrollmentsQueue.add(
-  //   'Update:Enrollments',
-  //   {
-  //     json: chunks[1],
-  //     enrollmentModel: EnrollmentModel,
-  //   },
-  //   {
-  //     delay: TW0_MINUTES,
-  //     removeOnComplete: true,
-  //   },
-  // );
-  // updateEnrollmentsQueue.add(
-  //   'Update:Enrollments',
-  //   {
-  //     json: chunks[1],
-  //     enrollmentModel: EnrollmentModel,
-  //   },
-  //   {
-  //     delay: FOUR_MINUTES,
-  //     removeOnComplete: true,
-  //   },
-  // );
-  return reply.send({ published: true });
 }

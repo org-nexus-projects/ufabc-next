@@ -2,8 +2,7 @@ import { Readable } from 'node:stream';
 import fs from 'node:fs';
 import { ofetch } from 'ofetch';
 import { set_fs, stream, read as xlsxRead, utils as xlsxUtils } from 'xlsx';
-import { logger } from '@next/common';
-import type { Disciplina } from '@/models/index.js';
+import { type convertUfabcDisciplinas, logger } from '@next/common';
 
 set_fs(fs);
 stream.set_readable(Readable);
@@ -24,11 +23,8 @@ type JSONFileData = {
   CODIGO_DA_TURMA: string;
 };
 
-type XLSXOutput = Partial<Disciplina>;
-
-export async function parseXlsx<TBody extends ParseXlSXBody>(
-  body: TBody,
-): Promise<XLSXOutput[]> {
+type Disciplina = ReturnType<typeof convertUfabcDisciplinas>;
+export async function parseXlsx<TBody extends ParseXlSXBody>(body: TBody) {
   const bodyDefaults = {
     link: '',
     rename: [
@@ -45,12 +41,15 @@ export async function parseXlsx<TBody extends ParseXlSXBody>(
   const { SheetNames, Sheets } = xlsxRead(file);
   const fileData = xlsxUtils.sheet_to_json<JSONFileData>(Sheets[SheetNames[0]]);
   const columns = Object.keys(fileData[0]);
-  logger.info({ msg: 'File Columns', columns });
+  logger.info({
+    msg: 'File Columns',
+    columns,
+  });
 
   const parsedEnrollments = fileData.map((enrollment) => {
     const updatedEnrollment = {};
     params.rename.forEach((name) => {
-      // @ts-expect-error WHY IS TS SO FUCKING DUMB
+      // @ts-expect-error
       updatedEnrollment[name.as] = enrollment[name.from];
     });
 
@@ -61,5 +60,5 @@ export async function parseXlsx<TBody extends ParseXlSXBody>(
     );
   });
 
-  return parsedEnrollments as XLSXOutput[];
+  return parsedEnrollments as unknown as Disciplina[];
 }
