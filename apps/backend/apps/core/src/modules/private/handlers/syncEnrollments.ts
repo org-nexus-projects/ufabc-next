@@ -2,8 +2,8 @@ import { createHash } from 'node:crypto';
 import { ofetch } from 'ofetch';
 import { convertUfabcDisciplinas, generateIdentifier } from '@next/common';
 import { omit as LodashOmit } from 'lodash-es';
-import { updateEnrollments } from '@/queue/jobs/enrollmentsUpdate.js';
 import { type Disciplina, DisciplinaModel } from '@/models/index.js';
+import { nextJobs } from '@/queue/NextJobs.js';
 import { type ParseXlSXBody, parseXlsx } from '../../utils/parseXlsx.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
@@ -96,6 +96,19 @@ export async function syncEnrollments(
       sample: enrollments.slice(0, 500),
     };
   }
-  await updateEnrollments(enrollments);
+
+  const chunkedEnrollments = chunkArray(enrollments, 1000);
+
+  for (const chunk of chunkedEnrollments) {
+    //@ts-expect-error
+    await nextJobs.dispatch('NextEnrollmentsUpdate', chunk);
+  }
+
   return reply.send({ published: true, msg: 'Enrollments Synced' });
+}
+
+function chunkArray<T>(arr: T[], chunkSize: number) {
+  return Array.from({ length: Math.ceil(arr.length / chunkSize) }, (_, i) =>
+    arr.slice(i * chunkSize, i * chunkSize + chunkSize),
+  );
 }
