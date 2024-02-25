@@ -49,6 +49,7 @@ export async function parseXlsx<TBody extends ParseXlSXBody>(body: TBody) {
   const parsedEnrollments = fileData.map((enrollment) => {
     const updatedEnrollment = {};
     params.rename.forEach((name) => {
+      // @ts-expect-error
       updatedEnrollment[name.as] = enrollment[name.from];
     });
 
@@ -59,5 +60,5 @@ export async function parseXlsx<TBody extends ParseXlSXBody>(body: TBody) {
     );
   });
 
-  return parsedEnrollments as Disciplina[];
+  return parsedEnrollments as unknown as Disciplina[];
 }

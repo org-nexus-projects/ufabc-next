@@ -43,7 +43,12 @@ export async function syncMatriculasHandler(
         ? await redis.get(cacheKey)
         : {};
 
-      if (isEqual(cachedUfabcMatriculas, ufabcMatricula[ufabcMatriculaIds])) {
+      if (
+        isEqual(
+          cachedUfabcMatriculas,
+          ufabcMatricula[Number(ufabcMatriculaIds)],
+        )
+      ) {
         return cachedUfabcMatriculas;
       }
 
@@ -52,14 +57,14 @@ export async function syncMatriculasHandler(
           season,
           disciplina_id: ufabcMatriculaIds,
         },
-        { [operationMap]: ufabcMatricula[ufabcMatriculaIds] },
+        { [operationMap]: ufabcMatricula[Number(ufabcMatriculaIds)] },
         { upsert: true, new: true },
       );
 
       if (isSyncMatriculas) {
         await redis.set(
           cacheKey,
-          JSON.stringify(ufabcMatricula[ufabcMatriculaIds]),
+          JSON.stringify(ufabcMatricula[Number(ufabcMatriculaIds)]),
         );
       }
       return updatedDisciplinas;
