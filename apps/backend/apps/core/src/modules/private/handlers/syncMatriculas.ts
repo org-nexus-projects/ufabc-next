@@ -31,21 +31,19 @@ export async function syncMatriculasHandler(
     'https://matricula.ufabc.edu.br/cache/matriculas.js',
     { parseResponse: valueToJson },
   );
+
   const ufabcMatricula = parseEnrollments(rawUfabcMatricula);
 
   const start = Date.now();
   const errors = await batchInsertItems(
     Object.keys(ufabcMatricula),
-    // @ts-expect-error Ignore
     async (ufabcMatriculaIds) => {
       const cacheKey = `disciplina_${season}_${ufabcMatriculaIds}`;
       const cachedUfabcMatriculas = isSyncMatriculas
         ? await redis.get(cacheKey)
         : {};
 
-      if (
-        isEqual(cachedUfabcMatriculas, ufabcMatricula[ufabcMatriculaIds as any])
-      ) {
+      if (isEqual(cachedUfabcMatriculas, ufabcMatricula[ufabcMatriculaIds])) {
         return cachedUfabcMatriculas;
       }
 
@@ -54,14 +52,14 @@ export async function syncMatriculasHandler(
           season,
           disciplina_id: ufabcMatriculaIds,
         },
-        { [operationMap]: ufabcMatricula[ufabcMatriculaIds as any] },
+        { [operationMap]: ufabcMatricula[ufabcMatriculaIds] },
         { upsert: true, new: true },
       );
 
       if (isSyncMatriculas) {
         await redis.set(
           cacheKey,
-          JSON.stringify(ufabcMatricula[ufabcMatriculaIds as any]),
+          JSON.stringify(ufabcMatricula[ufabcMatriculaIds]),
         );
       }
       return updatedDisciplinas;
@@ -86,5 +84,6 @@ const parseEnrollments = (data: Record<string, number[]>) => {
       ]);
     });
   }
+
   return matriculas;
 };

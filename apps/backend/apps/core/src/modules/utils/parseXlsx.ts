@@ -49,7 +49,6 @@ export async function parseXlsx<TBody extends ParseXlSXBody>(body: TBody) {
   const parsedEnrollments = fileData.map((enrollment) => {
     const updatedEnrollment = {};
     params.rename.forEach((name) => {
-      // @ts-expect-error WHY IS TS SO FUCKING DUMB
       updatedEnrollment[name.as] = enrollment[name.from];
     });
 
