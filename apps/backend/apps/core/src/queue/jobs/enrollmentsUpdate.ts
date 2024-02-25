@@ -35,9 +35,9 @@ const processEnrollments = async (enrollment: EnrollmentDocument) => {
   }
 };
 
-export function updateEnrollments(data: EnrollmentDocument[]) {
+export async function updateEnrollments(data: EnrollmentDocument[]) {
   try {
-    return batchInsertItems(data, processEnrollments);
+    await batchInsertItems(data, processEnrollments);
   } catch (error) {
     logger.error({ error }, 'Error updating enrollments');
     throw error;
