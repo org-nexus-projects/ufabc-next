@@ -9,6 +9,7 @@ import { graduationsRoute } from './user-graduation/route.js';
 import { reactionRoute } from './reactions/route.js';
 import { historiesRoute } from './histories/route.js';
 import { disciplinasRoute } from './disciplinas/route.js';
+import { studentRoute } from './student/route.js';
 import type { FastifyInstance } from 'fastify';
 
 export async function publicRoutes(app: FastifyInstance) {
@@ -19,6 +20,9 @@ export async function publicRoutes(app: FastifyInstance) {
   });
   await app.register(disciplinasRoute, {
     prefix: '/v2/disciplinas',
+  });
+  await app.register(studentRoute, {
+    prefix: '/v2/students',
   });
 }
 
