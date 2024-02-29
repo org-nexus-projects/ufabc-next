@@ -21,7 +21,7 @@
   "devDependencies": {
     "@sxzz/eslint-config": "^3.7.6",
     "eslint": "^8.54.0",
-    "lint-staged": "^15.1.0",
+    "lint-staged": "^15.2.2",
     "prettier": "^3.1.0",
     "simple-git-hooks": "^2.9.0",
     "turbo": "^1.11.3"
