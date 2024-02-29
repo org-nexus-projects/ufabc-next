@@ -4,13 +4,13 @@ export function findQuadFromDate(month: number) {
   if ([5, 6, 7, 8, 9].includes(month)) return 3;
 }
 
-export function currentQuad(date?: Date) {
+export function currentQuad(date?: Date): `${number}:${1 | 2 | 3}` {
   const { quad, year } = findQuarter(date);
   return `${year}:${quad}`;
 }
 
 type FindQuarter = {
-  quad: number;
+  quad: 1 | 2 | 3;
   year: number;
 };
 
@@ -25,15 +25,15 @@ export function findQuarter(date = new Date()): FindQuarter {
 
   const quarterMap = {
     1: {
-      quad: 1,
+      quad: 1 as const,
       year: date.getFullYear() + (month < 6 ? 0 : 1),
     },
     2: {
-      quad: 2,
+      quad: 2 as const,
       year: date.getFullYear(),
     },
     3: {
-      quad: 3,
+      quad: 3 as const,
       year: date.getFullYear(),
     },
   };
