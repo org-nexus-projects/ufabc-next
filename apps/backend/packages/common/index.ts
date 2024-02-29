@@ -7,3 +7,4 @@ export { calculateCoefficients } from './lib/calculateCoefficients';
 export type { HistoryDiscipline } from './lib/calculateCoefficients';
 export { resolveProfessor } from './lib/resolveProfessors';
 export { validateSubjects, modifyPayload } from './lib/validateSubjects';
+export { courseId, findIds } from './lib/findCourse';
