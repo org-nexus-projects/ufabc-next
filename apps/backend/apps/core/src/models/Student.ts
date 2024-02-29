@@ -6,24 +6,35 @@ import {
 } from 'mongoose';
 import { findQuarter } from '@next/common';
 
+const COURSE_SHIFTS = ['Noturno', 'Matutino'] as const;
+
 const studentSchema = new Schema(
   {
-    ra: Number,
-    login: String,
-    aluno_id: Number,
+    ra: { type: Number, default: '-' },
+    login: { type: String, required: true },
+    aluno_id: { type: Number, required: true },
     cursos: [
       {
-        id_curso: Number,
-        nome_curso: String,
-        cp: Number,
-        cr: Number,
-        ind_afinidade: Number,
-        turno: String,
+        id_curso: { type: Number, required: true },
+        nome_curso: { type: String, required: true },
+        cp: { type: Number, required: true },
+        cr: { type: Number, required: true },
+        ind_afinidade: { type: Number, required: true },
+        turno: { type: String, required: true, enum: COURSE_SHIFTS },
       },
     ],
     year: Number,
-    quad: Number,
-    quads: Number,
+    quad: {
+      type: Number,
+      min: 1,
+      max: 3,
+      default: null,
+    },
+    quads: { type: Number, required: false },
+    season: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true },
 );
