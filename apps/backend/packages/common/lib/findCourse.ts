@@ -8,9 +8,8 @@ import type { Model } from 'mongoose';
 type StudentModel = Model<unknown>;
 
 type CoursesAggregate = {
-  _id: {
-    nome_curso: string;
-  };
+  /** The course name */
+  _id: string;
   ids: {
     id_curso: number;
   }[];
