@@ -5,7 +5,7 @@ import { get as LodashGet } from 'lodash-es';
 import { currentQuad } from './findQuad';
 import type { Model } from 'mongoose';
 
-type StudentModel = Model<unknown>;
+type StudentModel<T> = Model<T>;
 
 type CoursesAggregate = {
   /** The course name */
@@ -14,10 +14,10 @@ type CoursesAggregate = {
     id_curso: number;
   }[];
 };
-export async function courseId(
+export async function courseId<T>(
   rawCourse: string,
   season: ReturnType<typeof currentQuad>,
-  studentModel: StudentModel,
+  studentModel: StudentModel<T>,
 ) {
   const courses = await findIds(season, studentModel);
   const course = clearString(rawCourse);
@@ -33,9 +33,9 @@ export async function courseId(
   return LodashGet(courseMap.get(closestMatch), 'curso_id', null);
 }
 
-export async function findIds(
+export async function findIds<T>(
   season = currentQuad(),
-  StudentModel: StudentModel,
+  StudentModel: StudentModel<T>,
 ) {
   const courses = await StudentModel.aggregate<CoursesAggregate>([
     {
