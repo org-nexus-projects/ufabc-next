@@ -1,11 +1,11 @@
 export type HistoryDiscipline = {
-  periodo: number;
+  periodo: '1' | '2' | '3';
   codigo: string;
   disciplina: string;
   ano: number;
   creditos: number;
-  categoria: string;
-  identifier: string;
+  categoria: '-' | 'Opção Limitada' | 'Obrigatória';
+  identifier?: string;
   situacao:
     | 'Repr.Freq'
     | 'Aprovado'
@@ -55,15 +55,18 @@ export function calculateCoefficients<
       disciplinesCoefficient.set(ano, new Map());
     }
 
-    if (!disciplinesPerYearAndQuad.get(ano)?.has(periodo)) {
-      disciplinesPerYearAndQuad.get(ano)?.set(periodo, []);
+    if (!disciplinesPerYearAndQuad.get(ano)?.has(Number.parseInt(periodo))) {
+      disciplinesPerYearAndQuad.get(ano)?.set(Number.parseInt(periodo), []);
     }
 
-    if (!disciplinesCoefficient.get(ano)?.has(periodo)) {
-      disciplinesCoefficient.get(ano)?.set(periodo, {});
+    if (!disciplinesCoefficient.get(ano)?.has(Number.parseInt(periodo))) {
+      disciplinesCoefficient.get(ano)?.set(Number.parseInt(periodo), {});
     }
 
-    disciplinesPerYearAndQuad.get(ano)?.get(periodo)?.push(disciplina);
+    disciplinesPerYearAndQuad
+      .get(ano)
+      ?.get(Number.parseInt(periodo))
+      ?.push(disciplina);
   }
 
   const unique: Record<string, boolean> = {};
