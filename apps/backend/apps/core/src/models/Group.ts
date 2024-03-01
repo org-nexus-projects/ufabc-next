@@ -1,4 +1,5 @@
 import { type InferSchemaType, Schema, model } from 'mongoose';
+import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 
 const groupSchema = new Schema(
   {
@@ -23,6 +24,8 @@ const groupSchema = new Schema(
 
 groupSchema.index({ users: 'desc' });
 groupSchema.index({ mainTeacher: 'desc', season: 'desc', disciplina: 'desc' });
+
+groupSchema.plugin(mongooseLeanVirtuals);
 
 export type Group = InferSchemaType<typeof groupSchema>;
 export const GroupModel = model('groups', groupSchema);

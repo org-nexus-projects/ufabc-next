@@ -1,4 +1,5 @@
 import { type InferSchemaType, Schema, model } from 'mongoose';
+import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 import type { CoefficientsMap } from './History.js';
 
 type GraduationHistoryCoefficients = Record<number, CoefficientsMap>;
@@ -50,6 +51,7 @@ const graduationHistorySchema = new Schema(
   { timestamps: true },
 );
 
+graduationHistorySchema.plugin(mongooseLeanVirtuals);
 export type GraduationHistory = InferSchemaType<typeof graduationHistorySchema>;
 export const GraduationHistoryModel = model(
   'historiesgraduations',

@@ -4,6 +4,7 @@ import {
   isObjectIdOrHexString,
   model,
 } from 'mongoose';
+import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 import { UserModel } from './User.js';
 import { CommentModel } from './Comment.js';
 import { EnrollmentModel } from './Enrollment.js';
@@ -108,6 +109,8 @@ reactionSchema.post('save', async function () {
 reactionSchema.post<ReactionDocument>('deleteOne', async function () {
   await computeReactions(this);
 });
+
+reactionSchema.plugin(mongooseLeanVirtuals);
 
 reactionSchema.index({ comment: 'asc', kind: 'asc' });
 
