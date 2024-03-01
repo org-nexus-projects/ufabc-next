@@ -24,11 +24,11 @@ type Graduation = {
   limited_credits_number: number;
   free_credits_number: number;
   creditsBreakdown: {
-    year: number | undefined;
-    quad: number | undefined;
-    choosableCredits: number | undefined;
+    year?: number;
+    quad?: number;
+    choosableCredits?: number;
   }[];
-  credits_total: number | undefined;
+  credits_total?: number;
 };
 
 export function calculateCoefficients<

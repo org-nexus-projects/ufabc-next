@@ -1,6 +1,9 @@
 import { calculateCoefficients } from '@next/common';
-import { GraduationModel } from '@/models/Graduation.js';
-import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
+import { type Graduation, GraduationModel } from '@/models/Graduation.js';
+import {
+  type GraduationHistory,
+  GraduationHistoryModel,
+} from '@/models/GraduationHistory.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export async function gradesUser(request: FastifyRequest, reply: FastifyReply) {
@@ -25,7 +28,7 @@ export async function gradesUser(request: FastifyRequest, reply: FastifyReply) {
     graduation = await GraduationModel.findOne({
       curso: lastUserHistory.curso,
       grade: lastUserHistory.grade,
-    }).lean(true);
+    }).lean<Graduation>(true);
   }
 
   const coefficients =
@@ -37,15 +40,15 @@ export async function gradesUser(request: FastifyRequest, reply: FastifyReply) {
   return reply.status(200).send(normalizedHistory);
 }
 
-const normalizeHistory = (history: unknown[]) => {
+const normalizeHistory = (history: GraduationHistory['coefficients']) => {
   const total = [];
 
   for (const graduationYear of Object.keys(history)) {
-    const graduationQuad = history[graduationYear];
+    const graduationQuad = history[Number.parseInt(graduationYear)];
 
     for (const month of Object.keys(graduationQuad)) {
       total.push(
-        Object.assign(graduationQuad[month], {
+        Object.assign(graduationQuad[Number.parseInt(month)], {
           season: `${graduationYear}:${month}`,
           quad: Number.parseInt(month),
           year: Number.parseInt(graduationYear),
