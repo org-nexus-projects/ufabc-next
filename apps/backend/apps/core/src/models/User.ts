@@ -7,7 +7,7 @@ import {
 import { uniqBy } from 'remeda';
 import jwt from 'jsonwebtoken';
 import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
-import { sendConfirmationEmail } from '@/queue/jobs/confirmationEmail.js';
+import { nextJobs } from '@/queue/NextJobs.js';
 import { Config } from '@/config/config.js';
 
 type Device = {
@@ -83,7 +83,7 @@ const userSchema = new Schema(
         const nextUser = this.toObject({
           virtuals: true,
         });
-        await sendConfirmationEmail(nextUser);
+        await nextJobs.dispatch('NextSendEmail', nextUser);
       },
       generateJWT() {
         return jwt.sign(

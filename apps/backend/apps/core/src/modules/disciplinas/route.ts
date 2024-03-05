@@ -2,6 +2,7 @@ import { authenticate } from '@/hooks/authenticate.js';
 import { isAdminValidator } from '../private/isAdmin.js';
 import { listDisciplinas } from './handlers/listDisciplinas.js';
 import { getDisciplinasKicks } from './handlers/getDisciplinasKicks.js';
+import { getDisciplinasStats } from './handlers/getDisciplinasStats.js';
 import {
   type ParseTeachersRequest,
   parseTeachersHandler,
@@ -17,4 +18,5 @@ export async function disciplinasRoute(app: FastifyInstance) {
     { preValidation: [isAdminValidator], onRequest: [authenticate] },
     parseTeachersHandler,
   );
+  app.get('/stats/:action', getDisciplinasStats);
 }

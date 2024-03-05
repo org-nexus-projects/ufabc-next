@@ -5,6 +5,7 @@ import {
   model,
 } from 'mongoose';
 import { findQuarter } from '@next/common';
+import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 
 const COURSE_SHIFTS = ['Noturno', 'Matutino'] as const;
 
@@ -47,6 +48,7 @@ function setQuarter(student: UpdateQuery<Student> | null) {
   student.year = year;
   student.quad = quad;
 }
+studentSchema.plugin(mongooseLeanVirtuals);
 
 studentSchema.pre('save', function () {
   if (!this.year || !this.quad) {

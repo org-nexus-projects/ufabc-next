@@ -1,4 +1,5 @@
 import { type InferSchemaType, Schema, model } from 'mongoose';
+import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 
 const graduationSchema = new Schema(
   {
@@ -27,6 +28,8 @@ const graduationSchema = new Schema(
 );
 
 graduationSchema.index({ curso: 'asc', grade: 'asc' });
+
+graduationSchema.plugin(mongooseLeanVirtuals);
 
 export type Graduation = InferSchemaType<typeof graduationSchema>;
 export type GraduationDocument = ReturnType<

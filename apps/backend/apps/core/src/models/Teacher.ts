@@ -1,5 +1,6 @@
 import { type InferSchemaType, Schema, model } from 'mongoose';
 import { camelCase, startCase } from 'lodash-es';
+import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 
 const teacherSchema = new Schema(
   {
@@ -10,6 +11,8 @@ const teacherSchema = new Schema(
     timestamps: true,
   },
 );
+
+teacherSchema.plugin(mongooseLeanVirtuals);
 
 teacherSchema.pre('save', function () {
   this.name = startCase(camelCase(this.name));

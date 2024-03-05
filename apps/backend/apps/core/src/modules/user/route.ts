@@ -8,6 +8,7 @@ import {
   resendEmailSchema,
   usersInfoSchema,
 } from './schema.js';
+import { gradesUser } from './handlers/gradesUser.js';
 import type { FastifyInstance } from 'fastify';
 
 // eslint-disable-next-line require-await
@@ -16,4 +17,5 @@ export async function userRoute(app: FastifyInstance) {
   app.post('/confirm', { schema: confirmUserSchema }, confirmUser);
   app.post('/resend', { schema: resendEmailSchema }, resendUserEmail);
   app.get('/info', { schema: usersInfoSchema }, loggedUser);
+  app.get('/grades', gradesUser);
 }

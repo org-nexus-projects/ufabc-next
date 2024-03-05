@@ -1,4 +1,5 @@
 import { type InferSchemaType, Schema, model } from 'mongoose';
+import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 import { GroupModel } from './Group.js';
 
 const COMMENT_TYPE = ['teoria', 'pratica'] as const;
@@ -88,6 +89,8 @@ enrollmentSchema.index({
   cr_acumulado: 'asc',
   conceito: 'asc',
 });
+
+enrollmentSchema.plugin(mongooseLeanVirtuals);
 
 enrollmentSchema.pre('save', async function () {
   setTheoryAndPractice(this);
