@@ -47,9 +47,16 @@ export async function listReviews(
   reply: FastifyReply,
 ) {
   const { subjectId } = request.params;
-
+  const { redis } = request.server;
   if (!subjectId) {
     return;
+  }
+
+  const cacheKey = `reviews_${subjectId}`;
+  const cached = await redis.get(cacheKey);
+
+  if (cached) {
+    return cached;
   }
 
   const stats = await reviewsEnrollmentAggregate(subjectId);
@@ -88,6 +95,12 @@ export async function listReviews(
     specific: await TeacherModel.populate(stats, 'teacher'),
   };
 
+  await redis.set(
+    cacheKey,
+    JSON.stringify(reviewSubjectStats),
+    'EX',
+    60 * 60 * 24,
+  );
   await reply.status(200).send(reviewSubjectStats);
 }
 
