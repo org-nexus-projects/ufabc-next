@@ -33,7 +33,7 @@ importers:
         specifier: ^3.481.0
         version: 3.481.0
       '@fastify/cors':
-        specifier: ^8.4.1
+        specifier: ^8.5.0
         version: 8.5.0
       '@fastify/jwt':
         specifier: ^7.2.4

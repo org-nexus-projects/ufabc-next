@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.481.0",
-    "@fastify/cors": "^8.4.1",
+    "@fastify/cors": "^8.5.0",
     "@fastify/jwt": "^7.2.4",
     "@fastify/oauth2": "^7.8.0",
     "@fastify/redis": "^6.1.1",
