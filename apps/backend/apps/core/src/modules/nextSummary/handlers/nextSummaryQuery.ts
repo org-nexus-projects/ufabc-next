@@ -35,7 +35,7 @@ export async function nextUsageInfo() {
     },
     { $project: { _id: 0 } },
   ];
-  const isBeforeKick = await DisciplinaModel.count({
+  const isBeforeKick = await DisciplinaModel.countDocuments({
     before_kick: { $exists: true, $ne: [] },
   });
   const dataKey = isBeforeKick ? '$before_kick' : '$alunos_matriculados';
@@ -69,10 +69,10 @@ export async function nextUsageInfo() {
   try {
     const [users, currentStudents, comments, enrollments, [disciplinaStats]] =
       await Promise.all([
-        UserModel.count({}),
-        StudentModel.count({}),
-        CommentModel.count({}),
-        EnrollmentModel.count({
+        UserModel.countDocuments({}),
+        StudentModel.countDocuments({}),
+        CommentModel.countDocuments({}),
+        EnrollmentModel.countDocuments({
           conceito: { $in: ['A', 'B', 'C', 'D', '0', 'F'] },
         }),
         DisciplinaModel.aggregate<DisciplinaStats>(disciplinaStatsFacetQuery),

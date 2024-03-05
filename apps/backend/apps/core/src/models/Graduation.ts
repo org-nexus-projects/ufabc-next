@@ -14,7 +14,7 @@ const graduationSchema = new Schema(
     mandatory_credits_number: { type: Number, required: true },
     limited_credits_number: { type: Number, required: true },
     free_credits_number: { type: Number, required: true },
-    credits_total: Number,
+    credits_total: { type: Number, required: true },
 
     creditsBreakdown: [
       {
