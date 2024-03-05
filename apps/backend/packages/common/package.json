@@ -25,6 +25,7 @@
   "dependencies": {
     "difflib": "^0.2.4",
     "latinize": "^2.0.0",
+    "mathjs": "^12.4.0",
     "pino": "^8.16.2"
   },
   "devDependencies": {

@@ -7,12 +7,27 @@ import { userRoute } from './user/route.js';
 import { privateRoutes } from './private/route.js';
 import { graduationsRoute } from './user-graduation/route.js';
 import { reactionRoute } from './reactions/route.js';
+import { historiesRoute } from './histories/route.js';
 import { disciplinasRoute } from './disciplinas/route.js';
+import { studentRoute } from './student/route.js';
+import { subjectRoute } from './subjects/route.js';
 import type { FastifyInstance } from 'fastify';
 
 export async function publicRoutes(app: FastifyInstance) {
   await app.register(healthCheckRoute);
   await app.register(summaryRoute);
+  await app.register(historiesRoute, {
+    prefix: '/v2/histories',
+  });
+  await app.register(disciplinasRoute, {
+    prefix: '/v2/disciplinas',
+  });
+  await app.register(studentRoute, {
+    prefix: '/v2/students',
+  });
+  await app.register(subjectRoute, {
+    prefix: '/v2/subjects',
+  });
 }
 
 export async function nextRoutes(app: FastifyInstance) {
@@ -33,9 +48,6 @@ export async function nextRoutes(app: FastifyInstance) {
   });
   await app.register(reactionRoute, {
     prefix: '/reactions',
-  });
-  await app.register(disciplinasRoute, {
-    prefix: '/disciplinas',
   });
 }
 

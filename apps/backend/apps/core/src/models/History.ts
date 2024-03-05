@@ -1,6 +1,7 @@
 import { type InferSchemaType, type Model, Schema, model } from 'mongoose';
 import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 import { updateUserEnrollments } from '@/queue/jobs/userEnrollmentsUpdate.js';
+import { nextJobs } from '@/queue/NextJobs.js';
 
 const CONCEITOS = ['A', 'B', 'C', 'D', 'O', 'F', '-'] as const;
 const POSSIBLE_SITUATIONS = [
@@ -82,11 +83,14 @@ historySchema.index({ curso: 'asc', grade: 'asc' });
 
 historySchema.pre('findOneAndUpdate', async function () {
   const update = this.getUpdate() as History;
-  await updateUserEnrollments(update);
+  await nextJobs.dispatch('NextUserEnrollmentsUpdate', update);
 });
 
 historySchema.post('save', async function () {
-  await updateUserEnrollments(this.toObject({ virtuals: true }));
+  await nextJobs.dispatch(
+    'NextUserEnrollmentsUpdate',
+    this.toObject({ virtuals: true }),
+  );
 });
 
 export const HistoryModel = model<History, THistoryModel>(

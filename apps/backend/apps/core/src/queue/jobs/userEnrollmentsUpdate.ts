@@ -16,8 +16,6 @@ import {
 } from '@/models/index.js';
 import { batchInsertItems } from '../utils/batch-insert.js';
 
-//TODO: Add cache for main teacher and subject
-//TODO: fix the subject model cache
 //TODO: replace _.get with a native function
 
 export async function updateUserEnrollments(history: History) {
@@ -84,10 +82,6 @@ export async function updateUserEnrollments(history: History) {
       Number.parseInt(discipline.periodo!),
     );
 
-    logger.warn({ msg: 'Job update debug', coef });
-
-    //for some reason the cache that is supposed to be in the subject model is not working
-    // the cache key is not native its from a lib
     const subjects = await SubjectModel.find({}).lean(true);
 
     // create enrollment payload
@@ -108,7 +102,6 @@ export async function updateUserEnrollments(history: History) {
 
     await EnrollmentModel.findOneAndUpdate(
       {
-        // TODO: remove any later
         identifier: discipline.identifier,
       },
       modifiedPayload,
@@ -116,16 +109,6 @@ export async function updateUserEnrollments(history: History) {
         new: true,
         upsert: true,
       },
-
-      //   if(enrollment.mainTeacher) {
-      //   const cacheKey = `reviews_${enrollment.mainTeacher}`
-      //   await app.redis.cache.del(cacheKey)
-      // }
-      //
-      // if(enrollment.subject) {
-      //   const cacheKey = `reviews_${enrollment.subject}`
-      //   await app.redis.cache.del(cacheKey)
-      // }
     );
   };
 
