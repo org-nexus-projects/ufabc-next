@@ -117,7 +117,7 @@ const commentSchema = new Schema(
         });
 
         await Promise.all(commentsReaction);
-        return { data: comments, total: await this.count(query) };
+        return { data: comments, total: await this.countDocuments(query) };
       },
     },
     toObject: { virtuals: true },

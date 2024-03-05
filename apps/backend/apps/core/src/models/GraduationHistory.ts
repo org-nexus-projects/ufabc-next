@@ -54,7 +54,7 @@ const GraduationHistoryDisciplinasSchema = new Schema(
       enum: CONCEITOS,
       required: true,
     },
-    identifier: { type: String, required: false },
+    identifier: { type: String, required: false, default: null },
   },
   { _id: false },
 );

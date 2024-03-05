@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "tsup index.ts --dts --format=esm --clean",
-    "build:type-check": "tsc",
+    "tsc": "tsc",
     "lint": "eslint .",
     "lint:fix": "pnpm run lint --fix"
   },

@@ -30,10 +30,10 @@ type HistoryCoefficients = Record<number, CoefficientsMap>;
 
 const historiesDisciplinasSchema = new Schema(
   {
-    periodo: String,
-    codigo: String,
-    disciplina: String,
-    ano: Number,
+    periodo: { type: String, required: true },
+    codigo: { type: String, required: true },
+    disciplina: { type: String, required: true },
+    ano: { type: Number, required: true },
     situacao: {
       type: String,
       enum: POSSIBLE_SITUATIONS,

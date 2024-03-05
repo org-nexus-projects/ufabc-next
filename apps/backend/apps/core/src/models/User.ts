@@ -4,17 +4,10 @@ import {
   type ValidatorProps,
   model,
 } from 'mongoose';
-import { uniqBy } from 'remeda';
 import jwt from 'jsonwebtoken';
 import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 import { nextJobs } from '@/queue/NextJobs.js';
 import { Config } from '@/config/config.js';
-
-type Device = {
-  deviceId: string;
-  token: string;
-  phone: string;
-};
 
 const INTEGRATED_PROVIDERS = ['facebook', 'google'] as const;
 
@@ -69,15 +62,24 @@ const userSchema = new Schema(
   },
   {
     methods: {
-      addDevice(device: Device) {
+      addDevice(device: (typeof this.devices)[number]) {
         this.devices.unshift(device);
-        const uniqueDevice = uniqBy(this.devices, (device) => device.deviceId);
-        this.devices = uniqueDevice;
+
+        const uniqueDevices = [];
+        const uniqueDeviceIds = new Set<(typeof device)['deviceId']>();
+        for (const device of this.devices) {
+          if (!uniqueDeviceIds.has(device.id)) {
+            uniqueDevices.push(device);
+            uniqueDeviceIds.add(device.deviceId);
+          }
+        }
+
+        this.devices = uniqueDevices as typeof this.devices;
       },
       removeDevice(deviceId: string) {
         this.devices = this.devices.filter(
           (device) => device.deviceId !== deviceId,
-        );
+        ) as typeof this.devices;
       },
       async sendConfirmation() {
         const nextUser = this.toObject({

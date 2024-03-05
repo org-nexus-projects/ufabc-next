@@ -5,7 +5,7 @@ export type HistoryDiscipline = {
   ano: number;
   creditos: number;
   categoria: '-' | 'Opção Limitada' | 'Obrigatória';
-  identifier?: string;
+  identifier?: string | null;
   situacao:
     | 'Repr.Freq'
     | 'Aprovado'
@@ -24,9 +24,9 @@ type Graduation = {
   limited_credits_number: number;
   free_credits_number: number;
   creditsBreakdown: {
-    year?: number;
-    quad?: number;
-    choosableCredits?: number;
+    year?: number | null;
+    quad?: number | null;
+    choosableCredits?: number | null;
   }[];
   credits_total?: number;
 };

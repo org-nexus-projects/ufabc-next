@@ -8,7 +8,7 @@
     "check-updates": "pnpm outdated --recursive",
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
-    "build:type-check": "turbo run build:type-check --parallel",
+    "tsc": "turbo run tsc --parallel",
     "start": "turbo run start",
     "start:watch": "turbo run start:watch",
     "lint": "turbo run lint --parallel",
