@@ -11,7 +11,7 @@
     "populate": "node --env-file=.env --import=tsx cli/populate",
     "dev": "tsx watch --clear-screen=false src/server.ts",
     "build": "rimraf dist && node --import=tsx esbuild.ts",
-    "build:type-check": "tsc",
+    "tsc": "tsc",
     "start": "node --env-file=.env.prod dist/server.js",
     "start:watch": "node --env-file=.env.production --watch dist/server.js",
     "test": "vitest run",

@@ -7,7 +7,7 @@
   "author": "",
   "types": "index.ts",
   "scripts": {
-    "build:type-check": "tsc",
+    "tsc": "tsc",
     "lint": "eslint .",
     "lint:fix": "pnpm run lint --fix"
   },

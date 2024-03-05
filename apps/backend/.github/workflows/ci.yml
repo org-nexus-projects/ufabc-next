@@ -48,7 +48,7 @@ jobs:
         run: pnpm lint
 
       - name: 💼 Type Check
-        run: pnpm build:type-check
+        run: pnpm tsc
 
       # - name: 🧪 Test
       #   run: pnpm test

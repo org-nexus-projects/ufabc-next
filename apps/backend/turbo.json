@@ -15,7 +15,7 @@
       "outputs": ["dist/**"],
       "cache": true
     },
-    "build:type-check": {
+    "tsc": {
       "dependsOn": ["^build"],
       "cache": true,
       "outputMode": "errors-only"
