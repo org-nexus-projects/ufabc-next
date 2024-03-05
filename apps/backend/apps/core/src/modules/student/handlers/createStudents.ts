@@ -128,8 +128,8 @@ export async function createStudents(
     course.quads = Number.isFinite(course.quads) ? toNumber(course.quads) : 0;
 
     course.nome_curso = cleanedCourse;
-    // i dont know what those constants are, hope someone more involved in uf can tell me
-    // @monteiro @santana
+    // refer
+    // https://www.ufabc.edu.br/administracao/conselhos/consepe/resolucoes/resolucao-consepe-no-147-define-os-coeficientes-de-desempenho-utilizados-nos-cursos-de-graduacao-da-ufabc
     course.ind_afinidade =
       0.07 * course.cr + 0.63 * course.cp + 0.005 * course.quads;
 
