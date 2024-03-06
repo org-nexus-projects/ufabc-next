@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { buildApp } from './app.js';
 import type { FastifyInstance } from 'fastify';
 
-describe.only('Server', () => {
+describe('Server', () => {
   let app: FastifyInstance;
   beforeAll(async () => {
     app = await buildApp();
