@@ -3,7 +3,6 @@ import { summaryRoute } from './nextSummary/route.js';
 import { enrollmentsRoute } from './enrollments/route.js';
 import { healthCheckRoute } from './healthCheck/route.js';
 import { commentsRoute } from './comments/route.js';
-import { userRoute } from './user/route.js';
 import { privateRoutes } from './private/route.js';
 import { graduationsRoute } from './user-graduation/route.js';
 import { reactionRoute } from './reactions/route.js';
@@ -34,9 +33,6 @@ export async function nextRoutes(app: FastifyInstance) {
   // auth every route from here
   app.addHook('onRequest', authenticate);
 
-  await app.register(userRoute, {
-    prefix: '/users',
-  });
   await app.register(enrollmentsRoute, {
     prefix: '/enrollments',
   });

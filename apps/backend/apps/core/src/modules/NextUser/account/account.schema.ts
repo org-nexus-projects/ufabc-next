@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { UfabcUser } from './sign-up-schema.js';
 import type { FastifySchema } from 'fastify';
 import type { ObjectId } from 'mongoose';
 
@@ -66,6 +65,9 @@ export const completeUserSchema = {
   description:
     'Rota que finaliza o cadastro do usuário após o mesmo criar no link de confirmação do e-mail',
   response: {
-    200: UfabcUser,
+    200: z.object({
+      ra: z.number(),
+      email: z.string().email(),
+    }),
   },
 } satisfies FastifySchema;
