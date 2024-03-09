@@ -3,8 +3,15 @@ import { authenticate } from '@/hooks/authenticate.js';
 import { AccountHandler } from './account.handlers.js';
 import { AccountService } from './account.service.js';
 import { AccountRepository } from './account.repository.js';
+import {
+  completeUserSchema,
+  confirmUserSchema,
+  resendEmailSchema,
+  usersInfoSchema,
+} from './account.schema.js';
 import type { FastifyInstance } from 'fastify';
 
+// eslint-disable-next-line require-await
 export async function accountRoutes(app: FastifyInstance) {
   const nextAccountRepository = new AccountRepository(UserModel);
   const nextAccountService = new AccountService(nextAccountRepository);
@@ -12,20 +19,24 @@ export async function accountRoutes(app: FastifyInstance) {
 
   app.decorate('accountService', nextAccountService);
 
-  app.post('/confirm', nextAccountHandler.confirmNextUser);
+  app.post(
+    '/confirm',
+    { schema: confirmUserSchema },
+    nextAccountHandler.confirmNextUser,
+  );
   app.put<{ Body: { email: string; ra: number } }>(
     '/complete',
-    { onRequest: [authenticate] },
+    { schema: completeUserSchema, onRequest: [authenticate] },
     nextAccountHandler.completeNextUser,
   );
   app.post(
     '/resend',
-    { onRequest: [authenticate] },
+    { schema: resendEmailSchema, onRequest: [authenticate] },
     nextAccountHandler.resendNextEmail,
   );
   app.get(
     '/info',
-    { onRequest: [authenticate] },
+    { schema: usersInfoSchema, onRequest: [authenticate] },
     nextAccountHandler.nextUserInfo,
   );
 }
