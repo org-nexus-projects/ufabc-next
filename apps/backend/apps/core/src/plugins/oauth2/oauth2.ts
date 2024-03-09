@@ -44,9 +44,16 @@ async function oauth2(app: FastifyInstance, opts: NextOauthOptions) {
           await handleOauth.call(this, provider, request, reply, providers);
         } catch (error) {
           // @ts-expect-error fix types
-          reply.log.error({ error: error.data.payload }, 'Error in oauth2');
-          // @ts-expect-error fix types
-          return error.data.payload;
+          if (error?.data?.payload) {
+            // Google Error
+            // @ts-expect-error fix types
+            reply.log.error({ error: error.data.payload }, 'Error in oauth2');
+            // @ts-expect-error fix types
+            return error.data.payload;
+          }
+
+          // Unknwon (probably db) error
+          return reply.internalServerError(`${error}`);
         }
       },
     );
