@@ -6,6 +6,7 @@ import {
 
 import { loadPlugins } from './plugins.js';
 import { internalRoutes, nextRoutes, publicRoutes } from './modules/routes.js';
+import { nextUserRoutes } from './modules/NextUser/nextUser.module.js';
 
 export async function buildApp(opts: FastifyServerOptions = {}) {
   const app = fastify(opts);
@@ -14,6 +15,9 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
   app.setSerializerCompiler(serializerCompiler);
   try {
     await loadPlugins(app);
+    await app.register(nextUserRoutes, {
+      prefix: '/v2',
+    });
     await app.register(publicRoutes);
     await app.register(nextRoutes, {
       prefix: '/v2',
