@@ -14,4 +14,15 @@ export class TeacherService {
     const newTeacher = await this.teacherRepository.insertTeacher(data);
     return newTeacher;
   }
+
+  async setTeacherAlias(teacherId: string, alias: string[]) {
+    const teacherWithAlias = await this.teacherRepository.findAndUpdateTeacher(
+      {
+        _id: teacherId,
+      },
+      { alias },
+    );
+
+    return teacherWithAlias;
+  }
 }

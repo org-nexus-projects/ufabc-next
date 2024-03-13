@@ -8,6 +8,10 @@ import type { FilterQuery } from 'mongoose';
 interface EntitityTeacherRepository {
   findTeacher(options: FilterQuery<Teacher>): Promise<Teacher[] | null>;
   insertTeacher(data: Teacher): Promise<TeacherDocument>;
+  findAndUpdateTeacher(
+    filter: FilterQuery<Teacher>,
+    data: Teacher,
+  ): Promise<Teacher | null>;
 }
 
 export class TeacherRepository implements EntitityTeacherRepository {
@@ -24,5 +28,18 @@ export class TeacherRepository implements EntitityTeacherRepository {
   async insertTeacher(data: Teacher) {
     const newTeacher = await this.teacherService.create(data);
     return newTeacher;
+  }
+
+  async findAndUpdateTeacher(
+    filter: FilterQuery<Teacher>,
+    data: Partial<Teacher>,
+  ) {
+    const updatedTeacher = await this.teacherService.findOneAndUpdate(
+      filter,
+      data,
+      { returnOriginal: false },
+    );
+
+    return updatedTeacher;
   }
 }

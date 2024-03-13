@@ -4,7 +4,6 @@ import { enrollmentsRoute } from './enrollments/route.js';
 import { healthCheckRoute } from './healthCheck/route.js';
 import { commentsRoute } from './comments/route.js';
 import { privateRoutes } from './private/route.js';
-import { graduationsRoute } from './user-graduation/route.js';
 import { reactionRoute } from './reactions/route.js';
 import { disciplinasRoute } from './disciplinas/route.js';
 import { studentRoute } from './student/route.js';
@@ -27,16 +26,13 @@ export async function publicRoutes(app: FastifyInstance) {
 
 export async function nextRoutes(app: FastifyInstance) {
   // auth every route from here
-  app.addHook('onRequest', authenticate);
+  // app.addHook('onRequest', authenticate);
 
   await app.register(enrollmentsRoute, {
     prefix: '/enrollments',
   });
   await app.register(commentsRoute, {
     prefix: '/comments',
-  });
-  await app.register(graduationsRoute, {
-    prefix: '/graduation',
   });
   await app.register(reactionRoute, {
     prefix: '/reactions',

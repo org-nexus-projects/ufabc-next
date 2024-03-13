@@ -3,7 +3,10 @@ import { authenticate } from '@/hooks/authenticate.js';
 import { isAdminHook } from '@/hooks/isAdmin.js';
 import { TeacherRepository } from './teacher.repository.js';
 import { TeacherService } from './teacher.service.js';
-import { TeacherHandler } from './teacher.handlers.js';
+import {
+  TeacherHandler,
+  type UpdateTeacherRequest,
+} from './teacher.handlers.js';
 import type { FastifyInstance } from 'fastify';
 
 // eslint-disable-next-line require-await
@@ -18,5 +21,11 @@ export async function teacherRoutes(app: FastifyInstance) {
     '/private/teacher',
     { onRequest: [authenticate, isAdminHook] },
     teacherHandler.createTeacher,
+  );
+
+  app.put<UpdateTeacherRequest>(
+    '/private/teacher/:teacherId',
+    { onRequest: [authenticate, isAdminHook] },
+    teacherHandler.updateTeacher,
   );
 }

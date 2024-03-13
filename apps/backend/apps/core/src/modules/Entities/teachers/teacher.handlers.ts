@@ -2,6 +2,15 @@ import type { Teacher } from '@/models/Teacher.js';
 import type { TeacherService } from './teacher.service.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
+export type UpdateTeacherRequest = {
+  Body: {
+    alias: string[];
+  };
+  Params: {
+    teacherId: string;
+  };
+};
+
 export class TeacherHandler {
   constructor(private readonly teacherService: TeacherService) {}
 
@@ -20,5 +29,24 @@ export class TeacherHandler {
     }
     const createdTeacher = await this.teacherService.insertTeacher(teacher);
     return createdTeacher;
+  }
+
+  async updateTeacher(
+    request: FastifyRequest<UpdateTeacherRequest>,
+    reply: FastifyReply,
+  ) {
+    const { teacherId } = request.params;
+    const { alias } = request.body;
+
+    if (!teacherId) {
+      return reply.badRequest('Missing teacherId');
+    }
+
+    const teacherWithAlias = await this.teacherService.setTeacherAlias(
+      teacherId,
+      alias,
+    );
+
+    return teacherWithAlias;
   }
 }
