@@ -23,6 +23,15 @@ export class CourseStatsService {
     return crDistribution;
   }
 
+  async userGraduationHistory(ra: number) {
+    const graduationHistory =
+      await this.courseStatsRepository.findUserGraduationHistory({
+        ra,
+      });
+
+    return graduationHistory;
+  }
+
   private createDistributionGroup(totalPoints: number, inc: number) {
     // i still dont know what this code serves for
     const branches = [...Array.from({ length: totalPoints }).keys()].map(

@@ -1,3 +1,4 @@
+import type { FastifyRequest } from 'fastify';
 import type { CourseStatsService } from './courseStats.service.js';
 
 export class CourseStatsHandlers {
@@ -23,5 +24,14 @@ export class CourseStatsHandlers {
     }
 
     return distributions;
+  }
+
+  async graduationHistory(
+    request: FastifyRequest<{ Querystring: { ra: number } }>,
+  ) {
+    const userHistory = await this.courseStatsService.userGraduationHistory(
+      request.user?.ra ?? request.query.ra,
+    );
+    return { docs: userHistory };
   }
 }
