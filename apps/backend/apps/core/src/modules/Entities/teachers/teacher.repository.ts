@@ -3,7 +3,12 @@ import type {
   TeacherDocument,
   TeacherModel,
 } from '@/models/Teacher.js';
-import type { FilterQuery } from 'mongoose';
+import type { FilterQuery, PipelineStage } from 'mongoose';
+
+type SearchAggregate = {
+  total: number;
+  data: Teacher[];
+};
 
 interface EntitityTeacherRepository {
   findTeacher(options: FilterQuery<Teacher>): Promise<Teacher[] | null>;
@@ -12,6 +17,7 @@ interface EntitityTeacherRepository {
     filter: FilterQuery<Teacher>,
     data: Teacher,
   ): Promise<Teacher | null>;
+  searchTeacher(pipeline: PipelineStage[]): Promise<SearchAggregate[]>;
 }
 
 export class TeacherRepository implements EntitityTeacherRepository {
@@ -41,5 +47,11 @@ export class TeacherRepository implements EntitityTeacherRepository {
     );
 
     return updatedTeacher;
+  }
+
+  async searchTeacher(pipeline: PipelineStage[]) {
+    const searchResults =
+      await this.teacherService.aggregate<SearchAggregate>(pipeline);
+    return searchResults;
   }
 }

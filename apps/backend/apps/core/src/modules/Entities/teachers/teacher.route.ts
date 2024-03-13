@@ -28,4 +28,10 @@ export async function teacherRoutes(app: FastifyInstance) {
     { onRequest: [authenticate, isAdminHook] },
     teacherHandler.updateTeacher,
   );
+
+  app.get<{ Querystring: { q: string } }>(
+    '/teacher/search',
+    { onRequest: [authenticate] },
+    teacherHandler.searchTeacher,
+  );
 }

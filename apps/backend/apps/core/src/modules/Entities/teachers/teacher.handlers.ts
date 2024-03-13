@@ -1,3 +1,4 @@
+import { camelCase, startCase } from 'lodash-es';
 import type { Teacher } from '@/models/Teacher.js';
 import type { TeacherService } from './teacher.service.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
@@ -48,5 +49,18 @@ export class TeacherHandler {
     );
 
     return teacherWithAlias;
+  }
+
+  async searchTeacher(request: FastifyRequest<{ Querystring: { q: string } }>) {
+    const { q: rawSearch } = request.query;
+    const normalizedSearch = startCase(camelCase(rawSearch));
+    const validatedSearch = normalizedSearch.replaceAll(
+      /[\s#$()*+,.?[\\\]^{|}-]/g,
+      '\\$&',
+    );
+
+    const search = new RegExp(validatedSearch, 'gi');
+    const searchResults = await this.teacherService.findTeacher(search);
+    return searchResults;
   }
 }
