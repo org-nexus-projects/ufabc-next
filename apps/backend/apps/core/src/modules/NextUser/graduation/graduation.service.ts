@@ -12,4 +12,10 @@ export class GraduationService {
     );
     return graduations;
   }
+
+  async findGraduationsSubject() {
+    const graduationsSubject =
+      await this.graduationRepository.findGraduationSubject({});
+    return graduationsSubject;
+  }
 }

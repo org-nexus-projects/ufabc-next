@@ -11,4 +11,11 @@ export class GraduationHandler {
     const graduations = await this.graduationService.findGraduations({}, limit);
     return graduations;
   }
+
+  async listGraduationsSubjects() {
+    // TODO: use request.query on service
+    const graduationsSubjects =
+      await this.graduationService.findGraduationsSubject();
+    return graduationsSubjects;
+  }
 }
