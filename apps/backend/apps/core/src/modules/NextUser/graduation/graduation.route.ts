@@ -10,7 +10,7 @@ export async function graduationRoutes(app: FastifyInstance) {
   const graduationService = new GraduationService(graduationRepository);
   const graduationHandler = new GraduationHandler(graduationService);
 
-  app.decorate('graduationService', graduationHandler);
+  app.decorate('graduationService', graduationService);
 
-  app.post('/', graduationHandler.listGraduations);
+  app.get('/', graduationHandler.listGraduations);
 }
