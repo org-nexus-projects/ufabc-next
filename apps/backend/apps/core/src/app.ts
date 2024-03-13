@@ -7,6 +7,7 @@ import {
 import { loadPlugins } from './plugins.js';
 import { internalRoutes, nextRoutes, publicRoutes } from './modules/routes.js';
 import { nextUserRoutes } from './modules/NextUser/nextUser.module.js';
+import { entitiesModule } from './modules/Entities/entities.module.js';
 
 export async function buildApp(opts: FastifyServerOptions = {}) {
   const app = fastify(opts);
@@ -16,6 +17,9 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
   try {
     await loadPlugins(app);
     await app.register(nextUserRoutes, {
+      prefix: '/v2',
+    });
+    await app.register(entitiesModule, {
       prefix: '/v2',
     });
     await app.register(publicRoutes);

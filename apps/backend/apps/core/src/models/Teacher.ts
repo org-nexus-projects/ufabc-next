@@ -19,4 +19,5 @@ teacherSchema.pre('save', function () {
 });
 
 export type Teacher = InferSchemaType<typeof teacherSchema>;
+export type TeacherDocument = ReturnType<(typeof TeacherModel)['hydrate']>;
 export const TeacherModel = model('teachers', teacherSchema);
