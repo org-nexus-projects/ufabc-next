@@ -1,8 +1,12 @@
 import { teacherRoutes } from './teachers/teacher.route.js';
+import { subjectsRoute } from './subjects/subjects.route.js';
 import type { FastifyInstance } from 'fastify';
 
 export async function entitiesModule(app: FastifyInstance) {
   await app.register(teacherRoutes, {
+    prefix: '/entities',
+  });
+  await app.register(subjectsRoute, {
     prefix: '/entities',
   });
 }
