@@ -41,12 +41,12 @@ export function findQuarter(date = new Date()): FindQuarter {
   return quarterMap[quadKey || month];
 }
 
-export function lastQuad(date: Date = new Date()) {
+export function lastQuad(date: Date = new Date()): FindQuarter {
   const season = findQuarter(date);
 
   if (season.quad === 1) {
     return { year: season.year - 1, quad: 3 };
   }
 
-  return { year: season.year, quad: season.quad - 1 };
+  return { year: season.year, quad: (season.quad - 1) as FindQuarter['quad'] };
 }

@@ -65,4 +65,5 @@ studentSchema.pre('findOneAndUpdate', function () {
 });
 
 export type Student = InferSchemaType<typeof studentSchema>;
+export type StudentDocument = ReturnType<(typeof StudentModel)['hydrate']>;
 export const StudentModel = model('alunos', studentSchema);

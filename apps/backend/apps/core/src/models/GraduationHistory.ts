@@ -20,14 +20,13 @@ const POSSIBLE_SITUATIONS = [
 const CATEGORIES = ['-', 'Opção Limitada', 'Obrigatória'] as const;
 const PERIODO = ['1', '2', '3'] as const;
 
-type GraduationHistoryCoefficients = Record<number, CoefficientsMap>;
 type GraduationHistory = {
   ra: number;
   disciplinas: InferSchemaType<typeof GraduationHistoryDisciplinasSchema>[];
   curso: string;
   grade: string;
   graduation: Types.ObjectId;
-  coefficients: GraduationHistoryCoefficients[];
+  coefficients: Record<number, CoefficientsMap>;
 };
 
 type GraduationHistoryModel = Model<GraduationHistory, {}>;
