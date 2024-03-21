@@ -29,4 +29,28 @@ export class DisciplinaService {
     );
     return discplinas;
   }
+
+  async findDisciplina(
+    season: ReturnType<typeof currentQuad>,
+    disciplinaId: number,
+  ) {
+    const disciplina = await this.disciplinaRepository.findOne({
+      season,
+      disciplina_id: disciplinaId,
+    });
+    return disciplina;
+  }
+
+  async findStudentCourses(
+    season: ReturnType<typeof currentQuad>,
+    kickedsId: number[],
+  ) {
+    const students = await this.disciplinaRepository.findCursos([
+      {
+        $match: { season, aluno_id: { $in: kickedsId } },
+      },
+      { $unwind: '$cursos' },
+    ]);
+    return students;
+  }
 }
