@@ -1,7 +1,9 @@
-import { currentQuad } from '@next/common';
+import { sortBy as LodashSortBy } from 'lodash-es';
+import { courseId, currentQuad } from '@next/common';
+import { StudentModel } from '@/models/Student.js';
 import type { Disciplina } from '@/models/Disciplina.js';
-import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { DisciplinaService } from './disciplina.service.js';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
 type DisciplinaKicksRequest = {
   Params: {
@@ -71,15 +73,62 @@ export class DisciplinaHandler {
     const kickedsMap = new Map(
       resolveKicked.map((kicked) => [kicked.aluno_id, kicked]),
     );
-    const students = await StudentModel.aggregate<StudentAggregate>([
-      {
-        $match: {
-          season,
-          aluno_id: { $in: resolveKicked.map((kicked) => kicked.aluno_id) },
+    const students = await this.disciplinaService.findStudentCourses(
+      season,
+      resolveKicked.map((kick) => kick.aluno_id),
+    );
+
+    const interIds = [
+      await courseId(
+        'Bacharelado em Ciência e Tecnologia',
+        season,
+        // TODO(Joabe): refac later
+        StudentModel,
+      ),
+      await courseId(
+        'Bacharelado em Ciências e Humanidades',
+        season,
+        // TODO(Joabe): refac later
+        StudentModel,
+      ),
+    ];
+
+    const obrigatorias = getObrigatoriasFromDisciplinas(
+      disciplina.obrigatorias,
+      ...interIds,
+    );
+
+    const studentsWithGraduationInfo = students.map((student) => {
+      const reserva = obrigatorias.includes(student.cursos.id_curso);
+      const graduationToStudent = Object.assign(
+        {
+          aluno_id: student.aluno_id,
+          cr: '-',
+          cp: student.cursos.cp,
+          ik: reserva ? student.cursos.ind_afinidade : 0,
+          reserva,
+          turno: student.cursos.turno,
+          curso: student.cursos.nome_curso,
         },
-      },
-      { $unwind: '$cursos' },
-    ]);
+        kickedsMap.get(student.aluno_id) || {},
+      );
+
+      return graduationToStudent;
+    });
+
+    const sortedStudents = LodashSortBy(studentsWithGraduationInfo, kicks);
+
+    const uniqueStudents = [];
+    const uniqueStudentIds = new Set();
+
+    for (const student of sortedStudents) {
+      if (!uniqueStudentIds.has(student.aluno_id)) {
+        uniqueStudents.push(student);
+        uniqueStudentIds.add(student.aluno_id);
+      }
+    }
+
+    return uniqueStudents;
   }
 }
 
@@ -130,6 +179,14 @@ function resolveMatricula(disciplina: Disciplina, isAfterKick: number) {
     aluno_id: student,
     kicked: kicked.includes(student),
   }));
+}
+
+function getObrigatoriasFromDisciplinas(
+  obrigatorias: number[],
+  ...filterList: Awaited<ReturnType<typeof courseId>>[]
+) {
+  const removeSet = new Set(filterList);
+  return obrigatorias.filter((obrigatoria) => !removeSet.has(obrigatoria));
 }
 
 const differenceOnKicks = (beforeKick: number[], afterKick: number[]) =>
