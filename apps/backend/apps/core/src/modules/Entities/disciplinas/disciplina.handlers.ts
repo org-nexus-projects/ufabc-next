@@ -5,7 +5,7 @@ import type { Disciplina } from '@/models/Disciplina.js';
 import type { DisciplinaService } from './disciplina.service.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-type DisciplinaKicksRequest = {
+export type DisciplinaKicksRequest = {
   Params: {
     disciplinaId: number;
   };

@@ -4,16 +4,13 @@ import { healthCheckRoute } from './healthCheck/route.js';
 import { commentsRoute } from './comments/route.js';
 import { privateRoutes } from './private/route.js';
 import { reactionRoute } from './reactions/route.js';
-import { disciplinasRoute } from './disciplinas/route.js';
+
 import { subjectRoute } from './subjects/route.js';
 import type { FastifyInstance } from 'fastify';
 
 export async function publicRoutes(app: FastifyInstance) {
   await app.register(healthCheckRoute);
   await app.register(summaryRoute);
-  await app.register(disciplinasRoute, {
-    prefix: '/v2/disciplinas',
-  });
   await app.register(subjectRoute, {
     prefix: '/v2/subjects',
   });
