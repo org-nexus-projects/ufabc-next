@@ -10,5 +10,6 @@ export function valueToJson(payload: string, max?: number) {
   if (max) {
     return json.slice(0, max);
   }
+
   return json;
 }

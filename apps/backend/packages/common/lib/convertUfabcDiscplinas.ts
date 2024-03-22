@@ -114,8 +114,8 @@ export function convertUfabcDisciplinas(disciplina: Disciplina) {
   ufabcDisciplina.pop();
 
   // fix disciplina
-  clonedDisciplinas.disciplina = ufabcDisciplina.join(' ').trim();
-
+  const rawUabcDisciplina = ufabcDisciplina.join(' ').trim();
+  clonedDisciplinas.disciplina = toTitleCase(rawUabcDisciplina);
   clonedDisciplinas.disciplina_id = clonedDisciplinas.id;
 
   cleanTeoriaAndPraticaFields(clonedDisciplinas);
@@ -186,3 +186,9 @@ function cleanTeoriaAndPraticaFields(disciplina: Disciplina) {
     disciplina.pratica = cleanTeacher(removeLineBreaks(disciplina.pratica));
   }
 }
+
+const toTitleCase = (str: string) => {
+  return str
+    .toLowerCase()
+    .replaceAll(/(?:^|\s)\w/g, (match) => match.toUpperCase());
+};

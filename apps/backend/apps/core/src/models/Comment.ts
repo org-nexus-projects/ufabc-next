@@ -164,4 +164,5 @@ commentSchema.index({
 });
 
 export type Comment = InferSchemaType<typeof commentSchema>;
+export type CommentDocument = ReturnType<(typeof CommentModel)['hydrate']>;
 export const CommentModel = model('comments', commentSchema);

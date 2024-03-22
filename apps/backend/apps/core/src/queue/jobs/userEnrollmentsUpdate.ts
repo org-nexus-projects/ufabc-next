@@ -1,7 +1,6 @@
 import {
   calculateCoefficients,
   generateIdentifier,
-  logger,
   modifyPayload,
 } from '@next/common';
 import { get } from 'lodash-es';
@@ -28,7 +27,6 @@ export async function updateUserEnrollments(history: History) {
     : [history.disciplinas];
 
   const disciplinesArr = isDisciplines.filter(Boolean);
-  logger.warn({ msg: 'Disciplines arr debug', disciplinesArr });
 
   let graduation: GraduationDocument | null = null;
   if (history.curso && history.grade) {
