@@ -61,13 +61,10 @@ describe('common.lib.convertUfabcDisciplinas', () => {
     const resp = convertUfabcDisciplinas({
       nome: 'Aeronáutica I-A (quantas coisas e ---) A3   -    São Bernardo Noturno',
     });
-    assert.strictEqual(
-      resp?.disciplina,
-      'Aeronáutica I-A (quantas coisas e ---)',
-    );
-    assert.strictEqual(resp?.turma, 'A3');
-    assert.strictEqual(resp?.campus, 'sao bernardo');
-    assert.strictEqual(resp?.turno, 'noturno');
+    assert.equal(resp?.disciplina, 'Aeronáutica I-a (quantas Coisas E ---)');
+    assert.equal(resp?.turma, 'A3');
+    assert.equal(resp?.campus, 'sao bernardo');
+    assert.equal(resp?.turno, 'noturno');
   });
 
   it('should parse with scape characters', () => {
@@ -75,7 +72,17 @@ describe('common.lib.convertUfabcDisciplinas', () => {
     const resp = convertUfabcDisciplinas({
       nome: 'Dinâmica de Fluidos Computacional A-diurno (Santo André) - MINISTRADA EM INGLÊS',
     });
-    assert.deepEqual(resp!.disciplina, 'Dinâmica de Fluidos Computacional');
+    assert.deepEqual(resp?.disciplina, 'Dinâmica De Fluidos Computacional');
+  });
+
+  it('should parse with scape characters and validate title case', () => {
+    // @ts-expect-error Unit test and types are hard
+    const resp = convertUfabcDisciplinas({
+      nome: 'DINÂMICA DE FLUIDOS COMPUTACIONAL A-DIURNO (SANTO ANDRÉ) - MINISTRADA EM INGLÊS',
+    });
+    const expectedDisciplina = 'Dinâmica De Fluidos Computacional';
+
+    assert.equal(resp?.disciplina, expectedDisciplina);
   });
 
   it('should work without `-`', { skip: 'Not yet implemented' }, () => {

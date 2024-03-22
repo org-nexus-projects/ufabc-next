@@ -187,9 +187,8 @@ function cleanTeoriaAndPraticaFields(disciplina: Disciplina) {
   }
 }
 
-function toTitleCase(str: string) {
-  return str.replaceAll(
-    /\w\S*/g,
-    (txt) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase(),
-  );
-}
+const toTitleCase = (str: string) => {
+  return str
+    .toLowerCase()
+    .replaceAll(/(?:^|\s)\w/g, (match) => match.toUpperCase());
+};
