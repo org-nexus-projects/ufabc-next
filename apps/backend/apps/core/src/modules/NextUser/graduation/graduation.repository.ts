@@ -17,11 +17,11 @@ interface UserGraduationRepository {
   // GraduationSubject CRUD
   findGraduationSubject(
     options: FilterQuery<GraduationSubject>,
-  ): Promise<GraduationSubject>;
-  updateGraduationSubject(
+  ): Promise<GraduationSubject[]>;
+  updateGraduationSubject?(
     options: FilterQuery<GraduationSubject>,
   ): Promise<GraduationSubject>;
-  createGraduationSubject(
+  createGraduationSubject?(
     options: FilterQuery<GraduationSubject>,
   ): Promise<GraduationSubject>;
 }

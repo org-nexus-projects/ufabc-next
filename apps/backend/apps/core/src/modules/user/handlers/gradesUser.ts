@@ -48,6 +48,7 @@ const normalizeHistory = (history: GraduationHistory['coefficients']) => {
 
     for (const month of Object.keys(graduationQuad)) {
       total.push(
+        // @ts-expect-error Ignore for now
         Object.assign(graduationQuad[Number.parseInt(month)], {
           season: `${graduationYear}:${month}`,
           quad: Number.parseInt(month),

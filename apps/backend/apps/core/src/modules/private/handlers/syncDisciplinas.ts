@@ -15,6 +15,7 @@ export type SyncDisciplinasRequest = {
   // Rename subjects that we already have
   Body: { mappings?: Record<string, string> };
 };
+
 type UfabcDisciplina = ReturnType<typeof convertUfabcDisciplinas>;
 
 export async function syncDisciplinasHandler(
@@ -23,15 +24,14 @@ export async function syncDisciplinasHandler(
 ) {
   const { mappings } = request.body || {};
   const season = currentQuad();
-  const rawUfabcDisciplinas = await ofetch(
+  const rawUfabcDisciplinas = await ofetch<any[]>(
     'https://matricula.ufabc.edu.br/cache/todasDisciplinas.js',
     {
       parseResponse: valueToJson,
     },
   );
   const UfabcDisciplinas: UfabcDisciplina[] = rawUfabcDisciplinas.map(
-    // eslint-disable-next-line unicorn/no-array-callback-reference
-    convertUfabcDisciplinas,
+    (ufabcDisciplina) => convertUfabcDisciplinas(ufabcDisciplina),
   );
 
   if (!UfabcDisciplinas) {

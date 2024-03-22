@@ -18,7 +18,7 @@ export async function graduationRoutes(app: FastifyInstance) {
 
   app.decorate('graduationService', graduationService);
 
-  app.get(
+  app.get<{ Querystring: { limit: number } }>(
     '/',
     { onRequest: [authenticate] },
     graduationHandler.listGraduations,

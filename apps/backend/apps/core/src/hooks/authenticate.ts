@@ -36,7 +36,7 @@ export const authenticate: onRequestAsyncHookHandler = async (request) => {
       throw new Error('User does not exist or have been deactivated');
     }
   } catch (error) {
-    logger.error({ error }, 'error authenticating user');
+    logger.error(error, 'error authenticating user');
     throw error;
   }
 };

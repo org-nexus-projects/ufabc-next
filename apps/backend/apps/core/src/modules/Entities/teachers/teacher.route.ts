@@ -19,7 +19,7 @@ export async function teacherRoutes(app: FastifyInstance) {
   app.get('/teacher', teacherHandler.listAllTeachers);
   app.post<{ Body: Teacher }>(
     '/private/teacher',
-    // { onRequest: [authenticate, isAdminHook] },
+    { onRequest: [authenticate, isAdminHook] },
     teacherHandler.createTeacher,
   );
 
