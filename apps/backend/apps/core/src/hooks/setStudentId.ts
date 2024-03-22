@@ -1,5 +1,5 @@
-import { StudentModel } from '@/models/Student.js';
 import { currentQuad } from '@next/common';
+import { StudentModel } from '@/models/Student.js';
 import type { onRequestAsyncHookHandler } from 'fastify';
 
 export const setStudentId: onRequestAsyncHookHandler = async (
