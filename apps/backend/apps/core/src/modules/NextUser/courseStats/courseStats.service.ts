@@ -28,8 +28,25 @@ export class CourseStatsService {
       await this.courseStatsRepository.findUserGraduationHistory({
         ra,
       });
-
     return graduationHistory;
+  }
+
+  async recentUserGraduationHistory(ra: number) {
+    const lastHistory =
+      await this.courseStatsRepository.findMostRecentGraduationHistory({
+        ra,
+      });
+
+    return lastHistory;
+  }
+
+  async findGraduation(curso: string, grade: string) {
+    const graduation = await this.courseStatsRepository.findGraduation({
+      curso,
+      grade,
+    });
+
+    return graduation;
   }
 
   private createDistributionGroup(totalPoints: number, inc: number) {
