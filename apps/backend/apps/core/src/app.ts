@@ -5,9 +5,10 @@ import {
 } from 'fastify-type-provider-zod';
 
 import { loadPlugins } from './plugins.js';
-import { internalRoutes, nextRoutes, publicRoutes } from './modules/routes.js';
-import { nextUserRoutes } from './modules/NextUser/nextUser.module.js';
+import { internalRoutes, nextRoutes } from './modules/routes.js';
+import { nextUserModule } from './modules/NextUser/nextUser.module.js';
 import { entitiesModule } from './modules/Entities/entities.module.js';
+import { publicModule } from './modules/Public/public.module.js';
 
 export async function buildApp(opts: FastifyServerOptions = {}) {
   const app = fastify(opts);
@@ -16,13 +17,15 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
   app.setSerializerCompiler(serializerCompiler);
   try {
     await loadPlugins(app);
-    await app.register(nextUserRoutes, {
+    await app.register(nextUserModule, {
       prefix: '/v2',
     });
     await app.register(entitiesModule, {
       prefix: '/v2',
     });
-    await app.register(publicRoutes);
+    await app.register(publicModule, {
+      prefix: '/v2',
+    });
     await app.register(nextRoutes, {
       prefix: '/v2',
     });
@@ -30,7 +33,7 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
       prefix: '/v2',
     });
   } catch (error) {
-    app.log.fatal({ error }, 'build app error');
+    app.log.fatal(error, 'build app error');
     throw error;
   }
 

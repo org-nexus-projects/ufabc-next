@@ -1,7 +1,7 @@
 import { STATES, connections } from 'mongoose';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-export async function healthCheck(
+export async function getStatusCheck(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
@@ -17,7 +17,7 @@ export async function healthCheck(
       redisStatus: isRedisUp,
     });
   } catch (error) {
-    request.log.error({ error }, 'Error in healthCheck route');
+    request.log.error(error, 'Error in healthCheck route');
     throw error;
   }
 }
