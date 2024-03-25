@@ -856,6 +856,18 @@
     <script src="assets/js/contact.js"></script>
     <script src="assets/js/custom.js"></script>
     <script type="text/javascript">
+      const resolveEndpoint = (origin) => {
+        if (origin === 'file://') {
+          // local backend
+          return 'http://localhost:8011/v1/connect/google';
+        } else if (origin.includes('dev')) {
+          // staging url
+          return '';
+        } else {
+          // production url
+          return 'https://api.ufabcnext.com/connect/google';
+        }
+      };
       var template = $('#stats-counter').html();
       Mustache.parse(template);
       var rendered = Mustache.render(template, {
@@ -871,7 +883,7 @@
         'https://addons.mozilla.org/pt-BR/firefox/addon/ufabc-next/';
       const TEACHER_FORM =
         'https://docs.google.com/forms/d/e/1FAIpQLSfbwaJCw-t4SlHJ4akwQNCMNAEBREDcdfrqHs7ROhkuUUwDRQ/viewform?usp=sf_link';
-      const GOOGLE_LINK = 'https://api.ufabcnext.com/connect/google';
+      const GOOGLE_LINK = resolveEndpoint(window.location.origin);
       const ANDROID_URL =
         'https://play.google.com/store/apps/details?id=com.ufabcnext';
       const IOS_URL = 'https://apps.apple.com/us/app/id1505243398';
