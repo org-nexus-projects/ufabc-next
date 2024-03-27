@@ -1,4 +1,5 @@
 import { accountRoutes } from './account/account.route.js';
+import { commentRoute } from './comments/comments.route.js';
 import { courseStatsRoute } from './courseStats/courseStats.route.js';
 import { graduationRoutes } from './graduation/graduation.route.js';
 import { historyRoutes } from './history/history.route.js';
@@ -16,5 +17,8 @@ export async function nextUserModule(app: FastifyInstance) {
   });
   await app.register(courseStatsRoute, {
     prefix: '/courseStats',
+  });
+  await app.register(commentRoute, {
+    prefix: '/comments',
   });
 }
