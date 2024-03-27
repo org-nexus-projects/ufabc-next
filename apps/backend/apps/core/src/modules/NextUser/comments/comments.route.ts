@@ -3,14 +3,15 @@ import { authenticate } from '@/hooks/authenticate.js';
 import { EnrollmentModel } from '@/models/Enrollment.js';
 import { CommentRepository } from './comments.repository.js';
 import { CommentService } from './comments.service.js';
-import type { FastifyInstance } from 'fastify';
-import type { ObjectId } from 'mongoose';
 import {
   CommentHandler,
   type CreateCommentRequest,
   type UpdateCommentRequest,
 } from './comments.handlers.js';
+import type { FastifyInstance } from 'fastify';
+import type { ObjectId } from 'mongoose';
 
+// eslint-disable-next-line require-await
 export async function commentRoute(app: FastifyInstance) {
   const commentRepository = new CommentRepository(
     CommentModel,
