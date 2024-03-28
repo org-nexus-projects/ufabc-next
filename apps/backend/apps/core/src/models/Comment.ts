@@ -55,14 +55,17 @@ const commentSchema = new Schema(
       like: {
         type: Number,
         default: 0,
+        required: false,
       },
       recommendation: {
         type: Number,
         default: 0,
+        required: false,
       },
       star: {
         type: Number,
         default: 0,
+        required: false,
       },
     },
   },

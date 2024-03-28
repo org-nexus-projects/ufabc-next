@@ -9,7 +9,7 @@ import {
   type UpdateCommentRequest,
 } from './comments.handlers.js';
 import type { FastifyInstance } from 'fastify';
-import type { ObjectId } from 'mongoose';
+import type { Types } from 'mongoose';
 
 // eslint-disable-next-line require-await
 export async function commentRoute(app: FastifyInstance) {
@@ -33,13 +33,13 @@ export async function commentRoute(app: FastifyInstance) {
     commentHandler.updateComment,
   );
 
-  app.delete<{ Params: { commentId: ObjectId } }>(
+  app.delete<{ Params: { commentId: Types.ObjectId } }>(
     '/:commentId',
     { onRequest: [authenticate] },
     commentHandler.deleteComment,
   );
 
-  app.get<{ Params: { userId: ObjectId } }>(
+  app.get<{ Params: { userId: Types.ObjectId } }>(
     '/:userId/missing',
     { onRequest: [authenticate] },
     commentHandler.missingComment,

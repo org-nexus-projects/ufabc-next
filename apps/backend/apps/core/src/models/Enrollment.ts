@@ -26,14 +26,17 @@ const enrollmentSchema = new Schema(
     teoria: {
       type: Schema.Types.ObjectId,
       ref: 'teachers',
+      required: false,
     },
     pratica: {
       type: Schema.Types.ObjectId,
       ref: 'teachers',
+      required: false,
     },
     mainTeacher: {
       type: Schema.Types.ObjectId,
       ref: 'teachers',
+      required: false,
     },
     comments: [
       {

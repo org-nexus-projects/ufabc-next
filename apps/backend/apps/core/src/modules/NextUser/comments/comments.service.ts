@@ -1,11 +1,11 @@
-import type { ObjectId } from 'mongoose';
+import type { Types } from 'mongoose';
 import type { CommentRepository } from './comments.repository.js';
 import type { Comment } from '@/models/Comment.js';
 
 export class CommentService {
   constructor(private readonly commentRepository: CommentRepository) {}
 
-  async findEnrollmentById(enrollmentId: ObjectId) {
+  async findEnrollmentById(enrollmentId: Types.ObjectId) {
     const enrollment =
       await this.commentRepository.findEnrollmentById(enrollmentId);
     return enrollment;
@@ -16,7 +16,7 @@ export class CommentService {
     return createdComment;
   }
 
-  async findOneComment(commentId: ObjectId) {
+  async findOneComment(commentId: Types.ObjectId) {
     const comment = await this.commentRepository.findOne({
       _id: commentId,
       active: true,
@@ -47,7 +47,7 @@ export class CommentService {
   async commentsReactions(
     teacherId: string,
     subjectId: string,
-    userId: string,
+    userId: Types.ObjectId,
     limit: number,
     page: number,
   ) {

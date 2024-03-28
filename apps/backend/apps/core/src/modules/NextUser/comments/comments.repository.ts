@@ -3,22 +3,20 @@ import type {
   CommentDocument,
   CommentModel,
 } from '@/models/Comment.js';
-import type { Enrollment } from '@/models/Enrollment.js';
-import type { FilterQuery, ObjectId, ProjectionType } from 'mongoose';
+import type { Enrollment, EnrollmentModel } from '@/models/Enrollment.js';
+import type { FilterQuery, Types } from 'mongoose';
 
 interface UserCommentRepository {
   insertOne(data: Comment): Promise<Comment>;
   // Perform a soft delete
   findMany(filter: FilterQuery<Comment>): Promise<Comment[]>;
-  findOne(
-    filter: FilterQuery<Comment>,
-  ): Promise<CommentDocument | Comment | null>;
-  findEnrollmentById(enrollmentId: ObjectId): Promise<Enrollment | null>;
+  findOne(filter: FilterQuery<Comment>): Promise<CommentDocument | null>;
+  findEnrollmentById(enrollmentId: Types.ObjectId): Promise<Enrollment | null>;
   findEnrollment(filter: FilterQuery<Enrollment>): Promise<Enrollment[] | null>;
   fetchReactions(
     query: FilterQuery<Comment>,
-    userId: string,
-    populateFields: ProjectionType<Comment>,
+    userId: Types.ObjectId,
+    populateFields: string[],
     limit: number,
     page: number,
   ): Promise<{ data: Comment[]; total: number }>;
@@ -30,7 +28,7 @@ export class CommentRepository implements UserCommentRepository {
     private readonly enrollmentService: typeof EnrollmentModel,
   ) {}
 
-  async findEnrollmentById(enrollmentId: ObjectId) {
+  async findEnrollmentById(enrollmentId: Types.ObjectId) {
     const enrollment = await this.enrollmentService.findById(enrollmentId);
     return enrollment;
   }
@@ -44,7 +42,7 @@ export class CommentRepository implements UserCommentRepository {
     if (pojo) {
       const comment = await this.commentService
         .findOne(filter)
-        .lean<Comment>(true);
+        .lean<CommentDocument>(true);
       return comment;
     }
     const comment = await this.commentService.findOne(filter);
@@ -54,6 +52,7 @@ export class CommentRepository implements UserCommentRepository {
   async findMany(filter: FilterQuery<Comment>, pojo?: boolean) {
     if (pojo) {
       const comments = await this.commentService
+        // eslint-disable-next-line unicorn/no-array-callback-reference
         .find(filter)
         .lean<Comment[]>(true);
       return comments;
@@ -69,8 +68,8 @@ export class CommentRepository implements UserCommentRepository {
 
   async fetchReactions(
     query: FilterQuery<Comment>,
-    userId: string,
-    populateFields: ProjectionType<Comment>,
+    userId: Types.ObjectId,
+    populateFields: string[],
     limit: number,
     page: number,
   ) {

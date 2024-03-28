@@ -37,6 +37,7 @@ const reactionSchema = new Schema(
 
     slug: {
       type: String,
+      required: true,
     },
   },
   { timestamps: true },

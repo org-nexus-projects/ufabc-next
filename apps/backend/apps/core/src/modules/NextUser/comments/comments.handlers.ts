@@ -1,6 +1,6 @@
 import type { Comment } from '@/models/Comment.js';
 import type { CommentService } from './comments.service.js';
-import type { ObjectId } from 'mongoose';
+import type { Types } from 'mongoose';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export type TeacherCommentRequest = {
@@ -16,7 +16,7 @@ export type TeacherCommentRequest = {
 
 export type CreateCommentRequest = {
   Body: {
-    enrollmentId: ObjectId;
+    enrollmentId: Types.ObjectId;
     comment: string;
     type: Comment['type'];
   };
@@ -24,7 +24,7 @@ export type CreateCommentRequest = {
 
 export type UpdateCommentRequest = {
   Body: { comment: string };
-  Params: { commentId: ObjectId };
+  Params: { commentId: Types.ObjectId };
 };
 
 export class CommentHandler {
@@ -48,12 +48,17 @@ export class CommentHandler {
       return reply.notFound('Enrollment not found');
     }
 
+    request.log.warn(enrollment.mainTeacher);
+
     const createdComment = await this.commentService.insertOneComment({
       comment,
       type,
       enrollment: enrollment._id,
+      // @ts-expect-error mongoose
       teacher: enrollment[type],
+      // @ts-expect-error mongoose
       subject: enrollment.subject,
+      // @ts-expect-error mongoose
       ra: enrollment.ra,
     });
 
@@ -86,7 +91,7 @@ export class CommentHandler {
   }
 
   async deleteComment(
-    request: FastifyRequest<{ Params: { commentId: ObjectId } }>,
+    request: FastifyRequest<{ Params: { commentId: Types.ObjectId } }>,
     reply: FastifyReply,
   ) {
     const { commentId } = request.params;
@@ -111,7 +116,7 @@ export class CommentHandler {
   }
 
   async missingComment(
-    request: FastifyRequest<{ Params: { userId: ObjectId } }>,
+    request: FastifyRequest<{ Params: { userId: Types.ObjectId } }>,
     reply: FastifyReply,
   ) {
     const { userId } = request.params;

@@ -40,10 +40,14 @@ export class CourseStatsHandlers {
   async userGraduationStats(request: FastifyRequest, reply: FastifyReply) {
     const user = request.user;
 
+    if (!user?.ra) {
+      return reply.unauthorized('Missing User RA');
+    }
+
     // This code is necessary for show data to performance page - get the coefficients from the last history
     // Example: users with BCT concluded and BCC in progress will have the BCC coefficients showed on the performance screen.
     const lastHistory =
-      await this.courseStatsService.recentUserGraduationHistory(user?.ra);
+      await this.courseStatsService.recentUserGraduationHistory(user.ra);
 
     // Next step
     // Needs to add a querie to get the coefficients from the first historyGraduatiation and show that on the performance screen.
