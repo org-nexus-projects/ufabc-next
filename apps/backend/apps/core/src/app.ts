@@ -5,7 +5,7 @@ import {
 } from 'fastify-type-provider-zod';
 
 import { loadPlugins } from './plugins.js';
-import { internalRoutes, nextRoutes } from './modules/routes.js';
+import { internalRoutes } from './modules/routes.js';
 import { nextUserModule } from './modules/NextUser/nextUser.module.js';
 import { entitiesModule } from './modules/Entities/entities.module.js';
 import { publicModule } from './modules/Public/public.module.js';
@@ -24,9 +24,6 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
       prefix: '/v2',
     });
     await app.register(publicModule, {
-      prefix: '/v2',
-    });
-    await app.register(nextRoutes, {
       prefix: '/v2',
     });
     await app.register(internalRoutes, {

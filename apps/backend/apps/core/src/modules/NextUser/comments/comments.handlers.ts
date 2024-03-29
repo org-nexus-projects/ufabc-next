@@ -2,6 +2,7 @@ import type { Comment } from '@/models/Comment.js';
 import type { CommentService } from './comments.service.js';
 import type { Types } from 'mongoose';
 import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { Reaction } from '@/models/Reaction.js';
 
 export type CommentsOnTeacherRequest = {
   Params: {
@@ -25,6 +26,15 @@ export type CreateCommentRequest = {
 export type UpdateCommentRequest = {
   Body: { comment: string };
   Params: { commentId: Types.ObjectId };
+};
+
+export type CreateCommentReaction = {
+  Body: {
+    kind: Reaction['kind'];
+  };
+  Params: {
+    commentId: Types.ObjectId;
+  };
 };
 
 export class CommentHandler {
@@ -177,5 +187,72 @@ export class CommentHandler {
       data: comments.data,
       total: comments.total,
     };
+  }
+
+  async createCommentReaction(
+    request: FastifyRequest<CreateCommentReaction>,
+    reply: FastifyReply,
+  ) {
+    const { commentId } = request.params;
+    const { kind } = request.body;
+    const user = request.user;
+
+    if (!user) {
+      return reply.unauthorized('Must be logged');
+    }
+
+    if (!commentId) {
+      return reply.badRequest('CommentId was not passed');
+    }
+
+    const comment = await this.commentService.findOneComment(commentId);
+
+    if (!comment) {
+      return reply.notFound('Comment not found');
+    }
+
+    // @ts-expect-error: complaining about add timestamps
+    const reaction = await this.commentService.createCommentReaction({
+      kind,
+      comment: comment._id,
+      user: user?._id,
+    });
+
+    return reaction;
+  }
+
+  async removeCommentReaction(
+    request: FastifyRequest<{
+      Params: { commentId: Types.ObjectId; kind: Reaction['kind'] };
+    }>,
+    reply: FastifyReply,
+  ) {
+    const user = request.user;
+    const { commentId, kind } = request.params;
+    if (!user) {
+      return reply.unauthorized('Must be logged');
+    }
+
+    if (!commentId && !kind) {
+      return reply.badRequest('CommentId and Kind are necessary');
+    }
+
+    // @ts-expect-error: complaining about add timestamps
+    const reaction = await this.commentService.findCommentReaction({
+      active: true,
+      user: user._id,
+      comment: commentId,
+      kind,
+    });
+
+    if (!reaction) {
+      return reply.notFound(
+        `Reação não encontrada no comentário: ${commentId}`,
+      );
+    }
+
+    await this.commentService.removeCommentReaction(commentId);
+
+    return;
   }
 }

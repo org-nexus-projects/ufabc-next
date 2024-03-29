@@ -1,6 +1,7 @@
 import type { Types } from 'mongoose';
 import type { CommentRepository } from './comments.repository.js';
 import type { Comment } from '@/models/Comment.js';
+import type { Reaction } from '@/models/Reaction.js';
 
 export class CommentService {
   constructor(private readonly commentRepository: CommentRepository) {}
@@ -63,5 +64,25 @@ export class CommentService {
     );
 
     return comments;
+  }
+
+  async createCommentReaction(reaction: Reaction) {
+    const createdReaction =
+      await this.commentRepository.insertOneReaction(reaction);
+
+    return createdReaction;
+  }
+
+  async removeCommentReaction(commentId: Types.ObjectId) {
+    const deletedReaction = await this.commentRepository.deleteOneReaction({
+      comment: commentId,
+    });
+
+    return deletedReaction;
+  }
+
+  async findCommentReaction(filter: Reaction) {
+    const reaction = await this.commentRepository.findOneReaction(filter);
+    return reaction;
   }
 }
