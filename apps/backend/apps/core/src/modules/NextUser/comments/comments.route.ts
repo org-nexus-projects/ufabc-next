@@ -5,6 +5,7 @@ import { CommentRepository } from './comments.repository.js';
 import { CommentService } from './comments.service.js';
 import {
   CommentHandler,
+  type CommentsOnTeacherRequest,
   type CreateCommentRequest,
   type UpdateCommentRequest,
 } from './comments.handlers.js';
@@ -43,5 +44,11 @@ export async function commentRoute(app: FastifyInstance) {
     '/:userId/missing',
     { onRequest: [authenticate] },
     commentHandler.missingComment,
+  );
+
+  app.get<CommentsOnTeacherRequest>(
+    '/:teacherId/:subjectId',
+    { onRequest: [authenticate] },
+    commentHandler.commentsOnTeacher,
   );
 }

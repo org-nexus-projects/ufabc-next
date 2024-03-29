@@ -3,7 +3,7 @@ import type { CommentService } from './comments.service.js';
 import type { Types } from 'mongoose';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-export type TeacherCommentRequest = {
+export type CommentsOnTeacherRequest = {
   Params: {
     teacherId: string;
     subjectId: string;
@@ -149,7 +149,7 @@ export class CommentHandler {
   }
 
   async commentsOnTeacher(
-    request: FastifyRequest<TeacherCommentRequest>,
+    request: FastifyRequest<CommentsOnTeacherRequest>,
     reply: FastifyReply,
   ) {
     const { teacherId, subjectId } = request.params;
