@@ -28,4 +28,12 @@ export class SubjectService {
     ]);
     return searchResults;
   }
+
+  async createSubject(name: string) {
+    // @ts-expect-error hate timestamps
+    const subject = await this.subjectRepository.createSubject({
+      name,
+    });
+    return subject;
+  }
 }

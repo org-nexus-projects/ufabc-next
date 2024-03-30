@@ -1,5 +1,6 @@
 import { SubjectModel } from '@/models/Subject.js';
 import { authenticate } from '@/hooks/authenticate.js';
+import { isAdminHook } from '@/hooks/isAdmin.js';
 import { SubjectRepository } from './subjects.repository.js';
 import { SubjectService } from './subjects.service.js';
 import { SubjectHandler } from './subjects.handlers.js';
@@ -16,5 +17,11 @@ export async function subjectsRoute(app: FastifyInstance) {
     '/subject/search',
     { onRequest: [authenticate] },
     subjectHandler.searchSubject,
+  );
+
+  app.post(
+    '/private/subject/create',
+    { onRequest: [authenticate, isAdminHook] },
+    subjectHandler.createSubject,
   );
 }
