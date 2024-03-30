@@ -1,4 +1,4 @@
-import { isAdminHook } from '@/hooks/isAdmin.js';
+import { admin } from '@/hooks/admin.js';
 import {
   type SyncDisciplinasRequest,
   syncDisciplinasHandler,
@@ -14,20 +14,20 @@ import {
 import type { FastifyInstance } from 'fastify';
 
 // eslint-disable-next-line require-await
-export async function privateRoutes(app: FastifyInstance) {
+export async function syncRoutes(app: FastifyInstance) {
   app.post<SyncDisciplinasRequest>(
     '/disciplinas',
-    { preValidation: [isAdminHook] },
+    { preValidation: [admin] },
     syncDisciplinasHandler,
   );
   app.get<SyncMatriculasRequest>(
     '/matriculas',
-    { preValidation: [isAdminHook] },
+    { preValidation: [admin] },
     syncMatriculasHandler,
   );
   app.post<SyncEnrollmentsRequest>(
     '/enrollments',
-    { preValidation: [isAdminHook] },
+    { preValidation: [admin] },
     syncEnrollments,
   );
 }

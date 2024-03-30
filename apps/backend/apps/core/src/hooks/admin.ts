@@ -1,20 +1,17 @@
+import type { UserDocument } from '@/models/User.js';
 import type { preHandlerHookHandler } from 'fastify';
 
 // need to use this
-export const isAdminHook: preHandlerHookHandler = function (
-  request,
-  _reply,
-  done,
-) {
+export const admin: preHandlerHookHandler = function (request, reply, done) {
   const token = request.headers.authorization?.replace('Bearer ', '');
 
   if (!token) {
     // when token is not found the FE, should redirect to /home
-    throw new Error('Token not found');
+    return reply.badRequest('Token not found');
   }
-  const isAdminUser = this.jwt.decode(token);
+  const isAdminUser = this.jwt.decode<UserDocument>(token);
 
-  if (isAdminUser) {
+  if (isAdminUser?.permissions.includes('admin')) {
     return;
   }
 

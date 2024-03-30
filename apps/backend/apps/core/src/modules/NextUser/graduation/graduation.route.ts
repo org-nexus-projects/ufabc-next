@@ -1,6 +1,6 @@
 import { GraduationModel } from '@/models/Graduation.js';
 import { GraduationSubjectModel } from '@/models/GraduationSubject.js';
-import { isAdminHook } from '@/hooks/isAdmin.js';
+import { admin } from '@/hooks/admin.js';
 import { authenticate } from '@/hooks/authenticate.js';
 import { GraduationRepository } from './graduation.repository.js';
 import { GraduationService } from './graduation.service.js';
@@ -25,7 +25,7 @@ export async function graduationRoutes(app: FastifyInstance) {
   );
   app.get(
     '/subjects',
-    { onRequest: [authenticate, isAdminHook] },
+    { onRequest: [authenticate, admin] },
     graduationHandler.listGraduationsSubjects,
   );
 }

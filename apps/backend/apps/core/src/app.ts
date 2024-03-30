@@ -5,10 +5,10 @@ import {
 } from 'fastify-type-provider-zod';
 
 import { loadPlugins } from './plugins.js';
-import { internalRoutes } from './modules/routes.js';
 import { nextUserModule } from './modules/NextUser/nextUser.module.js';
 import { entitiesModule } from './modules/Entities/entities.module.js';
 import { publicModule } from './modules/Public/public.module.js';
+import { syncModule } from './modules/Sync/sync.module.js';
 
 export async function buildApp(opts: FastifyServerOptions = {}) {
   const app = fastify(opts);
@@ -26,7 +26,7 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
     await app.register(publicModule, {
       prefix: '/v2',
     });
-    await app.register(internalRoutes, {
+    await app.register(syncModule, {
       prefix: '/v2',
     });
   } catch (error) {
