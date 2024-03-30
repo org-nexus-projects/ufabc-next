@@ -1,4 +1,4 @@
-import { currentQuad } from '@next/common';
+import { currentQuad, parseResponseToJson } from '@next/common';
 import { ofetch } from 'ofetch';
 import { DisciplinaModel } from '@/models/index.js';
 import { batchInsertItems } from '../utils/batch-insert.js';
@@ -13,7 +13,7 @@ export async function syncMatriculasJob(params: SyncMatriculasParams) {
   const matriculas = await ofetch(
     'https://matricula.ufabc.edu.br/cache/matriculas.js',
     {
-      parseResponse: valueToJson,
+      parseResponse: parseResponseToJson,
     },
   );
   const enrollments = parseEnrollments(matriculas);
@@ -46,20 +46,6 @@ export async function syncMatriculasJob(params: SyncMatriculasParams) {
 
   return errors;
 }
-
-const valueToJson = (payload: string, max?: number) => {
-  const parts = payload.split('=');
-  if (parts.length < 2) {
-    return [];
-  }
-
-  const jsonStr = parts[1].split(';')[0];
-  const json = JSON.parse(jsonStr) as number[];
-  if (max) {
-    return json.slice(0, max);
-  }
-  return json;
-};
 
 const parseEnrollments = (data: Record<string, number[]>) => {
   const matriculas: Record<number, number[]> = {};

@@ -1,4 +1,3 @@
-import { authenticate } from '@/hooks/authenticate.js';
 import { privateRoutes } from './private/route.js';
 import { disciplinasRoute } from './disciplinas/route.js';
 import type { FastifyInstance } from 'fastify';
@@ -10,7 +9,7 @@ export async function publicRoutes(app: FastifyInstance) {
 }
 
 export async function internalRoutes(app: FastifyInstance) {
-  app.addHook('onRequest', authenticate);
+  // app.addHook('onRequest', authenticate);
   await app.register(privateRoutes, {
     prefix: '/private',
   });

@@ -1,3 +1,4 @@
+import { isAdminHook } from '@/hooks/isAdmin.js';
 import {
   type SyncDisciplinasRequest,
   syncDisciplinasHandler,
@@ -10,24 +11,23 @@ import {
   type SyncMatriculasRequest,
   syncMatriculasHandler,
 } from './handlers/syncMatriculas.js';
-import { isAdminValidator } from './isAdmin.js';
 import type { FastifyInstance } from 'fastify';
 
 // eslint-disable-next-line require-await
 export async function privateRoutes(app: FastifyInstance) {
   app.post<SyncDisciplinasRequest>(
-    '/disciplinas/sync',
-    // { preValidation: [isAdminValidator] },
+    '/disciplinas',
+    { preValidation: [isAdminHook] },
     syncDisciplinasHandler,
   );
   app.get<SyncMatriculasRequest>(
-    '/matriculas/sync',
-    { preValidation: [isAdminValidator] },
+    '/matriculas',
+    { preValidation: [isAdminHook] },
     syncMatriculasHandler,
   );
   app.post<SyncEnrollmentsRequest>(
-    '/enrollments/sync',
-    { preValidation: [isAdminValidator] },
+    '/enrollments',
+    { preValidation: [isAdminHook] },
     syncEnrollments,
   );
 }

@@ -2,12 +2,13 @@ import {
   convertUfabcDisciplinas,
   currentQuad,
   generateIdentifier,
+  parseResponseToJson,
 } from '@next/common';
 import { ofetch } from 'ofetch';
 import { DisciplinaModel } from '@/models/Disciplina.js';
 import { SubjectModel } from '@/models/Subject.js';
 import { batchInsertItems } from '@/queue/utils/batch-insert.js';
-import { valueToJson } from '../utils/valueToJson.js';
+
 import { validateSubjects } from '../utils/validateSubjects.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
@@ -27,7 +28,7 @@ export async function syncDisciplinasHandler(
   const rawUfabcDisciplinas = await ofetch<any[]>(
     'https://matricula.ufabc.edu.br/cache/todasDisciplinas.js',
     {
-      parseResponse: valueToJson,
+      parseResponse: parseResponseToJson,
     },
   );
   const UfabcDisciplinas: UfabcDisciplina[] = rawUfabcDisciplinas.map(

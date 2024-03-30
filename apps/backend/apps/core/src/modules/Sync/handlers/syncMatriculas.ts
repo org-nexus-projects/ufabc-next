@@ -1,9 +1,8 @@
-import { currentQuad } from '@next/common';
+import { currentQuad, parseResponseToJson } from '@next/common';
 import { ofetch } from 'ofetch';
 import { isEqual } from 'lodash-es';
 import { batchInsertItems } from '@/queue/utils/batch-insert.js';
 import { DisciplinaModel } from '@/models/Disciplina.js';
-import { valueToJson } from '../utils/valueToJson.js';
 import type { FastifyRequest } from 'fastify';
 
 export type SyncMatriculasRequest = {
@@ -29,7 +28,7 @@ export async function syncMatriculasHandler(
   const isSyncMatriculas = operationMap === 'alunos_matriculados';
   const rawUfabcMatricula = await ofetch(
     'https://matricula.ufabc.edu.br/cache/matriculas.js',
-    { parseResponse: valueToJson },
+    { parseResponse: parseResponseToJson },
   );
 
   const ufabcMatricula = parseEnrollments(rawUfabcMatricula);
