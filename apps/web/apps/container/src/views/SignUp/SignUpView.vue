@@ -104,7 +104,7 @@
               Falta pouco para completar o seu cadastro
             </h1>
             <v-text-field
-              v-model="email.value.value"
+              v-model.trim="email.value.value"
               label="Insira seu email institucional"
               variant="solo"
               class="mb-4 w-100"
@@ -115,7 +115,7 @@
               <template #append-inner>@aluno.ufabc.edu.br</template>
             </v-text-field>
             <v-text-field
-              v-model="ra.value.value"
+              v-model.trim="ra.value.value"
               label="Insira seu RA"
               variant="solo"
               class="mb-4 w-100"
@@ -124,7 +124,7 @@
               :error-messages="ra.errorMessage.value"
             />
             <v-text-field
-              v-model="raConfirm.value.value"
+              v-model.trim="raConfirm.value.value"
               label="Confirme seu RA"
               variant="solo"
               class="w-100"
@@ -158,7 +158,10 @@
               Professor(a), estamos construindo algumas ferramentas especiais
               para você, por enquanto você pode verificar sua distribuição de
               notas por disciplinas
-              <a href="https://docs.google.com/forms/d/e/1FAIpQLSfbwaJCw-t4SlHJ4akwQNCMNAEBREDcdfrqHs7ROhkuUUwDRQ/viewform">aqui</a>
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSfbwaJCw-t4SlHJ4akwQNCMNAEBREDcdfrqHs7ROhkuUUwDRQ/viewform"
+                >aqui</a
+              >
             </p>
           </div>
           <div
@@ -320,7 +323,8 @@ const validationSchema = toTypedSchema(
         .refine(
           (email) => !/@/.test(email),
           'Não digite o conteúdo depois do @',
-        ),
+        )
+        .refine((email) => /^\S+$/.test(email), 'Não digite espaços em branco'),
       ra: z
         .object({
           ra: z
@@ -382,7 +386,10 @@ const { mutate: mutateSignUp, isPending: isPendingSubmit } = useMutation({
 });
 
 const onSubmit = handleSubmit(({ email, ra }) =>
-  mutateSignUp({ email: email + '@aluno.ufabc.edu.br', ra: Number(ra.ra) }),
+  mutateSignUp({
+    email: email.toLowerCase().trim() + '@aluno.ufabc.edu.br',
+    ra: Number(ra.ra),
+  }),
 );
 
 const { mutate: mutateResendEmail, isPending: isPendingResendEmail } =
