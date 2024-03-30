@@ -98,7 +98,7 @@ const onSubmit = handleSubmit(({ email, ra }) => mutateFacebook({ email, ra }));
 
         <v-form @submit.prevent="onSubmit">
           <v-text-field
-            v-model="emailField"
+            v-model.trim="emailField"
             label="Insira seu email do Facebook"
             variant="solo"
             class="w-100"

@@ -74,7 +74,7 @@ const onSubmit = handleSubmit(({ email }) => mutateRecover(email));
           </h1>
           <v-form @submit.prevent="onSubmit">
             <v-text-field
-              v-model="email.value.value"
+              v-model.trim="email.value.value"
               label="Insira seu email institucional"
               variant="solo"
               class="mb-4"
