@@ -1,25 +1,12 @@
 import assert from 'node:assert/strict';
-import { ofetch } from 'ofetch';
 import { beforeEach, describe, it } from 'node:test';
+import { ofetch } from 'ofetch';
 import { pick as lodashPick } from 'lodash-es';
 import {
   type Disciplina,
   convertUfabcDisciplinas,
 } from './convertUfabcDiscplinas';
-
-const valueToJson = (payload: string, max?: number) => {
-  const parts = payload.split('=');
-  if (parts.length < 2) {
-    return [];
-  }
-
-  const jsonStr = parts[1]?.split(';')[0];
-  const json = JSON.parse(jsonStr!) as number[];
-  if (max) {
-    return json.slice(0, max);
-  }
-  return json;
-};
+import { parseResponseToJson } from './parseResponseToJson';
 
 describe('common.lib.convertUfabcDisciplinas', () => {
   let disciplinas: Disciplina[];
@@ -28,7 +15,7 @@ describe('common.lib.convertUfabcDisciplinas', () => {
     disciplinas = await ofetch(
       'https://matricula.ufabc.edu.br/cache/todasDisciplinas.js',
       {
-        parseResponse: valueToJson,
+        parseResponse: parseResponseToJson,
       },
     );
   });
