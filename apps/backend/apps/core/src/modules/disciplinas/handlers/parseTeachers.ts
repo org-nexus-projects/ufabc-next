@@ -4,11 +4,11 @@ import {
   generateIdentifier,
   parseXlsx,
   resolveProfessor,
+  validateTeachers,
 } from '@next/common';
 import { TeacherModel } from '@/models/Teacher.js';
 import { batchInsertItems } from '@/queue/utils/batch-insert.js';
 import { DisciplinaModel } from '@/models/Disciplina.js';
-import { validateTeachers } from '../../utils/validateTeachers.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export type ParseTeachersRequest = {
