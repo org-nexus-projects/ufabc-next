@@ -17,4 +17,13 @@ export class SubjectHandler {
     const searchResults = await this.subjectService.findSubject(search);
     return searchResults;
   }
+
+  async createSubject(request: FastifyRequest<{ Body: { name: string } }>) {
+    const subjectName = request.body.name;
+
+    const insertedSubject =
+      await this.subjectService.createSubject(subjectName);
+
+    return insertedSubject;
+  }
 }

@@ -1,6 +1,6 @@
 import { type Teacher, TeacherModel } from '@/models/Teacher.js';
 import { authenticate } from '@/hooks/authenticate.js';
-import { isAdminHook } from '@/hooks/isAdmin.js';
+import { admin } from '@/hooks/admin.js';
 import { TeacherRepository } from './teacher.repository.js';
 import { TeacherService } from './teacher.service.js';
 import {
@@ -19,13 +19,13 @@ export async function teacherRoutes(app: FastifyInstance) {
   app.get('/teacher', teacherHandler.listAllTeachers);
   app.post<{ Body: Teacher }>(
     '/private/teacher',
-    { onRequest: [authenticate, isAdminHook] },
+    { onRequest: [authenticate, admin] },
     teacherHandler.createTeacher,
   );
 
   app.put<UpdateTeacherRequest>(
     '/private/teacher/:teacherId',
-    { onRequest: [authenticate, isAdminHook] },
+    { onRequest: [authenticate, admin] },
     teacherHandler.updateTeacher,
   );
 

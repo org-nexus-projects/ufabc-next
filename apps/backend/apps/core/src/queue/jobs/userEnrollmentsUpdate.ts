@@ -1,4 +1,5 @@
 import {
+  batchInsertItems,
   calculateCoefficients,
   generateIdentifier,
   modifyPayload,
@@ -13,7 +14,6 @@ import {
   type History,
   SubjectModel,
 } from '@/models/index.js';
-import { batchInsertItems } from '../utils/batch-insert.js';
 
 //TODO: replace _.get with a native function
 

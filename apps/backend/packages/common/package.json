@@ -26,7 +26,8 @@
     "difflib": "^0.2.4",
     "latinize": "^2.0.0",
     "mathjs": "^12.4.0",
-    "pino": "^8.19.0"
+    "pino": "^8.19.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz"
   },
   "devDependencies": {
     "@next/tsconfig": "workspace:*",

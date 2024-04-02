@@ -17,6 +17,7 @@ const userSchema = new Schema(
       type: Number,
       unique: true,
       partialFilterExpression: { ra: { $exists: true } },
+      default: null,
     },
     email: {
       type: String,

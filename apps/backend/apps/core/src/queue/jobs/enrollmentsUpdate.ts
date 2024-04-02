@@ -1,7 +1,6 @@
-import { generateIdentifier, logger } from '@next/common';
+import { batchInsertItems, generateIdentifier, logger } from '@next/common';
 import { omit as LodashOmit } from 'lodash-es';
 import { type EnrollmentDocument, EnrollmentModel } from '@/models/index.js';
-import { batchInsertItems } from '../utils/batch-insert.js';
 
 async function processEnrollments(enrollment: EnrollmentDocument) {
   const key = {
