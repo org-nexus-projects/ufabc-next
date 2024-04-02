@@ -1,4 +1,5 @@
 import {
+  batchInsertItems,
   convertUfabcDisciplinas,
   currentQuad,
   generateIdentifier,
@@ -7,8 +8,6 @@ import {
 import { ofetch } from 'ofetch';
 import { DisciplinaModel } from '@/models/Disciplina.js';
 import { SubjectModel } from '@/models/Subject.js';
-import { batchInsertItems } from '@/queue/utils/batch-insert.js';
-
 import { validateSubjects } from '../utils/validateSubjects.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 

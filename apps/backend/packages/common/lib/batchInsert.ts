@@ -10,8 +10,9 @@ export async function batchInsertItems<Item>(
     while (i < items.length) {
       const item = items[i++];
       try {
-        await func(item);
+        await func(item!);
       } catch (error) {
+        // @ts-expect-error tsconfig probably
         errors.push({ item, error });
       }
     }

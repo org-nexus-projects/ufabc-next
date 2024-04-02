@@ -1,7 +1,10 @@
-import { currentQuad, parseResponseToJson } from '@next/common';
+import {
+  batchInsertItems,
+  currentQuad,
+  parseResponseToJson,
+} from '@next/common';
 import { ofetch } from 'ofetch';
 import { isEqual } from 'lodash-es';
-import { batchInsertItems } from '@/queue/utils/batch-insert.js';
 import { DisciplinaModel } from '@/models/Disciplina.js';
 import type { FastifyRequest } from 'fastify';
 

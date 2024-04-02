@@ -1,7 +1,10 @@
-import { currentQuad, parseResponseToJson } from '@next/common';
+import {
+  batchInsertItems,
+  currentQuad,
+  parseResponseToJson,
+} from '@next/common';
 import { ofetch } from 'ofetch';
 import { DisciplinaModel } from '@/models/index.js';
-import { batchInsertItems } from '../utils/batch-insert.js';
 
 type SyncMatriculasParams = {
   operation: 'alunos_matriculados';

@@ -10,6 +10,7 @@ export { courseId, findIds } from './lib/findCourse';
 export { parseResponseToJson } from './lib/parseResponseToJson';
 export { parseXlsx } from './lib/parseXlsx';
 export { validateTeachers } from './lib/validateTeachers';
+export { batchInsertItems } from './lib/batchInsert';
 
 export type { HistoryDiscipline } from './lib/calculateCoefficients';
 export type { ParseXlSXBody } from './lib/parseXlsx';

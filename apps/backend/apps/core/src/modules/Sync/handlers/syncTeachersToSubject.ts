@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import {
+  batchInsertItems,
   convertUfabcDisciplinas,
   generateIdentifier,
   parseXlsx,
@@ -7,7 +8,6 @@ import {
   validateTeachers,
 } from '@next/common';
 import { TeacherModel } from '@/models/Teacher.js';
-import { batchInsertItems } from '@/queue/utils/batch-insert.js';
 import { DisciplinaModel } from '@/models/Disciplina.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
