@@ -1,4 +1,5 @@
 import { admin } from '@/hooks/admin.js';
+import { authenticate } from '@/hooks/authenticate.js';
 import {
   type SyncDisciplinasRequest,
   syncDisciplinasHandler,
@@ -11,23 +12,32 @@ import {
   type SyncMatriculasRequest,
   syncMatriculasHandler,
 } from './handlers/syncMatriculas.js';
+import {
+  type ParseTeachersRequest,
+  parseTeachersHandler,
+} from './handlers/syncTeachersToSubject.js';
 import type { FastifyInstance } from 'fastify';
 
 // eslint-disable-next-line require-await
 export async function syncRoutes(app: FastifyInstance) {
   app.post<SyncDisciplinasRequest>(
     '/disciplinas',
-    { preValidation: [admin] },
+    { preValidation: [authenticate, admin] },
     syncDisciplinasHandler,
   );
   app.get<SyncMatriculasRequest>(
     '/matriculas',
-    { preValidation: [admin] },
+    { preValidation: [authenticate, admin] },
     syncMatriculasHandler,
   );
   app.post<SyncEnrollmentsRequest>(
     '/enrollments',
-    { preValidation: [admin] },
+    { preValidation: [authenticate, admin] },
     syncEnrollments,
+  );
+  app.put<ParseTeachersRequest>(
+    '/disciplinas/teachers',
+    // { preValidation: [authenticate, admin] },
+    parseTeachersHandler,
   );
 }

@@ -1,5 +1,5 @@
 import { authenticate } from '@/hooks/authenticate.js';
-import { isAdminValidator } from '../private/isAdmin.js';
+import { admin } from '@/hooks/admin.js';
 import {
   type ParseTeachersRequest,
   parseTeachersHandler,
@@ -10,7 +10,7 @@ import type { FastifyInstance } from 'fastify';
 export async function disciplinasRoute(app: FastifyInstance) {
   app.put<ParseTeachersRequest>(
     '/teachers',
-    { preValidation: [isAdminValidator], onRequest: [authenticate] },
+    { onRequest: [authenticate, admin] },
     parseTeachersHandler,
   );
 }

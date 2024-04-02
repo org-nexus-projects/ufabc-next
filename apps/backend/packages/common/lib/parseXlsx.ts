@@ -2,7 +2,8 @@ import { Readable } from 'node:stream';
 import fs from 'node:fs';
 import { ofetch } from 'ofetch';
 import { set_fs, stream, read as xlsxRead, utils as xlsxUtils } from 'xlsx';
-import { type convertUfabcDisciplinas, logger } from '@next/common';
+import { logger } from './logger';
+import type { convertUfabcDisciplinas } from './convertUfabcDiscplinas';
 
 set_fs(fs);
 stream.set_readable(Readable);
@@ -21,6 +22,21 @@ export type ParseXlSXBody = {
 type JSONFileData = {
   RA: number;
   CODIGO_DA_TURMA: string;
+  CURSO: string;
+  'CÓDIGO DE TURMA': string;
+  TURMA: string;
+  TEORIA: string;
+  PRÁTICA: string;
+  CAMPUS: 'Santo André' | 'São Bernardo';
+  TURNO: 'diurno' | 'noturno';
+  'T-P-I': `${number}-${number}-${number}`;
+  'VAGAS TOTAIS': number;
+  'VAGAS INGRESSANTES': number;
+  'VAGAS VETERANOS': number;
+  'DOCENTE TEORIA': string;
+  'DOCENTE TEORIA 2': string;
+  'DOCENTE PRATICA': string;
+  'DOCENTE PRATICA 2': string;
 };
 
 type Disciplina = ReturnType<typeof convertUfabcDisciplinas>;
@@ -39,17 +55,38 @@ export async function parseXlsx<TBody extends ParseXlSXBody>(body: TBody) {
   });
 
   const { SheetNames, Sheets } = xlsxRead(file);
-  const fileData = xlsxUtils.sheet_to_json<JSONFileData>(Sheets[SheetNames[0]]);
-  const columns = Object.keys(fileData[0]);
+  const [sheetNames] = SheetNames;
+
+  if (!sheetNames) {
+    logger.error(sheetNames, 'Could not sheet name');
+    throw new Error('Could not process given file');
+  }
+
+  const sheetItems = Sheets[sheetNames];
+
+  if (!sheetItems) {
+    logger.warn(sheetItems, 'Items');
+    throw new Error('Could not retreive data');
+  }
+
+  const [columns, ...fileData] =
+    xlsxUtils.sheet_to_json<JSONFileData>(sheetItems);
+
+  if (!columns) {
+    throw new Error('Could not get sheet data');
+  }
+
+  const sheetColumns = Object.keys(columns);
   logger.info({
     msg: 'File Columns',
-    columns,
+    sheetColumns,
   });
 
   const parsedEnrollments = fileData.map((enrollment) => {
-    const updatedEnrollment = {};
+    const updatedEnrollment: Partial<
+      Record<RenameOptions['as'] | RenameOptions['from'], string>
+    > = {};
     params.rename.forEach((name) => {
-      // @ts-expect-error
       updatedEnrollment[name.as] = enrollment[name.from];
     });
 

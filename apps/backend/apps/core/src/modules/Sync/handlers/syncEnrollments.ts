@@ -1,10 +1,14 @@
 import { createHash } from 'node:crypto';
 import { ofetch } from 'ofetch';
-import { convertUfabcDisciplinas, generateIdentifier } from '@next/common';
+import {
+  type ParseXlSXBody,
+  convertUfabcDisciplinas,
+  generateIdentifier,
+  parseXlsx,
+} from '@next/common';
 import { omit as LodashOmit } from 'lodash-es';
 import { type Disciplina, DisciplinaModel } from '@/models/index.js';
 import { nextJobs } from '@/queue/NextJobs.js';
-import { type ParseXlSXBody, parseXlsx } from '../../utils/parseXlsx.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export type SyncEnrollmentsRequest = {
