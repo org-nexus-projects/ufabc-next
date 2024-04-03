@@ -387,7 +387,7 @@ const { mutate: mutateSignUp, isPending: isPendingSubmit } = useMutation({
 
 const onSubmit = handleSubmit(({ email, ra }) =>
   mutateSignUp({
-    email: email.toLowerCase().trim() + '@aluno.ufabc.edu.br',
+    email: email.toLowerCase() + '@aluno.ufabc.edu.br',
     ra: Number(ra.ra),
   }),
 );
