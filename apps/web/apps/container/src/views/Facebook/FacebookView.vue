@@ -55,7 +55,9 @@ const { mutate: mutateFacebook, isPending: isPendingSubmit } = useMutation({
 
 const windowLocation = window.location;
 const redirectToHome = () => (windowLocation.pathname = '/');
-const onSubmit = handleSubmit(({ email, ra }) => mutateFacebook({ email, ra }));
+const onSubmit = handleSubmit(({ email, ra }) =>
+  mutateFacebook({ email: email.toLowerCase(), ra }),
+);
 </script>
 
 <template>

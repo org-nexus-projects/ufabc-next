@@ -44,7 +44,9 @@ const { mutate: mutateRecover, isPending: isPendingSubmit } = useMutation({
   },
 });
 
-const onSubmit = handleSubmit(({ email }) => mutateRecover(email));
+const onSubmit = handleSubmit(({ email }) =>
+  mutateRecover(email.toLowerCase()),
+);
 </script>
 
 <template>
