@@ -11,7 +11,7 @@ const appOptions = {
   logger,
 } satisfies FastifyServerOptions;
 
-async function start() {
+export async function start() {
   const app = await buildApp(appOptions);
   if (Config.NODE_ENV === 'dev') {
     app.log.info(app.printRoutes());
