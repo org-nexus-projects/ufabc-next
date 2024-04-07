@@ -31,7 +31,7 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
     });
   } catch (error) {
     app.log.fatal(error, 'build app error');
-    throw error;
+    process.exit(1);
   }
 
   return app;

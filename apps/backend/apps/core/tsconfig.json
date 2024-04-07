@@ -4,15 +4,8 @@
     "module": "NodeNext",
     "paths": {
       "@/*": ["./src/*"]
-    },
-    "types": ["vitest/globals"]
+    }
   },
-  "include": [
-    "src/**/*.ts",
-    "**.config.ts",
-    "esbuild.ts",
-    "test/**/*.spec.ts",
-    "test/**/*.ts"
-  ],
+  "include": ["src/**/*.ts", "esbuild.ts"],
   "exclude": ["node_modules/**/*"]
 }
