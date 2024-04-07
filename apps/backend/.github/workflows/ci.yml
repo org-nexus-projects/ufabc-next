@@ -40,7 +40,7 @@ jobs:
       - uses: supercharge/mongodb-github-action@1.10.0
         with:
           mongodb-version: ${{ matrix.mongodb_version }}
-      - uses: supercharge/redis-github-action@1.7.0
+      - uses: supercharge/redis-github-action@1.8.0
         with:
           redis-version: ${{ matrix.redis-version }}
 
