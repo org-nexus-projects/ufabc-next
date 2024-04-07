@@ -2,6 +2,8 @@ import { cpus } from 'node:os';
 import { run } from 'node:test';
 import { spec as Spec } from 'node:test/reporters';
 // TODO: use native globbing after node22
+// TODO: add watch mode
+// TODO: add coverage
 import glob from 'fast-glob';
 
 let exitCode = 0;
@@ -15,6 +17,7 @@ const testStreamSetup = run({
   files,
   timeout: 10_000,
   concurrency: cpus().length,
+  // watch: !!tWatch,
 });
 
 testStreamSetup.compose(spec).pipe(process.stdout);
