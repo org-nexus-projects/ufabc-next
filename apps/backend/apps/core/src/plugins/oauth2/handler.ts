@@ -1,4 +1,3 @@
-import { WEB_URL, WEB_URL_LOCAL } from '@next/constants';
 import { Config } from '@/config/config.js';
 import { createIfNotExists } from './query.js';
 import type { ProviderName, Providers } from '@next/types';
@@ -25,7 +24,7 @@ export async function handleOauth(
   const isDev = Config.NODE_ENV === 'dev';
   const isUserInApp = inApp.split('?')[0] === 'true';
 
-  const webUrl = isDev ? WEB_URL_LOCAL : WEB_URL;
+  const webUrl = isDev ? Config.WEB_URL_LOCAL : Config.WEB_URL;
   const tokenParam = `?token=${user.generateJWT()}`;
   const isWeb = `${webUrl}/login${tokenParam}`;
   const redirectURL = isUserInApp ? `ufabcnext://login${tokenParam}` : isWeb;

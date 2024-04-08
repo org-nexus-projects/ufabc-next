@@ -1,8 +1,5 @@
 import { z } from 'zod';
 
-if (process.env.NODE_ENV === 'dev') {
-}
-
 const envSchema = z.object({
   ACCESS_KEY: z.string().min(6).max(16).default('verysecret'),
   NODE_ENV: z.enum(['dev', 'test', 'prod']).default('dev'),
@@ -38,7 +35,8 @@ const envSchema = z.object({
   REDIS_PORT: z.coerce.number().default(6379),
   MONGODB_CONNECTION_URL: z
     .string()
-    .default('mongodb://127.0.0.1:27017/ufabc-next-db'),
+    .default('mongodb://127.0.0.1:27017/next-db'),
+  REDIS_CONNECTION_URL: z.string().optional(),
 });
 
 const _env = envSchema.safeParse(process.env);
@@ -54,4 +52,14 @@ if (!_env.success) {
 }
 
 export type Config = z.infer<typeof envSchema>;
-export const Config = Object.freeze(_env.data);
+export const Config = Object.freeze(
+  Object.assign(_env.data, {
+    MAILER_CONFIG: {
+      EMAIL_CONFIRMATION_TEMPLATE: 'Confirmation',
+      EMAIL_RECOVERY_TEMPLATE: 'Recovery',
+      EMAIL: 'contato@ufabcnext.com',
+    } as const,
+    WEB_URL_LOCAL: 'http://localhost:3000/' as const,
+    WEB_URL: 'https://www.ufabcnext.com/app/' as const,
+  }),
+);
