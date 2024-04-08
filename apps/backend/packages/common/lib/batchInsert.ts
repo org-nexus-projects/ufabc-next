@@ -12,7 +12,10 @@ export async function batchInsertItems<Item>(
       try {
         await func(item!);
       } catch (error) {
-        // @ts-expect-error tsconfig probably
+        if (!item) {
+          throw new Error('Could not process item');
+        }
+
         errors.push({ item, error });
       }
     }
