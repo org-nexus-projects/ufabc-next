@@ -5,7 +5,7 @@ await build({
   entryPoints: ['src/server.ts'],
   logLevel: 'info',
   outdir: 'dist',
-  target: 'node18',
+  target: 'node21',
   bundle: true,
   platform: 'node',
   format: 'esm',
