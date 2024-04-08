@@ -1,7 +1,6 @@
 {
-  "extends": ["@next/tsconfig/fastify.json"],
+  "extends": ["@next/tsconfig/apps.json"],
   "compilerOptions": {
-    "module": "NodeNext",
     "paths": {
       "@/*": ["./src/*"]
     }

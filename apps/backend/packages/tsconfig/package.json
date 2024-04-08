@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "license": "MIT",
+  "files": [
+    "apps.json",
+    "libs.json"
+  ],
   "publishConfig": {
     "access": "public"
   },

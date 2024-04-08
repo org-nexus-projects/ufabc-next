@@ -1,12 +1,5 @@
 {
-  "extends": "@next/tsconfig/base.json",
-  "compilerOptions": {
-    "resolveJsonModule": true,
-    "declaration": true,
-    "declarationMap": true,
-    "outDir": "./dist",
-    "sourceMap": true
-  },
-  "include": ["./lib/**/*", "./index.ts", "./config.ts"],
-  "exclude": ["node_modules/**/*", "./dist/**/*"]
+  "extends": ["@next/tsconfig/libs.json"],
+  "include": ["./lib/**/*", "./index.ts"],
+  "exclude": ["node_modules"]
 }
