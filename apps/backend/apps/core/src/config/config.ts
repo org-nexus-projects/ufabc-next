@@ -1,6 +1,7 @@
 import { z } from 'zod';
-// only in dev - Vitest doesn't support node --env-file
-import 'dotenv/config';
+
+if (process.env.NODE_ENV === 'dev') {
+}
 
 const envSchema = z.object({
   ACCESS_KEY: z.string().min(6).max(16).default('verysecret'),

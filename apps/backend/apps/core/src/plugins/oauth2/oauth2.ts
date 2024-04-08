@@ -1,4 +1,4 @@
-import { fastifyOauth2 } from '@fastify/oauth2';
+import { type OAuth2Namespace, fastifyOauth2 } from '@fastify/oauth2';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 import { objectKeys } from './utils/objectKeys.js';
 import { type Querystring, handleOauth } from './handler.js';
@@ -61,3 +61,10 @@ async function oauth2(app: FastifyInstance, opts: NextOauthOptions) {
 }
 
 export default fp(oauth2, { name: 'NextOauth2' });
+
+declare module 'fastify' {
+  export interface FastifyInstance {
+    google: OAuth2Namespace;
+    facebook: OAuth2Namespace;
+  }
+}

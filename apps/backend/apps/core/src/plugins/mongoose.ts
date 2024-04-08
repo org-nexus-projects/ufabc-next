@@ -1,4 +1,4 @@
-import { connect } from 'mongoose';
+import { type Mongoose, connect } from 'mongoose';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 import type { FastifyInstance } from 'fastify';
 import type { Config } from '../config/config.js';
@@ -22,3 +22,9 @@ async function mongoose(app: FastifyInstance, opts: MongooseOptions) {
 }
 
 export default fp(mongoose, { name: 'mongoose' });
+
+declare module 'fastify' {
+  export interface FastifyInstance {
+    mongoose: Mongoose;
+  }
+}
