@@ -1,10 +1,10 @@
 import {
   getFacebookUserDetails,
   getGoogleUserDetails,
-} from './utils/get-oauth-info.js';
+} from './utils/oauthProviderHandler.js';
+import type { Providers } from './utils/oauthTypes.js';
 import type { fastifyOauth2 } from '@fastify/oauth2';
 import type { NextOauthOptions } from './oauth2.js';
-import type { Providers } from '@next/types';
 
 export function supportedProviders(
   opts: NextOauthOptions,

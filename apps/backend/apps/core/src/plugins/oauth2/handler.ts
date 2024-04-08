@@ -1,6 +1,6 @@
 import { Config } from '@/config/config.js';
 import { createIfNotExists } from './query.js';
-import type { ProviderName, Providers } from '@next/types';
+import type { ProviderName, Providers } from './utils/oauthTypes.js';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 export type Querystring = {

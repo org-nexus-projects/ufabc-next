@@ -99,9 +99,6 @@ importers:
       '@next/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
-      '@next/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       '@total-typescript/ts-reset':
         specifier: ^0.5.1
         version: 0.5.1
