@@ -1,4 +1,0 @@
-{
-  "extends": "@next/tsconfig/base.json",
-  "include": ["**/*.ts"]
-}
