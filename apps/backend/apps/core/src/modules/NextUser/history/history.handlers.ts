@@ -1,3 +1,5 @@
+import { type currentQuad, findIds } from '@next/common';
+import { type Student, StudentModel } from '@/models/Student.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { HistoryService } from './history.service.js';
 
@@ -42,5 +44,15 @@ export class HistoryHandler {
     return {
       msg: 'UserHistory Synced',
     };
+  }
+
+  async historiesCourses(
+    request: FastifyRequest<{
+      Body: { season: ReturnType<typeof currentQuad> };
+    }>,
+  ) {
+    const { season } = request.body;
+    const seasonCourses = await findIds<Student>(season, StudentModel);
+    return seasonCourses;
   }
 }

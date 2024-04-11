@@ -17,7 +17,7 @@
     "build": "tsup index.ts --dts --format=esm --clean",
     "tsc": "tsc",
     "lint": "eslint .",
-    "lint:fix": "pnpm run lint --fix",
+    "lint:fix": "eslint . --fix",
     "test": "node --import=tsx --test lib/*.spec.ts",
     "test:watch": "node --import=tsx --watch --test lib/*.spec.ts",
     "test:coverage": "c8 --all --src=lib node --test --import=tsx lib/*.spec.ts"

@@ -1,5 +1,5 @@
 {
   "extends": ["@next/tsconfig/libs.json"],
-  "include": ["./lib/**/*", "./index.ts"],
+  "include": ["./lib/**/*.ts", "./index.ts"],
   "exclude": ["node_modules"]
 }
