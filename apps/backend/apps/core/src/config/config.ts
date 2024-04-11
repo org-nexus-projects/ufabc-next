@@ -4,6 +4,7 @@ const envSchema = z.object({
   ACCESS_KEY: z.string().min(6).max(16).default('verysecret'),
   NODE_ENV: z.enum(['dev', 'test', 'prod']).default('dev'),
   PORT: z.coerce.number().default(5000),
+  PROTOCOL: z.enum(['http', 'https']).default('http'),
   HOST: z.string().min(4).default('localhost'),
   JWT_SECRET: z
     .string()
@@ -51,7 +52,8 @@ if (!_env.success) {
   throw new Error(`Missing environment variables:\n  ${errorMessage}`);
 }
 
-export type Config = z.infer<typeof envSchema>;
+type EnvConfig = z.infer<typeof envSchema>;
+
 export const Config = Object.freeze(
   Object.assign(_env.data, {
     MAILER_CONFIG: {
@@ -63,3 +65,4 @@ export const Config = Object.freeze(
     WEB_URL: 'https://www.ufabcnext.com/app/' as const,
   }),
 );
+export type Config = EnvConfig & typeof Config;

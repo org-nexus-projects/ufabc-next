@@ -1,9 +1,9 @@
 import { type OAuth2Namespace, fastifyOauth2 } from '@fastify/oauth2';
 import { fastifyPlugin as fp } from 'fastify-plugin';
+import { Config } from '@/config/config.js';
 import { objectKeys } from './utils/objectKeys.js';
 import { type Querystring, handleOauth } from './handler.js';
 import { supportedProviders } from './supportedProviders.js';
-import type { Config } from '@/config/config.js';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 
 export type NextOauthOptions = {
@@ -18,7 +18,7 @@ async function oauth2(app: FastifyInstance, opts: NextOauthOptions) {
 
   for (const provider of objectKeys(providers)) {
     const startRedirectPath = `/login/${provider}`;
-    const callbackUri = `http://localhost:5000/login/${provider}/callback`;
+    const callbackUri = `${Config.PROTOCOL}://${Config.HOST}:${Config.PORT}/login/${provider}/callback`;
 
     await app.register(fastifyOauth2, {
       name: provider,
