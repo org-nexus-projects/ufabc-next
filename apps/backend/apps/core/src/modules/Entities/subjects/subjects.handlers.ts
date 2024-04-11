@@ -26,4 +26,9 @@ export class SubjectHandler {
 
     return insertedSubject;
   }
+
+  async listAllSubjects() {
+    const subjects = await this.subjectService.listSubjects();
+    return subjects;
+  }
 }

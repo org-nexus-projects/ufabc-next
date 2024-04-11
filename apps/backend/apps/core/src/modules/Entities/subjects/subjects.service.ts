@@ -36,4 +36,9 @@ export class SubjectService {
     });
     return subject;
   }
+
+  async listSubjects() {
+    const subjects = await this.subjectRepository.listSubject();
+    return subjects;
+  }
 }

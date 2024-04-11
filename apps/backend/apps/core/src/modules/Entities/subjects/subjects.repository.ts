@@ -1,4 +1,4 @@
-import type { PipelineStage } from 'mongoose';
+import type { FilterQuery, PipelineStage } from 'mongoose';
 import type {
   Subject,
   SubjectDocument,
@@ -13,6 +13,7 @@ type SearchAggregate = {
 interface EntitiesSubjectRepository {
   searchSubject(pipeline: PipelineStage[]): Promise<SearchAggregate[]>;
   createSubject(data: Subject): Promise<SubjectDocument>;
+  listSubject(filter: FilterQuery<Subject>): Promise<Subject[]>;
 }
 
 export class SubjectRepository implements EntitiesSubjectRepository {
@@ -27,5 +28,11 @@ export class SubjectRepository implements EntitiesSubjectRepository {
   async createSubject(data: Subject) {
     const subject = await this.subjectService.create(data);
     return subject;
+  }
+
+  async listSubject(filter: FilterQuery<Subject>) {
+    // eslint-disable-next-line unicorn/no-array-callback-reference
+    const subjects = await this.subjectService.find(filter).lean(true);
+    return subjects;
   }
 }

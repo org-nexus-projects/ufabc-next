@@ -13,6 +13,8 @@ export async function subjectsRoute(app: FastifyInstance) {
   app.decorate('subjectService', subjectService);
   const subjectHandler = new SubjectHandler(subjectService);
 
+  app.get('/subject/', subjectHandler.listAllSubjects);
+
   app.get<{ Querystring: { q: string } }>(
     '/subject/search',
     { onRequest: [authenticate] },
