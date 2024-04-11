@@ -1,6 +1,7 @@
 import { StudentModel } from '@/models/Student.js';
 import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
 import { DisciplinaModel } from '@/models/Disciplina.js';
+import { authenticate } from '@/hooks/authenticate.js';
 import { StudentRepository } from './students.repository.js';
 import { StudentService } from './students.service.js';
 import { StudentHandler } from './students.handlers.js';
@@ -18,4 +19,9 @@ export async function studentsRoute(app: FastifyInstance) {
   const studentHandler = new StudentHandler(studentService);
 
   app.post('/student', studentHandler.createStudent);
+  app.get(
+    '/student/studentId/',
+    { onRequest: [authenticate] },
+    studentHandler.listSeasonStudent,
+  );
 }

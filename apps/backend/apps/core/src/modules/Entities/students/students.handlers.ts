@@ -40,14 +40,14 @@ export class StudentHandler {
 
     if (isPrevious) {
       request.log.info('am i here?');
-      return this.studentService.findOneStudent(student.aluno_id, season);
+      return this.studentService.findOneStudent(season, student.aluno_id);
     }
 
     const isCourseValid =
       !hasInvalidCourse(student.cursos || []) || !student.ra;
 
     if (isCourseValid) {
-      return this.studentService.findOneStudent(student.aluno_id, season);
+      return this.studentService.findOneStudent(season, student.aluno_id);
     }
 
     const courses = await hydrateCoursesOnStudent(
@@ -68,6 +68,24 @@ export class StudentHandler {
     );
     request.log.info(updatedStudent.isNew);
     return updatedStudent;
+  }
+
+  async listSeasonStudent(request: FastifyRequest, reply: FastifyReply) {
+    const user = request.user;
+    const season = currentQuad();
+    if (!user?.ra) {
+      return reply.badRequest('Missing Student RA');
+    }
+
+    const student = await this.studentService.findOneStudent(
+      season,
+      undefined,
+      user.ra,
+    );
+    return {
+      studentId: student?.aluno_id,
+      login: student?.login,
+    };
   }
 }
 

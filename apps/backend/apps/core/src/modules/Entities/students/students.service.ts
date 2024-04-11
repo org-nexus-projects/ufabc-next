@@ -16,9 +16,19 @@ export class StudentService {
   }
 
   async findOneStudent(
-    studentId: number,
     season: ReturnType<typeof currentQuad>,
+    studentId?: number,
+    ra?: number,
   ) {
+    if (!studentId) {
+      const student = await this.studentRepository.findOneStudent({
+        ra,
+        season,
+      });
+
+      return student;
+    }
+
     const student = await this.studentRepository.findOneStudent({
       aluno_id: studentId,
       season,
