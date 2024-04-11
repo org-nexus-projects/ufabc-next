@@ -45,7 +45,13 @@ export class CourseStatsRepository implements UserCourseStatsRepository {
     const graduationHistory = await this.graduationHistoryService
       // eslint-disable-next-line unicorn/no-array-callback-reference
       .find(options)
-      .select({ coefficients: 1, curso: 1, grade: 1, graduation: 1 })
+      .select({
+        coefficients: 1,
+        curso: 1,
+        grade: 1,
+        graduation: 1,
+        disciplinas: 1,
+      })
       .lean<GraduationHistory['coefficients']>({
         virtuals: true,
       });
