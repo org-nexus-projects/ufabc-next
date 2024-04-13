@@ -7,7 +7,7 @@ import {
   parseXlsx,
 } from '@next/common';
 import { omit as LodashOmit } from 'lodash-es';
-import { type Disciplina, DisciplinaModel } from '@/models/index.js';
+import { type Disciplina, DisciplinaModel } from '@/models/Disciplina.js';
 import { nextJobs } from '@/queue/NextJobs.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 

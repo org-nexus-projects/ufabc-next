@@ -6,14 +6,13 @@ import {
 } from '@next/common';
 import { get } from 'lodash-es';
 import {
-  type Coefficient,
-  EnrollmentModel,
   type GraduationDocument,
-  GraduationHistoryModel,
   GraduationModel,
-  type History,
-  SubjectModel,
-} from '@/models/index.js';
+} from '@/models/Graduation.js';
+import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
+import { SubjectModel } from '@/models/Subject.js';
+import { EnrollmentModel } from '@/models/Enrollment.js';
+import type { Coefficient, History } from '@/models/History.js';
 
 //TODO: replace _.get with a native function
 

@@ -4,7 +4,7 @@ import {
   parseResponseToJson,
 } from '@next/common';
 import { ofetch } from 'ofetch';
-import { DisciplinaModel } from '@/models/index.js';
+import { DisciplinaModel } from '@/models/Disciplina.js';
 
 type SyncMatriculasParams = {
   operation: 'alunos_matriculados';

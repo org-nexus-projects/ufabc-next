@@ -1,4 +1,4 @@
-import { UserModel } from '@/models/index.js';
+import { UserModel } from '@/models/User.js';
 import type { NextOAuth2User } from './utils/oauthTypes.js';
 
 export async function createIfNotExists(

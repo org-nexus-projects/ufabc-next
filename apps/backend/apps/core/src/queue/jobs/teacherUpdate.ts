@@ -4,7 +4,8 @@ import {
   logger,
   resolveProfessor,
 } from '@next/common';
-import { EnrollmentModel, TeacherModel } from '@/models/index.js';
+import { EnrollmentModel } from '@/models/Enrollment.js';
+import { TeacherModel } from '@/models/Teacher.js';
 //TODO: Check if this is the correct type (pratica and teoria are not in the spreadsheet)
 //this is the type of the spreedsheet file that is being parsed
 // but the spreeadsheet file does not have the teoria and pratica fields

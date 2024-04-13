@@ -1,11 +1,9 @@
 import { logger } from '@next/common';
-import {
-  CommentModel,
-  DisciplinaModel,
-  EnrollmentModel,
-  StudentModel,
-  UserModel,
-} from '@/models/index.js';
+import { CommentModel } from '@/models/Comment.js';
+import { DisciplinaModel } from '@/models/Disciplina.js';
+import { EnrollmentModel } from '@/models/Enrollment.js';
+import { StudentModel } from '@/models/Student.js';
+import { UserModel } from '@/models/User.js';
 import type { PipelineStage } from 'mongoose';
 
 type DisciplinaStats = {
