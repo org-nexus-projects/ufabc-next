@@ -39,4 +39,12 @@ export async function accountRoutes(app: FastifyInstance) {
     { schema: usersInfoSchema, onRequest: [authenticate] },
     nextAccountHandler.nextUserInfo,
   );
+
+  app.delete(
+    '/remove',
+    { onRequest: [authenticate] },
+    nextAccountHandler.disableUserAccount,
+  );
+
+  app.post('/devices', nextAccountHandler.setUserDevice);
 }

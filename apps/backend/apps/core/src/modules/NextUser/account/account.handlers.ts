@@ -1,3 +1,5 @@
+import UAParser from 'ua-parser-js';
+import { UserModel } from '@/models/User.js';
 import { confirmToken } from '../utils/confirmationToken.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { AccountService } from './account.service.js';
@@ -62,5 +64,58 @@ export class AccountHandler {
     }
 
     await nextUser.sendConfirmation();
+  }
+
+  async disableUserAccount(request: FastifyRequest, reply: FastifyReply) {
+    const user = await UserModel.findOne({
+      _id: request.user?._id,
+      active: true,
+    });
+
+    if (!user) {
+      return reply.badRequest('User not found');
+    }
+
+    user.active = false;
+    await user.save();
+
+    return {
+      message: 'Foi bom te ter aqui =)',
+    };
+  }
+
+  async setUserDevice(
+    request: FastifyRequest<{
+      Body: {
+        deviceId: string;
+        token: string;
+      };
+    }>,
+    reply: FastifyReply,
+  ) {
+    const { deviceId, token } = request.body;
+    if (!deviceId) {
+      return reply.badRequest('Missing User deviceId');
+    }
+
+    if (!token) {
+      return reply.badRequest('missing token');
+    }
+
+    const userAgent = new UAParser(request.headers['user-agent']);
+    const deviceAgent = userAgent.getDevice();
+
+    const newDevice = {
+      deviceId,
+      token,
+      phone: `${deviceAgent?.vendor}:${deviceAgent?.model} || 'Unparseable'`,
+    };
+
+    // @ts-expect-error fix later
+    request.user?.addDevice(newDevice);
+
+    await request.user?.save();
+
+    return request.user?.devices;
   }
 }
