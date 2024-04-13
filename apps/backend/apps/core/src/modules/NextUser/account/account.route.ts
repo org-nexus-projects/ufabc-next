@@ -46,5 +46,19 @@ export async function accountRoutes(app: FastifyInstance) {
     nextAccountHandler.disableUserAccount,
   );
 
-  app.post('/devices', nextAccountHandler.setUserDevice);
+  app.post<{
+    Body: {
+      deviceId: string;
+      token: string;
+    };
+  }>(
+    '/devices',
+    { onRequest: [authenticate] },
+    nextAccountHandler.setUserDevice,
+  );
+  app.delete<{ Params: { deviceId: string } }>(
+    '/devices/:deviceId',
+    { onRequest: [authenticate] },
+    nextAccountHandler.removeUserDevice,
+  );
 }

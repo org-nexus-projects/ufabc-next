@@ -118,4 +118,33 @@ export class AccountHandler {
 
     return request.user?.devices;
   }
+
+  async removeUserDevice(
+    request: FastifyRequest<{ Params: { deviceId: string } }>,
+    reply: FastifyReply,
+  ) {
+    const user = request.user;
+    const { deviceId } = request.params;
+    if (!deviceId) {
+      return reply.badRequest('Missing deviceId');
+    }
+
+    if (!user) {
+      return reply.notFound('User not found');
+    }
+
+    const isValidDevice = user.devices.find(
+      (device) => device.deviceId === deviceId,
+    );
+
+    if (!isValidDevice) {
+      return reply.badRequest(`Invalid device ${deviceId}`);
+    }
+
+    user.removeDevice(deviceId);
+
+    await user.save();
+
+    return user.devices;
+  }
 }
