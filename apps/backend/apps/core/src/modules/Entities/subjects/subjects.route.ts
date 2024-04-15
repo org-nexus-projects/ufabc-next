@@ -26,4 +26,6 @@ export async function subjectsRoute(app: FastifyInstance) {
     { onRequest: [authenticate, admin] },
     subjectHandler.createSubject,
   );
+
+  app.get('/subject/review/:subjectId', subjectHandler.subjectsReviews);
 }
