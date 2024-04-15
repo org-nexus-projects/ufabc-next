@@ -34,4 +34,10 @@ export async function teacherRoutes(app: FastifyInstance) {
     { onRequest: [authenticate] },
     teacherHandler.searchTeacher,
   );
+
+  app.get<{ Params: { teacherId: string } }>(
+    '/teacher/review/:teacherId',
+    { onRequest: [authenticate] },
+    teacherHandler.teacherReview,
+  );
 }

@@ -1,5 +1,11 @@
-import { camelCase, startCase } from 'lodash-es';
-import type { Teacher } from '@/models/Teacher.js';
+import {
+  groupBy as LodashGroupBy,
+  merge as LodashMerge,
+  camelCase,
+  startCase,
+} from 'lodash-es';
+import { type Teacher, TeacherModel } from '@/models/Teacher.js';
+import { SubjectModel } from '@/models/Subject.js';
 import type { TeacherService } from './teacher.service.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
@@ -11,6 +17,18 @@ export type UpdateTeacherRequest = {
     teacherId: string;
   };
 };
+
+type ReviewStats = Awaited<ReturnType<TeacherService['teacherReviews']>>;
+type Concept = ReviewStats[number]['distribution'][number]['conceito'];
+type Distribution = Omit<
+  ReviewStats[number]['distribution'][number],
+  'conceito | weigth'
+>;
+
+type GroupedDistribution = Record<
+  NonNullable<Concept>,
+  ReviewStats[number]['distribution']
+>;
 
 export class TeacherHandler {
   constructor(private readonly teacherService: TeacherService) {}
@@ -63,4 +81,87 @@ export class TeacherHandler {
     const searchResults = await this.teacherService.findTeacher(search);
     return searchResults;
   }
+
+  async teacherReview(
+    request: FastifyRequest<{ Params: { teacherId: string } }>,
+    reply: FastifyReply,
+  ) {
+    const { teacherId } = request.params;
+    const { redis } = request.server;
+    if (!teacherId) {
+      return reply.badRequest('Missing Subject');
+    }
+
+    const cacheKey = `reviews_${teacherId}`;
+    const cached = await redis.get(cacheKey);
+
+    if (cached) {
+      return cached;
+    }
+
+    const stats = await this.teacherService.teacherReviews(teacherId);
+    request.log.warn(stats);
+
+    stats.map((stat) => {
+      stat.cr_medio = stat.numeric / stat.amount;
+      return stat;
+    });
+
+    const distributions = stats.flatMap((stat) => stat.distribution);
+    const groupedDistributions = LodashGroupBy(
+      distributions,
+      'conceito',
+    ) as GroupedDistribution;
+
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const distributionsMean = {} as Record<NonNullable<Concept>, Distribution>;
+    for (const conceito in groupedDistributions) {
+      const concept = conceito as NonNullable<Concept>;
+      const statsArray = groupedDistributions[concept];
+      // @ts-expect-error mess code
+      distributionsMean[concept] = getStatsMean(statsArray);
+    }
+
+    const rawDistribution = Object.values<Distribution>(distributionsMean);
+
+    const result = {
+      teacher: await TeacherModel.findOne({ _id: teacherId }).lean(true),
+      // @ts-expect-error mess code
+      general: LodashMerge(getStatsMean(rawDistribution), {
+        distribution: rawDistribution,
+      }),
+      specific: await SubjectModel.populate(stats, '_id'),
+    };
+
+    await redis.set(cacheKey, JSON.stringify(result), 'EX', 60 * 60 * 24);
+
+    return result;
+  }
+}
+
+function getStatsMean(
+  reviewStats: ReviewStats[number]['distribution'],
+  key?: keyof GroupedDistribution,
+) {
+  const count = reviewStats.reduce((acc, { count }) => acc + count, 0);
+  const amount = reviewStats.reduce((acc, { amount }) => acc + amount, 0);
+  const simpleSum = reviewStats
+    .filter((stat) => stat.cr_medio !== null)
+    .map((stat) => stat.amount + stat.cr_medio!);
+  const totalSum = simpleSum.reduce((acc, val) => acc + val, 0);
+
+  return {
+    conceito: key,
+    cr_medio: totalSum / amount,
+    cr_professor:
+      reviewStats.reduce((acc, { numericWeight }) => acc + numericWeight, 0) /
+      amount,
+    count,
+    amount,
+    numeric: reviewStats.reduce((acc, { numeric }) => acc + numeric, 0),
+    numericWeight: reviewStats.reduce(
+      (acc, { numericWeight }) => acc + numericWeight,
+      0,
+    ),
+  };
 }
