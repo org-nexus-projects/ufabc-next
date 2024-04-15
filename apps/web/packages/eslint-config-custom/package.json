@@ -18,7 +18,7 @@
     "@typescript-eslint/eslint-plugin": "6.21.0",
     "@typescript-eslint/parser": "6.21.0",
     "@tanstack/eslint-plugin-query": "5.28.11",
-    "typescript": "5.4.4"
+    "typescript": "5.4.5"
   },
   "publishConfig": {
     "access": "public"
