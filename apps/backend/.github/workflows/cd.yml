@@ -10,6 +10,8 @@ jobs:
   deploy:
     name: 🚀 CD Workflow
     runs-on: ubuntu-latest
+    env:
+      AWS_INSTANCE_SG_ID: ${{ secrets.SECURITY_GROUP_ID }}
     timeout-minutes: 5
     steps:
       - name: 📦 Checkout code
