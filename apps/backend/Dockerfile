@@ -3,13 +3,13 @@
 
 ARG NODE_VERSION="20.8.0"
 
-FROM node:${NODE_VERSION}-alpine AS runtime 
+FROM node:${NODE_VERSION}-alpine AS runtime
 
 #Env git secret private key
 ARG GIT_SECRET_PRIVATE_KEY
 ENV GIT_SECRET_PRIVATE_KEY=$GIT_SECRET_PRIVATE_KEY
 
-#Env git secret password 
+#Env git secret password
 ARG GIT_SECRET_PASSWORD
 ENV GIT_SECRET_PASSWORD=$GIT_SECRET_PASSWORD
 
@@ -24,7 +24,7 @@ COPY pnpm*.yaml ./
 
 # mount pnpm store as cache & fetch dependencies
 RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm-store \
-  pnpm fetch --ignore-scripts
+    pnpm fetch --ignore-scripts
 
 FROM fetcher as builder
 # specify the app in apps/ we want to build
@@ -35,12 +35,12 @@ ENV APP_NAME=${APP_NAME}
 WORKDIR /workspace
 COPY . .
 
-RUN pnpm i --frozen-lockfile --offline --silent
+RUN pnpm i --frozen-lockfile --offline
 
 # build app
 
 RUN  --mount=type=cache,target=/workspace/node_modules/.cache \
-  pnpm turbo run build --filter="${APP_NAME}"
+    pnpm turbo run build --filter="${APP_NAME}"
 
 # deploy app
 FROM builder as deployer
