@@ -25,13 +25,11 @@ jobs:
       - name: 🔐 Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-        with:
-          mask-password: true
 
       - name: 🏗️ Build, tag and push Image to Amazon ECR
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: ufabc-next-backend
+          REPOSITORY: unext-backend-ecr
           IMAGE_TAG: ${{ github.sha }}
           GIT_SECRET_PRIVATE_KEY: ${{ secrets.GIT_SECRET_PRIVATE_KEY }}
           GIT_SECRET_PASSWORD: ${{ secrets.GIT_SECRET_PASSWORD }}
@@ -50,7 +48,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SECRET_SSH_KEY }}
           script: |
-            docker pull ${{ secrets.AWS_ACCOUNT_ID }}.${{ secrets.ECR_REGISTRY }}/ufabc-next-backend:${{ github.sha }}
-            docker stop ufabc-next-backend
-            docker rm ufabc-next-backend
-            docker run -d --name ufabc-next-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.AWS_ACCOUNT_ID }}.${{ secrets.ECR_REGISTRY }}/ufabc-next-backend:${{ github.sha }}
+            docker pull ${{ secrets.AWS_ACCOUNT_ID }}.${{ secrets.ECR_REGISTRY }}/unext-backend-ecr:${{ github.sha }}
+            docker stop unext-backend
+            docker rm unext-backend
+            docker run -d --name unext-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.AWS_ACCOUNT_ID }}.${{ secrets.ECR_REGISTRY }}/unext-backend-ecr:${{ github.sha }}
