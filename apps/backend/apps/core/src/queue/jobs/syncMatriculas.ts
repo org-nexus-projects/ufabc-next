@@ -50,7 +50,7 @@ export async function syncMatriculasJob(params: SyncMatriculasParams) {
   return errors;
 }
 
-const parseEnrollments = (data: Record<string, number[]>) => {
+function parseEnrollments(data: Record<string, number[]>) {
   const matriculas: Record<number, number[]> = {};
 
   for (const aluno_id in data) {
@@ -62,4 +62,4 @@ const parseEnrollments = (data: Record<string, number[]>) => {
     });
   }
   return matriculas;
-};
+}

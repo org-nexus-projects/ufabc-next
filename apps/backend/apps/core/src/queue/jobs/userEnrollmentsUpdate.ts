@@ -46,12 +46,14 @@ export async function updateUserEnrollments(history: History) {
       ra: history.ra,
     },
     {
-      curso: checkAndFixCourseName(history.curso!),
-      grade: history.grade,
-      ra: history.ra,
-      coefficients,
-      disciplinas: disciplinesArr,
-      graduation: graduation ? graduation._id : null,
+      $set: {
+        curso: checkAndFixCourseName(history.curso!),
+        grade: history.grade,
+        ra: history.ra,
+        coefficients,
+        disciplinas: disciplinesArr,
+        graduation: graduation ? graduation._id : null,
+      },
     },
     { upsert: true },
   );
