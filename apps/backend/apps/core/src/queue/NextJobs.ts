@@ -17,19 +17,25 @@ interface NextJob {
 }
 
 class NextJobs implements NextJob {
-  private readonly queues: Record<string, Queue> = {};
-  private readonly DEFAULT_REDIS_PORT = 6379;
+  private readonly queues: Record<
+    string,
+    Queue<JobParameters<NextJobNames> | null, unknown, NextJobNames>
+  > = {};
   private readonly RedisConnection = {
     username: Config.REDIS_USER,
     password: Config.REDIS_PASSWORD,
     host: Config.REDIS_HOST,
-    port: this.DEFAULT_REDIS_PORT ?? Config.REDIS_PORT,
+    port: Config.REDIS_PORT,
     lazyConnect: true,
   } satisfies RedisOptions;
 
   constructor() {
-    for (const queueName of Object.keys(NEXT_QUEUE_JOBS)) {
-      this.queues[queueName] = new Queue(queueName, {
+    for (const queuename of Object.keys(NEXT_QUEUE_JOBS)) {
+      const queue = new Queue<
+        JobParameters<NextJobNames> | null,
+        unknown,
+        NextJobNames
+      >(queuename, {
         connection: {
           ...this.RedisConnection,
         },
@@ -37,8 +43,10 @@ class NextJobs implements NextJob {
           attempts: 1,
         },
       });
+      this.queues[queuename] = queue;
     }
   }
+
   private getQueue(jobName: NextJobNames) {
     return this.queues[NEXT_JOBS[jobName].queue];
   }
@@ -49,10 +57,10 @@ class NextJobs implements NextJob {
       return;
     }
 
-    for (const [jobName, jobDefinition] of Object.entries(NEXT_JOBS)) {
+    for (const [jobname, jobDefinition] of Object.entries(NEXT_JOBS)) {
       if ('every' in jobDefinition) {
         const queue = this.queues[jobDefinition.queue];
-        await queue.add(jobName, null, {
+        await queue.add(jobname as NextJobNames, null, {
           repeat: {
             every: ms(jobDefinition.every),
           },
@@ -67,6 +75,7 @@ class NextJobs implements NextJob {
   ) {
     const jobOptions = {
       jobId: randomUUID(),
+      removeOnComplete: true,
     } satisfies JobsOptions;
 
     return this.getQueue(jobName).add(jobName, jobParameters, jobOptions);
