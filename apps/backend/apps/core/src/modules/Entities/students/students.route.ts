@@ -24,4 +24,5 @@ export async function studentsRoute(app: FastifyInstance) {
     { onRequest: [authenticate] },
     studentHandler.listSeasonStudent,
   );
+  app.get('/student/stats/disciplinas', studentHandler.studentDisciplinasStats);
 }
