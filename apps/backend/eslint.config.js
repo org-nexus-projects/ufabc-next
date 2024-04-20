@@ -10,5 +10,5 @@ export default eslintConfig(
       'unicorn/filename-case': ['off'],
     },
   },
-  { unocss: false, vue: false, prettier: true, markdown: true },
+  { unocss: false, vue: false, prettier: false, markdown: true },
 );
