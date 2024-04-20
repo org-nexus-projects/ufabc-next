@@ -3,22 +3,23 @@ import {
   merge as LodashMerge,
   camelCase,
   startCase,
-} from 'lodash-es';
-import { TeacherModel } from '@/models/Teacher.js';
-import { SubjectModel } from '@/models/Subject.js';
-import type { FastifyReply, FastifyRequest } from 'fastify';
-import type { SubjectService } from './subjects.service.js';
+} from "lodash-es";
+import { TeacherModel } from "@/models/Teacher.js";
+import { SubjectModel } from "@/models/Subject.js";
+import { storage } from "@/services/unstorage.js";
+import type { FastifyReply, FastifyRequest } from "fastify";
+import type { SubjectService } from "./subjects.service.js";
 
-type ReviewStats = Awaited<ReturnType<SubjectService['subjectReviews']>>;
-type Concept = ReviewStats[number]['distribution'][number]['conceito'];
+type ReviewStats = Awaited<ReturnType<SubjectService["subjectReviews"]>>;
+type Concept = ReviewStats[number]["distribution"][number]["conceito"];
 type Distribution = Omit<
-  ReviewStats[number]['distribution'][number],
-  'conceito | weigth'
+  ReviewStats[number]["distribution"][number],
+  "conceito | weigth"
 >;
 
 type GroupedDistribution = Record<
   NonNullable<Concept>,
-  ReviewStats[number]['distribution']
+  ReviewStats[number]["distribution"]
 >;
 
 export class SubjectHandler {
@@ -29,10 +30,10 @@ export class SubjectHandler {
     const normalizedSearch = startCase(camelCase(rawSearch));
     const validatedSearch = normalizedSearch.replaceAll(
       /[\s#$()*+,.?[\\\]^{|}-]/g,
-      '\\$&',
+      "\\$&",
     );
 
-    const search = new RegExp(validatedSearch, 'gi');
+    const search = new RegExp(validatedSearch, "gi");
     const searchResults = await this.subjectService.findSubject(search);
     return searchResults;
   }
@@ -57,13 +58,13 @@ export class SubjectHandler {
     reply: FastifyReply,
   ) {
     const { subjectId } = request.params;
-    const { redis } = request.server;
+
     if (!subjectId) {
-      return reply.badRequest('Missing Subject');
+      return reply.badRequest("Missing Subject");
     }
 
-    const cacheKey = `reviews_${subjectId}`;
-    const cached = await redis.get(cacheKey);
+    const cacheKey = `reviews-${subjectId}`;
+    const cached = await storage.getItem<typeof result>(cacheKey);
 
     if (cached) {
       return cached;
@@ -79,7 +80,7 @@ export class SubjectHandler {
     const distributions = stats.flatMap((stat) => stat.distribution);
     const groupedDistributions = LodashGroupBy(
       distributions,
-      'conceito',
+      "conceito",
     ) as GroupedDistribution;
 
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -99,17 +100,19 @@ export class SubjectHandler {
       general: LodashMerge(getStatsMean(rawDistribution), {
         distribution: rawDistribution,
       }),
-      specific: await TeacherModel.populate(stats, 'teacher'),
+      specific: await TeacherModel.populate(stats, "teacher"),
     };
 
-    await redis.set(cacheKey, JSON.stringify(result), 'EX', 60 * 60 * 24);
+    await storage.setItem<typeof result>(cacheKey, result, {
+      ttl: 60 * 60 * 24,
+    });
 
     return result;
   }
 }
 
 function getStatsMean(
-  reviewStats: ReviewStats[number]['distribution'],
+  reviewStats: ReviewStats[number]["distribution"],
   key?: keyof GroupedDistribution,
 ) {
   const count = reviewStats.reduce((acc, { count }) => acc + count, 0);

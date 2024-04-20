@@ -40,6 +40,7 @@
     "ms": "^2.1.3",
     "ofetch": "^1.3.3",
     "ua-parser-js": "^1.0.37",
+    "unstorage": "^1.10.2",
     "zod": "^3.22.4"
   },
   "devDependencies": {

@@ -1,7 +1,7 @@
 {
   "name": "ufabc-next-backend",
   "private": false,
-  "packageManager": "pnpm@8.13.1",
+  "packageManager": "pnpm@9.0.2",
   "type": "module",
   "scripts": {
     "populate": "turbo run populate -- ",
@@ -28,7 +28,7 @@
   },
   "engines": {
     "node": ">=21.7.1 || >=20.12.2",
-    "pnpm": "^8"
+    "pnpm": "^9"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged"

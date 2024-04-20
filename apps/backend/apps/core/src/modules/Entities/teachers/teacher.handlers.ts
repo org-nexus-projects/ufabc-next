@@ -3,11 +3,12 @@ import {
   merge as LodashMerge,
   camelCase,
   startCase,
-} from 'lodash-es';
-import { type Teacher, TeacherModel } from '@/models/Teacher.js';
-import { SubjectModel } from '@/models/Subject.js';
-import type { TeacherService } from './teacher.service.js';
-import type { FastifyReply, FastifyRequest } from 'fastify';
+} from "lodash-es";
+import { type Teacher, TeacherModel } from "@/models/Teacher.js";
+import { SubjectModel } from "@/models/Subject.js";
+import { storage } from "@/services/unstorage.js";
+import type { TeacherService } from "./teacher.service.js";
+import type { FastifyReply, FastifyRequest } from "fastify";
 
 export type UpdateTeacherRequest = {
   Body: {
@@ -18,16 +19,16 @@ export type UpdateTeacherRequest = {
   };
 };
 
-type ReviewStats = Awaited<ReturnType<TeacherService['teacherReviews']>>;
-type Concept = ReviewStats[number]['distribution'][number]['conceito'];
+type ReviewStats = Awaited<ReturnType<TeacherService["teacherReviews"]>>;
+type Concept = ReviewStats[number]["distribution"][number]["conceito"];
 type Distribution = Omit<
-  ReviewStats[number]['distribution'][number],
-  'conceito | weigth'
+  ReviewStats[number]["distribution"][number],
+  "conceito | weigth"
 >;
 
 type GroupedDistribution = Record<
   NonNullable<Concept>,
-  ReviewStats[number]['distribution']
+  ReviewStats[number]["distribution"]
 >;
 
 export class TeacherHandler {
@@ -44,7 +45,7 @@ export class TeacherHandler {
   ) {
     const teacher = request.body;
     if (!teacher.name) {
-      return reply.badRequest('Missing Teacher name');
+      return reply.badRequest("Missing Teacher name");
     }
     const createdTeacher = await this.teacherService.insertTeacher(teacher);
     return createdTeacher;
@@ -58,7 +59,7 @@ export class TeacherHandler {
     const { alias } = request.body;
 
     if (!teacherId) {
-      return reply.badRequest('Missing teacherId');
+      return reply.badRequest("Missing teacherId");
     }
 
     const teacherWithAlias = await this.teacherService.setTeacherAlias(
@@ -74,10 +75,10 @@ export class TeacherHandler {
     const normalizedSearch = startCase(camelCase(rawSearch));
     const validatedSearch = normalizedSearch.replaceAll(
       /[\s#$()*+,.?[\\\]^{|}-]/g,
-      '\\$&',
+      "\\$&",
     );
 
-    const search = new RegExp(validatedSearch, 'gi');
+    const search = new RegExp(validatedSearch, "gi");
     const searchResults = await this.teacherService.findTeacher(search);
     return searchResults;
   }
@@ -87,13 +88,13 @@ export class TeacherHandler {
     reply: FastifyReply,
   ) {
     const { teacherId } = request.params;
-    const { redis } = request.server;
+
     if (!teacherId) {
-      return reply.badRequest('Missing Subject');
+      return reply.badRequest("Missing Subject");
     }
 
-    const cacheKey = `reviews_${teacherId}`;
-    const cached = await redis.get(cacheKey);
+    const cacheKey = `reviews-${teacherId}`;
+    const cached = await storage.getItem<typeof result>(cacheKey);
 
     if (cached) {
       return cached;
@@ -110,7 +111,7 @@ export class TeacherHandler {
     const distributions = stats.flatMap((stat) => stat.distribution);
     const groupedDistributions = LodashGroupBy(
       distributions,
-      'conceito',
+      "conceito",
     ) as GroupedDistribution;
 
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -130,17 +131,19 @@ export class TeacherHandler {
       general: LodashMerge(getStatsMean(rawDistribution), {
         distribution: rawDistribution,
       }),
-      specific: await SubjectModel.populate(stats, '_id'),
+      specific: await SubjectModel.populate(stats, "_id"),
     };
 
-    await redis.set(cacheKey, JSON.stringify(result), 'EX', 60 * 60 * 24);
+    await storage.setItem<typeof result>(cacheKey, result, {
+      ttl: 60 * 60 * 24,
+    });
 
     return result;
   }
 }
 
 function getStatsMean(
-  reviewStats: ReviewStats[number]['distribution'],
+  reviewStats: ReviewStats[number]["distribution"],
   key?: keyof GroupedDistribution,
 ) {
   const count = reviewStats.reduce((acc, { count }) => acc + count, 0);
