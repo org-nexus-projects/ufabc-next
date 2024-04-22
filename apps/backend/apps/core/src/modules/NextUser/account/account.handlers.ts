@@ -7,6 +7,23 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 export class AccountHandler {
 
 
+  async loginFacebook(request: FastifyRequest<{ Body: { ra: number, email: string } }>, reply: FastifyReply) {
+    const { ra, email } = request.body;
+    const user = await UserModel.findOne({
+      ra,
+      'oauth.provider': 'facebook',
+      'oauth.email': email
+    })
+
+    if(!user) {
+      return reply.notFound('User not found')
+    }
+
+    return {
+      token: user.generateJWT(),
+    }
+  }
+
   async confirmNextUser(
     request: FastifyRequest<{ Body: { token: string } }>,
     reply: FastifyReply,

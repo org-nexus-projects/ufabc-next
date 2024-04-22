@@ -54,4 +54,6 @@ export async function accountRoutes(app: FastifyInstance) {
     { onRequest: [authenticate] },
     nextAccountHandler.removeUserDevice,
   );
+
+  app.get('/facebook', nextAccountHandler.loginFacebook)
 }
