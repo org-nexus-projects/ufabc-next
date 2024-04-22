@@ -1,11 +1,11 @@
 import UAParser from 'ua-parser-js';
+import { z } from 'zod';
 import { UserModel } from '@/models/User.js';
 import { confirmToken } from '../utils/confirmationToken.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import type { AccountService } from './account.service.js';
 
 export class AccountHandler {
-  constructor(private readonly accountService: AccountService) {}
+
 
   async confirmNextUser(
     request: FastifyRequest<{ Body: { token: string } }>,
@@ -13,7 +13,13 @@ export class AccountHandler {
   ) {
     const { token } = request.body;
     const userNotConfirmed = confirmToken(token);
-    const user = await this.accountService.findUnique(userNotConfirmed);
+    const parsedUserToken = z.object({
+      email: z.string().email(),
+    });
+    const response = parsedUserToken.parse(JSON.parse(userNotConfirmed));
+    const user = await UserModel.findOne({
+      email: response.email,
+    });
 
     if (!user) {
       return reply.badRequest('User not found');
@@ -30,35 +36,49 @@ export class AccountHandler {
     const nextUser = request.user;
 
     if (!nextUser) {
-      reply.badRequest('User not found');
+      return reply.badRequest('User not found');
     }
 
-    return nextUser;
+    return {
+      id: nextUser._id,
+      ra: nextUser.ra,
+      oauth: nextUser.oauth,
+      confirmed: nextUser.confirmed,
+      active: nextUser.active,
+    };
   }
 
   async completeNextUser(
     request: FastifyRequest<{ Body: { email: string; ra: number } }>,
     reply: FastifyReply,
   ) {
-    const nextSessionUser = request.user;
-
-    if (!nextSessionUser) {
-      reply.badRequest('User not found');
+    const user = request.user;
+    if (!user) {
+      return reply.notFound('User not found');
     }
+    const student = z.object({
+      email: z.string().email(),
+      ra: z.number(),
+    });
 
-    const nextUser = await this.accountService.setNextUfFields(
-      request.body,
-      nextSessionUser!.email!,
-    );
+    const { email, ra } = student.parse(request.body);
 
-    return nextUser;
+    user.set({ email, ra });
+
+    await user.save();
+
+    return {
+      ra: user.ra,
+      email: user.email,
+    }
   }
 
   async resendNextEmail(request: FastifyRequest, reply: FastifyReply) {
-    const nextUser = await this.accountService.findUniqueSession(
-      // @ts-expect-error mongoose
-      request.user?._id,
-    );
+    const nextUser = await UserModel.findOne({
+      _id: request.user?._id,
+      active: true,
+    });
+
     if (!nextUser) {
       return reply.badRequest('User not found');
     }
@@ -108,7 +128,7 @@ export class AccountHandler {
     const newDevice = {
       deviceId,
       token,
-      phone: `${deviceAgent?.vendor}:${deviceAgent?.model} || 'Unparseable'`,
+      phone: `${deviceAgent?.vendor}:${deviceAgent?.model} || 'Unparsable'`,
     };
 
     // @ts-expect-error fix later

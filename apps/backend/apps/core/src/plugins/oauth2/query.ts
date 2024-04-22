@@ -1,26 +1,29 @@
-import { UserModel } from '@/models/User.js';
-import type { NextOAuth2User } from './utils/oauthTypes.js';
+import { type AccountProvider, UserModel } from '@/models/User.js';
 
 export async function createIfNotExists(
-  oauthUser: NextOAuth2User,
+  oauthUser: AccountProvider,
   userId?: string,
 ) {
   const findUserQuery: Record<string, string>[] = [
-    { 'oauth.providerId': oauthUser.providerId },
+    { "oauth.providerId": oauthUser.provider },
   ];
 
   if (userId) {
-    findUserQuery.push({ _id: userId.split('?')[0] });
+    const [queryId] = userId.split("?");
+    findUserQuery.push({ _id: queryId });
   }
 
   const user =
-    (await UserModel.findOne({ $or: findUserQuery })) ?? new UserModel();
+    (await UserModel.findOne({ $or: findUserQuery })) || new UserModel();
 
   user.set({
     active: true,
-    'oauth.providerId': oauthUser.providerId,
-    'oauth.email': oauthUser.email,
-    'oauth.provider': oauthUser.provider,
+    oauth: [{
+      provider: oauthUser.provider,
+      id: oauthUser.id,
+      email: oauthUser.email,
+    }],
+   
   });
 
   await user.save();

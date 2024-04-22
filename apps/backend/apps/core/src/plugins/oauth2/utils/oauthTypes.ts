@@ -1,3 +1,4 @@
+import type { AccountProvider } from '@/models/User.js'
 import type {
   Credentials,
   ProviderConfiguration,
@@ -39,18 +40,11 @@ export type GoogleUser = {
   emailAddresses: EmailAddresses[];
 };
 
-export type NextOAuth2User = {
-  email: string;
-  providerId: string;
-  provider: string;
-  picture?: string;
-};
-
 export type ProviderName = 'google' | 'facebook';
 type ProviderConfig = {
   config: ProviderConfiguration;
   scope: string[];
   credentials: Omit<Credentials, 'auth'>;
-  getUserDetails: (token: Token) => Promise<NextOAuth2User>;
+  getUserDetails: (token: Token) => Promise<AccountProvider>;
 };
 export type Providers = Record<ProviderName, ProviderConfig>;

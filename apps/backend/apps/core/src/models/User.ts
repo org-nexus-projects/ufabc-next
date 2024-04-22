@@ -11,6 +11,25 @@ import { Config } from '@/config/config.js';
 
 const INTEGRATED_PROVIDERS = ['facebook', 'google'] as const;
 
+const providerSchema = new Schema(
+  {
+    provider: {
+      type: String,
+      enum: INTEGRATED_PROVIDERS,
+      default: null,
+    },
+    id: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+  },
+  { _id: false },
+);
+
 const userSchema = new Schema(
   {
     ra: {
@@ -22,7 +41,7 @@ const userSchema = new Schema(
     email: {
       type: String,
       validate: {
-        validator: (v: string) => v.includes('ufabc.edu.br'),
+      validator: (email: string) => email.includes('ufabc.edu.br'),
         message: (props: ValidatorProps) =>
           `${props.value} não é um e-mail válido.`,
       },
@@ -37,18 +56,13 @@ const userSchema = new Schema(
       type: Boolean,
       default: true,
     },
-    oauth: {
-      email: String,
-      provider: {
-        type: String,
-        enum: INTEGRATED_PROVIDERS,
-      },
-      providerId: String,
-      picture: String,
-    },
+    oauth: [providerSchema],
     devices: [
       {
-        phone: String,
+        phone: {
+          type: String,
+          required: true,
+        },
         token: {
           type: String,
           required: true,
@@ -67,7 +81,7 @@ const userSchema = new Schema(
         this.devices.unshift(device);
 
         const uniqueDevices = [];
-        const uniqueDeviceIds = new Set<(typeof device)['deviceId']>();
+        const uniqueDeviceIds = new Set<string>();
         for (const device of this.devices) {
           if (!uniqueDeviceIds.has(device.id)) {
             uniqueDevices.push(device);
@@ -120,6 +134,7 @@ userSchema.pre<UserDocument>('save', async function () {
   }
 });
 
+export type AccountProvider = InferSchemaType<typeof providerSchema>;
 export type User = InferSchemaType<typeof userSchema>;
 export type UserDocument = ReturnType<(typeof UserModel)['hydrate']>;
 export const UserModel = model('users', userSchema);
