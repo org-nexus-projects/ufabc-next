@@ -4,7 +4,7 @@
   "description": "Adiciona funcionalidades novas ao sistema de matricula da UFABC",
   "version": "1.2.0",
   "manifest_version": 3,
-  "minimum_chrome_version": "55.0.0",
+  "minimum_chrome_version": "88.0.0",
   "icons": {
     "16": "images/icon-16.png",
     "128": "images/icon-128.png"
