@@ -1,6 +1,8 @@
 import {
   groupBy as LodashGroupBy,
   merge as LodashMerge,
+  sum as LodashSum,
+  sumBy as LodashSumBy,
   camelCase,
   startCase,
 } from "lodash-es";
@@ -94,15 +96,13 @@ export class TeacherHandler {
     }
 
     const cacheKey = `reviews-${teacherId}`;
-    const cached = await storage.getItem<typeof result>(cacheKey);
+    // const cached = await storage.getItem<typeof result>(cacheKey);
 
-    if (cached) {
-      return cached;
-    }
+    // if (cached) {
+    //   return cached;
+    // }
 
     const stats = await this.teacherService.teacherReviews(teacherId);
-    request.log.warn(stats);
-
     stats.map((stat) => {
       stat.cr_medio = stat.numeric / stat.amount;
       return stat;
@@ -146,25 +146,20 @@ function getStatsMean(
   reviewStats: ReviewStats[number]["distribution"],
   key?: keyof GroupedDistribution,
 ) {
-  const count = reviewStats.reduce((acc, { count }) => acc + count, 0);
-  const amount = reviewStats.reduce((acc, { amount }) => acc + amount, 0);
+  const count = LodashSumBy(reviewStats, 'count');
+  const amount = LodashSumBy(reviewStats, 'amount');
   const simpleSum = reviewStats
     .filter((stat) => stat.cr_medio !== null)
-    .map((stat) => stat.amount + stat.cr_medio!);
-  const totalSum = simpleSum.reduce((acc, val) => acc + val, 0);
+    .map((stat) => stat.amount * stat.cr_medio!);
+  const totalSum = LodashSum(simpleSum)
 
   return {
     conceito: key,
     cr_medio: totalSum / amount,
-    cr_professor:
-      reviewStats.reduce((acc, { numericWeight }) => acc + numericWeight, 0) /
-      amount,
+    cr_professor: LodashSumBy(reviewStats, 'numericWeight') / amount,
     count,
     amount,
-    numeric: reviewStats.reduce((acc, { numeric }) => acc + numeric, 0),
-    numericWeight: reviewStats.reduce(
-      (acc, { numericWeight }) => acc + numericWeight,
-      0,
-    ),
+    numeric: LodashSumBy(reviewStats, 'numeric'),
+    numericWeight: LodashSumBy(reviewStats, 'numericWeight'),
   };
 }

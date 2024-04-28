@@ -12,7 +12,6 @@ type SyncMatriculasParams = {
 
 export async function syncMatriculasJob(params: SyncMatriculasParams) {
   const season = currentQuad();
-
   const matriculas = await ofetch(
     'https://matricula.ufabc.edu.br/cache/matriculas.js',
     {
@@ -20,46 +19,31 @@ export async function syncMatriculasJob(params: SyncMatriculasParams) {
     },
   );
   const enrollments = parseEnrollments(matriculas);
-
   const errors = await batchInsertItems(
     Object.keys(enrollments),
     async (enrollmentId) => {
-      // find and update disciplina
-      const query = {
-        disciplina_id: enrollmentId,
-        season,
-      };
-      // @ts-expect-error
-      const toUpdate = { [params.operation]: enrollments[enrollmentId] };
-      const opts = {
-        // returns the updated document
-        upsert: true,
-        // create if it not exists
-        new: true,
-      };
-      const saved = await DisciplinaModel.findOneAndUpdate(
-        query,
-        toUpdate,
-        opts,
+      const updatedDisciplinaDocument = await DisciplinaModel.findOneAndUpdate(
+        { disciplina_id: enrollmentId, season },
+        {$set: { [params.operation]: enrollments[Number.parseInt(enrollmentId)] }},
+        { upsert: true, new: true },
       );
 
-      return saved;
+      return updatedDisciplinaDocument;
     },
   );
 
   return errors;
 }
 
-function parseEnrollments(data: Record<string, number[]>) {
-  const matriculas: Record<number, number[]> = {};
-
-  for (const aluno_id in data) {
-    const matriculasAluno = data[aluno_id];
-    matriculasAluno.forEach((matricula) => {
-      matriculas[matricula] = (matriculas[matricula] || []).concat([
-        Number.parseInt(aluno_id),
+function parseEnrollments(rawEnrollments: Record<string, number[]>) {
+  const enrollments: Record<number, number[]> = {};
+  for (const studentId in rawEnrollments) {
+    const studentEnrollments = rawEnrollments[studentId];
+    studentEnrollments.forEach((enrollment) => {
+      enrollments[enrollment] = (enrollments[enrollment] || []).concat([
+        Number.parseInt(studentId),
       ]);
     });
   }
-  return matriculas;
+  return enrollments;
 }

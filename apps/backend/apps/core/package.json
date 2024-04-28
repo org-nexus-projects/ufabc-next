@@ -15,6 +15,7 @@
     "start": "node --env-file=.env.prod dist/server.js",
     "start:watch": "node --env-file=.env.production --watch dist/server.js",
     "test": "node --import=tsx runTests.ts",
+    "test:watch": "node --import=tsx --watch runTests.ts watch",
     "lint": "eslint .",
     "lint:fix": "eslint --fix"
   },

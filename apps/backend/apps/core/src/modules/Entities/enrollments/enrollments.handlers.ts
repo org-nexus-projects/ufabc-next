@@ -11,9 +11,9 @@ export class EnrollmentHandler {
       return reply.badRequest('Missing student RA');
     }
 
-    const userEnrollment = await this.enrollmentService.getEnrollment(user.ra);
 
-    return userEnrollment;
+    const userEnrollment = await this.enrollmentService.getEnrollment(user.ra);
+    return [userEnrollment];
   }
 
   async enrollmentComment(

@@ -29,10 +29,9 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
     await app.register(syncModule, {
       prefix: '/v2',
     });
+    return app;
   } catch (error) {
     app.log.fatal(error, 'build app error');
     process.exit(1);
   }
-
-  return app;
 }
