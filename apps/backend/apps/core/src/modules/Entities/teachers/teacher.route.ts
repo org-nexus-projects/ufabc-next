@@ -40,4 +40,10 @@ export async function teacherRoutes(app: FastifyInstance) {
     { onRequest: [authenticate] },
     teacherHandler.teacherReview,
   );
+
+  app.delete<{ Params: { teacherId: string } }>(
+    '/private/teacher/:teacherId',
+    { onRequest: [admin, authenticate] },
+    teacherHandler.removeTeacher,
+  );
 }
