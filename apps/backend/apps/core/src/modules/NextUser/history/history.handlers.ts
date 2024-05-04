@@ -48,10 +48,10 @@ export class HistoryHandler {
 
   async historiesCourses(
     request: FastifyRequest<{
-      Body: { season: ReturnType<typeof currentQuad> };
+      Querystring: { season: ReturnType<typeof currentQuad> };
     }>,
   ) {
-    const { season } = request.body;
+    const { season } = request.query;
     const seasonCourses = await findIds<Student>(season, StudentModel);
     return seasonCourses;
   }

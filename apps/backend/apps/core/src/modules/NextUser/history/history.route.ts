@@ -24,7 +24,7 @@ export async function historyRoutes(app: FastifyInstance) {
 
   app.post('/', historyHandler.userHistory);
   app.get<{
-    Body: { season: ReturnType<typeof currentQuad> };
+    Querystring: { season: ReturnType<typeof currentQuad> };
   }>(
     '/courses',
     { onRequest: [authenticate] },
