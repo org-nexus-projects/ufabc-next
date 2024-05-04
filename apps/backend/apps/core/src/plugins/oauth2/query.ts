@@ -5,11 +5,10 @@ export async function createIfNotExists(
   userId?: string,
 ) {
   const findUserQuery: Record<string, string>[] = [
-    { "oauth.providerId": oauthUser.provider },
+    { 'oauth.provider': oauthUser.provider },
   ];
-
   if (userId) {
-    const [queryId] = userId.split("?");
+    const [queryId] = userId.split('?');
     findUserQuery.push({ _id: queryId });
   }
 
@@ -18,12 +17,13 @@ export async function createIfNotExists(
 
   user.set({
     active: true,
-    oauth: [{
-      provider: oauthUser.provider,
-      id: oauthUser.id,
-      email: oauthUser.email,
-    }],
-   
+    oauth: [
+      {
+        provider: oauthUser.provider,
+        id: oauthUser.id,
+        email: oauthUser.email,
+      },
+    ],
   });
 
   await user.save();
