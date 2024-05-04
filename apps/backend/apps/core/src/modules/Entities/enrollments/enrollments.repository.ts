@@ -9,8 +9,8 @@ import type { FilterQuery, ProjectionType } from 'mongoose';
 interface EntitiesEnrollmentRepository {
   findOne(
     filter: FilterQuery<Enrollment>,
+    populateFields: string[],
     mapping?: ProjectionType<Enrollment>,
-    populateFields?: string[],
   ): Promise<Enrollment | null>;
   findEnrollmentComments(
     filter: FilterQuery<Comment>,
@@ -26,17 +26,11 @@ export class EnrollmentRepository implements EntitiesEnrollmentRepository {
   async findOne(
     filter: FilterQuery<Enrollment>,
     mapping: ProjectionType<Enrollment>,
-    populateFields?: string[],
+    populateFields: string[],
   ) {
-    if (populateFields) {
-      const enrollment = await this.enrollmentService
-        .findOne(filter, mapping)
-        .populate(populateFields)
-        .lean<Enrollment>(true);
-      return enrollment;
-    }
     const enrollment = await this.enrollmentService
       .findOne(filter, mapping)
+      .populate(populateFields)
       .lean<Enrollment>(true);
     return enrollment;
   }
