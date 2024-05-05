@@ -15,7 +15,7 @@
     "start": "node --env-file=.env.prod dist/server.js",
     "start:watch": "node --env-file=.env.production --watch dist/server.js",
     "test": "node --import=tsx runTests.ts",
-    "test:watch": "node --import=tsx --watch runTests.ts watch",
+    "test:watch": "node --import=tsx runTests.ts watch",
     "lint": "eslint .",
     "lint:fix": "eslint --fix"
   },
@@ -50,7 +50,7 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/lodash-es": "^4.17.12",
     "@types/ms": "^0.7.34",
-    "@types/node": "^20.12.7",
+    "@types/node": "^20.12.8",
     "@types/ua-parser-js": "^0.7.39",
     "esbuild": "^0.19.12",
     "esbuild-plugin-pino": "^2.1.1",

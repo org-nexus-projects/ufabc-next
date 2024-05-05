@@ -5,6 +5,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", "esbuild.ts", "test/**/*.ts"],
+  "include": ["src/**/*.ts", "esbuild.ts", "test/**/*.ts", "runTests.ts"],
   "exclude": ["node_modules/**/*"]
 }

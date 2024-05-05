@@ -34,7 +34,7 @@
     "@types/difflib": "^0.2.7",
     "@types/latinize": "^0.2.18",
     "@types/lodash-es": "^4.17.12",
-    "@types/node": "^20.12.7",
+    "@types/node": "^20.12.8",
     "c8": "^9.1.0",
     "lodash-es": "^4.17.21",
     "mongoose": "^8.3.2",
