@@ -25,7 +25,6 @@ export class TeacherRepository implements EntitityTeacherRepository {
 
   async findTeacher(options: FilterQuery<Teacher>) {
     const teachers = await this.teacherService
-      // eslint-disable-next-line unicorn/no-array-callback-reference
       .find(options)
       .lean<Teacher[]>(true);
     return teachers;

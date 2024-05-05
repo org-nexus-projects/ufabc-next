@@ -43,7 +43,6 @@ export class CourseStatsRepository implements UserCourseStatsRepository {
 
   async findUserGraduationHistory(options: FilterQuery<GraduationHistory>) {
     const graduationHistory = await this.graduationHistoryService
-      // eslint-disable-next-line unicorn/no-array-callback-reference
       .find(options)
       .select({
         coefficients: 1,
