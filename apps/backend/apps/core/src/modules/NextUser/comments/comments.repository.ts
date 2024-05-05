@@ -63,7 +63,6 @@ export class CommentRepository implements UserCommentRepository {
   async findMany(filter: FilterQuery<Comment>, pojo?: boolean) {
     if (pojo) {
       const comments = await this.commentService
-        // eslint-disable-next-line unicorn/no-array-callback-reference
         .find(filter)
         .lean<Comment[]>(true);
       return comments;
