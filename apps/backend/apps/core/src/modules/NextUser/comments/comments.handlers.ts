@@ -1,3 +1,4 @@
+import { EnrollmentModel } from '@/models/Enrollment.js';
 import type { Comment } from '@/models/Comment.js';
 import type { CommentService } from './comments.service.js';
 import type { Types } from 'mongoose';
@@ -17,7 +18,7 @@ export type CommentsOnTeacherRequest = {
 
 export type CreateCommentRequest = {
   Body: {
-    enrollmentId: Types.ObjectId;
+    enrollment: Types.ObjectId;
     comment: string;
     type: Comment['type'];
   };
@@ -44,15 +45,14 @@ export class CommentHandler {
     request: FastifyRequest<CreateCommentRequest>,
     reply: FastifyReply,
   ) {
-    const { enrollmentId, comment, type } = request.body;
+    const { enrollment: enrollmentId, comment, type } = request.body;
 
     if (!comment && !enrollmentId && !type) {
       request.log.error({ body: request.body }, 'Incomplete response');
       return reply.badRequest(`Body must have all obligatory fields`);
     }
 
-    const enrollment =
-      await this.commentService.findEnrollmentById(enrollmentId);
+    const enrollment = await EnrollmentModel.findById(enrollmentId);
 
     if (!enrollment) {
       return reply.notFound('Enrollment not found');
