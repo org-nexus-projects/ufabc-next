@@ -19,7 +19,7 @@
     "prepare": "simple-git-hooks"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.7.1",
+    "@biomejs/biome": "^1.7.2",
     "@sxzz/eslint-config": "^3.7.6",
     "eslint": "^8.57.0",
     "lint-staged": "^15.2.2",
