@@ -46,6 +46,7 @@ export class GeneralStatsHandler {
     });
 
     const dataKey = isPrevious ? '$before_kick' : '$alunos_matriculados';
+
     const studentCount = [
       {
         $unwind: dataKey,
@@ -56,6 +57,7 @@ export class GeneralStatsHandler {
     ];
 
     const [disciplinasStats] = await DisciplinaModel.aggregate([
+      { $match: { season } },
       {
         $facet: {
           teachers: teacherCountQuery,
@@ -76,13 +78,19 @@ export class GeneralStatsHandler {
 
     const generalStatsCount = {
       users: await UserModel.countDocuments({}),
-      currentAlunos: await StudentModel.countDocuments({}),
+      currentAlunos: await StudentModel.countDocuments({ season }),
       comments: await CommentModel.countDocuments({}),
       enrollments: await EnrollmentModel.countDocuments({
         conceito: { $in: ['A', 'B', 'C', 'D', 'O', 'F'] },
       }),
     };
 
-    return Object.assign({}, disciplinasStats, generalStatsCount);
+    const platformGeneralStats = Object.assign(
+      {},
+      disciplinasStats,
+      generalStatsCount,
+    );
+
+    return platformGeneralStats;
   }
 }
