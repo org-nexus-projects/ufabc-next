@@ -1,7 +1,7 @@
 {
   "name": "ufabc-next-backend",
   "private": false,
-  "packageManager": "pnpm@9.0.6",
+  "packageManager": "pnpm@9.1.1",
   "type": "module",
   "scripts": {
     "populate": "turbo run populate -- ",
