@@ -19,7 +19,7 @@ export async function swagger(app: FastifyInstance) {
       ],
     },
     transform: jsonSchemaTransform,
-    hideUntagged: true,
+    hideUntagged: false,
   });
   await app.register(fastifySwaggerUi, {
     theme: { title: 'Next - Documentação' },
