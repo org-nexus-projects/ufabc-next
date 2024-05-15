@@ -52,7 +52,7 @@
     "@types/ms": "^0.7.34",
     "@types/node": "^20.12.8",
     "@types/ua-parser-js": "^0.7.39",
-    "esbuild": "^0.20.0",
+    "esbuild": "^0.20.2",
     "esbuild-plugin-pino": "^2.1.1",
     "pino-pretty": "^11.0.0",
     "rimraf": "^5.0.5",
