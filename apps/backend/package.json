@@ -18,15 +18,15 @@
     "prepare": "simple-git-hooks"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.7.1",
-    "@sxzz/eslint-config": "^3.7.6",
+    "@biomejs/biome": "^1.7.2",
+    "@sxzz/eslint-config": "^3.11.0",
     "eslint": "^8.57.0",
     "lint-staged": "^15.2.2",
     "simple-git-hooks": "^2.11.1",
-    "turbo": "^1.13.2"
+    "turbo": "^1.13.3"
   },
   "engines": {
-    "node": ">=21.7.1 || >=20.12.2"
+    "node": "^22"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged"

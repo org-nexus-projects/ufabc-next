@@ -3,7 +3,7 @@ import type { EnrollmentRepository } from './enrollments.repository.js';
 export class EnrollmentService {
   constructor(private readonly enrollmentRepository: EnrollmentRepository) {}
 
-  async getEnrollment(ra: number, enrollmentId?: string) {
+  async getEnrollment(ra: number, enrollmentId: string) {
     const enrollmentMapping = {
       conceito: 1,
       subject: 1,
@@ -16,21 +16,11 @@ export class EnrollmentService {
       updatedAt: 1,
       comments: 1,
     };
-    if (enrollmentId) {
-      const enrollment = await this.enrollmentRepository.findOne(
-        {
-          ra,
-          _id: enrollmentId,
-        },
-        enrollmentMapping,
-        ['pratica', 'teoria', 'subject'],
-      );
-      return enrollment;
-    }
+
     const enrollment = await this.enrollmentRepository.findOne(
       {
         ra,
-        conceito: { $in: ['A', 'B', 'C', 'D', 'O', 'F'] },
+        _id: enrollmentId,
       },
       enrollmentMapping,
       ['pratica', 'teoria', 'subject'],

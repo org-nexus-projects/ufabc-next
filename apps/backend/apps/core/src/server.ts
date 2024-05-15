@@ -11,6 +11,7 @@ const appOptions = {
   logger,
 } satisfies FastifyServerOptions;
 
+
 export async function start() {
   const app = await buildApp(appOptions);
   if (Config.NODE_ENV === 'dev') {
@@ -32,7 +33,7 @@ export async function start() {
       app.log.fatal({ err }, 'error starting app');
     }
 
-    app.log.info({ signal }, 'Gracefully exiting app');
+    app.log.warn(signal, 'Gracefully exiting app');
     await nextJobs.close();
     await nextWorker.close();
     await app.close();

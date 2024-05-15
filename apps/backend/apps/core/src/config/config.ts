@@ -61,8 +61,8 @@ export const Config = Object.freeze(
       EMAIL_RECOVERY_TEMPLATE: 'Recovery',
       EMAIL: 'contato@ufabcnext.com',
     } as const,
-    WEB_URL_LOCAL: 'http://localhost:3000/' as const,
-    WEB_URL: 'https://www.ufabcnext.com/app/' as const,
+    WEB_URL_LOCAL: 'http://localhost:3000' as const,
+    WEB_URL: 'https://www.ufabcnext.com/app' as const,
   }),
 );
 export type Config = EnvConfig & typeof Config;

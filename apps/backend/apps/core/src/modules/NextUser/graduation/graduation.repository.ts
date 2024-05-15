@@ -34,7 +34,6 @@ export class GraduationRepository implements UserGraduationRepository {
 
   async findGraduation(options: FilterQuery<Graduation>, limit: number = 200) {
     const graduations = await this.graduationService
-      // eslint-disable-next-line unicorn/no-array-callback-reference
       .find(options)
       .lean<GraduationDocument[]>({ virtuals: true })
       .limit(limit);
@@ -47,7 +46,6 @@ export class GraduationRepository implements UserGraduationRepository {
   ) {
     // TODO: add pagination
     const graduationsSubject = await this.graduationSubjectService
-      // eslint-disable-next-line unicorn/no-array-callback-reference
       .find(options)
       .limit(limit)
       .populate('subject');

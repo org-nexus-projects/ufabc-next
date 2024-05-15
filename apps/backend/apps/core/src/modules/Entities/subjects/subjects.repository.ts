@@ -31,7 +31,6 @@ export class SubjectRepository implements EntitiesSubjectRepository {
   }
 
   async listSubject(filter: FilterQuery<Subject>) {
-    // eslint-disable-next-line unicorn/no-array-callback-reference
     const subjects = await this.subjectService.find(filter).lean(true);
     return subjects;
   }

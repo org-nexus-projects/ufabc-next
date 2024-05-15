@@ -1,14 +1,16 @@
 import {
   groupBy as LodashGroupBy,
   merge as LodashMerge,
+  sum as LodashSum,
+  sumBy as LodashSumBy,
   camelCase,
   startCase,
-} from "lodash-es";
-import { type Teacher, TeacherModel } from "@/models/Teacher.js";
-import { SubjectModel } from "@/models/Subject.js";
-import { storage } from "@/services/unstorage.js";
-import type { TeacherService } from "./teacher.service.js";
-import type { FastifyReply, FastifyRequest } from "fastify";
+} from 'lodash-es';
+import { type Teacher, TeacherModel } from '@/models/Teacher.js';
+import { SubjectModel } from '@/models/Subject.js';
+import { storage } from '@/services/unstorage.js';
+import type { TeacherService } from './teacher.service.js';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export type UpdateTeacherRequest = {
   Body: {
@@ -19,16 +21,16 @@ export type UpdateTeacherRequest = {
   };
 };
 
-type ReviewStats = Awaited<ReturnType<TeacherService["teacherReviews"]>>;
-type Concept = ReviewStats[number]["distribution"][number]["conceito"];
+type ReviewStats = Awaited<ReturnType<TeacherService['teacherReviews']>>;
+type Concept = ReviewStats[number]['distribution'][number]['conceito'];
 type Distribution = Omit<
-  ReviewStats[number]["distribution"][number],
-  "conceito | weigth"
+  ReviewStats[number]['distribution'][number],
+  'conceito | weigth'
 >;
 
 type GroupedDistribution = Record<
   NonNullable<Concept>,
-  ReviewStats[number]["distribution"]
+  ReviewStats[number]['distribution']
 >;
 
 export class TeacherHandler {
@@ -45,7 +47,7 @@ export class TeacherHandler {
   ) {
     const teacher = request.body;
     if (!teacher.name) {
-      return reply.badRequest("Missing Teacher name");
+      return reply.badRequest('Missing Teacher name');
     }
     const createdTeacher = await this.teacherService.insertTeacher(teacher);
     return createdTeacher;
@@ -59,7 +61,7 @@ export class TeacherHandler {
     const { alias } = request.body;
 
     if (!teacherId) {
-      return reply.badRequest("Missing teacherId");
+      return reply.badRequest('Missing teacherId');
     }
 
     const teacherWithAlias = await this.teacherService.setTeacherAlias(
@@ -75,10 +77,10 @@ export class TeacherHandler {
     const normalizedSearch = startCase(camelCase(rawSearch));
     const validatedSearch = normalizedSearch.replaceAll(
       /[\s#$()*+,.?[\\\]^{|}-]/g,
-      "\\$&",
+      '\\$&',
     );
 
-    const search = new RegExp(validatedSearch, "gi");
+    const search = new RegExp(validatedSearch, 'gi');
     const searchResults = await this.teacherService.findTeacher(search);
     return searchResults;
   }
@@ -90,19 +92,17 @@ export class TeacherHandler {
     const { teacherId } = request.params;
 
     if (!teacherId) {
-      return reply.badRequest("Missing Subject");
+      return reply.badRequest('Missing Subject');
     }
 
     const cacheKey = `reviews-${teacherId}`;
-    const cached = await storage.getItem<typeof result>(cacheKey);
+    // const cached = await storage.getItem<typeof result>(cacheKey);
 
-    if (cached) {
-      return cached;
-    }
+    // if (cached) {
+    //   return cached;
+    // }
 
     const stats = await this.teacherService.teacherReviews(teacherId);
-    request.log.warn(stats);
-
     stats.map((stat) => {
       stat.cr_medio = stat.numeric / stat.amount;
       return stat;
@@ -111,7 +111,7 @@ export class TeacherHandler {
     const distributions = stats.flatMap((stat) => stat.distribution);
     const groupedDistributions = LodashGroupBy(
       distributions,
-      "conceito",
+      'conceito',
     ) as GroupedDistribution;
 
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -131,7 +131,7 @@ export class TeacherHandler {
       general: LodashMerge(getStatsMean(rawDistribution), {
         distribution: rawDistribution,
       }),
-      specific: await SubjectModel.populate(stats, "_id"),
+      specific: await SubjectModel.populate(stats, '_id'),
     };
 
     await storage.setItem<typeof result>(cacheKey, result, {
@@ -140,31 +140,48 @@ export class TeacherHandler {
 
     return result;
   }
+
+  async removeTeacher(
+    request: FastifyRequest<{ Params: { teacherId: string } }>,
+    reply: FastifyReply,
+  ) {
+    const { teacherId } = request.params;
+    if (!teacherId) {
+      return reply.badRequest('Missing teacherId');
+    }
+
+    const teacherToRemove = await TeacherModel.findOne({
+      _id: teacherId,
+    });
+
+    if (!teacherToRemove) {
+      return reply.notFound('Teacher not found');
+    }
+
+    await teacherToRemove.deleteOne();
+
+    return teacherToRemove;
+  }
 }
 
 function getStatsMean(
-  reviewStats: ReviewStats[number]["distribution"],
+  reviewStats: ReviewStats[number]['distribution'],
   key?: keyof GroupedDistribution,
 ) {
-  const count = reviewStats.reduce((acc, { count }) => acc + count, 0);
-  const amount = reviewStats.reduce((acc, { amount }) => acc + amount, 0);
+  const count = LodashSumBy(reviewStats, 'count');
+  const amount = LodashSumBy(reviewStats, 'amount');
   const simpleSum = reviewStats
     .filter((stat) => stat.cr_medio !== null)
-    .map((stat) => stat.amount + stat.cr_medio!);
-  const totalSum = simpleSum.reduce((acc, val) => acc + val, 0);
+    .map((stat) => stat.amount * stat.cr_medio!);
+  const totalSum = LodashSum(simpleSum)
 
   return {
     conceito: key,
     cr_medio: totalSum / amount,
-    cr_professor:
-      reviewStats.reduce((acc, { numericWeight }) => acc + numericWeight, 0) /
-      amount,
+    cr_professor: LodashSumBy(reviewStats, 'numericWeight') / amount,
     count,
     amount,
-    numeric: reviewStats.reduce((acc, { numeric }) => acc + numeric, 0),
-    numericWeight: reviewStats.reduce(
-      (acc, { numericWeight }) => acc + numericWeight,
-      0,
-    ),
+    numeric: LodashSumBy(reviewStats, 'numeric'),
+    numericWeight: LodashSumBy(reviewStats, 'numericWeight'),
   };
 }
