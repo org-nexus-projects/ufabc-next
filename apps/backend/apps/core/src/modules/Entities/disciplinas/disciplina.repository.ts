@@ -29,14 +29,14 @@ export class DisciplinaRepository implements EntitiesDisciplinaRepository {
   ) {
     if (populateFields) {
       const disciplinas = await this.disciplinaService
-        // eslint-disable-next-line unicorn/no-array-callback-reference, unicorn/no-array-method-this-argument
+        // eslint-disable-next-line unicorn/no-array-method-this-argument
         .find(filter, mapping)
         .populate(populateFields)
         .lean<Disciplina[]>({ virtuals: true });
       return disciplinas;
     }
     const disciplinas = await this.disciplinaService
-      // eslint-disable-next-line unicorn/no-array-callback-reference, unicorn/no-array-method-this-argument
+      // eslint-disable-next-line unicorn/no-array-method-this-argument
       .find(filter, mapping)
       .lean<Disciplina[]>({ virtuals: true });
     return disciplinas;

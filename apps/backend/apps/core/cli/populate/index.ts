@@ -1,5 +1,4 @@
 /* eslint-disable no-console  */
-/* eslint-disable unicorn/prefer-top-level-await  */
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Config } from '@/config/config.js';

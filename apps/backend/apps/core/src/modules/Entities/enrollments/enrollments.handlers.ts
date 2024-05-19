@@ -1,3 +1,4 @@
+import { EnrollmentModel } from '@/models/Enrollment.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { EnrollmentService } from './enrollments.service.js';
 
@@ -11,8 +12,10 @@ export class EnrollmentHandler {
       return reply.badRequest('Missing student RA');
     }
 
-    const userEnrollment = await this.enrollmentService.getEnrollment(user.ra);
-
+    const userEnrollment = await EnrollmentModel.find({
+      ra: user.ra,
+      conceito: { $in: ['A', 'B', 'C', 'D', 'O', 'F'] },
+    }).populate(['pratica', 'teoria', 'subject']);
     return userEnrollment;
   }
 

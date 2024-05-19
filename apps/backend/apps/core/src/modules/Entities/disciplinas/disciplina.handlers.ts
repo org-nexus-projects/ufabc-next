@@ -1,9 +1,10 @@
-import { sortBy as LodashSortBy } from 'lodash-es';
-import { courseId, currentQuad } from '@next/common';
-import { StudentModel } from '@/models/Student.js';
-import type { Disciplina } from '@/models/Disciplina.js';
-import type { DisciplinaService } from './disciplina.service.js';
-import type { FastifyReply, FastifyRequest } from 'fastify';
+import { sortBy as LodashSortBy } from "lodash-es";
+import { courseId, currentQuad } from "@next/common";
+import { StudentModel } from "@/models/Student.js";
+import { storage } from "@/services/unstorage.js";
+import type { Disciplina } from "@/models/Disciplina.js";
+import type { DisciplinaService } from "./disciplina.service.js";
+import type { FastifyReply, FastifyRequest } from "fastify";
 
 export type DisciplinaKicksRequest = {
   Params: {
@@ -18,19 +19,19 @@ export type DisciplinaKicksRequest = {
 export class DisciplinaHandler {
   constructor(private readonly disciplinaService: DisciplinaService) {}
 
-  async listDisciplinas(request: FastifyRequest) {
+  async listDisciplinas() {
     const season = currentQuad();
-    const { redis } = request.server;
-    const cacheKey = `all_disciplinas_${season}`;
-    const cachedResponse = await redis.get(cacheKey);
-
+    const cacheKey = `allDisciplinas-${season}`;
+    const cachedResponse = await storage.getItem<Disciplina[]>(cacheKey);
     if (cachedResponse) {
       return cachedResponse;
     }
 
     const disciplinas = await this.disciplinaService.findDisciplinas(season);
+    await storage.setItem<Disciplina[]>(cacheKey, disciplinas, {
+      ttl: 60 * 60 * 24,
+    });
 
-    await redis.set(cacheKey, JSON.stringify(disciplinas), 'EX', 60 * 60 * 24);
     return disciplinas;
   }
 
@@ -42,7 +43,7 @@ export class DisciplinaHandler {
     const { sort } = request.query;
 
     if (!disciplinaId) {
-      await reply.badRequest('Missing DisciplinaId');
+      await reply.badRequest("Missing DisciplinaId");
     }
 
     const season = currentQuad();
@@ -52,19 +53,19 @@ export class DisciplinaHandler {
     );
 
     if (!disciplina) {
-      return reply.notFound('Disciplina not found');
+      return reply.notFound("Disciplina not found");
     }
 
     // create sort mechanism
     const kicks = sort || kickRule(disciplina);
     // @ts-expect-error for now
-    const order = [kicks.length || 0].fill('desc');
+    const order = [kicks.length || 0].fill("desc");
 
     // turno must have a special treatment
-    const turnoIndex = kicks.indexOf('turno');
+    const turnoIndex = kicks.indexOf("turno");
     if (turnoIndex !== -1) {
       // @ts-expect-error for now
-      order[turnoIndex] = disciplina.turno === 'diurno' ? 'asc' : 'desc';
+      order[turnoIndex] = disciplina.turno === "diurno" ? "asc" : "desc";
     }
 
     const isAfterKick = [disciplina.after_kick].filter(Boolean).length;
@@ -80,13 +81,13 @@ export class DisciplinaHandler {
 
     const interIds = [
       await courseId(
-        'Bacharelado em Ciência e Tecnologia',
+        "Bacharelado em Ciência e Tecnologia",
         season,
         // TODO(Joabe): refac later
         StudentModel,
       ),
       await courseId(
-        'Bacharelado em Ciências e Humanidades',
+        "Bacharelado em Ciências e Humanidades",
         season,
         // TODO(Joabe): refac later
         StudentModel,
@@ -103,7 +104,7 @@ export class DisciplinaHandler {
       const graduationToStudent = Object.assign(
         {
           aluno_id: student.aluno_id,
-          cr: '-',
+          cr: "-",
           cp: student.cursos.cp,
           ik: reserva ? student.cursos.ind_afinidade : 0,
           reserva,
@@ -136,28 +137,28 @@ function kickRule(disciplina: Disciplina) {
   const season = currentQuad();
   let coeffRule = null;
   if (
-    season === '2020:2' ||
-    season === '2020:3' ||
-    season === '2021:1' ||
-    season === '2021:2' ||
-    season === '2021:3' ||
-    season === '2022:1' ||
-    season === '2022:2' ||
-    season === '2022:3' ||
-    season === '2023:1' ||
-    season === '2023:2' ||
-    season === '2023:3' ||
-    season === '2024:1' ||
-    season === '2024:2' ||
-    season === '2024:3' ||
-    season === '2025:1'
+    season === "2020:2" ||
+    season === "2020:3" ||
+    season === "2021:1" ||
+    season === "2021:2" ||
+    season === "2021:3" ||
+    season === "2022:1" ||
+    season === "2022:2" ||
+    season === "2022:3" ||
+    season === "2023:1" ||
+    season === "2023:2" ||
+    season === "2023:3" ||
+    season === "2024:1" ||
+    season === "2024:2" ||
+    season === "2024:3" ||
+    season === "2025:1"
   ) {
-    coeffRule = ['cp', 'cr'];
+    coeffRule = ["cp", "cr"];
   } else {
-    coeffRule = disciplina.ideal_quad ? ['cr', 'cp'] : ['cp', 'cr'];
+    coeffRule = disciplina.ideal_quad ? ["cr", "cp"] : ["cp", "cr"];
   }
 
-  return ['reserva', 'turno', 'ik'].concat(coeffRule);
+  return ["reserva", "turno", "ik"].concat(coeffRule);
 }
 
 function resolveMatricula(disciplina: Disciplina, isAfterKick: number) {

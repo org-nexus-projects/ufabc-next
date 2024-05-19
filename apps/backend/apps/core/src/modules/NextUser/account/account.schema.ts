@@ -1,34 +1,22 @@
 import { z } from 'zod';
 import type { FastifySchema } from 'fastify';
-import type { ObjectId } from 'mongoose';
 
 const oauthSchema = z
   .object({
     email: z.string(),
     provider: z.enum(['facebook', 'google']),
-    providerId: z.string(),
-  })
+    id: z.string(),
+  }).array()
   .describe('Informações que recebemos do método de login oauth');
-
-const devicesSchema = z.object({
-  deviceId: z.string(),
-  token: z.string(),
-  phone: z.string(),
-});
 
 const usersInfoResponse = z
   .object({
+    id: z.any(),
     oauth: oauthSchema,
-    _id: z.custom<ObjectId>(),
     confirmed: z.boolean(),
     active: z.boolean(),
-    permissions: z.array(z.string()).optional(),
-    devices: devicesSchema.array().optional(),
-    createdAt: z.date(),
-    updatedAt: z.date(),
-    __v: z.number(),
     email: z.string().email().optional(),
-    ra: z.number().optional(),
+    ra: z.number().nullable(),
   })
   .describe('Informações do usuário da sessão');
 

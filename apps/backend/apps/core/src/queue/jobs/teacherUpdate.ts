@@ -57,10 +57,17 @@ export async function updateTeachers(data: UpdateTeachers) {
       await EnrollmentModel.findOneAndUpdate(
         { identifier },
         {
+<<<<<<< HEAD
           //TODO: Find out if the teoria and pratica fields objectId are being populated
           teoria: resolveProfessor(enrollment.teoria, teachers),
           pratica: resolveProfessor(enrollment.pratica, teachers),
           credits: resolveCredits(enrollment.credits, )
+=======
+          $set: {
+            teoria: resolveProfessor(enrollment.teoria, teachers),
+            pratica: resolveProfessor(enrollment.pratica, teachers),
+          },
+>>>>>>> f01ae795529196383ffceaa6072d131d1ef54c57
         },
         insertOpts,
       );

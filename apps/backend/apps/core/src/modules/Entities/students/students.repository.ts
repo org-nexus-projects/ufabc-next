@@ -37,7 +37,6 @@ export class StudentRepository implements EntititesStudentRepository {
   ) {}
 
   findDisciplinas(filter: FilterQuery<Disciplina>) {
-    // eslint-disable-next-line unicorn/no-array-callback-reference
     const disciplinas = this.disciplinaService.find(filter);
     return disciplinas;
   }

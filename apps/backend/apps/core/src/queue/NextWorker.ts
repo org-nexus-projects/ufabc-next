@@ -8,15 +8,16 @@ export type JobParameters<T extends NextJobNames> = Parameters<
   (typeof NEXT_JOBS)[T]['handler']
 >[0];
 export type JobFn<T extends NextJobNames> = (typeof NEXT_JOBS)[T]['handler'];
+export type JobReturnData = Awaited<ReturnType<JobFn<NextJobNames>>>;
 
 export class NextWorker {
-  private workers: Record<string, Worker<any, unknown, NextJobNames>> = {};
-  private readonly DEFAULT_REDIS_PORT = 6379;
+  private workers: Record<string, Worker<any, JobReturnData, NextJobNames>> =
+    {};
   private readonly RedisConnection = {
     username: Config.REDIS_USER,
     password: Config.REDIS_PASSWORD,
     host: Config.REDIS_HOST,
-    port: this.DEFAULT_REDIS_PORT ?? Config.REDIS_PORT,
+    port: Config.REDIS_PORT,
     lazyConnect: true,
   } satisfies RedisOptions;
 
@@ -26,17 +27,23 @@ export class NextWorker {
       return;
     }
 
-    for (const [queueName, queueSettings] of Object.entries(NEXT_QUEUE_JOBS)) {
-      this.workers[queueName] = new Worker(
-        queueName,
-        (job: Job<any, unknown, NextJobNames>) => this.WorkerHandler(job),
-        {
-          connection: {
-            ...this.RedisConnection,
-          },
-          ...queueSettings,
+    for (const [queuename, queueSettings] of Object.entries(NEXT_QUEUE_JOBS)) {
+      const workerOpts = {
+        connection: {
+          ...this.RedisConnection,
         },
+        ...queueSettings,
+      };
+      const worker = new Worker<any, JobReturnData, NextJobNames>(
+        queuename,
+        async (job) => {
+          const processor = await this.WorkerHandler(job);
+          return processor;
+        },
+        workerOpts,
       );
+
+      this.workers[queuename] = worker;
     }
   }
 
@@ -45,11 +52,9 @@ export class NextWorker {
     await Promise.all(workersToClose.map((worker) => worker.close()));
   }
 
-  private WorkerHandler(job: Job<any, unknown, NextJobNames>) {
-    const processor = this.WorkerProcessor(
-      job.name,
-      NEXT_JOBS[job.name].handler,
-    );
+  private WorkerHandler(job: Job<any, JobReturnData, NextJobNames>) {
+    const handlers = NEXT_JOBS[job.name].handler;
+    const processor = this.WorkerProcessor(job.name, handlers);
     return processor(job.data);
   }
 

@@ -1,4 +1,5 @@
 import { currentQuad, lastQuad } from '@next/common';
+import { DisciplinaModel } from '@/models/Disciplina.js';
 import type { Student } from '@/models/Student.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { StudentService } from './students.service.js';
@@ -86,6 +87,34 @@ export class StudentHandler {
       studentId: student?.aluno_id,
       login: student?.login,
     };
+  }
+
+  async studentDisciplinasStats(
+    request: FastifyRequest<{ Querystring: { season: string } }>,
+  ) {
+    const season = request.query.season || currentQuad();
+    const isPrevious = await DisciplinaModel.countDocuments({
+      before_kick: { $exists: true, $ne: [] },
+    });
+    const dataKey = isPrevious ? '$before_kick' : '$alunos_matriculados';
+    const userStatusAggregate = await DisciplinaModel.aggregate([
+      {
+        $match: { season },
+      },
+      {
+        $unwind: dataKey,
+      },
+      { $group: { _id: dataKey, count: { $sum: 1 } } },
+      { $group: { _id: '$count', students_number: { $sum: 1 } } },
+      { $sort: { _id: 1 } },
+      {
+        $project: {
+          students_number: 1,
+          disciplines_number: '$_id',
+        },
+      },
+    ]);
+    return userStatusAggregate;
   }
 }
 
