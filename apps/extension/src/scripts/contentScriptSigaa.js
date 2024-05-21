@@ -1,4 +1,8 @@
 import Toastify from "toastify-js";
+import Utils from "../utils/extensionUtils";
+Utils.injectStyle("styles/portal.css");
+
+
 
 
 //function getValuesFromMainPageSigaa(){
@@ -13,9 +17,9 @@ const keypair = Array.from(trs)
         .map((column) => normalizeDiacritcs(column.innerText)))
 
 const completeObject = Object.fromEntries(keypair)
-
-
-completeObject
+localStorage.setItem("name",JSON.stringify(completeObject))
+console.log(completeObject)
+console.log("this is my loc", localStorage.getItem("name"))
 //}
 
 
