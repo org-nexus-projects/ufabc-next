@@ -36,6 +36,7 @@ if (process.env.NODE_ENV == "production") {
     "ufabc-matricula-test.cdd.naoseiprogramar.com.br/snapshot/backup.html",
     "locahost:8011/snapshot",
     "locahost:8011/snapshot/backup.html",
+    "https://sig.ufabc.edu.br/sigaa/portais/discente/discente.jsf"
   ];
 }
 
@@ -54,9 +55,9 @@ async function load() {
   Utils.injectScript("lib/init.js");
 
   setupStorage();
-  require("./contentScriptPortal");
+  require("./contentScriptSigaa"); 
 
-  if (matricula_url.some((url) => currentUrl.indexOf(url) != -1)) {
+  if (matricula_url.some((url) => currentUrl.indexOf(url) != -1))  { // esse if quer dizer que a url deu match pois é diferente a -1  
     // update teachers locally
     setTimeout(async () => {
       let lastUpdate = null;
@@ -70,7 +71,7 @@ async function load() {
 
       // this is the main vue app
       // i.e, where all the filters live
-      const anchor = document.createElement("div");
+      const anchor = document.createElement("div"); // filtros da tela de matriculas 
       anchor.setAttribute("id", "app");
       $("#meio").prepend(anchor);
 
