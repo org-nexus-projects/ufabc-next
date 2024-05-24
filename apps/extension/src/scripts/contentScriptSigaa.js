@@ -68,38 +68,54 @@ const [nameStudent, ra] = studentDataHTML.trim().split(' - ');
 const studentCourse = courseHTML.innerText;
 
 // quads
-const quadsTableHTML = Array.from(
-  document.getElementsByClassName('tabelaRelatorio')
-);
+const quadsTableElement = document.querySelectorAll('.tabelaRelatorio');
+const quadsTable = Array.from(quadsTableElement);
 
 // dá pra deixar em um reduce ou map muito foda
 // for Of
 // histórico completo
-let studentHistory = new Map();
-for (let table of quadsTableHTML) {
-  const [year, quad] = table
-    .getElementsByTagName('caption')[0]
-    .innerText.split('.');
+const studentHistory = new Map();
+for (const table of quadsTable) {
+  const studentseason = table.querySelector('caption');
+  const [year, quad] = studentseason.textContent.trim().split('.');
 
   if (!studentHistory.has(year)) {
-    studentHistory.set(year, new Object());
+    studentHistory.set(year, {});
   }
 
-  const tableHeaders = Array.from(table.getElementsByTagName('th'));
-  const tableRows = Array.from(table.querySelectorAll('tbody > tr'));
+  const tableHeadersElement = table.querySelectorAll('th');
+  const tableRowsElement = table.querySelectorAll('tbody > tr');
+  const rawTableHeaders = Array.from(tableHeadersElement);
 
-  const quadData = [];
+  const wantedFields = ['codigo', 'disciplina', 'resultado', 'situacao'];
+  const indexWantedFields = [];
+  const tableHeaders = rawTableHeaders.filter((rawItem, index) => {
+    const item = normalizeDiacritcs(rawItem.innerText)
 
+    if (wantedFields.includes(item)) indexWantedFields.push(index); // finding exact positions (sorry for that)
+    return wantedFields.includes(item);
+  });
+
+  const tableRows = Array.from(tableRowsElement);
   // dá pra melhorar isso aqui, tá zuado
   // usar a estrutura Set em alguns momentos para evitar repetições!!!
   // e quando essa página estiver vazia?
-  for (let row of tableRows) {
-    const cells = Array.from(row.children).map((cell) => cell.innerText);
-    const disciplineInfo = {};
+  // joabe: só sétar null mesmo, o histórico seria atualizado futuramente em outro acesso
+  const quadData = [];
+  for (const row of tableRows) {
+    const rowChildrens = Array.from(row.children);
+    const cells = rowChildrens
+      .filter((cellHTML, index) => indexWantedFields.includes(index))
+      .map((cellHTML) => cellHTML.innerText); // picking exact header positions
+
+    const disciplina = {};
+
     cells.forEach((item, index) => {
-      disciplineInfo[tableHeaders[index].innerText] = item;
+      const normalizedHeaderText = normalizeDiacritcs(tableHeaders[index].textContent)
+      disciplina[normalizedHeaderText] = item;
     });
-    quadData.push(disciplineInfo);
+
+    quadData.push(disciplina);
   }
 
   studentHistory.get(year)[quad] = [...quadData];
@@ -174,17 +190,17 @@ if (isIndexSigaa()) {
 
 }
 
-await nextApi.post(
-    "/histories/sigaa",
-    {
-      ra: ra,
-      disciplinas: jsonFicha.data,
-      curso: nomeDoCurso,
-      grade: anoDaGrade,
-    },
-    {
-      timeout: 60 * 1 * 1000, // 1 minute
-    }
-  );
+// await nextApi.post(
+//     "/histories/sigaa",
+//     {
+//       ra: ra,
+//       disciplinas: jsonFicha.data,
+//       curso: nomeDoCurso,
+//       grade: anoDaGrade,
+//     },
+//     {
+//       timeout: 60 * 1 * 1000, // 1 minute
+//     }
+//   );
 
 
