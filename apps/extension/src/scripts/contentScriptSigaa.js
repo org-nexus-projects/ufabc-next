@@ -48,17 +48,13 @@ function isIndexSigaa() {
 
 
 function getValuesFromGetGradesPageSigaa(){
-
-
   // * Data da consulta no SIGAA
-  // preferi pegar o innerText ao invés do innerHTML por conta de trim()
-  const updateTimeHTML = document
+  const updateDatetimeHTML = document
   .querySelector('.dataAtual')
-  .innerText.split(' ');
+  .textContent.trim();
 
-// escolhi pegar os valores diretamente mas não acredito ser a melhor opção
-const updateDate = updateTimeHTML[2];
-const updateHour = updateTimeHTML[3];
+  const [day, month, year, hour, minute] = updateDatetimeHTML.match(/\d+/g);
+  const updateDatetime = new Date(year, month - 1, day, hour, minute);
 
 // * dados do aluno
 const studentDataHTML = document.querySelector(
