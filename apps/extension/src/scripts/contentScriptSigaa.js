@@ -1,6 +1,10 @@
 import { scrapeGradesConsulting, scrapeHomepage } from "../utils/sigaa";
 import { NextAPI } from "../services/NextAPI";
-import { errorToast, redirectToast, processingToast } from "../utils/nextToasts";
+import {
+	errorToast,
+	redirectToast,
+	processingToast,
+} from "../utils/nextToasts";
 
 const nextApi = NextAPI();
 
@@ -12,21 +16,23 @@ if (
 	document.contains(document.querySelector("#agenda-docente"))
 ) {
 	const student = scrapeHomepage();
-  const toast = redirectToast(student.name);
+	const toast = redirectToast(student.name);
 	localStorage.setItem("studentInfo", JSON.stringify(student));
-  toast.showToast();
+	toast.showToast();
 }
 
 if (isDiscentesPath && document.contains(document.querySelector(".notas"))) {
-  processingToast.showToast();
-  const studentHistory = scrapeGradesConsulting();
-  const { data: res } = nextApi.post("/histories/sigaa", studentHistory, {
-    timeout: 60 * 1 * 1000, // 1 minute
-  }).catch(err => {
-    processingToast.hideToast();
-    console.log(err);
-    errorToast.showToast();
-  });
+	processingToast.showToast();
+	const studentHistory = scrapeGradesConsulting();
+	const { data: res } = nextApi
+		.post("/histories/sigaa", studentHistory, {
+			timeout: 60 * 1 * 1000, // 1 minute
+		})
+		.catch((err) => {
+			processingToast.hideToast();
+			console.log(err);
+			errorToast.showToast();
+		});
 
-  console.log(res)
+	console.log(res);
 }
