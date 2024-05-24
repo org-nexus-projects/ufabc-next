@@ -59,10 +59,13 @@ function getValuesFromGetGradesPageSigaa(){
 // * dados do aluno
 const studentDataHTML = document.querySelector(
   '#identificacao > tbody > tr > td:nth-child(2) > table > tbody > tr:nth-child(1) > td'
-).innerText;
+).textContent;
+const courseHTML = document.querySelector(
+  '#identificacao > tbody > tr > td:nth-child(2) > table > tbody > tr:nth-child(2) > td'
+);
 
 const [nameStudent, ra] = studentDataHTML.trim().split(' - ');
-// pegar curso!
+const studentCourse = courseHTML.innerText;
 
 // quads
 const quadsTableHTML = Array.from(
@@ -103,10 +106,11 @@ for (let table of quadsTableHTML) {
 }
 
 const result = {
-  updateTime: new Date(`${updateDate} ${updateHour}`), // tá retornando junho, cuidado!
+  updateTime: updateDatetime,
   userData: {
     name: nameStudent,
     ra,
+    course: studentCourse
   },
   history: Object.fromEntries(studentHistory),
 };
