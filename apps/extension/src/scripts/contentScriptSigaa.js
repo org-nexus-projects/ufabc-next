@@ -106,7 +106,7 @@ function getValuesFromGetGradesPageSigaa() {
 }
 
 const toast = () => {
-	const name = JSON.parse(localStorage.getItem("name"))["e-mail:"];
+	const name = JSON.parse(localStorage.getItem("name"))["email"];
 
 	return new Toastify({
 		text: `
@@ -132,9 +132,9 @@ const toast = () => {
 if (isIndexSigaa()) {
 	const observer = new MutationObserver((list) => {
 		if (document.contains(document.querySelector(".notas"))) {
-			console.log("local", localStorage.getItem("name"));
+			console.log("userInfo", localStorage.getItem("name"));
 			const result = getValuesFromGetGradesPageSigaa();
-			localStorage.setItem("name", JSON.stringify(result));
+			localStorage.setItem("userGraduationInfo", JSON.stringify(result));
 
 			console.log("It's in the DOM!");
 			toast().showToast();
