@@ -44,7 +44,7 @@ function scrapeGradesConsulting() {
 
 			if (wantedFields.includes(item)) {
 				// crimes
-        indexWantedFields.push(index);
+				indexWantedFields.push(index);
 			}
 
 			return wantedFields.includes(item);
@@ -83,7 +83,28 @@ function scrapeGradesConsulting() {
 	return userHistory;
 }
 
+function scrapeHomepage() {
+  const trs = document.querySelectorAll("#agenda-docente tbody tr");
+  const tablesRowsArray = Array.from(trs);
+  const rawStudentInfo = tablesRowsArray.map((line) =>
+    Array.from(line.children).map((column) =>
+      normalizeDiacritics(column.innerText),
+    ),
+  );
+
+
+  const [rawName] = document.querySelectorAll("#perfil-docente p.info-docente");
+  const [name] = rawName.textContent.split(/\n\n\t+\n\t+/);
+  const studentInfo = Object.fromEntries(rawStudentInfo);
+
+  return {
+    name: name.trim(),
+    studentInfo,
+  }
+}
+
 module.exports = {
 	normalizeDiacritics,
 	scrapeGradesConsulting,
+  scrapeHomepage,
 };
