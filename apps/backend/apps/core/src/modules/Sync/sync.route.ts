@@ -17,6 +17,7 @@ import {
   parseTeachersHandler,
 } from './handlers/syncTeachersToSubject.js';
 import type { FastifyInstance } from 'fastify';
+import { syncDisciplineCategories } from "@/modules/Sync/handlers/syncUpdateDisciplineInfo.js";
 
 // eslint-disable-next-line require-await
 export async function syncRoutes(app: FastifyInstance) {
@@ -39,5 +40,11 @@ export async function syncRoutes(app: FastifyInstance) {
     '/disciplinas/teachers',
     // { preValidation: [authenticate, admin] },
     parseTeachersHandler,
+  );
+
+  app.put(
+    '/disciplinas/sync/infos',
+    // { preValidation: [authenticate, admin] },
+    syncDisciplineCategories,
   );
 }
