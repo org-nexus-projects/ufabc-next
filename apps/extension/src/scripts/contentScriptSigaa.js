@@ -1,7 +1,7 @@
 import Toastify from "toastify-js";
 import "toastify-js/src/toastify.css";
 import Utils from "../utils/extensionUtils";
-import {  normalizeDiacritics, scrapeGradesConsulting } from "../utils/sigaa";
+import { normalizeDiacritics, scrapeGradesConsulting } from "../utils/sigaa";
 Utils.injectStyle("styles/portal.css");
 
 const loading = require("../images/loading.svg");
@@ -17,18 +17,17 @@ const rawStudentInfo = tablesRowsArray.map((line) =>
 );
 
 const studentInfo = Object.fromEntries(rawStudentInfo);
-
 const sigaaURL = new URL(document.location.href);
 const isDiscentesPath = sigaaURL.pathname.includes("discente.jsf");
 
 const toast = () => {
-	const name = JSON.parse(localStorage.getItem("name"))["email"];
-
-	return new Toastify({
+	const name = JSON.parse(localStorage.getItem("studentInfo"));
+  console.log(name)
+  return new Toastify({
 		text: `
       <div class='toast-loading-text' style='width: 250px'>
         <p style="padding-bottom: 8px;">Atualizando suas informações...</p>\n\n
-        <b>Olá ${name}</b>
+        <b>Olá ${name.email}</b>
         <p>apenas aguarde, no máx. 5 min 🙏</p>
       </div>`,
 		duration: -1,
@@ -48,11 +47,11 @@ const toast = () => {
 if (isDiscentesPath) {
 	const observer = new MutationObserver((list) => {
 		if (document.contains(document.querySelector(".notas"))) {
-			console.log("local", localStorage.getItem("name"));
+			console.log("local", localStorage.getItem("studentHistory"));
 			const result = scrapeGradesConsulting();
-			localStorage.setItem("name", JSON.stringify(result));
+			localStorage.setItem("studentHistory", JSON.stringify(result));
 
-			console.log("It's in the DOM!");
+			console.log("It's in the DOM! 0");
 			toast().showToast();
 			observer.disconnect();
 		}
@@ -60,8 +59,8 @@ if (isDiscentesPath) {
 
 	const newObserver = new MutationObserver((list) => {
 		if (document.contains(document.querySelector("#agenda-docente"))) {
-			localStorage.setItem("name", JSON.stringify(studentInfo));
-			console.log("It's in the DOM!");
+			localStorage.setItem("userInfo", JSON.stringify(studentInfo));
+			console.log("It's in the DOM! 1");
 			toast().showToast();
 			newObserver.disconnect();
 		}
