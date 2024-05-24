@@ -74,14 +74,10 @@ const quadsTable = Array.from(quadsTableElement);
 // dá pra deixar em um reduce ou map muito foda
 // for Of
 // histórico completo
-const studentHistory = new Map();
+const studentHistory = [];
 for (const table of quadsTable) {
   const studentseason = table.querySelector('caption');
   const [year, quad] = studentseason.textContent.trim().split('.');
-
-  if (!studentHistory.has(year)) {
-    studentHistory.set(year, {});
-  }
 
   const tableHeadersElement = table.querySelectorAll('th');
   const tableRowsElement = table.querySelectorAll('tbody > tr');
@@ -97,11 +93,6 @@ for (const table of quadsTable) {
   });
 
   const tableRows = Array.from(tableRowsElement);
-  // dá pra melhorar isso aqui, tá zuado
-  // usar a estrutura Set em alguns momentos para evitar repetições!!!
-  // e quando essa página estiver vazia?
-  // joabe: só sétar null mesmo, o histórico seria atualizado futuramente em outro acesso
-  const quadData = [];
   for (const row of tableRows) {
     const rowChildrens = Array.from(row.children);
     const cells = rowChildrens
@@ -114,25 +105,22 @@ for (const table of quadsTable) {
       const normalizedHeaderText = normalizeDiacritcs(tableHeaders[index].textContent)
       disciplina[normalizedHeaderText] = item;
     });
+    disciplina['ano'] = year;
+    disciplina['periodo'] = quad;
 
-    quadData.push(disciplina);
+    studentHistory.push(disciplina);
   }
-
-  studentHistory.get(year)[quad] = [...quadData];
 }
 
-const result = {
-  updateTime: updateDatetime,
-  userData: {
-    name: nameStudent,
-    ra,
-    course: studentCourse
-  },
-  history: Object.fromEntries(studentHistory),
-};
+  const result = {
+    updateTime: updateDatetime,
+    curso: studentCourse,
+    ra: Number(ra),
+    disciplinas: studentHistory,
+  };
 
-return result 
-    }
+  return result 
+}
 
 const toast = () => {
     const name = JSON.parse(localStorage.getItem("name"))["e-mail:"]
