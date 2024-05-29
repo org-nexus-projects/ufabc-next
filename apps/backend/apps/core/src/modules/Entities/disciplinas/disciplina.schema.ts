@@ -2,7 +2,7 @@ import type { FastifySchema } from "fastify";
 
 export const listDisciplinasSchema = {
     tags: ['Disciplinas'],
-    description: 'Rota para listar as disciplinas',
+    description: 'Rota para listar as disciplinas do quadrimestre atual',
 } satisfies FastifySchema;
 
 export const listDisciplinasKicksSchema = {
