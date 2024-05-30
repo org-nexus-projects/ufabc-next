@@ -21,7 +21,7 @@ const summaryResponse = z.object({
 
 export const summarySchema = {
   $id: 'summarySchema',
-  tags: ['public'],
+  tags: ['Public'],
   description: 'Rota para retornar, informações sobre o uso do Next',
   response: {
     200: summaryResponse,
