@@ -6,12 +6,14 @@ export const listAllTeachersSchema = {
 } satisfies FastifySchema;
 
 export const createTeacherSchema = {
-  tags: ["Teacher"],
+  tags: ["Private"],
+  hide: true,
   description: "Rota para criar um novo professor",
 } satisfies FastifySchema;
 
 export const updateTeacherSchema = {
-  tags: ["Teacher"],
+  tags: ["Private"],
+  hide: true,
   description: "Rota para atualizar informações de um professor",
 } satisfies FastifySchema;
 
@@ -26,6 +28,7 @@ export const teacherReviewSchema = {
 } satisfies FastifySchema;
 
 export const removeTeacherSchema = {
-  tags: ["Teacher"],
+  tags: ["Private"],
+  hide: true,
   description: "Rota para remover um professor",
 } satisfies FastifySchema;

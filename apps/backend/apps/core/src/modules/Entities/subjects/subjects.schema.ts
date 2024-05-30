@@ -11,7 +11,8 @@ export const searchSubjectSchema = {
 } satisfies FastifySchema;
 
 export const createSubjectSchema = {
-    tags: ['Subject'],
+    tags: ['Private'],
+    hide: true,
     description: 'Rota para criar uma nova disciplina',
 } satisfies FastifySchema;
 
