@@ -26,7 +26,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22.x
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - name: setup pnpm store cache
         shell: bash
         run: |
@@ -37,7 +39,7 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
-      - uses: supercharge/mongodb-github-action@1.10.0
+      - uses: supercharge/mongodb-github-action@1.11.0
         with:
           mongodb-version: ${{ matrix.mongodb_version }}
       - uses: supercharge/redis-github-action@1.8.0

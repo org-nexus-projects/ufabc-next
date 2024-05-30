@@ -1,7 +1,6 @@
 {
   "name": "ufabc-next-backend",
   "private": false,
-  "packageManager": "pnpm@9.0.6",
   "type": "module",
   "scripts": {
     "populate": "turbo run populate -- ",
@@ -21,7 +20,7 @@
   "devDependencies": {
     "@biomejs/biome": "^1.7.2",
     "@sxzz/eslint-config": "^3.11.0",
-    "eslint": "^9.2.0",
+    "eslint": "^8.57.0",
     "lint-staged": "^15.2.2",
     "simple-git-hooks": "^2.11.1",
     "turbo": "^1.13.3"
