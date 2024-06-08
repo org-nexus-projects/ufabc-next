@@ -5,6 +5,11 @@ import { authenticate } from "@/hooks/authenticate.js";
 import { GraduationRepository } from "./graduation.repository.js";
 import { GraduationService } from "./graduation.service.js";
 import { GraduationHandler } from "./graduation.handlers.js";
+import {
+  listGraduationSubjectsByGraduationIdSchema,
+  listGraduationsSchema,
+  listGraduationsSubjectsSchema,
+} from "./graduation.schema.js";
 import type { FastifyInstance } from "fastify";
 
 // eslint-disable-next-line require-await
@@ -20,19 +25,22 @@ export async function graduationRoutes(app: FastifyInstance) {
 
   app.get<{ Querystring: { limit: number } }>(
     "/",
-    { onRequest: [authenticate] },
+    { schema: listGraduationsSchema, onRequest: [authenticate] },
     graduationHandler.listGraduations,
   );
+
   app.get(
     "/subjects",
-    { onRequest: [authenticate, admin] },
+    { schema: listGraduationsSubjectsSchema, onRequest: [authenticate, admin] },
     graduationHandler.listGraduationsSubjects,
   );
+
   app.get<{ Params: { graduationId: number }; Querystring: { limit: number } }>(
     "/subjects/:graduationId",
-    // {
-    //   onRequest: [authenticate, admin],
-    // },
+    {
+      schema: listGraduationSubjectsByGraduationIdSchema,
+      onRequest: [authenticate, admin],
+    },
     graduationHandler.listGraduationSubjectsByGraduationId,
   );
 }
