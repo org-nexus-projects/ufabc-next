@@ -1,5 +1,6 @@
 {
   "name": "ufabc-next-backend",
+  "version": "0.0.1",
   "private": false,
   "type": "module",
   "scripts": {
