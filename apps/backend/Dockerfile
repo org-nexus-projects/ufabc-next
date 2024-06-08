@@ -36,7 +36,7 @@ ENV APP_NAME=${APP_NAME}
 WORKDIR /workspace
 COPY . .
 
-RUN pnpm i 
+RUN pnpm i --frozen-lockfile --prefer-offline --silent
 
 # build app
 
