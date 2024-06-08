@@ -69,7 +69,7 @@ jobs:
             docker run -d --name unext-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.AWS_ACCOUNT_ID }}.${{ secrets.ECR_REGISTRY }}/unext-backend-ecr:${{ github.sha }}
 
       - name: 🏗️ Revoke runner ip address
-        if: ${{ failure() && steps.whitelist-ip.conclusion == 'success' }}
+        if: ${{ always() && steps.whitelist-ip.conclusion == 'success' }}
         run: |
           aws ec2 revoke-security-group-ingress \
             --group-id $AWS_INSTANCE_SG_ID \
