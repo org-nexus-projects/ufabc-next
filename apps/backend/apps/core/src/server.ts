@@ -11,7 +11,6 @@ const appOptions = {
   logger,
 } satisfies FastifyServerOptions;
 
-
 export async function start() {
   const app = await buildApp(appOptions);
   if (Config.NODE_ENV === 'dev') {
@@ -21,12 +20,12 @@ export async function start() {
   app.withTypeProvider<ZodTypeProvider>();
   await app.listen({ port: Config.PORT, host: Config.HOST });
 
-  nextJobs.setup();
-  nextWorker.setup();
+  // nextJobs.setup();
+  // nextWorker.setup();
 
-  nextJobs.schedule('NextSyncMatriculas', {
-    operation: 'alunos_matriculados',
-  });
+  // nextJobs.schedule('NextSyncMatriculas', {
+  //   operation: 'alunos_matriculados',
+  // });
 
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {
     if (err) {
@@ -34,8 +33,8 @@ export async function start() {
     }
 
     app.log.warn(signal, 'Gracefully exiting app');
-    await nextJobs.close();
-    await nextWorker.close();
+    // await nextJobs.close();
+    // await nextWorker.close();
     await app.close();
     process.exit(1);
   });
