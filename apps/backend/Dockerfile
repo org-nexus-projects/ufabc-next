@@ -23,8 +23,9 @@ FROM runtime as fetcher
 COPY pnpm*.yaml ./
 
 # mount pnpm store as cache & fetch dependencies
-RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm-store \
-    pnpm fetch --ignore-scripts
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm-store 
+
+RUN pnpm fetch --ignore-scripts
 
 FROM fetcher as builder
 # specify the app in apps/ we want to build
