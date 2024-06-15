@@ -3,10 +3,10 @@ import Axios from "axios";
 function resolveEndpoint(env) {
   return (
     {
-      development: "http://localhost:8011/v1",
+      development: "http://localhost:5000/v2",
       staging: "https://ufabc-matricula-test.cdd.naoseiprogramar.com.br/v1",
       production: "https://api.ufabcnext.com/v1",
-    }[env] || "http://localhost:8011/v1"
+    }[env] || "http://localhost:5000/v2"
   );
 }
 

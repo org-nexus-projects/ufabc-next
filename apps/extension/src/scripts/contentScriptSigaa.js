@@ -24,6 +24,7 @@ if (
 if (isDiscentesPath && document.contains(document.querySelector(".notas"))) {
 	processingToast.showToast();
 	const studentHistory = scrapeGradesConsulting();
+	// todo: fazer o endpoint
 	const { data: res } = nextApi
 		.post("/histories/sigaa", studentHistory, {
 			timeout: 60 * 1 * 1000, // 1 minute
