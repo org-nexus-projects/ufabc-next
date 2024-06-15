@@ -18,14 +18,11 @@
     "dev:firefox": "gulp --watch --vendor=firefox",
     "dev:opera": "gulp --watch --vendor=opera",
     "dev:edge": "gulp --watch --vendor=edge",
-    "lint": "standard"
-  },
-  "standard": {
-    "globals": [
-      "chrome"
-    ]
+    "fmt": "biome format ./src --write",
+    "lint": "biome lint ./src"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.8.1",
     "babel-cli": "6.x.x",
     "babel-core": "6.x.x",
     "babel-loader": "7.x.x",
@@ -54,7 +51,6 @@
     "gulp-zip": "^4.x.x",
     "require-dir": "0.x.x",
     "sass": "^1.59.3",
-    "standard": "^10.0.2",
     "vinyl-named": "1.x.x",
     "webpack": "3.x.x",
     "webpack-stream": "3.x.x",
