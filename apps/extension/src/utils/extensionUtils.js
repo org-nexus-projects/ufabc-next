@@ -1,7 +1,7 @@
-import $ from "jquery";
-import Axios from "axios";
-import is from "is_js";
-import _ from "lodash";
+import $ from 'jquery';
+import Axios from 'axios';
+import is from 'is_js';
+import _ from 'lodash';
 
 module.exports = new ExtensionUtils();
 
@@ -11,9 +11,9 @@ function ExtensionUtils() {
   //   iframeUrl: getExtensionUrl("pages/iframe.html"),
   // });
 
-  const IS_BROWSER = typeof chrome != "undefined" && !!chrome.storage;
+  const IS_BROWSER = typeof chrome != 'undefined' && !!chrome.storage;
   const EXTENSION_ID = IS_BROWSER
-    ? chrome.i18n.getMessage("@@extension_id")
+    ? chrome.i18n.getMessage('@@extension_id')
     : null;
 
   var getChromeUrl = function (url) {
@@ -28,7 +28,7 @@ function ExtensionUtils() {
     let resp = await fetchChromeUrl(link);
     const data = resp.data;
 
-    var div = document.createElement("div");
+    var div = document.createElement('div');
     div.innerHTML = data;
 
     if (el) {
@@ -40,25 +40,25 @@ function ExtensionUtils() {
   };
 
   var injectStyle = function (link) {
-    var s = document.createElement("link");
+    var s = document.createElement('link');
     s.href = getExtensionUrl(link);
-    s.type = "text/css";
-    s.rel = "stylesheet";
+    s.type = 'text/css';
+    s.rel = 'stylesheet';
 
     document.head.appendChild(s);
   };
 
   var injectScript = function (link) {
-    var s = document.createElement("script");
+    var s = document.createElement('script');
     s.src = getExtensionUrl(link);
 
     (document.head || document.documentElement).appendChild(s);
   };
 
   var injectIframe = function (link) {
-    var s = document.createElement("iframe");
+    var s = document.createElement('iframe');
     s.src = getExtensionUrl(link);
-    s.setAttribute("style", "display: none;");
+    s.setAttribute('style', 'display: none;');
     (document.body || document.documentElement).appendChild(s);
   };
 
@@ -67,7 +67,7 @@ function ExtensionUtils() {
       return new Promise((resolve, reject) => {
         try {
           const date = Date.now();
-          const event = new CustomEvent("requestStorage", {
+          const event = new CustomEvent('requestStorage', {
             detail: {
               method: `setStorage-${key}-${date}`,
               date: date,
@@ -88,7 +88,7 @@ function ExtensionUtils() {
       return new Promise((resolve, reject) => {
         try {
           const date = Date.now();
-          const event = new CustomEvent("requestStorage", {
+          const event = new CustomEvent('requestStorage', {
             detail: {
               method: `getStorage-${key}-${date}`,
               key: key,
@@ -108,8 +108,8 @@ function ExtensionUtils() {
 
   function getExtensionUrl(link) {
     if (EXTENSION_ID) {
-      const prefix = is.chrome() ? "chrome-extension://" : "moz-extension://";
-      return prefix + EXTENSION_ID + "/" + link.replace(/^\//, "");
+      const prefix = is.chrome() ? 'chrome-extension://' : 'moz-extension://';
+      return prefix + EXTENSION_ID + '/' + link.replace(/^\//, '');
     } else {
       return `https://next-extension.captain.sv.ufabcnext.com/static/${link}`;
     }

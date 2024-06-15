@@ -1,13 +1,13 @@
-import Vue from "vue";
-import Vuetify from "vuetify";
-import ElementUI from "element-ui";
+import Vue from 'vue';
+import Vuetify from 'vuetify';
+import ElementUI from 'element-ui';
 Vue.use(Vuetify);
 Vue.use(ElementUI);
 
-import Matricula from "./views/Matricula.vue";
-import ReviewTeacher from "./components/ReviewTeacher.vue";
-import ReviewSubject from "./components/ReviewSubject.vue";
-import Modal from "./components/Modal.vue";
+import Matricula from './views/Matricula.vue';
+import ReviewTeacher from './components/ReviewTeacher.vue';
+import ReviewSubject from './components/ReviewSubject.vue';
+import Modal from './components/Modal.vue';
 
 // global const change modal data
 const modalData = {
@@ -31,9 +31,9 @@ const reviewSubjectData = {
 };
 
 var app = new Vue({
-  el: "#app",
+  el: '#app',
   data: {
-    name: "ufabc-matricula-extension",
+    name: 'ufabc-matricula-extension',
   },
   render: (h) => h(Matricula),
 });
@@ -41,7 +41,7 @@ var app = new Vue({
 new Vue({
   template:
     '<v-app v-show="$data.dialog"><Modal :value="$data"></Modal></v-app>',
-  el: "#modal",
+  el: '#modal',
   data() {
     return modalData;
   },
@@ -51,7 +51,7 @@ new Vue({
 new Vue({
   template:
     '<v-app v-show="$data.dialog"><ReviewTeacher :value="$data"></ReviewTeacher></v-app>',
-  el: "#teacherReview",
+  el: '#teacherReview',
   data() {
     return teacherReviewData;
   },
@@ -61,7 +61,7 @@ new Vue({
 new Vue({
   template:
     '<v-app v-show="$data.dialog"><ReviewSubject :value="$data"></ReviewSubject></v-app>',
-  el: "#review-subject",
+  el: '#review-subject',
   data() {
     return reviewSubjectData;
   },
@@ -69,17 +69,17 @@ new Vue({
 });
 
 // handler cortes
-$("body").on("click", ".corte", async function (e) {
+$('body').on('click', '.corte', async function (e) {
   const target = $(e.target);
-  const corte_id = target.parent().parent().attr("value");
+  const corte_id = target.parent().parent().attr('value');
   modalData.corte_id = corte_id;
   modalData.dialog = true;
 });
 
 // handler teacherReview
-$("body").on("click", ".ReviewTeacher", function (e) {
-  const teacherId = $(e.target).attr("data");
-  const teacherName = $(e.target).attr("teacherName");
+$('body').on('click', '.ReviewTeacher', function (e) {
+  const teacherId = $(e.target).attr('data');
+  const teacherName = $(e.target).attr('teacherName');
   teacherReviewData.professor = {
     id: teacherId,
     name: teacherName,
@@ -89,8 +89,8 @@ $("body").on("click", ".ReviewTeacher", function (e) {
 });
 
 // handler subject click
-$("body").on("click", "span.sa, span.sbc", function (e) {
-  const subjectId = $(e.target).attr("subjectId");
+$('body').on('click', 'span.sa, span.sbc', function (e) {
+  const subjectId = $(e.target).attr('subjectId');
   reviewSubjectData.subject = {
     id: subjectId,
   };

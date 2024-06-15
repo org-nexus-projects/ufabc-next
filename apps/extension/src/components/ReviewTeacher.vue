@@ -101,20 +101,20 @@
   </el-dialog>
 </template>
 <script>
-import VueHighcharts from "vue2-highcharts";
-import Highcharts3D from "highcharts/highcharts-3d";
-import Highcharts from "highcharts";
+import VueHighcharts from 'vue2-highcharts';
+import Highcharts3D from 'highcharts/highcharts-3d';
+import Highcharts from 'highcharts';
 
-import _ from "lodash";
-import { NextAPI } from "../services/NextAPI";
-import Utils from "../utils/extensionUtils";
-import matriculaUtils from "../utils/Matricula";
+import _ from 'lodash';
+import { NextAPI } from '../services/NextAPI';
+import Utils from '../utils/extensionUtils';
+import matriculaUtils from '../utils/Matricula';
 
 Highcharts3D(Highcharts);
 
 const data = {
   chart: {
-    type: "pie",
+    type: 'pie',
     options3d: {
       enabled: true,
       alpha: 45,
@@ -123,10 +123,10 @@ const data = {
     height: 240,
   },
   title: {
-    text: "",
+    text: '',
   },
   tooltip: {
-    pointFormat: "Porcentagem: <b>{point.percentage:.1f}%</b>",
+    pointFormat: 'Porcentagem: <b>{point.percentage:.1f}%</b>',
   },
   plotOptions: {
     pie: {
@@ -136,9 +136,9 @@ const data = {
       },
       depth: 20,
       allowPointSelect: true,
-      cursor: "pointer",
+      cursor: 'pointer',
       dataLabels: {
-        format: "{key}: <b>{point.percentage:.1f}%</b>",
+        format: '{key}: <b>{point.percentage:.1f}%</b>',
         enabled: true,
       },
       showInLegend: true,
@@ -150,8 +150,8 @@ const data = {
 const nextApi = NextAPI();
 
 export default {
-  name: "ReviewTecher",
-  props: ["value"],
+  name: 'ReviewTecher',
+  props: ['value'],
   components: {
     VueHighcharts,
   },
@@ -167,11 +167,11 @@ export default {
       samplesCount: null,
 
       conceitos: [
-        { conceito: "A" },
-        { conceito: "B" },
-        { conceito: "C" },
-        { conceito: "D" },
-        { conceito: "F" },
+        { conceito: 'A' },
+        { conceito: 'B' },
+        { conceito: 'C' },
+        { conceito: 'D' },
+        { conceito: 'F' },
       ],
 
       student_cr: null,
@@ -183,26 +183,26 @@ export default {
   },
 
   watch: {
-    "value.notifier"(val) {
+    'value.notifier'(val) {
       if (val) this.$notify(val);
     },
 
-    "value.professor"(val) {
+    'value.professor'(val) {
       this.fetch();
     },
   },
 
   computed: {
     professorName() {
-      return _.get(this.value, "professor.name", "");
+      return _.get(this.value, 'professor.name', '');
     },
 
     possibleDisciplinas() {
       let disciplinas = this.review.specific;
       let generalDefaults = {
         _id: {
-          _id: "all",
-          name: "Todas as matérias",
+          _id: 'all',
+          name: 'Todas as matérias',
         },
       };
       let general = Object.assign(generalDefaults, this.review.general);
@@ -215,7 +215,7 @@ export default {
       if (!this.filterSelected) return [];
 
       let filter;
-      if (this.filterSelected == "all") {
+      if (this.filterSelected == 'all') {
         filter = this.review.general;
       } else {
         filter = _.find(this.review.specific, {
@@ -226,17 +226,17 @@ export default {
       return (
         filter &&
         filter.distribution &&
-        _.sortBy(filter.distribution, "conceito")
+        _.sortBy(filter.distribution, 'conceito')
       );
     },
 
     cobraPresenca() {
-      if (!_.get(this.review, "general.distribution.length", 0)) return;
+      if (!_.get(this.review, 'general.distribution.length', 0)) return;
 
-      if (_.find(this.review.general.distribution, { conceito: "O" })) {
-        return "Provavelmente esse professor cobra presença 👎";
+      if (_.find(this.review.general.distribution, { conceito: 'O' })) {
+        return 'Provavelmente esse professor cobra presença 👎';
       } else {
-        return "Provavelmente esse professor NÃO cobra presença 👍";
+        return 'Provavelmente esse professor NÃO cobra presença 👍';
       }
     },
 
@@ -250,12 +250,12 @@ export default {
 
       let all_cr = [];
       for (let conceito of this.conceitoDistribution) {
-        if (conceito.conceito != "O" && conceito.conceito != "E") {
+        if (conceito.conceito != 'O' && conceito.conceito != 'E') {
           all_cr.push(conceito && conceito.cr_medio);
         }
       }
       let closest = all_cr.sort(
-        (a, b) => Math.abs(this.student_cr - a) - Math.abs(this.student_cr - b)
+        (a, b) => Math.abs(this.student_cr - a) - Math.abs(this.student_cr - b),
       )[0];
       let targetConceito = _.find(this.conceitoDistribution, {
         cr_medio: closest,
@@ -269,13 +269,13 @@ export default {
     resolveColorForConcept(concept) {
       return (
         {
-          A: "#3fcf8c",
-          B: "#b8e986",
-          C: "#f8b74c",
-          D: "#ffa004",
-          F: "#f95469",
-          O: "#A9A9A9",
-        }[concept] || "#A9A9A9"
+          A: '#3fcf8c',
+          B: '#b8e986',
+          C: '#f8b74c',
+          D: '#ffa004',
+          F: '#f95469',
+          O: '#A9A9A9',
+        }[concept] || '#A9A9A9'
       );
     },
     crCropped(cr) {
@@ -291,32 +291,32 @@ export default {
       let conceito = _.find(
         this.conceitoDistribution,
         { conceito: concept },
-        null
+        null,
       );
-      return conceito ? this.crCropped(conceito.cr_medio) : "-";
+      return conceito ? this.crCropped(conceito.cr_medio) : '-';
     },
     findCount(concept) {
       let conceito = _.find(
         this.conceitoDistribution,
         { conceito: concept },
-        null
+        null,
       );
-      return conceito ? conceito.count : "-";
+      return conceito ? conceito.count : '-';
     },
     fetch() {
-      let professorId = _.get(this.value, "professor.id", "");
+      let professorId = _.get(this.value, 'professor.id', '');
       if (!professorId) return;
       this.fetchStudent();
 
       this.loading = true;
 
       nextApi
-        .get("/reviews/teachers/" + professorId)
+        .get('/reviews/teachers/' + professorId)
         .then((res) => {
           this.review = res;
           this.loading = false;
 
-          if (_.get(res, "general.count", 0)) {
+          if (_.get(res, 'general.count', 0)) {
             this.filterSelected = this.possibleDisciplinas[0]._id._id;
             setTimeout(() => {
               this.updateFilter();
@@ -334,22 +334,22 @@ export default {
     fetchStudent() {
       let self = this;
 
-      const storageUser = "ufabc-extension-" + matriculaUtils.currentUser();
+      const storageUser = 'ufabc-extension-' + matriculaUtils.currentUser();
       Utils.storage.getItem(storageUser).then((item) => {
         if (item == null) return;
-        self.student_cr = _.get(item, "[1].cr", 0) || _.get(item, "[0].cr", 0);
+        self.student_cr = _.get(item, '[1].cr', 0) || _.get(item, '[0].cr', 0);
       });
     },
 
     updateFilter() {
       let pieChart = this.$refs.pieChart;
-      pieChart.delegateMethod("showLoading", "Carregando...");
+      pieChart.delegateMethod('showLoading', 'Carregando...');
 
       setTimeout(() => {
         pieChart.removeSeries();
 
         let filter;
-        if (this.filterSelected == "all") {
+        if (this.filterSelected == 'all') {
           filter = this.review.general;
         } else {
           filter = _.find(this.review.specific, {
@@ -373,7 +373,7 @@ export default {
         // })
 
         pieChart.addSeries({
-          data: _.sortBy(conceitosFiltered, "name"),
+          data: _.sortBy(conceitosFiltered, 'name'),
         });
         pieChart.hideLoading();
       }, 500);

@@ -1,5 +1,5 @@
-import $ from 'jquery'
-import _ from 'lodash'
+import $ from 'jquery';
+import _ from 'lodash';
 
 // chrome.storage.local.get(function (items) {
 //   var users = [];
@@ -22,8 +22,8 @@ import App from '../views/popup.vue';
 
 var app = new Vue({
   el: '#app',
-  data:{
-    name:'popup-ufabc-matricula-extension'
+  data: {
+    name: 'popup-ufabc-matricula-extension',
   },
-  render: h =>h(App)
-})
+  render: (h) => h(App),
+});

@@ -36,198 +36,200 @@
   </el-dialog>
 </template>
 <script>
-  import VueHighcharts from 'vue2-highcharts'
-  import Highcharts3D from "highcharts/highcharts-3d"
-  import Highcharts from "highcharts"
+import VueHighcharts from 'vue2-highcharts';
+import Highcharts3D from 'highcharts/highcharts-3d';
+import Highcharts from 'highcharts';
 
-  import _ from 'lodash'
-  import { NextAPI } from '../services/NextAPI'
-  import SubjectTeachersList from './SubjectTeachersList.vue'
+import _ from 'lodash';
+import { NextAPI } from '../services/NextAPI';
+import SubjectTeachersList from './SubjectTeachersList.vue';
 
-  Highcharts3D(Highcharts);
+Highcharts3D(Highcharts);
 
-  const data = {
-    chart: {
-      type: "pie",
-      options3d: {
+const data = {
+  chart: {
+    type: 'pie',
+    options3d: {
+      enabled: true,
+      alpha: 45,
+    },
+    width: 380,
+    height: 240,
+  },
+  title: {
+    text: '',
+  },
+  tooltip: {
+    pointFormat: 'Porcentagem: <b>{point.percentage:.1f}%</b>',
+  },
+  plotOptions: {
+    pie: {
+      // innerSize: 100,
+      animation: {
+        duration: 200,
+      },
+      depth: 20,
+      allowPointSelect: true,
+      cursor: 'pointer',
+      dataLabels: {
+        format: '{key}: <b>{point.percentage:.1f}%</b>',
         enabled: true,
-        alpha: 45
       },
-      width: 380,
-      height: 240
+      showInLegend: true,
     },
-    title: {
-        text: ''
+  },
+  series: [],
+};
+
+const nextApi = NextAPI();
+
+export default {
+  name: 'ReviewSubject',
+  props: ['value'],
+  components: {
+    VueHighcharts,
+    SubjectTeachersList,
+  },
+
+  data() {
+    return {
+      options: data,
+      Highcharts,
+      loading: false,
+
+      help_data: null,
+      filterSelected: null,
+      samplesCount: null,
+
+      conceitos: [
+        { conceito: 'A' },
+        { conceito: 'B' },
+        { conceito: 'C' },
+        { conceito: 'D' },
+        { conceito: 'F' },
+      ],
+
+      student_cr: null,
+    };
+  },
+
+  created() {
+    this.fetch();
+  },
+
+  watch: {
+    'value.notifier'(val) {
+      if (val) this.$notify(val);
     },
-    tooltip: {
-        pointFormat: 'Porcentagem: <b>{point.percentage:.1f}%</b>'
+
+    'value.subject'(val) {
+      this.fetch();
     },
-    plotOptions: {
-      pie: {
-        // innerSize: 100,
-        animation: {
-          duration: 200,
+  },
+
+  computed: {
+    subjectName() {
+      return _.get(this.help_data, 'subject.name', '');
+    },
+
+    possibleDisciplinas() {
+      let disciplinas = [...this.help_data.specific];
+      let generalDefaults = {
+        _id: {
+          _id: 'all',
+          name: 'Todas as matérias',
         },
-        depth: 20,
-        allowPointSelect: true,
-        cursor: 'pointer',
-        dataLabels: {
-          format: '{key}: <b>{point.percentage:.1f}%</b>',
-          enabled: true
-        },
-        showInLegend: true
-      }
+      };
+      let general = Object.assign(generalDefaults, this.help_data.general);
+      disciplinas.push(general);
+
+      return disciplinas.reverse();
     },
-    series: []
-  };
+  },
 
-  const nextApi = NextAPI();
-
-  export default {
-    name: 'ReviewSubject',
-    props: ['value'],
-    components: {
-      VueHighcharts,
-      SubjectTeachersList
-    },
-
-    data() {
-      return {
-        options: data,
-        Highcharts,
-        loading: false,
-
-        help_data: null,
-        filterSelected: null,
-        samplesCount: null,
-
-        conceitos: [
-          { conceito: 'A' },
-          { conceito: 'B' },
-          { conceito: 'C' },
-          { conceito: 'D' },
-          { conceito: 'F' },
-        ],
-
-        student_cr: null,
-      }
-    },
-
-    created() {
-      this.fetch()
-    },
-
-    watch: {
-      'value.notifier'(val) {
-        if(val) this.$notify(val)
-      },
-
-      'value.subject'(val){
-        this.fetch()
-      },
-    },
-
-    computed: {
-      subjectName() {
-        return _.get(this.help_data, 'subject.name', '')
-      },
-
-      possibleDisciplinas(){
-        let disciplinas = [...this.help_data.specific]
-        let generalDefaults = {
-          _id: {
-            _id: 'all',
-            name: 'Todas as matérias'
-          }
-        }
-        let general = Object.assign(generalDefaults, this.help_data.general)
-        disciplinas.push(general)
-
-        return disciplinas.reverse()
-      },
-
-    },
-
-    methods: {
-      resolveColorForConcept(concept) {
-        return {
-          'A': '#3fcf8c',
-          'B': '#b8e986',
-          'C': '#f8b74c',
-          'D': '#ffa004',
-          'F': '#f95469',
-          'O': '#A9A9A9'
+  methods: {
+    resolveColorForConcept(concept) {
+      return (
+        {
+          A: '#3fcf8c',
+          B: '#b8e986',
+          C: '#f8b74c',
+          D: '#ffa004',
+          F: '#f95469',
+          O: '#A9A9A9',
         }[concept] || '#A9A9A9'
-      },
+      );
+    },
 
-      closeDialog(){
-        this.value.dialog = false
-        this.filterSelected = null
-        this.help_data = null
-        this.samplesCount = 0
-      },
+    closeDialog() {
+      this.value.dialog = false;
+      this.filterSelected = null;
+      this.help_data = null;
+      this.samplesCount = 0;
+    },
 
+    fetch() {
+      let subjectId = _.get(this.value, 'subject.id', '');
+      if (!subjectId) return;
+      this.loading = true;
 
-      fetch() {
-        let subjectId = _.get(this.value, 'subject.id', '')
-        if(!subjectId) return
-        this.loading = true
+      nextApi
+        .get('/help/subjects/' + subjectId)
+        .then((res) => {
+          this.help_data = res;
+          this.loading = false;
 
-        nextApi.get('/help/subjects/' + subjectId).then((res) => {
-          this.help_data = res
-          this.loading = false
-
-          this.filterSelected = this.possibleDisciplinas[0]._id._id
-          if(_.get(res, 'general.count', 0)) {
+          this.filterSelected = this.possibleDisciplinas[0]._id._id;
+          if (_.get(res, 'general.count', 0)) {
             setTimeout(() => {
-              this.updateFilter()
-            }, 500)
+              this.updateFilter();
+            }, 500);
           }
-        }).catch((e) => {
-          this.loading = false
-          console.log(e)
+        })
+        .catch((e) => {
+          this.loading = false;
+          console.log(e);
 
           // Show dialog with error
-          this.closeDialog()
-        })
-
-      },
-
-      updateFilter(){
-        let pieChart = this.$refs.pieChart
-        pieChart.delegateMethod('showLoading', 'Carregando...');
-
-        setTimeout(() => {
-          pieChart.removeSeries()
-
-          let filter
-          if(this.filterSelected == 'all'){
-            filter = this.help_data.general
-          } else {
-            filter = _.find(this.help_data.specific, { _id: { _id: this.filterSelected }})
-          }
-
-          let conceitosFiltered = []
-          let conceitos = filter.distribution
-          for(let conceito of conceitos){
-            conceitosFiltered.push({
-              name: conceito.conceito,
-              y: conceito.count,
-              color: this.resolveColorForConcept(conceito.conceito)
-            })
-          }
-          this.samplesCount = filter.count
-
-          pieChart.addSeries({
-            data: _.sortBy(conceitosFiltered, 'name')
-          })
-          pieChart.hideLoading();
-        }, 500)
-      }
-
+          this.closeDialog();
+        });
     },
 
-  }
+    updateFilter() {
+      let pieChart = this.$refs.pieChart;
+      pieChart.delegateMethod('showLoading', 'Carregando...');
+
+      setTimeout(() => {
+        pieChart.removeSeries();
+
+        let filter;
+        if (this.filterSelected == 'all') {
+          filter = this.help_data.general;
+        } else {
+          filter = _.find(this.help_data.specific, {
+            _id: { _id: this.filterSelected },
+          });
+        }
+
+        let conceitosFiltered = [];
+        let conceitos = filter.distribution;
+        for (let conceito of conceitos) {
+          conceitosFiltered.push({
+            name: conceito.conceito,
+            y: conceito.count,
+            color: this.resolveColorForConcept(conceito.conceito),
+          });
+        }
+        this.samplesCount = filter.count;
+
+        pieChart.addSeries({
+          data: _.sortBy(conceitosFiltered, 'name'),
+        });
+        pieChart.hideLoading();
+      }, 500);
+    },
+  },
+};
 </script>
 <style scoped>
 .information {

@@ -1,8 +1,8 @@
-import _ from "lodash";
+import _ from 'lodash';
 
 const toJSON = (payload, max) => {
   const json = JSON.parse(
-    _.get(new RegExp(/^\w*=(.*)/).exec(payload), "[1]", {})
+    _.get(new RegExp(/^\w*=(.*)/).exec(payload), '[1]', {}),
   );
 
   if (max) {

@@ -3,15 +3,15 @@
 function normalizeDiacritics(stringElement) {
   return stringElement
     .trim()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[-:]/g, "")
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[-:]/g, '')
     .toLocaleLowerCase();
 }
 
 function scrapeGradesConsulting() {
   const sigaaUpdatetime = document
-    .querySelector(".dataAtual")
+    .querySelector('.dataAtual')
     .textContent.trim();
 
   const [day, month, year, hour, minute] = sigaaUpdatetime.match(/\d+/g);
@@ -19,27 +19,27 @@ function scrapeGradesConsulting() {
 
   // * dados do aluno
   const studentDataHTML = document.querySelector(
-    "#identificacao > tbody > tr > td:nth-child(2) > table > tbody > tr:nth-child(1) > td"
+    '#identificacao > tbody > tr > td:nth-child(2) > table > tbody > tr:nth-child(1) > td',
   ).textContent;
   const courseHTML = document.querySelector(
-    "#identificacao > tbody > tr > td:nth-child(2) > table > tbody > tr:nth-child(2) > td"
+    '#identificacao > tbody > tr > td:nth-child(2) > table > tbody > tr:nth-child(2) > td',
   );
   const studentCourse = courseHTML.innerText;
-  const [, ra] = studentDataHTML.trim().split(" - ");
+  const [, ra] = studentDataHTML.trim().split(' - ');
 
-  const quadsTableElement = document.querySelectorAll(".tabelaRelatorio");
+  const quadsTableElement = document.querySelectorAll('.tabelaRelatorio');
   const quadsTable = Array.from(quadsTableElement);
 
   const studentDisciplinaHistory = [];
   for (const tableElement of quadsTable) {
-    const studentseason = tableElement.querySelector("caption");
-    const [year, quad] = studentseason.textContent.trim().split(".");
+    const studentseason = tableElement.querySelector('caption');
+    const [year, quad] = studentseason.textContent.trim().split('.');
 
-    const tableHeadersElement = tableElement.querySelectorAll("th");
-    const tableRowsElement = tableElement.querySelectorAll("tbody > tr");
+    const tableHeadersElement = tableElement.querySelectorAll('th');
+    const tableRowsElement = tableElement.querySelectorAll('tbody > tr');
     const rawTableHeaders = Array.from(tableHeadersElement);
 
-    const wantedFields = ["codigo", "disciplina", "resultado", "situacao"];
+    const wantedFields = ['codigo', 'disciplina', 'resultado', 'situacao'];
     const indexWantedFields = [];
     const tableHeaders = rawTableHeaders.filter((rawItem, index) => {
       const item = normalizeDiacritics(rawItem.innerText);
@@ -63,7 +63,7 @@ function scrapeGradesConsulting() {
 
       cells.forEach((item, index) => {
         const normalizedHeaderText = normalizeDiacritics(
-          tableHeaders[index].textContent
+          tableHeaders[index].textContent,
         );
         disciplina[normalizedHeaderText] = item;
       });
@@ -86,24 +86,24 @@ function scrapeGradesConsulting() {
 }
 
 function scrapeHomepage() {
-  const trs = document.querySelectorAll("#agenda-docente tbody tr");
+  const trs = document.querySelectorAll('#agenda-docente tbody tr');
   const tablesRowsArray = Array.from(trs);
   const rawStudentInfo = tablesRowsArray.map((line) =>
     Array.from(line.children).map((column) =>
-      normalizeDiacritics(column.innerText)
-    )
+      normalizeDiacritics(column.innerText),
+    ),
   );
 
-  const [rawName] = document.querySelectorAll("#perfil-docente p.info-docente");
+  const [rawName] = document.querySelectorAll('#perfil-docente p.info-docente');
   const [name] = rawName.textContent.split(/\n\n\t+\n\t+/);
   const studentInfo = Object.fromEntries(rawStudentInfo);
-  const courseInfo = studentInfo.curso.split("  ");
+  const courseInfo = studentInfo.curso.split('  ');
 
   studentInfo.curso = courseInfo[0];
   let turno = courseInfo[courseInfo.length - 1];
 
-  if (turno === 'n') turno = 'noturno'
-  if (turno === 'm') turno = 'matutino'
+  if (turno === 'n') turno = 'noturno';
+  if (turno === 'm') turno = 'matutino';
 
   return {
     name: name.trim(),

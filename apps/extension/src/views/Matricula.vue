@@ -89,14 +89,14 @@
   </div>
 </template>
 <script>
-import $ from "jquery";
-import matriculaUtils from "../utils/Matricula";
-import Utils from "../utils/extensionUtils";
-import Mustache from "mustache";
+import $ from 'jquery';
+import matriculaUtils from '../utils/Matricula';
+import Utils from '../utils/extensionUtils';
+import Mustache from 'mustache';
 // await MatriculaHelper.getTotalMatriculas()
 
 export default {
-  name: "App",
+  name: 'App',
   data() {
     return {
       showWarning: false,
@@ -106,41 +106,41 @@ export default {
 
       shiftFilters: [
         {
-          name: "Noturno",
-          class: "notNoturno",
+          name: 'Noturno',
+          class: 'notNoturno',
           val: true,
-          comparator: "matutino",
+          comparator: 'matutino',
         },
         {
-          name: "Matutino",
-          class: "notMatutino",
+          name: 'Matutino',
+          class: 'notMatutino',
           val: true,
-          comparator: "noturno",
+          comparator: 'noturno',
         },
       ],
 
       campusFilters: [
         {
-          name: "São Bernardo",
-          class: "notBernardo",
+          name: 'São Bernardo',
+          class: 'notBernardo',
           val: true,
-          comparator: "andr", //isso está correto
+          comparator: 'andr', //isso está correto
         },
         {
-          name: "Santo André",
-          class: "notAndre",
+          name: 'Santo André',
+          class: 'notAndre',
           val: true,
-          comparator: "bernardo",
+          comparator: 'bernardo',
         },
       ],
     };
   },
   async created() {
-    const students = await Utils.storage.getItem("ufabc-extension-students");
+    const students = await Utils.storage.getItem('ufabc-extension-students');
     const currentUser = matriculaUtils.currentUser();
 
     const currentStudent = students.find(
-      (student) => student.name == currentUser
+      (student) => student.name == currentUser,
     );
     if (currentStudent && currentStudent.lastUpdate) {
       const diff = Date.now() - currentStudent.lastUpdate;
@@ -163,7 +163,7 @@ export default {
       // if(this.shiftFilters.every(f => f.val == false) || this.campusFilters.every(f => f.val == false)) return
 
       if (!params.val) {
-        $("#tabeladisciplinas tr td:nth-child(3)").each(function () {
+        $('#tabeladisciplinas tr td:nth-child(3)').each(function () {
           var campus = $(this).text().toLowerCase();
           if (campus.indexOf(params.comparator) == -1) {
             $(this).parent().addClass(params.class);
@@ -172,59 +172,59 @@ export default {
         return;
       }
 
-      $("#tabeladisciplinas tr").each(function () {
+      $('#tabeladisciplinas tr').each(function () {
         $(this).removeClass(params.class);
       });
     },
     changeSelected() {
       if (!this.selected) {
-        $(".notSelecionada").css("display", "");
+        $('.notSelecionada').css('display', '');
         return;
       }
 
       const aluno_id = matriculaUtils.getAlunoId();
       const matriculas = window.matriculas[aluno_id] || [];
 
-      $("tr").each(function () {
-        const disciplina_id = $(this).attr("value");
+      $('tr').each(function () {
+        const disciplina_id = $(this).attr('value');
         if (disciplina_id && !matriculas.includes(disciplina_id.toString())) {
-          $(this).addClass("notSelecionada");
-          $(this).css("display", "none");
+          $(this).addClass('notSelecionada');
+          $(this).css('display', 'none');
         }
       });
     },
     changeCursadas() {
       let self = this;
       if (!this.cursadas) {
-        $(".isCursada").css("display", "");
+        $('.isCursada').css('display', '');
         return;
       }
 
-      const storageUser = "ufabc-extension-" + matriculaUtils.currentUser();
+      const storageUser = 'ufabc-extension-' + matriculaUtils.currentUser();
       Utils.storage.getItem(storageUser).then((cursadas) => {
         if (cursadas == null) {
           self.$notify({
             message:
-              "Não temos as diciplinas que você cursou, acesse o Portal do Aluno",
+              'Não temos as diciplinas que você cursou, acesse o Portal do Aluno',
           });
           return;
         }
 
         // se nao tiver nada precisa mandar ele cadastrar
         var todas_cursadas = _(cursadas[0].cursadas)
-          .filter((d) => ["A", "B", "C", "D", "E"].includes(d.conceito))
-          .map("disciplina")
+          .filter((d) => ['A', 'B', 'C', 'D', 'E'].includes(d.conceito))
+          .map('disciplina')
           .value();
 
-        $("table tr td:nth-child(3)").each(function () {
+        $('table tr td:nth-child(3)').each(function () {
           var el = $(this);
           // tira apenas o nome da disciplina -> remove turma, turno e campus
-          var disciplina = el.text().split("-")[0];
-          disciplina = disciplina.substring(0, disciplina.lastIndexOf(" "));
+          var disciplina = el.text().split('-')[0];
+          disciplina = disciplina.substring(0, disciplina.lastIndexOf(' '));
           // verifica se ja foi cursada
           if (todas_cursadas.includes(disciplina)) {
-            el.parent().addClass("isCursada");
-            el.parent().css("display", "none");
+            el.parent().addClass('isCursada');
+            el.parent().css('display', 'none');
           }
         });
       });
@@ -245,18 +245,18 @@ export default {
     changeTeachers() {
       let self = this;
       if (!this.teachers) {
-        $(".isTeacherReview").css("display", "none");
+        $('.isTeacherReview').css('display', 'none');
         return;
       }
 
       // se ja tiver calculado nao refaz o trabalho
-      if ($(".isTeacherReview").length > 0) {
-        $(".isTeacherReview").css("display", "");
+      if ($('.isTeacherReview').length > 0) {
+        $('.isTeacherReview').css('display', '');
         return;
       }
 
       Utils.storage
-        .getItem("ufabc-extension-disciplinas")
+        .getItem('ufabc-extension-disciplinas')
         .then(async (item) => {
           if (item == null) {
             item = await matriculaUtils.getProfessors();
@@ -266,24 +266,24 @@ export default {
             ...item.map((d) => [d.disciplina_id.toString(), d]),
           ]);
           const htmlPop = await Utils.fetchChromeUrl(
-            "pages/matricula/fragments/professorPopover.html"
+            'pages/matricula/fragments/professorPopover.html',
           );
           const corteHtml = await Utils.fetchChromeUrl(
-            "pages/matricula/corte.html"
+            'pages/matricula/corte.html',
           );
 
-          $("table tr").each(function () {
-            var el = $(this).find("td:nth-child(3)");
-            var subjectEl = $(this).find("td:nth-child(3) > span");
-            var corteEl = $(this).find("td:nth-child(5)");
-            var disciplinaId = el.parent().attr("value");
+          $('table tr').each(function () {
+            var el = $(this).find('td:nth-child(3)');
+            var subjectEl = $(this).find('td:nth-child(3) > span');
+            var corteEl = $(this).find('td:nth-child(5)');
+            var disciplinaId = el.parent().attr('value');
 
             const disciplinaInfo = disciplinaMap.get(disciplinaId);
             if (!disciplinaInfo) return;
 
             // Add subject id to span with subject
             if (disciplinaInfo.subject) {
-              subjectEl.attr("subjectId", disciplinaInfo.subject);
+              subjectEl.attr('subjectId', disciplinaInfo.subject);
             }
 
             const data = { disciplina: disciplinaInfo };

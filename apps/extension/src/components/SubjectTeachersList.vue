@@ -128,18 +128,18 @@
 </template>
 <script>
 export default {
-  name: "SubjectTeachersList",
+  name: 'SubjectTeachersList',
 
   data() {
     return {
       sortButton: 0,
       concepts: [
-        { code: "A", color: "rgb(63, 207, 140)" },
-        { code: "B", color: "rgb(184, 233, 134)" },
-        { code: "C", color: "rgb(248, 183, 76)" },
-        { code: "D", color: "rgb(255, 160, 4)" },
-        { code: "F", color: "rgb(249, 84, 105)" },
-        { code: "O", color: "rgb(169, 169, 169)" },
+        { code: 'A', color: 'rgb(63, 207, 140)' },
+        { code: 'B', color: 'rgb(184, 233, 134)' },
+        { code: 'C', color: 'rgb(248, 183, 76)' },
+        { code: 'D', color: 'rgb(255, 160, 4)' },
+        { code: 'F', color: 'rgb(249, 84, 105)' },
+        { code: 'O', color: 'rgb(169, 169, 169)' },
       ],
       unthrustableThreshold: 10,
     };
@@ -164,21 +164,21 @@ export default {
 
   computed: {
     teachersSorted() {
-      let order = [["teacher.name"], ["desc"]];
+      let order = [['teacher.name'], ['desc']];
       if (this.sortButton == 0) {
         order = [
-          ["approval", "reproof", "count"],
-          ["desc", "desc"],
+          ['approval', 'reproof', 'count'],
+          ['desc', 'desc'],
         ];
       } else if (this.sortButton == 1) {
         order = [
-          ["reproof", "approval"],
-          ["desc", "desc"],
+          ['reproof', 'approval'],
+          ['desc', 'desc'],
         ];
       } else if (this.sortButton == 2) {
-        order = [["count"], ["desc"]];
+        order = [['count'], ['desc']];
       } else if (this.sortButton == 3) {
-        order = [["cr_professor"], ["desc"]];
+        order = [['cr_professor'], ['desc']];
       }
 
       return _.orderBy([...this.teachersPopulated], ...order);
@@ -186,32 +186,32 @@ export default {
 
     teachersPopulated() {
       let teachers = [...(this.teachers || [])];
-      let possibleConcepts = ["A", "B", "C", "D", "F", "O"];
+      let possibleConcepts = ['A', 'B', 'C', 'D', 'F', 'O'];
 
       for (let i = 0; i < teachers.length; i++) {
         teachers[i].concepts = {};
         possibleConcepts.forEach((c) => {
           teachers[i].concepts[c] = {};
-          teachers[i].concepts[c]["percentage"] =
+          teachers[i].concepts[c]['percentage'] =
             this.calculateConceptPercentage(teachers[i].distribution, c);
-          teachers[i].concepts[c]["count"] = this.findConceptCount(
+          teachers[i].concepts[c]['count'] = this.findConceptCount(
             teachers[i].distribution,
-            c
+            c,
           );
         });
 
-        let approvalConcepts = ["A", "B", "C", "D"];
-        let reproofConcepts = ["F", "O"];
+        let approvalConcepts = ['A', 'B', 'C', 'D'];
+        let reproofConcepts = ['F', 'O'];
         let approval = [];
         let reproof = [];
         approvalConcepts.forEach((c, index) => {
-          approval.push(teachers[i].concepts[c]["percentage"]);
+          approval.push(teachers[i].concepts[c]['percentage']);
         });
         reproofConcepts.forEach((c) => {
-          reproof.push(teachers[i].concepts[c]["percentage"]);
+          reproof.push(teachers[i].concepts[c]['percentage']);
         });
-        teachers[i]["approval"] = _.sum(approval);
-        teachers[i]["reproof"] = _.sum(reproof);
+        teachers[i]['approval'] = _.sum(approval);
+        teachers[i]['reproof'] = _.sum(reproof);
       }
 
       return teachers;
@@ -221,11 +221,11 @@ export default {
   methods: {
     findConceptCount(distribution, concept) {
       let conceptTarget = _.find(distribution, { conceito: concept });
-      return _.get(conceptTarget, "count", null);
+      return _.get(conceptTarget, 'count', null);
     },
 
     findConceptCountTotal(distribution) {
-      return _.sumBy(distribution, "count");
+      return _.sumBy(distribution, 'count');
     },
 
     calculateConceptPercentage(distribution, concept) {
@@ -236,11 +236,11 @@ export default {
     },
 
     openTeacher(teacher) {
-      let teacherId = _.get(teacher, "teacher._id", null);
+      let teacherId = _.get(teacher, 'teacher._id', null);
       if (teacherId) {
         this.$router.replace({ query: {} });
         this.$router.push({
-          name: "reviews",
+          name: 'reviews',
           query: { teacherId, subjectId: null },
         });
       }

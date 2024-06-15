@@ -1,14 +1,14 @@
-import Vue from "vue";
-import Vuetify from "vuetify";
+import Vue from 'vue';
+import Vuetify from 'vuetify';
 
 Vue.use(Vuetify);
 
-import Portal from "./views/Portal.vue";
+import Portal from './views/Portal.vue';
 
 new Vue({
-  el: "#app",
+  el: '#app',
   data: {
-    name: "portal-matricula-extension",
+    name: 'portal-matricula-extension',
   },
   render: (h) => h(Portal),
 });

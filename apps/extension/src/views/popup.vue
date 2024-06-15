@@ -68,58 +68,58 @@
   </div>
 </template>
 <script>
-import Vue from 'vue'
-import Vuetify from 'vuetify'
-Vue.use(Vuetify)
+import Vue from 'vue';
+import Vuetify from 'vuetify';
+Vue.use(Vuetify);
 
-import Utils from '../utils/extensionUtils'
-import { setupStorage } from '../utils/setupStorage'
+import Utils from '../utils/extensionUtils';
+import { setupStorage } from '../utils/setupStorage';
 
-setupStorage()
+setupStorage();
 
-  export default {
-    name: 'App',
+export default {
+  name: 'App',
 
-    data() {
-      return {
-        students: null,
-        loading: false,
-        error: false,
+  data() {
+    return {
+      students: null,
+      loading: false,
+      error: false,
+    };
+  },
+
+  created() {
+    this.loading = true;
+    setTimeout(() => this.fetch(), 2000);
+  },
+
+  methods: {
+    async fetch() {
+      this.loading = true;
+      this.error = false;
+
+      try {
+        this.students = await Utils.storage.getItem('ufabc-extension-students');
+        this.error = false;
+      } catch (err) {
+        this.error = true;
       }
+      this.loading = false;
     },
 
-    created() {
-      this.loading = true
-      setTimeout(() => this.fetch(), 2000)
+    formatDate(date) {
+      if (!date) return;
+
+      let d = new Date(date);
+      const day = (d.getDate() < 10 ? '0' : '') + d.getDate();
+      const month = (d.getMonth() < 10 ? '0' : '') + (d.getMonth() + 1);
+      const year = d.getFullYear();
+      const hour = (d.getHours() < 10 ? '0' : '') + d.getHours();
+      const minutes = (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+      return day + '/' + month + '/' + year + ' ' + hour + ':' + minutes;
     },
-
-    methods: {
-      async fetch() {
-        this.loading = true
-        this.error = false
-
-        try {
-          this.students = await Utils.storage.getItem('ufabc-extension-students')
-          this.error = false
-        } catch(err) {
-          this.error = true
-        }
-        this.loading = false
-      },
-
-      formatDate(date) {
-        if(!date) return
-
-        let d = new Date(date)
-        const day = (d.getDate() < 10 ? '0' : '') + d.getDate()
-        const month = (d.getMonth() < 10 ? '0' : '') + (d.getMonth() + 1)
-        const year = d.getFullYear()
-        const hour = (d.getHours() < 10 ? '0' : '') + d.getHours()
-        const minutes = (d.getMinutes() < 10 ? '0' : '') + d.getMinutes()
-        return day + '/' + month + '/' + year + ' ' + hour + ':' + minutes
-      }
-    }
-  }
+  },
+};
 </script>
 <style scoped>
 .ufabc-next-popup {

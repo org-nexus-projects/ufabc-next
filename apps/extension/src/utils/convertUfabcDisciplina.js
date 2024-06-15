@@ -1,5 +1,5 @@
-const _ = require("lodash");
-const removeDiacritics = require("./removeDiacritics");
+const _ = require('lodash');
+const removeDiacritics = require('./removeDiacritics');
 
 // This convert an disciplina from the .json from matriculas.ufabc
 function convertDisciplina(d) {
@@ -8,15 +8,15 @@ function convertDisciplina(d) {
   // specific for .json
   delete obj.campus;
   delete obj.turno;
-  obj.obrigatorias = _.map(obj.obrigatoriedades, "curso_id");
+  obj.obrigatorias = _.map(obj.obrigatoriedades, 'curso_id');
 
   let afterNoon = false;
 
   // handler horarios based on pdf or json
   if (obj.horarios && _.isObject(obj.horarios)) {
-    let startHours = _.get(obj.horarios, "[0].horas", []);
-    let afterNoon = ["14:00", "15:00", "16:00", "17:00"].some((hour) =>
-      startHours.includes(hour)
+    let startHours = _.get(obj.horarios, '[0].horas', []);
+    let afterNoon = ['14:00', '15:00', '16:00', '17:00'].some((hour) =>
+      startHours.includes(hour),
     );
   } else if (obj.horarios && _.isString(obj.horarios)) {
     obj.horarios = removeLineBreaks(obj.horarios);
@@ -27,7 +27,7 @@ function convertDisciplina(d) {
     if (matched.length % 2 == 0) {
       let hours = _.chunk(matched, 2);
       hours.forEach((m) => {
-        let [start, end] = m.map((h) => parseInt(h.split(":")[0]));
+        let [start, end] = m.map((h) => parseInt(h.split(':')[0]));
 
         if (start >= 12 && start < 18) {
           afterNoon = true;
@@ -41,17 +41,17 @@ function convertDisciplina(d) {
 
   let turnoIndex = null;
 
-  let breakRule = "-";
+  let breakRule = '-';
 
   var splitted = removeLineBreaks(obj.nome).split(breakRule);
   if (splitted.length == 1) {
-    breakRule = " ";
+    breakRule = ' ';
     splitted = splitted[0].split(/\s+/);
   }
 
   splitted.map(function (item, i) {
     obj.campus = obj.campus || extractCampus(item);
-    obj.turno = obj.turno || (afterNoon ? "tarde" : extractTurno(item));
+    obj.turno = obj.turno || (afterNoon ? 'tarde' : extractTurno(item));
 
     if ((obj.turno || obj.campus) && turnoIndex == null) turnoIndex = i;
   });
@@ -65,12 +65,12 @@ function convertDisciplina(d) {
   splitted = splitted.slice(0, turnoIndex);
 
   // separa a turma da disciplina
-  var disciplina = _.compact(splitted.join("-").split(/\s+/));
+  var disciplina = _.compact(splitted.join('-').split(/\s+/));
   obj.turma = disciplina[disciplina.length - 1];
   disciplina.pop();
 
   // fix disciplina
-  obj.disciplina = disciplina.join(" ").trim();
+  obj.disciplina = disciplina.join(' ').trim();
   //obj.ideal_quad = app.helpers.season.findIdeais().includes(obj.codigo)
 
   obj.disciplina_id = obj.id;
@@ -81,22 +81,22 @@ function convertDisciplina(d) {
 
 function cleanTeacher(str) {
   return _.startCase(_.camelCase(str))
-    .replace(/-+.*?-+/g, "")
-    .replace(/\(+.*?\)+/g, "");
+    .replace(/-+.*?-+/g, '')
+    .replace(/\(+.*?\)+/g, '');
 }
 
-function removeLineBreaks(str = "") {
-  return str.replace(/\r?\n|\r/g, " ");
+function removeLineBreaks(str = '') {
+  return str.replace(/\r?\n|\r/g, ' ');
 }
 
 function extractTurno(d) {
   const min = d.toLowerCase();
-  if (min.includes("diurno") || min.includes("matutino")) {
-    return "diurno";
+  if (min.includes('diurno') || min.includes('matutino')) {
+    return 'diurno';
   }
 
-  if (min.includes("noturno")) {
-    return "noturno";
+  if (min.includes('noturno')) {
+    return 'noturno';
   }
 
   return null;
@@ -105,11 +105,11 @@ function extractTurno(d) {
 function extractCampus(d) {
   const min = removeDiacritics(d.toLowerCase());
   if (/.*santo\s+andre.*/.test(min)) {
-    return "santo andre";
+    return 'santo andre';
   }
 
   if (/.*sao\s+bernardo.*/.test(min)) {
-    return "sao bernardo";
+    return 'sao bernardo';
   }
 
   return null;
