@@ -3,16 +3,19 @@
   "private": true,
   "version": "1.1.7",
   "description": "Adiciona funcionalidades novas ao sistema de matricula da UFABC",
+  "engines": {
+    "node": "^20"
+  },
   "scripts": {
     "serve": "node server/app.js",
-    "start": "yarn build && yarn serve",
+    "start": "pnpm build && pnpm serve",
     "deploy": "caprover deploy",
-    "build": "yarn build:chrome",
+    "build": "pnpm build:chrome",
     "build:chrome": "gulp pack --production --vendor=chrome",
     "build:firefox": "gulp pack --production --vendor=firefox",
     "build:opera": "gulp pack --production --vendor=opera",
     "build:edge": "gulp pack --production --vendor=edge",
-    "dev": "yarn dev:chrome",
+    "dev": "pnpm dev:chrome",
     "staging": "gulp --watch --staging --vendor=chrome",
     "dev:chrome": "gulp --watch --vendor=chrome",
     "dev:firefox": "gulp --watch --vendor=firefox",
