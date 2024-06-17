@@ -9,16 +9,18 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Use Node.js 16.13.2
-        uses: actions/setup-node@v2
+      - name: setup node
+        uses: actions/setup-node@v4
         with:
-          node-version: 16.13.2
-      - name: Install
-        run: |
-          yarn install
+          node-version: 20.x
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - name: 📦 Install dependencies
+        run: pnpm i
       - name: Deploy
         run: |
-          yarn deploy -h https://captain.captain.sv.ufabcnext.com -a next-extension -p "${{ secrets.CAPROVER_PASSWORD }}" -b master
+          pnpm run deploy -h https://captain.captain.sv.ufabcnext.com -a next-extension -p "${{ secrets.CAPROVER_PASSWORD }}" -b master
