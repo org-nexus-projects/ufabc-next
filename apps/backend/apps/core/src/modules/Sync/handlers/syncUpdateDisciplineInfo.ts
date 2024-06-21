@@ -1,7 +1,7 @@
 // preciso pegar o arquivo 
 
 import { categoriesHandler } from "@/modules/Sync/handlers/parseCategoriesFromXlsx.js";
-import { FastifyRequest } from "fastify";
+import type { FastifyRequest } from "fastify";
 
 // extrair os valores sigla ,TPEI, ementa, curso(categoria)
 

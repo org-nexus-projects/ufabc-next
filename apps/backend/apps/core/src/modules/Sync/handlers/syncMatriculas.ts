@@ -85,6 +85,7 @@ const parseEnrollments = (data: Record<string, number[]>) => {
 
   for (const aluno_id in data) {
     const matriculasAluno = data[aluno_id];
+
     matriculasAluno.forEach((matricula) => {
       matriculas[matricula] = (matriculas[matricula] || []).concat([
         Number.parseInt(aluno_id),

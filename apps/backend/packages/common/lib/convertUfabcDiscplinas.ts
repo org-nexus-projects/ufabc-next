@@ -60,12 +60,13 @@ export function convertUfabcDisciplinas(disciplina: Disciplina) {
 
     if (matched!.length % 2 === 0) {
       const hours = lodashChunk(matched, 2);
-      hours.forEach((hour) => {
+
+      for (const hour of hours) {
         const [start] = hour.map((h) => Number.parseInt(h.split(':')[0]!));
         if (start! >= 12 && start! < 18) {
           afterNoon = true;
         }
-      });
+      }
     }
   }
 
@@ -169,10 +170,12 @@ function cleanTeoriaAndPraticaFields(disciplina: Disciplina) {
   disciplina.pratica = disciplina.pratica ?? null;
 
   // edge case in parseTeachers where the xlsx, sets the empty teoria/pratica to 0
+  // biome-ignore lint/suspicious/noDoubleEquals: <explanation>
   if (disciplina.teoria == '0') {
     disciplina.teoria = null;
   }
 
+  // biome-ignore lint/suspicious/noDoubleEquals: <explanation>
   if (disciplina.pratica == '0') {
     disciplina.pratica = null;
   }

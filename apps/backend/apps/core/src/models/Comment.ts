@@ -75,8 +75,8 @@ const commentSchema = new Schema(
         query,
         userId: Types.ObjectId,
         populateFields: string[] = ['enrollment', 'subject'],
-        limit: number = 10,
-        page: number = 0,
+        limit = 10,
+        page = 0,
       ) {
         if (!userId) {
           throw new Error(`Usuário Não Encontrado ${userId}`);

@@ -19,7 +19,7 @@ export async function courseId<T>(
   season: ReturnType<typeof currentQuad>,
   studentModel: StudentModel<T>,
 ) {
-  const courses = await findIds(season, studentModel);
+  const courses = await findIds(studentModel, season);
   const course = clearString(rawCourse);
   const coursenames = courses.map((course) => clearString(course.name));
 
@@ -34,8 +34,8 @@ export async function courseId<T>(
 }
 
 export async function findIds<T>(
-  season = currentQuad(),
   StudentModel: StudentModel<T>,
+  season = currentQuad(),
 ) {
   const courses = await StudentModel.aggregate<CoursesAggregate>([
     {
