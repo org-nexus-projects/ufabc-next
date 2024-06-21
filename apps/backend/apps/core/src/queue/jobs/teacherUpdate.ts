@@ -6,6 +6,7 @@ import {
 } from '@next/common';
 import { EnrollmentModel } from '@/models/Enrollment.js';
 import { TeacherModel } from '@/models/Teacher.js';
+
 //TODO: Check if this is the correct type (pratica and teoria are not in the spreadsheet)
 //this is the type of the spreedsheet file that is being parsed
 // but the spreeadsheet file does not have the teoria and pratica fields
@@ -16,14 +17,29 @@ type parsedData = {
   ra: number;
   teoria: string;
   pratica: string;
+  credits: string
 };
 
 type UpdateTeachers = parsedData[];
 
+
+function resolveCredits(credits:string){
+
+  const numbers = credits.split('-').map(Number);
+  const sum = numbers.slice(0, 2).reduce((acc, num) => acc + num, 0);
+  console.log(sum);
+ 
+return 
+
+}
+
+//change name to offered classes
 export async function updateTeachers(data: UpdateTeachers) {
   const teachers = await TeacherModel.find({});
 
   const updateTeacherInEnrollments = async (enrollment: parsedData) => {
+
+
     const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
 
     const key = {

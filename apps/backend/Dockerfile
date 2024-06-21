@@ -1,7 +1,7 @@
 # Run with `docker build --secret id=env,src=.env -f ./Dockerfile . -t teste-docker:0.0.2 --no-cache`
 # see a way to use this later --mount=type=secret,id=env,required=true,target=/workspace/.env
 
-ARG NODE_VERSION="20.12.2"
+ARG NODE_VERSION="22.0.0"
 
 FROM node:${NODE_VERSION}-alpine AS runtime
 
@@ -23,8 +23,9 @@ FROM runtime as fetcher
 COPY pnpm*.yaml ./
 
 # mount pnpm store as cache & fetch dependencies
-RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm-store \
-    pnpm fetch --ignore-scripts
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm-store 
+
+RUN pnpm fetch --ignore-scripts
 
 FROM fetcher as builder
 # specify the app in apps/ we want to build
@@ -35,7 +36,7 @@ ENV APP_NAME=${APP_NAME}
 WORKDIR /workspace
 COPY . .
 
-RUN pnpm i --frozen-lockfile --prefer-offline --silent
+RUN pnpm i
 
 # build app
 
