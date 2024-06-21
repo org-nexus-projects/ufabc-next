@@ -20,8 +20,7 @@ jobs:
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
     steps:
-     - name: Setup Biome
-        uses: biomejs/setup-biome@v2
+      - uses: biomejs/setup-biome@v2
         with:
           version: latest
       - uses: actions/checkout@v4
