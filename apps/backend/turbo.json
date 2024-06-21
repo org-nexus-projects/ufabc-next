@@ -1,7 +1,10 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDotEnv": [".env"],
-  "pipeline": {
+  "ui": "stream",
+  "globalDependencies": [
+    ".env"
+  ],
+  "tasks": {
     "populate": {
       "cache": false
     },
@@ -10,15 +13,23 @@
       "persistent": true
     },
     "build": {
-      "env": ["NODE_ENV"],
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**"],
+      "env": [
+        "NODE_ENV"
+      ],
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
       "cache": true
     },
     "tsc": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "cache": true,
-      "outputMode": "errors-only"
+      "outputLogs": "errors-only"
     },
     "start": {
       "cache": true
@@ -28,21 +39,23 @@
       "persistent": true
     },
     "lint": {
-      "outputMode": "errors-only"
+      "outputLogs": "errors-only"
     },
     "lint:fix": {
-      "outputMode": "errors-only"
+      "outputLogs": "errors-only"
     },
     "test": {
       "cache": true,
-      "outputMode": "errors-only"
+      "outputLogs": "errors-only"
     },
     "test:watch": {
       "cache": false,
       "persistent": true
     },
     "test:coverage": {
-      "dependsOn": ["^test"],
+      "dependsOn": [
+        "^test"
+      ],
       "cache": true
     }
   }
