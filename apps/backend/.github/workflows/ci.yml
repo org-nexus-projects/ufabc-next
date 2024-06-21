@@ -20,6 +20,10 @@ jobs:
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
     steps:
+     - name: Setup Biome
+        uses: biomejs/setup-biome@v2
+        with:
+          version: latest
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
@@ -51,7 +55,7 @@ jobs:
         run: pnpm build
 
       - name: 💪 Lint
-        run: pnpm lint
+        run: biome ci
 
       - name: 💼 Type Check
         run: pnpm tsc
