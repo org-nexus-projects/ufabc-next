@@ -17,7 +17,7 @@ import {
 import { TeacherService } from "./teacher.service.js";
 import type { FastifyInstance } from "fastify";
 
-// eslint-disable-next-line require-await
+
 export async function teacherRoutes(app: FastifyInstance) {
   const teacherRepository = new TeacherRepository(TeacherModel);
   const teacherService = new TeacherService(teacherRepository);

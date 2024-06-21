@@ -32,7 +32,7 @@ export class GraduationRepository implements UserGraduationRepository {
     private readonly graduationSubjectService: typeof GraduationSubjectModel,
   ) {}
 
-  async findGraduation(options: FilterQuery<Graduation>, limit: number = 200) {
+  async findGraduation(options: FilterQuery<Graduation>, limit = 200) {
     const graduations = await this.graduationService
       .find(options)
       .lean<GraduationDocument[]>({ virtuals: true })
@@ -42,7 +42,7 @@ export class GraduationRepository implements UserGraduationRepository {
 
   async findGraduationSubject(
     options: FilterQuery<GraduationSubject>,
-    limit: number = 100,
+    limit = 100,
   ) {
     // TODO: add pagination
     const graduationsSubject = await this.graduationSubjectService

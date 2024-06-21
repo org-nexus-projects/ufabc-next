@@ -10,7 +10,7 @@ import { historiesCoursesSchema, userHistorySchema } from "./history.schema.js";
 import type { currentQuad } from "@next/common";
 import type { FastifyInstance } from "fastify";
 
-// eslint-disable-next-line require-await
+
 export async function historyRoutes(app: FastifyInstance) {
   const historyRepository = new HistoryRepository(
     HistoryModel,

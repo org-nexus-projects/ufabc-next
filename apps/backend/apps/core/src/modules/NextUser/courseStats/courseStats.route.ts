@@ -12,7 +12,7 @@ import {
 } from "./courseStats.schema.js";
 import type { FastifyInstance } from "fastify";
 
-// eslint-disable-next-line require-await
+
 export async function courseStatsRoute(app: FastifyInstance) {
   const courseStatsRepository = new CourseStatsRepository(
     HistoryModel,

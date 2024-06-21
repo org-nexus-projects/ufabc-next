@@ -52,7 +52,7 @@ export class HistoryHandler {
     }>,
   ) {
     const { season } = request.query;
-    const seasonCourses = await findIds<Student>(season, StudentModel);
+    const seasonCourses = await findIds<Student>(StudentModel, season);
     return seasonCourses;
   }
 }

@@ -7,7 +7,7 @@ import { enrollmentCommentSchema, listStudentEnrollmentSchema } from './enrollme
 import { EnrollmentService } from './enrollments.service.js';
 import type { FastifyInstance } from 'fastify';
 
-// eslint-disable-next-line require-await
+
 export async function enrollmentsRoute(app: FastifyInstance) {
   const enrollmentRepository = new EnrollmentRepository(
     EnrollmentModel,

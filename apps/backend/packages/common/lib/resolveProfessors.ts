@@ -30,9 +30,8 @@ const handleBestMatch = (type: string, teachers: Teacher[]) => {
   const s = new SequenceMatcher(null, bestMatch, type);
   if (s.ratio() > 0.8) {
     return teachers.find((teacher) => teacher.name === bestMatch)!;
-  } else {
-    return { error: `Missing Teacher: ${type}` };
   }
+  return { error: `Missing Teacher: ${type}` };
 };
 
 export function resolveProfessor(
@@ -47,19 +46,19 @@ export function resolveProfessor(
     );
   };
 
-  teacherType = getTypeOrDefault(teacherType, mappings);
-  if (!teacherType) {
+  const valid = getTypeOrDefault(teacherType, mappings);
+  if (!valid) {
     return null;
   }
 
-  if (!isValidTeacherType(teacherType)) {
+  if (!isValidTeacherType(valid)) {
     return null;
   }
 
-  const foundTeacher = findTeacher(teacherType);
+  const foundTeacher = findTeacher(valid);
   if (foundTeacher) {
     return foundTeacher;
   }
 
-  return handleBestMatch(teacherType, teachers);
+  return handleBestMatch(valid, teachers);
 }

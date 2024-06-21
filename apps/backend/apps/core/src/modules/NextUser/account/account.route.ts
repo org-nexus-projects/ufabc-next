@@ -12,7 +12,7 @@ import {
 } from "./account.schema.js";
 import type { FastifyInstance } from "fastify";
 
-// eslint-disable-next-line require-await
+
 export async function accountRoutes(app: FastifyInstance) {
   const nextAccountHandler = new AccountHandler();
 

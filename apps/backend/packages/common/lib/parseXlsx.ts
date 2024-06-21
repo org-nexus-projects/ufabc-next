@@ -86,9 +86,10 @@ export async function parseXlsx<TBody extends ParseXlSXBody>(body: TBody) {
     const updatedEnrollment: Partial<
       Record<RenameOptions['as'] | RenameOptions['from'], string>
     > = {};
-    params.rename.forEach((name) => {
-      updatedEnrollment[name.as] = enrollment[name.from];
-    });
+
+    for (const { from, as } of params.rename) {
+      updatedEnrollment[as] = enrollment[from];
+    }
 
     return Object.fromEntries(
       Object.entries(updatedEnrollment).filter(([key]) =>

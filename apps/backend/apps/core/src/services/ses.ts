@@ -29,7 +29,7 @@ export async function sesSendEmail(
       secretAccessKey: Config.AWS_SECRET_ACCESS_KEY,
     },
   });
-  let templateData;
+  let templateData: string;
   if (templateId === 'Confirmation') {
     templateData = JSON.stringify({ url: email.body.url });
   } else {

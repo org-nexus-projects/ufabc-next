@@ -11,10 +11,10 @@ type DisciplinaWithError = Disciplina & {
 
 export function validateTeachers(disciplinas: DisciplinaWithError[]) {
   return disciplinas.reduce<string[]>((acc, d) => {
-    if (d.teoria && d.teoria.error) {
+    if (d.teoria?.error) {
       acc.push(d.teoria.error);
     }
-    if (d.pratica && d.pratica.error) {
+    if (d.pratica?.error) {
       acc.push(d.pratica.error);
     }
     return acc;

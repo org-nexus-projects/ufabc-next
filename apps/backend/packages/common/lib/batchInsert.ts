@@ -21,7 +21,6 @@ export async function batchInsertItems<Item>(
     }
   };
 
-  // eslint-disable-next-line unicorn/no-array-callback-reference
   const promises = Array.from({ length: 25 }).fill(null).map(workers);
 
   await Promise.all(promises);

@@ -2,37 +2,24 @@
   "name": "ufabc-next-backend",
   "version": "0.0.1",
   "private": false,
+  "packageManager": "pnpm@9.4.0",
   "type": "module",
   "scripts": {
     "populate": "turbo run populate -- ",
-    "check-updates": "pnpm outdated --recursive",
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
     "tsc": "turbo run tsc --parallel",
     "start": "turbo run start",
     "start:watch": "turbo run start:watch",
     "lint": "turbo run lint --parallel",
-    "lint:fix": "turbo run lint:fix --parallel",
-    "test": "turbo run test",
-    "test:watch": "turbo run test:watch",
-    "test:coverage": "turbo run test:coverage",
-    "prepare": "simple-git-hooks"
+    "test": "turbo run test"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.7.2",
-    "@sxzz/eslint-config": "^3.11.0",
-    "eslint": "^8.57.0",
-    "lint-staged": "^15.2.2",
-    "simple-git-hooks": "^2.11.1",
-    "turbo": "^1.13.3"
+    "@biomejs/biome": "^1.8.2",
+    "turbo": "^2.0.4"
   },
   "engines": {
-    "node": "^22"
-  },
-  "simple-git-hooks": {
-    "pre-commit": "pnpm lint-staged"
-  },
-  "lint-staged": {
-    "*": "eslint --fix"
+    "node": "^22",
+    "pnpm": "^9"
   }
 }

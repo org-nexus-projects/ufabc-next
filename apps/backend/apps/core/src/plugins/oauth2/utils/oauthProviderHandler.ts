@@ -42,7 +42,7 @@ export async function getFacebookUserDetails(
   token: Token,
 ): Promise<AccountProvider> {
   // TODO: Do later with HTTPS
-  const user = await ofetch(`https://graph.facebook.com/v6.0/me`, {
+  const user = await ofetch('https://graph.facebook.com/v6.0/me', {
     headers: {
       Authorization: `Bearer ${token.access_token}`,
     },

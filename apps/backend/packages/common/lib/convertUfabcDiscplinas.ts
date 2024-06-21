@@ -46,7 +46,7 @@ export function convertUfabcDisciplinas(disciplina: Disciplina) {
   // handle horarios based on pdf or json
   if (isNoon) {
     // @ts-expect-error ts is hard sometimes
-    const startHours = clonedDisciplinas.horarios[0]!.horas || [];
+    const startHours = clonedDisciplinas.horarios[0]?.horas || [];
     afterNoon = ['14:00', '15:00', '16:00', '17:00'].some((hour) =>
       startHours.includes(hour),
     );
@@ -58,14 +58,16 @@ export function convertUfabcDisciplinas(disciplina: Disciplina) {
 
     const matched = clonedDisciplinas.horarios.match(/\d{2}:\d{2}/g);
 
+    // @ts-ignore
     if (matched!.length % 2 === 0) {
       const hours = lodashChunk(matched, 2);
-      hours.forEach((hour) => {
+
+      for (const hour of hours) {
         const [start] = hour.map((h) => Number.parseInt(h.split(':')[0]!));
         if (start! >= 12 && start! < 18) {
           afterNoon = true;
         }
-      });
+      }
     }
   }
 
@@ -80,7 +82,8 @@ export function convertUfabcDisciplinas(disciplina: Disciplina) {
   let splitted = removeLineBreaks(clonedDisciplinas.nome).split(breakRule);
   if (splitted.length === 1) {
     breakRule = ' ';
-    splitted = splitted[0]!.split(/\s+/);
+    // @ts-ignore
+    splitted = splitted[0]?.split(/\s+/);
   }
   splitted.forEach((item, i) => {
     // Theres probably a bug in here
@@ -169,12 +172,12 @@ function cleanTeoriaAndPraticaFields(disciplina: Disciplina) {
   disciplina.pratica = disciplina.pratica ?? null;
 
   // edge case in parseTeachers where the xlsx, sets the empty teoria/pratica to 0
-  // eslint-disable-next-line eqeqeq
+  // biome-ignore lint/suspicious/noDoubleEquals: <explanation>
   if (disciplina.teoria == '0') {
     disciplina.teoria = null;
   }
 
-  // eslint-disable-next-line eqeqeq
+  // biome-ignore lint/suspicious/noDoubleEquals: <explanation>
   if (disciplina.pratica == '0') {
     disciplina.pratica = null;
   }

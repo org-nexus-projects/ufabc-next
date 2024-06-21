@@ -1,4 +1,3 @@
-/* eslint-disable no-console  */
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Config } from '@/config/config.js';

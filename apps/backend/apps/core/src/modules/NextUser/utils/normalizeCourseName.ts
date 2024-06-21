@@ -1,7 +1,7 @@
 export function normalizeCourseName(name: string) {
   if (name === 'Bacharelado em CIências e Humanidades') {
-    name = 'Bacharelado em Ciências e Humanidades';
-    return name;
+    const validName = 'Bacharelado em Ciências e Humanidades';
+    return validName;
   }
   return name;
 }

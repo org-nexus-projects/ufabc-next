@@ -12,7 +12,7 @@ import {
 import { StudentService } from './students.service.js';
 import type { FastifyInstance } from 'fastify';
 
-// eslint-disable-next-line require-await
+
 export async function studentsRoute(app: FastifyInstance) {
   const studentRepository = new StudentRepository(
     StudentModel,

@@ -49,7 +49,7 @@ export class CommentHandler {
 
     if (!comment && !enrollmentId && !type) {
       request.log.error({ body: request.body }, 'Incomplete response');
-      return reply.badRequest(`Body must have all obligatory fields`);
+      return reply.badRequest('Body must have all obligatory fields');
     }
 
     const enrollment = await EnrollmentModel.findById(enrollmentId);
@@ -83,14 +83,14 @@ export class CommentHandler {
 
     if (!commentId) {
       request.log.warn({ params: request.params }, 'Missing commentId');
-      return reply.badRequest(`CommentId was not passed`);
+      return reply.badRequest('CommentId was not passed');
     }
 
     const comment = await this.commentService.findOneComment(commentId);
 
     if (!comment) {
       request.log.warn(comment, 'Comment missing');
-      return reply.notFound(`Comment not found`);
+      return reply.notFound('Comment not found');
     }
 
     comment.comment = request.body.comment;
@@ -108,14 +108,14 @@ export class CommentHandler {
 
     if (!commentId) {
       request.log.warn({ params: request.params }, 'Missing commentId');
-      return reply.badRequest(`CommentId was not passed`);
+      return reply.badRequest('CommentId was not passed');
     }
 
     const comment = await this.commentService.findOneComment(commentId);
 
     if (!comment) {
       request.log.warn(comment, 'Comment not found');
-      return reply.notFound(`Comment not found`);
+      return reply.notFound('Comment not found');
     }
 
     comment.active = false;
@@ -133,7 +133,7 @@ export class CommentHandler {
 
     if (!userId) {
       request.log.warn({ params: request.params }, 'Missing userId');
-      throw new Error(`userId was not passed`);
+      throw new Error('userId was not passed');
     }
 
     const user = request.user?.id === userId ? request.user : null;
@@ -169,7 +169,7 @@ export class CommentHandler {
 
     if (!teacherId) {
       request.log.warn({ params: request.params }, 'Missing teacherId');
-      return reply.badRequest(`teacherId was not passed`);
+      return reply.badRequest('teacherId was not passed');
     }
     if (!userId) {
       return reply.badRequest(`Missing UserId: ${userId}`);
