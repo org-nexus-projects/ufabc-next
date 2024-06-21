@@ -22,9 +22,6 @@
     "editor.suggest.insertMode": "replace",
     "editor.defaultFormatter": "biomejs.biome"
   },
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
-  },
   "editor.formatOnSave": true,
   "editor.inlayHints.enabled": "on",
   "dotenv.enableAutocloaking": false,

@@ -16,8 +16,7 @@
     "start:watch": "node --env-file=.env.production --watch dist/server.js",
     "test": "node --import=tsx runTests.ts",
     "test:watch": "node --import=tsx runTests.ts watch",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix"
+    "lint": "biome lint --apply ."
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.600.0",

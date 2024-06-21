@@ -5,24 +5,20 @@
   "type": "module",
   "scripts": {
     "populate": "turbo run populate -- ",
-    "check-updates": "pnpm outdated --recursive",
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
     "tsc": "turbo run tsc --parallel",
     "start": "turbo run start",
     "start:watch": "turbo run start:watch",
     "lint": "turbo run lint --parallel",
-    "lint:fix": "turbo run lint:fix --parallel",
-    "test": "turbo run test",
-    "test:watch": "turbo run test:watch",
-    "test:coverage": "turbo run test:coverage",
-    "prepare": "simple-git-hooks"
+    "test": "turbo run test"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.2",
     "turbo": "^1.13.3"
   },
   "engines": {
-    "node": "^22"
+    "node": "^22",
+    "pnpm": "^9"
   }
 }
