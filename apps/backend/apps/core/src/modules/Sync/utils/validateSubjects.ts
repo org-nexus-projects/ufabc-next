@@ -8,7 +8,7 @@ const convertedSubjectName = (
   mapping?: Record<string, string>,
 ) => {
   const converted = startCase(camelCase(disciplina));
-  return startCase(camelCase(mapping![disciplina])) || converted;
+  return startCase(camelCase(mapping?.[disciplina])) || converted;
 };
 
 const findSubjectById = (subjects: SubjectDocument[], search: string) => {

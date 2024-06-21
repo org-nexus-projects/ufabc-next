@@ -38,7 +38,7 @@ describe('common.lib.convertUfabcDisciplinas', () => {
     assert.ok(
       parsedDisciplinas.every(
         (disciplina) =>
-          disciplina.turma!.length! > 0 && disciplina.turma!.length! <= 3,
+          disciplina.turma?.length! > 0 && disciplina.turma?.length! <= 3,
       ),
     );
   });

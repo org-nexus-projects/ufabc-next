@@ -26,7 +26,7 @@ export async function syncEnrollments(
   const { hash, year, quad, link } = request.body;
 
   if (!year || !quad) {
-    throw new Error(`Missing Parameters`, {
+    throw new Error('Missing Parameters', {
       cause: {
         year,
         quad,
@@ -41,7 +41,7 @@ export async function syncEnrollments(
   });
 
   if (!doesLinkExist) {
-    throw new Error(`O link enviado deve existir`, { cause: link });
+    throw new Error('O link enviado deve existir', { cause: link });
   }
 
   const disciplinasMapper = {

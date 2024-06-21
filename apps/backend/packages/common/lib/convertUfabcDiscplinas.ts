@@ -46,7 +46,7 @@ export function convertUfabcDisciplinas(disciplina: Disciplina) {
   // handle horarios based on pdf or json
   if (isNoon) {
     // @ts-expect-error ts is hard sometimes
-    const startHours = clonedDisciplinas.horarios[0]!.horas || [];
+    const startHours = clonedDisciplinas.horarios[0]?.horas || [];
     afterNoon = ['14:00', '15:00', '16:00', '17:00'].some((hour) =>
       startHours.includes(hour),
     );
@@ -58,7 +58,7 @@ export function convertUfabcDisciplinas(disciplina: Disciplina) {
 
     const matched = clonedDisciplinas.horarios.match(/\d{2}:\d{2}/g);
 
-    if (matched!.length % 2 === 0) {
+    if (matched?.length % 2 === 0) {
       const hours = lodashChunk(matched, 2);
 
       for (const hour of hours) {
@@ -81,7 +81,7 @@ export function convertUfabcDisciplinas(disciplina: Disciplina) {
   let splitted = removeLineBreaks(clonedDisciplinas.nome).split(breakRule);
   if (splitted.length === 1) {
     breakRule = ' ';
-    splitted = splitted[0]!.split(/\s+/);
+    splitted = splitted[0]?.split(/\s+/);
   }
   splitted.forEach((item, i) => {
     // Theres probably a bug in here

@@ -4,7 +4,8 @@
     "ignore": [
       "node_modules/*",
       "dist/*",
-      "coverage/*"
+      "coverage/*",
+      "cli/populate/data/*"
     ]
   },
   "formatter": {
@@ -21,10 +22,16 @@
     "rules": {
       "recommended": true,
       "style": {
-        "noNonNullAssertion": "warn"
+        "noNonNullAssertion": "warn",
+        "noParameterAssign": "warn"
       },
       "suspicious": {
-        "noExplicitAny": "warn"
+        "noExplicitAny": "warn",
+        "noThenProperty": "warn"
+      },
+      "complexity": {
+        "noBannedTypes": "warn",
+        "noForEach": "warn"
       }
     }
   },
