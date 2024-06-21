@@ -81,6 +81,7 @@ export function convertUfabcDisciplinas(disciplina: Disciplina) {
   let splitted = removeLineBreaks(clonedDisciplinas.nome).split(breakRule);
   if (splitted.length === 1) {
     breakRule = ' ';
+    // @ts-ignore
     splitted = splitted[0]?.split(/\s+/);
   }
   splitted.forEach((item, i) => {
