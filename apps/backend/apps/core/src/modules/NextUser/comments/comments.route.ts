@@ -23,7 +23,7 @@ import { CommentService } from "./comments.service.js";
 import type { Types } from "mongoose";
 import type { FastifyInstance } from "fastify";
 
-// eslint-disable-next-line require-await
+
 export async function commentRoute(app: FastifyInstance) {
   const commentRepository = new CommentRepository(
     CommentModel,

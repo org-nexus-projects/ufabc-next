@@ -25,7 +25,7 @@ import {
 import type { FastifyInstance } from "fastify";
 import { syncDisciplineCategories } from "@/modules/Sync/handlers/syncUpdateDisciplineInfo.js";
 
-// eslint-disable-next-line require-await
+
 export async function syncRoutes(app: FastifyInstance) {
   app.post<SyncDisciplinasRequest>(
     "/disciplinas",

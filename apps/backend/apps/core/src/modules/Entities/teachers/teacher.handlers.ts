@@ -114,7 +114,7 @@ export class TeacherHandler {
       'conceito',
     ) as GroupedDistribution;
 
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    
     const distributionsMean = {} as Record<NonNullable<Concept>, Distribution>;
     for (const conceito in groupedDistributions) {
       const concept = conceito as NonNullable<Concept>;

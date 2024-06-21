@@ -7,7 +7,7 @@ import { SubjectHandler } from "./subjects.handlers.js";
 import { createSubjectSchema, listAllSubjectsSchema, searchSubjectSchema, subjectsReviewsSchema } from "./subjects.schema.js";
 import type { FastifyInstance } from "fastify";
 
-// eslint-disable-next-line require-await
+
 export async function subjectsRoute(app: FastifyInstance) {
   const subjectRepository = new SubjectRepository(SubjectModel);
   const subjectService = new SubjectService(subjectRepository);

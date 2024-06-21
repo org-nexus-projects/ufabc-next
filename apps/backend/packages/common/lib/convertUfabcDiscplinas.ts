@@ -169,12 +169,10 @@ function cleanTeoriaAndPraticaFields(disciplina: Disciplina) {
   disciplina.pratica = disciplina.pratica ?? null;
 
   // edge case in parseTeachers where the xlsx, sets the empty teoria/pratica to 0
-  // eslint-disable-next-line eqeqeq
   if (disciplina.teoria == '0') {
     disciplina.teoria = null;
   }
 
-  // eslint-disable-next-line eqeqeq
   if (disciplina.pratica == '0') {
     disciplina.pratica = null;
   }
