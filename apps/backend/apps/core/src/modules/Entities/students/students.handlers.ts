@@ -1,6 +1,6 @@
 import { currentQuad, lastQuad } from '@next/common';
 import { DisciplinaModel } from '@/models/Disciplina.js';
-import type { Student } from '@/models/Student.js';
+import { type Student, StudentModel } from '@/models/Student.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { StudentService } from './students.service.js';
 
@@ -21,6 +21,11 @@ type CreateStudentsRequest = {
     login: string;
     cursos: Array<Curso>;
   };
+};
+
+type CourseInfo = {
+  _id: string;
+  ids: Array<number>;
 };
 
 export class StudentHandler {
@@ -115,6 +120,44 @@ export class StudentHandler {
       },
     ]);
     return userStatusAggregate;
+  }
+
+  async courseinfo() {
+    const rawStudentcourse = await StudentModel.aggregate<CourseInfo>([
+      {
+        $unwind: '$cursos',
+      },
+      {
+        $match: {
+          'cursos.id_curso': {
+            $ne: null,
+          },
+        },
+      },
+      {
+        $project: {
+          'cursos.id_curso': 1,
+          'cursos.nome_curso': {
+            $trim: {
+              input: '$cursos.nome_curso',
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$cursos.nome_curso',
+          ids: {
+            $addToSet: '$cursos.id_curso',
+          },
+        },
+      },
+    ]);
+    const studentCourse = rawStudentcourse.map(({ _id, ids }) => ({
+      name: _id,
+      ufcourseids: ids,
+    }));
+    return studentCourse;
   }
 }
 
