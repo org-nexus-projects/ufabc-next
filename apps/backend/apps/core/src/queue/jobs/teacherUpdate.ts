@@ -17,29 +17,16 @@ type parsedData = {
   ra: number;
   teoria: string;
   pratica: string;
-  credits: string
+  credits: string;
 };
 
 type UpdateTeachers = parsedData[];
-
-
-function resolveCredits(credits:string){
-
-  const numbers = credits.split('-').map(Number);
-  const sum = numbers.slice(0, 2).reduce((acc, num) => acc + num, 0);
-  console.log(sum);
- 
-return 
-
-}
 
 //change name to offered classes
 export async function updateTeachers(data: UpdateTeachers) {
   const teachers = await TeacherModel.find({});
 
   const updateTeacherInEnrollments = async (enrollment: parsedData) => {
-
-
     const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
 
     const key = {

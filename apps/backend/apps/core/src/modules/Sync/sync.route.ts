@@ -1,59 +1,51 @@
-import { admin } from "@/hooks/admin.js";
-import { authenticate } from "@/hooks/authenticate.js";
+import { admin } from '@/hooks/admin.js';
+import { authenticate } from '@/hooks/authenticate.js';
 import {
   type SyncDisciplinasRequest,
   syncDisciplinasHandler,
-} from "./handlers/syncDisciplinas.js";
+} from './handlers/syncDisciplinas.js';
 import {
   type SyncEnrollmentsRequest,
   syncEnrollments,
-} from "./handlers/syncEnrollments.js";
+} from './handlers/syncEnrollments.js';
 import {
   type SyncMatriculasRequest,
   syncMatriculasHandler,
-} from "./handlers/syncMatriculas.js";
+} from './handlers/syncMatriculas.js';
 import {
   type ParseTeachersRequest,
   parseTeachersHandler,
-} from "./handlers/syncTeachersToSubject.js";
+} from './handlers/syncTeachersToSubject.js';
 import {
   parseTeachersSchema,
   syncDisciplinasSchema,
   syncEnrollmentsSchema,
   syncMatriculasSchema,
-} from "./sync.schema.js";
-import type { FastifyInstance } from "fastify";
-import { syncDisciplineCategories } from "@/modules/Sync/handlers/syncUpdateDisciplineInfo.js";
-
+} from './sync.schema.js';
+import type { FastifyInstance } from 'fastify';
 
 export async function syncRoutes(app: FastifyInstance) {
   app.post<SyncDisciplinasRequest>(
-    "/disciplinas",
+    '/disciplinas',
     { schema: syncDisciplinasSchema, preValidation: [authenticate, admin] },
     syncDisciplinasHandler,
   );
 
   app.get<SyncMatriculasRequest>(
-    "/matriculas",
+    '/matriculas',
     { schema: syncMatriculasSchema, preValidation: [authenticate, admin] },
     syncMatriculasHandler,
   );
 
   app.post<SyncEnrollmentsRequest>(
-    "/enrollments",
+    '/enrollments',
     { schema: syncEnrollmentsSchema, preValidation: [authenticate, admin] },
     syncEnrollments,
   );
 
   app.put<ParseTeachersRequest>(
-    "/disciplinas/teachers",
+    '/disciplinas/teachers',
     { schema: parseTeachersSchema, preValidation: [authenticate, admin] },
     parseTeachersHandler,
-  );
-
-  app.put(
-    '/disciplinas/sync/infos',
-     { preValidation: [authenticate, admin] },
-    syncDisciplineCategories,
   );
 }
