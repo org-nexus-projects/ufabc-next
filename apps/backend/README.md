@@ -56,6 +56,6 @@ O projeto tem os seguintes packages e apps, cada um desenvolvido com 100% Typesc
 Utilitários que o monorepo possui ja configurado
 - [Turborepo](https://turborepo.org/) para gerenciamento do monorepo
 - [TypeScript](https://www.typescriptlang.org/) para tipagem estática
-- [Biome](https://eslint.org/) Lint & format
+- [Biome](https://biomejs.dev/) Lint & format
 - [Node.js](https://nodejs.org/api/test.html) para realização de testes unitários
 - [Renovate](https://docs.renovatebot.com/) para manter a saúde das dependências do projeto
