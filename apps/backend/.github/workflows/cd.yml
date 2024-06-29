@@ -27,6 +27,8 @@ jobs:
       - name: ⚙️ Get runner ip address
         uses: haythem/public-ip@v1.3
         id: ip
+        with:
+          maxRetries: 10
 
       - name: ⚙️ Whitelist runner ip address
         id: whitelist-ip
