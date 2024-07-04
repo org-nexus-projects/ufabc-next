@@ -31,7 +31,12 @@ jobs:
       #     maxRetries: 10
       - name: Get IP Addresses
         id: ip
-        uses: candidob/get-runner-ip@v1.0.0    
+        uses: candidob/get-runner-ip@v1.0.0  
+
+      - name: See IP Addresses
+        run: |
+         echo ${{ steps.ip.outputs.ipv4 }}
+         echo ${{ steps.ip.outputs.ipv6 }}
 
       - name: ⚙️ Whitelist runner ip address
         id: whitelist-ip
@@ -40,7 +45,7 @@ jobs:
             --group-id $AWS_INSTANCE_SG_ID \
             --protocol tcp \
             --port 22 \
-            --cidr ${{ steps.ip.outputs.ipv}}/32
+            --cidr ${{ steps.ip.outputs.ipv4}}/32
 
       - name: 🔐 Login to Amazon ECR
         id: login-ecr
