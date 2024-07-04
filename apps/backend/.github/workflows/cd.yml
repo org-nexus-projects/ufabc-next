@@ -37,7 +37,7 @@ jobs:
             --group-id $AWS_INSTANCE_SG_ID \
             --protocol tcp \
             --port 22 \
-            --cidr ${{ steps.ip.outputs.ipv/32
+            --cidr ${{ steps.ip.outputs.ipv}}/32
 
       - name: 🔐 Login to Amazon ECR
         id: login-ecr
