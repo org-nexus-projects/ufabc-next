@@ -25,7 +25,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: ⚙️ Get runner ip address
-        uses: haythem/public-ip@v1.3
+        uses: haythem/public-ip@v1.2
         id: ip
         with:
           maxRetries: 10
@@ -37,7 +37,7 @@ jobs:
             --group-id $AWS_INSTANCE_SG_ID \
             --protocol tcp \
             --port 22 \
-            --cidr ${{ steps.ip.outputs.ipv4 }}/32
+            --cidr ${{ steps.ip.outputs.ipv/32
 
       - name: 🔐 Login to Amazon ECR
         id: login-ecr
