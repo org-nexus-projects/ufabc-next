@@ -77,7 +77,7 @@ function scrapeGradesConsulting() {
 
   const userHistory = {
     updateTime: updateDatetime,
-    curso: studentCourse,
+    curso: studentCourse.toLocaleLowerCase(),
     ra: Number(ra),
     disciplinas: studentDisciplinaHistory,
   };
