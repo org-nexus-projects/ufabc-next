@@ -24,11 +24,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: ⚙️ Get runner ip address
-        uses: haythem/public-ip@v1.2
+      # - name: ⚙️ Get runner ip address
+      #   uses: haythem/public-ip@v1.2
+      #   id: ip
+      #   with:
+      #     maxRetries: 10
+      - name: Get IP Addresses
         id: ip
-        with:
-          maxRetries: 10
+        uses: candidob/get-runner-ip@v1.0.0    
 
       - name: ⚙️ Whitelist runner ip address
         id: whitelist-ip
