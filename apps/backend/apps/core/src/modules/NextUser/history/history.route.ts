@@ -32,4 +32,5 @@ export async function historyRoutes(app: FastifyInstance) {
     { schema: historiesCoursesSchema, onRequest: [authenticate] },
     historyHandler.historiesCourses,
   );
+
 }
