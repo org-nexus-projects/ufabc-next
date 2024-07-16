@@ -127,12 +127,13 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
   {
-    path: '/partners/noc',
+    path: '/partners',
     name: 'Next Class Noc',
     component: NextClassView,
     meta: {
       title: 'Next Class Noc',
       auth: false,
+      confirmed: true
     },
   },
   {

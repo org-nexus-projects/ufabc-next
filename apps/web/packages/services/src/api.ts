@@ -9,7 +9,7 @@ const resolveEndpoint = (env?: string) =>
   })[env!] || 'https://api.ufabcnext.com/v1';
 
 export const api = axios.create({
-  baseURL: resolveEndpoint(process.env.NODE_ENV),
+  baseURL: "https://api.ufabcnext.com/v1",
 });
 
 api.interceptors.request.use(async (config) => {

@@ -116,9 +116,9 @@ const internalNavigationItems = [
   },
 
   {
-    title: 'Auloes',
-    icon: 'icon-auloes',
-    route: '/partners/noc'
+    title: 'Aulões Next',
+    icon: 'mdi-school',
+    route: '/partners'
   },
   {
     title: 'Apoie o UFABC next',
