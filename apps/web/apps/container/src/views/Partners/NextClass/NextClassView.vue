@@ -34,7 +34,7 @@ const colors = ref([
           <v-sheet :color="colors[i]" height="100%">
             <div class="d-flex fill-height justify-center align-center">
               <div class="text-h2">
-                <img src="../../../assets/logo.svg" alt="banner auloes next">
+                <img src="../../../assets/auloes-next-banner-2.png" alt="banner auloes next">
                 {{ slide }}
               </div>
             </div>
@@ -49,26 +49,38 @@ const colors = ref([
             <h2 class="donate-title text-primary font-weight-bold">
               Aulões Next
             </h2>
-            <div class="history-text mt-3 mb-4">
-              <p class="mb-4">O next passou por algumas reestruturações e agora que já estamos estabilizando os serviços
-                existentes
-                também estamos <strong>expandindo para novos serviços</strong> para ajudar toda a vida acadêmica do
-                aluno
-                da UFABC e levar uma experiência cada vez mais completa.</p>
+            <div class="history-text mt-3 mb-4 ">
+              <div class="justity-center align-center images-class" style="display: flex;">
+                <div class="pd-12">
+                  <p class="mb-4">O next passou por algumas reestruturações e agora que já estamos estabilizando os
+                    serviços
+                    existentes
+                    também estamos <strong>expandindo para novos serviços</strong> para ajudar toda a vida acadêmica do
+                    aluno
+                    da UFABC e levar uma experiência cada vez mais completa.</p>
 
-              <p class="mb-4">Estamos com uma novidade para todos os alunos em conjunto com a <a
-                  href="https://www.instagram.com/noceducacao/" target="_blank" rel="noopener noreferrer">Noc
-                  Educação</a>, que é uma
-                empresa fundada
-                por um ex-aluno da UFABC. Em primeira mão, estamos aqui para anunciar os aulões next! </p>
-              <p class="mb-4">Isso mesmo, agora você poderá participar de um aulão preparatório para as suas provas (P1
-                e P2) com o
-                intuito de facilitar matérias que sabemos que podem acabar complicando a nossa vida, principalmente para
-                ingressantes. </p>
-              <p class="mb-4">A inscrição será realizada pelo link do formulário abaixo ou o QR code ao lado. como
-                estamos em um
-                período de adaptação trabalharemos apenas com PIX nesse primeiro momento e faremos a primeiro aulão dia
-                20/07/2024 para Estrutura da matéria</p>
+                  <p class="mb-4">Estamos com uma novidade para todos os alunos em conjunto com a <a
+                      href="https://www.instagram.com/noceducacao/" target="_blank" rel="noopener noreferrer">Noc
+                      Educação</a>, que é uma
+                    empresa fundada
+                    por um ex-aluno da UFABC. Em primeira mão, estamos aqui para anunciar os aulões next! </p>
+                  <p class="mb-4">Isso mesmo, agora você poderá participar de um aulão preparatório para as suas provas
+                    (P1
+                    e P2) com o
+                    intuito de facilitar matérias que sabemos que podem acabar complicando a nossa vida, principalmente
+                    para
+                    ingressantes. </p>
+                  <p class="mb-4">A inscrição será realizada pelo link do formulário abaixo ou o QR code ao lado. como
+                    estamos em um
+                    período de adaptação trabalharemos apenas com PIX nesse primeiro momento e faremos a primeiro aulão
+                    dia
+                    20/07/2024 para Estrutura da matéria</p>
+                </div>
+                <div class="img-style"><img src="../../../assets/qr-code-auloes.png" alt="auloes next" height="250"
+                    width="250"></div>
+              </div>
+
+
               <p class="mb-4">O aulão terá um preço simbólico de R$ 40,00 e contará com:
                 Revisão teórica;
                 Exercícios descomplicados;
@@ -108,10 +120,18 @@ const colors = ref([
   border-radius: 20px;
 }
 
+.img-style {
+  padding: 10px;
+}
+
 .dialog-content {
   padding: 20px;
   border-radius: 10px;
   transition: all 2s;
+}
+
+.images-class {
+  flex-direction: row;
 }
 
 .dialog-header {
