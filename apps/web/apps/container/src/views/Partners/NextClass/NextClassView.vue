@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue"
-
+import { PaperCard } from '@/components/PaperCard';
 
 // const dialog = ref(false);
 
@@ -13,8 +13,8 @@ import { ref } from "vue"
 // };
 
 const slides = ref([
-  'indigo',
-  'warning'
+  '',
+  ''
 ])
 const colors = ref([
   'First',
@@ -25,74 +25,75 @@ const colors = ref([
 </script>
 
 <template>
+  <PaperCard class="mt-4">
+    <v-layout class="flex-column align-center mt-16">
 
-  <v-layout class="flex-column align-center mt-16">
+      <v-carousel height="400" show-arrows="hover" cycle hide-delimiter-background>
+        <v-carousel-item v-for="(slide, i) in slides" :key="i">
+          <!--1080-1920-->
+          <v-sheet :color="colors[i]" height="100%">
+            <div class="d-flex fill-height justify-center align-center">
+              <div class="text-h2">
+                <img src="../../../assets/logo.svg" alt="banner auloes next">
+                {{ slide }}
+              </div>
+            </div>
+          </v-sheet>
+        </v-carousel-item>
+      </v-carousel>
 
-    <v-carousel height="400" show-arrows="hover" cycle hide-delimiter-background>
-      <v-carousel-item v-for="(slide, i) in slides" :key="i">
-        <!--1080-1920-->
-        <v-sheet :color="colors[i]" height="100%">
-          <div class="d-flex fill-height justify-center align-center">
-            <div class="text-h2">
-              <img src="../../../assets/logo.svg" alt="banner auloes next">
-              {{ slide }} Slide
+      <v-row class="justify-center">
+        <v-col sm="12" md="12" lg="12" class="justify-center">
+
+          <div class="donation-text">
+            <h2 class="donate-title text-primary font-weight-bold">
+              Aulões Next
+            </h2>
+            <div class="history-text mt-3 mb-4">
+              <p class="mb-4">O next passou por algumas reestruturações e agora que já estamos estabilizando os serviços
+                existentes
+                também estamos <strong>expandindo para novos serviços</strong> para ajudar toda a vida acadêmica do
+                aluno
+                da UFABC e levar uma experiência cada vez mais completa.</p>
+
+              <p class="mb-4">Estamos com uma novidade para todos os alunos em conjunto com a <a
+                  href="https://www.instagram.com/noceducacao/" target="_blank" rel="noopener noreferrer">Noc
+                  Educação</a>, que é uma
+                empresa fundada
+                por um ex-aluno da UFABC. Em primeira mão, estamos aqui para anunciar os aulões next! </p>
+              <p class="mb-4">Isso mesmo, agora você poderá participar de um aulão preparatório para as suas provas (P1
+                e P2) com o
+                intuito de facilitar matérias que sabemos que podem acabar complicando a nossa vida, principalmente para
+                ingressantes. </p>
+              <p class="mb-4">A inscrição será realizada pelo link do formulário abaixo ou o QR code ao lado. como
+                estamos em um
+                período de adaptação trabalharemos apenas com PIX nesse primeiro momento e faremos a primeiro aulão dia
+                20/07/2024 para Estrutura da matéria</p>
+              <p class="mb-4">O aulão terá um preço simbólico de R$ 40,00 e contará com:
+                Revisão teórica;
+                Exercícios descomplicados;
+                Didática diferenciada;
+                Gravação da aula;
+                Material extra de apoio;
+                Impacto real no seu conhecimento.
+              </p>
+
+              <p class="mb-4">Os aulões são uma forma de gerar impacto na vida do aluno e criar fundos para mantermos o
+                next
+                funcional.
+                Logo traremos atualizações para esse projeto com mais disciplinas e inovações, levando você sempre para
+                o
+                next level.</p>
+              <p class="mb-4">
+                E não esqueçam:
+                Juntos somos mais fortes!</p>
+
             </div>
           </div>
-        </v-sheet>
-      </v-carousel-item>
-    </v-carousel>
-
-    <v-row class="justify-center">
-      <v-col sm="12" md="12" lg="12" class="justify-center">
-
-        <div class="donation-text">
-          <h2 class="donate-title text-primary font-weight-bold">
-            Aulões Next
-          </h2>
-          <div class="history-text mt-3 mb-4">
-            <p>O next passou por algumas reestruturações e agora que já estamos estabilizando os serviços existentes
-              também estamos <strong>expandindo para novos serviços</strong> para ajudar toda a vida acadêmica do aluno
-              da UFABC e levar uma experiência cada vez mais completa.</p>
-
-            <p>Estamos com uma novidade para todos os alunos em conjunto com a Noc Educação, que é uma empresa fundada
-              por um ex-aluno da UFABC. Em primeira mão, estamos aqui para anunciar os aulões next! </p>
-            <p>Isso mesmo, agora você poderá participar de um aulão preparatório para as suas provas (P1 e P2) com o
-              intuito de facilitar matérias que sabemos que podem acabar complicando a nossa vida, principalmente para
-              ingressantes. </p>
-            <p>A inscrição será realizada pelo link do formulário abaixo ou o QR code ao lado. como estamos em um
-              período de adaptação trabalharemos apenas com PIX nesse primeiro momento e faremos a primeiro aulão dia
-              20/07/2024 para Estrutura da matéria</p>
-            <p>O aulão terá um preço simbólico de R$ 40,00 e contará com:
-              Revisão teórica;
-              Exercícios descomplicados;
-              Didática diferenciada;
-              Gravação da aula;
-              Material extra de apoio;
-              Impacto real no seu conhecimento.
-            </p>
-
-            <p>Os aulões são uma forma de gerar impacto na vida do aluno e criar fundos para mantermos o next funcional.
-              Logo traremos atualizações para esse projeto com mais disciplinas e inovações, levando você sempre para o
-              next level.</p>
-            <p>
-              E não esqueçam:
-              Juntos somos mais fortes!</p>
-
-          </div>
-        </div>
-
-
-
-
-
-
-      </v-col>
-    </v-row>
-
-
-
-
-  </v-layout>
+        </v-col>
+      </v-row>
+    </v-layout>
+  </PaperCard>
 
 </template>
 
