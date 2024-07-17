@@ -13,12 +13,12 @@
     "eslint": "^8.54.0",
     "eslint-config-custom": "*",
     "prettier": "^3.1.0",
-    "turbo": "1.10.16",
-    "@commitlint/cli": "18.4.3",
-    "@commitlint/config-conventional": "18.4.3"
+    "turbo": "1.13.3",
+    "@commitlint/cli": "18.6.1",
+    "@commitlint/config-conventional": "18.6.3"
   },
   "name": "ufabc-next-web",
-  "packageManager": "yarn@1.22.19",
+  "packageManager": "yarn@1.22.22",
   "workspaces": [
     "apps/*",
     "packages/*"
