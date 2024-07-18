@@ -6,7 +6,7 @@ import { PaperCard } from '@/components/PaperCard';
 <template>
   <section class="d-flex fill-height justify-center align-center">
     <div class="text-h2">
-      <a class="clean" href="https://www.instagram.com/auloes.next" target="_blank">
+      <a class="clean" href="https://linktr.ee/auloes.next" target="_blank">
         <img src="@/assets/auloes-next-banner.png" alt="banner auloes next">
       </a>
     </div>
@@ -71,12 +71,18 @@ import { PaperCard } from '@/components/PaperCard';
                 <li>Material extra de apoio</li>
                 <li>Impacto real no seu conhecimento</li>
               </ul>
+              <a href="https://linktr.ee/auloes.next" target="_blank">
+                <v-btn color="#2e7eed" class="w-100">
+                  Acesse aqui
+                </v-btn>
+              </a>
             </div>
           </PaperCard>
           <PaperCard class="p-4 mb-4">
             <h2 style="margin-bottom: 10px; text-align: center;">Escaneie o QrCode</h2>
             <div class="img-style" style="display: flex; justify-content: center;">
-              <img src="@/assets/qr-code-auloes.png" alt="auloes next" height="250" width="250">
+              <a href="https://linktr.ee/auloes.next" target="_blank">
+                <img src="@/assets/qr-code-auloes.png" alt="auloes next" height="250" width="250"></a>
             </div>
           </PaperCard>
         </v-col>
@@ -86,12 +92,6 @@ import { PaperCard } from '@/components/PaperCard';
 </template>
 
 <style scoped lang="css">
-.card-informations {
-  border-bottom: 6px solid #FFCB17;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-}
-
 .card-informations ul {
   padding-left: 0;
   margin-left: 0;
