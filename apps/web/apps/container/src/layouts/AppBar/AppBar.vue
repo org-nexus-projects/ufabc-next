@@ -96,7 +96,8 @@ const internalNavigationItems = [
   {
     title: 'Aulões Next',
     icon: 'mdi-school',
-    route: '/partners'
+    route: '/partners',
+    releaseDate: dayjs('08/18/2024')
   },
   {
     title: 'Meu histórico',
