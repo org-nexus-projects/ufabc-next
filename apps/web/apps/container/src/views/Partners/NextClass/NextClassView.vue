@@ -6,7 +6,7 @@ import { PaperCard } from '@/components/PaperCard';
 <template>
   <section class="d-flex fill-height justify-center align-center">
     <div class="text-h2">
-      <a href="https://www.instagram.com/auloes.next" target="_blank">
+      <a class="clean" href="https://www.instagram.com/auloes.next" target="_blank">
         <img src="@/assets/auloes-next-banner.png" alt="banner auloes next">
       </a>
     </div>
@@ -103,11 +103,15 @@ import { PaperCard } from '@/components/PaperCard';
   grid-template-columns: 1fr;
 }
 
-. @media (max-width: 960px) {
+@media (max-width: 960px) {
   .grid-cta {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.4rem;
+  }
+
+  .clean {
+    display: none;
   }
 }
 </style>
