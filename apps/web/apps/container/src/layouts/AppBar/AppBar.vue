@@ -94,6 +94,11 @@ const internalNavigationItems = [
     route: '/reviews',
   },
   {
+    title: 'Aulões Next',
+    icon: 'mdi-school',
+    route: '/partners'
+  },
+  {
     title: 'Meu histórico',
     icon: 'mdi-history',
     route: '/history',
@@ -113,12 +118,6 @@ const internalNavigationItems = [
     icon: 'mdi-calendar',
     route: '/calengrade',
     releaseDate: dayjs('11/25/2023'),
-  },
-
-  {
-    title: 'Aulões Next',
-    icon: 'mdi-school',
-    route: '/partners'
   },
   {
     title: 'Apoie o UFABC next',
