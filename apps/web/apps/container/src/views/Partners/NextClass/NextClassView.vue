@@ -1,221 +1,125 @@
 <script setup lang="ts">
-import { ref } from "vue"
 import { PaperCard } from '@/components/PaperCard';
-
-// const dialog = ref(false);
-
-// const handleCloseDialog = () => {
-//   dialog.value = false;
-// };
-
-// const handleOpenDialog = () => {
-//   dialog.value = true;
-// };
-
-const slides = ref([
-  '',
-  ''
-])
-const colors = ref([
-  'First',
-  'Second'
-])
-
 
 </script>
 
 <template>
-  <PaperCard class="mt-4">
-    <v-layout class="flex-column align-center mt-16">
+  <section class="mb-4">
+    <a class="clean" href="https://linktr.ee/auloes.next" target="_blank">
+      <img src="@/assets/auloes-next-banner.png" alt="banner auloes next" style="width: 100%">
+    </a>
+  </section>
 
-      <v-carousel height="400" show-arrows="hover" cycle hide-delimiter-background>
-        <v-carousel-item v-for="(slide, i) in slides" :key="i">
-          <!--1080-1920-->
-          <v-sheet :color="colors[i]" height="100%">
-            <div class="d-flex fill-height justify-center align-center">
-              <div class="text-h2">
-                <img src="../../../assets/auloes-next-banner-2.png" alt="banner auloes next">
-                {{ slide }}
-              </div>
-            </div>
-          </v-sheet>
-        </v-carousel-item>
-      </v-carousel>
-
-      <v-row class="justify-center">
-        <v-col sm="12" md="12" lg="12" class="justify-center">
-
-          <div class="donation-text">
-            <h2 class="donate-title text-primary font-weight-bold">
-              Aulões Next
+  <section>
+    <v-layout>
+      <v-row>
+        <v-col cols="12" sm="12" md="8">
+          <PaperCard>
+            <h2 class="text-primary font-weight-bold mb-4">
+              Com medo das provas? Os <strong>Aulões Next</strong> podem te ajudar!
             </h2>
-            <div class="history-text mt-3 mb-4 ">
-              <div class="justity-center align-center images-class" style="display: flex;">
-                <div class="pd-12">
-                  <p class="mb-4">O next passou por algumas reestruturações e agora que já estamos estabilizando os
-                    serviços
-                    existentes
-                    também estamos <strong>expandindo para novos serviços</strong> para ajudar toda a vida acadêmica do
-                    aluno
-                    da UFABC e levar uma experiência cada vez mais completa.</p>
-
-                  <p class="mb-4">Estamos com uma novidade para todos os alunos em conjunto com a <a
-                      href="https://www.instagram.com/noceducacao/" target="_blank" rel="noopener noreferrer">Noc
-                      Educação</a>, que é uma
-                    empresa fundada
-                    por um ex-aluno da UFABC. Em primeira mão, estamos aqui para anunciar os aulões next! </p>
-                  <p class="mb-4">Isso mesmo, agora você poderá participar de um aulão preparatório para as suas provas
-                    (P1
-                    e P2) com o
-                    intuito de facilitar matérias que sabemos que podem acabar complicando a nossa vida, principalmente
-                    para
-                    ingressantes. </p>
-                  <p class="mb-4">A inscrição será realizada pelo link do formulário abaixo ou o QR code ao lado. como
-                    estamos em um
-                    período de adaptação trabalharemos apenas com PIX nesse primeiro momento e faremos a primeiro aulão
-                    dia
-                    20/07/2024 para Estrutura da matéria</p>
-                </div>
-                <div class="img-style"><img src="../../../assets/qr-code-auloes.png" alt="auloes next" height="250"
-                    width="250"></div>
-              </div>
-
-
-              <p class="mb-4">O aulão terá um preço simbólico de R$ 40,00 e contará com:
-                Revisão teórica;
-                Exercícios descomplicados;
-                Didática diferenciada;
-                Gravação da aula;
-                Material extra de apoio;
-                Impacto real no seu conhecimento.
-              </p>
-
-              <p class="mb-4">Os aulões são uma forma de gerar impacto na vida do aluno e criar fundos para mantermos o
-                next
-                funcional.
-                Logo traremos atualizações para esse projeto com mais disciplinas e inovações, levando você sempre para
-                o
-                next level.</p>
+            <div>
               <p class="mb-4">
-                E não esqueçam:
-                Juntos somos mais fortes!</p>
-
+                Em parceria com a <a href="https://www.instagram.com/p/C9dvkVWuPEG/" class="font-weight-bold"
+                  target="_blank">NOC Educação</a>,
+                estamos inaugurando os Aulões Next! Agora você poderá
+                participar de um
+                aulão preparatório para as suas provas (P1 e P2) com o
+                intuito de facilitar matérias que sabemos que podem acabar complicando a sua vida, principalmente para
+                ingressantes.
+              </p>
+              <p class="mb-4">
+                Nosso primeiro aulão será no dia <strong>20/07/2024</strong> para a disciplina <strong>Estrutura da
+                  Matéria</strong>. <br>
+                <strong>Para se inscrever, clique <a href="https://linktr.ee/auloes.next" target="_blank">aqui</a> ou
+                  escaneie o QR
+                  code.</strong>
+              </p>
+              <p class="mb-4">
+                O UFABC next vem passando por reestruturações e já estamos estabilizando os serviços existentes, além
+                de
+                expandir para novos horizontes gerando cada vez mais impacto na vida do alunos.
+              </p>
+              <p class="mb-4">
+                Logo traremos mais atualizações sobre essa parceria com mais disciplinas e inovações, levando você
+                sempre
+                para
+                o
+                next level.
+              </p>
+              <p class="mb-4">Não perca essa oportunidade, te esperamos lá! 😉🎓</p>
+              <p class="mb-4">
+                E não se esqueçam:
+                <br>
+                Juntos somos mais fortes!
+              </p>
             </div>
-          </div>
+          </PaperCard>
+        </v-col>
+        <v-col cols="12" sm="12" md="4" class="grid-cta">
+          <PaperCard class="p-4">
+            <div class="card-informations">
+              <h2 style="margin-bottom: 10px;">Por apenas R$ 40,00</h2>
+              <ul class="mb-4">
+                <li><strong>Aula presencial</strong></li>
+                <li>Revisão teórica</li>
+                <li>Exercícios descomplicados</li>
+                <li>Didática diferenciada</li>
+                <li>Gravação da aula</li>
+                <li>Material extra de apoio</li>
+                <li>Impacto real no seu conhecimento</li>
+              </ul>
+              <a href="https://linktr.ee/auloes.next" target="_blank">
+                <v-btn color="#2e7eed" class="w-100">
+                  Acesse aqui
+                </v-btn>
+              </a>
+            </div>
+          </PaperCard>
+          <PaperCard class="p-4 mb-4">
+            <h2 style="margin-bottom: 10px; text-align: center;">Escaneie o QrCode</h2>
+            <div class="img-style" style="display: flex; justify-content: center;">
+              <a href="https://linktr.ee/auloes.next" target="_blank">
+                <img src="@/assets/qr-code-auloes.png" alt="auloes next" height="250" width="250"></a>
+            </div>
+          </PaperCard>
         </v-col>
       </v-row>
     </v-layout>
-  </PaperCard>
-
+  </section>
 </template>
 
-<style scoped>
-.dialog-open-btn {
-  font-family: 'Roboto';
-  color: white !important;
-  width: 100%;
-  height: 50px;
-  font-size: 25px;
-  align-self: center;
-  border-radius: 20px;
+<style scoped lang="css">
+.card-informations ul {
+  padding-left: 0;
+  margin-left: 0;
+  list-style-position: inside;
 }
 
-.img-style {
-  padding: 10px;
+.grid-cta {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.4rem;
+
 }
 
-.dialog-content {
-  padding: 20px;
-  border-radius: 10px;
-  transition: all 2s;
+@media (max-width: 960px) {
+  .grid-cta {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .clean {
+    display: none;
+  }
 }
 
-.images-class {
-  flex-direction: row;
-}
+@media (max-width:600px) {
+  .grid-cta {
+    grid-template-columns: 1fr;
+  }
 
-.dialog-header {
-  display: flex;
-  justify-content: space-between;
-}
-
-.dialog-title {
-  font-weight: 500;
-  padding-top: 30px;
-  font-size: 30px;
-}
-
-.dialog-close-btn {
-  align-items: flex-start;
-}
-
-.dialog-body {
-  margin: 20px 0 20px 0;
-  display: flex;
-  transition: all 1s;
-}
-
-.dialog-body-qrcode {
-  text-align: center;
-  transition: all 1s;
-}
-
-.dialog-body-account {
-  padding-top: 40px;
-  padding-bottom: 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  font-size: 22px;
-  line-height: 20px;
-  transition: all 1s;
-}
-
-.dialog-body-account-item {
-  margin-bottom: 20px;
-  font-size: 16px;
-}
-
-.dialog-footer {
-  font-size: 18px;
-  text-align: center;
-}
-
-.summary {
-  display: flex;
-  height: 49px;
-  align-items: center;
-  justify-content: center;
-  background: #f4f7fa;
-}
-
-.summary-text {
-  text-align: right;
-  padding-right: 12px;
-}
-
-.summary-total {
-  width: 181px;
-  border-left: 1px solid #ebeef4;
-  height: 100%;
-  align-items: center;
-  display: flex;
-  padding-left: 12px;
-  font-weight: bold;
-}
-
-.donate-title {
-  min-height: 36px;
-  font-size: 30px;
-  font-weight: 500;
-  font-style: normal;
-  font-stretch: normal;
-  line-height: 1.07;
-  letter-spacing: normal;
-  font-family: 'Lato', 'Roboto';
-}
-
-.donate-table {
-  font-size: 14px;
+  .clean {
+    display: none;
+  }
 }
 </style>
