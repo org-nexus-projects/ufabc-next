@@ -4,19 +4,17 @@ import { PaperCard } from '@/components/PaperCard';
 </script>
 
 <template>
-  <section class="d-flex fill-height justify-center align-center">
-    <div class="text-h2">
-      <a class="clean" href="https://linktr.ee/auloes.next" target="_blank">
-        <img src="@/assets/auloes-next-banner.png" alt="banner auloes next">
-      </a>
-    </div>
+  <section class="mb-4">
+    <a class="clean" href="https://linktr.ee/auloes.next" target="_blank">
+      <img src="@/assets/auloes-next-banner.png" alt="banner auloes next" style="width: 100%">
+    </a>
   </section>
 
   <section>
     <v-layout>
       <v-row>
         <v-col cols="12" sm="12" md="8">
-          <PaperCard class="mt-4">
+          <PaperCard>
             <h2 class="text-primary font-weight-bold mb-4">
               Com medo das provas? Os <strong>Aulões Next</strong> podem te ajudar!
             </h2>
@@ -59,7 +57,7 @@ import { PaperCard } from '@/components/PaperCard';
           </PaperCard>
         </v-col>
         <v-col cols="12" sm="12" md="4" class="grid-cta">
-          <PaperCard class="p-4 mb-4">
+          <PaperCard class="p-4">
             <div class="card-informations">
               <h2 style="margin-bottom: 10px;">Por apenas R$ 40,00</h2>
               <ul class="mb-4">
@@ -101,13 +99,23 @@ import { PaperCard } from '@/components/PaperCard';
 .grid-cta {
   display: grid;
   grid-template-columns: 1fr;
+  gap: 1.4rem;
+
 }
 
 @media (max-width: 960px) {
   .grid-cta {
-    display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.4rem;
+  }
+
+  .clean {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .grid-cta {
+    grid-template-columns: 1fr;
   }
 
   .clean {
