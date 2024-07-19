@@ -113,7 +113,7 @@ import { PaperCard } from '@/components/PaperCard';
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width:600px) {
   .grid-cta {
     grid-template-columns: 1fr;
   }
