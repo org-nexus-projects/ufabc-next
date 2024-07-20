@@ -25,13 +25,12 @@ type UserHistoryRequest = {
       periodo: string;
       codigo: string;
       situacao: string | '--';
-      resultado: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'O'
+      resultado: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'O';
     }>;
   };
 };
 
 export class HistoryHandler {
-
   constructor(private readonly historyService: HistoryService) { }
 
   async userHistory(
@@ -40,29 +39,27 @@ export class HistoryHandler {
   ) {
     const extensionHistory = request.body;
 
-    // pegar request e adicionar um novo atributo grade 
-    let HistoriesAgregado = {
+    let aggregateHistories = {
       extension: extensionHistory,
-      grade: "2017"
+      grade: '2017',
+    };
 
-    }
-    // validar ra 
     if (!extensionHistory.ra) {
-      reply.badRequest('An User RA must be passed');
+      reply.badRequest('An user RA must be passed');
     }
 
     // @ts-expect-error fix later
     const cleanedCourseName = this.normalizeCourseName(extensionHistory.curso);
     extensionHistory.curso = cleanedCourseName;
     const shouldUpdateGraduation =
-      !!HistoriesAgregado.Body.curso && !!HistoriesAgregado.grade;
+      !!aggregateHistories.extension.curso && !!aggregateHistories.grade;
 
     if (shouldUpdateGraduation) {
       // @ts-expect-error fix later
       await this.updateUserGraduation(extensionHistory, this.historyService);
     }
 
-    await this.historyService.createUserHistory(HistoriesAgregado);
+    await this.historyService.createUserHistory(aggregateHistories);
 
     return {
       msg: 'UserHistory Synced',
@@ -78,34 +75,4 @@ export class HistoryHandler {
     const seasonCourses = await findIds<Student>(StudentModel, season);
     return seasonCourses;
   }
-
-  async historiesTest(request: FastifyRequest<History>, reply: FastifyReply) {
-
-    const extensionHistory = request.body;
-
-    if (!extensionHistory.ra) {
-      reply.badRequest('An User RA must be passed');
-    }
-
-    // @ts-expect-error fix later
-    const cleanedCourseName = this.normalizeCourseName(extensionHistory.curso);
-    extensionHistory.curso = cleanedCourseName;
-    const shouldUpdateGraduation =
-      !!extensionHistory.curso && !!extensionHistory.grade;
-
-    if (shouldUpdateGraduation) {
-      // @ts-expect-error fix later
-      await this.updateUserGraduation(extensionHistory, this.historyService);
-    }
-
-    await this.historyService.createUserHistory(extensionHistory);
-
-    return {
-      msg: 'UserHistory Synced',
-    };
-
-
-  }
-
-
 }
