@@ -25,7 +25,7 @@
     "difflib": "^0.2.4",
     "latinize": "^2.0.0",
     "mathjs": "^13.0.0",
-    "pino": "9.3.1",
+    "pino": "9.3.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz"
   },
   "devDependencies": {
