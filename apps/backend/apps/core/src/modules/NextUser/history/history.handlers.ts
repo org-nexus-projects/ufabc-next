@@ -2,6 +2,7 @@ import { type currentQuad, findIds } from '@next/common';
 import { type Student, StudentModel } from '@/models/Student.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { HistoryService } from './history.service.js';
+import { SubjectModel } from '@/models/Subject.js';
 
 // type UserHistoryRequest = {
 //   Body: {
@@ -26,6 +27,7 @@ type UserHistoryRequest = {
       codigo: string;
       situacao: string | '--';
       resultado: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'O';
+      disciplina: string
     }>;
   };
 };
@@ -74,5 +76,42 @@ export class HistoryHandler {
     const { season } = request.query;
     const seasonCourses = await findIds<Student>(StudentModel, season);
     return seasonCourses;
+  }
+
+  async sigaaHistory(request: FastifyRequest<UserHistoryRequest>, reply: FastifyReply) {
+    const { body } = request
+    request.log.warn(body.disciplinas)
+    const components = body.disciplinas.map(disciplina => hydrateComponents(disciplina));
+    const fixedComponents = body.disciplinas.map(({ ano, codigo, periodo, resultado, situacao }) => {
+      return {
+        conceito: resultado,
+        periodo,
+        ano,
+        codigo,
+        situacao
+      }
+    })
+    body.disciplinas = fixedComponents
+  
+
+    // await this.historyService.createUserHistory(body)
+    return body
+  }
+}
+
+
+async function hydrateComponents(component: UserHistoryRequest['Body']['disciplinas'][number]) {
+  const subject = await SubjectModel.find({
+    name: component.disciplina
+  },{ creditos: 1, name: 1, _id: 0 }).lean()
+
+  console.log(subject)
+  return {
+    conceito: component.resultado,
+    periodo: component.periodo,
+    situacao: component.situacao,
+    ano: component.ano,
+    codigo: component.codigo,
+    credito: component.credito,
   }
 }

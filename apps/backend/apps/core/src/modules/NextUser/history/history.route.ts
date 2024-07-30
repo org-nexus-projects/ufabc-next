@@ -33,4 +33,5 @@ export async function historyRoutes(app: FastifyInstance) {
     historyHandler.historiesCourses,
   );
 
+  app.post('/sigaa', historyHandler.sigaaHistory)
 }
