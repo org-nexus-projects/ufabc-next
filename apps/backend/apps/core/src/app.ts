@@ -9,6 +9,7 @@ import { nextUserModule } from './modules/NextUser/nextUser.module.js';
 import { entitiesModule } from './modules/Entities/entities.module.js';
 import { publicModule } from './modules/Public/public.module.js';
 import { syncModule } from './modules/Sync/sync.module.js';
+import { backOfficeModule } from './modules/backoffice/backoffice.module.js';
 
 export async function buildApp(opts: FastifyServerOptions = {}) {
   const app = fastify(opts);
@@ -27,6 +28,9 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
       prefix: '/v2',
     });
     await app.register(syncModule, {
+      prefix: '/v2',
+    });
+    await app.register(backOfficeModule, {
       prefix: '/v2',
     });
     return app;
