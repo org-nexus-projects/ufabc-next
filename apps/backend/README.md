@@ -30,7 +30,7 @@ pnpm build
 docker compose up -d
 
 # Realize a copia das variaveis de ambiente para o arquivo .env
-cp -r apps/core/.env.example apps/core/.env
+cp -r apps/core/.env.example apps/core/.env.dev
 
 # De `start` no projeto
 pnpm dev

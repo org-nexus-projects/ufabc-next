@@ -1,8 +1,8 @@
 import { UserModel } from '@/models/User.js';
-import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import jwt from 'jsonwebtoken';
 import { Config } from '@/config/config.js';
+import type { FastifyInstance } from 'fastify';
 
 const devTokenSchema = z.object({
   email: z.string().email(),
