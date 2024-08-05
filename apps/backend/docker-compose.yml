@@ -1,17 +1,24 @@
-version: '3.8'
-
 services:
-  ufabc-next-db:
+  next-db:
     image: mongo:latest
-    container_name: ufabc-next-db
+    container_name: next-db
     ports:
       - 27017:27017
-  ufabc-next-redis:
+    volumes:
+      - ./scripts/docker/mongo/initdb.d:/docker-entrypoint-initdb.d:ro
+      - next-db-data:/data/db/
+
+  next-redis:
     image: redis:latest
-    container_name: ufabc-next-redis
+    container_name: next-redis
     ports:
       - 6379:6379
     environment:
       REDIS_USER: default
       REDIS_PORT: 6379
       REDIS_PASSWORD: qj6wGxXINcQyWXdN
+
+volumes:
+  next-db-data:
+    driver: local
+    name: next-mongo

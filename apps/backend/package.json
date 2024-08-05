@@ -2,10 +2,9 @@
   "name": "ufabc-next-backend",
   "version": "0.0.1",
   "private": false,
-  "packageManager": "pnpm@9.4.0",
+  "packageManager": "pnpm@9.6.0",
   "type": "module",
   "scripts": {
-    "populate": "turbo run populate -- ",
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
     "tsc": "turbo run tsc --parallel",
