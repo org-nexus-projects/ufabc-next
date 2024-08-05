@@ -36,6 +36,7 @@ cp -r apps/core/.env.example apps/core/.env
 pnpm dev
 
 # Simule o projeto com dados
+# Depreciado, nao ira funcionar
 pnpm populate reset
 ```
 

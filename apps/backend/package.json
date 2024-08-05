@@ -5,7 +5,6 @@
   "packageManager": "pnpm@9.6.0",
   "type": "module",
   "scripts": {
-    "populate": "turbo run populate -- ",
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
     "tsc": "turbo run tsc --parallel",
