@@ -3,7 +3,6 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import jwt from 'jsonwebtoken';
 import { Config } from '@/config/config.js';
-import { admin } from '@/hooks/admin.js';
 
 const devTokenSchema = z.object({
   email: z.string().email(),
