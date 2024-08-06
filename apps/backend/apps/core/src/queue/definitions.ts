@@ -1,4 +1,4 @@
-import { sendConfirmationEmail } from './jobs/confirmationEmail.js';
+import { sendConfirmationEmail } from './jobs/email.js';
 import { updateEnrollments } from './jobs/enrollmentsUpdate.js';
 import { ufEnrollmentsJob } from './jobs/ufEnrollments.js';
 import { updateTeachers } from './jobs/teacherUpdate.js';
