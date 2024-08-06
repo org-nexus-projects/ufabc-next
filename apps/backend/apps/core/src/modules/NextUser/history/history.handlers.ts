@@ -27,13 +27,13 @@ type UserHistoryRequest = {
       codigo: string;
       situacao: string | '--';
       resultado: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'O';
-      disciplina: string
+      disciplina: string;
     }>;
   };
 };
 
 export class HistoryHandler {
-  constructor(private readonly historyService: HistoryService) { }
+  constructor(private readonly historyService: HistoryService) {}
 
   async userHistory(
     request: FastifyRequest<UserHistoryRequest>,
@@ -41,7 +41,7 @@ export class HistoryHandler {
   ) {
     const extensionHistory = request.body;
 
-    let aggregateHistories = {
+    const aggregateHistories = {
       extension: extensionHistory,
       grade: '2017',
     };
@@ -78,34 +78,33 @@ export class HistoryHandler {
     return seasonCourses;
   }
 
-  async sigaaHistory(request: FastifyRequest<UserHistoryRequest>, reply: FastifyReply) {
-    const { body } = request
-    request.log.warn(body.disciplinas)
-    const components = body.disciplinas.map(disciplina => hydrateComponents(disciplina));
-    const fixedComponents = body.disciplinas.map(({ ano, codigo, periodo, resultado, situacao }) => {
-      return {
-        conceito: resultado,
-        periodo,
-        ano,
-        codigo,
-        situacao
-      }
-    })
-    body.disciplinas = fixedComponents
-  
+  async sigaaHistory(
+    request: FastifyRequest<UserHistoryRequest>,
+    reply: FastifyReply,
+  ) {
+    const { body } = request;
+    request.log.warn(body.disciplinas);
+    const components = body.disciplinas.map((disciplina) =>
+      hydrateComponents(disciplina),
+    );
+
+    body.disciplinas = components;
 
     // await this.historyService.createUserHistory(body)
-    return body
+    return body;
   }
 }
 
+async function hydrateComponents(
+  component: UserHistoryRequest['Body']['disciplinas'][number],
+) {
+  const subject = await SubjectModel.find(
+    {
+      name: component.disciplina,
+    },
+    { creditos: 1, name: 1, _id: 0 },
+  ).lean();
 
-async function hydrateComponents(component: UserHistoryRequest['Body']['disciplinas'][number]) {
-  const subject = await SubjectModel.find({
-    name: component.disciplina
-  },{ creditos: 1, name: 1, _id: 0 }).lean()
-
-  console.log(subject)
   return {
     conceito: component.resultado,
     periodo: component.periodo,
@@ -113,5 +112,5 @@ async function hydrateComponents(component: UserHistoryRequest['Body']['discipli
     ano: component.ano,
     codigo: component.codigo,
     credito: component.credito,
-  }
+  };
 }

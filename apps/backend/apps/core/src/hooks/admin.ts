@@ -11,9 +11,9 @@ export const admin: preHandlerHookHandler = function (request, reply, done) {
   }
   const isAdminUser = this.jwt.decode<UserDocument>(token);
 
-  if (isAdminUser?.permissions.includes('admin')) {
+  if (isAdminUser?.permissions?.includes('admin')) {
     return;
   }
 
-  done(new Error('This route is for admins, only for now'));
+  done(new Error('This route is for admins only, for now'));
 };

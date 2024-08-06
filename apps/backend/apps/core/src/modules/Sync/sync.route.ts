@@ -27,7 +27,7 @@ import type { FastifyInstance } from 'fastify';
 export async function syncRoutes(app: FastifyInstance) {
   app.post<SyncDisciplinasRequest>(
     '/disciplinas',
-    { schema: syncDisciplinasSchema, preValidation: [authenticate, admin] },
+    { schema: syncDisciplinasSchema, preValidation: [authenticate] },
     syncDisciplinasHandler,
   );
 

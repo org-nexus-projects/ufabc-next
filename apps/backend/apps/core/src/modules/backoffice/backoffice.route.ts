@@ -29,6 +29,7 @@ export async function backofficeRoutes(app: FastifyInstance) {
         ra: user.ra,
         confirmed: user.confirmed,
         email: user.email,
+        permissions: user.permissions ?? [],
       },
       Config.JWT_SECRET,
       {
@@ -37,7 +38,7 @@ export async function backofficeRoutes(app: FastifyInstance) {
     );
 
     return {
-      token: `Bearer ${token}`,
+      token,
     };
   });
 }

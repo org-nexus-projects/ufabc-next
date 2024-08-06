@@ -10,19 +10,28 @@ import { DisciplinaModel } from '@/models/Disciplina.js';
 import { SubjectModel } from '@/models/Subject.js';
 import { validateSubjects } from '../utils/validateSubjects.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
+import { z } from 'zod';
 
 export type SyncDisciplinasRequest = {
   // Rename subjects that we already have
   Body: { mappings?: Record<string, string> };
+  Querystring: {
+    writeSubjects: boolean;
+  };
 };
 
 type UfabcDisciplina = ReturnType<typeof convertUfabcDisciplinas>;
+
+const querystringSchema = z.object({
+  writeSubjects: z.coerce.boolean().default(false),
+});
 
 export async function syncDisciplinasHandler(
   request: FastifyRequest<SyncDisciplinasRequest>,
   reply: FastifyReply,
 ) {
   const { mappings } = request.body || {};
+  const { writeSubjects } = querystringSchema.parse(request.query);
   const season = currentQuad();
   const rawUfabcDisciplinas = await ofetch<any[]>(
     'https://matricula.ufabc.edu.br/cache/todasDisciplinas.js',
@@ -52,9 +61,35 @@ export async function syncDisciplinasHandler(
       msg: 'Some subjects are missing',
       missing: uniqSubjects,
     });
-    return reply.badRequest(
-      'Subject not in the database, check logs to see missing subjects',
+
+    if (!writeSubjects) {
+      return reply.badRequest(
+        'Subject not in the database, check logs to see missing subjects',
+      );
+    }
+
+    const lowercasedSubjects = uniqSubjects.map((subject) =>
+      subject.toLocaleLowerCase(),
     );
+
+    const foundSubjects = await SubjectModel.find({
+      name: {
+        $in: lowercasedSubjects.map(
+          (subject) => new RegExp(`^${subject}$`, 'i'),
+        ),
+      },
+    });
+
+    const foundSubjectNames = new Set(
+      foundSubjects.map((s) => s.name.toLowerCase()),
+    );
+    const subjectsToInsert = lowercasedSubjects.filter(
+      (subject) => !foundSubjectNames.has(subject),
+    );
+
+    return {
+      foundSubjectNames,
+    };
   }
 
   const start = Date.now();
