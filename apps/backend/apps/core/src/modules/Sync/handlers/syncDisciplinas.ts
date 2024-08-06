@@ -1,15 +1,17 @@
 import {
   batchInsertItems,
-  convertUfabcDisciplinas,
+  type convertUfabcDisciplinas,
   currentQuad,
   generateIdentifier,
   parseResponseToJson,
 } from '@next/common';
 import { ofetch } from 'ofetch';
-import { DisciplinaModel } from '@/models/Disciplina.js';
+import { DisciplinaModel, type Disciplina } from '@/models/Disciplina.js';
 import { SubjectModel } from '@/models/Subject.js';
 import { validateSubjects } from '../utils/validateSubjects.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
+import { ufProcessor } from '@/services/ufprocessor.js';
+import { camelCase, startCase } from 'lodash-es';
 
 export type SyncDisciplinasRequest = {
   // Rename subjects that we already have
@@ -24,49 +26,47 @@ export async function syncDisciplinasHandler(
 ) {
   const { mappings } = request.body || {};
   const season = currentQuad();
-  const rawUfabcDisciplinas = await ofetch<any[]>(
-    'https://matricula.ufabc.edu.br/cache/todasDisciplinas.js',
-    {
-      parseResponse: parseResponseToJson,
-    },
-  );
-  const UfabcDisciplinas: UfabcDisciplina[] = rawUfabcDisciplinas.map(
-    (ufabcDisciplina) => convertUfabcDisciplinas(ufabcDisciplina),
-  );
+  const components = await ufProcessor.getComponents();
 
-  if (!UfabcDisciplinas) {
-    request.log.warn({ msg: 'Error in Ufabc Disciplinas', UfabcDisciplinas });
+  if (!components) {
+    request.log.warn({ msg: 'Error in Ufabc Disciplinas', components });
     return reply.badRequest('Could not parse disciplinas');
   }
 
-  const subjects = await SubjectModel.find({});
-  // check if subjects actually exists before creating the relation
-  const missingSubjects = validateSubjects(
-    UfabcDisciplinas,
-    subjects,
-    mappings,
+  const subjects: Array<{ name: string }> = await SubjectModel.find(
+    {},
+    { name: 1, _id: 0 },
+  ).lean();
+  const subjectNames = subjects.map(({ name }) => name.toLocaleLowerCase());
+  const missingSubjects = components.filter(
+    ({ name }) => !subjectNames.includes(name),
   );
-  const uniqSubjects = [...new Set(missingSubjects)];
+  const names = missingSubjects.map(({ name }) => name);
+  const uniqMissing = [...new Set(names)];
+
   if (missingSubjects.length > 0) {
-    request.log.warn({
-      msg: 'Some subjects are missing',
-      missing: uniqSubjects,
-    });
-    return reply.status(400).send({
-      message:
-        'Subject not in the database, check logs to see missing subjects',
-      uniqSubjects,
-    });
+    return {
+      msg: 'missing subjects',
+      uniqMissing,
+    };
   }
+
+  const nextComponents = components.map<Disciplina>((component) => ({
+    codigo: component.UFComponentCode,
+    disciplina_id: component.UFComponentId,
+    campus: component.campus,
+    disciplina: component.name,
+  }));
 
   const start = Date.now();
   const insertDisciplinasErrors = await batchInsertItems(
-    UfabcDisciplinas,
-    (disciplina) => {
+    components,
+    (component) => {
       return DisciplinaModel.findOneAndUpdate(
         {
-          disciplina_id: disciplina?.disciplina_id,
-          identifier: generateIdentifier(disciplina),
+          disciplina_id: component?.UFComponentId,
+          // this never had sense to me,
+          identifier: generateIdentifier(component),
           season,
         },
         disciplina,
