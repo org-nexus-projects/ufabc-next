@@ -25,7 +25,7 @@ export class SubjectRepository implements EntitiesSubjectRepository {
     return searchResults;
   }
 
-  async createSubject(data: Subject) {
+  async createSubject(data: Subject | Subject[]) {
     const subject = await this.subjectService.create(data);
     return subject;
   }

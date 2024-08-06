@@ -52,9 +52,11 @@ export async function syncDisciplinasHandler(
       msg: 'Some subjects are missing',
       missing: uniqSubjects,
     });
-    return reply.badRequest(
-      'Subject not in the database, check logs to see missing subjects',
-    );
+    return reply.status(400).send({
+      message:
+        'Subject not in the database, check logs to see missing subjects',
+      uniqSubjects,
+    });
   }
 
   const start = Date.now();

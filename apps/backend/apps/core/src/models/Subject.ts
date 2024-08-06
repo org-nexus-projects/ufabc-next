@@ -20,6 +20,10 @@ subjectSchema.pre('save', function () {
   this.search = startCase(camelCase(this.name));
 });
 
+subjectSchema.pre<Subject>('insertMany', function (data) {
+  this.search = startCase(camelCase(this.name));
+});
+
 export type Subject = InferSchemaType<typeof subjectSchema>;
 export type SubjectDocument = ReturnType<(typeof SubjectModel)['hydrate']>;
 export const SubjectModel = model('subjects', subjectSchema);
