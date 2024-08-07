@@ -32,6 +32,7 @@ export type UFProcessorComponentFile = {
   credits: number;
   tpi: [number, number, number];
   enrolled: number[];
+  vacancies: number;
   /** The courses that are available for this component */
   courses: Array<{
     name: string | '-';
