@@ -20,6 +20,31 @@ export type UFProcessorComponent = {
   hours: Record<string, { periodicity: string; classPeriod: string[] }>[];
 };
 
+export type UFProcessorComponentFile = {
+  /** The id as we consume */
+  UFComponentId: '-' | number;
+  /** The code as we consume */
+  UFComponentCode: string;
+  campus: 'sbc' | 'sa';
+  name: string;
+  turma: string;
+  turno: 'diurno' | 'noturno';
+  credits: number;
+  tpi: [number, number, number];
+  enrolled: number[];
+  /** The courses that are available for this component */
+  courses: Array<{
+    name: string | '-';
+  }>;
+  teachers: {
+    practice: string | null;
+    secondaryPractice: string | null;
+    professor: string | null;
+    secondaryProfessor: string | null;
+  };
+  hours: Record<string, { periodicity: string; classPeriod: string[] }>[];
+};
+
 type ComponentId = number;
 type StudentIds = number;
 export type UFProcessorEnrollment = Record<ComponentId, StudentIds[]>;
@@ -53,10 +78,18 @@ class UFProcessor {
       },
     });
   }
-  async getComponents() {
-    // this type is partially wrong, since it can serve a different payload based on a
-    // query param
-    // TODO(joabesv): fix
+  async getComponents(link: string) {
+    if (link) {
+      const componentsWithTeachers = await this.request<
+        UFProcessorComponentFile[]
+      >('/components', {
+        query: {
+          link,
+        },
+      });
+      return componentsWithTeachers;
+    }
+
     const components =
       await this.request<UFProcessorComponent[]>('/components');
     return components;
