@@ -36,16 +36,16 @@ export async function componentsTeachers(
     }
 
     if (
-      component.teachers.professor &&
-      !teacherMap.has(component.teachers.professor.toLowerCase())
+      component.teachers?.professor &&
+      !teacherMap.has(component.teachers.professor)
     ) {
-      errors.push(`Missing teacher: ${component.teachers.professor}`);
+      errors.push(component.teachers.professor);
     }
     if (
-      component.teachers.practice &&
-      !teacherMap.has(component.teachers.practice.toLowerCase())
+      component.teachers?.practice &&
+      !teacherMap.has(component.teachers.practice)
     ) {
-      errors.push(`Missing practice teacher: ${component.teachers.practice}`);
+      errors.push(component.teachers.practice);
     }
 
     return {
@@ -57,30 +57,36 @@ export async function componentsTeachers(
       turno: component.turno,
       vagas: component.vacancies,
       teoria:
-        teacherMap.get(component.teachers.professor?.toLowerCase()) || null,
+        teacherMap.get(
+          // @ts-ignore fix later
+          component.teachers?.professor,
+        ) || null,
       pratica:
-        teacherMap.get(component.teachers.practice?.toLowerCase()) || null,
+        teacherMap.get(
+          // @ts-ignore fix later
+          component.teachers.practice,
+        ) || null,
       season,
     };
   });
+
+  if (errors.length > 0) {
+    return reply.status(403).send({
+      msg: 'Missing professors while parsing',
+      names: [...new Set(errors)],
+    });
+  }
 
   const disciplinaHash = createHash('md5')
     .update(JSON.stringify(nextComponentWithTeachers))
     .digest('hex');
 
-  if (hash && disciplinaHash !== hash) {
+  if (disciplinaHash !== hash) {
     return {
       hash: disciplinaHash,
       payload: nextComponentWithTeachers,
       errors: [...new Set(errors)],
     };
-  }
-
-  if (errors.length > 0) {
-    return reply.status(403).send({
-      msg: 'Errors found during disciplina processing',
-      errors: [...new Set(errors)],
-    });
   }
 
   const start = Date.now();
@@ -95,9 +101,12 @@ export async function componentsTeachers(
           season,
         },
         {
-          component,
+          $set: {
+            teoria: component.teoria,
+            pratica: component.pratica,
+          },
         },
-        { upsert: true, new: true },
+        { new: true },
       );
     },
   );
@@ -105,7 +114,7 @@ export async function componentsTeachers(
   if (insertComponentsErrors.length > 0) {
     request.log.error({
       msg: 'errors happened during insert',
-      errors: insertDisciplinasErrors,
+      errors: insertComponentsErrors,
     });
     return reply.internalServerError('Error inserting disciplinas');
   }

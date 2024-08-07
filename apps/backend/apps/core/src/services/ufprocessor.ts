@@ -46,6 +46,32 @@ export type UFProcessorComponentFile = {
   hours: Record<string, { periodicity: string; classPeriod: string[] }>[];
 };
 
+type UFProcessorCombined = {
+  UFComponentId: number | '-';
+  /** The code as we consume */
+  UFComponentCode: string;
+  campus: 'sbc' | 'sa';
+  name: string;
+  turma: string;
+  turno: 'diurno' | 'noturno';
+  credits: number;
+  courses: Array<{
+    name: string | '-';
+    UFCourseId?: number;
+    category?: 'limitada' | 'obrigatoria' | 'livre';
+  }>;
+  vacancies: number;
+  hours: Record<string, { periodicity?: string; classPeriod?: string[] }>[];
+  tpi?: [number, number, number];
+  enrolled?: number[];
+  teachers?: {
+    practice: string | null;
+    secondaryPractice: string | null;
+    professor: string | null;
+    secondaryProfessor: string | null;
+  };
+};
+
 type ComponentId = number;
 type StudentIds = number;
 export type UFProcessorEnrollment = Record<ComponentId, StudentIds[]>;
@@ -79,7 +105,7 @@ class UFProcessor {
       },
     });
   }
-  async getComponents(link: string) {
+  async getComponents(link: string): Promise<UFProcessorCombined[]> {
     if (link) {
       const componentsWithTeachers = await this.request<
         UFProcessorComponentFile[]

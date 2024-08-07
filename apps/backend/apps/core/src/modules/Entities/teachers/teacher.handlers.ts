@@ -114,7 +114,6 @@ export class TeacherHandler {
       'conceito',
     ) as GroupedDistribution;
 
-    
     const distributionsMean = {} as Record<NonNullable<Concept>, Distribution>;
     for (const conceito in groupedDistributions) {
       const concept = conceito as NonNullable<Concept>;
@@ -173,7 +172,7 @@ function getStatsMean(
   const simpleSum = reviewStats
     .filter((stat) => stat.cr_medio !== null)
     .map((stat) => stat.amount * stat.cr_medio!);
-  const totalSum = LodashSum(simpleSum)
+  const totalSum = LodashSum(simpleSum);
 
   return {
     conceito: key,

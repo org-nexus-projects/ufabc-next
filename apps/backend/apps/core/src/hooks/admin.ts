@@ -15,5 +15,5 @@ export const admin: preHandlerHookHandler = async function (request, reply) {
     return;
   }
 
-  return reply.badRequest('This route is for admins, only for now');
+  return reply.unauthorized('This route is for admins, only for now');
 };
