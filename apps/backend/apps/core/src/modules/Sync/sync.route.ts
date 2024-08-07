@@ -9,12 +9,9 @@ import {
   type SyncMatriculasRequest,
   syncMatriculasHandler,
 } from './handlers/syncMatriculas.js';
+import { componentsTeachers } from './handlers/componentsTeachers.js';
 import {
-  type ParseTeachersRequest,
-  parseTeachersHandler,
-} from './handlers/syncTeachersToSubject.js';
-import {
-  parseTeachersSchema,
+  syncComponentsWithTeachers,
   syncComponentsSchema,
   syncEnrollmentsSchema,
   syncMatriculasSchema,
@@ -40,9 +37,12 @@ export async function syncRoutes(app: FastifyInstance) {
     syncEnrollments,
   );
 
-  app.put<ParseTeachersRequest>(
+  app.put(
     '/disciplinas/teachers',
-    { schema: parseTeachersSchema, preValidation: [authenticate, admin] },
-    parseTeachersHandler,
+    // {
+    //   schema: syncComponentsWithTeachers,
+    //   preValidation: [authenticate, admin],
+    // },
+    componentsTeachers,
   );
 }

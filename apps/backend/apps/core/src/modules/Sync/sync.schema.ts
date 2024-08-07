@@ -15,7 +15,7 @@ export const syncEnrollmentsSchema = {
   description: 'Rota para sincronizar inscrições',
 } satisfies FastifySchema;
 
-export const parseTeachersSchema = {
+export const syncComponentsWithTeachers = {
   tags: ['Sync'],
   description: 'Rota para analisar e sincronizar professores em disciplinas',
 } satisfies FastifySchema;
