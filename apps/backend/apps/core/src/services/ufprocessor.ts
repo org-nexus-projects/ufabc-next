@@ -1,7 +1,7 @@
 import { Config } from '@/config/config.js';
 import { ofetch } from 'ofetch';
 
-type UFProcessorComponent = {
+export type UFProcessorComponent = {
   /** The id as we consume */
   UFComponentId: number;
   /** The code as we consume */

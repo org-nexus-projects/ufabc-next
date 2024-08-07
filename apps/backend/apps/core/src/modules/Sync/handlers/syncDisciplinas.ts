@@ -6,7 +6,16 @@ import {
 import { DisciplinaModel, type Disciplina } from '@/models/Disciplina.js';
 import { SubjectModel } from '@/models/Subject.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { ufProcessor } from '@/services/ufprocessor.js';
+import {
+  ufProcessor,
+  type UFProcessorComponent,
+} from '@/services/ufprocessor.js';
+import { LRUCache } from 'lru-cache';
+
+const cache = new LRUCache<string, UFProcessorComponent[]>({
+  max: 1500,
+  ttl: 1000 * 60 * 15, // 15 minutes
+});
 
 export async function syncDisciplinasHandler(
   request: FastifyRequest,
@@ -14,23 +23,29 @@ export async function syncDisciplinasHandler(
 ) {
   const season = currentQuad();
   const [tenantYear, tenantQuad] = season.split(':');
-  const components = await ufProcessor.getComponents();
+  const cacheKey = `components_${season}`;
+  let components = cache.get(cacheKey);
 
   if (!components) {
-    request.log.warn({ msg: 'Error in Ufabc Disciplinas', components });
-    return reply.badRequest('Could not parse disciplinas');
+    components = await ufProcessor.getComponents();
+    if (!components) {
+      request.log.warn({ msg: 'Error in Ufabc Disciplinas', components });
+      return reply.badRequest('Could not parse disciplinas');
+    }
+    cache.set(cacheKey, components);
   }
 
   const subjects: Array<{ name: string }> = await SubjectModel.find(
     {},
     { name: 1, _id: 0 },
   ).lean();
-  const subjectNames = subjects.map(({ name }) => name.toLocaleLowerCase());
-  const missingSubjects = components.filter(
-    ({ name }) => !subjectNames.includes(name),
+  const subjectNames = new Set(
+    subjects.map(({ name }) => name.toLocaleLowerCase()),
   );
-  const names = missingSubjects.map(({ name }) => name);
-  const uniqMissing = [...new Set(names)];
+  const missingSubjects = components.filter(
+    ({ name }) => !subjectNames.has(name.toLocaleLowerCase()),
+  );
+  const uniqMissing = [...new Set(missingSubjects.map(({ name }) => name))];
 
   if (missingSubjects.length > 0) {
     return {
@@ -62,15 +77,16 @@ export async function syncDisciplinasHandler(
   const insertDisciplinasErrors = await batchInsertItems(
     nextComponents,
     (component) => {
+      // this never had sense to me,
+      // @ts-ignore migrating
+      const identifier = generateIdentifier(component);
       return DisciplinaModel.findOneAndUpdate(
         {
           disciplina_id: component?.disciplina_id,
-          // this never had sense to me,
-          // @ts-ignore migrating
-          identifier: generateIdentifier(component),
+          identifier,
           season,
         },
-        component,
+        { ...component, identifier },
         { upsert: true, new: true },
       );
     },
@@ -87,5 +103,6 @@ export async function syncDisciplinasHandler(
   return {
     status: 'Sync disciplinas successfully',
     time: Date.now() - start,
+    componentsProcessed: components.length,
   };
 }
