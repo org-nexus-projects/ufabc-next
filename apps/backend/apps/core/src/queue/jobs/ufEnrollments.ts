@@ -1,28 +1,14 @@
-import {
-  batchInsertItems,
-  currentQuad,
-  parseResponseToJson,
-} from '@next/common';
-import { ofetch } from 'ofetch';
+import { batchInsertItems, currentQuad, logger } from '@next/common';
 import { DisciplinaModel } from '@/models/Disciplina.js';
+import { ufProcessor } from '@/services/ufprocessor.js';
 
 type SyncMatriculasParams = {
   operation: 'alunos_matriculados';
 };
-export type UFEnrollment = Record<string, number[]>;
-type Enrollment = Record<number, number[]>;
 
 export async function ufEnrollmentsJob(params: SyncMatriculasParams) {
   const season = currentQuad();
-  const matriculas = await ofetch(
-    'https://matricula.ufabc.edu.br/cache/matriculas.js',
-    {
-      parseResponse: parseResponseToJson,
-    },
-  );
-
-  const enrollments = parseUFEnrollment(matriculas);
-
+  const enrollments = await ufProcessor.getEnrolledStudents();
   const bulkOps = Object.entries(enrollments).map(
     ([enrollmentId, students]) => ({
       updateOne: {
@@ -44,24 +30,4 @@ export async function ufEnrollmentsJob(params: SyncMatriculasParams) {
   );
 
   return errors;
-}
-
-export function parseUFEnrollment(UFEnrollment: UFEnrollment): Enrollment {
-  const enrollments: Record<number, number[]> = {};
-  for (const rawStudentId in UFEnrollment) {
-    const UFUserId = Number(rawStudentId);
-    const studentEnrollments = UFEnrollment[UFUserId];
-
-    if (!studentEnrollments) {
-      continue;
-    }
-
-    for (const rawComponentId of studentEnrollments) {
-      const componentId = Number(rawComponentId);
-      enrollments[componentId] = (enrollments[componentId] || []).concat([
-        UFUserId,
-      ]);
-    }
-  }
-  return enrollments;
 }

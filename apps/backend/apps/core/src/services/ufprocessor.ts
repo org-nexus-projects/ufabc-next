@@ -20,6 +20,10 @@ export type UFProcessorComponent = {
   hours: Record<string, { periodicity: string; classPeriod: string[] }>[];
 };
 
+type ComponentId = number;
+type StudentIds = number;
+export type UFProcessorEnrollment = Record<ComponentId, StudentIds[]>;
+
 class UFProcessor {
   private readonly baseURL = Config.UF_PROCESSOR_URL;
   private readonly request: typeof ofetch;
@@ -50,9 +54,17 @@ class UFProcessor {
     });
   }
   async getComponents() {
+    // this type is partially wrong, since it can serve a different payload based on a
+    // query param
+    // TODO(joabesv): fix
     const components =
       await this.request<UFProcessorComponent[]>('/components');
     return components;
+  }
+
+  async getEnrolledStudents() {
+    const enrollments = await this.request<UFProcessorEnrollment>('/enrolled');
+    return enrollments;
   }
 }
 
