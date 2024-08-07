@@ -17,7 +17,7 @@ const cache = new LRUCache<string, UFProcessorComponent[]>({
   ttl: 1000 * 60 * 15, // 15 minutes
 });
 
-export async function syncDisciplinasHandler(
+export async function syncComponentsHandler(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {

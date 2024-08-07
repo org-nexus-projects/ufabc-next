@@ -1,9 +1,6 @@
 import { admin } from '@/hooks/admin.js';
 import { authenticate } from '@/hooks/authenticate.js';
-import {
-  type SyncDisciplinasRequest,
-  syncDisciplinasHandler,
-} from './handlers/syncDisciplinas.js';
+import { syncComponentsHandler } from './handlers/components.js';
 import {
   type SyncEnrollmentsRequest,
   syncEnrollments,
@@ -18,17 +15,17 @@ import {
 } from './handlers/syncTeachersToSubject.js';
 import {
   parseTeachersSchema,
-  syncDisciplinasSchema,
+  syncComponentsSchema,
   syncEnrollmentsSchema,
   syncMatriculasSchema,
 } from './sync.schema.js';
 import type { FastifyInstance } from 'fastify';
 
 export async function syncRoutes(app: FastifyInstance) {
-  app.post<SyncDisciplinasRequest>(
+  app.post(
     '/disciplinas',
-    { schema: syncDisciplinasSchema, preValidation: [authenticate] },
-    syncDisciplinasHandler,
+    { schema: syncComponentsSchema, preValidation: [authenticate] },
+    syncComponentsHandler,
   );
 
   app.get<SyncMatriculasRequest>(
