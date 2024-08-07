@@ -1,31 +1,19 @@
 import {
   batchInsertItems,
-  type convertUfabcDisciplinas,
   currentQuad,
   generateIdentifier,
-  parseResponseToJson,
 } from '@next/common';
-import { ofetch } from 'ofetch';
 import { DisciplinaModel, type Disciplina } from '@/models/Disciplina.js';
 import { SubjectModel } from '@/models/Subject.js';
-import { validateSubjects } from '../utils/validateSubjects.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ufProcessor } from '@/services/ufprocessor.js';
-import { camelCase, startCase } from 'lodash-es';
-
-export type SyncDisciplinasRequest = {
-  // Rename subjects that we already have
-  Body: { mappings?: Record<string, string> };
-};
-
-type UfabcDisciplina = ReturnType<typeof convertUfabcDisciplinas>;
 
 export async function syncDisciplinasHandler(
-  request: FastifyRequest<SyncDisciplinasRequest>,
+  request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const { mappings } = request.body || {};
   const season = currentQuad();
+  const [tenantYear, tenantQuad] = season.split(':');
   const components = await ufProcessor.getComponents();
 
   if (!components) {
@@ -56,20 +44,33 @@ export async function syncDisciplinasHandler(
     disciplina_id: component.UFComponentId,
     campus: component.campus,
     disciplina: component.name,
+    season,
+    obrigatorias: component.courses.map((course) => course.UFCourseId),
+    turma: component.turma,
+    turno: component.turno,
+    vagas: component.vacancies,
+    // updated dynamically later
+    alunos_matriculados: [],
+    after_kick: [],
+    before_kick: [],
+    identifier: '',
+    quad: Number(tenantQuad),
+    year: Number(tenantYear),
   }));
 
   const start = Date.now();
   const insertDisciplinasErrors = await batchInsertItems(
-    components,
+    nextComponents,
     (component) => {
       return DisciplinaModel.findOneAndUpdate(
         {
-          disciplina_id: component?.UFComponentId,
+          disciplina_id: component?.disciplina_id,
           // this never had sense to me,
+          // @ts-ignore migrating
           identifier: generateIdentifier(component),
           season,
         },
-        disciplina,
+        component,
         { upsert: true, new: true },
       );
     },
