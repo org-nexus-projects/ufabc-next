@@ -7,6 +7,9 @@ import { ofetch } from 'ofetch';
 import { isEqual } from 'lodash-es';
 import { DisciplinaModel } from '@/models/Disciplina.js';
 import type { FastifyRequest } from 'fastify';
+import { z } from 'zod';
+import { ufProcessor } from '@/services/ufprocessor.js';
+import { storage } from '@/services/unstorage.js';
 
 export type SyncMatriculasRequest = {
   Querystring: {
@@ -14,12 +17,17 @@ export type SyncMatriculasRequest = {
   };
 };
 
-export async function syncMatriculasHandler(
+const ufEnrolledQueryParams = z.object({
+  operation: z.enum(['sync', 'after_kick', 'before_kick']).default('sync'),
+});
+
+// TODO(Joabe): validate if sync step still makes sense here
+export async function syncEnrolledHandler(
   request: FastifyRequest<SyncMatriculasRequest>,
 ) {
   const season = currentQuad();
   const { redis } = request.server;
-  const { operation } = request.query;
+  const { operation } = ufEnrolledQueryParams.parse(request.query);
   const operationMap =
     new Map([
       ['before_kick', 'before_kick'],
@@ -29,44 +37,33 @@ export async function syncMatriculasHandler(
   // check if we are doing a sync operation
   // update current enrolled students
   const isSyncMatriculas = operationMap === 'alunos_matriculados';
-  const rawUfabcMatricula = await ofetch(
-    'https://matricula.ufabc.edu.br/cache/matriculas.js',
-    { parseResponse: parseResponseToJson },
-  );
-
-  const ufabcMatricula = parseEnrollments(rawUfabcMatricula);
+  const enrolledStudents = await ufProcessor.getEnrolledStudents();
 
   const start = Date.now();
   const errors = await batchInsertItems(
-    Object.keys(ufabcMatricula),
-    async (ufabcMatriculaIds) => {
-      const cacheKey = `disciplina_${season}_${ufabcMatriculaIds}`;
-      const cachedUfabcMatriculas = isSyncMatriculas
-        ? await redis.get(cacheKey)
+    Object.keys(enrolledStudents),
+    async (componentIds) => {
+      const cacheKey = `component:${season}:${componentIds}`;
+      const cachedComponents = isSyncMatriculas
+        ? await storage.getItem(cacheKey)
         : {};
-
-      if (
-        isEqual(
-          cachedUfabcMatriculas,
-          ufabcMatricula[Number(ufabcMatriculaIds)],
-        )
-      ) {
-        return cachedUfabcMatriculas;
+      if (isEqual(cachedComponents, enrolledStudents[Number(componentIds)])) {
+        return cachedComponents;
       }
 
       const updatedDisciplinas = await DisciplinaModel.findOneAndUpdate(
         {
           season,
-          disciplina_id: ufabcMatriculaIds,
+          disciplina_id: componentIds,
         },
-        { [operationMap]: ufabcMatricula[Number(ufabcMatriculaIds)] },
+        { $set: { [operationMap]: enrolledStudents[Number(componentIds)] } },
         { upsert: true, new: true },
       );
 
       if (isSyncMatriculas) {
-        await redis.set(
+        await storage.setItem(
           cacheKey,
-          JSON.stringify(ufabcMatricula[Number(ufabcMatriculaIds)]),
+          JSON.stringify(enrolledStudents[Number(componentIds)]),
         );
       }
       return updatedDisciplinas;
@@ -79,19 +76,3 @@ export async function syncMatriculasHandler(
     errors,
   };
 }
-
-const parseEnrollments = (data: Record<string, number[]>) => {
-  const matriculas: Record<number, number[]> = {};
-
-  for (const aluno_id in data) {
-    const matriculasAluno = data[aluno_id];
-
-    matriculasAluno.forEach((matricula) => {
-      matriculas[matricula] = (matriculas[matricula] || []).concat([
-        Number.parseInt(aluno_id),
-      ]);
-    });
-  }
-
-  return matriculas;
-};

@@ -7,14 +7,14 @@ import {
 } from './handlers/syncEnrollments.js';
 import {
   type SyncMatriculasRequest,
-  syncMatriculasHandler,
-} from './handlers/syncMatriculas.js';
+  syncEnrolledHandler,
+} from './handlers/ufEnrolled.js';
 import { componentsTeachers } from './handlers/componentsTeachers.js';
 import {
-  syncComponentsWithTeachers,
+  syncComponentsTeacherSchema,
   syncComponentsSchema,
   syncEnrollmentsSchema,
-  syncMatriculasSchema,
+  syncEnrolledSchema,
 } from './sync.schema.js';
 import type { FastifyInstance } from 'fastify';
 
@@ -27,8 +27,8 @@ export async function syncRoutes(app: FastifyInstance) {
 
   app.get<SyncMatriculasRequest>(
     '/matriculas',
-    { schema: syncMatriculasSchema, preValidation: [authenticate, admin] },
-    syncMatriculasHandler,
+    { schema: syncEnrolledSchema, preValidation: [authenticate, admin] },
+    syncEnrolledHandler,
   );
 
   app.post<SyncEnrollmentsRequest>(
@@ -39,10 +39,10 @@ export async function syncRoutes(app: FastifyInstance) {
 
   app.put(
     '/disciplinas/teachers',
-    // {
-    //   schema: syncComponentsWithTeachers,
-    //   preValidation: [authenticate, admin],
-    // },
+    {
+      schema: syncComponentsTeacherSchema,
+      preValidation: [authenticate, admin],
+    },
     componentsTeachers,
   );
 }

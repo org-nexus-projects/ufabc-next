@@ -5,7 +5,7 @@ export const syncComponentsSchema = {
   description: 'Rota para sincronizar disciplinas',
 } satisfies FastifySchema;
 
-export const syncMatriculasSchema = {
+export const syncEnrolledSchema = {
   tags: ['Sync'],
   description: 'Rota para sincronizar matrículas',
 } satisfies FastifySchema;
@@ -15,7 +15,7 @@ export const syncEnrollmentsSchema = {
   description: 'Rota para sincronizar inscrições',
 } satisfies FastifySchema;
 
-export const syncComponentsWithTeachers = {
+export const syncComponentsTeacherSchema = {
   tags: ['Sync'],
   description: 'Rota para analisar e sincronizar professores em disciplinas',
 } satisfies FastifySchema;
