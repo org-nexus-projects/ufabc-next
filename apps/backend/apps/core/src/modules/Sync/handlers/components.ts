@@ -23,7 +23,7 @@ export async function syncComponentsHandler(
 ) {
   const season = currentQuad();
   const [tenantYear, tenantQuad] = season.split(':');
-  const cacheKey = `components_${season}`;
+  const cacheKey = `sync:components:${season}`;
   let components = cache.get(cacheKey);
 
   if (!components) {
@@ -35,10 +35,11 @@ export async function syncComponentsHandler(
     cache.set(cacheKey, components);
   }
 
-  const subjects: Array<{ name: string }> = await SubjectModel.find(
-    {},
-    { name: 1, _id: 0 },
-  ).lean();
+  const subjects: Array<{ name: string; _id: string }> =
+    await SubjectModel.find({}, { name: 1 }).lean();
+  const subjectMap = new Map(
+    subjects.map((subject) => [subject.name.toLowerCase(), subject._id]),
+  );
   const subjectNames = new Set(
     subjects.map(({ name }) => name.toLocaleLowerCase()),
   );
@@ -71,6 +72,8 @@ export async function syncComponentsHandler(
     identifier: '',
     quad: Number(tenantQuad),
     year: Number(tenantYear),
+    // @ts-ignore fix later
+    subject: subjectMap.get(component.name) || null,
   }));
 
   const start = Date.now();
