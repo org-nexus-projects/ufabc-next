@@ -33,8 +33,8 @@ export async function start() {
     }
 
     app.log.warn(signal, 'Gracefully exiting app');
-    // await nextJobs.close();
-    // await nextWorker.close();
+    await nextJobs.close();
+    await nextWorker.close();
     await app.close();
     process.exit(1);
   });

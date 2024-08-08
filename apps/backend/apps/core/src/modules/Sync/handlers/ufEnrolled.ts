@@ -1,9 +1,7 @@
 import {
   batchInsertItems,
   currentQuad,
-  parseResponseToJson,
 } from '@next/common';
-import { ofetch } from 'ofetch';
 import { isEqual } from 'lodash-es';
 import { DisciplinaModel } from '@/models/Disciplina.js';
 import type { FastifyRequest } from 'fastify';
@@ -26,7 +24,6 @@ export async function syncEnrolledHandler(
   request: FastifyRequest<SyncMatriculasRequest>,
 ) {
   const season = currentQuad();
-  const { redis } = request.server;
   const { operation } = ufEnrolledQueryParams.parse(request.query);
   const operationMap =
     new Map([
