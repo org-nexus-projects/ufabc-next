@@ -18,6 +18,7 @@ export class DisciplinaService {
       requisicoes: 1,
       teoria: 1,
       pratica: 1,
+      _id: 0,
     };
 
     const discplinas = await this.disciplinaRepository.findMany(
