@@ -45,12 +45,16 @@ export class TeacherHandler {
     request: FastifyRequest<{ Body: Teacher }>,
     reply: FastifyReply,
   ) {
-    const teacher = request.body;
-    if (!teacher.name) {
-      return reply.badRequest('Missing Teacher name');
+    const { name } = request.body;
+
+    if (Array.isArray(name)) {
+      const toInsert = name.map((n) => ({ name: n }));
+      const insertedTeachers = await TeacherModel.create(toInsert);
+      return insertedTeachers;
     }
-    const createdTeacher = await this.teacherService.insertTeacher(teacher);
-    return createdTeacher;
+
+    const insertedTeacher = await TeacherModel.create({ name });
+    return insertedTeacher;
   }
 
   async updateTeacher(
