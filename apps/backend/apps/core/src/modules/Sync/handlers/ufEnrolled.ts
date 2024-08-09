@@ -1,13 +1,10 @@
-import {
-  batchInsertItems,
-  currentQuad,
-} from '@next/common';
+import { batchInsertItems, currentQuad } from '@next/common';
 import { isEqual } from 'lodash-es';
 import { DisciplinaModel } from '@/models/Disciplina.js';
-import type { FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { ufProcessor } from '@/services/ufprocessor.js';
 import { storage } from '@/services/unstorage.js';
+import type { FastifyRequest } from 'fastify';
 
 export type SyncMatriculasRequest = {
   Querystring: {

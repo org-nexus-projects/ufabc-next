@@ -74,7 +74,15 @@ type UFProcessorCombined = {
 
 type ComponentId = number;
 type StudentIds = number;
-export type UFProcessorEnrollment = Record<ComponentId, StudentIds[]>;
+export type UFProcessorEnrolled = Record<ComponentId, StudentIds[]>;
+
+type StudentRA = string;
+type StudentComponent = {
+  code: string;
+  name: string | null;
+  errors: string[] | [];
+};
+export type UFProcessorEnrollment = Record<StudentRA, StudentComponent[]>;
 
 class UFProcessor {
   private readonly baseURL = Config.UF_PROCESSOR_URL;
@@ -123,7 +131,19 @@ class UFProcessor {
   }
 
   async getEnrolledStudents() {
-    const enrollments = await this.request<UFProcessorEnrollment>('/enrolled');
+    const enrolled = await this.request<UFProcessorEnrolled>('/enrolled');
+    return enrolled;
+  }
+
+  async getEnrollments(link: string) {
+    const enrollments = await this.request<UFProcessorEnrollment>(
+      '/enrollments',
+      {
+        query: {
+          link,
+        },
+      },
+    );
     return enrollments;
   }
 }
