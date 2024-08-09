@@ -14,12 +14,12 @@ export async function loadPlugins(app: FastifyInstance) {
     app.register(Mongoose, {
       connectionUrl: Config.MONGODB_CONNECTION_URL,
     }),
-    app.register(Redis, {
-      username: Config.REDIS_USER,
-      password: Config.REDIS_PASSWORD,
-      host: Config.REDIS_HOST,
-      port: Config.REDIS_PORT,
-    }),
+    // app.register(Redis, {
+    //   username: Config.REDIS_USER,
+    //   password: Config.REDIS_PASSWORD,
+    //   host: Config.REDIS_HOST,
+    //   port: Config.REDIS_PORT,
+    // }),
     app.register(JwtAuth, {
       secret: Config.JWT_SECRET,
     }),
