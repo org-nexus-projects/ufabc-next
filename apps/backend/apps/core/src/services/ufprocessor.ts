@@ -77,7 +77,7 @@ type StudentIds = number;
 export type UFProcessorEnrolled = Record<ComponentId, StudentIds[]>;
 
 type StudentRA = string;
-type StudentComponent = {
+export type StudentComponent = {
   code: string;
   name: string | null;
   errors: string[] | [];

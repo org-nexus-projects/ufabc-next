@@ -19,7 +19,7 @@ export type SyncEnrollmentsRequest = {
   };
 };
 
-export async function syncEnrollments(
+export async function syncEnrollmentsLegacy(
   request: FastifyRequest<SyncEnrollmentsRequest>,
   reply: FastifyReply,
 ) {
