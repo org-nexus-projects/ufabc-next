@@ -22,16 +22,17 @@ export class DisciplinaHandler {
   async listDisciplinas() {
     const season = currentQuad();
     const cacheKey = `list:components:${season}`;
-    const cachedResponse = await storage.getItem<Disciplina[]>(cacheKey);
-    if (cachedResponse) {
-      return cachedResponse;
-    }
+    // const cachedResponse = await storage.getItem<Disciplina[]>(cacheKey);
+    // if (cachedResponse) {
+    //   return cachedResponse;
+    // }
 
     const components = await this.disciplinaService.findDisciplinas(season);
     const toShow = components.map(({ id: _ignore, ...component }) => ({
       ...component,
       teoria: component.teoria?.name,
       pratica: component.pratica?.name,
+      subject: component.subject?.name,
     }));
     await storage.setItem<typeof toShow>(cacheKey, toShow, {
       ttl: 60 * 60 * 24,

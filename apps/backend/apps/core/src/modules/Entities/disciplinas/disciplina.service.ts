@@ -6,7 +6,6 @@ export class DisciplinaService {
 
   async findDisciplinas(season: ReturnType<typeof currentQuad>) {
     const disciplinaMapping = {
-      disciplina: 1,
       disciplina_id: 1,
       turno: 1,
       turma: 1,
@@ -26,7 +25,7 @@ export class DisciplinaService {
         season,
       },
       disciplinaMapping,
-      ['pratica', 'teoria'],
+      ['pratica', 'teoria', 'subject'],
     );
     return discplinas;
   }
