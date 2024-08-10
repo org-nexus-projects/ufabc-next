@@ -14,10 +14,6 @@ const teacherSchema = new Schema(
 
 teacherSchema.plugin(mongooseLeanVirtuals);
 
-teacherSchema.pre('save', function () {
-  this.name = startCase(camelCase(this.name));
-});
-
 export type Teacher = InferSchemaType<typeof teacherSchema>;
 export type TeacherDocument = ReturnType<(typeof TeacherModel)['hydrate']>;
 export const TeacherModel = model('teachers', teacherSchema);

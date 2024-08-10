@@ -29,14 +29,13 @@ export class DisciplinaRepository implements EntitiesDisciplinaRepository {
   ) {
     if (populateFields) {
       const disciplinas = await this.disciplinaService
-        
         .find(filter, mapping)
         .populate(populateFields)
         .lean<Disciplina[]>({ virtuals: true });
       return disciplinas;
     }
     const disciplinas = await this.disciplinaService
-      
+
       .find(filter, mapping)
       .lean<Disciplina[]>({ virtuals: true });
     return disciplinas;

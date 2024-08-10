@@ -34,10 +34,9 @@ const envSchema = z.object({
   REDIS_PASSWORD: z.string().min(8).default('localRedis'),
   REDIS_HOST: z.string().default('localhost'),
   REDIS_PORT: z.coerce.number().default(6379),
-  MONGODB_CONNECTION_URL: z
-    .string()
-    .default('mongodb://127.0.0.1:27017/next-db'),
+  MONGODB_CONNECTION_URL: z.string().default('mongodb://127.0.0.1:27017/local'),
   REDIS_CONNECTION_URL: z.string().optional(),
+  UF_PROCESSOR_URL: z.string().url(),
 });
 
 const _env = envSchema.safeParse(process.env);

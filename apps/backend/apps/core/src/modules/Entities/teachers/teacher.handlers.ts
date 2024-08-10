@@ -45,12 +45,16 @@ export class TeacherHandler {
     request: FastifyRequest<{ Body: Teacher }>,
     reply: FastifyReply,
   ) {
-    const teacher = request.body;
-    if (!teacher.name) {
-      return reply.badRequest('Missing Teacher name');
+    const { name } = request.body;
+
+    if (Array.isArray(name)) {
+      const toInsert = name.map((n) => ({ name: n }));
+      const insertedTeachers = await TeacherModel.create(toInsert);
+      return insertedTeachers;
     }
-    const createdTeacher = await this.teacherService.insertTeacher(teacher);
-    return createdTeacher;
+
+    const insertedTeacher = await TeacherModel.create({ name });
+    return insertedTeacher;
   }
 
   async updateTeacher(
@@ -114,7 +118,6 @@ export class TeacherHandler {
       'conceito',
     ) as GroupedDistribution;
 
-    
     const distributionsMean = {} as Record<NonNullable<Concept>, Distribution>;
     for (const conceito in groupedDistributions) {
       const concept = conceito as NonNullable<Concept>;
@@ -173,7 +176,7 @@ function getStatsMean(
   const simpleSum = reviewStats
     .filter((stat) => stat.cr_medio !== null)
     .map((stat) => stat.amount * stat.cr_medio!);
-  const totalSum = LodashSum(simpleSum)
+  const totalSum = LodashSum(simpleSum);
 
   return {
     conceito: key,

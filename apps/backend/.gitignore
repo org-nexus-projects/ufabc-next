@@ -45,3 +45,4 @@ build
 .gitsecret/keys/random_seed
 tmp
 .env.dev
+debug.js

@@ -1,6 +1,6 @@
-import { sendConfirmationEmail } from './jobs/confirmationEmail.js';
+import { sendConfirmationEmail } from './jobs/email.js';
 import { updateEnrollments } from './jobs/enrollmentsUpdate.js';
-import { syncMatriculasJob } from './jobs/syncMatriculas.js';
+import { ufEnrollmentsJob } from './jobs/ufEnrolled.js';
 import { updateTeachers } from './jobs/teacherUpdate.js';
 import { updateUserEnrollments } from './jobs/userEnrollmentsUpdate.js';
 import type { WorkerOptions } from 'bullmq';
@@ -36,7 +36,7 @@ export const NEXT_QUEUE_JOBS = {
   /**
    * Queue for Syncing Matriculas with UFABC
    */
-  'Sync:Matriculas': {
+  'Sync:UFEnrollments': {
     concurrency: 5,
   },
   /**
@@ -63,8 +63,8 @@ export const NEXT_JOBS = {
     handler: sendConfirmationEmail,
   },
   NextSyncMatriculas: {
-    queue: 'Sync:Matriculas',
-    handler: syncMatriculasJob,
+    queue: 'Sync:UFEnrollments',
+    handler: ufEnrollmentsJob,
     every: '2 days',
   },
   NextEnrollmentsUpdate: {

@@ -34,6 +34,7 @@
     "fastify-type-provider-zod": "^1.1.9",
     "jsonwebtoken": "^9.0.2",
     "lodash-es": "^4.17.21",
+    "lru-cache": "^11.0.0",
     "mongoose": "^8.4.3",
     "mongoose-lean-virtuals": "^0.9.1",
     "ms": "^2.1.3",
