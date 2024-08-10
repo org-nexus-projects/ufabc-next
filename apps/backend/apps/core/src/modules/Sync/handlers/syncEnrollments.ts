@@ -104,7 +104,6 @@ export async function syncEnrollmentsLegacy(
   const chunkedEnrollments = chunkArray(enrollments, 1000);
 
   for (const chunk of chunkedEnrollments) {
-    //@ts-expect-error
     await nextJobs.dispatch('NextEnrollmentsUpdate', chunk);
   }
 

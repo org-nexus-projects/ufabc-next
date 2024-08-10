@@ -7,7 +7,10 @@ import {
   syncEnrolledHandler,
 } from './handlers/ufEnrolled.js';
 import { componentsTeachers } from './handlers/componentsTeachers.js';
-import { syncEnrollmentsLegacy } from './handlers/syncEnrollments.js';
+import {
+  syncEnrollmentsLegacy,
+  type SyncEnrollmentsRequest,
+} from './handlers/syncEnrollments.js';
 import {
   syncComponentsTeacherSchema,
   syncComponentsSchema,
@@ -35,7 +38,11 @@ export async function syncRoutes(app: FastifyInstance) {
     syncEnrollments,
   );
 
-  app.post('/enrollments/legacy', syncEnrollmentsLegacy);
+  app.post<SyncEnrollmentsRequest>(
+    '/enrollments/legacy',
+    { preValidation: [authenticate, admin] },
+    syncEnrollmentsLegacy,
+  );
 
   app.put(
     '/disciplinas/teachers',
