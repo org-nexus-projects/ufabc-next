@@ -25,7 +25,7 @@ export class TeacherRepository implements EntitityTeacherRepository {
 
   async findTeacher(options: FilterQuery<Teacher>) {
     const teachers = await this.teacherService
-      .find(options)
+      .find(options, { alias: 1, name: 1, _id: 0 })
       .lean<Teacher[]>(true);
     return teachers;
   }

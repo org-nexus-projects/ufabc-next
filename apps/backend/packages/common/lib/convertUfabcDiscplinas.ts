@@ -11,7 +11,7 @@ export type Disciplina = {
     curso_id: number;
     obrigatoriedade: 'limitada' | 'obrigatoria' | 'livre';
   }>;
-  campus: 'santo andre' | 'sao bernardo' | null;
+  campus: 'santo andre' | 'sao bernardo' | 'sbc' | 'sa';
   turno: 'noturno' | 'diurno' | 'tarde' | null;
   horarios:
     | string
@@ -105,6 +105,7 @@ export function convertUfabcDisciplinas(disciplina: Disciplina) {
 
   if (!clonedDisciplinas.campus) {
     const secondPath = splitted.slice(turnoIndex! + 1, splitted.length);
+    // @ts-ignore
     clonedDisciplinas.campus = extractCampus(secondPath.join(breakRule));
   }
 

@@ -25,13 +25,15 @@ export class SubjectRepository implements EntitiesSubjectRepository {
     return searchResults;
   }
 
-  async createSubject(data: Subject) {
+  async createSubject(data: Subject | Subject[]) {
     const subject = await this.subjectService.create(data);
     return subject;
   }
 
   async listSubject(filter: FilterQuery<Subject>) {
-    const subjects = await this.subjectService.find(filter).lean(true);
+    const subjects = await this.subjectService
+      .find(filter, { _id: 0 })
+      .lean(true);
     return subjects;
   }
 }

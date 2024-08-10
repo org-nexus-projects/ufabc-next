@@ -19,7 +19,7 @@ export type SyncEnrollmentsRequest = {
   };
 };
 
-export async function syncEnrollments(
+export async function syncEnrollmentsLegacy(
   request: FastifyRequest<SyncEnrollmentsRequest>,
   reply: FastifyReply,
 ) {
@@ -104,7 +104,6 @@ export async function syncEnrollments(
   const chunkedEnrollments = chunkArray(enrollments, 1000);
 
   for (const chunk of chunkedEnrollments) {
-    //@ts-expect-error
     await nextJobs.dispatch('NextEnrollmentsUpdate', chunk);
   }
 

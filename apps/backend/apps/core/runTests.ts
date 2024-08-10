@@ -12,7 +12,7 @@ const [watch, parallel] = process.argv.slice(2);
 const defaultTimeout = isCI ? 30_000 : 60_000;
 
 const files: string[] = [];
-for await (const testFile of glob('tests/**/*.spec.ts')) {
+for await (const testFile of glob('src/**/*.spec.ts')) {
   files.push(testFile as string);
 }
 

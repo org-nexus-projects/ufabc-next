@@ -1,51 +1,55 @@
 import { admin } from '@/hooks/admin.js';
 import { authenticate } from '@/hooks/authenticate.js';
-import {
-  type SyncDisciplinasRequest,
-  syncDisciplinasHandler,
-} from './handlers/syncDisciplinas.js';
-import {
-  type SyncEnrollmentsRequest,
-  syncEnrollments,
-} from './handlers/syncEnrollments.js';
+import { syncComponentsHandler } from './handlers/components.js';
+import { syncEnrollments } from './handlers/enrollments.js';
 import {
   type SyncMatriculasRequest,
-  syncMatriculasHandler,
-} from './handlers/syncMatriculas.js';
+  syncEnrolledHandler,
+} from './handlers/ufEnrolled.js';
+import { componentsTeachers } from './handlers/componentsTeachers.js';
 import {
-  type ParseTeachersRequest,
-  parseTeachersHandler,
-} from './handlers/syncTeachersToSubject.js';
+  syncEnrollmentsLegacy,
+  type SyncEnrollmentsRequest,
+} from './handlers/syncEnrollments.js';
 import {
-  parseTeachersSchema,
-  syncDisciplinasSchema,
+  syncComponentsTeacherSchema,
+  syncComponentsSchema,
   syncEnrollmentsSchema,
-  syncMatriculasSchema,
+  syncEnrolledSchema,
 } from './sync.schema.js';
 import type { FastifyInstance } from 'fastify';
 
 export async function syncRoutes(app: FastifyInstance) {
-  app.post<SyncDisciplinasRequest>(
+  app.post(
     '/disciplinas',
-    { schema: syncDisciplinasSchema, preValidation: [authenticate] },
-    syncDisciplinasHandler,
+    { schema: syncComponentsSchema, preValidation: [authenticate, admin] },
+    syncComponentsHandler,
   );
 
   app.get<SyncMatriculasRequest>(
     '/matriculas',
-    { schema: syncMatriculasSchema, preValidation: [authenticate, admin] },
-    syncMatriculasHandler,
+    { schema: syncEnrolledSchema, preValidation: [authenticate, admin] },
+    syncEnrolledHandler,
   );
 
-  app.post<SyncEnrollmentsRequest>(
+  app.post(
     '/enrollments',
     { schema: syncEnrollmentsSchema, preValidation: [authenticate, admin] },
     syncEnrollments,
   );
 
-  app.put<ParseTeachersRequest>(
+  app.post<SyncEnrollmentsRequest>(
+    '/enrollments/legacy',
+    { preValidation: [authenticate, admin] },
+    syncEnrollmentsLegacy,
+  );
+
+  app.put(
     '/disciplinas/teachers',
-    { schema: parseTeachersSchema, preValidation: [authenticate, admin] },
-    parseTeachersHandler,
+    {
+      schema: syncComponentsTeacherSchema,
+      preValidation: [authenticate, admin],
+    },
+    componentsTeachers,
   );
 }

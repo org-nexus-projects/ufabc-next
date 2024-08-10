@@ -7,7 +7,7 @@ import {
 import { findQuarter } from '@next/common';
 import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 
-const CAMPUS = ['sao bernardo', 'santo andre'] as const;
+const CAMPUS = ['sao bernardo', 'santo andre', 'sbc', 'sa'] as const;
 
 const disciplinaSchema = new Schema(
   {
@@ -18,7 +18,7 @@ const disciplinaSchema = new Schema(
     vagas: { type: Number, required: true },
     obrigatorias: { type: [Number], default: [] },
     codigo: { type: String, required: true },
-    campus: { type: String, enum: CAMPUS },
+    campus: { type: String, enum: CAMPUS, required: true },
     ideal_quad: Boolean,
     identifier: {
       type: String,

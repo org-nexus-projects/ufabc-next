@@ -3,23 +3,23 @@ import {
   merge as LodashMerge,
   camelCase,
   startCase,
-} from "lodash-es";
-import { TeacherModel } from "@/models/Teacher.js";
-import { SubjectModel } from "@/models/Subject.js";
-import { storage } from "@/services/unstorage.js";
-import type { FastifyReply, FastifyRequest } from "fastify";
-import type { SubjectService } from "./subjects.service.js";
+} from 'lodash-es';
+import { TeacherModel } from '@/models/Teacher.js';
+import { SubjectModel } from '@/models/Subject.js';
+import { storage } from '@/services/unstorage.js';
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { SubjectService } from './subjects.service.js';
 
-type ReviewStats = Awaited<ReturnType<SubjectService["subjectReviews"]>>;
-type Concept = ReviewStats[number]["distribution"][number]["conceito"];
+type ReviewStats = Awaited<ReturnType<SubjectService['subjectReviews']>>;
+type Concept = ReviewStats[number]['distribution'][number]['conceito'];
 type Distribution = Omit<
-  ReviewStats[number]["distribution"][number],
-  "conceito | weigth"
+  ReviewStats[number]['distribution'][number],
+  'conceito | weigth'
 >;
 
 type GroupedDistribution = Record<
   NonNullable<Concept>,
-  ReviewStats[number]["distribution"]
+  ReviewStats[number]['distribution']
 >;
 
 export class SubjectHandler {
@@ -30,20 +30,26 @@ export class SubjectHandler {
     const normalizedSearch = startCase(camelCase(rawSearch));
     const validatedSearch = normalizedSearch.replaceAll(
       /[\s#$()*+,.?[\\\]^{|}-]/g,
-      "\\$&",
+      '\\$&',
     );
 
-    const search = new RegExp(validatedSearch, "gi");
+    const search = new RegExp(validatedSearch, 'gi');
     const searchResults = await this.subjectService.findSubject(search);
     return searchResults;
   }
 
-  async createSubject(request: FastifyRequest<{ Body: { name: string } }>) {
-    const subjectName = request.body.name;
+  async createSubject(
+    request: FastifyRequest<{ Body: { name: string | string[] } }>,
+  ) {
+    const { name } = request.body;
 
-    const insertedSubject =
-      await this.subjectService.createSubject(subjectName);
+    if (Array.isArray(name)) {
+      const toInsert = name.map((n) => ({ name: n }));
+      const insertedSubjects = await SubjectModel.create(toInsert);
+      return insertedSubjects;
+    }
 
+    const insertedSubject = await SubjectModel.create({ name });
     return insertedSubject;
   }
 
@@ -60,7 +66,7 @@ export class SubjectHandler {
     const { subjectId } = request.params;
 
     if (!subjectId) {
-      return reply.badRequest("Missing Subject");
+      return reply.badRequest('Missing Subject');
     }
 
     const cacheKey = `reviews-${subjectId}`;
@@ -80,10 +86,9 @@ export class SubjectHandler {
     const distributions = stats.flatMap((stat) => stat.distribution);
     const groupedDistributions = LodashGroupBy(
       distributions,
-      "conceito",
+      'conceito',
     ) as GroupedDistribution;
 
-    
     const distributionsMean = {} as Record<NonNullable<Concept>, Distribution>;
     for (const conceito in groupedDistributions) {
       const concept = conceito as NonNullable<Concept>;
@@ -100,7 +105,7 @@ export class SubjectHandler {
       general: LodashMerge(getStatsMean(rawDistribution), {
         distribution: rawDistribution,
       }),
-      specific: await TeacherModel.populate(stats, "teacher"),
+      specific: await TeacherModel.populate(stats, 'teacher'),
     };
 
     await storage.setItem<typeof result>(cacheKey, result, {
@@ -112,7 +117,7 @@ export class SubjectHandler {
 }
 
 function getStatsMean(
-  reviewStats: ReviewStats[number]["distribution"],
+  reviewStats: ReviewStats[number]['distribution'],
   key?: keyof GroupedDistribution,
 ) {
   const count = reviewStats.reduce((acc, { count }) => acc + count, 0);

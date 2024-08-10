@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { type Job, type JobsOptions, Queue, type RedisOptions } from 'bullmq';
 import ms from 'ms';
 import { Config } from '@/config/config.js';
-import { NEXT_JOBS, NEXT_QUEUE_JOBS } from './jobsDefinitions.js';
+import { NEXT_JOBS, NEXT_QUEUE_JOBS } from './definitions.js';
 import type { JobParameters, NextJobNames } from './NextWorker.js';
 
 interface NextJob {
