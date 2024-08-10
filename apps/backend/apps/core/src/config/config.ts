@@ -36,7 +36,7 @@ const envSchema = z.object({
   REDIS_PORT: z.coerce.number().default(6379),
   MONGODB_CONNECTION_URL: z.string().default('mongodb://127.0.0.1:27017/local'),
   REDIS_CONNECTION_URL: z.string().optional(),
-  UF_PROCESSOR_URL: z.string().url().optional(),
+  UF_PROCESSOR_URL: z.string().url(),
 });
 
 const _env = envSchema.safeParse(process.env);
