@@ -2,9 +2,6 @@ import type { Graduation } from '@/models/Graduation.js';
 import type { History } from '@/models/History.js';
 import type { HistoryRepository } from './history.repository.js';
 
-// later validate the usage of zod here, to offload the handler and validate closer to the db
-// thoughts @santana?
-
 export class HistoryService {
   constructor(private readonly historyRepository: HistoryRepository) {}
 

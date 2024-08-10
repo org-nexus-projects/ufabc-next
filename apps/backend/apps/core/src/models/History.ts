@@ -11,6 +11,9 @@ const POSSIBLE_SITUATIONS = [
   'Trt. Total',
   'Apr.S.Nota',
   'Aproveitamento',
+  'reprovado',
+  'reprovado por faltas',
+  'aprovado',
 ] as const;
 
 export type Coefficient = {

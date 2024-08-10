@@ -3,34 +3,28 @@ import { type Student, StudentModel } from '@/models/Student.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { HistoryService } from './history.service.js';
 import { SubjectModel } from '@/models/Subject.js';
+import { z } from 'zod';
+import { HistoryModel } from '@/models/History.js';
 
-// type UserHistoryRequest = {
-//   Body: {
-//     ra: number;
-//     grade: string;
-//     mandatory_credits_number: number;
-//     limited_credits_number: number;
-//     free_credits_number: number;
-//     credits_total: number;
-//     curso: string;
-//   };
-// };
+const validateSigaaComponents = z.object({
+  ano: z.coerce.number(),
+  periodo: z.string(),
+  codigo: z.string(),
+  situacao: z
+    .enum(['APROVADO', 'REPROVADO', 'REPROVADO POR FALTAS', '--'])
+    .transform((situation) => situation.toLocaleLowerCase()),
+  disciplina: z.string().transform((name) => name.toLocaleLowerCase()),
+  resultado: z.enum(['A', 'B', 'C', 'D', 'E', 'F', 'O', '--']),
+});
 
-type UserHistoryRequest = {
-  Body: {
-    updateTime: Date;
-    curso: string; //"CIÊNCIA E TECNOLOGIA/PROGRAD/BI - SANTO ANDRÉ - BACHARELADO - N";
-    ra: string;
-    disciplinas: Array<{
-      ano: string;
-      periodo: string;
-      codigo: string;
-      situacao: string | '--';
-      resultado: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'O';
-      disciplina: string;
-    }>;
-  };
-};
+const validateSigaaHistory = z.object({
+  updateTime: z.date().optional(),
+  curso: z.string(),
+  ra: z.number(),
+  components: validateSigaaComponents.array(),
+});
+
+type StudentComponent = z.infer<typeof validateSigaaComponents>;
 
 export class HistoryHandler {
   constructor(private readonly historyService: HistoryService) {}
@@ -78,39 +72,63 @@ export class HistoryHandler {
     return seasonCourses;
   }
 
-  async sigaaHistory(
-    request: FastifyRequest<UserHistoryRequest>,
-    reply: FastifyReply,
-  ) {
-    const { body } = request;
-    request.log.warn(body.disciplinas);
-    const components = body.disciplinas.map((disciplina) =>
-      hydrateComponents(disciplina),
+  async sigaaHistory(request: FastifyRequest, reply: FastifyReply) {
+    const studentHistory = validateSigaaHistory.parse(request.body);
+
+    if (!studentHistory.ra) {
+      return reply.badRequest('Missing user RA');
+    }
+
+    const hydratedComponentsPromises = studentHistory.components.map(
+      (component) => hydrateComponents(component),
+    );
+    const hydratedComponents = await Promise.all(hydratedComponentsPromises);
+
+    await HistoryModel.findOneAndUpdate(
+      {
+        ra: studentHistory.ra,
+      },
+      {
+        $set: {
+          ra: studentHistory.ra,
+          disciplinas: hydratedComponents,
+          // curso: translateCourse(studentHistory.curso)
+        },
+      },
+      { new: true },
     );
 
-    body.disciplinas = components;
-
-    // await this.historyService.createUserHistory(body)
-    return body;
+    return {
+      msg: `updated for ${studentHistory.ra}`,
+    };
   }
 }
 
-async function hydrateComponents(
-  component: UserHistoryRequest['Body']['disciplinas'][number],
-) {
-  const subject = await SubjectModel.find(
-    {
-      name: component.disciplina,
+async function hydrateComponents(component: StudentComponent) {
+  const subjects = await SubjectModel.find({
+    creditos: {
+      $exists: true,
     },
-    { creditos: 1, name: 1, _id: 0 },
-  ).lean();
+  });
+  const normalizedSubjects = subjects.map((subject) => ({
+    name: subject.name.toLocaleLowerCase(),
+    credits: subject.creditos,
+  }));
+  const validComponents = normalizedSubjects.find((subject) =>
+    subject.name.includes(component.disciplina),
+  );
+
+  if (!validComponents) {
+    return;
+  }
 
   return {
-    conceito: component.resultado,
+    conceito: component.resultado === '--' ? null : component.resultado,
     periodo: component.periodo,
-    situacao: component.situacao,
+    situacao: component.situacao === '--' ? null : component.situacao,
     ano: component.ano,
     codigo: component.codigo,
-    credito: component.credito,
+    credito: validComponents.credits,
+    disciplina: validComponents.name,
   };
 }
