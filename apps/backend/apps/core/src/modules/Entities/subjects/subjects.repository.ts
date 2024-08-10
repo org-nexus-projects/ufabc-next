@@ -31,7 +31,9 @@ export class SubjectRepository implements EntitiesSubjectRepository {
   }
 
   async listSubject(filter: FilterQuery<Subject>) {
-    const subjects = await this.subjectService.find(filter).lean(true);
+    const subjects = await this.subjectService
+      .find(filter, { _id: 0 })
+      .lean(true);
     return subjects;
   }
 }
