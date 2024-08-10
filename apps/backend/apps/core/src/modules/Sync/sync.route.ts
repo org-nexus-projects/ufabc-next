@@ -22,7 +22,7 @@ import type { FastifyInstance } from 'fastify';
 export async function syncRoutes(app: FastifyInstance) {
   app.post(
     '/disciplinas',
-    { schema: syncComponentsSchema, preValidation: [authenticate] },
+    { schema: syncComponentsSchema, preValidation: [authenticate, admin] },
     syncComponentsHandler,
   );
 

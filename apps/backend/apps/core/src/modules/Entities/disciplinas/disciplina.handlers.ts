@@ -22,10 +22,11 @@ export class DisciplinaHandler {
   async listDisciplinas() {
     const season = currentQuad();
     const cacheKey = `list:components:${season}`;
-    // const cachedResponse = await storage.getItem<Disciplina[]>(cacheKey);
-    // if (cachedResponse) {
-    //   return cachedResponse;
-    // }
+    const cachedResponse = await storage.getItem<Disciplina[]>(cacheKey);
+
+    if (cachedResponse) {
+      return cachedResponse;
+    }
 
     const components = await this.disciplinaService.findDisciplinas(season);
     const toShow = components.map(({ id: _ignore, ...component }) => ({

@@ -1,6 +1,6 @@
 import { sendConfirmationEmail } from './jobs/email.js';
 import { updateEnrollments } from './jobs/enrollmentsUpdate.js';
-import { ufEnrollmentsJob } from './jobs/ufEnrollments.js';
+import { ufEnrollmentsJob } from './jobs/ufEnrolled.js';
 import { updateTeachers } from './jobs/teacherUpdate.js';
 import { updateUserEnrollments } from './jobs/userEnrollmentsUpdate.js';
 import type { WorkerOptions } from 'bullmq';

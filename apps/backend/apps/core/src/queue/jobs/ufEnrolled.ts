@@ -1,4 +1,4 @@
-import { batchInsertItems, currentQuad, logger } from '@next/common';
+import { batchInsertItems, currentQuad } from '@next/common';
 import { DisciplinaModel } from '@/models/Disciplina.js';
 import { ufProcessor } from '@/services/ufprocessor.js';
 
