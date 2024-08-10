@@ -27,9 +27,7 @@ export async function syncComponentsHandler(
   let components = cache.get(cacheKey);
 
   if (!components) {
-    components = await ufProcessor.getComponentsFile(
-      'https://filetransfer.io/data-package/DjUBFkOD/download',
-    );
+    components = await ufProcessor.getComponents();
     if (!components) {
       request.log.warn({ msg: 'Error in Ufabc Disciplinas', components });
       return reply.badRequest('Could not parse disciplinas');
@@ -91,7 +89,7 @@ export async function syncComponentsHandler(
           identifier,
           season,
         },
-        { ...component, identifier, disciplina_id: 8665 },
+        { ...component, identifier },
         { upsert: true, new: true },
       );
     },
