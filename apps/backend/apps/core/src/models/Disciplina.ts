@@ -4,7 +4,7 @@ import {
   type UpdateQuery,
   model,
 } from 'mongoose';
-import { findQuarter } from '@next/common';
+import { findQuarter, logger } from '@next/common';
 import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 
 const CAMPUS = ['sao bernardo', 'santo andre', 'sbc', 'sa'] as const;
@@ -87,6 +87,10 @@ disciplinaSchema.pre('findOneAndUpdate', function () {
   if (!updatedDisciplina?.season) {
     setQuarter(updatedDisciplina);
   }
+});
+
+disciplinaSchema.pre('save', () => {
+  logger.warn('called');
 });
 
 export type Disciplina = InferSchemaType<typeof disciplinaSchema>;

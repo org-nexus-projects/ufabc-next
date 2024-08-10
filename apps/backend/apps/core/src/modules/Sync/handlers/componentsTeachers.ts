@@ -5,6 +5,7 @@ import { DisciplinaModel } from '@/models/Disciplina.js';
 import { z } from 'zod';
 import { ufProcessor } from '@/services/ufprocessor.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { Types } from 'mongoose';
 
 const validateComponentTeachersBody = z.object({
   hash: z.string().optional(),
@@ -12,21 +13,25 @@ const validateComponentTeachersBody = z.object({
   link: z.string({
     message: 'O Link deve ser passado',
   }),
+  // util to ignore when UFABC send bad data
+  ignoreErrors: z.boolean().optional().default(false),
 });
 
 export async function componentsTeachers(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const { season, hash, link } = validateComponentTeachersBody.parse(
-    request.body,
-  );
-  const teachers: Array<{ name: string; _id: string }> =
-    await TeacherModel.find({}, { name: 1, _id: 1 }).lean(true);
-  const teacherMap = new Map(
-    teachers.map((teacher) => [teacher.name.toLocaleLowerCase(), teacher._id]),
-  );
-  const componentsWithTeachers = await ufProcessor.getComponents(link);
+  const { season, hash, link, ignoreErrors } =
+    validateComponentTeachersBody.parse(request.body);
+  const teachers = await TeacherModel.find({}).lean(true);
+  const teacherMap = new Map<string, Types.ObjectId>();
+  for (const teacher of teachers) {
+    teacherMap.set(teacher.name.toLocaleLowerCase(), teacher._id);
+    for (const alias of teacher?.alias || []) {
+      teacherMap.set(alias, teacher._id);
+    }
+  }
+  const componentsWithTeachers = await ufProcessor.getComponentsFile(link);
   const errors: string[] = [];
   const nextComponentWithTeachers = componentsWithTeachers.map((component) => {
     if (!component.name) {
@@ -48,6 +53,14 @@ export async function componentsTeachers(
       errors.push(component.teachers.practice);
     }
 
+    const findTeacher = (name: string | null) => {
+      if (!name) {
+        return null;
+      }
+
+      return teacherMap.get(name) || null;
+    };
+
     return {
       disciplina_id: component.UFComponentId,
       codigo: component.UFComponentCode,
@@ -56,21 +69,13 @@ export async function componentsTeachers(
       turma: component.turma,
       turno: component.turno,
       vagas: component.vacancies,
-      teoria:
-        teacherMap.get(
-          // @ts-ignore fix later
-          component.teachers?.professor,
-        ) || null,
-      pratica:
-        teacherMap.get(
-          // @ts-ignore fix later
-          component.teachers.practice,
-        ) || null,
+      teoria: findTeacher(component.teachers?.professor),
+      pratica: findTeacher(component.teachers?.practice),
       season,
     };
   });
 
-  if (errors.length > 0) {
+  if (!ignoreErrors && errors.length > 0) {
     return reply.status(403).send({
       msg: 'Missing professors while parsing',
       names: [...new Set(errors)],
@@ -84,8 +89,9 @@ export async function componentsTeachers(
   if (disciplinaHash !== hash) {
     return {
       hash: disciplinaHash,
-      payload: nextComponentWithTeachers,
       errors: [...new Set(errors)],
+      total: nextComponentWithTeachers.length,
+      payload: nextComponentWithTeachers,
     };
   }
 
