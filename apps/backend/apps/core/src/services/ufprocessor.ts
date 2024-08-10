@@ -1,4 +1,5 @@
 import { Config } from '@/config/config.js';
+import { logger } from '@next/common';
 import { ofetch } from 'ofetch';
 
 export type UFProcessorComponent = {
@@ -46,32 +47,6 @@ export type UFProcessorComponentFile = {
   hours: Record<string, { periodicity: string; classPeriod: string[] }>[];
 };
 
-type UFProcessorCombined = {
-  UFComponentId: number | '-';
-  /** The code as we consume */
-  UFComponentCode: string;
-  campus: 'sbc' | 'sa';
-  name: string;
-  turma: string;
-  turno: 'diurno' | 'noturno';
-  credits: number;
-  courses: Array<{
-    name: string | '-';
-    UFCourseId?: number;
-    category?: 'limitada' | 'obrigatoria' | 'livre';
-  }>;
-  vacancies: number;
-  hours: Record<string, { periodicity?: string; classPeriod?: string[] }>[];
-  tpi?: [number, number, number];
-  enrolled?: number[];
-  teachers?: {
-    practice: string | null;
-    secondaryPractice: string | null;
-    professor: string | null;
-    secondaryProfessor: string | null;
-  };
-};
-
 type ComponentId = number;
 type StudentIds = number;
 export type UFProcessorEnrolled = Record<ComponentId, StudentIds[]>;
@@ -92,7 +67,7 @@ class UFProcessor {
     this.request = ofetch.create({
       baseURL: this.baseURL,
       async onRequestError({ error }) {
-        console.error('[PROCESSORS] Request error', {
+        logger.warn('[PROCESSORS] Request error', {
           error: error.name,
           info: error.cause,
         });
@@ -104,30 +79,30 @@ class UFProcessor {
           return;
         }
 
-        console.error('[PROCESSORS] Request error', {
+        logger.warn('[PROCESSORS] Response error', {
           error: error.name,
           info: error.cause,
         });
-        error.message = `[PROCESSORS] Request error: ${error.message}`;
+        error.message = `[PROCESSORS] Response error: ${error.message}`;
         throw error;
       },
     });
   }
-  async getComponents(link: string): Promise<UFProcessorCombined[]> {
-    if (link) {
-      const componentsWithTeachers = await this.request<
-        UFProcessorComponentFile[]
-      >('/components', {
-        query: {
-          link,
-        },
-      });
-      return componentsWithTeachers;
-    }
-
+  async getComponents() {
     const components =
       await this.request<UFProcessorComponent[]>('/components');
     return components;
+  }
+
+  async getComponentsFile(link: string) {
+    const componentsWithTeachers = await this.request<
+      UFProcessorComponentFile[]
+    >('/componentsFile', {
+      query: {
+        link,
+      },
+    });
+    return componentsWithTeachers;
   }
 
   async getEnrolledStudents() {
