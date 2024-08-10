@@ -1,3 +1,4 @@
+// @ts-nocheck - work in progress
 import { createHash } from 'node:crypto';
 import { ofetch } from 'ofetch';
 import { generateIdentifier } from '@next/common';
@@ -6,11 +7,7 @@ import { DisciplinaModel, type Disciplina } from '@/models/Disciplina.js';
 import { nextJobs } from '@/queue/NextJobs.js';
 import { z } from 'zod';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import {
-  ufProcessor,
-  type StudentComponent,
-  type UFProcessorEnrollment,
-} from '@/services/ufprocessor.js';
+import { ufProcessor, type StudentComponent } from '@/services/ufprocessor.js';
 
 const validateEnrollmentsBody = z.object({
   season: z.string(),
@@ -49,56 +46,44 @@ export async function syncEnrollments(
       studentComponents,
       components,
     );
+
     return {
       ra,
       year: Number(tenantYear),
       quad: Number(tenantQuad),
       season,
-      hydratedStudentComponents,
+      components: hydratedStudentComponents,
     };
   });
-  return tenantEnrollments;
-  // const tenantEnrollments = Object.assign(enrollments, {
-  //   year: tenantYear,
-  //   quad: tenantQuad,
-  //   season,
-  // });
+  const nextEnrollments = tenantEnrollments.map((enrollment) => {
+    const enrollmentIdentifier = generateIdentifier(enrollment);
+    const wanted = componentsMap.get(enrollmentIdentifier) || {};
+    return Object.assign(wanted, {
+      identifier: generateIdentifier(enrollment, keys),
+      disciplina_identifier: enrollmentIdentifier,
+      ...LodashOmit(enrollment, Object.keys(wanted)),
+    });
+  });
 
-  // return enrollments;
+  const enrollmentsHash = createHash('md5')
+    .update(JSON.stringify(nextEnrollments))
+    .digest('hex');
 
-  // const enrollments = assignYearAndQuadToEnrollments.map((enrollment) => {
-  //   const enrollmentIdentifier = generateIdentifier(enrollment);
-  //   const neededDisciplinasFields = LodashOmit(
-  //     disciplinasMapping.get(enrollmentIdentifier) || {},
-  //     ['id', '_id'],
-  //   );
-  //   return Object.assign(neededDisciplinasFields, {
-  //     identifier: generateIdentifier(enrollment, keys as any),
-  //     disciplina_identifier: generateIdentifier(enrollment),
-  //     ...LodashOmit(enrollment, Object.keys(neededDisciplinasFields)),
-  //   });
-  // });
+  if (enrollmentsHash !== hash) {
+    return {
+      hash: enrollmentsHash,
+      size: nextEnrollments.length,
+      sample: nextEnrollments.slice(0, 500),
+    };
+  }
 
-  // const enrollmentsHash = createHash('md5')
-  //   .update(JSON.stringify(enrollments))
-  //   .digest('hex');
+  const chunkedEnrollments = chunkArray(nextEnrollments, 1000);
 
-  // if (enrollmentsHash !== hash) {
-  //   return {
-  //     hash: enrollmentsHash,
-  //     size: enrollments.length,
-  //     sample: enrollments.slice(0, 500),
-  //   };
-  // }
+  for (const chunk of chunkedEnrollments) {
+    await nextJobs.dispatch('NextEnrollmentsUpdate', chunk);
+  }
 
-  // const chunkedEnrollments = chunkArray(enrollments, 1000);
-
-  // for (const chunk of chunkedEnrollments) {
-  //   //@ts-expect-error
-  //   await nextJobs.dispatch('NextEnrollmentsUpdate', chunk);
-  // }
-
-  // return reply.send({ published: true, msg: 'Enrollments Synced' });
+  return reply.send({ published: true, msg: 'Enrollments Synced' });
 }
 
 function chunkArray<T>(arr: T[], chunkSize: number) {
