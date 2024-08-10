@@ -79,7 +79,7 @@ function scrapeGradesConsulting() {
     updateTime: updateDatetime,
     curso: studentCourse.toLocaleLowerCase(),
     ra: Number(ra),
-    disciplinas: studentDisciplinaHistory,
+    components: studentDisciplinaHistory,
   };
 
   return userHistory;
