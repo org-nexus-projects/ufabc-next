@@ -1,10 +1,19 @@
 import { sortBy as LodashSortBy } from 'lodash-es';
 import { courseId, currentQuad } from '@next/common';
 import { StudentModel } from '@/models/Student.js';
-import { storage } from '@/services/unstorage.js';
 import type { Disciplina } from '@/models/Disciplina.js';
-import type { DisciplinaService } from './disciplina.service.js';
+import type {
+  DisciplinaService,
+  PopulatedComponent,
+} from './disciplina.service.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
+import { LRUCache } from 'lru-cache';
+
+const CACHE_TTL = 1000 * 60 * 60;
+const cache = new LRUCache<string, PopulatedComponent>({
+  max: 2_000,
+  ttl: CACHE_TTL,
+});
 
 export type DisciplinaKicksRequest = {
   Params: {
@@ -22,7 +31,7 @@ export class DisciplinaHandler {
   async listDisciplinas() {
     const season = currentQuad();
     const cacheKey = `list:components:${season}`;
-    const cachedResponse = await storage.getItem<Disciplina[]>(cacheKey);
+    const cachedResponse = cache.get(cacheKey);
 
     if (cachedResponse) {
       return cachedResponse;
@@ -35,9 +44,7 @@ export class DisciplinaHandler {
       pratica: component.pratica?.name,
       subject: component.subject?.name,
     }));
-    await storage.setItem<typeof toShow>(cacheKey, toShow, {
-      ttl: 60 * 60 * 24,
-    });
+    cache.set(cacheKey, toShow);
 
     return toShow;
   }
