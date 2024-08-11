@@ -27,13 +27,13 @@ export type Coefficient = {
   period_credits: number;
 };
 
-export type CoefficientsMap = Record<1 | 2 | 3, Coefficient>;
+export type CoefficientsMap = Record<'1' | '2' | '3', Coefficient>;
 
 type HistoryCoefficients = Record<number, CoefficientsMap>;
 
 const historiesDisciplinasSchema = new Schema(
   {
-    periodo: { type: String, required: true },
+    periodo: { type: String, required: true, enum: ['1', '2', '3'] },
     codigo: { type: String, required: true },
     disciplina: { type: String, required: true },
     ano: { type: Number, required: true },
@@ -41,7 +41,7 @@ const historiesDisciplinasSchema = new Schema(
       type: String,
       enum: POSSIBLE_SITUATIONS,
     },
-    creditos: Number,
+    creditos: { type: Number, required: true },
     categoria: String,
     conceito: {
       type: String,

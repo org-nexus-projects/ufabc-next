@@ -21,11 +21,11 @@ export async function updateUserEnrollments(history: History) {
     return;
   }
 
-  const isDisciplines = Array.isArray(history.disciplinas)
+  const isComponents = Array.isArray(history.disciplinas)
     ? history.disciplinas
     : [history.disciplinas];
 
-  const disciplinesArr = isDisciplines.filter(Boolean);
+  const components = isComponents.filter(Boolean);
 
   let graduation: GraduationDocument | null = null;
   if (history.curso && history.grade) {
@@ -35,8 +35,10 @@ export async function updateUserEnrollments(history: History) {
     }).lean(true);
   }
 
-  // @ts-expect-error I hate mongoose
-  const coefficients: any = calculateCoefficients(disciplinesArr, graduation);
+  const coefficients = calculateCoefficients<History['disciplinas']>(
+    components,
+    graduation,
+  );
   history.coefficients = coefficients;
 
   await GraduationHistoryModel.findOneAndUpdate(
