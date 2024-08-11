@@ -25,8 +25,9 @@ const validateSigaaComponents = z.object({
 
 const validateSigaaHistory = z.object({
   updateTime: z.date().optional(),
-  curso: z.string().transform((c) => transformCourseName(c)),
+  curso: z.string().transform((c) => c.toLocaleLowerCase()),
   ra: z.number(),
+  cursoKind: z.string().toLowerCase(),
   components: validateSigaaComponents.array(),
 });
 
@@ -56,15 +57,19 @@ export async function createHistory(
     (component) => hydrateComponents(component),
   );
   const hydratedComponents = await Promise.all(hydratedComponentsPromises);
+  const course = transformCourseName(
+    studentHistory.curso,
+    studentHistory.cursoKind,
+  );
 
   let history = await HistoryModel.findOne({
     ra: studentHistory.ra,
   });
 
-  if (!history) {
+  if (!history && hydratedComponents.length > 0) {
     history = await HistoryModel.create({
       ra: studentHistory.ra,
-      curso: studentHistory.curso,
+      curso: course,
       disciplinas: hydratedComponents,
       coefficients: null,
       grade: null,
@@ -79,10 +84,10 @@ export async function createHistory(
   history = await HistoryModel.findOneAndUpdate(
     {
       ra: studentHistory.ra,
+      curso: course,
     },
     {
       $set: {
-        curso: studentHistory.curso,
         disciplinas: hydratedComponents,
       },
     },
@@ -114,7 +119,7 @@ async function hydrateComponents(component: StudentComponent) {
   );
 
   if (!validComponent) {
-    logger.warn('No valid component found', { component });
+    logger.warn({ name: component.disciplina }, 'No valid component found');
     return;
   }
 
