@@ -21,8 +21,10 @@ const KNOWN_COURSES = {
   cmcc: {
     computação: 'Bacharelado em Ciência da Computação',
     neurociência: 'Bacharelado em Neurociência',
-    // TODO(joabe): understand how to get licenciatura
     matemática: 'Bacharelado em Matemática',
+    kind: {
+      matemática: 'Licenciatura em Matemática',
+    },
   },
   cecs: {
     econômicas: 'Bacharelado em Ciências Econômicas',
@@ -39,6 +41,12 @@ const KNOWN_COURSES = {
     internacionais: 'Bacharelado em Relações Internacionais',
   },
   ccnh: {
+    kind: {
+      química: 'Licenciatura em Química',
+      filosofia: 'Licenciatura em Filosofia',
+      biológicas: 'Licenciatura em Ciências Biológicas',
+      física: 'Licenciatura em Física',
+    },
     biológicas: 'Bacharelado em Ciências Biológicas',
     filosofia: 'Bacharelado em Filosofia',
     física: 'Bacharelado em Física',
@@ -46,11 +54,8 @@ const KNOWN_COURSES = {
   },
 } as const;
 
-export function transformCourseName(course: string) {
-  const normalizedCourse = course.toLocaleLowerCase();
-  const [name, agency, type] = normalizedCourse.split(
-    '/',
-  ) as SigaaCourseSplitted;
+export function transformCourseName(course: string, kind: string) {
+  const [name, agency, type] = course.split('/') as SigaaCourseSplitted;
   if (agency === 'prograd') {
     if (type === 'bi') {
       return name.includes('tecnologia')
@@ -82,6 +87,15 @@ export function transformCourseName(course: string) {
   }
 
   if (agency === 'ccnh') {
+    if (kind === 'licenciatura') {
+      for (const [keyword, licentiateName] of Object.entries(
+        KNOWN_COURSES.ccnh.kind,
+      )) {
+        if (name.includes(keyword)) {
+          return licentiateName;
+        }
+      }
+    }
     for (const [keyword, courseName] of Object.entries(KNOWN_COURSES.ccnh)) {
       if (name.includes(keyword)) {
         return courseName;
