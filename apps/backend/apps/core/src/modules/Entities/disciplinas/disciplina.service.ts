@@ -1,10 +1,36 @@
 import type { currentQuad } from '@next/common';
 import type { DisciplinaRepository } from './disciplina.repository.js';
 
+type PopulatedComponent = {
+  disciplina_id: number;
+  turno: 'diurno' | 'noturno';
+  turma: string;
+  ideal_quad: boolean;
+  identifier: string;
+  subject?: {
+    name: string;
+    search: string;
+    _id: string;
+  };
+  vagas: number;
+  requisicoes: number;
+  teoria?: {
+    name: string;
+    _id: string;
+  };
+  pratica?: {
+    name: string;
+    _id: string;
+  };
+  id: string;
+};
+
 export class DisciplinaService {
   constructor(private readonly disciplinaRepository: DisciplinaRepository) {}
 
-  async findDisciplinas(season: ReturnType<typeof currentQuad>) {
+  async findComponents(
+    season: ReturnType<typeof currentQuad>,
+  ): Promise<PopulatedComponent[]> {
     const disciplinaMapping = {
       disciplina_id: 1,
       turno: 1,
@@ -20,14 +46,14 @@ export class DisciplinaService {
       _id: 0,
     };
 
-    const discplinas = await this.disciplinaRepository.findMany(
+    const components = await this.disciplinaRepository.findMany(
       {
         season,
       },
       disciplinaMapping,
       ['pratica', 'teoria', 'subject'],
     );
-    return discplinas;
+    return components as unknown as PopulatedComponent[];
   }
 
   async findDisciplina(

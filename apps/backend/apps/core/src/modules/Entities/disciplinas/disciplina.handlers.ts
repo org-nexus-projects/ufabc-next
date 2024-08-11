@@ -28,7 +28,7 @@ export class DisciplinaHandler {
       return cachedResponse;
     }
 
-    const components = await this.disciplinaService.findDisciplinas(season);
+    const components = await this.disciplinaService.findComponents(season);
     const toShow = components.map(({ id: _ignore, ...component }) => ({
       ...component,
       teoria: component.teoria?.name,

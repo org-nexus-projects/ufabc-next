@@ -1,6 +1,6 @@
 import Cors from './plugins/cors.js';
 import Mongoose from './plugins/mongoose.js';
-import Redis from './plugins/redis.js';
+// import Redis from './plugins/redis.js';
 import JwtAuth from './plugins/jwt.js';
 import Oauth2 from './plugins/oauth2/oauth2.js';
 import Swagger from './plugins/swagger.js';
