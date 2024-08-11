@@ -9,6 +9,7 @@ export { courseId, findIds } from './lib/findCourse';
 export { parseResponseToJson } from './lib/parseResponseToJson';
 export { parseXlsx } from './lib/parseXlsx';
 export { batchInsertItems } from './lib/batchInsert';
+export { modifyPayload } from './lib/validateSubjects.js';
 
 export type { HistoryDiscipline } from './lib/calculateCoefficients';
 export type { ParseXlSXBody } from './lib/parseXlsx';

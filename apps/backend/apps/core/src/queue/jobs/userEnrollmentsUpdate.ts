@@ -1,4 +1,3 @@
-// @ts-nocheck modify later
 import {
   batchInsertItems,
   calculateCoefficients,
