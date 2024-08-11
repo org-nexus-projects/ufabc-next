@@ -4,6 +4,7 @@ import { ufEnrollmentsJob } from './jobs/ufEnrolled.js';
 import { updateTeachers } from './jobs/teacherUpdate.js';
 import { updateUserEnrollments } from './jobs/userEnrollmentsUpdate.js';
 import type { WorkerOptions } from 'bullmq';
+import { syncSubjects } from './jobs/syncSubjects.js';
 
 type QueueDefinition = Record<string, WorkerOptions>;
 
@@ -45,6 +46,12 @@ export const NEXT_QUEUE_JOBS = {
   'UserEnrollments:Update': {
     concurrency: 5,
   },
+  /**
+   * Queue to assert all Subjects have credits
+   */
+  'Sync:Subject': {
+    concurrency: 10,
+  },
 } as const satisfies QueueDefinition;
 
 type JobsDefinition = Record<
@@ -66,6 +73,11 @@ export const NEXT_JOBS = {
     queue: 'Sync:UFEnrollments',
     handler: ufEnrollmentsJob,
     every: '2 days',
+  },
+  NextSyncSubjects: {
+    queue: 'Sync:Subject',
+    handler: syncSubjects,
+    every: '2 minutes',
   },
   NextEnrollmentsUpdate: {
     queue: 'Enrollments:Update',
