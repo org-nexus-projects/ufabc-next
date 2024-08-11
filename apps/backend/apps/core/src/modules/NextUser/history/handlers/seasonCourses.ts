@@ -7,7 +7,7 @@ const validatedQueryParam = z.object({
   season: z.string(),
 });
 
-export async function historiesCourses(request: FastifyRequest) {
+export async function seasonCourses(request: FastifyRequest) {
   const { season } = validatedQueryParam.parse(request.query);
   const seasonCourses = await findIds<Student>(
     StudentModel,
