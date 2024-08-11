@@ -4,6 +4,7 @@ import { HistoryModel } from '@/models/History.js';
 import { SubjectModel } from '@/models/Subject.js';
 import { logger } from '@next/common';
 import type { FastifyReply, FastifyRequest } from 'fastify';
+import { transformCourseName } from '../utils/transformCourseName.js';
 
 const CACHE_TTL = 1000 * 60 * 60;
 const cache = new LRUCache<string, any>({
@@ -24,7 +25,7 @@ const validateSigaaComponents = z.object({
 
 const validateSigaaHistory = z.object({
   updateTime: z.date().optional(),
-  curso: z.string().transform((c) => transformSigaaCourse(c)),
+  curso: z.string().transform((c) => transformCourseName(c)),
   ra: z.number(),
   components: validateSigaaComponents.array(),
 });
@@ -126,27 +127,4 @@ async function hydrateComponents(component: StudentComponent) {
     credito: validComponent.credits,
     disciplina: validComponent.name,
   };
-}
-
-/** @example
- * ciência e tecnologia/prograd/bi
- */
-function transformSigaaCourse(course: string) {
-  const normalizedCourse = course.toLocaleLowerCase();
-  const [name, agency, type] = normalizedCourse.split('/');
-  if (agency === 'prograd' && type === 'bi') {
-    return name.includes('tecnologia')
-      ? 'Bacharelado em Ciência e Tecnologia'
-      : 'Bacharelado em Ciências e Humanidades';
-  }
-
-  logger.warn(
-    {
-      name,
-      agency,
-      type,
-    },
-    'needs parsing',
-  );
-  return 'unmapped';
 }
