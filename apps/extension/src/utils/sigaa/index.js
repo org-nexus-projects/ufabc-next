@@ -74,11 +74,13 @@ function scrapeGradesConsulting() {
       studentDisciplinaHistory.push(disciplina);
     }
   }
+  const student = JSON.parse(localStorage.getItem('studentInfo'));
 
   const userHistory = {
     updateTime: updateDatetime,
-    curso: studentCourse.toLocaleLowerCase(),
+    course: studentCourse.toLocaleLowerCase(),
     ra: Number(ra),
+    courseKind: student.studentInfo.nivel,
     components: studentDisciplinaHistory,
   };
 
