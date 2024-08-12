@@ -72,12 +72,12 @@ export const NEXT_JOBS = {
   NextSyncMatriculas: {
     queue: 'Sync:UFEnrollments',
     handler: ufEnrollmentsJob,
-    every: '2 days',
+    every: '2 minutes',
   },
   NextSyncSubjects: {
     queue: 'Sync:Subject',
     handler: syncSubjects,
-    every: '2 minutes',
+    every: '5 days',
   },
   NextEnrollmentsUpdate: {
     queue: 'Enrollments:Update',
