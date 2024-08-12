@@ -35,5 +35,5 @@ if (isDiscentesPath && document.contains(document.querySelector('.notas'))) {
       errorToast.showToast();
     });
 
-  processingToast.hideToast();
+  setTimeout(() => processingToast.hideToast(), 3000);
 }
