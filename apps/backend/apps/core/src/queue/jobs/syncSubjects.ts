@@ -1,39 +1,63 @@
+import { Config } from '@/config/config.js';
 import { SubjectModel } from '@/models/Subject.js';
 import { ufProcessor } from '@/services/ufprocessor.js';
 import { logger } from '@next/common';
+import type { AnyBulkWriteOperation } from 'mongoose';
 
 export async function syncSubjects(data: {
   operation: 'syncCredits';
 }) {
   logger.info(data, 'Start...');
-  const subjectsWithoutCredits = await SubjectModel.find({
-    credits: {
-      $exists: false,
-    },
-  });
 
   const components = await ufProcessor.getComponents();
-  const toConsume = components.map((component) => ({
-    name: component.name,
-    credits: component.credits,
-  }));
+  const creditsMap = new Map(
+    components.map((component) => [component.name, component.credits]),
+  );
+  const bulkOps: AnyBulkWriteOperation[] = [];
+  const unregistered = [];
 
-  const merged = subjectsWithoutCredits.flatMap((subject) => {
-    const toAddCredits = toConsume.filter(
-      (c) => c.name === subject.name.toLocaleLowerCase(),
-    );
-    const unregistered = [];
-    if (!toAddCredits) {
-      unregistered.push(toAddCredits);
-      logger.warn(toAddCredits, 'unregistered');
-      return;
+  const subjectsWithoutCredits = await SubjectModel.find(
+    {
+      creditos: {
+        $exists: false,
+      },
+    },
+    { name: 1 },
+  ).lean<Array<{ name: string; _id: string }>>();
+
+  for (const subject of subjectsWithoutCredits) {
+    const caseFixedSubject = subject.name.toLocaleLowerCase();
+    const credits = creditsMap.get(caseFixedSubject);
+
+    if (!credits) {
+      unregistered.push(subject.name);
     }
 
-    return toAddCredits;
-  });
+    bulkOps.push({
+      updateOne: {
+        filter: { _id: subject._id },
+        update: { $set: { creditos: credits } },
+        upsert: false,
+      },
+    });
+  }
 
-  logger.warn(merged);
+  if (unregistered.length > 0 && Config.NODE_ENV !== 'dev') {
+    logger.warn({ unregistered }, 'Subjects without matching credits');
+  }
 
-  logger.info(data, 'finish...');
-  return merged;
+  if (bulkOps.length > 0) {
+    const result = await SubjectModel.bulkWrite(bulkOps);
+    logger.info({ modifiedCount: result.modifiedCount }, 'subjects updated');
+  } else {
+    logger.info('Nothing to update');
+  }
+
+  logger.info(
+    {
+      updatedCount: bulkOps.length,
+      unregisteredCount: unregistered.length,
+    },
+    'insights finish...',
+  );
 }
