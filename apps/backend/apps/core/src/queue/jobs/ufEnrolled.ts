@@ -13,7 +13,9 @@ export async function ufEnrollmentsJob(params: SyncMatriculasParams) {
     ([enrollmentId, students]) => ({
       updateOne: {
         filter: { disciplina_id: enrollmentId, season },
-        update: { $set: { [params.operation]: students } },
+        update: {
+          $set: { [params?.operation || 'alunos_matriculados']: students },
+        },
       },
     }),
   );

@@ -22,10 +22,9 @@ export async function start() {
 
   // ugly
   nextJobs.schedule('NextSyncSubjects', undefined);
-
-  // nextJobs.schedule('NextSyncMatriculas', {
-  //   operation: 'alunos_matriculados',
-  // });
+  nextJobs.schedule('NextSyncMatriculas', {
+    operation: 'alunos_matriculados',
+  });
 
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {
     if (err) {
