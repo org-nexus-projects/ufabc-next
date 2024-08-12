@@ -129,7 +129,7 @@ async function hydrateComponents(component: StudentComponent) {
     situacao: component.situacao === '--' ? null : component.situacao,
     ano: component.ano,
     codigo: component.codigo,
-    credito: validComponent.credits,
+    creditos: validComponent.credits,
     disciplina: validComponent.name,
   };
 }
