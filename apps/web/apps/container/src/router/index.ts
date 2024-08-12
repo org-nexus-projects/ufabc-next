@@ -148,7 +148,7 @@ const routes: Array<RouteRecordRaw> = [
       }
 
       return {
-        path: '/partners',
+        path: '/reviews',
         hash: '',
         query: to.query,
       };
