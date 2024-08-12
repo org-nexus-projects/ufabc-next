@@ -20,8 +20,6 @@ export async function start() {
   app.withTypeProvider<ZodTypeProvider>();
   await app.listen({ port: Config.PORT, host: Config.HOST });
 
-  nextJobs.setup();
-  nextWorker.setup();
   nextJobs.schedule('NextSyncSubjects', {
     operation: 'syncCredits',
   });
@@ -36,8 +34,8 @@ export async function start() {
     }
 
     app.log.warn(signal, 'Gracefully exiting app');
-    // await nextJobs.close();
-    // await nextWorker.close();
+    await nextJobs.close();
+    await nextWorker.close();
     await app.close();
     process.exit(1);
   });
