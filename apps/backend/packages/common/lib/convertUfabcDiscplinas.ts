@@ -59,7 +59,7 @@ export function convertUfabcDisciplinas(disciplina: Disciplina) {
     const matched = clonedDisciplinas.horarios.match(/\d{2}:\d{2}/g);
 
     // @ts-ignore
-    if (matched!.length % 2 === 0) {
+    if (matched?.length % 2 === 0) {
       const hours = lodashChunk(matched, 2);
 
       for (const hour of hours) {

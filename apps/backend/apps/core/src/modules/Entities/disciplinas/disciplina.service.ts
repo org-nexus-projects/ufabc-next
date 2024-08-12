@@ -1,7 +1,7 @@
 import type { currentQuad } from '@next/common';
 import type { DisciplinaRepository } from './disciplina.repository.js';
 
-export type PopulatedComponent = {
+type PopulatedComponent = {
   disciplina_id: number;
   turno: 'diurno' | 'noturno';
   turma: string;

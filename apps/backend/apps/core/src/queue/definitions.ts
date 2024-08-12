@@ -2,9 +2,9 @@ import { sendConfirmationEmail } from './jobs/email.js';
 import { updateEnrollments } from './jobs/enrollmentsUpdate.js';
 import { ufEnrollmentsJob } from './jobs/ufEnrolled.js';
 import { updateTeachers } from './jobs/teacherUpdate.js';
-import { updateUserEnrollments } from './jobs/userEnrollmentsUpdate.js';
-import type { WorkerOptions } from 'bullmq';
+// import { updateUserEnrollments } from './jobs/userEnrollmentsUpdate.js';
 import { syncSubjects } from './jobs/syncSubjects.js';
+import type { WorkerOptions } from 'bullmq';
 
 type QueueDefinition = Record<string, WorkerOptions>;
 
@@ -83,10 +83,10 @@ export const NEXT_JOBS = {
     queue: 'Enrollments:Update',
     handler: updateEnrollments,
   },
-  NextUserEnrollmentsUpdate: {
-    queue: 'UserEnrollments:Update',
-    handler: updateUserEnrollments,
-  },
+  // NextUserEnrollmentsUpdate: {
+  //   queue: 'UserEnrollments:Update',
+  //   handler: updateUserEnrollments,
+  // },
   NextTeacherUpdate: {
     queue: 'Teacher:UpdateEnrollments',
     handler: updateTeachers,

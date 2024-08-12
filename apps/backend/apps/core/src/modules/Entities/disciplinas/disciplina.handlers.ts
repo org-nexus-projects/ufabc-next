@@ -2,15 +2,25 @@ import { sortBy as LodashSortBy } from 'lodash-es';
 import { courseId, currentQuad } from '@next/common';
 import { StudentModel } from '@/models/Student.js';
 import type { Disciplina } from '@/models/Disciplina.js';
-import type {
-  DisciplinaService,
-  PopulatedComponent,
-} from './disciplina.service.js';
+import type { DisciplinaService } from './disciplina.service.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { LRUCache } from 'lru-cache';
 
+type ListedComponent = {
+  teoria: string | undefined;
+  pratica: string | undefined;
+  subject: string | undefined;
+  disciplina_id: number;
+  turno: 'diurno' | 'noturno';
+  turma: string;
+  ideal_quad: boolean;
+  identifier: string;
+  vagas: number;
+  requisicoes: number;
+};
+
 const CACHE_TTL = 1000 * 60 * 60;
-const cache = new LRUCache<string, PopulatedComponent>({
+const cache = new LRUCache<string, ListedComponent[]>({
   max: 2_000,
   ttl: CACHE_TTL,
 });
@@ -44,6 +54,7 @@ export class DisciplinaHandler {
       pratica: component.pratica?.name,
       subject: component.subject?.name,
     }));
+
     cache.set(cacheKey, toShow);
 
     return toShow;

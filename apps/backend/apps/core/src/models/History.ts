@@ -1,7 +1,5 @@
 import { type InferSchemaType, type Model, Schema, model } from 'mongoose';
 import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
-import { updateUserEnrollments } from '@/queue/jobs/userEnrollmentsUpdate.js';
-import { nextJobs } from '@/queue/NextJobs.js';
 
 const CONCEITOS = ['A', 'B', 'C', 'D', 'O', 'F', '-'] as const;
 const POSSIBLE_SITUATIONS = [
@@ -71,11 +69,11 @@ const historySchema = new Schema<History, THistoryModel>(
     grade: String,
   },
   {
-    methods: {
-      async updateEnrollments() {
-        await updateUserEnrollments(this.toObject({ virtuals: true }));
-      },
-    },
+    // methods: {
+    //   async updateEnrollments() {
+    //     await updateUserEnrollments(this.toObject({ virtuals: true }));
+    //   },
+    // },
     timestamps: true,
   },
 );
@@ -84,17 +82,17 @@ historySchema.plugin(mongooseLeanVirtuals);
 
 historySchema.index({ curso: 'asc', grade: 'asc' });
 
-historySchema.pre('findOneAndUpdate', async function () {
-  const update = this.getUpdate() as History;
-  await nextJobs.dispatch('NextUserEnrollmentsUpdate', update);
-});
+// historySchema.pre('findOneAndUpdate', async function () {
+//   const update = this.getUpdate() as History;
+//   await nextJobs.dispatch('NextUserEnrollmentsUpdate', update);
+// });
 
-historySchema.post('save', async function () {
-  await nextJobs.dispatch(
-    'NextUserEnrollmentsUpdate',
-    this.toObject({ virtuals: true }),
-  );
-});
+// historySchema.post('save', async function () {
+// await nextJobs.dispatch(
+//   'NextUserEnrollmentsUpdate',
+//   this.toObject({ virtuals: true }),
+// );
+// });
 
 export const HistoryModel = model<History, THistoryModel>(
   'histories',

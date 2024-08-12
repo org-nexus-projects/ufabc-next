@@ -78,8 +78,8 @@ export function calculateCoefficients<
   let accumulated_credits_limited = 0;
   let accumulated_credits_mandatory = 0;
 
-  componentsPerYearAndQuad.forEach((quadMap, ano) => {
-    quadMap.forEach((disciplinasArray, periodo) => {
+  for (const [ano, quadMap] of componentsPerYearAndQuad) {
+    for (const [periodo, components] of quadMap) {
       let period_credits = 0;
       let conceitos_quad = 0;
       let period_unique = 0;
@@ -88,22 +88,28 @@ export function calculateCoefficients<
       let credits_mandatory = 0;
       let credits_limited = 0;
 
-      for (const disciplina of disciplinasArray) {
+      for (const component of components) {
         const {
           creditos,
           conceito,
           categoria,
           codigo,
-          disciplina: nomeDisc,
-        } = disciplina;
+          disciplina: name,
+        } = component;
 
         const convertable = convertLetterToNumber(conceito) * creditos;
         const category = parseCategory(categoria);
 
         if (category && isAprovado(conceito)) {
-          if (category === 'free') credits_free += creditos;
-          if (category === 'mandatory') credits_mandatory += creditos;
-          if (category === 'limited') credits_limited += creditos;
+          if (category === 'free') {
+            credits_free += creditos;
+          }
+          if (category === 'mandatory') {
+            credits_mandatory += creditos;
+          }
+          if (category === 'limited') {
+            credits_limited += creditos;
+          }
         }
 
         if (convertable < 0) {
@@ -116,9 +122,9 @@ export function calculateCoefficients<
         if (isAprovado(conceito)) {
           period_aprovados += creditos;
         }
-        if (!(nomeDisc in uniqComponent)) {
+        if (!(name in uniqComponent)) {
           unique[codigo] = true;
-          uniqComponent[nomeDisc] = true;
+          uniqComponent[name] = true;
           accumulated_unique += creditos;
           period_unique += creditos;
         }
@@ -190,8 +196,8 @@ export function calculateCoefficients<
       };
 
       componentsCoefficient.get(ano)?.set(periodo, result);
-    });
-  });
+    }
+  }
 
   return mapToObject(componentsCoefficient);
 }
