@@ -24,10 +24,10 @@ const validateSigaaComponents = z.object({
 });
 
 const validateSigaaHistory = z.object({
-  updateTime: z.date().optional(),
-  curso: z.string().transform((c) => c.toLocaleLowerCase()),
+  //updateTime: z.date().optional(),
+  course: z.string().transform((c) => c.toLocaleLowerCase()),
   ra: z.number(),
-  cursoKind: z.string().toLowerCase(),
+  courseKind: z.string().toLowerCase(),
   components: validateSigaaComponents.array(),
 });
 
@@ -58,8 +58,8 @@ export async function createHistory(
   );
   const hydratedComponents = await Promise.all(hydratedComponentsPromises);
   const course = transformCourseName(
-    studentHistory.curso,
-    studentHistory.cursoKind,
+    studentHistory.course,
+    studentHistory.courseKind,
   );
 
   let history = await HistoryModel.findOne({
