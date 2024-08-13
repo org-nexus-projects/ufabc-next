@@ -5,7 +5,6 @@ import { Config } from '@/config/config.js';
 import { NEXT_JOBS, NEXT_QUEUE_JOBS } from './definitions.js';
 import type { JobParameters, NextJobNames } from './NextWorker.js';
 import { FastifyAdapter } from '@bull-board/fastify';
-import { createBullBoard } from '@bull-board/api';
 import type { FastifyInstance } from 'fastify';
 import { boardUiPath, createBoard } from './board.js';
 
