@@ -3,8 +3,8 @@ import { z } from 'zod';
 import { HistoryModel } from '@/models/History.js';
 import { SubjectModel } from '@/models/Subject.js';
 import { logger } from '@next/common';
-import type { FastifyReply, FastifyRequest } from 'fastify';
 import { transformCourseName } from '../utils/transformCourseName.js';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
 const CACHE_TTL = 1000 * 60 * 60;
 const cache = new LRUCache<string, any>({
