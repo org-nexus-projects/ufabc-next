@@ -21,10 +21,10 @@ export async function start() {
   await app.listen({ port: Config.PORT, host: Config.HOST });
 
   // ugly
-  nextJobs.schedule('NextSyncSubjects', undefined);
-  nextJobs.schedule('NextSyncMatriculas', {
-    operation: 'alunos_matriculados',
-  });
+  // nextJobs.schedule('NextSyncSubjects', undefined);
+  // nextJobs.schedule('NextSyncMatriculas', {
+  //   operation: 'alunos_matriculados',
+  // });
 
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {
     if (err) {
@@ -32,8 +32,8 @@ export async function start() {
     }
 
     app.log.warn(signal, 'Gracefully exiting app');
-    await nextJobs.close();
-    await nextWorker.close();
+    // await nextJobs.close();
+    // await nextWorker.close();
     await app.close();
     process.exit(1);
   });
