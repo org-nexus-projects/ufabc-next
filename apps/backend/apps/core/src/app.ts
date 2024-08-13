@@ -39,7 +39,7 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
     // nextJobs.setup();
     // nextWorker.setup();
 
-    nextJobs.board(app);
+    // nextJobs.board(app);
 
     return app;
   } catch (error) {
