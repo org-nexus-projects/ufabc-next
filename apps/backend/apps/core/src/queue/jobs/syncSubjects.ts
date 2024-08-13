@@ -10,7 +10,7 @@ export async function syncSubjects() {
   const creditsMap = new Map(
     components.map((component) => [component.name, component.credits]),
   );
-  const bulkOps: AnyBulkWriteOperation<Subject>[] = [];
+  const bulkUpdateSubjects: AnyBulkWriteOperation<Subject>[] = [];
   const unregistered = [];
 
   const subjectsWithoutCredits = await SubjectModel.find(
@@ -30,7 +30,7 @@ export async function syncSubjects() {
       unregistered.push(subject.name);
     }
 
-    bulkOps.push({
+    bulkUpdateSubjects.push({
       updateOne: {
         filter: { _id: subject._id },
         update: {
@@ -48,8 +48,8 @@ export async function syncSubjects() {
     logger.warn({ unregistered }, 'Subjects without matching credits');
   }
 
-  if (bulkOps.length > 0) {
-    const result = await SubjectModel.bulkWrite(bulkOps);
+  if (bulkUpdateSubjects.length > 0) {
+    const result = await SubjectModel.bulkWrite(bulkUpdateSubjects);
     logger.info({ modifiedCount: result.modifiedCount }, 'subjects updated');
   } else {
     logger.info('Nothing to update');
@@ -57,7 +57,7 @@ export async function syncSubjects() {
 
   logger.info(
     {
-      updatedCount: bulkOps.length,
+      updatedCount: bulkUpdateSubjects.length,
       unregisteredCount: unregistered.length,
     },
     'insights finish...',
