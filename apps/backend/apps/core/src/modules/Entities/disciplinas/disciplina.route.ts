@@ -13,6 +13,8 @@ import {
 import { DisciplinaService } from './disciplina.service.js';
 
 import type { FastifyInstance } from 'fastify';
+import { listComponents } from './handlers/listComponents.js';
+import { listKicked } from './handlers/listKicked.js';
 
 export async function disciplinasRoute(app: FastifyInstance) {
   const disciplinaRepository = new DisciplinaRepository(
@@ -23,14 +25,15 @@ export async function disciplinasRoute(app: FastifyInstance) {
   app.decorate('disciplinaService', disciplinaService);
   const disciplinaHandler = new DisciplinaHandler(disciplinaService);
 
+  app.get('/disciplina', { schema: listDisciplinasSchema }, listComponents);
   app.get(
-    '/disciplina',
-    { schema: listDisciplinasSchema },
-    disciplinaHandler.listDisciplinas,
-  );
-  app.get<DisciplinaKicksRequest>(
-    '/disciplina/:disciplinaId/kicks',
+    '/component/:componentId/kicks',
     { schema: listDisciplinasKicksSchema, onRequest: [setStudentId] },
+    listKicked,
+  );
+  app.get(
+    '/disciplina/:disciplinaId/kicks',
+    { onRequest: [setStudentId] },
     disciplinaHandler.listDisciplinasKicks,
   );
 }

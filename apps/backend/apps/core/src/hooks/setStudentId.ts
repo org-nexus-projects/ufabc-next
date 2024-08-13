@@ -10,7 +10,7 @@ export const setStudentId: onRequestAsyncHookHandler = async (
   const season = currentQuad();
 
   const student = await StudentModel.findOne({
-    season,
+    season: '2020:3',
     aluno_id,
   });
 

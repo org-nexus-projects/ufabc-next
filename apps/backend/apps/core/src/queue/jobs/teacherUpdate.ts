@@ -24,7 +24,7 @@ type UpdateTeachers = parsedData[];
 
 //change name to offered classes
 export async function updateTeachers(data: UpdateTeachers) {
-  const teachers = await TeacherModel.find({});
+  const teachers = await TeacherModel.find({}).lean(true);
 
   const updateTeacherInEnrollments = async (enrollment: parsedData) => {
     const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
@@ -41,7 +41,7 @@ export async function updateTeachers(data: UpdateTeachers) {
 
     try {
       const insertOpts = { new: true, upsert: true };
-      await EnrollmentModel.findOneAndUpdate(
+      const result = await EnrollmentModel.findOneAndUpdate(
         { identifier },
         {
           $set: {
@@ -51,6 +51,7 @@ export async function updateTeachers(data: UpdateTeachers) {
         },
         insertOpts,
       );
+      return result;
     } catch (error) {
       logger.error(error);
       throw error;

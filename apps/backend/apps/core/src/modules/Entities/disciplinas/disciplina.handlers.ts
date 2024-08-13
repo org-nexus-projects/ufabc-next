@@ -73,9 +73,10 @@ export class DisciplinaHandler {
 
     const season = currentQuad();
     const disciplina = await this.disciplinaService.findDisciplina(
-      season,
+      '2020:2',
       disciplinaId,
     );
+    request.log.warn(disciplina?.disciplina);
 
     if (!disciplina) {
       return reply.notFound('Disciplina not found');
