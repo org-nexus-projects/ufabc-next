@@ -1,10 +1,29 @@
 import { sortBy as LodashSortBy } from 'lodash-es';
 import { courseId, currentQuad } from '@next/common';
 import { StudentModel } from '@/models/Student.js';
-import { storage } from '@/services/unstorage.js';
 import type { Disciplina } from '@/models/Disciplina.js';
 import type { DisciplinaService } from './disciplina.service.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
+import { LRUCache } from 'lru-cache';
+
+type ListedComponent = {
+  teoria: string | undefined;
+  pratica: string | undefined;
+  subject: string | undefined;
+  disciplina_id: number;
+  turno: 'diurno' | 'noturno';
+  turma: string;
+  ideal_quad: boolean;
+  identifier: string;
+  vagas: number;
+  requisicoes: number;
+};
+
+const CACHE_TTL = 1000 * 60 * 60;
+const cache = new LRUCache<string, ListedComponent[]>({
+  max: 2_000,
+  ttl: CACHE_TTL,
+});
 
 export type DisciplinaKicksRequest = {
   Params: {
@@ -22,22 +41,21 @@ export class DisciplinaHandler {
   async listDisciplinas() {
     const season = currentQuad();
     const cacheKey = `list:components:${season}`;
-    const cachedResponse = await storage.getItem<Disciplina[]>(cacheKey);
+    const cachedResponse = cache.get(cacheKey);
 
     if (cachedResponse) {
       return cachedResponse;
     }
 
-    const components = await this.disciplinaService.findDisciplinas(season);
+    const components = await this.disciplinaService.findComponents(season);
     const toShow = components.map(({ id: _ignore, ...component }) => ({
       ...component,
       teoria: component.teoria?.name,
       pratica: component.pratica?.name,
       subject: component.subject?.name,
     }));
-    await storage.setItem<typeof toShow>(cacheKey, toShow, {
-      ttl: 60 * 60 * 24,
-    });
+
+    cache.set(cacheKey, toShow);
 
     return toShow;
   }

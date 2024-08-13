@@ -2,7 +2,8 @@ import { sendConfirmationEmail } from './jobs/email.js';
 import { updateEnrollments } from './jobs/enrollmentsUpdate.js';
 import { ufEnrollmentsJob } from './jobs/ufEnrolled.js';
 import { updateTeachers } from './jobs/teacherUpdate.js';
-import { updateUserEnrollments } from './jobs/userEnrollmentsUpdate.js';
+// import { updateUserEnrollments } from './jobs/userEnrollmentsUpdate.js';
+import { syncSubjects } from './jobs/syncSubjects.js';
 import type { WorkerOptions } from 'bullmq';
 
 type QueueDefinition = Record<string, WorkerOptions>;
@@ -45,6 +46,12 @@ export const NEXT_QUEUE_JOBS = {
   'UserEnrollments:Update': {
     concurrency: 5,
   },
+  /**
+   * Queue to assert all Subjects have credits
+   */
+  'Sync:Subject': {
+    concurrency: 10,
+  },
 } as const satisfies QueueDefinition;
 
 type JobsDefinition = Record<
@@ -65,16 +72,21 @@ export const NEXT_JOBS = {
   NextSyncMatriculas: {
     queue: 'Sync:UFEnrollments',
     handler: ufEnrollmentsJob,
-    every: '2 days',
+    every: '2 minutes',
+  },
+  NextSyncSubjects: {
+    queue: 'Sync:Subject',
+    handler: syncSubjects,
+    every: '5 days',
   },
   NextEnrollmentsUpdate: {
     queue: 'Enrollments:Update',
     handler: updateEnrollments,
   },
-  NextUserEnrollmentsUpdate: {
-    queue: 'UserEnrollments:Update',
-    handler: updateUserEnrollments,
-  },
+  // NextUserEnrollmentsUpdate: {
+  //   queue: 'UserEnrollments:Update',
+  //   handler: updateUserEnrollments,
+  // },
   NextTeacherUpdate: {
     queue: 'Teacher:UpdateEnrollments',
     handler: updateTeachers,

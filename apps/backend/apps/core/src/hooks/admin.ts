@@ -11,7 +11,7 @@ export const admin: preHandlerHookHandler = async function (request, reply) {
   }
   const isAdminUser = this.jwt.decode<UserDocument>(token);
 
-  if (isAdminUser?.permissions.includes('admin')) {
+  if (isAdminUser?.permissions?.includes('admin')) {
     return;
   }
 

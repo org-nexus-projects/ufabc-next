@@ -1,5 +1,4 @@
 import { type InferSchemaType, Schema, model } from 'mongoose';
-import { camelCase, startCase } from 'lodash-es';
 import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 
 const teacherSchema = new Schema(

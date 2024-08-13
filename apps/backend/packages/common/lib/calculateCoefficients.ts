@@ -33,44 +33,44 @@ type Graduation = {
 
 export function calculateCoefficients<
   TDisciplinas extends Array<HistoryDiscipline>,
->(disciplinas: TDisciplinas, graduation: Graduation | null) {
-  const disciplinesPerYearAndQuad: Map<
+>(components: TDisciplinas, graduation: Graduation | null) {
+  const componentsPerYearAndQuad: Map<
     number,
     Map<number, HistoryDiscipline[]>
   > = new Map();
 
-  const disciplinesCoefficient: Map<
+  const componentsCoefficient: Map<
     number,
     Map<number, Record<string, unknown>>
   > = new Map();
 
-  for (const disciplina of disciplinas) {
-    const { ano, periodo } = disciplina;
+  for (const component of components) {
+    const { ano, periodo } = component;
 
-    if (!disciplinesPerYearAndQuad.has(ano)) {
-      disciplinesPerYearAndQuad.set(ano, new Map());
+    if (!componentsPerYearAndQuad.has(ano)) {
+      componentsPerYearAndQuad.set(ano, new Map());
     }
 
-    if (!disciplinesCoefficient.has(ano)) {
-      disciplinesCoefficient.set(ano, new Map());
+    if (!componentsCoefficient.has(ano)) {
+      componentsCoefficient.set(ano, new Map());
     }
 
-    if (!disciplinesPerYearAndQuad.get(ano)?.has(Number.parseInt(periodo))) {
-      disciplinesPerYearAndQuad.get(ano)?.set(Number.parseInt(periodo), []);
+    if (!componentsPerYearAndQuad.get(ano)?.has(Number.parseInt(periodo))) {
+      componentsPerYearAndQuad.get(ano)?.set(Number.parseInt(periodo), []);
     }
 
-    if (!disciplinesCoefficient.get(ano)?.has(Number.parseInt(periodo))) {
-      disciplinesCoefficient.get(ano)?.set(Number.parseInt(periodo), {});
+    if (!componentsCoefficient.get(ano)?.has(Number.parseInt(periodo))) {
+      componentsCoefficient.get(ano)?.set(Number.parseInt(periodo), {});
     }
 
-    disciplinesPerYearAndQuad
+    componentsPerYearAndQuad
       .get(ano)
       ?.get(Number.parseInt(periodo))
-      ?.push(disciplina);
+      ?.push(component);
   }
 
   const unique: Record<string, boolean> = {};
-  const uniqueDisc: Record<string, boolean> = {};
+  const uniqComponent: Record<string, boolean> = {};
   let accumulated_credits = 0;
   let accumulated_conceitos = 0;
   let accumulated_unique = 0;
@@ -78,8 +78,8 @@ export function calculateCoefficients<
   let accumulated_credits_limited = 0;
   let accumulated_credits_mandatory = 0;
 
-  disciplinesPerYearAndQuad.forEach((quadMap, ano) => {
-    quadMap.forEach((disciplinasArray, periodo) => {
+  for (const [ano, quadMap] of componentsPerYearAndQuad) {
+    for (const [periodo, components] of quadMap) {
       let period_credits = 0;
       let conceitos_quad = 0;
       let period_unique = 0;
@@ -88,22 +88,28 @@ export function calculateCoefficients<
       let credits_mandatory = 0;
       let credits_limited = 0;
 
-      for (const disciplina of disciplinasArray) {
+      for (const component of components) {
         const {
           creditos,
           conceito,
           categoria,
           codigo,
-          disciplina: nomeDisc,
-        } = disciplina;
+          disciplina: name,
+        } = component;
 
         const convertable = convertLetterToNumber(conceito) * creditos;
         const category = parseCategory(categoria);
 
         if (category && isAprovado(conceito)) {
-          if (category === 'free') credits_free += creditos;
-          if (category === 'mandatory') credits_mandatory += creditos;
-          if (category === 'limited') credits_limited += creditos;
+          if (category === 'free') {
+            credits_free += creditos;
+          }
+          if (category === 'mandatory') {
+            credits_mandatory += creditos;
+          }
+          if (category === 'limited') {
+            credits_limited += creditos;
+          }
         }
 
         if (convertable < 0) {
@@ -116,9 +122,9 @@ export function calculateCoefficients<
         if (isAprovado(conceito)) {
           period_aprovados += creditos;
         }
-        if (!(nomeDisc in uniqueDisc)) {
+        if (!(name in uniqComponent)) {
           unique[codigo] = true;
-          uniqueDisc[nomeDisc] = true;
+          uniqComponent[name] = true;
           accumulated_unique += creditos;
           period_unique += creditos;
         }
@@ -189,11 +195,11 @@ export function calculateCoefficients<
         period_credits,
       };
 
-      disciplinesCoefficient.get(ano)?.set(periodo, result);
-    });
-  });
+      componentsCoefficient.get(ano)?.set(periodo, result);
+    }
+  }
 
-  return mapToObject(disciplinesCoefficient);
+  return mapToObject(componentsCoefficient);
 }
 
 function isAprovado(letter: string) {

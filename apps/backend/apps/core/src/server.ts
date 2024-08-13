@@ -20,9 +20,8 @@ export async function start() {
   app.withTypeProvider<ZodTypeProvider>();
   await app.listen({ port: Config.PORT, host: Config.HOST });
 
-  // nextJobs.setup();
-  // nextWorker.setup();
-
+  // ugly
+  // nextJobs.schedule('NextSyncSubjects', undefined);
   // nextJobs.schedule('NextSyncMatriculas', {
   //   operation: 'alunos_matriculados',
   // });

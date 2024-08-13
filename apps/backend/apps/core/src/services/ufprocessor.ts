@@ -67,10 +67,13 @@ class UFProcessor {
     this.request = ofetch.create({
       baseURL: this.baseURL,
       async onRequestError({ error }) {
-        logger.warn('[PROCESSORS] Request error', {
-          error: error.name,
-          info: error.cause,
-        });
+        logger.warn(
+          {
+            error: error.name,
+            info: error.cause,
+          },
+          '[PROCESSORS] Request error',
+        );
         error.message = `[PROCESSORS] Request error: ${error.message}`;
         throw error;
       },
@@ -79,10 +82,13 @@ class UFProcessor {
           return;
         }
 
-        logger.warn('[PROCESSORS] Response error', {
-          error: error.name,
-          info: error.cause,
-        });
+        logger.warn(
+          {
+            error: error.name,
+            info: error.cause,
+          },
+          '[PROCESSORS] Response error',
+        );
         error.message = `[PROCESSORS] Response error: ${error.message}`;
         throw error;
       },

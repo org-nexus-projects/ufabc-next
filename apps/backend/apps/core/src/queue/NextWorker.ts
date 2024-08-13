@@ -71,9 +71,7 @@ export class NextWorker {
         const response = await handler(jobParameters);
         return response;
       } catch (error) {
-        logger.error({
-          msg: `[QUEUE] Job ${jobName} failed`,
-          data: error,
+        logger.error(error, `[QUEUE] Job ${jobName} failed`, {
           parameters: jobParameters,
         });
         throw error;
