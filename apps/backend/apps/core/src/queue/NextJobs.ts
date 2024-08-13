@@ -4,6 +4,9 @@ import ms from 'ms';
 import { Config } from '@/config/config.js';
 import { NEXT_JOBS, NEXT_QUEUE_JOBS } from './definitions.js';
 import type { JobParameters, NextJobNames } from './NextWorker.js';
+import { FastifyAdapter } from '@bull-board/fastify';
+import type { FastifyInstance } from 'fastify';
+import { boardUiPath, createBoard } from './board.js';
 
 interface NextJob {
   setup(): Promise<void>;
@@ -16,11 +19,15 @@ interface NextJob {
   ): Promise<Job>;
 }
 
+export type NextQueue = Record<
+  string,
+  Queue<JobParameters<NextJobNames> | null, unknown, NextJobNames>
+>;
+
 class NextJobs implements NextJob {
-  private readonly queues: Record<
-    string,
-    Queue<JobParameters<NextJobNames> | null, unknown, NextJobNames>
-  > = {};
+  private readonly queues: NextQueue = {};
+  public readonly queueBoard = FastifyAdapter;
+
   private readonly RedisConnection = {
     username: Config.REDIS_USER,
     password: Config.REDIS_PASSWORD,
@@ -145,6 +152,15 @@ class NextJobs implements NextJob {
         jobsToClean.map((queue) => queue.clean(grace, limit, type)),
       )
     ).flat();
+  }
+
+  board(app: FastifyInstance) {
+    const nextBoard = createBoard(Object.values(this.queues));
+    app.register(nextBoard.registerPlugin(), {
+      prefix: boardUiPath,
+      basePath: boardUiPath,
+      logLevel: 'silent',
+    });
   }
 }
 
