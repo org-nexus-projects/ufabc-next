@@ -2,8 +2,8 @@ import gracefullyShutdown from 'close-with-grace';
 import { logger } from '@next/common';
 import { Config } from './config/config.js';
 import { buildApp } from './app.js';
-import { nextWorker } from './queue/NextWorker.js';
-import { nextJobs } from './queue/NextJobs.js';
+// import { nextWorker } from './queue/NextWorker.js';
+// import { nextJobs } from './queue/NextJobs.js';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import type { FastifyServerOptions } from 'fastify';
 
