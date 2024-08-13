@@ -160,6 +160,7 @@ class NextJobs implements NextJob {
     app.register(nextBoard.registerPlugin(), {
       prefix: boardUiPath,
       basePath: boardUiPath,
+      logLevel: 'silent',
     });
   }
 }
