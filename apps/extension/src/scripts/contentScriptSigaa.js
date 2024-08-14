@@ -5,6 +5,7 @@ import {
   redirectToast,
   processingToast,
 } from '../utils/nextToasts';
+import Axios from 'axios';
 
 const nextApi = NextAPI();
 
@@ -25,15 +26,17 @@ if (isDiscentesPath && document.contains(document.querySelector('.notas'))) {
   processingToast.showToast();
   const studentHistory = scrapeGradesConsulting();
   // todo: fazer o endpoint
-  const { data: res } = nextApi
-    .post('/histories/sigaa', studentHistory, {
+  Axios.post(
+    'https://api.v2.ufabcnext.com/v2/histories/sigaa',
+    studentHistory,
+    {
       timeout: 60 * 1 * 1000, // 1 minute
-    })
-    .catch((err) => {
-      processingToast.hideToast();
-      console.log(err);
-      errorToast.showToast();
-    });
+    },
+  ).catch((err) => {
+    processingToast.hideToast();
+    console.log(err);
+    errorToast.showToast();
+  });
 
   setTimeout(() => processingToast.hideToast(), 3000);
 }
