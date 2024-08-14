@@ -5,7 +5,7 @@ on: push
 jobs:
   release:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout
@@ -23,4 +23,4 @@ jobs:
         run: pnpm i
       - name: Deploy
         run: |
-          pnpm run deploy -h https://captain.captain.sv.ufabcnext.com -a next-extension -p "${{ secrets.CAPROVER_PASSWORD }}" -b master
+          pnpm run deploy -h https://captain.captain.sv.ufabcnext.com -a next-extension -p "${{ secrets.CAPROVER_PASSWORD }}" -b main
