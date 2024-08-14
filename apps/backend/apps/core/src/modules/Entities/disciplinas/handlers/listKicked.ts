@@ -1,16 +1,15 @@
-import { courseId, currentQuad } from '@next/common';
-import { sortBy as LodashSortBy } from 'lodash-es';
-import { DisciplinaModel, type Disciplina } from '@/models/Disciplina.js';
-import { StudentModel } from '@/models/Student.js';
+import { currentQuad } from '@next/common';
+import { orderBy as LodashOrderBy } from 'lodash-es';
 import { z } from 'zod';
-import type { FastifyReply, FastifyRequest } from 'fastify';
+import { DisciplinaModel, type Disciplina } from '@/models/Disciplina.js';
 import { getCourses, getKickedStudents } from '../component.service.js';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
 const validatedParams = z.object({
   componentId: z.coerce.number().int(),
 });
 const validatedQueryParam = z.object({
-  sort: z.string().optional(),
+  sort: z.enum(['reserva', 'turno', 'ik', 'cp', 'cr']).optional(),
 });
 
 export async function listKicked(request: FastifyRequest, reply: FastifyReply) {
@@ -32,21 +31,18 @@ export async function listKicked(request: FastifyRequest, reply: FastifyReply) {
   }
 
   // create sort mechanism
-  const kicks = sort || kickRule(component.ideal_quad);
-  // @ts-expect-error for now
-  const order = [kicks.length || 0].fill('desc');
+  const kicks = sort ? [sort] : kickRule(component.ideal_quad);
   // turno must have a special treatment
-  const turnoIndex = kicks.indexOf('turno');
-  if (turnoIndex !== -1) {
-    // @ts-expect-error for now
-    order[turnoIndex] = component.turno === 'diurno' ? 'asc' : 'desc';
-  }
+  const order = kicks.map((kick) =>
+    kick === 'turno' ? (component.turno === 'diurno' ? 'asc' : 'desc') : 'desc',
+  );
 
-  const isAfterKick = [component.after_kick].filter(Boolean).length;
+  const isAfterKick = component.after_kick
+    ? component.after_kick.length > 0
+    : false;
   const resolveKicked = resolveEnrolled(component, isAfterKick);
-
-  const kickedMap = new WeakMap(
-    resolveKicked.map((kicked) => [kicked, kicked.studentId]),
+  const kickedMap = new Map(
+    resolveKicked.map((kicked) => [kicked.studentId, kicked]),
   );
   const students = await getKickedStudents(
     resolveKicked.map((kicked) => kicked.studentId),
@@ -56,19 +52,10 @@ export async function listKicked(request: FastifyRequest, reply: FastifyReply) {
     'Bacharelado em Ciência e Tecnologia',
     'Bacharelado em Ciências e Humanidades',
   ];
-  // return courses;
+
   const interCourseIds = courses
-    .flatMap(({ _id: name, ids }) => {
-      const isInterCourse = interCourses.includes(name) ? name : null;
-
-      if (!isInterCourse) {
-        return null;
-      }
-      return ids;
-    })
-    .filter(Boolean);
-
-  // return interCourseIds;
+    .filter(({ _id: name }) => interCourses.includes(name))
+    .flatMap(({ ids }) => ids);
 
   const obrigatorias = getObrigatoriasFromComponents(
     component.obrigatorias,
@@ -77,33 +64,28 @@ export async function listKicked(request: FastifyRequest, reply: FastifyReply) {
 
   const studentsWithGraduation = students.map((student) => {
     const reserva = obrigatorias.includes(student.cursos.id_curso);
-    const graduationToStudent = Object.assign(
-      {
-        aluno_id: student.aluno_id,
-        cr: '-',
-        cp: student.cursos.cp,
-        ik: reserva ? student.cursos.ind_afinidade : 0,
-        reserva,
-        turno: student.cursos.turno,
-        curso: student.cursos.nome_curso,
-      },
-      kickedMap.get({ studentId: student.aluno_id }) || {},
-    );
+    const kickedInfo = kickedMap.get(student.aluno_id);
+    const graduationToStudent = {
+      studentId: student.aluno_id,
+      cr: '-',
+      cp: student.cursos.cp,
+      ik: reserva ? student.cursos.ind_afinidade : 0,
+      reserva,
+      turno: student.cursos.turno,
+      curso: student.cursos.nome_curso,
+      ...(kickedInfo || {}),
+    };
 
     return graduationToStudent;
   });
 
-  const sortedStudents = LodashSortBy(studentsWithGraduation, kicks);
+  const sortedStudents = LodashOrderBy(studentsWithGraduation, kicks, order);
 
-  const uniqueStudents = [];
-  const uniqueStudentIds = new Set();
-
-  for (const student of sortedStudents) {
-    if (!uniqueStudentIds.has(student.aluno_id)) {
-      uniqueStudents.push(student);
-      uniqueStudentIds.add(student.aluno_id);
-    }
-  }
+  const uniqueStudents = Array.from(
+    new Map(
+      sortedStudents.map((student) => [student.studentId, student]),
+    ).values(),
+  );
 
   return uniqueStudents;
 }
@@ -136,7 +118,7 @@ function kickRule(idealQuad: boolean) {
   return ['reserva', 'turno', 'ik'].concat(coeffRule);
 }
 
-function resolveEnrolled(component: Disciplina, isAfterKick: number) {
+function resolveEnrolled(component: Disciplina, isAfterKick: boolean) {
   const {
     after_kick: afterKick,
     alunos_matriculados: enrolledStudents,

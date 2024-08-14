@@ -32,7 +32,7 @@ export const getCourses = async () => {
         'cursos.id_curso': {
           $ne: null,
         },
-        season: '2024:2',
+        season: tenant,
       },
     },
     {
