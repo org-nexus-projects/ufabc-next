@@ -21,8 +21,8 @@ function Matricula() {
   // check if we need to update our localStorage of professors
   // based when you did this last request
   async function updateProfessors(data) {
-    let lastTime = data;
-    let timeDiff = (Date.now() - lastTime) / (1000 * 60);
+    const lastTime = data;
+    const timeDiff = (Date.now() - lastTime) / (1000 * 60);
 
     await getProfessors();
     if (!lastTime || timeDiff > 0.2) {
@@ -33,28 +33,17 @@ function Matricula() {
   // fetch professors url and save them into localStorage
   async function getProfessors() {
     try {
-      let { data: professors } = await nextApi.get('/disciplinas');
+      const { data: components } = await nextApi.get('/entities/disciplina');
       await Utils.storage.setItem('ufabc-extension-last', Date.now());
-      await Utils.storage.setItem('ufabc-extension-disciplinas', professors);
-      return professors;
+      await Utils.storage.setItem('ufabc-extension-disciplinas', components);
+      return components;
     } catch (e) {
       console.log('❌ Erro ao atualizar disciplinas');
       console.error(e);
     }
   }
 
-  // disciplinas que mudaram de nome (HARDCODED)
-  var disciplinas_mudadas = {
-    'Energia: Origens, Conversão e Uso': 'Bases Conceituais da Energia',
-    'Transformações nos Seres Vivos e Ambiente':
-      'Biodiversidade: Interações entre organismos e ambiente',
-    'Transformações Bioquímicas':
-      'Bioquímica: estrutura, propriedade e funções de Biomoléculas',
-    'Transformações Bioquímicas':
-      'Bioquímica: Estrutura, Propriedade e Funções de Biomoléculas',
-    'Origem da Vida e Diversidade dos Seres Vivos':
-      'Evolução e Diversificação da Vida na Terra',
-  };
+  // disciplinas que mudaram de nome (HARDCODED);
 
   // fetch matriculas again
   async function getMatriculas() {
@@ -83,7 +72,7 @@ function Matricula() {
       if (inside.indexOf(test) != -1) {
         var regex = /matriculas\[(.*)\]/;
         var match = regex.exec(inside);
-        toReturn = parseInt(match[1]);
+        toReturn = Number.parseInt(match[1]);
       }
     });
 
@@ -103,9 +92,7 @@ function Matricula() {
     // check which row matches the name passed
     const course = $('#curso')
       .children()
-      .filter(function (i, item) {
-        return name == _.camelCase($(item).text());
-      })[0];
+      .filter((i, item) => name == _.camelCase($(item).text()))[0];
 
     return $(course).val();
   }
@@ -135,7 +122,7 @@ function Matricula() {
 
     await nextApi.post('/students', {
       aluno_id: getAlunoId(),
-      cursos: user.map(function (info) {
+      cursos: user.map((info) => {
         info.curso_id = findIdForCurso(info.curso);
         return info;
       }),

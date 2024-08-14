@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :title="disciplina && disciplina.nome ? 'Disciplina: ' + disciplina.nome : 'Cortes'"
+    :title="component && component.nome ? 'Disciplina: ' + component.nome : 'Cortes'"
     @close="closeDialog()"
     :visible="value.dialog"
     light
@@ -25,15 +25,15 @@
           <div class="ufabc-flex"></div>
           <v-btn
             small
-            color="primary rigth"
+            color="primary right"
             flat
             @click="restore()">
             Restaurar ordem
           </v-btn>
         </div>
 
-        <draggable v-model="headers" @update="resort($event)">
-          <div v-for="h in headers"
+        <draggable v-model="sortHeaders" @update="resort($event)">
+          <div v-for="h in sortHeaders"
             :key="h.value"
             class="ufabc-cursor-grabbing"
             style="display: inline-block !important;">
@@ -87,7 +87,7 @@
           width="50">
         </el-table-column>
         <el-table-column
-          v-for="(header, index) in headers"
+          v-for="(header, index) in sortHeaders"
           :prop="header.value"
           :key="index"
           :label="header.text">
@@ -114,7 +114,9 @@
     </div>
   </el-dialog>
 </template>
-<script>
+
+<script setup>
+import { ref, onMounted, computed, watch } from 'vue';
 import _ from 'lodash';
 import draggable from 'vuedraggable';
 import { NextAPI } from '../services/NextAPI';
@@ -124,172 +126,141 @@ import { findSeasonKey, findIdeais } from '../utils/season';
 
 const nextApi = NextAPI();
 
-export default {
-  name: 'Modal',
-  props: ['value'],
-  components: {
-    draggable,
-  },
-  data() {
-    return {
-      loading: false,
-      disciplina: {},
-
-      headers: [],
-
-      kicksData: [],
-    };
-  },
-
-  created() {
-    this.fetch();
-  },
-
-  watch: {
-    'value.dialog'(v) {
-      this.restore();
-    },
-
-    'value.corte_id'(val) {
-      this.disciplina = _.find(todasDisciplinas, { id: parseInt(val) });
-      this.headers = this.defaultHeaders;
-      this.fetch();
+const props = defineProps({
+  value: {
+    default: {
+      corte_id: null,
+      dialog: false,
+      disciplina: null,
     },
   },
+});
 
-  computed: {
-    transformed() {
-      return this.kicksData.map((d) => {
-        return _.assign(_.clone(d), {
-          reserva: d.reserva ? 'Sim' : 'Não',
-          ik: d.ik.toFixed(3),
-        });
-      });
-    },
+const loading = ref(false);
+const component = ref({});
+const kicks = ref([]);
+const sortHeaders = ref([]);
 
-    defaultHeaders() {
-      let isIdeal = findIdeais().includes(this.disciplina.codigo);
+onMounted(() => {
+  setupComponents();
+});
 
-      const base = [
-        { text: 'Reserva', sortable: false, value: 'reserva' },
-        { text: 'Turno', value: 'turno', sortable: false },
-        { text: 'Ik', value: 'ik', sortable: false },
-      ];
+const defaultSortHeaders = computed(() => {
+  const isIdeal = findIdeais().includes(component.value.codigo);
 
-      const season = findSeasonKey();
+  const base = [
+    { text: 'Reserva', sortable: false, value: 'reserva' },
+    { text: 'Turno', value: 'turno', sortable: false },
+    { text: 'Ik', value: 'ik', sortable: false },
+  ];
 
-      if (
-        isIdeal &&
-        (season != '2020:3' || season != '2021:1' || season != '2021:2')
-      ) {
-        base.push({ text: 'CR', value: 'cr', sortable: false });
-        base.push({ text: 'CP', value: 'cp', sortable: false });
-      } else {
-        base.push({ text: 'CP', value: 'cp', sortable: false });
-        base.push({ text: 'CR', value: 'cr', sortable: false });
+  const tenant = findSeasonKey();
+
+  if (
+    isIdeal &&
+    (tenant !== '2020:3' || tenant !== '2021:1' || tenant !== '2021:2')
+  ) {
+    base.push({ text: 'CR', value: 'cr', sortable: false });
+    base.push({ text: 'CP', value: 'cp', sortable: false });
+  } else {
+    base.push({ text: 'CP', value: 'cp', sortable: false });
+    base.push({ text: 'CR', value: 'cr', sortable: false });
+  }
+
+  return base;
+})
+
+const transformed = computed(() => {
+  return kicks.value.map((kick) => {
+    return Object.assign(kick, {
+      reserva: kick.reserva ? 'Sim' : 'Não',
+      ik: kick.ik.toFixed(3),
+    });
+  });
+});
+
+const oldComponentObject = computed(() => convertDisciplina(component))
+
+watch(() => props.value.dialog, (v) => {
+  if(v) {
+    restore()
+  }
+})
+
+watch(() => props.value.corte_id, (val) => {
+  component.value = _.find(todasDisciplinas, { id: Number.parseInt(val) })
+  sortHeaders.value = defaultSortHeaders.value
+  setupComponents()
+})
+
+console.log('glauber', kicks.value);
+
+function setupComponents() {
+  const componentId = props.value.corte_id || '';
+  if (!componentId) {
+    return;
+  }
+  const studentId = matriculaUtils.getAlunoId() || 557736;
+
+  loading.value = true;
+
+  nextApi
+    .get(`/entities/components/${componentId}/kicks?studentId=${studentId}`)
+    .then((res) => {
+      kicks.value = res;
+      resort();
+      loading.value = false;
+    })
+    .catch((error) => {
+      loading.value = false;
+      if (error && error.name === 'Forbidden') {
+        console.log('deu nao pai');
       }
 
-      return base;
-    },
+      console.log(error);
+    });
+}
 
-    getRequests() {
-      return _.reduce(
-        matriculas,
-        (a, c) => (c.includes(this.disciplina.id.toString()) ? a + 1 : a),
-        0,
-      );
-    },
+function resort() {
+  const sortOrder = sortHeaders.value.map((value) => value);
+  const sortRef = Array(sortOrder.length || 0).fill('desc');
 
-    computeKicksForecast() {
-      return (this.kicksData.length * this.disciplina.vagas) / this.getRequests;
-    },
+  const turnoIndex = sortOrder.indexOf('turno');
+  if (turnoIndex !== -1) {
+    sortRef[turnoIndex] =
+      oldComponentObject.turno === 'diurno' ? 'asc' : 'desc';
+  }
 
-    parsedDisciplina() {
-      return convertDisciplina(this.disciplina);
-    },
-  },
+  kicks.value = _.orderBy(kicks, sortOrder, sortRef);
+}
 
-  methods: {
-    fetch() {
-      let corteId = _.get(this.value, 'corte_id', '');
-      if (!corteId) return;
-      const aluno_id = matriculaUtils.getAlunoId();
+function removedFilter(filter) {
+  sortHeaders.value = sortHeaders.value.filter(header => header.value !== filter)
+  resort()
+}
 
-      this.loading = true;
+function restore() {
+  sortHeaders.value = defaultSortHeaders
+}
 
-      nextApi
-        .get(`/disciplinas/${corteId}/kicks?aluno_id=${aluno_id}`)
-        .then((res) => {
-          this.kicksData = res;
-          this.resort();
-          this.loading = false;
-        })
-        .catch((e) => {
-          this.loading = false;
+function closeDialog() {
+  props.value.dialog = false
+}
 
-          if (e && e.name == 'Forbidden') {
-            // Show dialog with error
-            this.$notify({
-              message:
-                'Não temos as diciplinas que você cursou, acesse o Portal do Aluno',
-            });
-          }
-        });
-    },
-
-    resort(e) {
-      const sortOrder = _.map(this.headers, 'value');
-      const sortRef = Array(sortOrder.length || 0).fill('desc');
-
-      const turnoIndex = sortOrder.indexOf('turno');
-      if (turnoIndex != -1) {
-        sortRef[turnoIndex] =
-          this.parsedDisciplina.turno == 'diurno' ? 'asc' : 'desc';
-      }
-
-      this.kicksData = _.orderBy(this.kicksData, sortOrder, sortRef);
-    },
-
-    removedFilter(value) {
-      this.headers = _.filter(this.headers, (o) => o.value != value);
-      this.resort();
-    },
-
-    restore() {
-      this.headers = this.defaultHeaders;
-      this.resort();
-    },
-
-    closeDialog() {
-      this.value.dialog = false;
-    },
-
-    // kickStatus(rowIndex) {
-    //   console.log("rowIndex", rowIndex)
-    //   console.log("this.computeKicksForecast", this.computeKicksForecast)
-    //   if(rowIndex <= this.computeKicksForecast) {
-    //     return 'not-kicked'
-    //   }else if(rowIndex >= this.disciplina.vagas){
-    //     return 'kicked'
-    //   }else {
-    //     return 'probably-kicked'
-    //   }
-    // },
-
-    tableRowClassName({ row, rowIndex }) {
-      if (row.aluno_id == matriculaUtils.getAlunoId()) {
-        return 'aluno-row';
-      } else if (rowIndex <= this.computeKicksForecast) {
-        return 'not-kicked-row';
-      } else if (rowIndex >= this.disciplina.vagas) {
-        return 'kicked-row';
-      } else {
-        return 'probably-kicked-row';
-      }
-    },
-  },
-};
+function tableRowClassName({ row, rowIndex }) {
+  if (row.aluno_id === matriculaUtils.getAlunoId()) {
+    return 'aluno-row';
+  }
+  if (rowIndex <= computeKicksForecast) {
+    return 'not-kicked-row';
+  }
+  if (rowIndex >= component.vagas) {
+    return 'kicked-row';
+  }
+  return 'probably-kicked-row';
+}
 </script>
+
 <style scoped>
 .information {
   color: rgba(0, 0, 0, 0.6);
