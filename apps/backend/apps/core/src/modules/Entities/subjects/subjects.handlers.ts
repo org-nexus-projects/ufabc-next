@@ -124,7 +124,7 @@ function getStatsMean(
   const amount = reviewStats.reduce((acc, { amount }) => acc + amount, 0);
   const simpleSum = reviewStats
     .filter((stat) => stat.cr_medio !== null)
-    .map((stat) => stat.amount + stat.cr_medio!);
+    .map((stat) => stat.amount * stat.cr_medio!);
   const totalSum = simpleSum.reduce((acc, val) => acc + val, 0);
 
   return {
