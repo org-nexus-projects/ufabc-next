@@ -24,14 +24,16 @@ if (process.env.NODE_ENV == 'production') {
     'matricula.ufabc.edu.br/matricula',
     'ufabc-matricula.cdd.naoseiprogramar.com.br/snapshot',
     'api.ufabcnext.com/snapshot',
+    'localhost:8011/snapshot',
+    'localhost:8011/snapshot/backup.html',
   ];
 } else {
   matriculasURL = [
     'matricula.ufabc.edu.br/matricula',
     'api.ufabcnext.com/snapshot',
     'api.ufabcnext.com/snapshot/backup.html',
-    'locahost:8011/snapshot',
-    'locahost:8011/snapshot/backup.html',
+    'localhost:8011/snapshot',
+    'localhost:8011/snapshot/backup.html',
     'https://sig.ufabc.edu.br/sigaa/portais/discente/discente.jsf',
   ];
 }

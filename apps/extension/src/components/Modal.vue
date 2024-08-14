@@ -193,7 +193,6 @@ watch(() => props.value.corte_id, (val) => {
   setupComponents()
 })
 
-console.log('glauber', kicks.value);
 
 function setupComponents() {
   const componentId = props.value.corte_id || '';

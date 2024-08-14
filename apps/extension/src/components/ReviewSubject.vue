@@ -115,8 +115,6 @@ const studentCr = ref(null);
 
 onMounted(() => {
   setupSubjectStats();
-  console.log('chart',pieChart.value)
-  console.log('props', props.value)
 });
 
 const possibleComponents = computed(() => {
@@ -136,7 +134,6 @@ const subject = computed(() =>  'fallback' || helpData.value.subject)
 
 
 function setupSubjectStats() {
-  console.log(props.value)
   // const subjectId = props.value.subject.id || '';
   const subjectId = ''
   if (!subjectId) {
