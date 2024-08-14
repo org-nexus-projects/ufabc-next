@@ -30,7 +30,7 @@ const reviewSubjectData = {
   notifier: null,
 };
 
-var app = new Vue({
+new Vue({
   el: '#app',
   data: {
     name: 'ufabc-matricula-extension',
@@ -59,8 +59,10 @@ new Vue({
 });
 
 new Vue({
-  template:
-    '<v-app v-show="$data.dialog"><ReviewSubject :value="$data"></ReviewSubject></v-app>',
+  template: `<v-app v-show="$data.dialog">
+      <ReviewSubject :value="$data"></ReviewSubject>
+    </v-app>
+    `,
   el: '#review-subject',
   data() {
     return reviewSubjectData;
@@ -69,7 +71,7 @@ new Vue({
 });
 
 // handler cortes
-$('body').on('click', '.corte', async function (e) {
+$('body').on('click', '.corte', async (e) => {
   const target = $(e.target);
   const corte_id = target.parent().parent().attr('value');
   modalData.corte_id = corte_id;
@@ -77,7 +79,7 @@ $('body').on('click', '.corte', async function (e) {
 });
 
 // handler teacherReview
-$('body').on('click', '.ReviewTeacher', function (e) {
+$('body').on('click', '.ReviewTeacher', (e) => {
   const teacherId = $(e.target).attr('data');
   const teacherName = $(e.target).attr('teacherName');
   teacherReviewData.professor = {
@@ -89,7 +91,7 @@ $('body').on('click', '.ReviewTeacher', function (e) {
 });
 
 // handler subject click
-$('body').on('click', 'span.sa, span.sbc', function (e) {
+$('body').on('click', 'span.sa, span.sbc', (e) => {
   const subjectId = $(e.target).attr('subjectId');
   reviewSubjectData.subject = {
     id: subjectId,

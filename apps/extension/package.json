@@ -88,7 +88,7 @@
     "toastr": "^2.1.4",
     "url-loader": "^1.1.2",
     "vue": "2.7.16",
-    "vue-loader": "^15.3.0",
+    "vue-loader": "^15.10.0",
     "vue-style-loader": "^4.1.2",
     "vue-template-compiler": "2.7.16",
     "vue2-highcharts": "^1.2.5",
