@@ -89,7 +89,6 @@ import matriculaUtils from '../utils/Matricula';
 import Utils from '../utils/extensionUtils';
 import Mustache from 'mustache';
 
-
 const getURL = (path) => Utils.getChromeUrl(path);
 
 const showWarning = ref(false);
@@ -128,32 +127,34 @@ const campusFilters = ref([
 ]);
 
 onMounted(async () => {
-  const students = await Utils.storage.getItem('ufabc-extension-students');
-  const currentUser = matriculaUtils.currentUser();
+  try {
+    const students = await Utils.storage.getItem('ufabc-extension-students');
+    const currentUser = matriculaUtils.currentUser();
 
-  console.log(currentUser, 'joabe?');
-
-  const student = students.find((student) => student.name === currentUser);
-  console.log(students)
-  if (student && student.lastUpdate) {
-    const diff = Date.now() - student.lastUpdate;
-    const MAX_UPDATE_DIFF = 1000 * 60 * 60 * 24 * 7; // 7 days
-    if (diff > MAX_UPDATE_DIFF) {
-      showWarning.value = true;
+    let student = null;
+    
+    if (students && Array.isArray(students)) {
+      student = students.find((student) => student.name === currentUser);
     }
+
+    if (student && student.lastUpdate) {
+      const diff = Date.now() - student.lastUpdate;
+      const MAX_UPDATE_DIFF = 1000 * 60 * 60 * 24 * 7; // 7 days
+      if (diff > MAX_UPDATE_DIFF) {
+        showWarning.value = true;
+      }
+    }
+
+    teachers.value = true;
+    await changeTeachers();
+
+  } catch (error) {
+    console.error('Error during onMounted execution:', error);
   }
-
-  const htmlPop = await Utils.fetchChromeUrl(
-        'pages/matricula/fragments/professorPopover.html',
-      );
-  console.log(htmlPop)
-
-  teachers.value = true;
-
-  changeTeachers();
 });
 
-function changeTeachers() {
+
+async function changeTeachers() {
   if (!teachers.value) {
     $('.isTeacherReview').css('display', 'none');
     return;
@@ -165,51 +166,47 @@ function changeTeachers() {
     return;
   }
 
-  Utils.storage
-    .getItem('ufabc-extension-disciplinas')
-    .then(async (components) => {
-      if (components == null) {
-        components = await matriculaUtils.getProfessors();
-      }
+  let components = await Utils.storage.getItem('next-extension-components');
 
-      const componentMap = new Map(
-        components.map((component) => [
-          component.disciplina_id.toString(),
-          component,
-        ]),
-      );
+  if (components == null) {
+    components = await matriculaUtils.getProfessors();
+  }
 
-      const htmlPop = await Utils.fetchChromeUrl(
-        'pages/matricula/fragments/professorPopover.html',
-      );
-      const corteHtml = await Utils.fetchChromeUrl(
-        'pages/matricula/corte.html',
-      );
+  const componentsMap = new Map(
+    components.map((component) => [
+      component.disciplina_id.toString(),
+      component,
+    ]),
+  );
 
-      const mainTable = document.querySelectorAll('table tr');
+  const htmlPop = await Utils.fetchChromeUrl(
+    'pages/matricula/fragments/professorPopover.html',
+  );
+  const corteHtml = await Utils.fetchChromeUrl('pages/matricula/corte.html');
 
-      for (const row of mainTable) {
-        const el = row.querySelector('td:nth-child(3)');
-        const subjectEl = row.querySelector('td:nth-child(3) > span');
-        const corteEl = row.querySelector('td:nth-child(5)');
-        const componentId = row.getAttribute('value');
+  const mainTable = document.querySelectorAll('table tr');
 
-        const component = componentMap.get(componentId);
-        if (!component) {
-          continue;
-        }
+  for (const row of mainTable) {
+    const el = row.querySelector('td:nth-child(3)');
+    const subjectEl = row.querySelector('td:nth-child(3) > span');
+    const corteEl = row.querySelector('td:nth-child(5)');
+    const componentId = row.getAttribute('value');
 
-        if (component.subject) {
-          subjectEl.setAttribute('subjectId', component.subject);
-        }
+    const component = componentsMap.get(componentId);
+    if (!component) {
+      continue;
+    }
 
-        el.insertAdjacentHTML(
-          'beforeend',
-          Mustache.render(htmlPop.data, component),
-        );
-        corteEl.insertAdjacentHTML('beforeend', corteHtml.data);
-      }
-    });
+    if (component.subject) {
+      subjectEl.setAttribute('subjectId', component.subject);
+    }
+
+    el.insertAdjacentHTML(
+      'beforeend',
+      Mustache.render(htmlPop.data, component),
+    );
+    corteEl.insertAdjacentHTML('beforeend', corteHtml.data);
+  }
 }
 
 function changeSelected() {
@@ -218,7 +215,7 @@ function changeSelected() {
     return;
   }
 
-  const studentId = matriculaUtils.getAlunoId();
+  const studentId = matriculaUtils.getStudentId();
   const matriculas = window.matriculas[studentId] || [];
 
   $('tr').each(function () {
