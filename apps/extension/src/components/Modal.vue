@@ -199,7 +199,7 @@ function setupComponents() {
   if (!componentId) {
     return;
   }
-  const studentId = matriculaUtils.getAlunoId() || 557736;
+  const studentId = matriculaUtils.getStudentId() || 557736;
 
   loading.value = true;
 
@@ -247,7 +247,7 @@ function closeDialog() {
 }
 
 function tableRowClassName({ row, rowIndex }) {
-  if (row.aluno_id === matriculaUtils.getAlunoId()) {
+  if (row.aluno_id === matriculaUtils.getStudentId()) {
     return 'aluno-row';
   }
   if (rowIndex <= computeKicksForecast) {

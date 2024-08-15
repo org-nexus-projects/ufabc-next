@@ -34,16 +34,14 @@ function Matricula() {
   async function getProfessors() {
     try {
       const { data: components } = await nextApi.get('/entities/disciplina');
-      await Utils.storage.setItem('ufabc-extension-last', Date.now());
-      await Utils.storage.setItem('ufabc-extension-disciplinas', components);
+      await Utils.storage.setItem('next-extension-last', Date.now());
+      await Utils.storage.setItem('next-extension-components', components);
       return components;
     } catch (e) {
       console.log('❌ Erro ao atualizar disciplinas');
       console.error(e);
     }
   }
-
-  // disciplinas que mudaram de nome (HARDCODED);
 
   // fetch matriculas again
   async function getMatriculas() {
@@ -56,22 +54,22 @@ function Matricula() {
     return Object.keys(await getMatriculas()).length;
   }
 
-  // get matriculas by aluno_id
-  async function getMatriculasAluno(aluno_id) {
+  // get matriculas by StudentId
+  async function getStudentEnrollments(studentId) {
     const matriculas = await getMatriculas();
-    return _.get(matriculas, aluno_id);
+    return _.get(matriculas, studentId);
   }
 
   // get current logged student
-  function getAlunoId() {
+  function getStudentId() {
     let toReturn = null;
 
     $('script').each(function () {
-      var inside = $(this).text();
-      var test = 'todasMatriculas';
+      const inside = $(this).text();
+      const test = 'todasMatriculas';
       if (inside.indexOf(test) != -1) {
-        var regex = /matriculas\[(.*)\]/;
-        var match = regex.exec(inside);
+        const regex = /matriculas\[(.*)\]/;
+        const match = regex.exec(inside);
         toReturn = Number.parseInt(match[1]);
       }
     });
@@ -108,8 +106,8 @@ function Matricula() {
 
   // send aluno data
   async function sendAlunoData() {
-    const storageUser = 'ufabc-extension-' + currentUser();
-    const storageRA = 'ufabc-extension-ra-' + currentUser();
+    const storageUser = `ufabc-extension-${currentUser()}`;
+    const storageRA = `ufabc-extension-ra-${currentUser()}`;
     const user = await Utils.storage.getItem(storageUser);
     const ra = await Utils.storage.getItem(storageRA);
 
@@ -121,7 +119,7 @@ function Matricula() {
     }
 
     await nextApi.post('/students', {
-      aluno_id: getAlunoId(),
+      aluno_id: getStudentId(),
       cursos: user.map((info) => {
         info.curso_id = findIdForCurso(info.curso);
         return info;
@@ -136,8 +134,8 @@ function Matricula() {
     getProfessors,
     getMatriculas,
     getTotalMatriculas,
-    getMatriculasAluno,
-    getAlunoId,
+    getStudentEnrollments,
+    getStudentId,
     findIdForCurso,
     currentUser,
     sendAlunoData,

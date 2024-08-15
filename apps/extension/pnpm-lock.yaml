@@ -93,7 +93,7 @@ importers:
         specifier: 2.7.16
         version: 2.7.16
       vue-loader:
-        specifier: ^15.3.0
+        specifier: ^15.10.0
         version: 15.11.1(babel-core@6.26.3)(css-loader@1.0.1(webpack@3.12.0))(lodash@4.17.21)(mustache@3.2.1)(vue-template-compiler@2.7.16)(webpack@3.12.0)
       vue-style-loader:
         specifier: ^4.1.2

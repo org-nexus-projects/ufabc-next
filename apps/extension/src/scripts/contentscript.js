@@ -66,7 +66,7 @@ async function load() {
   setTimeout(async () => {
     let lastUpdate = null;
     try {
-      lastUpdate = await Utils.storage.getItem('ufabc-extension-last');
+      lastUpdate = await Utils.storage.getItem('next-extension-last');
     } catch (err) {
       lastUpdate = Date.now();
     } finally {
