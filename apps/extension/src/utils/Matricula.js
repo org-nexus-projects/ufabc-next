@@ -44,37 +44,43 @@ function Matricula() {
   }
 
   // fetch matriculas again
-  async function getMatriculas() {
+  async function getEnrollments() {
     const disciplinas = await Axios.get(MATRICULAS_URL);
     return toJSON(disciplinas.data) || {};
   }
 
   // get total number of matriculas that was made until now
-  async function getTotalMatriculas() {
-    return Object.keys(await getMatriculas()).length;
+  async function getAllEnrollments() {
+    const enrollments = await getEnrollments();
+    return Object.keys(enrollments).length;
   }
 
   // get matriculas by StudentId
   async function getStudentEnrollments(studentId) {
-    const matriculas = await getMatriculas();
-    return _.get(matriculas, studentId);
+    const enrollments = await getEnrollments();
+    return _.get(enrollments, studentId);
   }
 
   // get current logged student
   function getStudentId() {
-    let toReturn = null;
+    const scripts = document.querySelectorAll('script');
+    const searchString = 'todasMatriculas';
+    let studentId = null;
 
-    $('script').each(function () {
-      const inside = $(this).text();
-      const test = 'todasMatriculas';
-      if (inside.indexOf(test) != -1) {
-        const regex = /matriculas\[(.*)\]/;
-        const match = regex.exec(inside);
-        toReturn = Number.parseInt(match[1]);
+    for (const script of scripts) {
+      const content = script.textContent || script.innerHTML;
+      if (content.includes(searchString)) {
+        const regex = /matriculas\[(\d+)\]/;
+        const match = scriptContent.match(regex);
+
+        if (match && match[1]) {
+          studentId = Number.parseInt(match[1], 10);
+          return; // Interrompe o loop quando o ID é encontrado
+        }
       }
-    });
+    }
 
-    return toReturn;
+    return studentId;
   }
 
   // find courseId for this season
@@ -96,26 +102,28 @@ function Matricula() {
   }
 
   function currentUser() {
-    return $('#usuario_top')
-      .text()
-      .replace(/\s*/, '')
-      .split('|')[0]
-      .trim()
-      .toLowerCase();
+    const userEl = document.querySelector('#usuario_top');
+    const rawContent = userEl.textContent || userEl.innerHTML;
+    const content = rawContent.replace(/\s*/, '');
+    const [user] = content.split('|');
+    return user.trim().toLocaleLowerCase();
   }
 
   // send aluno data
   async function sendAlunoData() {
-    const storageUser = `ufabc-extension-${currentUser()}`;
-    const storageRA = `ufabc-extension-ra-${currentUser()}`;
+    const sessionUserName = currentUser();
+    const storageUser = `ufabc-extension-${sessionUserName}`;
+    const storageRA = `ufabc-extension-ra-${sessionUserName}`;
     const user = await Utils.storage.getItem(storageUser);
     const ra = await Utils.storage.getItem(storageRA);
 
-    if (!user) return;
+    if (!user) {
+      return;
+    }
 
     // remove as disciplinas cursadas
-    for (var i = 0; i < user.length; i++) {
-      delete user[i].cursadas;
+    for (let i = 0; i < user.length; i++) {
+      user[i].cursadas = undefined;
     }
 
     await nextApi.post('/students', {
@@ -124,16 +132,15 @@ function Matricula() {
         info.curso_id = findIdForCurso(info.curso);
         return info;
       }),
-      ra: ra,
-      login: currentUser(),
+      ra,
+      login: sessionUserName,
     });
   }
 
   return {
     updateProfessors,
     getProfessors,
-    getMatriculas,
-    getTotalMatriculas,
+    getAllEnrollments,
     getStudentEnrollments,
     getStudentId,
     findIdForCurso,
