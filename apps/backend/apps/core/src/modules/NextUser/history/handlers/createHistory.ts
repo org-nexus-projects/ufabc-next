@@ -114,8 +114,8 @@ async function hydrateComponents(component: StudentComponent) {
     name: subject.name.toLocaleLowerCase(),
     credits: subject.creditos,
   }));
-  const validComponent = normalizedSubjects.find((subject) =>
-    subject.name.includes(component.disciplina),
+  const validComponent = normalizedSubjects.find(
+    (subject) => subject.name === component.disciplina,
   );
 
   if (!validComponent) {
