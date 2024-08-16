@@ -1,11 +1,8 @@
 import { batchInsertItems, generateIdentifier, logger } from '@next/common';
-import { omit as LodashOmit } from 'lodash-es';
-import {
-  type EnrollmentDocument,
-  EnrollmentModel,
-} from '@/models/Enrollment.js';
+import { isEqual, omit as LodashOmit } from 'lodash-es';
+import { type Enrollment, EnrollmentModel } from '@/models/Enrollment.js';
 
-async function processEnrollments(enrollment: EnrollmentDocument) {
+async function processEnrollments(enrollment: Enrollment) {
   const key = {
     ra: enrollment.ra,
     year: enrollment.year,
@@ -20,6 +17,19 @@ async function processEnrollments(enrollment: EnrollmentDocument) {
     '_id',
   ]);
   try {
+    const existingEnrollment = await EnrollmentModel.findOne({ identifier });
+    if (existingEnrollment) {
+      const existingData = LodashOmit(existingEnrollment.toObject(), [
+        'identifier',
+        'id',
+        '_id',
+        '__v',
+      ]);
+      if (isEqual(existingData, enrollmentsToUpdate)) {
+        // nothing new
+        return existingData;
+      }
+    }
     const updatedEnrollments = await EnrollmentModel.findOneAndUpdate(
       {
         identifier,
@@ -37,9 +47,13 @@ async function processEnrollments(enrollment: EnrollmentDocument) {
   }
 }
 
-export async function updateEnrollments(data: EnrollmentDocument[]) {
+export async function updateEnrollments(data: Enrollment[]) {
   try {
-    await batchInsertItems(data, processEnrollments);
+    const results = await batchInsertItems(data, processEnrollments);
+    const updatedCount = results.filter((result) => result !== null).length;
+    return {
+      updatedCount,
+    };
   } catch (error) {
     logger.error({ error }, 'Error updating enrollments');
     throw error;
