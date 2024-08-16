@@ -1,13 +1,11 @@
 import { scrapeGradesConsulting, scrapeHomepage } from '../utils/sigaa';
-import { NextAPI } from '../services/NextAPI';
 import {
   errorToast,
   redirectToast,
   processingToast,
+  successToast
 } from '../utils/nextToasts';
 import Axios from 'axios';
-
-const nextApi = NextAPI();
 
 const sigaaURL = new URL(document.location.href);
 const isDiscentesPath = sigaaURL.pathname.includes('discente.jsf');
@@ -32,11 +30,10 @@ if (isDiscentesPath && document.contains(document.querySelector('.notas'))) {
     {
       timeout: 60 * 1 * 1000, // 1 minute
     },
-  ).catch((err) => {
-    processingToast.hideToast();
-    console.log(err);
+  ).then(() => {
+    successToast.showToast()
+  })
+  .catch(() => {
     errorToast.showToast();
-  });
-
-  setTimeout(() => processingToast.hideToast(), 3000);
+  }).finally(() => setTimeout(() => processingToast.hideToast(), 1000));
 }

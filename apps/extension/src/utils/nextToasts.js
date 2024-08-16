@@ -15,7 +15,7 @@ const errorToast = Toastify({
     </div>`,
   duration: -1,
   close: true,
-  gravity: 'top',
+  gravity: 'bottom',
   position: 'right',
   className: 'toast-error-container',
   escapeMarkup: false,
@@ -62,8 +62,26 @@ const processingToast = Toastify({
   },
 });
 
+const successToast = Toastify({
+  text: `
+      <div class='toast-loading-text' style='width: 250px'>
+        <img src=${logoWhite} width="120" style="margin-bottom: 8px" />
+        <p style="padding-bottom: 8px; font-weight: 700;">Sincronizado com sucesso! 📋✅</p>\n\n
+        <p>Obrigado por utilizar o UFABC next 💙</p>
+      </div>`,
+  duration: 5000,
+  close: false,
+  gravity: 'bottom',
+  position: 'right',
+  escapeMarkup: false,
+  style: {
+    background: '#E74C3C;',
+  },
+});
+
 module.exports = {
   errorToast,
   redirectToast,
+  successToast,
   processingToast,
 };
