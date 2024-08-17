@@ -1,4 +1,3 @@
-import { Config } from '@/config/config.js';
 import { SubjectModel, type Subject } from '@/models/Subject.js';
 import { ufProcessor } from '@/services/ufprocessor.js';
 import { logger } from '@next/common';
@@ -22,10 +21,9 @@ export async function syncSubjects() {
     ]),
   );
   const bulkOperations: AnyBulkWriteOperation<Subject>[] = [];
-  const missingCredits = [];
 
   for (const [name, component] of componentsMap) {
-    const existingSubject = existingSubjectsMap.get(name);
+    const existingSubject = existingSubjectsMap.get(name.toLocaleLowerCase());
 
     if (!existingSubject) {
       bulkOperations.push({
@@ -39,18 +37,17 @@ export async function syncSubjects() {
           },
         },
       });
-    }
-
-    if (existingSubject?.creditos !== component.credits) {
+    } else if (existingSubject.creditos !== component.credits) {
       bulkOperations.push({
         updateOne: {
           filter: {
-            _id: existingSubject?._id,
+            _id: existingSubject._id,
           },
           update: {
             $set: {
               creditos: component.credits,
-              search: startCase(camelCase(existingSubject?.name)),
+              search: startCase(camelCase(existingSubject.name)),
+              updatedAt: new Date(),
             },
           },
         },
@@ -58,18 +55,13 @@ export async function syncSubjects() {
     }
   }
 
-  for (const [name, subject] of existingSubjectsMap) {
-    if (!componentsMap.has(name)) {
-      missingCredits.push(subject);
-    }
-  }
-
-  if (missingCredits.length > 0 && Config.NODE_ENV !== 'dev') {
-    logger.warn({ missingCredits }, 'Subjects without matching credits');
-  }
-
   if (bulkOperations.length > 0) {
     const result = await SubjectModel.bulkWrite(bulkOperations);
+    logger.info({
+      msg: 'subjects updated/created',
+      modifiedCount: result.modifiedCount,
+      insertedCount: result.insertedCount,
+    });
     return {
       msg: 'subjects updated/created',
       modifiedCount: result.modifiedCount,
@@ -77,9 +69,10 @@ export async function syncSubjects() {
     };
   }
 
+  logger.info('No subjects needed updating or creation');
   return {
-    msg: 'insights finish...',
-    updatedCount: bulkOperations.length,
-    missingCredits: missingCredits.length,
+    msg: 'No changes needed',
+    updatedCount: 0,
+    insertedCount: 0,
   };
 }
