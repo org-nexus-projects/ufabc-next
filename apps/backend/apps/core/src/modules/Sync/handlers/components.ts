@@ -38,7 +38,7 @@ export async function syncComponentsHandler(
   const subjects: Array<{ name: string; _id: string }> =
     await SubjectModel.find({}, { name: 1 }).lean();
   const subjectMap = new Map(
-    subjects.map((subject) => [subject.name.toLowerCase(), subject._id]),
+    subjects.map((subject) => [subject.name.toLocaleLowerCase(), subject._id]),
   );
   const subjectNames = new Set(
     subjects.map(({ name }) => name.toLocaleLowerCase()),

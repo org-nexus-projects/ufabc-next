@@ -19,7 +19,7 @@ export async function subjectsRoute(app: FastifyInstance) {
   const subjectHandler = new SubjectHandler(subjectService);
 
   app.get(
-    '/subject/',
+    '/subject',
     { schema: listAllSubjectsSchema },
     subjectHandler.listAllSubjects,
   );
@@ -31,7 +31,7 @@ export async function subjectsRoute(app: FastifyInstance) {
   );
 
   app.post<{ Body: { name: string } }>(
-    '/private/subject/create',
+    '/private/subject',
     { schema: createSubjectSchema, onRequest: [authenticate, admin] },
     subjectHandler.createSubject,
   );
