@@ -60,7 +60,7 @@ new Vue({
 
 new Vue({
   template: `<v-app v-show="$data.dialog">
-      <ReviewSubject :value="$data"></ReviewSubject>
+      <ReviewSubject :subjectInfo="$data"></ReviewSubject>
     </v-app>
     `,
   el: '#review-subject',

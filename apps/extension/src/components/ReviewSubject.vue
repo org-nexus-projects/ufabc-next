@@ -2,7 +2,7 @@
   <el-dialog
     :title="'Disciplina: ' + subject"
     @close="closeDialog()"
-    :visible="value.dialog"
+    :visible="subjectInfo.dialog"
     width="800px"
     top="2vh"
     class="ufabc-element-dialog mt-1">
@@ -16,9 +16,9 @@
 
       <vue-highcharts
         class="ufabc-row ufabc-align-center ufabc-justify-middle"
-          v-if='helpData && helpData.specific && help_data.specific.length'
+          v-if='helpData && helpData.specific && helpData.specific.length'
           :options="chartOptions"
-          :highcharts="Highcharts"
+          :highcharts="highcharts"
           ref="pieChart"
       ></vue-highcharts>
       <SubjectTeachersList
@@ -28,6 +28,7 @@
 
     </div>
     <div class="ufabc-row ufabc-align-center ufabc-justify-middle" style="min-height: 100px" v-else>
+     {{ subjectInfo, 'Joabe' }}
       Nenhum dado encontrado
     </div>
     <span slot="footer" class="dialog-footer">
@@ -37,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, onMounted } from 'vue';
+import { ref, computed, watch ,onMounted } from 'vue';
 import VueHighcharts from 'vue2-highcharts';
 import Highcharts3D from 'highcharts/highcharts-3d';
 import Highcharts from 'highcharts';
@@ -86,23 +87,17 @@ const data = {
 const nextApi = NextAPI();
 
 const props = defineProps({
-  value: {
-    default: {
-      dialog: false,
-      subject: null,
-      // use this to notify
-      notifier: null,
-    },
+  subjectInfo: {
+    type: Object
   },
 });
 
 const chartOptions = ref(data);
+const highcharts = ref(Highcharts)
 const loading = ref(false);
 const helpData = ref(null);
 const filterSelected = ref(null);
 const samplesCount = ref(null);
-const pieChart = ref(null);
-
 const concepts = ref([
   { conceito: 'A' },
   { conceito: 'B' },
@@ -110,12 +105,30 @@ const concepts = ref([
   { conceito: 'D' },
   { conceito: 'F' },
 ]);
-
+const pieChart = ref(null);
 const studentCr = ref(null);
 
-onMounted(() => {
-  setupSubjectStats();
+onMounted(async () => {
+  await setupSubjectStats();
 });
+
+watch(props.subjectInfo.notifier, (val) => {
+  if(val) {
+    console.log('notify changes')
+  }
+})
+
+watch(props.subjectInfo.subject, async () => {
+  await setupSubjectStats()
+})
+
+// i miss optional chaining :(
+const subject = computed(() => {
+  return helpData.value && helpData.value.subject && helpData.value.subject.name 
+    ? helpData.value.subject.name 
+    : '';
+});
+
 
 const possibleComponents = computed(() => {
   const components = [...helpData.value.specific];
@@ -130,43 +143,6 @@ const possibleComponents = computed(() => {
 
   return components.reverse();
 });
-const subject = computed(() =>  'fallback' || helpData.value.subject)
-
-
-function setupSubjectStats() {
-  // const subjectId = props.value.subject.id || '';
-  const subjectId = ''
-  if (!subjectId) {
-    return;
-  }
-
-  loading.value = true;
-  nextApi
-    .get(`/entities/subject/review/${subjectId}`)
-    .then((res) => {
-      helpData.value = res;
-      loading.value = false;
-      filterSelected.value = possibleComponents.value[0]._id._id;
-      if (res.general.count || 0) {
-        setTimeout(() => {
-          // updateFilter()
-        }, 500);
-      }
-    })
-    .catch((e) => {
-      loading.value = false;
-      console.log(e);
-
-      closeDialog();
-    });
-}
-
-function closeDialog() {
-  props.value.dialog = false;
-  filterSelected.value = null;
-  helpData.value = null;
-  samplesCount.value = 0;
-}
 
 function resolveColorForConcept(concept) {
   return (
@@ -180,6 +156,40 @@ function resolveColorForConcept(concept) {
     }[concept] || '#A9A9A9'
   );
 }
+
+function closeDialog() {
+  props.subjectInfo.dialog = false;
+  filterSelected.value = null;
+  helpData.value = null;
+  samplesCount.value = 0;
+}
+
+async function setupSubjectStats() {
+  const subjectId = _.get(props.subjectInfo, 'subject.id', '');
+  if (!subjectId) {
+    return;
+  }
+
+  loading.value = true;
+
+  try {
+    const reviews = await nextApi.get(`/entities/subject/review/${subjectId}`)
+    console.log(reviews, possibleComponents.value)
+    helpData.value = reviews;
+    loading.value = false;
+    filterSelected.value = possibleComponents.value[0]._id._id;
+    if (res.general.count || 0) {
+      setTimeout(() => {
+        updateFilter()
+      }, 500);
+    }
+  } catch(error) {
+    loading.value = false;
+    console.log(error);
+    closeDialog();
+  }
+}
+
 
 function updateFilter() {
   pieChart.value.delegateMethod('showLoading', 'Carregando...');
