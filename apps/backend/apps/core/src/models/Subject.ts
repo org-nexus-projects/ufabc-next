@@ -1,6 +1,4 @@
 import { type InferSchemaType, Schema, model } from 'mongoose';
-import { camelCase, startCase } from 'lodash-es';
-import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 
 const subjectSchema = new Schema(
   {
@@ -8,16 +6,34 @@ const subjectSchema = new Schema(
       type: String,
       required: true,
     },
-    search: String,
-    creditos: { type: Number, required: true },
+    search: {
+      type: String,
+      required: true,
+    },
+    creditos: {
+      type: Number,
+      required: true,
+    },
   },
   { timestamps: true },
 );
 
-subjectSchema.plugin(mongooseLeanVirtuals);
+subjectSchema.index({ name: 'asc', search: 'asc' }, { unique: true });
 
-subjectSchema.pre('save', function () {
-  this.search = startCase(camelCase(this.name));
+subjectSchema.pre('save', async function () {
+  const existingSubject = await SubjectModel.findOne({
+    $or: [{ name: this.name }, { search: this.search }],
+  });
+
+  if (!existingSubject) {
+    return;
+  }
+
+  const error = new Error(
+    `Subject with name "${this.name}" or search "${this.search}" already exists.`,
+  );
+
+  throw error;
 });
 
 export type Subject = InferSchemaType<typeof subjectSchema>;
