@@ -54,7 +54,7 @@ export async function createHistory(
   }
 
   const hydratedComponentsPromises = studentHistory.components.map(
-    (component) => hydrateComponents(component),
+    (component) => hydrateComponents(component, studentHistory.ra),
   );
   const hydratedComponents = await Promise.all(hydratedComponentsPromises);
   const course = transformCourseName(
@@ -104,7 +104,7 @@ export async function createHistory(
   };
 }
 
-async function hydrateComponents(component: StudentComponent) {
+async function hydrateComponents(component: StudentComponent, ra: number) {
   const subjects = await SubjectModel.find({
     creditos: {
       $exists: true,
@@ -123,6 +123,15 @@ async function hydrateComponents(component: StudentComponent) {
     return;
   }
 
+  const existingHistory = await HistoryModel.findOne({ ra });
+  let category = null;
+  if (existingHistory) {
+    const existingComponents = existingHistory.disciplinas.find(
+      (disciplina) => disciplina.codigo === component.codigo,
+    );
+    category = existingComponents?.categoria ?? null;
+  }
+
   return {
     conceito: component.resultado === '--' ? null : component.resultado,
     periodo: component.periodo,
@@ -131,5 +140,6 @@ async function hydrateComponents(component: StudentComponent) {
     codigo: component.codigo,
     creditos: validComponent.credits,
     disciplina: validComponent.name,
+    categoria: category,
   };
 }
