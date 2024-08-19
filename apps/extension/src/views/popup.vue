@@ -52,13 +52,13 @@
         </div>
 
         <div class="student-update">
-          <a href='https://aluno.ufabc.edu.br/fichas_individuais' target='_blank'>Atualizar dados agora</a>
+          <a href='https://sig.ufabc.edu.br/sigaa/portais/discente/discente.jsf' target='_blank'>Atualizar dados agora</a>
         </div>
       </div>
 
       <template v-else>
-        <p>Seja bem-vindo à extensão do UFABC Next.</p>
-        <p>Parece que nós não temos suas informações, <a href='https://aluno.ufabc.edu.br/' target='_blank'>vamos carregá-las?</a></p>
+        <p>Seja bem-vindo à extensão do UFABC next.</p>
+        <p>Parece que nós não temos suas informações, <a href='https://sig.ufabc.edu.br/sigaa/portais/discente/discente.jsf' target='_blank'>vamos carregá-las?</a></p>
       </template>
 
       <div class="extension-troubleshooting">
