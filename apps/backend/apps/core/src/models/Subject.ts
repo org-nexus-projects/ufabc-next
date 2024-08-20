@@ -1,3 +1,4 @@
+import { camelCase, startCase } from 'lodash-es';
 import { type InferSchemaType, Schema, model } from 'mongoose';
 
 const subjectSchema = new Schema(
@@ -8,7 +9,6 @@ const subjectSchema = new Schema(
     },
     search: {
       type: String,
-      required: true,
     },
     creditos: {
       type: Number,
@@ -26,6 +26,7 @@ subjectSchema.pre('save', async function () {
   });
 
   if (!existingSubject) {
+    this.search = startCase(camelCase(this.name));
     return;
   }
 
