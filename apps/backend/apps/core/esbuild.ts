@@ -12,4 +12,5 @@ await build({
   packages: 'external',
   // @ts-expect-error Library problem
   plugins: [esbuildPluginPino({ transports: ['pino-pretty'] })],
+  sourcemap: true,
 });

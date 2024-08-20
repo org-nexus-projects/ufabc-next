@@ -60,7 +60,7 @@ export class SubjectHandler {
     }
 
     return reply.badRequest(
-      'Invalid payload format. Each item must contain both `name` and `creditos`.',
+      'Invalid payload format. Each item must contain both `name` and `credits`.',
     );
   }
 

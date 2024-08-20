@@ -47,10 +47,7 @@ const enrollmentSchema = new Schema(
 
     // vem do portal
     conceito: String,
-
-    //it needs to be changed 
-    // change to credits 
-    credits: String,
+    creditos: Number,
 
     ca_acumulado: Number,
     cr_acumulado: Number,
