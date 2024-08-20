@@ -19,7 +19,7 @@ const validateSigaaComponents = z.object({
   situacao: z
     .enum(['APROVADO', 'REPROVADO', 'REPROVADO POR FALTAS', '--'])
     .transform((situation) => situation.toLocaleLowerCase()),
-  disciplina: z.string().transform((name) => name.toLocaleLowerCase()),
+  disciplina: z.string().transform((name) => name.trim().toLocaleLowerCase()),
   resultado: z.enum(['A', 'B', 'C', 'D', 'E', 'F', 'O', '--']),
 });
 
@@ -111,15 +111,16 @@ async function hydrateComponents(component: StudentComponent, ra: number) {
     },
   });
   const normalizedSubjects = subjects.map((subject) => ({
-    name: subject.name.toLocaleLowerCase(),
+    name: subject.name.trim().toLocaleLowerCase(),
     credits: subject.creditos,
   }));
+  const componentSubject = component.disciplina.trim().toLocaleLowerCase();
   const validComponent = normalizedSubjects.find(
-    (subject) => subject.name === component.disciplina,
+    (subject) => subject.name === componentSubject,
   );
 
   if (!validComponent) {
-    logger.warn({ name: component.disciplina }, 'No valid component found');
+    logger.warn({ name: componentSubject }, 'No valid component found');
     return;
   }
 
@@ -127,7 +128,7 @@ async function hydrateComponents(component: StudentComponent, ra: number) {
   let category = null;
   if (existingHistory) {
     const existingComponents = existingHistory.disciplinas.find(
-      (disciplina) => disciplina.codigo === component.codigo,
+      (disciplina) => disciplina.codigo === component?.codigo || false,
     );
     category = existingComponents?.categoria ?? null;
   }
