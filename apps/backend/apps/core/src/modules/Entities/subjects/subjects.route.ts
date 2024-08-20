@@ -30,7 +30,7 @@ export async function subjectsRoute(app: FastifyInstance) {
     subjectHandler.searchSubject,
   );
 
-  app.post<{ Body: { name: string } }>(
+  app.post<{ Body: Array<{ name: string; credits: number }> }>(
     '/private/subject',
     { schema: createSubjectSchema, onRequest: [authenticate, admin] },
     subjectHandler.createSubject,
