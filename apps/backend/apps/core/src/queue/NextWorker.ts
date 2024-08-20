@@ -13,11 +13,14 @@ export type JobReturnData = Awaited<ReturnType<JobFn<NextJobNames>>>;
 export class NextWorker {
   private workers: Record<string, Worker<any, JobReturnData, NextJobNames>> =
     {};
+
+  private readonly REDIS_URL = new URL(Config.REDIS_CONNECTION_URL!);
+
   private readonly RedisConnection = {
-    username: Config.REDIS_USER,
-    password: Config.REDIS_PASSWORD,
-    host: Config.REDIS_HOST,
-    port: Config.REDIS_PORT,
+    username: this.REDIS_URL.username,
+    password: this.REDIS_URL.password,
+    host: this.REDIS_URL.hostname,
+    port: Number(this.REDIS_URL.port),
     lazyConnect: true,
   } satisfies RedisOptions;
 

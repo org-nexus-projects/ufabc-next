@@ -28,12 +28,6 @@ const envSchema = z.object({
     .string()
     .min(16)
     .default('GOCSPX-random-generated-token'),
-
-  REDIS_NAME: z.string().optional(),
-  REDIS_USER: z.string().optional(),
-  REDIS_PASSWORD: z.string().min(8).optional(),
-  REDIS_HOST: z.string().optional(),
-  REDIS_PORT: z.coerce.number().optional(),
   MONGODB_CONNECTION_URL: z.string().default('mongodb://127.0.0.1:27017/local'),
   REDIS_CONNECTION_URL: z.string().optional(),
   UF_PROCESSOR_URL: z.string().url(),
