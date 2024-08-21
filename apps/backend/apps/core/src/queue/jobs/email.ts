@@ -24,7 +24,6 @@ function createToken(text: string) {
 
 export async function sendConfirmationEmail(data: NextUser) {
   const emailTemplate = Config.MAILER_CONFIG.EMAIL_CONFIRMATION_TEMPLATE;
-  const isDev = Config.NODE_ENV === 'dev';
 
   if (!data.email) {
     throw new Error('Email not found');
@@ -34,9 +33,7 @@ export async function sendConfirmationEmail(data: NextUser) {
   const emailRequest = {
     recipient: data?.email,
     body: {
-      url: `${
-        isDev ? Config.WEB_URL_LOCAL : Config.WEB_URL
-      }confirm?token=${token}`,
+      url: `${Config.WEB_URL}confirm?token=${token}`,
     },
   };
 

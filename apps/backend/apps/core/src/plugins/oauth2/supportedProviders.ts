@@ -25,8 +25,8 @@ export function supportedProviders(
     facebook: {
       credentials: {
         client: {
-          id: opts.facebookId,
-          secret: opts.facebookSecret,
+          id: opts.facebookId ?? '',
+          secret: opts.facebookSecret ?? '',
         },
       },
       config: oauth2.FACEBOOK_CONFIGURATION,
