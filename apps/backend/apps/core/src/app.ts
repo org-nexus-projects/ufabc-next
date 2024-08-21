@@ -3,7 +3,6 @@ import {
   serializerCompiler,
   validatorCompiler,
 } from 'fastify-type-provider-zod';
-
 import { loadPlugins } from './plugins.js';
 import { nextUserModule } from './modules/NextUser/nextUser.module.js';
 import { entitiesModule } from './modules/Entities/entities.module.js';
@@ -15,7 +14,6 @@ import { backOfficeModule } from './modules/backoffice/backoffice.module.js';
 
 export async function buildApp(opts: FastifyServerOptions = {}) {
   const app = fastify(opts);
-  // Zod validation
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
   try {

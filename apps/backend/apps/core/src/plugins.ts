@@ -23,8 +23,8 @@ export async function loadPlugins(app: FastifyInstance) {
     app.register(Oauth2, {
       googleId: Config.OAUTH_GOOGLE_CLIENT_ID,
       googleSecret: Config.OAUTH_GOOGLE_SECRET,
-      facebookId: Config.OAUTH_FACEBOOK_CLIENT_ID,
-      facebookSecret: Config.OAUTH_FACEBOOK_SECRET,
+      facebookId: '',
+      facebookSecret: '',
     }),
     app.register(Swagger),
     app.register(Sensible),
