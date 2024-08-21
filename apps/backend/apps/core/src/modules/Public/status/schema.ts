@@ -2,8 +2,7 @@ import { z } from 'zod';
 
 const statusSuccessResponse = z.object({
   msg: z.string().describe('Server state'),
-  databaseStatus: z.string().describe('Is server connected'),
-  redisStatus: z.string().describe('Is Redis connected'),
+  databaseConnected: z.boolean().describe('Is server connected'),
 });
 
 export const statusCheckSchema = {
