@@ -84,4 +84,4 @@ export class NextWorker {
   }
 }
 
-export const nextWorker = new NextWorker();
+// export const nextWorker = new NextWorker();
