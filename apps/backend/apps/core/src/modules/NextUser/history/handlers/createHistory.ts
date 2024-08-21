@@ -17,10 +17,10 @@ const validateSigaaComponents = z.object({
   periodo: z.string(),
   codigo: z.string(),
   situacao: z
-    .enum(['APROVADO', 'REPROVADO', 'REPROVADO POR FALTAS', '--'])
+    .enum(['APROVADO', 'REPROVADO', 'REPROVADO POR FALTAS', '--', ''])
     .transform((situation) => situation.toLocaleLowerCase()),
   disciplina: z.string().transform((name) => name.trim().toLocaleLowerCase()),
-  resultado: z.enum(['A', 'B', 'C', 'D', 'E', 'F', 'O', '--']),
+  resultado: z.enum(['A', 'B', 'C', 'D', 'E', 'F', 'O', '--', '']),
 });
 
 const validateSigaaHistory = z.object({
@@ -134,9 +134,9 @@ async function hydrateComponents(component: StudentComponent, ra: number) {
   }
 
   return {
-    conceito: component.resultado === '--' ? null : component.resultado,
+    conceito: component.resultado === '--' || '' ? null : component.resultado,
     periodo: component.periodo,
-    situacao: component.situacao === '--' ? null : component.situacao,
+    situacao: component.situacao === '--' || '' ? null : component.situacao,
     ano: component.ano,
     codigo: component.codigo,
     creditos: validComponent.credits,
