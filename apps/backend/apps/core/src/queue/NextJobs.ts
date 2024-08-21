@@ -24,7 +24,7 @@ export type NextQueue = Record<
   Queue<JobParameters<NextJobNames> | null, unknown, NextJobNames>
 >;
 
-class NextJobs implements NextJob {
+export class NextJobs implements NextJob {
   private readonly queues: NextQueue = {};
   public readonly queueBoard = FastifyAdapter;
 
@@ -166,4 +166,4 @@ class NextJobs implements NextJob {
   }
 }
 
-// export const nextJobs = new NextJobs();
+export const nextJobs = {};
