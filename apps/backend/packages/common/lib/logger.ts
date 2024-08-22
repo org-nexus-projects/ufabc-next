@@ -1,4 +1,4 @@
-import { pino } from 'pino';
+import { type LoggerOptions, pino } from 'pino';
 import type { PrettyOptions } from 'pino-pretty';
 
 const pinoPrettyOptions = {
@@ -11,10 +11,20 @@ const pinoPrettyOptions = {
 const loggerSetup = {
   dev: {
     transport: {
-      target: 'pino-pretty',
-      options: pinoPrettyOptions,
+      targets: [
+        {
+          target: 'pino-pretty',
+          options: pinoPrettyOptions,
+        },
+        {
+          target: 'pino/file',
+          options: {
+            destination: './logs',
+          },
+        },
+      ],
     },
-  },
+  } satisfies LoggerOptions,
   prod: true,
   test: false,
 };
