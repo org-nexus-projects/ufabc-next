@@ -5,6 +5,7 @@ import { updateTeachers } from './jobs/teacherUpdate.js';
 // import { updateUserEnrollments } from './jobs/userEnrollmentsUpdate.js';
 import { syncSubjects } from './jobs/syncSubjects.js';
 import type { WorkerOptions } from 'bullmq';
+import { syncComponents } from './jobs/syncComponents.js';
 
 type QueueDefinition = Record<string, WorkerOptions>;
 
@@ -52,6 +53,9 @@ export const NEXT_QUEUE_JOBS = {
   'Sync:Subject': {
     concurrency: 10,
   },
+  'Sync:Components': {
+    concurrency: 1,
+  },
 } as const satisfies QueueDefinition;
 
 type JobsDefinition = Record<
@@ -77,7 +81,12 @@ export const NEXT_JOBS = {
   NextSyncSubjects: {
     queue: 'Sync:Subject',
     handler: syncSubjects,
-    every: '5 days',
+    every: '1d',
+  },
+  NextComponentsSync: {
+    queue: 'Sync:Components',
+    handler: syncComponents,
+    every: '1d',
   },
   NextEnrollmentsUpdate: {
     queue: 'Enrollments:Update',

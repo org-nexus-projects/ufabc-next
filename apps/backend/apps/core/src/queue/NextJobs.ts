@@ -92,7 +92,7 @@ export class NextJobs implements NextJob {
 
   schedule<T extends NextJobNames>(
     jobName: T,
-    jobParameters: JobParameters<T>,
+    jobParameters?: JobParameters<T>,
     { toWait, toWaitInMs }: { toWait?: string; toWaitInMs?: number } = {},
   ) {
     const options: JobsOptions = {

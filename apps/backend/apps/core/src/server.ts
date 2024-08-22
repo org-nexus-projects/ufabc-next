@@ -20,11 +20,11 @@ export async function start() {
   app.withTypeProvider<ZodTypeProvider>();
   await app.listen({ port: Config.PORT, host: Config.HOST });
 
-  // ugly
-  nextJobs.schedule('NextSyncSubjects', undefined);
+  nextJobs.schedule('NextSyncSubjects');
   nextJobs.schedule('NextSyncMatriculas', {
     operation: 'alunos_matriculados',
   });
+  nextJobs.schedule('NextComponentsSync');
 
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {
     if (err) {
