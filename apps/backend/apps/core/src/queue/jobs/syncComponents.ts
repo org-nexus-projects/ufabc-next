@@ -41,7 +41,6 @@ export async function syncComponents() {
   const bulkOperations: AnyBulkWriteOperation<Component>[] = [];
 
   for (const component of components) {
-    const identifier = generateIdentifier(component);
     const nextComponent: Component = {
       codigo: component.UFComponentCode,
       disciplina_id: component.UFComponentId,
@@ -52,7 +51,7 @@ export async function syncComponents() {
       turno: component.turno,
       vagas: component.vacancies,
       ideal_quad: false,
-      identifier,
+      identifier: '',
       quad: Number(quad),
       year: Number(year),
       subject: subjectsMap.get(component.name.toLocaleLowerCase())!,
@@ -61,6 +60,9 @@ export async function syncComponents() {
       after_kick: [],
       alunos_matriculados: [],
     };
+
+    // @ts-expect-error refactoring
+    nextComponent.identifier = generateIdentifier(nextComponent);
 
     bulkOperations.push({
       updateOne: {
