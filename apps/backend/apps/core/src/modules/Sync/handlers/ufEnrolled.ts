@@ -1,72 +1,56 @@
-import { batchInsertItems, currentQuad } from '@next/common';
-import { isEqual } from 'lodash-es';
-import { DisciplinaModel } from '@/models/Disciplina.js';
 import { z } from 'zod';
+import { currentQuad } from '@next/common';
+import { type Component, DisciplinaModel } from '@/models/Disciplina.js';
 import { ufProcessor } from '@/services/ufprocessor.js';
-import { storage } from '@/services/unstorage.js';
-import type { FastifyRequest } from 'fastify';
-
-export type SyncMatriculasRequest = {
-  Querystring: {
-    operation: 'alunos_matriculados' | 'after_kick' | 'before_kick';
-  };
-};
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { AnyBulkWriteOperation } from 'mongoose';
 
 const ufEnrolledQueryParams = z.object({
-  operation: z.enum(['sync', 'after_kick', 'before_kick']).default('sync'),
+  operation: z
+    .enum(['alunos_matriculados', 'after_kick', 'before_kick'])
+    .default('alunos_matriculados'),
 });
 
-// TODO(Joabe): validate if sync step still makes sense here
 export async function syncEnrolledHandler(
-  request: FastifyRequest<SyncMatriculasRequest>,
+  request: FastifyRequest,
+  reply: FastifyReply,
 ) {
-  const season = currentQuad();
+  const tenant = currentQuad();
   const { operation } = ufEnrolledQueryParams.parse(request.query);
-  const operationMap =
-    new Map([
-      ['before_kick', 'before_kick'],
-      ['after_kick', 'after_kick'],
-      ['sync', 'alunos_matriculados'],
-    ]).get(operation) ?? 'alunos_matriculados';
-  // check if we are doing a sync operation
-  // update current enrolled students
-  const isSyncMatriculas = operationMap === 'alunos_matriculados';
   const enrolledStudents = await ufProcessor.getEnrolledStudents();
 
-  const start = Date.now();
-  const errors = await batchInsertItems(
-    Object.keys(enrolledStudents),
-    async (componentIds) => {
-      const cacheKey = `component:${season}:${componentIds}`;
-      const cachedComponents = isSyncMatriculas
-        ? await storage.getItem(cacheKey)
-        : {};
-      if (isEqual(cachedComponents, enrolledStudents[Number(componentIds)])) {
-        return cachedComponents;
-      }
-
-      const updatedDisciplinas = await DisciplinaModel.findOneAndUpdate(
-        {
-          season,
-          disciplina_id: componentIds,
+  const bulkOperations: AnyBulkWriteOperation<Component>[] = Object.entries(
+    enrolledStudents,
+  ).map(([enrollmentId, students]) => ({
+    updateOne: {
+      filter: {
+        disciplina_id: enrollmentId,
+        season: tenant,
+      },
+      update: {
+        $set: {
+          [operation]: students,
         },
-        { $set: { [operationMap]: enrolledStudents[Number(componentIds)] } },
-        { upsert: true, new: true },
-      );
-
-      if (isSyncMatriculas) {
-        await storage.setItem(
-          cacheKey,
-          JSON.stringify(enrolledStudents[Number(componentIds)]),
-        );
-      }
-      return updatedDisciplinas;
+      },
+      upsert: true,
     },
-  );
+  }));
 
-  return {
-    status: 'ok',
-    time: Date.now() - start,
-    errors,
-  };
+  const BATCH_SIZE = 150;
+  const start = Date.now();
+
+  try {
+    for (let i = 0; i < bulkOperations.length; i += BATCH_SIZE) {
+      const batch = bulkOperations.slice(i, i + BATCH_SIZE);
+      await DisciplinaModel.bulkWrite(batch, { ordered: false });
+    }
+    return {
+      status: 'ok',
+      time: Date.now() - start,
+      componentsProcessed: bulkOperations.length,
+    };
+  } catch (error) {
+    request.log.error({ error }, 'Error Syncing Enrolled Students');
+    return reply.internalServerError('Error Syncing Enrolled Students');
+  }
 }

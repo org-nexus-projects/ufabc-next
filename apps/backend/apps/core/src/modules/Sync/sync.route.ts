@@ -1,10 +1,7 @@
 import { admin } from '@/hooks/admin.js';
 import { authenticate } from '@/hooks/authenticate.js';
 import { syncEnrollments } from './handlers/enrollments.js';
-import {
-  type SyncMatriculasRequest,
-  syncEnrolledHandler,
-} from './handlers/ufEnrolled.js';
+import { syncEnrolledHandler } from './handlers/ufEnrolled.js';
 import { componentsTeachers } from './handlers/componentsTeachers.js';
 import {
   syncEnrollmentsLegacy,
@@ -18,29 +15,19 @@ import {
 import type { FastifyInstance } from 'fastify';
 
 export async function syncRoutes(app: FastifyInstance) {
-  app.get<SyncMatriculasRequest>(
-    '/matriculas',
-    { schema: syncEnrolledSchema, preValidation: [authenticate, admin] },
-    syncEnrolledHandler,
-  );
+  app.addHook('preValidation', authenticate);
+  app.addHook('preValidation', admin);
 
-  app.post(
-    '/enrollments',
-    { schema: syncEnrollmentsSchema, preValidation: [authenticate, admin] },
-    syncEnrollments,
-  );
-
+  app.get('/matriculas', { schema: syncEnrolledSchema }, syncEnrolledHandler);
+  app.post('/enrollments', { schema: syncEnrollmentsSchema }, syncEnrollments);
   app.post<SyncEnrollmentsRequest>(
     '/enrollments/legacy',
-    { preValidation: [authenticate, admin] },
     syncEnrollmentsLegacy,
   );
-
   app.put(
     '/disciplinas/teachers',
     {
       schema: syncComponentsTeacherSchema,
-      preValidation: [authenticate, admin],
     },
     componentsTeachers,
   );
