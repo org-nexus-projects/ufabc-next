@@ -19,7 +19,7 @@ const loggerSetup = {
         {
           target: 'pino/file',
           options: {
-            destination: './logs',
+            destination: './tmp/logs',
           },
         },
       ],

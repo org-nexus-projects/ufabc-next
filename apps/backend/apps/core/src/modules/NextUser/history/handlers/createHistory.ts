@@ -120,7 +120,7 @@ async function hydrateComponents(component: StudentComponent, ra: number) {
   );
 
   if (!validComponent) {
-    logger.warn({ name: componentSubject }, 'No valid component found');
+    logger.warn({ name: componentSubject, ra }, 'No valid component found');
     return;
   }
 

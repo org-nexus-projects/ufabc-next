@@ -1,5 +1,5 @@
 import { courseId, type currentQuad } from '@next/common';
-import { type Disciplina, DisciplinaModel } from '@/models/Disciplina.js';
+import { type Component, DisciplinaModel } from '@/models/Disciplina.js';
 import { type Student, StudentModel } from '@/models/Student.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { FilterQuery } from 'mongoose';
@@ -39,7 +39,7 @@ export class DisciplinaStatsHandler {
     }
 
     // check if query has been made
-    const match: FilterQuery<Disciplina> = {
+    const match: FilterQuery<Component> = {
       season,
     };
 

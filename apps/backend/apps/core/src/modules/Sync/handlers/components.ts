@@ -3,7 +3,7 @@ import {
   currentQuad,
   generateIdentifier,
 } from '@next/common';
-import { DisciplinaModel, type Disciplina } from '@/models/Disciplina.js';
+import { DisciplinaModel, type Component } from '@/models/Disciplina.js';
 import { SubjectModel } from '@/models/Subject.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import {
@@ -55,7 +55,7 @@ export async function syncComponentsHandler(
     };
   }
 
-  const nextComponents = components.map<Disciplina>((component) => ({
+  const nextComponents = components.map<Component>((component) => ({
     codigo: component.UFComponentCode,
     disciplina_id: component.UFComponentId,
     campus: component.campus,
