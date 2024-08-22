@@ -41,7 +41,10 @@ export async function syncComponents() {
   const bulkOperations: AnyBulkWriteOperation<Component>[] = [];
 
   for (const component of components) {
-    const nextComponent: Component = {
+    const nextComponent: Omit<
+      Component,
+      'alunos_matriculados' | 'before_kick' | 'after_kick'
+    > = {
       codigo: component.UFComponentCode,
       disciplina_id: component.UFComponentId,
       campus: component.campus,
@@ -56,9 +59,6 @@ export async function syncComponents() {
       year: Number(year),
       subject: subjectsMap.get(component.name.toLocaleLowerCase())!,
       obrigatorias: component.courses.map((course) => course.UFCourseId),
-      before_kick: [],
-      after_kick: [],
-      alunos_matriculados: [],
     };
 
     // @ts-expect-error refactoring
@@ -75,6 +75,11 @@ export async function syncComponents() {
           $set: {
             ...nextComponent,
             updatedAt: new Date(),
+          },
+          $setOnInsert: {
+            alunos_matriculados: [],
+            before_kick: [],
+            after_kick: [],
           },
         },
         upsert: true,
