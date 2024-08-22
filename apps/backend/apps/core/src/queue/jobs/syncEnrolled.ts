@@ -1,12 +1,8 @@
 import { batchInsertItems, currentQuad } from '@next/common';
-import { DisciplinaModel } from '@/models/Disciplina.js';
+import { DisciplinaModel as ComponentModel } from '@/models/Disciplina.js';
 import { ufProcessor } from '@/services/ufprocessor.js';
 
-type SyncMatriculasParams = {
-  operation: 'alunos_matriculados';
-};
-
-export async function ufEnrollmentsJob(params: SyncMatriculasParams) {
+export async function syncEnrolled() {
   const season = currentQuad();
   const enrollments = await ufProcessor.getEnrolledStudents();
   const bulkOps = Object.entries(enrollments).map(
@@ -14,7 +10,7 @@ export async function ufEnrollmentsJob(params: SyncMatriculasParams) {
       updateOne: {
         filter: { disciplina_id: enrollmentId, season },
         update: {
-          $set: { [params?.operation || 'alunos_matriculados']: students },
+          $set: { alunos_matriculados: students },
         },
       },
     }),
@@ -26,7 +22,7 @@ export async function ufEnrollmentsJob(params: SyncMatriculasParams) {
       bulkOps.slice(i * BATCH_SIZE, (i + 1) * BATCH_SIZE),
     ),
     async (batch) => {
-      await DisciplinaModel.bulkWrite(batch, { ordered: false });
+      await ComponentModel.bulkWrite(batch, { ordered: false });
     },
   );
 

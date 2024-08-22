@@ -1,7 +1,7 @@
 import { admin } from '@/hooks/admin.js';
 import { authenticate } from '@/hooks/authenticate.js';
 import { syncEnrollments } from './handlers/enrollments.js';
-import { syncEnrolledHandler } from './handlers/ufEnrolled.js';
+import { syncEnrolledStatusHandler } from './handlers/ufEnrolled.js';
 import { componentsTeachers } from './handlers/componentsTeachers.js';
 import {
   syncEnrollmentsLegacy,
@@ -18,7 +18,11 @@ export async function syncRoutes(app: FastifyInstance) {
   app.addHook('preValidation', authenticate);
   app.addHook('preValidation', admin);
 
-  app.get('/matriculas', { schema: syncEnrolledSchema }, syncEnrolledHandler);
+  app.get(
+    '/matriculas',
+    { schema: syncEnrolledSchema },
+    syncEnrolledStatusHandler,
+  );
   app.post('/enrollments', { schema: syncEnrollmentsSchema }, syncEnrollments);
   app.post<SyncEnrollmentsRequest>(
     '/enrollments/legacy',

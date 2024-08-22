@@ -6,12 +6,10 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { AnyBulkWriteOperation } from 'mongoose';
 
 const ufEnrolledQueryParams = z.object({
-  operation: z
-    .enum(['alunos_matriculados', 'after_kick', 'before_kick'])
-    .default('alunos_matriculados'),
+  operation: z.enum(['after_kick', 'before_kick']),
 });
 
-export async function syncEnrolledHandler(
+export async function syncEnrolledStatusHandler(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {

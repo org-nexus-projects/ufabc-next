@@ -1,11 +1,11 @@
 import { sendConfirmationEmail } from './jobs/email.js';
 import { updateEnrollments } from './jobs/enrollmentsUpdate.js';
-import { ufEnrollmentsJob } from './jobs/ufEnrolled.js';
+import { syncEnrolled } from './jobs/syncEnrolled.js';
 import { updateTeachers } from './jobs/teacherUpdate.js';
 // import { updateUserEnrollments } from './jobs/userEnrollmentsUpdate.js';
 import { syncSubjects } from './jobs/syncSubjects.js';
-import type { WorkerOptions } from 'bullmq';
 import { syncComponents } from './jobs/syncComponents.js';
+import type { WorkerOptions } from 'bullmq';
 
 type QueueDefinition = Record<string, WorkerOptions>;
 
@@ -38,7 +38,7 @@ export const NEXT_QUEUE_JOBS = {
   /**
    * Queue for Syncing Matriculas with UFABC
    */
-  'Sync:UFEnrollments': {
+  'Sync:Enrolled': {
     concurrency: 5,
   },
   /**
@@ -73,12 +73,12 @@ export const NEXT_JOBS = {
     queue: 'Send:Email',
     handler: sendConfirmationEmail,
   },
-  NextSyncMatriculas: {
-    queue: 'Sync:UFEnrollments',
-    handler: ufEnrollmentsJob,
+  NextEnrolledSync: {
+    queue: 'Sync:Enrolled',
+    handler: syncEnrolled,
     every: '2 minutes',
   },
-  NextSyncSubjects: {
+  NexSubjectsSync: {
     queue: 'Sync:Subject',
     handler: syncSubjects,
     every: '1d',
