@@ -166,4 +166,4 @@ export class NextJobs implements NextJob {
   }
 }
 
-export const nextJobs = {};
+export const nextJobs = new NextJobs();
