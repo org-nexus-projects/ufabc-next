@@ -4,9 +4,9 @@ import {
   validatorCompiler,
 } from 'fastify-type-provider-zod';
 import { loadPlugins } from './plugins.js';
-import { nextUserModule } from './modules/NextUser/nextUser.module.js';
 import { entitiesModule } from './modules/Entities/entities.module.js';
 import { publicModule } from './modules/Public/public.module.js';
+import { nextUserModule } from './modules/NextUser/nextUser.module.js';
 import { syncModule } from './modules/Sync/sync.module.js';
 import { backOfficeModule } from './modules/backoffice/backoffice.module.js';
 import { nextJobs } from './queue/NextJobs.js';
@@ -36,8 +36,6 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
 
     nextJobs.setup();
     nextWorker.setup();
-
-    nextJobs.board(app);
 
     return app;
   } catch (error) {
