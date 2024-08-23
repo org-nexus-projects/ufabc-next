@@ -4,6 +4,15 @@ import { ufProcessor } from '@/services/ufprocessor.js';
 import { currentQuad, generateIdentifier, logger } from '@next/common';
 import type { AnyBulkWriteOperation } from 'mongoose';
 
+type NextComponent = Omit<
+  Component,
+  | 'alunos_matriculados'
+  | 'before_kick'
+  | 'after_kick'
+  | 'createdAt'
+  | 'updatedAt'
+>;
+
 export async function syncComponents() {
   const tenant = currentQuad();
   const [year, quad] = tenant.split(':');
@@ -41,10 +50,7 @@ export async function syncComponents() {
   const bulkOperations: AnyBulkWriteOperation<Component>[] = [];
 
   for (const component of components) {
-    const nextComponent: Omit<
-      Component,
-      'alunos_matriculados' | 'before_kick' | 'after_kick'
-    > = {
+    const nextComponent: NextComponent = {
       codigo: component.UFComponentCode,
       disciplina_id: component.UFComponentId,
       campus: component.campus,
