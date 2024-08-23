@@ -5,7 +5,6 @@ import {
   model,
 } from 'mongoose';
 import { findQuarter } from '@next/common';
-import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 
 const CAMPUS = ['sao bernardo', 'santo andre', 'sbc', 'sa'] as const;
 
@@ -60,19 +59,9 @@ const componentSchema = new Schema(
     },
   },
   {
-    virtuals: {
-      requisicoes: {
-        get() {
-          const students: number[] = this.alunos_matriculados ?? [];
-          return students.length;
-        },
-      },
-    },
     timestamps: true,
   },
 );
-
-componentSchema.plugin(mongooseLeanVirtuals);
 
 function setQuarter(component: UpdateQuery<Component> | null) {
   const { year, quad } = findQuarter();
