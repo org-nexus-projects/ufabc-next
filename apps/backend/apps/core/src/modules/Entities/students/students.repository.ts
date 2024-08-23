@@ -13,6 +13,7 @@ import type {
   DisciplinaModel,
 } from '@/models/Disciplina.js';
 import type { FilterQuery } from 'mongoose';
+import { currentQuad } from '@next/common';
 
 interface EntititesStudentRepository {
   findDisciplinas(
@@ -28,6 +29,16 @@ interface EntititesStudentRepository {
     data: Student,
   ): Promise<StudentDocument | null>;
 }
+
+type StudentAggregate = Student & {
+  cursos: Student['cursos'][number];
+};
+
+type CourseInfo = {
+  _id: string;
+  ids: Array<number>;
+};
+
 
 export class StudentRepository implements EntititesStudentRepository {
   constructor(
@@ -70,5 +81,53 @@ export class StudentRepository implements EntititesStudentRepository {
     );
 
     return updatedStudent;
+  }
+
+  async kickedStudents(studentIds: number[]) {
+    const tenant = currentQuad();
+    const students = await this.studentService.aggregate<StudentAggregate>([
+      {
+        $match: { season: tenant, aluno_id: { $in: studentIds } },
+      },
+      { $unwind: '$cursos' },
+    ]);
+    return students;
+  }
+
+  async studentCourses() {
+    const tenant = currentQuad();
+    const courses = await this.studentService.aggregate<CourseInfo>([
+      {
+        $unwind: '$cursos',
+      },
+      {
+        $match: {
+          'cursos.id_curso': {
+            $ne: null,
+          },
+          season: tenant,
+        },
+      },
+      {
+        $project: {
+          'cursos.id_curso': 1,
+          'cursos.nome_curso': {
+            $trim: {
+              input: '$cursos.nome_curso',
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$cursos.nome_curso',
+          ids: {
+            $addToSet: '$cursos.id_curso',
+          },
+        },
+      },
+    ]);
+
+    return courses
   }
 }

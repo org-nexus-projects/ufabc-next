@@ -1,9 +1,11 @@
 import { currentQuad } from '@next/common';
 import { orderBy as LodashOrderBy } from 'lodash-es';
 import { z } from 'zod';
-import { DisciplinaModel, type Disciplina } from '@/models/Disciplina.js';
-import { getCourses, getKickedStudents } from '../component.service.js';
+import { DisciplinaModel as ComponentModel, type Component } from '@/models/Disciplina.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
+import { StudentRepository } from '../../students/students.repository.js';
+import { StudentModel } from '@/models/Student.js';
+import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
 
 const validatedParams = z.object({
   componentId: z.coerce.number().int(),
@@ -11,6 +13,8 @@ const validatedParams = z.object({
 const validatedQueryParam = z.object({
   sort: z.enum(['reserva', 'turno', 'ik', 'cp', 'cr']).optional(),
 });
+
+const StudentService = new StudentRepository(StudentModel, GraduationHistoryModel, ComponentModel)
 
 export async function listKicked(request: FastifyRequest, reply: FastifyReply) {
   const { componentId } = validatedParams.parse(request.params);
@@ -21,7 +25,7 @@ export async function listKicked(request: FastifyRequest, reply: FastifyReply) {
   }
 
   const season = currentQuad();
-  const component = await DisciplinaModel.findOne({
+  const component = await ComponentModel.findOne({
     season,
     disciplina_id: componentId,
   });
@@ -44,10 +48,10 @@ export async function listKicked(request: FastifyRequest, reply: FastifyReply) {
   const kickedMap = new Map(
     resolveKicked.map((kicked) => [kicked.studentId, kicked]),
   );
-  const students = await getKickedStudents(
+  const students = await StudentService.kickedStudents(
     resolveKicked.map((kicked) => kicked.studentId),
   );
-  const courses = await getCourses();
+  const courses = await StudentService.studentCourses();
   const interCourses = [
     'Bacharelado em Ciência e Tecnologia',
     'Bacharelado em Ciências e Humanidades',
@@ -118,7 +122,7 @@ function kickRule(idealQuad: boolean) {
   return ['reserva', 'turno', 'ik'].concat(coeffRule);
 }
 
-function resolveEnrolled(component: Disciplina, isAfterKick: boolean) {
+function resolveEnrolled(component: Component, isAfterKick: boolean) {
   const {
     after_kick: afterKick,
     alunos_matriculados: enrolledStudents,

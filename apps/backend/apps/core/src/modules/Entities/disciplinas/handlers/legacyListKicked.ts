@@ -1,4 +1,4 @@
-import { DisciplinaModel, type Disciplina } from '@/models/Disciplina.js';
+import { DisciplinaModel, type Component } from '@/models/Disciplina.js';
 import { StudentModel, type Student } from '@/models/Student.js';
 import { currentQuad, courseId } from '@next/common';
 import { sortBy as LodashSortBy } from 'lodash-es';
@@ -121,7 +121,7 @@ export async function listDisciplinasKicks(
   return uniqueStudents;
 }
 
-function kickRule(disciplina: Disciplina) {
+function kickRule(disciplina: Component) {
   const season = currentQuad();
   let coeffRule = null;
   if (
@@ -149,7 +149,7 @@ function kickRule(disciplina: Disciplina) {
   return ['reserva', 'turno', 'ik'].concat(coeffRule);
 }
 
-function resolveMatricula(disciplina: Disciplina, isAfterKick: number) {
+function resolveMatricula(disciplina: Component, isAfterKick: number) {
   // if kick has not arrived, not one has been kicked
   if (!isAfterKick) {
     const registeredStudents = disciplina.alunos_matriculados || [];

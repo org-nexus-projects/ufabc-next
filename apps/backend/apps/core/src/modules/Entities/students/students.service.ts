@@ -1,6 +1,8 @@
-import type { Student } from '@/models/Student.js';
+import type {  Student } from '@/models/Student.js';
 import type { StudentRepository } from './students.repository.js';
-import type { currentQuad } from '@next/common';
+import { currentQuad } from '@next/common';
+
+
 
 export class StudentService {
   constructor(private readonly studentRepository: StudentRepository) {}
