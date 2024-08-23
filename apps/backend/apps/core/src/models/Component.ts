@@ -93,6 +93,6 @@ componentSchema.pre('findOneAndUpdate', function () {
 });
 
 export type Component = InferSchemaType<typeof componentSchema>;
-export type ComponentDocument = ReturnType<(typeof DisciplinaModel)['hydrate']>;
+export type ComponentDocument = ReturnType<(typeof ComponentModel)['hydrate']>;
 
-export const DisciplinaModel = model('disciplinas', componentSchema);
+export const ComponentModel = model('disciplinas', componentSchema);

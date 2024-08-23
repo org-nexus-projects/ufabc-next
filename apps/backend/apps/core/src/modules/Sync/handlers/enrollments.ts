@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { ofetch } from 'ofetch';
 import { generateIdentifier } from '@next/common';
 import { omit as LodashOmit } from 'lodash-es';
-import { ComponentModel, type Component } from '@/models/Disciplina.js';
+import { ComponentModel, type Component } from '@/models/Component.js';
 import { nextJobs } from '@/queue/NextJobs.js';
 import { z } from 'zod';
 import type { FastifyReply, FastifyRequest } from 'fastify';
@@ -32,7 +32,7 @@ export async function syncEnrollments(
 
   const components = await ComponentModel.find({
     season,
-  }).lean({ virtuals: true });
+  }).lean();
 
   const componentsMap = new Map<string, (typeof components)[number]>(
     components.map((component) => [component.identifier, component]),

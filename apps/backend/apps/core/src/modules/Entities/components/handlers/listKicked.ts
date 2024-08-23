@@ -1,10 +1,7 @@
 import { currentQuad } from '@next/common';
 import { orderBy as LodashOrderBy } from 'lodash-es';
 import { z } from 'zod';
-import {
-  DisciplinaModel as ComponentModel,
-  type Component,
-} from '@/models/Disciplina.js';
+import { ComponentModel, type Component } from '@/models/Component.js';
 import { StudentRepository } from '../../students/students.repository.js';
 import { StudentModel } from '@/models/Student.js';
 import { GraduationHistoryModel } from '@/models/GraduationHistory.js';

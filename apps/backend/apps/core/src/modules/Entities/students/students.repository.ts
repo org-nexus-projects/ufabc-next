@@ -10,8 +10,8 @@ import type {
 import type {
   Component,
   ComponentDocument,
-  DisciplinaModel,
-} from '@/models/Disciplina.js';
+  ComponentModel,
+} from '@/models/Component.js';
 import type { FilterQuery } from 'mongoose';
 import { currentQuad } from '@next/common';
 
@@ -39,12 +39,11 @@ type CourseInfo = {
   ids: Array<number>;
 };
 
-
 export class StudentRepository implements EntititesStudentRepository {
   constructor(
     private readonly studentService: typeof StudentModel,
     private readonly graduationHistoryService: typeof GraduationHistoryModel,
-    private readonly disciplinaService: typeof DisciplinaModel,
+    private readonly disciplinaService: typeof ComponentModel,
   ) {}
 
   findDisciplinas(filter: FilterQuery<Component>) {
@@ -128,6 +127,6 @@ export class StudentRepository implements EntititesStudentRepository {
       },
     ]);
 
-    return courses
+    return courses;
   }
 }

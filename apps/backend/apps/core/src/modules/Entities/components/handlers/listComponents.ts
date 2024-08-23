@@ -1,4 +1,4 @@
-import { DisciplinaModel as ComponentModel } from '@/models/Disciplina.js';
+import { ComponentModel } from '@/models/Component.js';
 import { currentQuad } from '@next/common';
 import { LRUCache } from 'lru-cache';
 
@@ -27,7 +27,7 @@ type PopulatedComponent = {
     _id: string;
   };
   vagas: number;
-  requisicoes: number;
+  alunos_matriculados: number[];
   teoria?: {
     name: string;
     _id: string;
@@ -64,8 +64,9 @@ export async function listComponents() {
     vagas: 1,
     teoria: 1,
     pratica: 1,
+    alunos_matriculados: 1,
     _id: 0,
-  }
+  };
 
   const components: PopulatedComponent[] = await ComponentModel.find(
     {
@@ -74,11 +75,12 @@ export async function listComponents() {
     queryProjection,
   )
     .populate(['pratica', 'teoria', 'subject'])
-    .lean({ virtuals: true });
+    .lean();
 
   const toShow = components.map<ListedComponent>(
     ({ id: _ignore, ...component }) => ({
       ...component,
+      requisicoes: component.alunos_matriculados.length ?? [],
       teoria: component.teoria?.name,
       pratica: component.pratica?.name,
       subject: component.subject?.name,

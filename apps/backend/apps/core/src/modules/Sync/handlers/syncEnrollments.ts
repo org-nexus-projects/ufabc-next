@@ -7,7 +7,7 @@ import {
   parseXlsx,
 } from '@next/common';
 import { omit as LodashOmit } from 'lodash-es';
-import { type Component, DisciplinaModel } from '@/models/Disciplina.js';
+import { type Component, ComponentModel } from '@/models/Component.js';
 import { nextJobs } from '@/queue/NextJobs.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
@@ -51,10 +51,10 @@ export async function syncEnrollmentsLegacy(
     pratica: 1,
   };
 
-  const disciplinas = await DisciplinaModel.find(
+  const disciplinas = await ComponentModel.find(
     { season },
     disciplinasMapper,
-  ).lean<Component[]>({ virtuals: true });
+  ).lean<Component[]>();
 
   const disciplinasMapping = new Map<string, Component>(
     disciplinas.map((d) => [d.identifier, d]),

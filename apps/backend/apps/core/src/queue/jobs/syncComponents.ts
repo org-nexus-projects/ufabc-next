@@ -1,4 +1,4 @@
-import { DisciplinaModel, type Component } from '@/models/Disciplina.js';
+import { ComponentModel, type Component } from '@/models/Component.js';
 import { SubjectModel } from '@/models/Subject.js';
 import { ufProcessor } from '@/services/ufprocessor.js';
 import { currentQuad, generateIdentifier, logger } from '@next/common';
@@ -79,8 +79,8 @@ export async function syncComponents() {
           $setOnInsert: {
             alunos_matriculados: [],
             after_kick: [],
-            before_kick: []
-          }
+            before_kick: [],
+          },
         },
         upsert: true,
       },
@@ -88,7 +88,7 @@ export async function syncComponents() {
   }
 
   if (bulkOperations.length > 0) {
-    const result = await DisciplinaModel.bulkWrite(bulkOperations);
+    const result = await ComponentModel.bulkWrite(bulkOperations);
     logger.info({
       msg: 'components updated/created',
       modifiedCount: result.modifiedCount,

@@ -1,5 +1,5 @@
 import { currentQuad, lastQuad } from '@next/common';
-import { DisciplinaModel } from '@/models/Disciplina.js';
+import { ComponentModel } from '@/models/Component.js';
 import { type Student, StudentModel } from '@/models/Student.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { StudentService } from './students.service.js';
@@ -98,11 +98,11 @@ export class StudentHandler {
     request: FastifyRequest<{ Querystring: { season: string } }>,
   ) {
     const season = request.query.season || currentQuad();
-    const isPrevious = await DisciplinaModel.countDocuments({
+    const isPrevious = await ComponentModel.countDocuments({
       before_kick: { $exists: true, $ne: [] },
     });
     const dataKey = isPrevious ? '$before_kick' : '$alunos_matriculados';
-    const userStatusAggregate = await DisciplinaModel.aggregate([
+    const userStatusAggregate = await ComponentModel.aggregate([
       {
         $match: { season },
       },

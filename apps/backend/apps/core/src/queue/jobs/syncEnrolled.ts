@@ -1,8 +1,5 @@
 import { currentQuad, logger } from '@next/common';
-import {
-  type Component,
-  DisciplinaModel as ComponentModel,
-} from '@/models/Disciplina.js';
+import { type Component, ComponentModel } from '@/models/Component.js';
 import { ufProcessor } from '@/services/ufprocessor.js';
 import type { AnyBulkWriteOperation } from 'mongoose';
 
@@ -20,8 +17,7 @@ export async function syncEnrolled() {
     },
   }));
 
-  
-  if(bulkOps.length > 0) {
+  if (bulkOps.length > 0) {
     const result = await ComponentModel.bulkWrite(bulkOps);
     logger.info({
       msg: 'components enrolled updated',
@@ -31,7 +27,7 @@ export async function syncEnrolled() {
     return {
       msg: 'components enrolled updated',
       modifiedCount: result.modifiedCount,
-    }
+    };
   }
 
   logger.info('No components needed updating or creation');
