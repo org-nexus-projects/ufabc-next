@@ -4,7 +4,7 @@ import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 const teacherSchema = new Schema(
   {
     name: { type: String, required: true },
-    alias: [String],
+    alias: { type: [String], default: [] },
   },
   {
     timestamps: true,
