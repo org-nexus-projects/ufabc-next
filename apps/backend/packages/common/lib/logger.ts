@@ -1,4 +1,4 @@
-import { pino } from 'pino';
+import { type LoggerOptions, pino } from 'pino';
 import type { PrettyOptions } from 'pino-pretty';
 
 const pinoPrettyOptions = {
@@ -14,7 +14,7 @@ const loggerSetup = {
       target: 'pino-pretty',
       options: pinoPrettyOptions,
     },
-  },
+  } satisfies LoggerOptions,
   prod: true,
   test: false,
 };

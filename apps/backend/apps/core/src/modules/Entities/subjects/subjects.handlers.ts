@@ -39,18 +39,29 @@ export class SubjectHandler {
   }
 
   async createSubject(
-    request: FastifyRequest<{ Body: { name: string | string[] } }>,
+    request: FastifyRequest<{
+      Body: Array<{ name: string; credits: number }>;
+    }>,
+    reply: FastifyReply,
   ) {
-    const { name } = request.body;
+    const subjects = request.body;
 
-    if (Array.isArray(name)) {
-      const toInsert = name.map((n) => ({ name: n }));
+    if (
+      Array.isArray(subjects) &&
+      subjects.every((item) => item.name && item.credits)
+    ) {
+      const toInsert = subjects.map((item) => ({
+        name: item.name,
+        creditos: item.credits,
+      }));
+
       const insertedSubjects = await SubjectModel.create(toInsert);
       return insertedSubjects;
     }
 
-    const insertedSubject = await SubjectModel.create({ name });
-    return insertedSubject;
+    return reply.badRequest(
+      'Invalid payload format. Each item must contain both `name` and `credits`.',
+    );
   }
 
   async listAllSubjects() {

@@ -17,10 +17,10 @@ const validateSigaaComponents = z.object({
   periodo: z.string(),
   codigo: z.string(),
   situacao: z
-    .enum(['APROVADO', 'REPROVADO', 'REPROVADO POR FALTAS', '--'])
+    .enum(['APROVADO', 'REPROVADO', 'REPROVADO POR FALTAS', '--', ''])
     .transform((situation) => situation.toLocaleLowerCase()),
-  disciplina: z.string().transform((name) => name.toLocaleLowerCase()),
-  resultado: z.enum(['A', 'B', 'C', 'D', 'E', 'F', 'O', '--']),
+  disciplina: z.string().transform((name) => name.trim().toLocaleLowerCase()),
+  resultado: z.enum(['A', 'B', 'C', 'D', 'E', 'F', 'O', '--', '']),
 });
 
 const validateSigaaHistory = z.object({
@@ -54,7 +54,7 @@ export async function createHistory(
   }
 
   const hydratedComponentsPromises = studentHistory.components.map(
-    (component) => hydrateComponents(component),
+    (component) => hydrateComponents(component, studentHistory.ra),
   );
   const hydratedComponents = await Promise.all(hydratedComponentsPromises);
   const course = transformCourseName(
@@ -104,32 +104,43 @@ export async function createHistory(
   };
 }
 
-async function hydrateComponents(component: StudentComponent) {
+async function hydrateComponents(component: StudentComponent, ra: number) {
   const subjects = await SubjectModel.find({
     creditos: {
       $exists: true,
     },
   });
   const normalizedSubjects = subjects.map((subject) => ({
-    name: subject.name.toLocaleLowerCase(),
+    name: subject.name.trim().toLocaleLowerCase(),
     credits: subject.creditos,
   }));
-  const validComponent = normalizedSubjects.find((subject) =>
-    subject.name.includes(component.disciplina),
+  const componentSubject = component.disciplina.trim().toLocaleLowerCase();
+  const validComponent = normalizedSubjects.find(
+    (subject) => subject.name === componentSubject,
   );
 
   if (!validComponent) {
-    logger.warn({ name: component.disciplina }, 'No valid component found');
+    logger.warn({ name: componentSubject, ra }, 'No valid component found');
     return;
   }
 
+  const existingHistory = await HistoryModel.findOne({ ra });
+  let category = null;
+  if (existingHistory) {
+    const existingComponents = existingHistory.disciplinas.find(
+      (disciplina) => disciplina.codigo === component?.codigo || false,
+    );
+    category = existingComponents?.categoria ?? null;
+  }
+
   return {
-    conceito: component.resultado === '--' ? null : component.resultado,
+    conceito: component.resultado === '--' || '' ? null : component.resultado,
     periodo: component.periodo,
-    situacao: component.situacao === '--' ? null : component.situacao,
+    situacao: component.situacao === '--' || '' ? null : component.situacao,
     ano: component.ano,
     codigo: component.codigo,
     creditos: validComponent.credits,
     disciplina: validComponent.name,
+    categoria: category,
   };
 }

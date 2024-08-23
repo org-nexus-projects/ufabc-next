@@ -1,10 +1,5 @@
 import type { FastifySchema } from 'fastify';
 
-export const syncComponentsSchema = {
-  tags: ['Sync'],
-  description: 'Rota para sincronizar disciplinas',
-} satisfies FastifySchema;
-
 export const syncEnrolledSchema = {
   tags: ['Sync'],
   description: 'Rota para sincronizar matrículas',

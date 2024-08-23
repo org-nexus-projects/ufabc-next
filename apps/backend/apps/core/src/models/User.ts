@@ -41,7 +41,7 @@ const userSchema = new Schema(
     email: {
       type: String,
       validate: {
-      validator: (email: string) => email.includes('ufabc.edu.br'),
+        validator: (email: string) => email.includes('ufabc.edu.br'),
         message: (props: ValidatorProps) =>
           `${props.value} não é um e-mail válido.`,
       },

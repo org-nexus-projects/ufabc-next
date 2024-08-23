@@ -9,8 +9,8 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 export type NextOauthOptions = {
   googleId: Config['OAUTH_GOOGLE_CLIENT_ID'];
   googleSecret: Config['OAUTH_GOOGLE_SECRET'];
-  facebookId: Config['OAUTH_FACEBOOK_CLIENT_ID'];
-  facebookSecret: Config['OAUTH_FACEBOOK_SECRET'];
+  facebookId?: string;
+  facebookSecret?: string;
 };
 
 async function oauth2(app: FastifyInstance, opts: NextOauthOptions) {

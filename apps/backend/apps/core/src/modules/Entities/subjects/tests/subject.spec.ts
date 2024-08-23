@@ -29,6 +29,7 @@ describe('Subjects repository unit tests', () => {
 
     const createdSubject = await subjectRepository.createSubject({
       name: 'Algebra Linear',
+      creditos: 6,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

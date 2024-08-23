@@ -35,9 +35,6 @@ importers:
       '@fastify/oauth2':
         specifier: ^7.8.1
         version: 7.9.0
-      '@fastify/redis':
-        specifier: ^6.2.0
-        version: 6.2.0
       '@fastify/sensible':
         specifier: ^5.6.0
         version: 5.6.0
@@ -712,9 +709,6 @@ packages:
 
   '@fastify/oauth2@7.9.0':
     resolution: {integrity: sha512-OsMr+M2FI7ib/UKZ8hC4SRnUBQqgJ0EsvAhn1qrdYJ9K/U5OwaM2sQM8fLEYbKYQRlH0oxC7lvdTm8Ncd5+ukA==}
-
-  '@fastify/redis@6.2.0':
-    resolution: {integrity: sha512-0M4oTYRJz/ETPdfXvs/ToFI0ZNFjrz1jYFxEr+wHgnW6hswDsLDs+gxLMff2cb5Fegg3siG4hJzhmvvpvqqqbA==}
 
   '@fastify/send@2.1.0':
     resolution: {integrity: sha512-yNYiY6sDkexoJR0D8IDy3aRP3+L4wdqCpvx5WP+VtEU58sn7USmKynBzDQex5X42Zzvw2gNzzYgP90UfWShLFA==}
@@ -3817,13 +3811,6 @@ snapshots:
       '@fastify/cookie': 9.3.1
       fastify-plugin: 4.5.1
       simple-oauth2: 5.1.0
-    transitivePeerDependencies:
-      - supports-color
-
-  '@fastify/redis@6.2.0':
-    dependencies:
-      fastify-plugin: 4.5.1
-      ioredis: 5.4.1
     transitivePeerDependencies:
       - supports-color
 

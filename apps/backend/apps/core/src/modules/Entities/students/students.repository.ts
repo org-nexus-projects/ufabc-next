@@ -8,16 +8,16 @@ import type {
   GraduationHistoryModel,
 } from '@/models/GraduationHistory.js';
 import type {
-  Disciplina,
-  DisciplinaDocument,
+  Component,
+  ComponentDocument,
   DisciplinaModel,
 } from '@/models/Disciplina.js';
 import type { FilterQuery } from 'mongoose';
 
 interface EntititesStudentRepository {
   findDisciplinas(
-    filter: FilterQuery<Disciplina>,
-  ): Promise<DisciplinaDocument[] | null>;
+    filter: FilterQuery<Component>,
+  ): Promise<ComponentDocument[] | null>;
   findStudents(filter: FilterQuery<Student>): Promise<StudentDocument[] | null>;
   findOneStudent(filter: FilterQuery<Student>): Promise<Student | null>;
   findOneStudentGraduation(
@@ -36,12 +36,12 @@ export class StudentRepository implements EntititesStudentRepository {
     private readonly disciplinaService: typeof DisciplinaModel,
   ) {}
 
-  findDisciplinas(filter: FilterQuery<Disciplina>) {
+  findDisciplinas(filter: FilterQuery<Component>) {
     const disciplinas = this.disciplinaService.find(filter);
     return disciplinas;
   }
 
-  async findStudents(filter: FilterQuery<Disciplina>) {
+  async findStudents(filter: FilterQuery<Component>) {
     const students = await this.studentService.find(filter);
     return students;
   }

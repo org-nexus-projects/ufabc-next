@@ -21,12 +21,9 @@ export async function handleOauth(
   const oauthUser = await providers[provider].getUserDetails(token);
   const user = await createIfNotExists(oauthUser, userId);
 
-  const isDev = Config.NODE_ENV === 'dev';
   const isUserInApp = inApp.split('?')[0] === 'true';
-
-  const webUrl = isDev ? Config.WEB_URL_LOCAL : Config.WEB_URL;
   const tokenParam = `?token=${user.generateJWT()}`;
-  const isWeb = `${webUrl}/login${tokenParam}`;
+  const isWeb = `${Config.WEB_URL}/login${tokenParam}`;
   const redirectURL = isUserInApp ? `ufabcnext://login${tokenParam}` : isWeb;
 
   return reply.redirect(redirectURL);

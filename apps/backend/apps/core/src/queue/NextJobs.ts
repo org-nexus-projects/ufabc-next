@@ -24,15 +24,17 @@ export type NextQueue = Record<
   Queue<JobParameters<NextJobNames> | null, unknown, NextJobNames>
 >;
 
-class NextJobs implements NextJob {
+export class NextJobs implements NextJob {
   private readonly queues: NextQueue = {};
   public readonly queueBoard = FastifyAdapter;
 
+  private readonly REDIS_URL = new URL(Config.REDIS_CONNECTION_URL!);
+
   private readonly RedisConnection = {
-    username: Config.REDIS_USER,
-    password: Config.REDIS_PASSWORD,
-    host: Config.REDIS_HOST,
-    port: Config.REDIS_PORT,
+    username: this.REDIS_URL.username,
+    password: this.REDIS_URL.password,
+    host: this.REDIS_URL.hostname,
+    port: Number(this.REDIS_URL.port),
     lazyConnect: true,
   } satisfies RedisOptions;
 
@@ -60,7 +62,9 @@ class NextJobs implements NextJob {
 
   async setup() {
     const isTest = Config.NODE_ENV === 'test';
-    if (isTest) {
+    const allowedHosts = ['localhost', '127.0.0.1', '0.0.0.0']
+    const isLocalDb = allowedHosts.includes(new URL(Config.MONGODB_CONNECTION_URL).hostname)
+    if (isTest || !isLocalDb) {
       return;
     }
 
@@ -90,7 +94,7 @@ class NextJobs implements NextJob {
 
   schedule<T extends NextJobNames>(
     jobName: T,
-    jobParameters: JobParameters<T>,
+    jobParameters?: JobParameters<T>,
     { toWait, toWaitInMs }: { toWait?: string; toWaitInMs?: number } = {},
   ) {
     const options: JobsOptions = {
