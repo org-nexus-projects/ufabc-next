@@ -1,7 +1,7 @@
 import { sortBy as LodashSortBy } from 'lodash-es';
 import { courseId, currentQuad } from '@next/common';
 import { StudentModel } from '@/models/Student.js';
-import type { Disciplina } from '@/models/Disciplina.js';
+import type { Component } from '@/models/Disciplina.js';
 import type { DisciplinaService } from './disciplina.service.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { LRUCache } from 'lru-cache';
@@ -158,7 +158,7 @@ export class DisciplinaHandler {
   }
 }
 
-function kickRule(disciplina: Disciplina) {
+function kickRule(component: Component) {
   const season = currentQuad();
   let coeffRule = null;
   if (
@@ -180,16 +180,16 @@ function kickRule(disciplina: Disciplina) {
   ) {
     coeffRule = ['cp', 'cr'];
   } else {
-    coeffRule = disciplina.ideal_quad ? ['cr', 'cp'] : ['cp', 'cr'];
+    coeffRule = component.ideal_quad ? ['cr', 'cp'] : ['cp', 'cr'];
   }
 
   return ['reserva', 'turno', 'ik'].concat(coeffRule);
 }
 
-function resolveMatricula(disciplina: Disciplina, isAfterKick: number) {
+function resolveMatricula(component: Component, isAfterKick: number) {
   // if kick has not arrived, not one has been kicked
   if (!isAfterKick) {
-    const registeredStudents = disciplina.alunos_matriculados || [];
+    const registeredStudents = component.alunos_matriculados || [];
     return registeredStudents.map((student) => ({
       aluno_id: student,
     }));
@@ -197,11 +197,11 @@ function resolveMatricula(disciplina: Disciplina, isAfterKick: number) {
 
   // check diff between before_kick and after_kick
   const kicked = differenceOnKicks(
-    disciplina.before_kick ?? [],
-    disciplina.after_kick ?? [],
+    component.before_kick ?? [],
+    component.after_kick ?? [],
   );
   // return who has been kicked
-  return disciplina.before_kick.map((student) => ({
+  return component.before_kick.map((student) => ({
     aluno_id: student,
     kicked: kicked.includes(student),
   }));

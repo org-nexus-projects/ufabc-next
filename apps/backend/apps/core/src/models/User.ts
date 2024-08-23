@@ -100,7 +100,6 @@ const userSchema = new Schema(
         const nextUser = this.toObject({
           virtuals: true,
         });
-        // @ts-expect-error not using jobs for now
         await nextJobs.dispatch('NextSendEmail', nextUser);
       },
       generateJWT() {

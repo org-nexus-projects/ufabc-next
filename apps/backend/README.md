@@ -35,10 +35,6 @@ cp -r apps/core/.env.example apps/core/.env.dev
 # De `start` no projeto
 pnpm dev
 
-# Simule o projeto com dados
-# Depreciado, nao ira funcionar
-pnpm populate reset
-```
 
 ## O que temos no repo?
 

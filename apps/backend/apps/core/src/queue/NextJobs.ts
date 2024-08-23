@@ -62,7 +62,9 @@ export class NextJobs implements NextJob {
 
   async setup() {
     const isTest = Config.NODE_ENV === 'test';
-    if (isTest) {
+    const allowedHosts = ['localhost', '127.0.0.1', '0.0.0.0']
+    const isLocalDb = allowedHosts.includes(new URL(Config.MONGODB_CONNECTION_URL).hostname)
+    if (isTest || !isLocalDb) {
       return;
     }
 
@@ -92,7 +94,7 @@ export class NextJobs implements NextJob {
 
   schedule<T extends NextJobNames>(
     jobName: T,
-    jobParameters: JobParameters<T>,
+    jobParameters?: JobParameters<T>,
     { toWait, toWaitInMs }: { toWait?: string; toWaitInMs?: number } = {},
   ) {
     const options: JobsOptions = {
@@ -166,4 +168,4 @@ export class NextJobs implements NextJob {
   }
 }
 
-export const nextJobs = {};
+export const nextJobs = new NextJobs();

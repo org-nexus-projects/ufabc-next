@@ -1,4 +1,4 @@
-import type { Disciplina, DisciplinaModel } from '@/models/Disciplina.js';
+import type { Component, DisciplinaModel } from '@/models/Disciplina.js';
 import type { Student, StudentModel } from '@/models/Student.js';
 import type { FilterQuery, PipelineStage, ProjectionType } from 'mongoose';
 
@@ -8,11 +8,11 @@ type StudentAggregate = Student & {
 
 interface EntitiesDisciplinaRepository {
   findMany(
-    filter: FilterQuery<Disciplina>,
-    mapping?: ProjectionType<Disciplina>,
+    filter: FilterQuery<Component>,
+    mapping?: ProjectionType<Component>,
     populateFields?: string[],
-  ): Promise<Disciplina[] | null>;
-  findOne(filter: FilterQuery<Disciplina>): Promise<Disciplina | null>;
+  ): Promise<Component[] | null>;
+  findOne(filter: FilterQuery<Component>): Promise<Component | null>;
   findCursos(filter: FilterQuery<Student>): Promise<StudentAggregate[]>;
 }
 
@@ -23,25 +23,25 @@ export class DisciplinaRepository implements EntitiesDisciplinaRepository {
   ) {}
 
   async findMany(
-    filter: FilterQuery<Disciplina>,
-    mapping?: ProjectionType<Disciplina>,
+    filter: FilterQuery<Component>,
+    mapping?: ProjectionType<Component>,
     populateFields?: string[],
   ) {
     if (populateFields) {
       const disciplinas = await this.disciplinaService
         .find(filter, mapping)
         .populate(populateFields)
-        .lean<Disciplina[]>({ virtuals: true });
+        .lean<Component[]>({ virtuals: true });
       return disciplinas;
     }
     const disciplinas = await this.disciplinaService
 
       .find(filter, mapping)
-      .lean<Disciplina[]>({ virtuals: true });
+      .lean<Component[]>({ virtuals: true });
     return disciplinas;
   }
 
-  async findOne(filter: FilterQuery<Disciplina>) {
+  async findOne(filter: FilterQuery<Component>) {
     const disciplina = await this.disciplinaService.findOne(filter);
 
     return disciplina;
