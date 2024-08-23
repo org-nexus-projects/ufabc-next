@@ -12,9 +12,9 @@ const NEXT_WEB_LOCAL = 'http://localhost:3000' as const;
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['dev', 'test', 'prod']).default('dev'),
-  PORT: z.coerce.number().default(5001),
+  PORT: z.coerce.number().default(5000),
   PROTOCOL: z.enum(['http', 'https']).default('http'),
-  HOST: z.string().min(4).default(address),
+  HOST: z.string().min(4).default('0.0.0.0'),
   JWT_SECRET: z.string().min(32).default(JWT_SECRET),
   MONGODB_CONNECTION_URL: z.string().default('mongodb://127.0.0.1:27017/local'),
   REDIS_CONNECTION_URL: z.string().default('redis://localhost:6379'),
