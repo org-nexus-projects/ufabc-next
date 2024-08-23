@@ -11,18 +11,8 @@ const pinoPrettyOptions = {
 const loggerSetup = {
   dev: {
     transport: {
-      targets: [
-        {
-          target: 'pino-pretty',
-          options: pinoPrettyOptions,
-        },
-        {
-          target: 'pino/file',
-          options: {
-            destination: './tmp/logs',
-          },
-        },
-      ],
+      target: 'pino-pretty',
+      options: pinoPrettyOptions,
     },
   } satisfies LoggerOptions,
   prod: true,
