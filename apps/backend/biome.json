@@ -4,8 +4,7 @@
     "ignore": [
       "node_modules/*",
       "dist/*",
-      "coverage/*",
-      "cli/populate/data/*"
+      "coverage/*"
     ]
   },
   "formatter": {
