@@ -76,6 +76,11 @@ export async function syncComponents() {
             ...nextComponent,
             updatedAt: new Date(),
           },
+          $setOnInsert: {
+            alunos_matriculados: [],
+            after_kick: [],
+            before_kick: []
+          }
         },
         upsert: true,
       },

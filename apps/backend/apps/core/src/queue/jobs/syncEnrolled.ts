@@ -13,39 +13,32 @@ export async function syncEnrolled() {
     enrollments,
   ).map(([enrollmentId, students]) => ({
     updateOne: {
-      filter: { disciplina_id: enrollmentId, season: tenant },
+      filter: { disciplina_id: Number(enrollmentId), season: tenant },
       update: {
         $set: { alunos_matriculados: students },
       },
     },
   }));
 
-  const BATCH_SIZE = 150;
-  let processedCount = 0;
-  const totalOps = bulkOps.length;
+  
+  if(bulkOps.length > 0) {
+    const result = await ComponentModel.bulkWrite(bulkOps);
+    logger.info({
+      msg: 'components enrolled updated',
+      modifiedCount: result.modifiedCount,
+    });
 
-  for (let i = 0; i >= totalOps; i += BATCH_SIZE) {
-    const batch = bulkOps.slice(i, Math.min(i + BATCH_SIZE, totalOps));
-    try {
-      const result = await ComponentModel.bulkWrite(batch, { ordered: false });
-      processedCount += result.modifiedCount + result.upsertedCount;
-    } catch (error) {
-      logger.error(
-        { error, batch: i / BATCH_SIZE },
-        'Error processing batch in syncEnrolled',
-      );
-      return {
-        msg: 'Error processing batch in syncEnrolled',
-        error,
-      };
+    return {
+      msg: 'components enrolled updated',
+      modifiedCount: result.modifiedCount,
     }
   }
 
-  logger.info({ processedCount, totalOps }, 'Sync enrolled completed');
-
+  logger.info('No components needed updating or creation');
   return {
-    msg: 'Sync enrolled completed',
-    processedCount,
-    totalOps,
+    msg: 'No changes needed',
+    modifiedCount: 0,
+    insertedCount: 0,
+    upsertedCount: 0,
   };
 }

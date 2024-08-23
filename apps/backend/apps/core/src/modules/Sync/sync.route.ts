@@ -1,7 +1,7 @@
 import { admin } from '@/hooks/admin.js';
 import { authenticate } from '@/hooks/authenticate.js';
 import { syncEnrollments } from './handlers/enrollments.js';
-import { syncEnrolledStatusHandler } from './handlers/ufEnrolled.js';
+import { syncEnrolledStatusHandler } from './handlers/syncUFKicks.js';
 import { componentsTeachers } from './handlers/componentsTeachers.js';
 import {
   syncEnrollmentsLegacy,

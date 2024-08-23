@@ -22,7 +22,7 @@ export async function syncEnrolledStatusHandler(
   ).map(([enrollmentId, students]) => ({
     updateOne: {
       filter: {
-        disciplina_id: enrollmentId,
+        disciplina_id: Number(enrollmentId),
         season: tenant,
       },
       update: {
@@ -34,19 +34,15 @@ export async function syncEnrolledStatusHandler(
     },
   }));
 
-  const BATCH_SIZE = 150;
   const start = Date.now();
 
   try {
-    for (let i = 0; i < bulkOperations.length; i += BATCH_SIZE) {
-      const batch = bulkOperations.slice(i, i + BATCH_SIZE);
-      await DisciplinaModel.bulkWrite(batch, { ordered: false });
-    }
+    await DisciplinaModel.bulkWrite(bulkOperations, { ordered: false });
     return {
       status: 'ok',
       time: Date.now() - start,
       componentsProcessed: bulkOperations.length,
-    };
+    }
   } catch (error) {
     request.log.error({ error }, 'Error Syncing Enrolled Students');
     return reply.internalServerError('Error Syncing Enrolled Students');
