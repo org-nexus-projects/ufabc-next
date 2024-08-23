@@ -4,6 +4,17 @@ import { z } from 'zod';
 export const listComponentsSchema = {
   tags: ['Components'],
   description: 'Rota para listar as disciplinas do quadrimestre atual',
+  response: {
+    200: z.object({
+      disciplina_id: z.number().int().describe('Id da disciplina para a UFABC'),
+      identifier: z.string(),
+      subject: z.string().describe('Nome da matéria ofertada'),
+      turma: z.string(),
+      turno: z.enum(['diurno', 'noturno']),
+      vagas: z.number().int(),
+      requisicoes: z.number().int(),
+    }),
+  },
 } satisfies FastifySchema;
 
 export const listComponentsKicksSchema = {
