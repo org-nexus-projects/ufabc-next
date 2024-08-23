@@ -1,9 +1,9 @@
 import { connections, STATES } from 'mongoose';
-import { statusCheckSchema } from './schema.js';
+import { statusSchema } from './schema.js';
 import type { FastifyInstance } from 'fastify';
 
 export async function statusRoute(app: FastifyInstance) {
-  app.get('/status', { schema: statusCheckSchema }, (_, reply) => {
+  app.get('/status', { schema: statusSchema }, (_, reply) => {
     const [connection] = connections;
     const isDatabaseUp = !!`${STATES[connection.readyState]}`;
     return reply.send({

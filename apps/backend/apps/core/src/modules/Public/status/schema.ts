@@ -5,7 +5,7 @@ const statusSuccessResponse = z.object({
   databaseConnected: z.boolean().describe('Is server connected'),
 });
 
-export const statusCheckSchema = {
+export const statusSchema = {
   $id: 'healthCheckSchema',
   tags: ['Public'],
   description:
