@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { ofetch } from 'ofetch';
 import { generateIdentifier } from '@next/common';
 import { omit as LodashOmit } from 'lodash-es';
-import { DisciplinaModel, type Disciplina } from '@/models/Disciplina.js';
+import { ComponentModel, type Component } from '@/models/Component.js';
 import { nextJobs } from '@/queue/NextJobs.js';
 import { z } from 'zod';
 import type { FastifyReply, FastifyRequest } from 'fastify';
@@ -30,9 +30,9 @@ export async function syncEnrollments(
     return reply.badRequest('O link enviado deve existir');
   }
 
-  const components = await DisciplinaModel.find({
+  const components = await ComponentModel.find({
     season,
-  }).lean({ virtuals: true });
+  }).lean();
 
   const componentsMap = new Map<string, (typeof components)[number]>(
     components.map((component) => [component.identifier, component]),
@@ -94,8 +94,8 @@ function chunkArray<T>(arr: T[], chunkSize: number) {
 
 type HydratedComponent = {
   nome: string;
-  campus: Disciplina['campus'];
-  turno: Disciplina['turno'];
+  campus: Component['campus'];
+  turno: Component['turno'];
   turma: string;
   disciplina: string;
   teoria: string | null;
@@ -106,11 +106,11 @@ type HydratedComponent = {
 
 function hydrateComponent(
   components: StudentComponent[],
-  nextComponents: Disciplina[],
+  nextComponents: Component[],
 ): HydratedComponent[] {
   const result = [] as HydratedComponent[];
   const errors = [];
-  const nextComponentsMap = new Map<string, Disciplina>();
+  const nextComponentsMap = new Map<string, Component>();
 
   for (const nextComponent of nextComponents) {
     nextComponentsMap.set(nextComponent.disciplina, nextComponent);

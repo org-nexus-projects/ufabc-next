@@ -1,4 +1,4 @@
-import { DisciplinaModel } from '@/models/Disciplina.js';
+import { ComponentModel } from '@/models/Component.js';
 import type { currentQuad } from '@next/common';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
@@ -15,13 +15,13 @@ export class StudentStatsHandler {
     }
 
     // check if we are dealing with previous data or current
-    const isPrevious = await DisciplinaModel.countDocuments({
+    const isPrevious = await ComponentModel.countDocuments({
       season,
       before_kick: { $exists: true, $ne: [] },
     });
     const dataKey = isPrevious ? '$before_kick' : '$alunos_matriculados';
 
-    const studentsStats = DisciplinaModel.aggregate([
+    const studentsStats = ComponentModel.aggregate([
       { $match: { season } },
       { $unwind: dataKey },
       { $group: { _id: dataKey, count: { $sum: 1 } } },

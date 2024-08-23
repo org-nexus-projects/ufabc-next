@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { currentQuad } from '@next/common';
-import { type Component, DisciplinaModel } from '@/models/Disciplina.js';
+import { type Component, ComponentModel } from '@/models/Component.js';
 import { ufProcessor } from '@/services/ufprocessor.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { AnyBulkWriteOperation } from 'mongoose';
@@ -37,12 +37,12 @@ export async function syncEnrolledStatusHandler(
   const start = Date.now();
 
   try {
-    await DisciplinaModel.bulkWrite(bulkOperations, { ordered: false });
+    await ComponentModel.bulkWrite(bulkOperations, { ordered: false });
     return {
       status: 'ok',
       time: Date.now() - start,
       componentsProcessed: bulkOperations.length,
-    }
+    };
   } catch (error) {
     request.log.error({ error }, 'Error Syncing Enrolled Students');
     return reply.internalServerError('Error Syncing Enrolled Students');

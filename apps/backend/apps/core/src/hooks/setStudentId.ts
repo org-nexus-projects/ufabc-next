@@ -6,12 +6,15 @@ export const setStudentId: onRequestAsyncHookHandler = async (
   request,
   reply,
 ) => {
-  const { aluno_id } = request.query as { aluno_id: number };
+  const { aluno_id, studentId } = request.query as {
+    aluno_id: number;
+    studentId: number;
+  };
   const season = currentQuad();
 
   const student = await StudentModel.findOne({
     season,
-    aluno_id,
+    aluno_id: aluno_id ?? studentId,
   });
 
   // if not found block route

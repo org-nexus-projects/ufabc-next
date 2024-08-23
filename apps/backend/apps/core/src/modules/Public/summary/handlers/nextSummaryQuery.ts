@@ -1,6 +1,6 @@
 import { logger } from '@next/common';
 import { CommentModel } from '@/models/Comment.js';
-import { DisciplinaModel } from '@/models/Disciplina.js';
+import { ComponentModel } from '@/models/Component.js';
 import { EnrollmentModel } from '@/models/Enrollment.js';
 import { StudentModel } from '@/models/Student.js';
 import { UserModel } from '@/models/User.js';
@@ -33,7 +33,7 @@ export async function nextUsageInfo() {
     },
     { $project: { _id: 0 } },
   ];
-  const isBeforeKick = await DisciplinaModel.countDocuments({
+  const isBeforeKick = await ComponentModel.countDocuments({
     before_kick: { $exists: true, $ne: [] },
   });
   const dataKey = isBeforeKick ? '$before_kick' : '$alunos_matriculados';
@@ -73,7 +73,7 @@ export async function nextUsageInfo() {
         EnrollmentModel.countDocuments({
           conceito: { $in: ['A', 'B', 'C', 'D', '0', 'F'] },
         }),
-        DisciplinaModel.aggregate<DisciplinaStats>(disciplinaStatsFacetQuery),
+        ComponentModel.aggregate<DisciplinaStats>(disciplinaStatsFacetQuery),
       ]);
 
     const [allStudents] = disciplinaStats.studentTotal.map(

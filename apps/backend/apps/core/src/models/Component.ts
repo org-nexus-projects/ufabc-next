@@ -5,7 +5,6 @@ import {
   model,
 } from 'mongoose';
 import { findQuarter } from '@next/common';
-import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 
 const CAMPUS = ['sao bernardo', 'santo andre', 'sbc', 'sa'] as const;
 
@@ -19,7 +18,7 @@ const componentSchema = new Schema(
     obrigatorias: { type: [Number], default: [] },
     codigo: { type: String, required: true },
     campus: { type: String, enum: CAMPUS, required: true },
-    ideal_quad: { type: Boolean, default: false },
+    ideal_quad: { type: Boolean, default: false, required: true },
     identifier: {
       type: String,
       required: true,
@@ -60,19 +59,9 @@ const componentSchema = new Schema(
     },
   },
   {
-    virtuals: {
-      requisicoes: {
-        get() {
-          const students: number[] = this.alunos_matriculados ?? [];
-          return students.length;
-        },
-      },
-    },
     timestamps: true,
   },
 );
-
-componentSchema.plugin(mongooseLeanVirtuals);
 
 function setQuarter(component: UpdateQuery<Component> | null) {
   const { year, quad } = findQuarter();
@@ -93,6 +82,6 @@ componentSchema.pre('findOneAndUpdate', function () {
 });
 
 export type Component = InferSchemaType<typeof componentSchema>;
-export type ComponentDocument = ReturnType<(typeof DisciplinaModel)['hydrate']>;
+export type ComponentDocument = ReturnType<(typeof ComponentModel)['hydrate']>;
 
-export const DisciplinaModel = model('disciplinas', componentSchema);
+export const ComponentModel = model('disciplinas', componentSchema);

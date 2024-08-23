@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { batchInsertItems, generateIdentifier } from '@next/common';
 import { TeacherModel } from '@/models/Teacher.js';
-import { DisciplinaModel } from '@/models/Disciplina.js';
+import { ComponentModel } from '@/models/Component.js';
 import { z } from 'zod';
 import { ufProcessor } from '@/services/ufprocessor.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
@@ -101,7 +101,7 @@ export async function componentsTeachers(
     async (component) => {
       // @ts-ignore migrating
       const identifier = generateIdentifier(component);
-      await DisciplinaModel.findOneAndUpdate(
+      await ComponentModel.findOneAndUpdate(
         {
           identifier,
           season,

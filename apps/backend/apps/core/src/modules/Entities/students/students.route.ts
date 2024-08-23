@@ -1,5 +1,5 @@
 import { authenticate } from '@/hooks/authenticate.js';
-import { DisciplinaModel } from '@/models/Disciplina.js';
+import { ComponentModel } from '@/models/Component.js';
 import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
 import { StudentModel } from '@/models/Student.js';
 import { StudentHandler } from './students.handlers.js';
@@ -12,12 +12,11 @@ import {
 import { StudentService } from './students.service.js';
 import type { FastifyInstance } from 'fastify';
 
-
 export async function studentsRoute(app: FastifyInstance) {
   const studentRepository = new StudentRepository(
     StudentModel,
     GraduationHistoryModel,
-    DisciplinaModel,
+    ComponentModel,
   );
   const studentService = new StudentService(studentRepository);
   app.decorate('studentService', studentService);

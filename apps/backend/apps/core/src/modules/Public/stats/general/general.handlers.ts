@@ -1,5 +1,5 @@
 import { CommentModel } from '@/models/Comment.js';
-import { DisciplinaModel } from '@/models/Disciplina.js';
+import { ComponentModel } from '@/models/Component.js';
 import { EnrollmentModel } from '@/models/Enrollment.js';
 import { StudentModel } from '@/models/Student.js';
 import { UserModel } from '@/models/User.js';
@@ -40,7 +40,7 @@ export class GeneralStatsHandler {
     ];
 
     // check if we are dealing with previous data or current
-    const isPrevious = await DisciplinaModel.countDocuments({
+    const isPrevious = await ComponentModel.countDocuments({
       season,
       before_kick: { $exists: true, $ne: [] },
     });
@@ -56,7 +56,7 @@ export class GeneralStatsHandler {
       { $group: { _id: null, total: { $sum: 1 } } },
     ];
 
-    const [disciplinasStats] = await DisciplinaModel.aggregate([
+    const [disciplinasStats] = await ComponentModel.aggregate([
       { $match: { season } },
       {
         $facet: {
