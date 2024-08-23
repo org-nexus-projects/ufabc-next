@@ -1,22 +1,21 @@
 import { setStudentId } from '@/hooks/setStudentId.js';
 import {
-  listDisciplinasKicksSchema,
-  listDisciplinasSchema,
-} from './disciplina.schema.js';
-
-import type { FastifyInstance } from 'fastify';
+  listComponentsKicksSchema,
+  listComponentsSchema,
+} from './component.schema.js';
 import { listComponents } from './handlers/listComponents.js';
 import { listKicked } from './handlers/listKicked.js';
 import {
   listDisciplinasKicks,
   type DisciplinaKicksRequest,
 } from './handlers/legacyListKicked.js';
+import type { FastifyInstance } from 'fastify';
 
-export async function disciplinasRoute(app: FastifyInstance) {
-  app.get('/disciplina', { schema: listDisciplinasSchema }, listComponents);
+export async function componentsRoute(app: FastifyInstance) {
+  app.get('/components', { schema: listComponentsSchema }, listComponents);
   app.get(
-    '/component/:componentId/kicks',
-    { schema: listDisciplinasKicksSchema, onRequest: [setStudentId] },
+    '/components/:componentId/kicks',
+    { schema: listComponentsKicksSchema, onRequest: [setStudentId] },
     listKicked,
   );
   app.get<DisciplinaKicksRequest>(

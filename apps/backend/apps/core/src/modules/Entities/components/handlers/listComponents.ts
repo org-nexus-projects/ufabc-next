@@ -1,7 +1,6 @@
-import { DisciplinaModel } from '@/models/Disciplina.js';
+import { DisciplinaModel as ComponentModel } from '@/models/Disciplina.js';
 import { currentQuad } from '@next/common';
 import { LRUCache } from 'lru-cache';
-import { z } from 'zod';
 
 type ListedComponent = {
   teoria: string | undefined;
@@ -47,32 +46,32 @@ const cache = new LRUCache<string, ListedComponent[]>({
 });
 
 export async function listComponents() {
-  const season = currentQuad();
-  const cacheKey = `list:components:${season}`;
+  const tenant = currentQuad();
+  const cacheKey = `list:components:${tenant}`;
   const cachedResponse = cache.get(cacheKey);
 
   if (cachedResponse) {
     return cachedResponse;
   }
 
-  const components: PopulatedComponent[] = await DisciplinaModel.find(
-    {
-      season,
-    },
-    {
-      disciplina_id: 1,
-      turno: 1,
-      turma: 1,
-      ideal_quad: 1,
-      identifier: 1,
-      subject: 1,
+  const queryProjection = {
+    disciplina_id: 1,
+    turno: 1,
+    turma: 1,
+    ideal_quad: 1,
+    identifier: 1,
+    subject: 1,
+    vagas: 1,
+    teoria: 1,
+    pratica: 1,
+    _id: 0,
+  }
 
-      vagas: 1,
-      requisicoes: 1,
-      teoria: 1,
-      pratica: 1,
-      _id: 0,
+  const components: PopulatedComponent[] = await ComponentModel.find(
+    {
+      season: tenant,
     },
+    queryProjection,
   )
     .populate(['pratica', 'teoria', 'subject'])
     .lean({ virtuals: true });

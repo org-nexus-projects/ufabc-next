@@ -1,11 +1,14 @@
 import { currentQuad } from '@next/common';
 import { orderBy as LodashOrderBy } from 'lodash-es';
 import { z } from 'zod';
-import { DisciplinaModel as ComponentModel, type Component } from '@/models/Disciplina.js';
-import type { FastifyReply, FastifyRequest } from 'fastify';
+import {
+  DisciplinaModel as ComponentModel,
+  type Component,
+} from '@/models/Disciplina.js';
 import { StudentRepository } from '../../students/students.repository.js';
 import { StudentModel } from '@/models/Student.js';
 import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
 const validatedParams = z.object({
   componentId: z.coerce.number().int(),
@@ -14,7 +17,11 @@ const validatedQueryParam = z.object({
   sort: z.enum(['reserva', 'turno', 'ik', 'cp', 'cr']).optional(),
 });
 
-const StudentService = new StudentRepository(StudentModel, GraduationHistoryModel, ComponentModel)
+const StudentService = new StudentRepository(
+  StudentModel,
+  GraduationHistoryModel,
+  ComponentModel,
+);
 
 export async function listKicked(request: FastifyRequest, reply: FastifyReply) {
   const { componentId } = validatedParams.parse(request.params);
