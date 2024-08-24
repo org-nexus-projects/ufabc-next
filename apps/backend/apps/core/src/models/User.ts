@@ -19,13 +19,12 @@ const userSchema = new Schema(
     email: {
       type: String,
       validate: {
-        validator: (email: string) => email.includes('ufabc.edu.br'),
+        validator: (email: string) => email?.includes('ufabc.edu.br') || false,
         message: (props: ValidatorProps) =>
           `${props.value} não é um e-mail válido.`,
       },
       unique: true,
       partialFilterExpression: { email: { $exists: true } },
-      default: null,
     },
     confirmed: {
       type: Boolean,

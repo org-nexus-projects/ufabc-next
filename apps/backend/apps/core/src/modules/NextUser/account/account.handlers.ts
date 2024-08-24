@@ -5,23 +5,23 @@ import { confirmToken } from '../utils/confirmationToken.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export class AccountHandler {
-
-
-  async loginFacebook(request: FastifyRequest<{ Body: { ra: number, email: string } }>, reply: FastifyReply) {
+  async loginFacebook(
+    request: FastifyRequest<{ Body: { ra: number; email: string } }>,
+    reply: FastifyReply,
+  ) {
     const { ra, email } = request.body;
     const user = await UserModel.findOne({
       ra,
-      'oauth.provider': 'facebook',
-      'oauth.email': email
-    })
+      'oauth.emailFacebook': email,
+    });
 
-    if(!user) {
-      return reply.notFound('User not found')
+    if (!user) {
+      return reply.notFound('User not found');
     }
 
     return {
       token: user.generateJWT(),
-    }
+    };
   }
 
   async confirmNextUser(
@@ -87,7 +87,7 @@ export class AccountHandler {
     return {
       ra: user.ra,
       email: user.email,
-    }
+    };
   }
 
   async resendNextEmail(request: FastifyRequest, reply: FastifyReply) {

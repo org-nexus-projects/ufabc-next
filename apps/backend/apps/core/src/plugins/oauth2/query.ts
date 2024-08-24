@@ -1,9 +1,11 @@
 import { type User, UserModel } from '@/models/User.js';
+import { logger } from '@next/common';
 
 export async function createIfNotExists(
   oauthUser: User['oauth'],
   userId?: string,
 ) {
+  logger.warn(oauthUser, 'query ts');
   const findUserQuery: Record<string, string>[] = [
     // @ts-expect-error
     { 'oauth.google': oauthUser?.google },

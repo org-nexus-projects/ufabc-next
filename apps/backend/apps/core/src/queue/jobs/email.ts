@@ -33,12 +33,13 @@ export async function sendConfirmationEmail(data: NextUser) {
   const emailRequest = {
     recipient: data?.email,
     body: {
-      url: `${Config.WEB_URL}confirm?token=${token}`,
+      url: `${Config.WEB_URL}/confirm?token=${token}`,
     },
   };
 
   try {
     await sesSendEmail(data, emailTemplate, emailRequest);
+    logger.info(`[QUEUE] send to ${data}`);
     return {
       dataId: `Returned value ${data.ra}`,
       data,
