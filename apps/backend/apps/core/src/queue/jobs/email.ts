@@ -39,7 +39,10 @@ export async function sendConfirmationEmail(data: NextUser) {
 
   try {
     await sesSendEmail(data, emailTemplate, emailRequest);
-    logger.info(`[QUEUE] send to ${data}`);
+    logger.info({
+      msg: '[QUEUE] email sent',
+      data,
+    });
     return {
       dataId: `Returned value ${data.ra}`,
       data,
