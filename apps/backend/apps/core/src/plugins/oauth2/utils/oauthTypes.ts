@@ -1,4 +1,4 @@
-import type { AccountProvider } from '@/models/User.js'
+import type { User } from '@/models/User.js';
 import type {
   Credentials,
   ProviderConfiguration,
@@ -45,6 +45,6 @@ type ProviderConfig = {
   config: ProviderConfiguration;
   scope: string[];
   credentials: Omit<Credentials, 'auth'>;
-  getUserDetails: (token: Token) => Promise<AccountProvider>;
+  getUserDetails: (token: Token) => Promise<User['oauth']>;
 };
 export type Providers = Record<ProviderName, ProviderConfig>;
