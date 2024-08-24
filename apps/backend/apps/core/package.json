@@ -8,7 +8,7 @@
   "author": "Joabe Silva <joabevarjao123@gmail.com>",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "node --env-file=.env.dev --import=tsx --watch src/server.ts",
+    "dev": "node --env-file=.env.dev --import=tsx --watch-path=src --watch-path=.env.dev src/server.ts",
     "build": "rimraf dist && node --import=tsx esbuild.ts",
     "tsc": "tsc",
     "start": "node --env-file=.env.prod dist/server.js",

@@ -1,5 +1,4 @@
 import Cors from './plugins/cors.js';
-import Mongoose from './plugins/mongoose.js';
 import JwtAuth from './plugins/jwt.js';
 import Oauth2 from './plugins/oauth2/oauth2.js';
 import Swagger from './plugins/swagger.js';
@@ -9,9 +8,8 @@ import type { FastifyInstance } from 'fastify';
 
 export async function loadPlugins(app: FastifyInstance) {
   await Promise.all([
-    app.register(Cors),
-    app.register(Mongoose, {
-      connectionUrl: Config.MONGODB_CONNECTION_URL,
+    app.register(Cors, {
+      origins: Config.ALLOWED_ORIGINS
     }),
     app.register(JwtAuth, {
       secret: Config.JWT_SECRET,
