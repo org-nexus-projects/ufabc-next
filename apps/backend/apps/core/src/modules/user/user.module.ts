@@ -5,7 +5,7 @@ import { graduationRoutes } from './graduation/graduation.route.js';
 import { historyRoutes } from './history/history.route.js';
 import type { FastifyInstance } from 'fastify';
 
-export async function nextUserModule(app: FastifyInstance) {
+export async function userModule(app: FastifyInstance) {
   await app.register(accountRoutes, {
     prefix: '/users',
   });

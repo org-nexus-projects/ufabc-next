@@ -6,7 +6,7 @@ import {
 import { loadPlugins } from './plugins.js';
 import { entitiesModule } from './modules/entities/entities.module.js';
 import { publicModule } from './modules/public/public.module.js';
-import { nextUserModule } from './modules/user/nextUser.module.js';
+import { userModule } from './modules/user/user.module.js';
 import { syncModule } from './modules/sync/sync.module.js';
 import { backOfficeModule } from './modules/backoffice/backoffice.module.js';
 import { nextJobs } from './queue/NextJobs.js';
@@ -21,7 +21,7 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
   app.setSerializerCompiler(serializerCompiler);
   try {
     await loadPlugins(app);
-    await app.register(nextUserModule, {
+    await app.register(userModule, {
       prefix: '/v2',
     });
     await app.register(entitiesModule, {

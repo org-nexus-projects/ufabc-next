@@ -82,10 +82,13 @@ const userSchema = new Schema(
         ) as typeof this.devices;
       },
       async sendConfirmation() {
-        const nextUser = this.toObject({
+        const user = this.toObject({
           virtuals: true,
         });
-        await nextJobs.dispatch('NextSendEmail', nextUser);
+        await nextJobs.dispatch('NextSendEmail', {
+          email: user.email as string,
+          ra: user.ra,
+        });
       },
       generateJWT() {
         return jwt.sign(
