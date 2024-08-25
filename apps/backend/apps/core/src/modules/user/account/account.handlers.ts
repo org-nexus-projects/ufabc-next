@@ -49,19 +49,20 @@ export class AccountHandler {
     };
   }
 
-  nextUserInfo(request: FastifyRequest, reply: FastifyReply) {
-    const nextUser = request.user;
+  userInfo(request: FastifyRequest, reply: FastifyReply) {
+    const user = request.user;
 
-    if (!nextUser) {
+    if (!user) {
       return reply.badRequest('User not found');
     }
 
     return {
-      id: nextUser._id,
-      ra: nextUser.ra,
-      oauth: nextUser.oauth,
-      confirmed: nextUser.confirmed,
-      active: nextUser.active,
+      id: user._id,
+      ra: user.ra,
+      oauth: user.oauth,
+      confirmed: user.confirmed,
+      active: user.active,
+      createdAt: user._id.getTimestamp(),
     };
   }
 

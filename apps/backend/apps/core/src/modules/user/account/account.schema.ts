@@ -19,6 +19,7 @@ const usersInfoResponse = z
     confirmed: z.boolean(),
     active: z.boolean(),
     email: z.string().email().optional(),
+    createdAt: z.any(),
   })
   .optional()
   .describe('Informações do usuário da sessão');

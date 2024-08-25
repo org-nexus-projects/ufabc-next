@@ -33,7 +33,7 @@ export async function accountRoutes(app: FastifyInstance) {
   app.get(
     '/info',
     { schema: usersInfoSchema, onRequest: [authenticate] },
-    nextAccountHandler.nextUserInfo,
+    nextAccountHandler.userInfo,
   );
 
   app.delete(
