@@ -24,37 +24,37 @@ export async function teacherRoutes(app: FastifyInstance) {
   const teacherHandler = new TeacherHandler(teacherService);
 
   app.get(
-    '/teacher',
+    '/teachers',
     { schema: listAllTeachersSchema, onRequest: [authenticate] },
     teacherHandler.listAllTeachers,
   );
 
   app.post<{ Body: Teacher }>(
-    '/private/teacher',
+    '/private/teachers',
     { schema: createTeacherSchema, onRequest: [authenticate, admin] },
     teacherHandler.createTeacher,
   );
 
   app.put<UpdateTeacherRequest>(
-    '/private/teacher/:teacherId',
+    '/private/teachers/:teacherId',
     { schema: updateTeacherSchema, onRequest: [authenticate, admin] },
     teacherHandler.updateTeacher,
   );
 
   app.get<{ Querystring: { q: string } }>(
-    '/teacher/search',
+    '/teachers/search',
     { schema: searchTeacherSchema, onRequest: [authenticate] },
     teacherHandler.searchTeacher,
   );
 
   app.get<{ Params: { teacherId: string } }>(
-    '/teacher/review/:teacherId',
+    '/teachers/reviews/:teacherId',
     { schema: teacherReviewSchema, onRequest: [authenticate] },
     teacherHandler.teacherReview,
   );
 
   app.delete<{ Params: { teacherId: string } }>(
-    '/private/teacher/:teacherId',
+    '/private/teachers/:teacherId',
     { schema: removeTeacherSchema, onRequest: [admin, authenticate] },
     teacherHandler.removeTeacher,
   );

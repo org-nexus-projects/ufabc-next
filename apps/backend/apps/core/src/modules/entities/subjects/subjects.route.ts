@@ -19,25 +19,25 @@ export async function subjectsRoute(app: FastifyInstance) {
   const subjectHandler = new SubjectHandler(subjectService);
 
   app.get(
-    '/subject',
+    '/subjects',
     { schema: listAllSubjectsSchema },
     subjectHandler.listAllSubjects,
   );
 
   app.get<{ Querystring: { q: string } }>(
-    '/subject/search',
+    '/subjects/search',
     { schema: searchSubjectSchema, onRequest: [authenticate] },
     subjectHandler.searchSubject,
   );
 
   app.post<{ Body: Array<{ name: string; credits: number }> }>(
-    '/private/subject',
+    '/private/subjects',
     { schema: createSubjectSchema, onRequest: [authenticate, admin] },
     subjectHandler.createSubject,
   );
 
   app.get<{ Params: { subjectId: string } }>(
-    '/subject/review/:subjectId',
+    '/subjects/reviews/:subjectId',
     { schema: subjectsReviewsSchema, onRequest: [authenticate] },
     subjectHandler.subjectsReviews,
   );
