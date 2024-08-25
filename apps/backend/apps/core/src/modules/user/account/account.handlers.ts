@@ -58,6 +58,7 @@ export class AccountHandler {
 
     return {
       id: user._id,
+      email: user.email,
       ra: user.ra,
       oauth: user.oauth,
       confirmed: user.confirmed,
