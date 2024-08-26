@@ -1,11 +1,17 @@
-import { ComponentModel, type Component } from '@/models/Component.js';
-import { StudentModel, type Student } from '@/models/Student.js';
-import { currentQuad, courseId as findCourseId } from '@next/common';
-import type { FastifyReply, FastifyRequest } from 'fastify';
-import type { Aggregate, AggregateOptions, FilterQuery } from 'mongoose';
 import { z } from 'zod';
+import { ComponentModel, type Component } from '@/models/Component.js';
+import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
+import { StudentModel } from '@/models/Student.js';
+import { StudentRepository } from '@/modules/entities/students/students.repository.js';
+import { currentQuad } from '@next/common';
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { FilterQuery } from 'mongoose';
 
-type Season = ReturnType<typeof currentQuad>;
+const StudentService = new StudentRepository(
+  StudentModel,
+  GraduationHistoryModel,
+  ComponentModel,
+);
 
 const validatedQueryParams = z.object({
   season: z.string().optional().default(currentQuad()),
@@ -39,22 +45,18 @@ export async function componentStats(
   const match: FilterQuery<Component> = { season };
 
   if (courseId) {
-    const interIds = [
-      await findCourseId<Student>(
-        'Bacharelado em Ciência e Tecnologia',
-        season as Season,
-        StudentModel,
-      ),
-      await findCourseId<Student>(
-        'Bacharelado em Ciências e Humanidades',
-        season as Season,
-        StudentModel,
-      ),
+    const courses = await StudentService.studentCourses();
+    const interCourses = [
+      'Bacharelado em Ciência e Tecnologia',
+      'Bacharelado em Ciências e Humanidades',
     ];
+    const interCourseIds = courses
+      .filter(({ _id: name }) => interCourses.includes(name))
+      .flatMap(({ ids }) => ids);
     match.obrigatorias = { $in: [courseId] };
 
-    if (!interIds.includes(courseId)) {
-      match.obrigatorias.$nin = interIds;
+    if (!interCourseIds.includes(courseId)) {
+      match.obrigatorias.$nin = interCourseIds;
     }
   }
 
