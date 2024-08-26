@@ -15,6 +15,7 @@ import {
   updateTeacherSchema,
 } from './teacher.schema.js';
 import { TeacherService } from './teacher.service.js';
+import { teacherReviews } from './handlers/reviews.js';
 import type { FastifyInstance } from 'fastify';
 
 export async function teacherRoutes(app: FastifyInstance) {
@@ -50,7 +51,7 @@ export async function teacherRoutes(app: FastifyInstance) {
   app.get<{ Params: { teacherId: string } }>(
     '/teachers/reviews/:teacherId',
     { schema: teacherReviewSchema, onRequest: [authenticate] },
-    teacherHandler.teacherReview,
+    teacherReviews,
   );
 
   app.delete<{ Params: { teacherId: string } }>(
