@@ -1,84 +1,71 @@
 import { ComponentModel, type Component } from '@/models/Component.js';
 import { StudentModel, type Student } from '@/models/Student.js';
-import { courseId, type currentQuad } from '@next/common';
+import { currentQuad, courseId as findCourseId } from '@next/common';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import type { FilterQuery } from 'mongoose';
+import type { Aggregate, AggregateOptions, FilterQuery } from 'mongoose';
+import { z } from 'zod';
 
 type Season = ReturnType<typeof currentQuad>;
 
-type ComponentStatsRequest = {
-  Querystring: {
-    season: Season;
-    turno: 'noturno' | 'diurno';
-    curso_id: number;
-    ratio: number;
-    limit: number;
-    page: number;
-  };
-  Params: {
-    action: 'overview' | 'disciplines' | 'courses';
-  };
-};
+const validatedQueryParams = z.object({
+  season: z.string().optional().default(currentQuad()),
+  turno: z.string().optional(),
+  courseId: z.coerce.number().int().optional(),
+  ratio: z.coerce.number().optional(),
+  limit: z.coerce.number().optional().default(10),
+  page: z.coerce.number().optional().default(0),
+});
+
+const validatedRouteParams = z.object({
+  action: z
+    .union([
+      z.literal('overview'),
+      z.literal('component'),
+      z.literal('courses'),
+    ])
+    .optional(),
+});
+
+type Param = z.infer<typeof validatedRouteParams>;
 
 export async function componentStats(
-  request: FastifyRequest<ComponentStatsRequest>,
+  request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const { action } = request.params;
-  const { season, turno, curso_id, ratio, limit, page } = Object.assign(
-    request.query,
-    {
-      limit: 10,
-      page: 0,
-    },
-  );
+  const { action } = validatedRouteParams.parse(request.params);
+  const { season, turno, courseId, ratio, limit, page } =
+    validatedQueryParams.parse(request.query);
 
-  if (!season) {
-    return reply.badRequest('Missing season');
-  }
+  const match: FilterQuery<Component> = { season };
 
-  // check if query has been made
-  const match: FilterQuery<Component> = {
-    season,
-  };
-
-  if (turno) {
-    match.turno = turno;
-  }
-
-  if (curso_id) {
-    // get interCourseIds
+  if (courseId) {
     const interIds = [
-      await courseId<Student>(
+      await findCourseId<Student>(
         'Bacharelado em Ciência e Tecnologia',
-        season,
+        season as Season,
         StudentModel,
       ),
-      await courseId<Student>(
+      await findCourseId<Student>(
         'Bacharelado em Ciências e Humanidades',
-        season,
+        season as Season,
         StudentModel,
       ),
     ];
-    match.obrigatorias = { $in: [curso_id] };
+    match.obrigatorias = { $in: [courseId] };
 
-    // if passed course is not a BI, take BIs off query
-    if (!interIds.includes(curso_id)) {
+    if (!interIds.includes(courseId)) {
       match.obrigatorias.$nin = interIds;
     }
   }
 
-  // check if we are dealing with previous data or current
   const isPrevious = await ComponentModel.countDocuments({
     season,
     before_kick: { $exists: true, $ne: [] },
   });
   const dataKey = isPrevious ? '$before_kick' : '$alunos_matriculados';
 
-  const stats = ComponentModel.aggregate([
-    {
-      $match: { match },
-    },
+  const pipeline: any = [
+    { $match: match },
     {
       $project: {
         vagas: 1,
@@ -104,62 +91,15 @@ export async function componentStats(
         ratio: { $divide: ['$requisicoes', '$vagas'] },
       },
     },
-    ...(ratio !== null ? [{ $match: { ratio: { $gt: ratio } } }] : []),
-    ...(action === 'overview'
-      ? [
-          {
-            $group: {
-              _id: null,
-              vagas: { $sum: '$vagas' },
-              requisicoes: { $sum: '$requisicoes' },
-              deficit: { $sum: '$deficit' },
-            },
-          },
-        ]
-      : action === 'disciplines'
-        ? [
-            {
-              $group: {
-                _id: '$codigo',
-                disciplina: { $first: '$disciplina' },
-                vagas: { $sum: '$vagas' },
-                requisicoes: { $sum: '$requisicoes' },
-              },
-            },
-            {
-              $project: {
-                disciplina: 1,
-                vagas: 1,
-                requisicoes: 1,
-                codigo: 1,
-                deficit: { $subtract: ['$requisicoes', '$vagas'] },
-                ratio: { $divide: ['$requisicoes', '$vagas'] },
-              },
-            },
-          ]
-        : action === 'courses'
-          ? [
-              { $unwind: '$obrigatorias' },
-              { $match: match },
-              {
-                $group: {
-                  _id: '$obrigatorias',
-                  obrigatorias: { $first: '$obrigatorias' },
-                  disciplina: { $first: '$disciplina' },
-                  vagas: { $sum: '$vagas' },
-                  requisicoes: { $sum: '$requisicoes' },
-                },
-              },
-              {
-                $project: {
-                  vagas: 1,
-                  requisicoes: 1,
-                  deficit: { $subtract: ['$requisicoes', '$vagas'] },
-                  ratio: { $divide: ['$requisicoes', '$vagas'] },
-                },
-              },
-            ]
-          : []),
+  ];
+
+  if (ratio) {
+    pipeline.push({ $match: { ratio: { $gt: ratio } } });
+  }
+
+  pipeline.push(...resolveStep(action, turno, courseId));
+
+  pipeline.push(
     {
       $facet: {
         total: [{ $count: 'total' }],
@@ -195,7 +135,93 @@ export async function componentStats(
         page: 1,
       },
     },
-  ]);
+  );
 
-  return stats;
+  const [result] = await ComponentModel.aggregate(pipeline);
+  return result;
+}
+
+function resolveStep(
+  action: Param['action'],
+  turno?: string,
+  courseId?: number,
+) {
+  switch (action) {
+    case 'overview':
+      return getOverviewSteps();
+    case 'component':
+      return getDisciplineSteps();
+    case 'courses':
+      return getCourseSteps(turno, courseId);
+    default:
+      return [];
+  }
+}
+
+function getOverviewSteps() {
+  return [
+    {
+      $group: {
+        _id: null,
+        vagas: { $sum: '$vagas' },
+        requisicoes: { $sum: '$requisicoes' },
+        deficit: { $sum: '$deficit' },
+      },
+    },
+  ];
+}
+
+function getDisciplineSteps() {
+  return [
+    {
+      $group: {
+        _id: '$codigo',
+        disciplina: { $first: '$disciplina' },
+        vagas: { $sum: '$vagas' },
+        requisicoes: { $sum: '$requisicoes' },
+      },
+    },
+    {
+      $project: {
+        disciplina: 1,
+        vagas: 1,
+        requisicoes: 1,
+        codigo: 1,
+        deficit: { $subtract: ['$requisicoes', '$vagas'] },
+        ratio: { $divide: ['$requisicoes', '$vagas'] },
+      },
+    },
+  ];
+}
+
+function getCourseSteps(turno?: string, courseId?: number) {
+  const match: FilterQuery<Component> = {};
+  if (turno) {
+    match.turno = turno;
+  }
+  if (courseId) {
+    match.obrigatorias = courseId;
+  }
+
+  return [
+    { $unwind: '$obrigatorias' },
+    { $match: match },
+    {
+      $group: {
+        _id: '$obrigatorias',
+        obrigatorias: { $first: '$obrigatorias' },
+        disciplina: { $first: '$disciplina' },
+        vagas: { $sum: '$vagas' },
+        requisicoes: { $sum: '$requisicoes' },
+      },
+    },
+    {
+      $project: {
+        vagas: 1,
+        requisicoes: 1,
+        deficit: { $subtract: ['$requisicoes', '$vagas'] },
+        ratio: { $divide: ['$requisicoes', '$vagas'] },
+      },
+    },
+  ];
 }

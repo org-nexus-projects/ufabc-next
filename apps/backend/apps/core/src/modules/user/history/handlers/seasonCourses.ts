@@ -1,10 +1,10 @@
 import { StudentModel, type Student } from '@/models/Student.js';
-import { findIds, type currentQuad } from '@next/common';
+import { currentQuad, findIds } from '@next/common';
 import { z } from 'zod';
 import type { FastifyRequest } from 'fastify';
 
 const validatedQueryParam = z.object({
-  season: z.string(),
+  season: z.string().default(currentQuad()),
 });
 
 export async function seasonCourses(request: FastifyRequest) {
