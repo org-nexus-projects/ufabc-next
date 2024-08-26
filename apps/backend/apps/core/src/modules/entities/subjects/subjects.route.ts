@@ -11,6 +11,7 @@ import {
   subjectsReviewsSchema,
 } from './subjects.schema.js';
 import type { FastifyInstance } from 'fastify';
+import { subjectReviews } from './handlers/reviews.js';
 
 export async function subjectsRoute(app: FastifyInstance) {
   const subjectRepository = new SubjectRepository(SubjectModel);
@@ -39,6 +40,6 @@ export async function subjectsRoute(app: FastifyInstance) {
   app.get<{ Params: { subjectId: string } }>(
     '/subjects/reviews/:subjectId',
     { schema: subjectsReviewsSchema, onRequest: [authenticate] },
-    subjectHandler.subjectsReviews,
+    subjectReviews,
   );
 }
