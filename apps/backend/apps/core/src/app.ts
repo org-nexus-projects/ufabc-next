@@ -1,8 +1,4 @@
 import { type FastifyServerOptions, fastify } from 'fastify';
-import {
-  serializerCompiler,
-  validatorCompiler,
-} from 'fastify-type-provider-zod';
 import { loadPlugins } from './plugins.js';
 import { entitiesModule } from './modules/entities/entities.module.js';
 import { publicModule } from './modules/public/public.module.js';
@@ -13,13 +9,14 @@ import { nextJobs } from './queue/NextJobs.js';
 import { nextWorker } from './queue/NextWorker.js';
 import { connect } from 'mongoose';
 import { Config } from './config/config.js';
+import { httpErrorsValidator } from './config/httpErrors.js';
 
 export async function buildApp(opts: FastifyServerOptions = {}) {
   const mongoConnection = await connect(Config.MONGODB_CONNECTION_URL);
   const app = fastify(opts);
-  app.setValidatorCompiler(validatorCompiler);
-  app.setSerializerCompiler(serializerCompiler);
+
   try {
+    httpErrorsValidator(app);
     await loadPlugins(app);
     await app.register(userModule, {
       prefix: '/v2',
