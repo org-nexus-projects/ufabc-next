@@ -16,7 +16,7 @@ import { PaperCard } from '@/components/PaperCard';
         <v-col cols="12" sm="12" md="8">
           <PaperCard>
             <h2 class="text-primary font-weight-bold mb-4">
-              Com medo das provas? Os <strong>Aulões Next</strong> podem te ajudar!
+              Os <strong>Aulões Next</strong> para as P2 estão chegando!
             </h2>
             <div>
               <p class="mb-4">
@@ -29,24 +29,22 @@ import { PaperCard } from '@/components/PaperCard';
                 ingressantes.
               </p>
               <p class="mb-4">
-                Nosso primeiro aulão será no dia <strong>20/07/2024</strong> para a disciplina <strong>Estrutura da
-                  Matéria</strong>. <br>
-                <strong>Para se inscrever, clique <a href="https://linktr.ee/auloes.next" target="_blank">aqui</a> ou
-                  escaneie o QR
-                  code.</strong>
+                As P2 estão cada vez mais próximas, e sabemos que a vida na UFABC pode ficar difícil. Então, confira o
+                que
+                preparamos para você:
+                <br>
+              <ul class="mb-4 bullet-list">
+                <li><strong>Estrutura da Matéria</strong> - 31/08 das 9h ás 13h</li>
+                <li><strong>Funções de Várias Variáveis</strong> - 31/08 das 9h ás 13h</li>
+                <li><strong>Bases Matemáticas</strong> - 14/09 das 9h ás 13h</li>
+              </ul>
+              <br>
+              <strong>Clique <a href="https://linktr.ee/auloes.next" target="_blank">aqui</a> ou
+                escaneie o QR
+                code para fazer sua inscrição!</strong>
               </p>
-              <p class="mb-4">
-                O UFABC next vem passando por reestruturações e já estamos estabilizando os serviços existentes, além
-                de
-                expandir para novos horizontes gerando cada vez mais impacto na vida do alunos.
-              </p>
-              <p class="mb-4">
-                Logo traremos mais atualizações sobre essa parceria com mais disciplinas e inovações, levando você
-                sempre
-                para
-                o
-                next level.
-              </p>
+              <p class="mb-4">Dúvidas? Mande uma mensagem para <a href="https://www.instagram.com/auloes.next/"
+                  target="_blank">@auloes.next</a></p>
               <p class="mb-4">Não perca essa oportunidade, te esperamos lá! 😉🎓</p>
               <p class="mb-4">
                 E não se esqueçam:
@@ -60,7 +58,7 @@ import { PaperCard } from '@/components/PaperCard';
           <PaperCard class="p-4">
             <div class="card-informations">
               <h2 style="margin-bottom: 10px;">Por apenas R$ 40,00</h2>
-              <ul class="mb-4">
+              <ul class="mb-4 bullet-list">
                 <li><strong>Aula presencial</strong></li>
                 <li>Revisão teórica</li>
                 <li>Exercícios descomplicados</li>
@@ -90,7 +88,7 @@ import { PaperCard } from '@/components/PaperCard';
 </template>
 
 <style scoped lang="css">
-.card-informations ul {
+.bullet-list {
   padding-left: 0;
   margin-left: 0;
   list-style-position: inside;
