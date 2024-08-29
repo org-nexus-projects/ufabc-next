@@ -32,16 +32,17 @@ import { PaperCard } from '@/components/PaperCard';
                 As P2 estão cada vez mais próximas, e sabemos que a vida na UFABC pode ficar difícil. Então, confira o
                 que
                 preparamos para você:
-                <br>
+              </p>
+              <br>
               <ul class="mb-4 bullet-list">
                 <li><strong>Estrutura da Matéria</strong> - 31/08 das 9h ás 13h</li>
                 <li><strong>Funções de Várias Variáveis</strong> - 31/08 das 9h ás 13h</li>
                 <li><strong>Bases Matemáticas</strong> - 14/09 das 9h ás 13h</li>
               </ul>
               <br>
-              <strong>Clique <a href="https://linktr.ee/auloes.next" target="_blank">aqui</a> ou
-                escaneie o QR
-                code para fazer sua inscrição!</strong>
+              <p><strong>Clique <a href="https://linktr.ee/auloes.next" target="_blank">aqui</a> ou
+                  escaneie o QR
+                  code para fazer sua inscrição!</strong>
               </p>
               <p class="mb-4">Dúvidas? Mande uma mensagem para <a href="https://www.instagram.com/auloes.next/"
                   target="_blank">@auloes.next</a></p>
