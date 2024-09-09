@@ -26,7 +26,7 @@ const graduationSubjectSchema = new Schema(
 
     graduation: {
       type: Schema.Types.ObjectId,
-      ref: 'graduation',
+      ref: 'graduations',
     },
   },
   { timestamps: true },
