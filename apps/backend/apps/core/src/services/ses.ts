@@ -5,9 +5,11 @@ import {
 } from '@aws-sdk/client-ses';
 import { logger } from '@next/common';
 import { Config } from '@/config/config.js';
-import type { User } from '@/models/User.js';
 
-type NextUser = Pick<User, 'email' | 'ra'>;
+type User = {
+  email: string;
+  ra: number;
+};
 type Email = {
   recipient: string;
   body: {
@@ -18,7 +20,7 @@ type Email = {
 };
 
 export async function sesSendEmail(
-  user: NextUser,
+  user: User,
   templateId: 'Confirmation' | 'Recover',
   email: Email,
 ) {

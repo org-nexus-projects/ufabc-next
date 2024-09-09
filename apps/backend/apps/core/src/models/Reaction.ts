@@ -46,20 +46,18 @@ const reactionSchema = new Schema(
 
 async function validateRules(reaction: ReactionDocument) {
   if (reaction.kind === 'recommendation') {
-    const isValidId = isObjectIdOrHexString;
-
-    const user = isValidId(reaction.user)
+    const user = isObjectIdOrHexString(reaction.user)
       ? await UserModel.findById(reaction.user)
       : reaction.user;
 
-    const comment = isValidId(reaction.comment)
+    const comment = isObjectIdOrHexString(reaction.comment)
       ? await CommentModel.findById(reaction.comment)
       : reaction.comment;
 
     const isValid = await EnrollmentModel.findOne({
-      // @ts-expect-error dont know the error here
+      // @ts-expect-error
       ra: user?.ra,
-      // @ts-expect-error dont know the error here
+      // @ts-expect-error
       $or: [{ teoria: comment?.teacher }, { pratica: comment?.teacher }],
     });
 
@@ -71,9 +69,10 @@ async function validateRules(reaction: ReactionDocument) {
 }
 
 async function computeReactions(reaction: ReactionDocument) {
-  const commentId = reaction.comment._id && reaction.comment;
+  const commentId = reaction.comment._id || reaction.comment;
+  const ReactionModel = reaction.constructor as any;
 
-  const reactionCount = await reaction.collection.countDocuments({
+  const reactionCount = await ReactionModel.countDocuments({
     comment: commentId,
     kind: reaction.kind,
   });
@@ -104,13 +103,17 @@ reactionSchema.pre('save', async function () {
   await validateRules(this);
 });
 
-reactionSchema.post('save', async function () {
+reactionSchema.post('save', { query: false }, async function () {
   await computeReactions(this);
 });
 
-reactionSchema.post<ReactionDocument>('deleteOne', async function () {
-  await computeReactions(this);
-});
+reactionSchema.post<ReactionDocument>(
+  'deleteOne',
+  { query: false },
+  async function () {
+    await computeReactions(this);
+  },
+);
 
 reactionSchema.plugin(mongooseLeanVirtuals);
 

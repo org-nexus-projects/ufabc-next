@@ -3,9 +3,11 @@ import { Buffer } from 'node:buffer';
 import { logger } from '@next/common';
 import { sesSendEmail } from '@/services/ses.js';
 import { Config } from '@/config/config.js';
-import type { User } from '@/models/User.js';
 
-type NextUser = Pick<User, 'email' | 'ra'>;
+type User = {
+  email: string;
+  ra: number;
+};
 
 function createToken(text: string) {
   const ALGORITHM = 'aes-256-ctr';
@@ -22,7 +24,7 @@ function createToken(text: string) {
   return `${iv.toString('hex')}:${encrypted.toString('hex')}`;
 }
 
-export async function sendConfirmationEmail(data: NextUser) {
+export async function sendConfirmationEmail(data: User) {
   const emailTemplate = Config.MAILER_CONFIG.EMAIL_CONFIRMATION_TEMPLATE;
 
   if (!data.email) {
@@ -33,12 +35,16 @@ export async function sendConfirmationEmail(data: NextUser) {
   const emailRequest = {
     recipient: data?.email,
     body: {
-      url: `${Config.WEB_URL}confirm?token=${token}`,
+      url: `${Config.WEB_URL}/confirm?token=${token}`,
     },
   };
 
   try {
     await sesSendEmail(data, emailTemplate, emailRequest);
+    logger.info({
+      msg: '[QUEUE] email sent',
+      data,
+    });
     return {
       dataId: `Returned value ${data.ra}`,
       data,

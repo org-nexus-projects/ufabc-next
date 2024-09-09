@@ -5,30 +5,8 @@ import {
   model,
 } from 'mongoose';
 import jwt from 'jsonwebtoken';
-import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 import { nextJobs } from '@/queue/NextJobs.js';
 import { Config } from '@/config/config.js';
-
-const INTEGRATED_PROVIDERS = ['facebook', 'google'] as const;
-
-const providerSchema = new Schema(
-  {
-    provider: {
-      type: String,
-      enum: INTEGRATED_PROVIDERS,
-      default: null,
-    },
-    id: {
-      type: String,
-      required: true,
-    },
-    email: {
-      type: String,
-      required: true,
-    },
-  },
-  { _id: false },
-);
 
 const userSchema = new Schema(
   {
@@ -41,7 +19,7 @@ const userSchema = new Schema(
     email: {
       type: String,
       validate: {
-        validator: (email: string) => email.includes('ufabc.edu.br'),
+        validator: (email: string) => email?.includes('ufabc.edu.br') || false,
         message: (props: ValidatorProps) =>
           `${props.value} não é um e-mail válido.`,
       },
@@ -56,7 +34,14 @@ const userSchema = new Schema(
       type: Boolean,
       default: true,
     },
-    oauth: [providerSchema],
+    oauth: {
+      facebook: String,
+      emailFacebook: String,
+      google: String,
+      emailGoogle: String,
+      email: String,
+      picture: String,
+    },
     devices: [
       {
         phone: {
@@ -73,7 +58,7 @@ const userSchema = new Schema(
         },
       },
     ],
-    permissions: [String],
+    permissions: { type: [String], default: [] },
   },
   {
     methods: {
@@ -97,10 +82,13 @@ const userSchema = new Schema(
         ) as typeof this.devices;
       },
       async sendConfirmation() {
-        const nextUser = this.toObject({
+        const user = this.toObject({
           virtuals: true,
         });
-        await nextJobs.dispatch('NextSendEmail', nextUser);
+        await nextJobs.dispatch('NextSendEmail', {
+          email: user.email as string,
+          ra: user.ra,
+        });
       },
       generateJWT() {
         return jwt.sign(
@@ -126,15 +114,12 @@ const userSchema = new Schema(
   },
 );
 
-userSchema.plugin(mongooseLeanVirtuals);
-
 userSchema.pre<UserDocument>('save', async function () {
   if (this.isFilled && !this.confirmed) {
     await this.sendConfirmation();
   }
 });
 
-export type AccountProvider = InferSchemaType<typeof providerSchema>;
 export type User = InferSchemaType<typeof userSchema>;
 export type UserDocument = ReturnType<(typeof UserModel)['hydrate']>;
 export const UserModel = model('users', userSchema);

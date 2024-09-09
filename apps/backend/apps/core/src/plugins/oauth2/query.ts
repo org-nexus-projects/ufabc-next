@@ -1,11 +1,12 @@
-import { type AccountProvider, UserModel } from '@/models/User.js';
+import { type User, UserModel } from '@/models/User.js';
 
 export async function createIfNotExists(
-  oauthUser: AccountProvider,
+  oauthUser: User['oauth'],
   userId?: string,
 ) {
   const findUserQuery: Record<string, string>[] = [
-    { 'oauth.provider': oauthUser.provider },
+    // @ts-expect-error
+    { 'oauth.google': oauthUser?.google },
   ];
   if (userId) {
     const [queryId] = userId.split('?');
@@ -17,13 +18,11 @@ export async function createIfNotExists(
 
   user.set({
     active: true,
-    oauth: [
-      {
-        provider: oauthUser.provider,
-        id: oauthUser.id,
-        email: oauthUser.email,
-      },
-    ],
+    oauth: {
+      google: oauthUser?.google,
+      emailGoogle: oauthUser?.emailGoogle,
+      email: oauthUser?.email,
+    },
   });
 
   await user.save();
