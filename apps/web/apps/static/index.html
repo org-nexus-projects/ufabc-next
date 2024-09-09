@@ -954,7 +954,7 @@
                         Entrar localmente
                       </a>`;
 
-      const isLocal = !window.location.origin.includes('file://');
+      const isLocal = window.location.origin.includes('file://');
       if (isLocal) {
         const devLoginContainer = document.querySelector('#dev-login');
         devLoginContainer.insertAdjacentHTML('afterend', devLoginBtn);

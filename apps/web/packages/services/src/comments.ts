@@ -16,11 +16,11 @@ export const Comments = {
     api.get<Comment>(`/comments/enrollment/${enrollmentId}`),
   create: (data: CreateCommentRequest) => api.post('/comments/', data),
   update: ({ id, comment }: UpdateCommentRequest) =>
-    api.put('/comments/' + id, { comment }),
-  like: (id: string) => api.post(`/reactions/${id}`, { kind: 'like' }),
+    api.put(`/comments/${id}`, { comment }),
+  like: (id: string) => api.post(`/comments/reactions/${id}`, { kind: 'like' }),
   recommendation: (id: string) =>
-    api.post(`/reactions/${id}`, { kind: 'recommendation' }),
-  removeLike: (id: string) => api.delete(`/reactions/${id}/like`),
+    api.post(`/comments/reactions/${id}`, { kind: 'recommendation' }),
+  removeLike: (id: string) => api.delete(`/comments/reactions/${id}/like`),
   removeRecommendation: (id: string) =>
-    api.delete(`/reactions/${id}/recommendation`),
+    api.delete(`/comments/reactions/${id}/recommendation`),
 };
