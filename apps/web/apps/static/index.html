@@ -888,10 +888,10 @@
       const resolveEndpoint = (origin) => {
         if (origin === 'file://') {
           // local backend
-          return 'http://localhost:8011/v1/connect/google';
+          return 'http://localhost:5000/login/google';
         } else if (origin.includes('dev')) {
           // staging url
-          return 'https://api.ufabcnext.com/connect/google';
+          return 'https://api.v2.ufabcnext.com/login/google';
         } else {
           // production url
           return 'https://api.ufabcnext.com/connect/google';
@@ -954,7 +954,7 @@
                         Entrar localmente
                       </a>`;
 
-      const isLocal = !window.location.origin.includes('file://');
+      const isLocal = window.location.origin.includes('file://');
       if (isLocal) {
         const devLoginContainer = document.querySelector('#dev-login');
         devLoginContainer.insertAdjacentHTML('afterend', devLoginBtn);

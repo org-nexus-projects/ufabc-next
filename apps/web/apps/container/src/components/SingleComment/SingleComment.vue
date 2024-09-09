@@ -1,38 +1,19 @@
 <template>
   <v-container>
     <v-row align="start" justify="start">
-      <v-col
-        sm=""
-        order="1"
-        class="mr-3 justify-center pa-0 flex-grow-0 flex-shrink-1"
-      >
-        <div
-          :style="conceptStyle"
-          class="text-white d-flex align-center justify-center rounded-lg"
-        >
+      <v-col sm="" order="1" class="mr-3 justify-center pa-0 flex-grow-0 flex-shrink-1">
+        <div :style="conceptStyle" class="text-white d-flex align-center justify-center rounded-lg">
           {{ comment?.enrollment.conceito }}
         </div>
         <p class="text-primary" style="white-space: nowrap">
           {{ season }}
         </p>
       </v-col>
-      <v-col
-        cols="12"
-        sm=""
-        order="3"
-        order-sm="2"
-        class="comment-text-container mr-2 pa-0"
-        :style="`max-height: ${expanded || smAndDown ? 'unset' : '80px'}`"
-      >
+      <v-col cols="12" sm="" order="3" order-sm="2" class="comment-text-container mr-2 pa-0"
+        :style="`max-height: ${expanded || smAndDown ? 'unset' : '80px'}`">
         <div>
           <div class="d-flex align-center text-primary">
-            <v-chip
-              v-if="isEAD"
-              density="compact"
-              class="px-2 mr-1"
-              style="font-size: 12px"
-              >EAD</v-chip
-            >
+            <v-chip v-if="isEAD" density="compact" class="px-2 mr-1" style="font-size: 12px">EAD</v-chip>
             <p class="text-subtitle-2">
               {{ comment?.subject.name }}
             </p>
@@ -41,50 +22,29 @@
           <p ref="commentText">
             {{ comment?.comment }}
           </p>
-          <button
-            class="show-more text-primary text-subtitle-2 text-uppercase"
-            :style="`display:${expanded || smAndDown ? 'none' : 'block'}`"
-            @click="showMore"
-          >
+          <button class="show-more text-primary text-subtitle-2 text-uppercase"
+            :style="`display:${expanded || smAndDown ? 'none' : 'block'}`" @click="showMore">
             mostrar mais
             <v-icon>mdi-chevron-down</v-icon>
           </button>
         </div>
       </v-col>
-      <v-col
-        sm=""
-        order="2"
-        order-sm="3"
-        class="pa-0 justify-start text-subtitle-2 text-next-light-gray flex-grow-0 flex-shrink-1"
-      >
+      <v-col sm="" order="2" order-sm="3"
+        class="pa-0 justify-start text-subtitle-2 text-next-light-gray flex-grow-0 flex-shrink-1">
         <div class="d-flex">
-          <v-btn
-            :aria-label="(like ? 'Remover' : 'Deixar') + ' like'"
-            :loading="isPendingLike || isPendingRemoveLike"
-            @click="like ? mutateRemoveLike() : mutateLike()"
-            class="icon-button text-subtitle-2"
-            variant="text"
-            :icon="like ? 'mdi-thumb-up' : 'mdi-thumb-up-outline'"
-            :color="like ? 'primary' : ''"
-          >
+          <v-btn :aria-label="(like ? 'Remover' : 'Deixar') + ' like'" :loading="isPendingLike || isPendingRemoveLike"
+            @click="like ? mutateRemoveLike() : mutateLike()" class="icon-button text-subtitle-2" variant="text"
+            :icon="like ? 'mdi-thumb-up' : 'mdi-thumb-up-outline'" :color="like ? 'primary' : ''">
             <v-icon size="small" class="mr-1" />
             {{ likeCount }}
           </v-btn>
-          <v-btn
-            :aria-label="
-              (recommendation ? 'Remover' : 'Deixar') + ' recomendação'
-            "
-            :loading="isPendingRecommendation || isPendingRemoveRecommendation"
-            @click="
+          <v-btn :aria-label="(recommendation ? 'Remover' : 'Deixar') + ' recomendação'
+            " :loading="isPendingRecommendation || isPendingRemoveRecommendation" @click="
               recommendation
                 ? mutateRemoveRecommendation()
                 : mutateRecommendation()
-            "
-            class="ml-1 icon-button text-subtitle-2"
-            variant="text"
-            :icon="recommendation ? 'mdi-medal' : 'mdi-medal-outline'"
-            :color="recommendation ? 'primary' : ''"
-          >
+              " class="ml-1 icon-button text-subtitle-2" variant="text"
+            :icon="recommendation ? 'mdi-medal' : 'mdi-medal-outline'" :color="recommendation ? 'primary' : ''">
             <v-icon size="small" class="mr-1" />
             {{ recommendationCount }}
           </v-btn>
@@ -153,7 +113,7 @@ const { mutate: mutateRecommendation, isPending: isPendingRecommendation } =
     },
     onError: (error: AxiosError<RequestError>) => {
       ElMessage({
-        message: error.response?.data.error,
+        message: error.response?.data.message,
         type: 'error',
         showClose: true,
       });
@@ -204,8 +164,8 @@ const season = computed(() => {
 
   return formatSeason(
     (year ?? props.comment.enrollment.year) +
-      ':' +
-      (quad ?? props.comment.enrollment.quad),
+    ':' +
+    (quad ?? props.comment.enrollment.quad),
   );
 });
 
@@ -239,12 +199,14 @@ onMounted(() => {
   flex-direction: column;
   position: relative;
 }
+
 .show-more {
   position: absolute;
   width: 100%;
   top: 60px;
   background-image: linear-gradient(to right, transparent, white 40%);
 }
+
 .v-btn--icon.v-btn--density-default.icon-button {
   height: 36px;
   width: 36px;

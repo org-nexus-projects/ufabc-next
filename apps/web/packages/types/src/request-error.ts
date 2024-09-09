@@ -3,4 +3,5 @@ export type RequestError = {
   name: string;
   type: string;
   error: string;
+  message: string;
 };

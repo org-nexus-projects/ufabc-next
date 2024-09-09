@@ -3,10 +3,11 @@ import dayjs from 'dayjs';
 export const getSeason = (date = dayjs()) => {
   const year = date.year();
   const month = date.month();
+
   let quad;
-  if (month < 4) {
+  if (month < 3) {
     quad = 1;
-  } else if (month < 8) {
+  } else if (month < 7) {
     quad = 2;
   } else {
     quad = 3;
