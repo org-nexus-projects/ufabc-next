@@ -253,6 +253,8 @@ export class CommentHandler {
 
     await this.commentService.removeCommentReaction(commentId);
 
-    return;
+    return reply.status(200).send({
+      msg: 'ok',
+    });
   }
 }

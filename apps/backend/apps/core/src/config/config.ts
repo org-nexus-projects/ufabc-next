@@ -7,7 +7,7 @@ const { address } = addresses.find(
 ) ?? { address: 'localhost' };
 
 const NEXT_WEB_LOCAL = 'http://localhost:3000' as const;
-const JWT_SECRET = 'LWp9YJMiUtfQxoepoTL7RkWJi6W5C6ED'
+const JWT_SECRET = 'LWp9YJMiUtfQxoepoTL7RkWJi6W5C6ED';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['dev', 'test', 'prod']).default('dev'),
@@ -18,7 +18,7 @@ const envSchema = z.object({
   MONGODB_CONNECTION_URL: z.string().default('mongodb://127.0.0.1:27017/local'),
   REDIS_CONNECTION_URL: z.string().default('redis://localhost:6379'),
   WEB_URL: z.string().default(NEXT_WEB_LOCAL),
-  ALLOWED_ORIGINS: z.string().transform(origins => origins.split(',')),
+  ALLOWED_ORIGINS: z.string().transform((origins) => origins.split(',')),
   P_STAGING_DIR: z.string().default('/logs-local'),
   P_ADDR: z.string().default(`${address}:8000`),
   P_USERNAME: z.string().default('next-logs'),
