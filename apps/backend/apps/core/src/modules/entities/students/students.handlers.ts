@@ -45,7 +45,6 @@ export class StudentHandler {
     const isPrevious = await this.studentService.pastQuadStudents(season);
 
     if (isPrevious) {
-      request.log.info('am i here?');
       return this.studentService.findOneStudent(season, student.aluno_id);
     }
 
@@ -72,7 +71,6 @@ export class StudentHandler {
         cursos: courses,
       },
     );
-    request.log.info(updatedStudent.isNew);
     return updatedStudent;
   }
 

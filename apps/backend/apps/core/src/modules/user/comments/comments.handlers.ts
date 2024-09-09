@@ -48,7 +48,6 @@ export class CommentHandler {
     const { enrollment: enrollmentId, comment, type } = request.body;
 
     if (!comment && !enrollmentId && !type) {
-      request.log.error({ body: request.body }, 'Incomplete response');
       return reply.badRequest('Body must have all obligatory fields');
     }
 
@@ -57,8 +56,6 @@ export class CommentHandler {
     if (!enrollment) {
       return reply.notFound('Enrollment not found');
     }
-
-    request.log.warn(enrollment.mainTeacher);
 
     const createdComment = await this.commentService.insertOneComment({
       comment,
