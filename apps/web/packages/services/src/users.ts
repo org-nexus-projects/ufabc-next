@@ -25,7 +25,7 @@ export const Users = {
   completeSignup: (params: UserSignup) => api.put('/users/complete', params),
   confirmSignup: (token: string) =>
     api.post<UserConfirmResponse>('/users/confirm', { token }),
-  resendEmail: () => api.post('/users/me/resend'),
+  resendEmail: () => api.post('/users/resend'),
   recovery: (email: string) => api.post('/users/me/recover', { email }),
   delete: () => api.delete('/users/remove'),
   info: () => api.get<User>('/users/info'),
