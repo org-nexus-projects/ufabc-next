@@ -10,6 +10,7 @@ const NEXT_WEB_LOCAL = 'http://localhost:3000' as const;
 const JWT_SECRET = 'LWp9YJMiUtfQxoepoTL7RkWJi6W5C6ED';
 
 const envSchema = z.object({
+  PROTOCOL: z.enum(['http', 'https']).default('http'),
   NODE_ENV: z.enum(['dev', 'test', 'prod']).default('dev'),
   PORT: z.coerce.number().default(5000),
   HOST: z.string().min(4).default('0.0.0.0'),

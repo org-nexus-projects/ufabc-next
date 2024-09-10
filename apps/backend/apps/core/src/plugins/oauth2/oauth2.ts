@@ -1,6 +1,6 @@
 import { type OAuth2Namespace, fastifyOauth2 } from '@fastify/oauth2';
 import { fastifyPlugin as fp } from 'fastify-plugin';
-import type { Config } from '@/config/config.js';
+import { Config } from '@/config/config.js';
 import { objectKeys } from './utils/objectKeys.js';
 import { type Querystring, handleOauth } from './handler.js';
 import { supportedProviders } from './supportedProviders.js';
@@ -31,7 +31,7 @@ async function oauth2(app: FastifyInstance, opts: NextOauthOptions) {
       startRedirectPath,
       callbackUri: (req) => {
         req.log.warn(
-          `${req.protocol}://${req.hostname}${startRedirectPath}/callback`,
+          `${Config.PROTOCOL}://${req.hostname}${startRedirectPath}/callback`,
         );
         return `${req.protocol}://${req.hostname}${startRedirectPath}/callback`;
       },
