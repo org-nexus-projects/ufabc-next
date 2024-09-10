@@ -33,7 +33,7 @@ async function oauth2(app: FastifyInstance, opts: NextOauthOptions) {
         req.log.warn(
           `${Config.PROTOCOL}://${req.hostname}${startRedirectPath}/callback`,
         );
-        return `${req.protocol}://${req.hostname}${startRedirectPath}/callback`;
+        return `${Config.PROTOCOL}://${req.hostname}${startRedirectPath}/callback`;
       },
     });
 
