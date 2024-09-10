@@ -20,7 +20,7 @@ export async function handleOauth(
     await this[provider].getAccessTokenFromAuthorizationCodeFlow(request);
   const oauthUser = await providers[provider].getUserDetails(token);
   const user = await createIfNotExists(oauthUser, userId);
-
+  request.log.warn(user);
   const isUserInApp = inApp.split('?')[0] === 'true';
   const tokenParam = `?token=${user.generateJWT()}`;
   const isWeb = `${Config.WEB_URL}/login${tokenParam}`;

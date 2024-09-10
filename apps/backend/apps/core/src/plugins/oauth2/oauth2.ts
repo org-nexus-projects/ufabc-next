@@ -56,8 +56,13 @@ async function oauth2(app: FastifyInstance, opts: NextOauthOptions) {
           }
 
           // Unknwon (probably db) error
-          request.log.warn({ error }, 'Unknow oauth error');
-          return reply.internalServerError('Could not login');
+          request.log.warn({
+            msg: 'deu merda severa',
+            error,
+          });
+          return reply.internalServerError(
+            'Algo de errado aconteceu no seu login, tente novamente',
+          );
         }
       },
     );
