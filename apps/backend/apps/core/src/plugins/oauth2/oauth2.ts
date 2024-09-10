@@ -1,6 +1,6 @@
 import { type OAuth2Namespace, fastifyOauth2 } from '@fastify/oauth2';
 import { fastifyPlugin as fp } from 'fastify-plugin';
-import { Config } from '@/config/config.js';
+import type { Config } from '@/config/config.js';
 import { objectKeys } from './utils/objectKeys.js';
 import { type Querystring, handleOauth } from './handler.js';
 import { supportedProviders } from './supportedProviders.js';
@@ -18,7 +18,6 @@ async function oauth2(app: FastifyInstance, opts: NextOauthOptions) {
 
   for (const provider of objectKeys(providers)) {
     const startRedirectPath = `/login/${provider}`;
-    const callbackURI = `${Config.PROTOCOL}://api.v2.ufabcnext.com/login/${provider}/callback`;
     await app.register(fastifyOauth2, {
       name: provider,
       credentials: {
@@ -30,7 +29,12 @@ async function oauth2(app: FastifyInstance, opts: NextOauthOptions) {
       },
       scope: providers[provider].scope,
       startRedirectPath,
-      callbackUri: callbackURI,
+      callbackUri: (req) => {
+        req.log.warn(
+          `${req.protocol}://${req.hostname}${startRedirectPath}/callback`,
+        );
+        return `${req.protocol}://${req.hostname}${startRedirectPath}/callback`;
+      },
     });
 
     app.get(
@@ -52,7 +56,8 @@ async function oauth2(app: FastifyInstance, opts: NextOauthOptions) {
           }
 
           // Unknwon (probably db) error
-          return reply.internalServerError(`${error}`);
+          request.log.warn({ error }, 'Unknow oauth error');
+          return reply.internalServerError('Could not login');
         }
       },
     );
