@@ -31,7 +31,11 @@ type HistoryCoefficients = Record<number, CoefficientsMap>;
 
 const historiesDisciplinasSchema = new Schema(
   {
-    periodo: { type: String, required: true, enum: ['1', '2', '3'] },
+    periodo: {
+      type: String,
+      required: true,
+      enum: ['1', '2', '3', 'QS', 'qs'],
+    },
     codigo: { type: String, required: true },
     disciplina: { type: String, required: true },
     ano: { type: Number, required: true },
