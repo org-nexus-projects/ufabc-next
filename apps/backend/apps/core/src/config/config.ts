@@ -12,7 +12,6 @@ const JWT_SECRET = 'LWp9YJMiUtfQxoepoTL7RkWJi6W5C6ED';
 const envSchema = z.object({
   NODE_ENV: z.enum(['dev', 'test', 'prod']).default('dev'),
   PORT: z.coerce.number().default(5000),
-  PROTOCOL: z.enum(['http', 'https']).default('http'),
   HOST: z.string().min(4).default('0.0.0.0'),
   JWT_SECRET: z.string().min(32).default(JWT_SECRET),
   MONGODB_CONNECTION_URL: z.string().default('mongodb://127.0.0.1:27017/local'),
