@@ -18,8 +18,11 @@ async function oauth2(app: FastifyInstance, opts: NextOauthOptions) {
 
   for (const provider of objectKeys(providers)) {
     const startRedirectPath = `/login/${provider}`;
-    const callbackUri = `${Config.PROTOCOL}://${Config.HOST}:${Config.PORT}/login/${provider}/callback`;
-
+    let callbackURI = '';
+    if (Config.NODE_ENV === 'prod') {
+      callbackURI = `${Config.PROTOCOL}://api.v2.ufabcnext.com/login/${provider}/callback`;
+    }
+    callbackURI = `${Config.PROTOCOL}://${Config.HOST}:${Config.PORT}/login/${provider}/callback`;
     await app.register(fastifyOauth2, {
       name: provider,
       credentials: {
@@ -31,7 +34,7 @@ async function oauth2(app: FastifyInstance, opts: NextOauthOptions) {
       },
       scope: providers[provider].scope,
       startRedirectPath,
-      callbackUri,
+      callbackUri: callbackURI,
     });
 
     app.get(
