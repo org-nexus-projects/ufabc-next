@@ -6,10 +6,10 @@ const resolveEndpoint = (env?: string) =>
     development: 'http://localhost:5000/v2',
     staging: 'https://api.v2.ufabcnext.com/v2',
     production: 'https://api.ufabcnext.com/v1',
-  })[env!] || 'https://api.ufabcnext.com/v1';
+  })[env!] || 'https://api.v2.ufabcnext.com/v2';
 
 export const api = axios.create({
-  baseURL: resolveEndpoint(process.env.NODE_ENV),
+  baseURL: resolveEndpoint(process.env.VUE_APP_MF_ENV),
 });
 
 api.interceptors.request.use(async (config) => {
