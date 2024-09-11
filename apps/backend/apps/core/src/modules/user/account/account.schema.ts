@@ -29,7 +29,7 @@ export const usersInfoSchema = {
   tags: ['Users'],
   description: 'Rotas para criação e manipulação da conta de um Usuário',
   response: {
-    200: usersInfoResponse,
+    200: usersInfoResponse.optional(),
   },
 } satisfies FastifySchema;
 
