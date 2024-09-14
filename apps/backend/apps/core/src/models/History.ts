@@ -34,7 +34,7 @@ const historiesDisciplinasSchema = new Schema(
     periodo: {
       type: String,
       required: true,
-      enum: ['1', '2', '3', 'QS', 'qs'],
+      enum: ['1', '2', '3'],
     },
     codigo: { type: String, required: true },
     disciplina: { type: String, required: true },

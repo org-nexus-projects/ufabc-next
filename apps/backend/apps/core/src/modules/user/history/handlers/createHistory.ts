@@ -5,10 +5,7 @@ import { SubjectModel } from '@/models/Subject.js';
 import { logger } from '@next/common';
 import { transformCourseName } from '../utils/transformCourseName.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import {
-  type GraduationComponents,
-  ufProcessor,
-} from '@/services/ufprocessor.js';
+import { ufProcessor } from '@/services/ufprocessor.js';
 
 const CACHE_TTL = 1000 * 60 * 60;
 const cache = new LRUCache<string, any>({
@@ -70,17 +67,14 @@ export async function createHistory(
   // subjectsgraduations, historiesgraduation e graduations são para a feat de planning
 
   // comments by joabe vulgo job
-  const graduationComponents = await ufProcessor.getGraduationComponents(
-    73710,
-    '2017',
-  );
+
+  // todo: improve this hardcoded valuessssss
+  // todo: maybe consulting history before hydrate
+  const normalizedSubjects = await getNormalizedSubjects(73710, '2017');
+
   const hydratedComponentsPromises = studentHistory.components.map(
     (component) =>
-      hydrateComponents(
-        component,
-        studentHistory.ra,
-        graduationComponents.components,
-      ),
+      hydrateComponents(component, studentHistory.ra, normalizedSubjects),
   );
   const hydratedComponents = await Promise.all(hydratedComponentsPromises);
   const course = transformCourseName(
@@ -130,32 +124,69 @@ export async function createHistory(
   };
 }
 
-async function hydrateComponents(
-  component: StudentComponent,
-  ra: number,
-  graduationComponents: GraduationComponents[],
-) {
-  const existingHistory = await HistoryModel.findOne({ ra });
-
+async function getNormalizedSubjects(courseId: number, appliedYear: string) {
   const subjects = await SubjectModel.find({
     creditos: {
       $exists: true,
     },
   });
+
+  const graduationComponents = await ufProcessor.getGraduationComponents(
+    courseId,
+    appliedYear,
+  );
+
   const normalizedSubjects = subjects.map((subject) => ({
     name: subject.name.trim().toLocaleLowerCase(),
     credits: subject.creditos,
-    category: graduationComponents.find(
+    category: graduationComponents.components.find(
       (o) => o.name === subject.name.trim().toLocaleLowerCase(),
     )?.category,
   }));
 
+  return normalizedSubjects;
+}
+
+async function getCategoryFromHistory(
+  ra: number,
+  subject: {
+    name: string;
+    credits: number;
+    category: 'limited' | 'mandatory' | undefined;
+  },
+  component: StudentComponent,
+) {
+  const existingHistory = await HistoryModel.findOne({ ra });
+
+  if (existingHistory) {
+    const existingComponent = existingHistory.disciplinas.find((disciplina) => {
+      return disciplina.codigo === component.codigo;
+    });
+
+    if (!existingComponent?.categoria) {
+      return subject.category === undefined ? 'livre' : subject.category;
+    }
+
+    return existingComponent.categoria;
+  }
+}
+
+async function hydrateComponents(
+  component: StudentComponent,
+  ra: number,
+  normalizedSubjects: {
+    name: string;
+    credits: number;
+    category: 'limited' | 'mandatory' | undefined;
+  }[],
+) {
   const componentSubject = component.disciplina.trim().toLocaleLowerCase();
-  const validComponent = normalizedSubjects.find(
+
+  const validSubject = normalizedSubjects.find(
     (subject) => subject.name === componentSubject,
   );
 
-  if (!validComponent) {
+  if (!validSubject) {
     logger.warn({ name: componentSubject, ra }, 'No valid component found');
 
     await SubjectModel.create({
@@ -175,15 +206,7 @@ async function hydrateComponents(
     };
   }
 
-  let category = null;
-  if (existingHistory) {
-    const existingComponents = existingHistory.disciplinas.find(
-      (disciplina) => {
-        return disciplina?.codigo === component?.codigo;
-      },
-    );
-    category = validComponent?.category ?? null;
-  }
+  const categoria = await getCategoryFromHistory(ra, validSubject, component);
 
   return {
     conceito: component.resultado === '--' || '' ? null : component.resultado,
@@ -191,11 +214,8 @@ async function hydrateComponents(
     situacao: component.situacao === '--' || '' ? null : component.situacao,
     ano: component.ano,
     codigo: component.codigo,
-    creditos: validComponent.credits,
-    disciplina: validComponent.name,
-    categoria:
-      validComponent?.category === undefined
-        ? 'livre'
-        : validComponent?.category,
+    creditos: validSubject.credits,
+    disciplina: validSubject.name,
+    categoria,
   };
 }
