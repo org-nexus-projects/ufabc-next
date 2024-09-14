@@ -5,6 +5,10 @@ import { SubjectModel } from '@/models/Subject.js';
 import { logger } from '@next/common';
 import { transformCourseName } from '../utils/transformCourseName.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
+import {
+  type GraduationComponents,
+  ufProcessor,
+} from '@/services/ufprocessor.js';
 
 const CACHE_TTL = 1000 * 60 * 60;
 const cache = new LRUCache<string, any>({
@@ -53,8 +57,20 @@ export async function createHistory(
     };
   }
 
+  // coisas que o processor vai ter que mandar
+  // grades para cadastros novos
+  // mapear os IDs dos cursos do SIGAA
+  const graduationComponents = await ufProcessor.getGraduationComponents(
+    73710,
+    '2017',
+  );
   const hydratedComponentsPromises = studentHistory.components.map(
-    (component) => hydrateComponents(component, studentHistory.ra),
+    (component) =>
+      hydrateComponents(
+        component,
+        studentHistory.ra,
+        graduationComponents.components,
+      ),
   );
   const hydratedComponents = await Promise.all(hydratedComponentsPromises);
   const course = transformCourseName(
@@ -104,7 +120,13 @@ export async function createHistory(
   };
 }
 
-async function hydrateComponents(component: StudentComponent, ra: number) {
+async function hydrateComponents(
+  component: StudentComponent,
+  ra: number,
+  graduationComponents: GraduationComponents[],
+) {
+  const existingHistory = await HistoryModel.findOne({ ra });
+
   const subjects = await SubjectModel.find({
     creditos: {
       $exists: true,
@@ -113,7 +135,11 @@ async function hydrateComponents(component: StudentComponent, ra: number) {
   const normalizedSubjects = subjects.map((subject) => ({
     name: subject.name.trim().toLocaleLowerCase(),
     credits: subject.creditos,
+    category: graduationComponents.find(
+      (o) => o.name === subject.name.trim().toLocaleLowerCase(),
+    )?.category,
   }));
+
   const componentSubject = component.disciplina.trim().toLocaleLowerCase();
   const validComponent = normalizedSubjects.find(
     (subject) => subject.name === componentSubject,
@@ -139,7 +165,6 @@ async function hydrateComponents(component: StudentComponent, ra: number) {
     };
   }
 
-  const existingHistory = await HistoryModel.findOne({ ra });
   let category = null;
   if (existingHistory) {
     const existingComponents = existingHistory.disciplinas.find(
@@ -147,7 +172,7 @@ async function hydrateComponents(component: StudentComponent, ra: number) {
         return disciplina?.codigo === component?.codigo;
       },
     );
-    category = existingComponents?.categoria ?? null;
+    category = validComponent?.category ?? null;
   }
 
   return {
@@ -158,6 +183,9 @@ async function hydrateComponents(component: StudentComponent, ra: number) {
     codigo: component.codigo,
     creditos: validComponent.credits,
     disciplina: validComponent.name,
-    categoria: category,
+    categoria:
+      validComponent?.category === undefined
+        ? 'livre'
+        : validComponent?.category,
   };
 }

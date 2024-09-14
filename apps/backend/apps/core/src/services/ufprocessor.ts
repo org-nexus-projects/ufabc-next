@@ -59,6 +59,22 @@ export type StudentComponent = {
 };
 export type UFProcessorEnrollment = Record<StudentRA, StudentComponent[]>;
 
+export type GraduationComponents = {
+  name: string;
+  UFComponentCode: string;
+  category: 'limited' | 'mandatory';
+};
+
+export type Graduation = {
+  name: string;
+  alias: string;
+  campus: 'sa' | 'sbc';
+  kind: 'licenciatura' | 'graduacao';
+  shift: 'noturno' | 'matutino';
+  grade: string;
+  components: Array<GraduationComponents>;
+};
+
 class UFProcessor {
   private readonly baseURL = Config.UF_PROCESSOR_URL;
   private readonly request: typeof ofetch;
@@ -126,6 +142,13 @@ class UFProcessor {
       },
     );
     return enrollments;
+  }
+
+  async getGraduationComponents(id: number, year: string) {
+    const graduation = await this.request<Graduation>(
+      `/courses/components/${id}/${year}`,
+    );
+    return graduation;
   }
 }
 
