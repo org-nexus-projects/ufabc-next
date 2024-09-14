@@ -121,14 +121,31 @@ async function hydrateComponents(component: StudentComponent, ra: number) {
 
   if (!validComponent) {
     logger.warn({ name: componentSubject, ra }, 'No valid component found');
-    return;
+
+    await SubjectModel.create({
+      name: componentSubject,
+      creditos: 0,
+    });
+
+    return {
+      disciplina: componentSubject,
+      creditos: 0,
+      conceito: component.resultado,
+      periodo: component.periodo,
+      situacao: component.situacao,
+      ano: component.ano,
+      codigo: component.codigo,
+      categoria: null,
+    };
   }
 
   const existingHistory = await HistoryModel.findOne({ ra });
   let category = null;
   if (existingHistory) {
     const existingComponents = existingHistory.disciplinas.find(
-      (disciplina) => disciplina.codigo === component?.codigo || false,
+      (disciplina) => {
+        return disciplina?.codigo === component?.codigo;
+      },
     );
     category = existingComponents?.categoria ?? null;
   }
