@@ -5,9 +5,11 @@ import type { FastifyInstance } from 'fastify';
 export async function cors(app: FastifyInstance, opts: { origins: string[] }) {
   try {
     await app.register(fastifyCors, {
-      origin: opts.origins,
+      origin: '*',
     });
-    app.log.info(`[PLUGIN] CORS, allowed for origins: ${opts.origins.join(',')}`);
+    app.log.info(
+      `[PLUGIN] CORS, allowed for origins: ${opts.origins.join(',')}`,
+    );
   } catch (error) {
     app.log.error({ error }, '[PLUGIN] error in Cors');
   }
