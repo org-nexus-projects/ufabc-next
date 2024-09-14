@@ -18,7 +18,9 @@ const cache = new LRUCache<string, any>({
 
 const validateSigaaComponents = z.object({
   ano: z.coerce.number(),
-  periodo: z.string(),
+  periodo: z
+    .string()
+    .transform((periodo) => (periodo === 'QS' ? '3' : periodo)),
   codigo: z.string(),
   situacao: z
     .enum(['APROVADO', 'REPROVADO', 'REPROVADO POR FALTAS', '--', ''])
