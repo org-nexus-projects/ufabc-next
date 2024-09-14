@@ -60,6 +60,14 @@ export async function createHistory(
   // coisas que o processor vai ter que mandar
   // grades para cadastros novos
   // mapear os IDs dos cursos do SIGAA
+
+  // disciplina é o que precisamos de saudável para a feat de kicks
+  // junto com tabela de alunos
+  // enrollments é o queprecisamos saudável para os comentários
+  // histories é o que precisamos saudável para os coeficientes
+  // subjectsgraduations, historiesgraduation e graduations são para a feat de planning
+
+  // comments by joabe vulgo job
   const graduationComponents = await ufProcessor.getGraduationComponents(
     73710,
     '2017',
