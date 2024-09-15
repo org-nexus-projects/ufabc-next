@@ -13,6 +13,13 @@ const POSSIBLE_SITUATIONS = [
   'reprovado por faltas',
   'aprovado',
 ] as const;
+// can be '-' if the component was dropped (trancamento)
+const CATEGORIES = [
+  'Livre Escolha',
+  'Obrigatória',
+  'Opção Limitada',
+  '-',
+] as const;
 
 export type Coefficient = {
   ca_quad: number;
@@ -44,7 +51,7 @@ const historiesDisciplinasSchema = new Schema(
       enum: POSSIBLE_SITUATIONS,
     },
     creditos: { type: Number, required: true },
-    categoria: String,
+    categoria: { type: String, required: true, enum: CATEGORIES },
     conceito: {
       type: String,
       enum: CONCEITOS,
@@ -58,12 +65,12 @@ export type History = {
   ra: number;
   disciplinas: InferSchemaType<typeof historiesDisciplinasSchema>[];
   coefficients: HistoryCoefficients;
-  curso: string | undefined;
+  curso: string;
   grade: string | undefined;
 };
 
-type THistoryModel = Model<History, {}>;
-
+export type THistoryModel = Model<History, {}>;
+export type HistoryDocument = ReturnType<(typeof HistoryModel)['hydrate']>;
 const historySchema = new Schema<History, THistoryModel>(
   {
     ra: { type: Number, required: true },

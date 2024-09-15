@@ -1,7 +1,11 @@
 import { LRUCache } from 'lru-cache';
 import { z } from 'zod';
-import { HistoryModel } from '@/models/History.js';
-import { SubjectModel } from '@/models/Subject.js';
+import {
+  type History,
+  type HistoryDocument,
+  HistoryModel,
+} from '@/models/History.js';
+import { type Subject, SubjectModel } from '@/models/Subject.js';
 import { logger } from '@next/common';
 import { transformCourseName } from '../utils/transformCourseName.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
@@ -16,7 +20,7 @@ const cache = new LRUCache<string, any>({
 const validateSigaaComponents = z.object({
   ano: z.coerce.number(),
   periodo: z
-    .string()
+    .enum(['1', '2', '3', 'QS'])
     .transform((periodo) => (periodo === 'QS' ? '3' : periodo)),
   codigo: z.string(),
   situacao: z
@@ -35,6 +39,22 @@ const validateSigaaHistory = z.object({
 });
 
 type StudentComponent = z.infer<typeof validateSigaaComponents>;
+type HistorySubjects = {
+  name: string;
+  credits: number;
+  category: 'limited' | 'mandatory' | 'free';
+};
+
+type HydratedComponent = {
+  disciplina: string;
+  conceito: StudentComponent['resultado'] | null;
+  periodo: StudentComponent['periodo'];
+  codigo: StudentComponent['codigo'];
+  ano: number;
+  situacao: string | null;
+  categoria: HistorySubjects['category'];
+  creditos: number;
+};
 
 export async function createHistory(
   request: FastifyRequest,
@@ -71,12 +91,6 @@ export async function createHistory(
   // todo: improve this hardcoded valuessssss
   // todo: maybe consulting history before hydrate
   const normalizedSubjects = await getNormalizedSubjects(73710, '2017');
-
-  const hydratedComponentsPromises = studentHistory.components.map(
-    (component) =>
-      hydrateComponents(component, studentHistory.ra, normalizedSubjects),
-  );
-  const hydratedComponents = await Promise.all(hydratedComponentsPromises);
   const course = transformCourseName(
     studentHistory.course,
     studentHistory.courseKind,
@@ -84,7 +98,13 @@ export async function createHistory(
 
   let history = await HistoryModel.findOne({
     ra: studentHistory.ra,
-  });
+  }).lean<History>();
+  const hydratedComponents = await hydrateComponents(
+    studentHistory.components,
+    studentHistory.ra,
+    normalizedSubjects,
+    history,
+  );
 
   if (!history && hydratedComponents.length > 0) {
     history = await HistoryModel.create({
@@ -94,128 +114,124 @@ export async function createHistory(
       coefficients: null,
       grade: null,
     });
-    cache.set(cacheKey, history);
-    return {
-      msg: `Created history for ${studentHistory.ra}`,
-      history,
-    };
-  }
-
-  history = await HistoryModel.findOneAndUpdate(
-    {
-      ra: studentHistory.ra,
-      curso: course,
-    },
-    {
-      $set: {
-        disciplinas: hydratedComponents,
+  } else if (history) {
+    history = await HistoryModel.findOneAndUpdate(
+      { ra: studentHistory.ra, curso: course },
+      {
+        $set: {
+          disciplinas: hydratedComponents,
+        },
       },
-    },
-    {
-      new: true,
-    },
-  );
+      { new: true },
+    );
+  }
 
   cache.set(cacheKey, history);
 
   return {
-    msg: `Updated history for ${studentHistory.ra}`,
+    msg: history
+      ? `Updated history for ${studentHistory.ra}`
+      : `Created history for ${studentHistory.ra}`,
     history,
   };
 }
 
-async function getNormalizedSubjects(courseId: number, appliedYear: string) {
-  const subjects = await SubjectModel.find({
-    creditos: {
-      $exists: true,
-    },
-  });
-
-  const graduationComponents = await ufProcessor.getGraduationComponents(
-    courseId,
-    appliedYear,
-  );
-
-  const normalizedSubjects = subjects.map((subject) => ({
-    name: subject.name.trim().toLocaleLowerCase(),
-    credits: subject.creditos,
-    category: graduationComponents.components.find(
-      (o) => o.name === subject.name.trim().toLocaleLowerCase(),
-    )?.category,
-  }));
-
-  return normalizedSubjects;
-}
-
 async function getCategoryFromHistory(
-  ra: number,
-  subject: {
-    name: string;
-    credits: number;
-    category: 'limited' | 'mandatory' | undefined;
-  },
+  subject: HistorySubjects,
   component: StudentComponent,
-) {
-  const existingHistory = await HistoryModel.findOne({ ra });
-
+  existingHistory: HistoryDocument,
+): Promise<HydratedComponent['categoria']> {
   if (existingHistory) {
-    const existingComponent = existingHistory.disciplinas.find((disciplina) => {
-      return disciplina.codigo === component.codigo;
-    });
-
+    const existingComponent = existingHistory.disciplinas.find(
+      (disciplina) => disciplina.codigo === component.codigo,
+    );
     if (!existingComponent?.categoria) {
-      return subject.category === undefined ? 'livre' : subject.category;
+      return subject.category === undefined ? 'free' : subject.category;
     }
-
     return existingComponent.categoria;
   }
+  return subject.category === undefined ? 'free' : subject.category;
 }
 
 async function hydrateComponents(
-  component: StudentComponent,
+  components: StudentComponent[],
   ra: number,
-  normalizedSubjects: {
-    name: string;
-    credits: number;
-    category: 'limited' | 'mandatory' | undefined;
-  }[],
-) {
-  const componentSubject = component.disciplina.trim().toLocaleLowerCase();
-
-  const validSubject = normalizedSubjects.find(
-    (subject) => subject.name === componentSubject,
+  normalizedSubjects: HistorySubjects[],
+  existingHistory: HistoryDocument,
+): Promise<HydratedComponent[]> {
+  const subjectMap = new Map(
+    normalizedSubjects.map((subject) => [subject.name, subject]),
   );
+  const hydratedComponents: HydratedComponent[] = [];
 
-  if (!validSubject) {
-    logger.warn({ name: componentSubject, ra }, 'No valid component found');
+  for (const component of components) {
+    const componentSubject = component.disciplina.trim().toLowerCase();
+    const validSubject = subjectMap.get(componentSubject);
 
-    await SubjectModel.create({
-      name: componentSubject,
-      creditos: 0,
-    });
+    if (!validSubject) {
+      logger.warn({ name: componentSubject, ra }, 'No valid component found');
+      await SubjectModel.create({
+        name: componentSubject,
+        creditos: 0,
+      });
 
-    return {
-      disciplina: componentSubject,
-      creditos: 0,
-      conceito: component.resultado,
+      hydratedComponents.push({
+        disciplina: componentSubject,
+        creditos: 0,
+        conceito: component.resultado,
+        periodo: component.periodo,
+        situacao: component.situacao,
+        ano: component.ano,
+        codigo: component.codigo,
+        categoria: 'free',
+      });
+      continue;
+    }
+
+    const categoria = await getCategoryFromHistory(
+      validSubject,
+      component,
+      existingHistory,
+    );
+    hydratedComponents.push({
+      conceito: component.resultado === '--' || '' ? null : component.resultado,
       periodo: component.periodo,
-      situacao: component.situacao,
+      situacao: component.situacao === '--' || '' ? null : component.situacao,
       ano: component.ano,
       codigo: component.codigo,
-      categoria: null,
-    };
+      creditos: validSubject.credits,
+      disciplina: validSubject.name,
+      categoria,
+    });
   }
 
-  const categoria = await getCategoryFromHistory(ra, validSubject, component);
-
-  return {
-    conceito: component.resultado === '--' || '' ? null : component.resultado,
-    periodo: component.periodo,
-    situacao: component.situacao === '--' || '' ? null : component.situacao,
-    ano: component.ano,
-    codigo: component.codigo,
-    creditos: validSubject.credits,
-    disciplina: validSubject.name,
-    categoria,
-  };
+  return hydratedComponents;
 }
+
+const getNormalizedSubjects = (() => {
+  const subjectCache = new LRUCache<string, {}>({ max: 10, ttl: CACHE_TTL });
+
+  return async (courseId: number, grade: string) => {
+    const cacheKey = `${courseId}:${grade}`;
+    if (subjectCache.has(cacheKey)) {
+      return subjectCache.get(cacheKey);
+    }
+
+    const [subjects, graduationComponents] = await Promise.all([
+      SubjectModel.find({ creditos: { $exists: true } }).lean<Subject[]>(),
+      ufProcessor.getGraduationComponents(courseId, grade),
+    ]);
+
+    const normalizedSubjects = subjects.map<HistorySubjects>((subject) => ({
+      name: subject.name.trim().toLowerCase(),
+      credits: subject.creditos,
+      category:
+        graduationComponents.components.find(
+          (o) => o.name === subject.name.trim().toLowerCase(),
+        )?.category || 'free',
+    }));
+
+    subjectCache.set(cacheKey, normalizedSubjects);
+    return normalizedSubjects;
+  };
+})();
