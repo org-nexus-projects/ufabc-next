@@ -71,7 +71,7 @@ function Matricula() {
       const content = script.textContent || script.innerHTML;
       if (content.includes(searchString)) {
         const regex = /matriculas\[(\d+)\]/;
-        const match = scriptContent.match(regex);
+        const match = content.match(regex);
 
         if (match && match[1]) {
           studentId = Number.parseInt(match[1], 10);
