@@ -33,7 +33,7 @@ function Matricula() {
   // fetch professors url and save them into localStorage
   async function getProfessors() {
     try {
-      const { data: components } = await nextApi.get('/entities/disciplina');
+      const { data: components } = await nextApi.get('/entities/components');
       await Utils.storage.setItem('next-extension-last', Date.now());
       await Utils.storage.setItem('next-extension-components', components);
       return components;
