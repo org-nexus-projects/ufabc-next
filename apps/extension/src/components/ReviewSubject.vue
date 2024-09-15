@@ -28,7 +28,7 @@
 
     </div>
     <div class="ufabc-row ufabc-align-center ufabc-justify-middle" style="min-height: 100px" v-else>
-     {{ subjectInfo, 'Joabe' }}
+     {{ subjectInfo }}
       Nenhum dado encontrado
     </div>
     <span slot="footer" class="dialog-footer">
@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch ,onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
 import VueHighcharts from 'vue2-highcharts';
 import Highcharts3D from 'highcharts/highcharts-3d';
 import Highcharts from 'highcharts';
@@ -108,9 +108,6 @@ const concepts = ref([
 const pieChart = ref(null);
 const studentCr = ref(null);
 
-onMounted(async () => {
-  await setupSubjectStats();
-});
 
 watch(props.subjectInfo.notifier, (val) => {
   if(val) {
@@ -118,9 +115,12 @@ watch(props.subjectInfo.notifier, (val) => {
   }
 })
 
-watch(props.subjectInfo.subject, async () => {
-  await setupSubjectStats()
-})
+watch(() => props.subjectInfo, (newVal) => {
+  // biome-ignore lint/complexity/useOptionalChain: Babel version does not support it
+  if(newVal && newVal.subject && newVal.subject.id) {
+    setupSubjectStats()
+  }
+}, { immediate: true, deep: true })
 
 // i miss optional chaining :(
 const subject = computed(() => {
@@ -131,7 +131,7 @@ const subject = computed(() => {
 
 
 const possibleComponents = computed(() => {
-  const components = [...helpData.value.specific];
+  const components = helpData.value.specific;
   const generalDefaults = {
     _id: {
       _id: 'all',
@@ -165,7 +165,7 @@ function closeDialog() {
 }
 
 async function setupSubjectStats() {
-  const subjectId = _.get(props.subjectInfo, 'subject.id', '');
+  const subjectId = props.subjectInfo.subject.id;
   if (!subjectId) {
     return;
   }
@@ -173,19 +173,18 @@ async function setupSubjectStats() {
   loading.value = true;
 
   try {
-    const reviews = await nextApi.get(`/entities/subject/review/${subjectId}`)
-    console.log(reviews, possibleComponents.value)
+    const { data: reviews } = await nextApi.get(`/entities/subjects/reviews/${subjectId}`)
     helpData.value = reviews;
     loading.value = false;
     filterSelected.value = possibleComponents.value[0]._id._id;
-    if (res.general.count || 0) {
+    if (reviews.general.count || 0) {
       setTimeout(() => {
         updateFilter()
       }, 500);
     }
   } catch(error) {
     loading.value = false;
-    console.log(error);
+    console.log('dialog error', error);
     closeDialog();
   }
 }

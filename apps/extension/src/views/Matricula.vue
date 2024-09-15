@@ -191,14 +191,14 @@ async function changeTeachers() {
     const subjectEl = row.querySelector('td:nth-child(3) > span');
     const corteEl = row.querySelector('td:nth-child(5)');
     const componentId = row.getAttribute('value');
-
+    
     const component = componentsMap.get(componentId);
     if (!component) {
       continue;
     }
 
     if (component.subject) {
-      subjectEl.setAttribute('subjectId', component.subject);
+      subjectEl.setAttribute('subjectId', component.subjectId);
     }
 
     el.insertAdjacentHTML(
