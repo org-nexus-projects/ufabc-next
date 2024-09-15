@@ -105,7 +105,7 @@ const concepts = ref([
   { conceito: 'D' },
   { conceito: 'F' },
 ]);
-const pieChart = ref(null);
+const pieChart = ref();
 const studentCr = ref(null);
 
 
@@ -124,6 +124,7 @@ watch(() => props.subjectInfo, (newVal) => {
 
 // i miss optional chaining :(
 const subject = computed(() => {
+  // biome-ignore lint/complexity/useOptionalChain: Babel version does not support it
   return helpData.value && helpData.value.subject && helpData.value.subject.name 
     ? helpData.value.subject.name 
     : '';
@@ -189,6 +190,7 @@ async function setupSubjectStats() {
   }
 }
 
+console.log(pieChart.value)
 
 function updateFilter() {
   pieChart.value.delegateMethod('showLoading', 'Carregando...');
@@ -199,11 +201,9 @@ function updateFilter() {
     if (filterSelected.value === 'all') {
       filter = helpData.value.general;
     } else {
-      filter = helpData.value.specific.find((specific) => ({
-        _id: {
-          _id: filterSelected,
-        },
-      }));
+      filter = helpData.value.specific.find((specific) => 
+        specific._id._id === filterSelected.value
+      );
     }
 
     const filteredConcepts = [];
@@ -219,7 +219,7 @@ function updateFilter() {
 
     samplesCount.value = filter.count;
 
-    pieChart.addSeries({
+    pieChart.value.addSeries({
       data: _.sortBy(filteredConcepts, 'name'),
     });
 
