@@ -199,7 +199,7 @@ function setupComponents() {
   if (!componentId) {
     return;
   }
-  const studentId = matriculaUtils.getStudentId() || 557736;
+  const studentId = matriculaUtils.getStudentId();
 
   loading.value = true;
 
