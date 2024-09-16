@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :title="'Professor: ' + professorName"
+    :title="'Professor: ' + professor"
     @close="closeDialog()"
     :visible="value.dialog"
     width="460px"
@@ -21,7 +21,7 @@
         v-if="review && review.specific && review.specific.length"
       >
         <el-option
-          v-for="option in possibleDisciplinas"
+          v-for="option in possibleComponents"
           :key="option._id._id"
           :label="option._id.name"
           :value="option._id._id"
@@ -36,42 +36,40 @@
       <vue-highcharts
         class="ufabc-row ufabc-align-center ufabc-justify-middle"
         v-if="review && review.specific && review.specific.length"
-        :options="options"
+        :options="chartData"
         :highcharts="Highcharts"
         ref="pieChart"
       ></vue-highcharts>
 
       <div class="mt-2" style="text-align: center">
-        <b>* {{ cobraPresenca }}</b>
+        <b>* {{ trackAttendance }}</b>
       </div>
 
       <div class="ufabc-column ufabc-align-center mt-3 ufabc-flex-wrap">
         <div
           class="ufabc-row ufabc-align-center ufabc-justify-middle my-cr"
-          v-if="student_cr"
+          v-if="studentCr"
         >
-          Seu CR é <b class="ml-1">{{ crCropped(student_cr) }}</b>
+          Seu CR é <b class="ml-1">{{ crCropped(studentCr) }}</b>
         </div>
         <div
           class="conceitos"
-          v-if="
-            conceitoDistribution && conceitoDistribution.length && student_cr
-          "
+          v-if="conceptsDistribution && conceptsDistribution.length && studentCr"
         >
           <div class="conceitos-title">
-            Com seu CR {{ crCropped(student_cr) }}, seu conceito com este
+            Com seu CR {{ crCropped(studentCr) }}, seu conceito com este
             professor <b>provavelmente</b> será:
           </div>
           <div class="all-conceitos">
-            <div class="conceito-target" :class="targetConceitoStudent">
+            <div class="conceito-target" :class="targetStudentConcept">
               <div class="arrow">
-                <!--                 <div class="arrow-text">você</div> -->
+                <div class="arrow-text">você</div>
               </div>
               <div class="square"></div>
             </div>
             <div
               class="conceitos-cr ufabc-row"
-              v-for="(conceito, index) in conceitos"
+              v-for="(conceito, index) in concepts"
               :key="index"
             >
               <div class="conceito" :class="conceito.conceito">
@@ -100,10 +98,12 @@
     </span>
   </el-dialog>
 </template>
-<script>
+
+<script setup>
 import VueHighcharts from 'vue2-highcharts';
 import Highcharts3D from 'highcharts/highcharts-3d';
 import Highcharts from 'highcharts';
+import { ref, computed, watch, onMounted } from 'vue'
 
 import _ from 'lodash';
 import { NextAPI } from '../services/NextAPI';
@@ -112,7 +112,7 @@ import matriculaUtils from '../utils/Matricula';
 
 Highcharts3D(Highcharts);
 
-const data = {
+const chartData = ref({
   chart: {
     type: 'pie',
     options3d: {
@@ -145,242 +145,212 @@ const data = {
     },
   },
   series: [],
-};
-
+});
 const nextApi = NextAPI();
 
-export default {
-  name: 'ReviewTecher',
-  props: ['value'],
-  components: {
-    VueHighcharts,
-  },
+const props = defineProps({
+  value: Object,
+})
 
-  data() {
-    return {
-      options: data,
-      Highcharts,
-      loading: false,
+const loading = ref(false);
+const review = ref(null);
+const filterSelected = ref(null);
+const samplesCount = ref(null);
+const studentCr = ref(null);
+const concepts = ref([
+  { conceito: 'A' },
+  { conceito: 'B' },
+  { conceito: 'C' },
+  { conceito: 'D' },
+  { conceito: 'F' },
+]);
+const pieChart = ref();
 
-      review: null,
-      filterSelected: null,
-      samplesCount: null,
+const professor = computed(() => {
+  return props.value.professor.name
+})
 
-      conceitos: [
-        { conceito: 'A' },
-        { conceito: 'B' },
-        { conceito: 'C' },
-        { conceito: 'D' },
-        { conceito: 'F' },
-      ],
-
-      student_cr: null,
-    };
-  },
-
-  created() {
-    this.fetch();
-  },
-
-  watch: {
-    'value.notifier'(val) {
-      if (val) this.$notify(val);
+const possibleComponents = computed(() => {
+  if(review.value) {
+    return []
+  }
+  const components = review.value.specific
+  const generalDefaults = {
+    _id: {
+      _id: 'all',
+      name: 'Todas as matérias',
     },
+  };
+  const general = Object.assign(generalDefaults, review.value.general);
+  components.push(general);
+  return components.reverse();
+})
 
-    'value.professor'(val) {
-      this.fetch();
-    },
-  },
+const conceptsDistribution = computed(() => {
+  if(!filterSelected.value) {
+    return []
+  }
 
-  computed: {
-    professorName() {
-      return _.get(this.value, 'professor.name', '');
-    },
-
-    possibleDisciplinas() {
-      let disciplinas = this.review.specific;
-      let generalDefaults = {
-        _id: {
-          _id: 'all',
-          name: 'Todas as matérias',
-        },
-      };
-      let general = Object.assign(generalDefaults, this.review.general);
-      disciplinas.push(general);
-
-      return disciplinas.reverse();
-    },
-
-    conceitoDistribution() {
-      if (!this.filterSelected) return [];
-
-      let filter;
-      if (this.filterSelected == 'all') {
-        filter = this.review.general;
-      } else {
-        filter = _.find(this.review.specific, {
-          _id: { _id: this.filterSelected },
-        });
-      }
-
-      return (
-        filter &&
-        filter.distribution &&
-        _.sortBy(filter.distribution, 'conceito')
+  let filter;
+  if (filterSelected.value === 'all') {
+      filter = helpData.value.general;
+    } else {
+      filter = helpData.value.specific.find((specific) =>
+        specific._id._id === filterSelected.value
       );
-    },
+    }
 
-    cobraPresenca() {
-      if (!_.get(this.review, 'general.distribution.length', 0)) return;
+  return (
+    // biome-ignore lint/complexity/useOptionalChain: Babel does not support it
+    filter && filter.distribution && _.sortBy(filter.distribution, 'conceito')
+  )
+})
 
-      if (_.find(this.review.general.distribution, { conceito: 'O' })) {
-        return 'Provavelmente esse professor cobra presença 👎';
-      } else {
-        return 'Provavelmente esse professor NÃO cobra presença 👍';
-      }
-    },
+const trackAttendance = (() => {
+  if(!review.value.general.distribution.length > 0) {
+    return
+  }
 
-    targetConceitoStudent() {
-      if (
-        !this.student_cr ||
-        !this.conceitoDistribution ||
-        !this.conceitoDistribution.length
-      )
-        return;
+  console.log('debug', review.value.general)
+  const hasAbsence = review.value.general.distribution.some(concept => concept === '0')
+  if(!hasAbsence) {
+    return 'Provavelmente esse professor NÃO cobra presença 👍';
+  }
 
-      let all_cr = [];
-      for (let conceito of this.conceitoDistribution) {
-        if (conceito.conceito != 'O' && conceito.conceito != 'E') {
-          all_cr.push(conceito && conceito.cr_medio);
-        }
-      }
-      let closest = all_cr.sort(
-        (a, b) => Math.abs(this.student_cr - a) - Math.abs(this.student_cr - b),
-      )[0];
-      let targetConceito = _.find(this.conceitoDistribution, {
-        cr_medio: closest,
-      });
+  return 'Provavelmente esse professor cobra presença 👎';
+})
 
-      return targetConceito && targetConceito.conceito;
-    },
-  },
+const targetStudentConcept = computed(() => {
+  if(!studentCr.value || conceptsDistribution.value || conceptsDistribution.value.length) {
+    return
+  }
 
-  methods: {
-    resolveColorForConcept(concept) {
-      return (
-        {
-          A: '#3fcf8c',
-          B: '#b8e986',
-          C: '#f8b74c',
-          D: '#ffa004',
-          F: '#f95469',
-          O: '#A9A9A9',
-        }[concept] || '#A9A9A9'
-      );
-    },
-    crCropped(cr) {
-      return cr.toFixed(2);
-    },
-    closeDialog() {
-      this.value.dialog = false;
-      this.filterSelected = null;
-      this.review = null;
-      this.samplesCount = 0;
-    },
-    findConcept(concept) {
-      let conceito = _.find(
-        this.conceitoDistribution,
-        { conceito: concept },
-        null,
-      );
-      return conceito ? this.crCropped(conceito.cr_medio) : '-';
-    },
-    findCount(concept) {
-      let conceito = _.find(
-        this.conceitoDistribution,
-        { conceito: concept },
-        null,
-      );
-      return conceito ? conceito.count : '-';
-    },
-    fetch() {
-      let professorId = _.get(this.value, 'professor.id', '');
-      if (!professorId) return;
-      this.fetchStudent();
+  const allCrs = []
+  for(const { conceito } of conceptsDistribution.value) {
+    if (conceito !== 'O' && conceito !== 'E') {
+      allCrs.push(conceito && conceito.cr_medio)
+    }
+  }
+  const [closest]  = allCrs.sort((a, b) => Math.abs(studentCr.value - a) - Math.abs(studentCr.value - b))
+  const target = conceptsDistribution.value.find(c => c.cr_medio === closest)
 
-      this.loading = true;
+  return target && target.conceito
+})
 
-      nextApi
-        .get('/reviews/teachers/' + professorId)
-        .then((res) => {
-          this.review = res;
-          this.loading = false;
+function resolveColorForConcept(concept) {
+  return (
+    {
+      A: '#3fcf8c',
+      B: '#b8e986',
+      C: '#f8b74c',
+      D: '#ffa004',
+      F: '#f95469',
+      O: '#A9A9A9',
+    }[concept] || '#A9A9A9'
+  );
+}
 
-          if (_.get(res, 'general.count', 0)) {
-            this.filterSelected = this.possibleDisciplinas[0]._id._id;
-            setTimeout(() => {
-              this.updateFilter();
-            }, 500);
-          }
-        })
-        .catch((e) => {
-          this.loading = false;
+const croppedCR = (cr) => cr.toFixed(2)
 
-          // Show dialog with error
-          this.closeDialog();
-        });
-    },
+function closeDialog() {
+  props.value.dialog = false;
+  filterSelected.value = null;
+  review.value = null;
+  samplesCount.value = 0;
+}
 
-    fetchStudent() {
-      let self = this;
 
-      const storageUser = 'ufabc-extension-' + matriculaUtils.currentUser();
-      Utils.storage.getItem(storageUser).then((item) => {
-        if (item == null) return;
-        self.student_cr = _.get(item, '[1].cr', 0) || _.get(item, '[0].cr', 0);
-      });
-    },
+function findConcept(concept) {
+  const conceito = conceptsDistribution.value.find(concept => concept.conceito === concept)
+  return conceito ? crCropped(conceito.cr_medio) : '-';
+}
 
-    updateFilter() {
-      let pieChart = this.$refs.pieChart;
-      pieChart.delegateMethod('showLoading', 'Carregando...');
+async function fetch() {
+  const teacherId = props.value.professor.id
+  if(!teacherId) {
+    return
+  }
 
+  fetchStudent()
+
+  loading.value = true
+
+  try {
+    const {data: reviews} = await nextApi.get(`/teachers/reviews/${teacherId}`)
+    review.value = reviews
+    loading.value = false
+
+    if(reviews.general.count) {
+      filterSelected.value =  possibleComponents.value[0]._id._id
       setTimeout(() => {
-        pieChart.removeSeries();
+        updateFilter()
+      }, 500)
+    }
+  } catch(error) {
+    loading.value = false
+    closeDialog()
+  }
 
-        let filter;
-        if (this.filterSelected == 'all') {
-          filter = this.review.general;
-        } else {
-          filter = _.find(this.review.specific, {
-            _id: { _id: this.filterSelected },
-          });
-        }
+}
 
-        let conceitosFiltered = [];
-        let conceitos = filter.distribution;
-        for (let conceito of conceitos) {
-          conceitosFiltered.push({
-            name: conceito.conceito,
-            y: conceito.count,
-            color: this.resolveColorForConcept(conceito.conceito),
-          });
-        }
-        this.samplesCount = filter.count;
+function fetchStudent() {
+  const storageUser = `ufabc-extension-${matriculaUtils.currentUser()}`;
+  Utils.storage.getItem(storageUser).then((item) => {
+    if (item == null) {
+      return;
+    }
+    studentCr.value = _.get(item, '[1].cr', 0) || _.get(item, '[0].cr', 0);
+  });
+}
 
-        // pieChart.mergeOption({
-        //   subtitle: { text: 'Total de amostras: <b>' + filter.count + '<b/>'}
-        // })
+function updateFilter() {
+  pieChart.value.delegateMethod('showLoading', 'Carregando...');
 
-        pieChart.addSeries({
-          data: _.sortBy(conceitosFiltered, 'name'),
-        });
-        pieChart.hideLoading();
-      }, 500);
-    },
-  },
-};
+  setTimeout(() => {
+    pieChart.value.removeSeries();
+
+    let filter;
+    if (filterSelected.value === 'all') {
+      filter = review.value.general;
+    } else {
+      filter = review.value.specific.find(
+        (item) => item._id._id === filterSelected.value
+      );
+    }
+
+    const conceitosFiltered = [];
+    const conceitos = filter.distribution;
+    for (const conceito of conceitos) {
+      conceitosFiltered.push({
+        name: conceito.conceito,
+        y: conceito.count,
+        color: resolveColorForConcept(conceito.conceito),
+      });
+    }
+    samplesCount.value = filter.count;
+
+    pieChart.value.addSeries({
+      data: conceitosFiltered.sort((a, b) => a.name.localeCompare(b.name)),
+    });
+    pieChart.value.hideLoading();
+  }, 500);
+}
+
+watch(() => props.value.notifier, (val) => {
+  if (val) {
+    // Handle notification logic here
+  }
+});
+
+watch(() => props.value.professor, () => {
+  fetch();
+});
+
+onMounted(() => {
+  fetch();
+});
 </script>
+
 <style scoped>
 .information {
   color: rgba(0, 0, 0, 0.6);
