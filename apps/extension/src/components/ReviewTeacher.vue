@@ -269,8 +269,8 @@ function findConcept(concept) {
 }
 
 async function fetch() {
-  console.log(props.value)
-  const teacherId = props.value.professor.id
+  // biome-ignore lint/complexity/useOptionalChain: Babel does not support it
+  const teacherId = props.value.professor && props.value.professor.id
   if(!teacherId) {
     return
   }
