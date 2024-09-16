@@ -167,6 +167,7 @@ const concepts = ref([
 const pieChart = ref();
 
 const professor = computed(() => {
+  // biome-ignore lint/complexity/useOptionalChain: Babel does not support
   return props.value.professor && props.value.professor.name ? props.value.professor.name : '';
 });
 
@@ -228,12 +229,14 @@ const targetStudentConcept = computed(() => {
   const allCrs = []
   for(const { conceito } of conceptsDistribution.value) {
     if (conceito !== 'O' && conceito !== 'E') {
+      // biome-ignore lint/complexity/useOptionalChain: Babel does not support
       allCrs.push(conceito && conceito.cr_medio)
     }
   }
   const [closest]  = allCrs.sort((a, b) => Math.abs(studentCr.value - a) - Math.abs(studentCr.value - b))
   const target = conceptsDistribution.value.find(c => c.cr_medio === closest)
 
+  // biome-ignore lint/complexity/useOptionalChain: Babel does not support
   return target && target.conceito
 })
 
@@ -344,6 +347,7 @@ watch(() => props.value.notifier, (val) => {
 });
 
 watch(() => props.value.professor, (newVal) => {
+  // biome-ignore lint/complexity/useOptionalChain: Babel does not support
   if (newVal && newVal.id) {
     fetch();
   }
