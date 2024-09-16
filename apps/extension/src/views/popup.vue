@@ -3,7 +3,6 @@
     <img src="../images/logo.svg" width="150" height="33" />
 
     <div class="intro">
-
       <div class="loading" v-if="loading">
         <v-progress-circular
           :size="32"
@@ -22,7 +21,7 @@
         Caso o error persistir, entre em contato conosco pelo <a href='https://facebook.com/ufabcnext' target='_blank'>Facebook</a>
 
         <div class="retry-button">
-          <v-btn color="#2E7EED" dark @click="fetch()">Recarregar</v-btn>
+          <v-btn color="#2E7EED" dark @click="fetch">Recarregar</v-btn>
         </div>
       </div>
 
@@ -67,59 +66,51 @@
     </div>
   </div>
 </template>
-<script>
-import Vue from 'vue';
-import Vuetify from 'vuetify';
-Vue.use(Vuetify);
 
+<script setup>
+import { ref, onMounted } from 'vue';
+import Vuetify from 'vuetify';
+import Vue from 'vue';
 import Utils from '../utils/extensionUtils';
 import { setupStorage } from '../utils/setupStorage';
 
+Vue.use(Vuetify);
+
 setupStorage();
 
-export default {
-  name: 'App',
+const students = ref(null);
+const loading = ref(false);
+const error = ref(false);
 
-  data() {
-    return {
-      students: null,
-      loading: false,
-      error: false,
-    };
-  },
+const fetch = async () => {
+  loading.value = true;
+  error.value = false;
 
-  created() {
-    this.loading = true;
-    setTimeout(() => this.fetch(), 2000);
-  },
-
-  methods: {
-    async fetch() {
-      this.loading = true;
-      this.error = false;
-
-      try {
-        this.students = await Utils.storage.getItem('ufabc-extension-students');
-        this.error = false;
-      } catch (err) {
-        this.error = true;
-      }
-      this.loading = false;
-    },
-
-    formatDate(date) {
-      if (!date) return;
-
-      let d = new Date(date);
-      const day = (d.getDate() < 10 ? '0' : '') + d.getDate();
-      const month = (d.getMonth() < 10 ? '0' : '') + (d.getMonth() + 1);
-      const year = d.getFullYear();
-      const hour = (d.getHours() < 10 ? '0' : '') + d.getHours();
-      const minutes = (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
-      return day + '/' + month + '/' + year + ' ' + hour + ':' + minutes;
-    },
-  },
+  try {
+    students.value = await Utils.storage.getItem('ufabc-extension-students');
+    error.value = false;
+  } catch (err) {
+    error.value = true;
+  }
+  loading.value = false;
 };
+
+const formatDate = (date) => {
+  if (!date) return;
+
+  const d = new Date(date);
+  const day = (d.getDate() < 10 ? '0' : '') + d.getDate();
+  const month = (d.getMonth() < 10 ? '0' : '') + (d.getMonth() + 1);
+  const year = d.getFullYear();
+  const hour = (d.getHours() < 10 ? '0' : '') + d.getHours();
+  const minutes = (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+  return `${day}/${month}/${year} ${hour}:${minutes}`;
+};
+
+onMounted(() => {
+  loading.value = true;
+  setTimeout(() => fetch(), 2000);
+});
 </script>
 <style scoped>
 .ufabc-next-popup {
