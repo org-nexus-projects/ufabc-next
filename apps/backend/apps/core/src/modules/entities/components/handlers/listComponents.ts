@@ -64,6 +64,7 @@ export async function listComponents() {
     vagas: 1,
     teoria: 1,
     pratica: 1,
+    season: 1,
     alunos_matriculados: 1,
     _id: 0,
   };
