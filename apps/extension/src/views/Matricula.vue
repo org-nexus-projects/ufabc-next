@@ -84,7 +84,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import $ from 'jquery';
 import matriculaUtils from '../utils/Matricula';
 import Utils from '../utils/extensionUtils';
 import Mustache from 'mustache';
@@ -132,11 +131,12 @@ onMounted(async () => {
     const currentUser = matriculaUtils.currentUser();
 
     let student = null;
-    
+
     if (students && Array.isArray(students)) {
       student = students.find((student) => student.name === currentUser);
     }
 
+    // biome-ignore lint/complexity/useOptionalChain: Babel does not support
     if (student && student.lastUpdate) {
       const diff = Date.now() - student.lastUpdate;
       const MAX_UPDATE_DIFF = 1000 * 60 * 60 * 24 * 7; // 7 days
@@ -156,13 +156,18 @@ onMounted(async () => {
 
 async function changeTeachers() {
   if (!teachers.value) {
-    $('.isTeacherReview').css('display', 'none');
+    for (const $element of document.querySelectorAll('.isTeacherReview')) {
+      $element.style.display = 'none'
+    }
     return;
   }
 
   // se ja tiver calculado nao refaz o trabalho
-  if ($('.isTeacherReview').length > 0) {
-    $('.isTeacherReview').css('display', '');
+  const teacherReviews = document.querySelectorAll('.isTeacherReview');
+  if (teacherReviews.length > 0) {
+    for (const $element of document.querySelectorAll('.isTeacherReview')) {
+      $element.style.display = ''
+    }
     return;
   }
 
@@ -191,7 +196,7 @@ async function changeTeachers() {
     const subjectEl = row.querySelector('td:nth-child(3) > span');
     const corteEl = row.querySelector('td:nth-child(5)');
     const componentId = row.getAttribute('value');
-    
+
     const component = componentsMap.get(componentId);
     if (!component) {
       continue;
@@ -210,71 +215,78 @@ async function changeTeachers() {
 }
 
 function changeSelected() {
+  const notSelected =  document.querySelectorAll('.notSelecionada')
   if (!selected.value) {
-    $('.notSelecionada').css('display', '');
+    for (const $el of notSelected) {
+      $el.style.display = ''
+    }
     return;
   }
 
   const studentId = matriculaUtils.getStudentId();
-  const matriculas = window.matriculas[studentId] || [];
+  const enrollments = window.matriculas[studentId] || [];
+  const tableRows = document.querySelectorAll('tr')
 
-  $('tr').each(function () {
-    const componentId = $(this).attr('value');
-    if (componentId && !matriculas.includes(componentId.toString())) {
-      $(this).addClass('notSelecionada');
-      $(this).css('display', 'none');
+  for(const $row of tableRows) {
+    const componentId = $row.getAttribute('value')
+    if (componentId && !enrollments.includes(componentId.toString())) {
+      $row.classList.add('notSelecionada')
+      $row.style.display = 'none'
     }
-  });
+  }
 }
 
-function changeCursadas() {
+async function changeCursadas() {
+  const isCursadas = document.querySelectorAll('.isCursada');
   if (!cursadas.value) {
-    $('.isCursada').css('display', '');
+    for(const $el of isCursadas) {
+      $el.style.display = ''
+    }
     return;
   }
 
   const storageUser = `ufabc-extension-${matriculaUtils.currentUser()}`;
-  Utils.storage.getItem(storageUser).then((cursadas) => {
-    if (cursadas == null) {
-      console.log('nao temos o que vc cursou, acesse o sigaa');
-      return;
+  const [cursadasData] = await Utils.storage.getItem(storageUser)
+  if(cursadasData == null) {
+    console.log('nao temos o que vc cursou, acesse o sigaa');
+    return;
+  }
+  const allCursadas = cursadasData.cursadas
+  .filter((c) => ['A', 'B', 'C', 'D', 'E'].includes(c.conceito))
+  .map((c) => c.disciplina);
+
+  const trData = document.querySelectorAll('table tr td:nth-child(3)')
+  for(const $el of trData) {
+    const [component] = $el.textContent.split('-')
+    const name = component.substring(0, component.lastIndexOf(' '))
+    if(allCursadas.includes(name)) {
+      $el.parentElement.classList.add('isCursada');
+      $el.parentElement.style.display = 'none';
     }
-
-    const allCursadas = cursadas[0].cursadas
-      .filter((c) => ['A', 'B', 'C', 'D', 'E'].includes(c.conceito))
-      .map((c) => c.disciplina);
-
-    $('table tr td:nth-child(3)').each(function () {
-      const el = $(this);
-      // tira apenas o nome da disciplina -> remove turma, turno e campus
-      let name = el.text().split('-')[0];
-      name = name.substring(0, disciplina.lastIndexOf(' '));
-      if (allCursadas.includes(name)) {
-        el.parent().addClass('isCursada');
-        el.parent().css('display', 'none');
-      }
-    });
-  });
+  }
 }
 
 function applyFilter(params) {
   if (!params.val) {
-    $('#tabeladisciplinas tr td:nth-child(3)').each(function () {
-      const campus = $(this).text().toLowerCase();
-      if (campus.indexOf(params.comparator) === -1) {
-        $(this).parent().addClass(params.class);
+    const tableData = document.querySelectorAll('#tabeladisciplinas tr td:nth-child(3)')
+    for(const data of tableData) {
+      const campus = data.textContent.toLocaleLowerCase()
+      if(!campus.includes(params.comparator)) {
+        el.parentElement.classList.add(params.class);
       }
-    });
-    return;
+    }
+    return
   }
 
-  $('#tabeladisciplinas tr').each(function () {
-    $(this).removeClass(params.class);
-  });
+
+  const allTr = document.querySelectorAll('#tabeladisciplinas tr')
+  for (const tr of allTr) {
+    tr.classList.remove(params.class)
+  }
 }
 </script>
 
-<style scoped lang="css">
+<style scoped>
 * {
   font-family: Ubuntu;
 }

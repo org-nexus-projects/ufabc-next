@@ -50,14 +50,14 @@
           class="ufabc-row ufabc-align-center ufabc-justify-middle my-cr"
           v-if="studentCr"
         >
-          Seu CR é <b class="ml-1">{{ crCropped(studentCr) }}</b>
+          Seu CR é <b class="ml-1">{{ croppedCR(studentCr) }}</b>
         </div>
         <div
           class="conceitos"
           v-if="conceptsDistribution && conceptsDistribution.length && studentCr"
         >
           <div class="conceitos-title">
-            Com seu CR {{ crCropped(studentCr) }}, seu conceito com este
+            Com seu CR {{ croppedCR(studentCr) }}, seu conceito com este
             professor <b>provavelmente</b> será:
           </div>
           <div class="all-conceitos">
@@ -167,8 +167,8 @@ const concepts = ref([
 const pieChart = ref();
 
 const professor = computed(() => {
-  return props.value.professor.name
-})
+  return props.value.professor && props.value.professor.name ? props.value.professor.name : '';
+});
 
 const possibleComponents = computed(() => {
   if(review.value) {
@@ -261,11 +261,12 @@ function closeDialog() {
 
 
 function findConcept(concept) {
-  const conceito = conceptsDistribution.value.find(concept => concept.conceito === concept)
+  const conceito = conceptsDistribution.value.find(item => item.conceito === concept)
   return conceito ? crCropped(conceito.cr_medio) : '-';
 }
 
 async function fetch() {
+  console.log(props.value)
   const teacherId = props.value.professor.id
   if(!teacherId) {
     return
@@ -342,9 +343,11 @@ watch(() => props.value.notifier, (val) => {
   }
 });
 
-watch(() => props.value.professor, () => {
-  fetch();
-});
+watch(() => props.value.professor, (newVal) => {
+  if (newVal && newVal.id) {
+    fetch();
+  }
+}, { immediate: true, deep: true });
 
 onMounted(() => {
   fetch();
