@@ -12,8 +12,9 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ufProcessor } from '@/services/ufprocessor.js';
 
 const CACHE_TTL = 1000 * 60 * 60;
-const cache = new LRUCache<string, any>({
-  max: 3,
+const historyCache = new LRUCache<string, History>({ max: 3, ttl: CACHE_TTL });
+const subjectCache = new LRUCache<string, HistorySubjects[]>({
+  max: 10,
   ttl: CACHE_TTL,
 });
 
@@ -21,7 +22,7 @@ const validateSigaaComponents = z.object({
   ano: z.coerce.number(),
   periodo: z
     .enum(['1', '2', '3', 'QS'])
-    .transform((periodo) => (periodo === 'QS' ? '3' : periodo)),
+    .transform((p) => (p === 'QS' ? '3' : p)),
   codigo: z.string(),
   situacao: z
     .enum(['APROVADO', 'REPROVADO', 'REPROVADO POR FALTAS', '--', ''])
@@ -31,7 +32,6 @@ const validateSigaaComponents = z.object({
 });
 
 const validateSigaaHistory = z.object({
-  //updateTime: z.date().optional(),
   course: z.string().transform((c) => c.toLocaleLowerCase()),
   ra: z.number(),
   courseKind: z.string().toLowerCase(),
@@ -67,29 +67,14 @@ export async function createHistory(
   }
 
   const cacheKey = `history:${studentHistory.ra}`;
-  const cached = cache.get(cacheKey);
+  const cached = historyCache.get(cacheKey);
 
   if (cached) {
     return {
-      msg: 'Retrieved from cache',
-      history: cached,
+      msg: 'Cached history!',
     };
   }
 
-  // coisas que o processor vai ter que mandar
-  // grades para cadastros novos
-  // mapear os IDs dos cursos do SIGAA
-
-  // disciplina é o que precisamos de saudável para a feat de kicks
-  // junto com tabela de alunos
-  // enrollments é o queprecisamos saudável para os comentários
-  // histories é o que precisamos saudável para os coeficientes
-  // subjectsgraduations, historiesgraduation e graduations são para a feat de planning
-
-  // comments by joabe vulgo job
-
-  // todo: improve this hardcoded valuessssss
-  // todo: maybe consulting history before hydrate
   const normalizedSubjects = await getNormalizedSubjects(73710, '2017');
   const course = transformCourseName(
     studentHistory.course,
@@ -100,10 +85,12 @@ export async function createHistory(
     ra: studentHistory.ra,
   }).lean<History>();
   const hydratedComponents = await hydrateComponents(
-    studentHistory.components,
     studentHistory.ra,
-    normalizedSubjects,
-    history,
+    studentHistory.components,
+    // biome-ignore lint/style/noNonNullAssertion:
+    normalizedSubjects!,
+    // biome-ignore lint/style/noNonNullAssertion:
+    history!,
   );
 
   if (!history && hydratedComponents.length > 0) {
@@ -126,7 +113,7 @@ export async function createHistory(
     );
   }
 
-  cache.set(cacheKey, history);
+  historyCache.set(cacheKey, history);
 
   return {
     msg: history
@@ -140,22 +127,21 @@ async function getCategoryFromHistory(
   subject: HistorySubjects,
   component: StudentComponent,
   existingHistory: HistoryDocument,
-): Promise<HydratedComponent['categoria']> {
+) {
   if (existingHistory) {
     const existingComponent = existingHistory.disciplinas.find(
       (disciplina) => disciplina.codigo === component.codigo,
     );
-    if (!existingComponent?.categoria) {
-      return subject.category === undefined ? 'free' : subject.category;
+    if (existingComponent?.categoria) {
+      return existingComponent.categoria;
     }
-    return existingComponent.categoria;
   }
-  return subject.category === undefined ? 'free' : subject.category;
+  return transformCategory(subject.category) || 'free';
 }
 
 async function hydrateComponents(
-  components: StudentComponent[],
   ra: number,
+  components: StudentComponent[],
   normalizedSubjects: HistorySubjects[],
   existingHistory: HistoryDocument,
 ): Promise<HydratedComponent[]> {
@@ -208,30 +194,30 @@ async function hydrateComponents(
   return hydratedComponents;
 }
 
-const getNormalizedSubjects = (() => {
-  const subjectCache = new LRUCache<string, {}>({ max: 10, ttl: CACHE_TTL });
+const getNormalizedSubjects = async (courseId: number, grade: string) => {
+  const cacheKey = `${courseId}:${grade}`;
+  const cachedSubjects = subjectCache.get(cacheKey);
+  if (cachedSubjects) {
+    return cachedSubjects;
+  }
 
-  return async (courseId: number, grade: string) => {
-    const cacheKey = `${courseId}:${grade}`;
-    if (subjectCache.has(cacheKey)) {
-      return subjectCache.get(cacheKey);
-    }
+  const [subjects, graduationComponents] = await Promise.all([
+    SubjectModel.find({ creditos: { $exists: true } }).lean<Subject[]>(),
+    ufProcessor.getGraduationComponents(courseId, grade),
+  ]);
 
-    const [subjects, graduationComponents] = await Promise.all([
-      SubjectModel.find({ creditos: { $exists: true } }).lean<Subject[]>(),
-      ufProcessor.getGraduationComponents(courseId, grade),
-    ]);
+  const normalizedSubjects = subjects.map((subject) => ({
+    name: subject.name.trim().toLowerCase(),
+    credits: subject.creditos,
+    category:
+      graduationComponents.components.find(
+        (o) => o.name === subject.name.trim().toLowerCase(),
+      )?.category || 'Livre Escolha',
+  }));
 
-    const normalizedSubjects = subjects.map<HistorySubjects>((subject) => ({
-      name: subject.name.trim().toLowerCase(),
-      credits: subject.creditos,
-      category:
-        graduationComponents.components.find(
-          (o) => o.name === subject.name.trim().toLowerCase(),
-        )?.category || 'free',
-    }));
+  subjectCache.set(cacheKey, normalizedSubjects);
+  return normalizedSubjects;
+};
 
-    subjectCache.set(cacheKey, normalizedSubjects);
-    return normalizedSubjects;
-  };
-})();
+const transformCategory = (category: 'mandatory' | 'limited') =>
+  category === 'mandatory' ? 'Obrigatória' : 'Opção Limitada';
