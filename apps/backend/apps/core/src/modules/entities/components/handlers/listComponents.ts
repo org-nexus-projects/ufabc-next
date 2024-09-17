@@ -85,6 +85,7 @@ export async function listComponents() {
       teoria: component.teoria?.name,
       pratica: component.pratica?.name,
       subject: component.subject?.name,
+      subjectId: component.subject?._id,
     }),
   );
 
