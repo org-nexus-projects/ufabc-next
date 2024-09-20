@@ -180,6 +180,13 @@ const transformed = computed(() => {
 });
 
 const oldComponentObject = computed(() => convertDisciplina(component.value))
+const totalRequests = computed(() => {
+  return matriculas || [].reduce(
+    (a, c) => (c.includes(this.disciplina.id.toString()) ? a + 1 : a),
+    0
+  );
+})
+const computeKicksForecast = computed(() => (kicks.value.length * component.value.vagas) / totalRequests)
 
 watch(() => props.value.dialog, (v) => {
   if(v) {
