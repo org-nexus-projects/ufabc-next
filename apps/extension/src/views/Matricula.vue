@@ -205,10 +205,12 @@ async function changeTeachers() {
     if (component.subject) {
       subjectEl.setAttribute('subjectId', component.subjectId);
     }
+    const data = { disciplina: component }
+    const rendered = Mustache.render(htmlPop.data, data)
 
     el.insertAdjacentHTML(
       'beforeend',
-      Mustache.render(htmlPop.data, component),
+      rendered,
     );
     corteEl.insertAdjacentHTML('beforeend', corteHtml.data);
   }
