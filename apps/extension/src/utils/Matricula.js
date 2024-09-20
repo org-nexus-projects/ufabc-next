@@ -67,7 +67,7 @@ function Matricula() {
     const searchString = 'todasMatriculas';
     let studentId = null;
 
-    for (const script of scripts) {
+    for (const script of Array.from(scripts)) {
       const content = script.textContent || script.innerHTML;
       if (content.includes(searchString)) {
         const regex = /matriculas\[(\d+)\]/;
@@ -75,7 +75,7 @@ function Matricula() {
 
         if (match && match[1]) {
           studentId = Number.parseInt(match[1], 10);
-          return; // Interrompe o loop quando o ID é encontrado
+          break; // Interrompe o loop quando o ID é encontrado
         }
       }
     }

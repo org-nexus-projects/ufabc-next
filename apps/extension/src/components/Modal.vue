@@ -171,10 +171,14 @@ const defaultSortHeaders = computed(() => {
 })
 
 const transformed = computed(() => {
+  if (!kicks.value || kicks.value.length === 0) {
+    return [];
+  }
+
   return kicks.value.map((kick) => {
     return Object.assign(kick, {
       reserva: kick.reserva ? 'Sim' : 'Não',
-      ik: kick.ik.toFixed(3),
+      ik: kick.ik && kick.ik.toFixed(3) || kick.ik,
     });
   });
 });
@@ -213,7 +217,7 @@ function setupComponents() {
   nextApi
     .get(`/entities/components/${componentId}/kicks?studentId=${studentId}`)
     .then((res) => {
-      kicks.value = res;
+      kicks.value = res.data;
       resort();
       loading.value = false;
     })
@@ -237,7 +241,7 @@ function resort() {
       oldComponentObject.turno === 'diurno' ? 'asc' : 'desc';
   }
 
-  kicks.value = _.orderBy(kicks, sortOrder, sortRef);
+  kicks.value = _.orderBy(kicks.value, sortOrder, sortRef);
 }
 
 function removedFilter(filter) {
