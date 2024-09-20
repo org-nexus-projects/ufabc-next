@@ -40,6 +40,23 @@ export type GoogleUser = {
   emailAddresses: EmailAddresses[];
 };
 
+/**
+ * @description Necessario devio ao token de oauth que utilizamos,
+ * user do antigo endpoint de oauth da google
+ */
+export type LegacyGoogleUser = {
+  id: string;
+  displayName: string;
+  image: {
+    url: string;
+  };
+  emails: Array<{ value: string; account: string }>;
+  nickname: string;
+  language: string;
+  kind: string;
+  etag: string;
+};
+
 export type ProviderName = 'google' | 'facebook';
 type ProviderConfig = {
   config: ProviderConfiguration;

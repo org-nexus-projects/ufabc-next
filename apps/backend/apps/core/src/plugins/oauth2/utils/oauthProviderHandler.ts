@@ -1,7 +1,7 @@
 import { logger } from '@next/common';
 import { ofetch } from 'ofetch';
 import type { Token } from '@fastify/oauth2';
-import type { GoogleUser } from './oauthTypes.js';
+import type { LegacyGoogleUser } from './oauthTypes.js';
 import type { User } from '@/models/User.js';
 
 // Implement here the helpers for respective providers
@@ -10,27 +10,25 @@ export async function getGoogleUserDetails(
   token: Token,
 ): Promise<User['oauth']> {
   try {
-    const user = await ofetch<GoogleUser>(
-      'https://people.googleapis.com/v1/people/me?personFields=emailAddresses',
+    const user = await ofetch<LegacyGoogleUser>(
+      'https://www.googleapis.com/plus/v1/people/me',
       {
         headers: {
           Authorization: `Bearer ${token.access_token}`,
         },
       },
     );
-    const [userOauth] = user.emailAddresses.map(({ value, metadata }) => ({
-      email: value,
-      providerId: metadata.source.id,
-    }));
 
-    if (!userOauth?.providerId) {
+    const email = user.emails[0].value;
+
+    if (!user.id) {
       throw new Error('Missing Google id');
     }
 
     return {
-      email: userOauth.email,
-      emailGoogle: userOauth.email,
-      google: userOauth.providerId,
+      email: email,
+      emailGoogle: email,
+      google: user.id,
       emailFacebook: null,
       facebook: null,
       picture: null,
