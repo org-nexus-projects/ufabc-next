@@ -79,13 +79,18 @@ export async function listComponents() {
     .lean();
 
   const toShow = components.map<ListedComponent>(
-    ({ id: _ignore, ...component }) => ({
+    ({ id: _ignore, alunos_matriculados, ...component }) => ({
       ...component,
-      requisicoes: component.alunos_matriculados.length ?? [],
-      teoria: component.teoria?.name,
-      pratica: component.pratica?.name,
+      requisicoes: alunos_matriculados.length ?? [],
+      teoria: { name: component.teoria?.name, _id: component.teoria?._id },
+      pratica: {
+        _id: component.pratica?._id,
+        name: component.pratica?.name,
+      },
       subject: component.subject?.name,
       subjectId: component.subject?._id,
+      teoriaId: component.teoria?._id,
+      praticaId: component.pratica?._id,
     }),
   );
 
