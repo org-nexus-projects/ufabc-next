@@ -253,7 +253,7 @@ function tableRowClassName({ row, rowIndex }) {
   if (rowIndex <= computeKicksForecast) {
     return 'not-kicked-row';
   }
-  if (rowIndex >= component.vagas) {
+  if (rowIndex >= component.value.vagas) {
     return 'kicked-row';
   }
   return 'probably-kicked-row';
