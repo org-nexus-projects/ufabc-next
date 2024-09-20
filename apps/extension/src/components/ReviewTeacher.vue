@@ -172,31 +172,32 @@ const professor = computed(() => {
 });
 
 const possibleComponents = computed(() => {
-  if(review.value) {
-    return []
+  if (!review.value || !review.value.specific) {
+    return [];
   }
-  const components = review.value.specific
+  const components = review.value.specific.slice();
   const generalDefaults = {
     _id: {
       _id: 'all',
       name: 'Todas as matérias',
     },
   };
-  const general = Object.assign(generalDefaults, review.value.general);
+  const general = Object.assign(generalDefaults, review.value.general || {});
   components.push(general);
   return components.reverse();
 })
 
+
 const conceptsDistribution = computed(() => {
-  if(!filterSelected.value) {
+  if(!filterSelected.value || !review.value) {
     return []
   }
 
   let filter;
   if (filterSelected.value === 'all') {
-      filter = helpData.value.general;
+      filter = review.value.general;
     } else {
-      filter = helpData.value.specific.find((specific) =>
+      filter = review.value.specific.find((specific) =>
         specific._id._id === filterSelected.value
       );
     }
@@ -207,37 +208,36 @@ const conceptsDistribution = computed(() => {
   )
 })
 
-const trackAttendance = (() => {
-  if(!review.value.general.distribution.length > 0) {
-    return
+const trackAttendance = computed(() => {
+  if (!review.value || !review.value.general || !review.value.general.distribution || !review.value.general.distribution.length) {
+    return '';
   }
 
-  console.log('debug', review.value.general)
-  const hasAbsence = review.value.general.distribution.some(concept => concept === '0')
-  if(!hasAbsence) {
-    return 'Provavelmente esse professor NÃO cobra presença 👍';
-  }
-
-  return 'Provavelmente esse professor cobra presença 👎';
+  const hasAbsence = review.value.general.distribution.some(concept => concept === '0');
+  return hasAbsence
+    ? 'Provavelmente esse professor cobra presença 👎'
+    : 'Provavelmente esse professor NÃO cobra presença 👍';
 })
 
 const targetStudentConcept = computed(() => {
-  if(!studentCr.value || conceptsDistribution.value || conceptsDistribution.value.length) {
-    return
+  if (!studentCr.value || !conceptsDistribution.value || !conceptsDistribution.value.length) {
+    return '';
   }
 
-  const allCrs = []
-  for(const { conceito } of conceptsDistribution.value) {
-    if (conceito !== 'O' && conceito !== 'E') {
-      // biome-ignore lint/complexity/useOptionalChain: Babel does not support
-      allCrs.push(conceito && conceito.cr_medio)
-    }
-  }
-  const [closest]  = allCrs.sort((a, b) => Math.abs(studentCr.value - a) - Math.abs(studentCr.value - b))
-  const target = conceptsDistribution.value.find(c => c.cr_medio === closest)
+  const allCrs = conceptsDistribution.value
+    .filter(({ conceito }) => conceito !== 'O' && conceito !== 'E')
+    .map(item => item.cr_medio);
 
-  // biome-ignore lint/complexity/useOptionalChain: Babel does not support
-  return target && target.conceito
+  if (!allCrs.length) {
+    return '';
+  }
+
+  const closest = allCrs.reduce((prev, curr) =>
+    Math.abs(curr - studentCr.value) < Math.abs(prev - studentCr.value) ? curr : prev
+  );
+  const target = conceptsDistribution.value.find(c => c.cr_medio === closest);
+
+  return target && target.conceito ? target.conceito : '';
 })
 
 function resolveColorForConcept(concept) {
@@ -269,34 +269,38 @@ function findConcept(concept) {
 }
 
 async function fetch() {
-  // biome-ignore lint/complexity/useOptionalChain: Babel does not support it
-  const teacherId = props.value.professor && props.value.professor.id
-  if(!teacherId) {
-    return
+  // biome-ignore lint/complexity/useOptionalChain: <explanation>
+  const teacherId = props.value.professor && props.value.professor.id;
+  if (!teacherId) {
+    return;
   }
 
-  fetchStudent()
+  fetchStudent();
 
-  loading.value = true
+  loading.value = true;
 
   try {
-    const {data: reviews} = await nextApi.get(`/entities/teachers/reviews/${teacherId}`)
-    review.value = reviews
-    loading.value = false
+    const { data: reviews } = await nextApi.get(`/entities/teachers/reviews/${teacherId}`);
+    review.value = reviews;
+    loading.value = false;
 
-    if(reviews.general.count) {
-      filterSelected.value =  possibleComponents.value[0]._id._id
-      setTimeout(() => {
-        updateFilter()
-      }, 500)
+    // biome-ignore lint/complexity/useOptionalChain: <explanation>
+    if (reviews && reviews.general && reviews.general.count) {
+      const firstComponent = possibleComponents.value[0];
+      // biome-ignore lint/complexity/useOptionalChain: <explanation>
+      if (firstComponent && firstComponent._id) {
+        filterSelected.value = firstComponent._id._id;
+        setTimeout(() => {
+          updateFilter();
+        }, 500);
+      }
     }
-  } catch(error) {
-    loading.value = false
-    closeDialog()
+  } catch (error) {
+    console.error('Error fetching review data:', error);
+    loading.value = false;
+    // Do not close the dialog here
   }
-
 }
-
 function fetchStudent() {
   const storageUser = `ufabc-extension-${matriculaUtils.currentUser()}`;
   Utils.storage.getItem(storageUser).then((item) => {
@@ -308,30 +312,31 @@ function fetchStudent() {
 }
 
 function updateFilter() {
+  if (!pieChart.value) return;
+
   pieChart.value.delegateMethod('showLoading', 'Carregando...');
 
   setTimeout(() => {
     pieChart.value.removeSeries();
 
-    let filter;
-    if (filterSelected.value === 'all') {
-      filter = review.value.general;
-    } else {
-      filter = review.value.specific.find(
-        (item) => item._id._id === filterSelected.value
-      );
+    const filter = filterSelected.value === 'all'
+      ? (review.value && review.value.general)
+      : (review.value && review.value.specific && review.value.specific.find(
+          (item) => item._id._id === filterSelected.value
+        ));
+
+    if (!filter || !filter.distribution) {
+      pieChart.value.hideLoading();
+      return;
     }
 
-    const conceitosFiltered = [];
-    const conceitos = filter.distribution;
-    for (const conceito of conceitos) {
-      conceitosFiltered.push({
-        name: conceito.conceito,
-        y: conceito.count,
-        color: resolveColorForConcept(conceito.conceito),
-      });
-    }
-    samplesCount.value = filter.count;
+    const conceitosFiltered = filter.distribution.map(conceito => ({
+      name: conceito.conceito,
+      y: conceito.count,
+      color: resolveColorForConcept(conceito.conceito),
+    }));
+
+    samplesCount.value = filter.count || 0;
 
     pieChart.value.addSeries({
       data: conceitosFiltered.sort((a, b) => a.name.localeCompare(b.name)),
