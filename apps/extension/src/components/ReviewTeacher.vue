@@ -280,7 +280,7 @@ async function fetch() {
   loading.value = true
 
   try {
-    const {data: reviews} = await nextApi.get(`/teachers/reviews/${teacherId}`)
+    const {data: reviews} = await nextApi.get(`/entities/teachers/reviews/${teacherId}`)
     review.value = reviews
     loading.value = false
 
