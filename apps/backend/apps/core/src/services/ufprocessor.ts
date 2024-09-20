@@ -63,6 +63,7 @@ export type GraduationComponents = {
   name: string;
   UFComponentCode: string;
   category: 'limited' | 'mandatory';
+  credits: number;
 };
 
 export type Graduation = {

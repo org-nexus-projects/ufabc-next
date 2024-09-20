@@ -20,6 +20,7 @@ const CATEGORIES = [
   'Opção Limitada',
   '-',
 ] as const;
+export type Categories = (typeof CATEGORIES)[number];
 
 export type Coefficient = {
   ca_quad: number;
