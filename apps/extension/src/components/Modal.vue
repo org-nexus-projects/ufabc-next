@@ -179,7 +179,7 @@ const transformed = computed(() => {
   });
 });
 
-const oldComponentObject = computed(() => convertDisciplina(component))
+const oldComponentObject = computed(() => convertDisciplina(component.value))
 
 watch(() => props.value.dialog, (v) => {
   if(v) {
