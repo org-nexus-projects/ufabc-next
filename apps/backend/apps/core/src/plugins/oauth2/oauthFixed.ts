@@ -15,7 +15,7 @@ async function oauth2Debug(app: FastifyInstance, opts: Record<string, string>) {
     },
     scope: ['profile', 'email'],
     callbackUri: (req) =>
-      `${Config.PROTOCOL}://${req.hostname}/login/google/callback`,
+      `${req.protocol}://${req.hostname}/login/google/callback`,
   });
 
   app.get('/login/google', async function (request, reply) {
