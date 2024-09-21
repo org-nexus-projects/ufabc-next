@@ -76,7 +76,11 @@ export async function generalStats(
   ]);
 
   const generalStatsCount = {
-    users: await UserModel.countDocuments({}),
+    users: await UserModel.countDocuments({
+      ra: {
+        $exists: true,
+      },
+    }),
     currentAlunos: await StudentModel.countDocuments({ season }),
     comments: await CommentModel.countDocuments({}),
     enrollments: await EnrollmentModel.countDocuments({
