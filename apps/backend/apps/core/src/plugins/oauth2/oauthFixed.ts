@@ -22,6 +22,11 @@ async function oauth2Debug(app: FastifyInstance, opts: Record<string, string>) {
 
   app.get('/login/google', async function (request, reply) {
     try {
+      app.log.warn({
+        URLState: request.query.state,
+        googleStateCookie: request.cookies['oauth2-redirect-state'],
+        cookies: request.cookies,
+      });
       const oauthRedirectURI = await this.google.generateAuthorizationUri(
         request,
         reply,
