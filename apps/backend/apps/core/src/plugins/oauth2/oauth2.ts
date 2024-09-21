@@ -28,14 +28,26 @@ async function oauth2(app: FastifyInstance, opts: NextOauthOptions) {
         auth: providers[provider].config,
       },
       scope: providers[provider].scope,
-      startRedirectPath,
       callbackUri: (req) => {
-        return `${Config.PROTOCOL}://${req.hostname}${startRedirectPath}/callback`;
+        return `${Config.PROTOCOL}://${req.hostname}/login/${provider}/callback`;
       },
     });
 
+    app.get(`/login/google`, async function (request, reply) {
+      try {
+        const validatedURI = await this[provider].generateAuthorizationUri(
+          request,
+          reply,
+        );
+        request.log.warn(validatedURI, 'redirecting to');
+        return reply.redirect(validatedURI);
+      } catch (error) {
+        request.log.warn(error);
+      }
+    });
+
     app.get(
-      `/login/${provider}/callback`,
+      `/login/google/callback`,
       async function (
         request: FastifyRequest<{ Querystring: Querystring }>,
         reply,
