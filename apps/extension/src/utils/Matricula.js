@@ -21,8 +21,8 @@ function Matricula() {
   // check if we need to update our localStorage of professors
   // based when you did this last request
   async function updateProfessors(data) {
-    let lastTime = data;
-    let timeDiff = (Date.now() - lastTime) / (1000 * 60);
+    const lastTime = data;
+    const timeDiff = (Date.now() - lastTime) / (1000 * 60);
 
     await getProfessors();
     if (!lastTime || timeDiff > 0.2) {
@@ -33,61 +33,54 @@ function Matricula() {
   // fetch professors url and save them into localStorage
   async function getProfessors() {
     try {
-      let { data: professors } = await nextApi.get('/disciplinas');
-      await Utils.storage.setItem('ufabc-extension-last', Date.now());
-      await Utils.storage.setItem('ufabc-extension-disciplinas', professors);
-      return professors;
+      const { data: components } = await nextApi.get('/entities/components');
+      await Utils.storage.setItem('next-extension-last', Date.now());
+      await Utils.storage.setItem('next-extension-components', components);
+      return components;
     } catch (e) {
       console.log('❌ Erro ao atualizar disciplinas');
       console.error(e);
     }
   }
 
-  // disciplinas que mudaram de nome (HARDCODED)
-  var disciplinas_mudadas = {
-    'Energia: Origens, Conversão e Uso': 'Bases Conceituais da Energia',
-    'Transformações nos Seres Vivos e Ambiente':
-      'Biodiversidade: Interações entre organismos e ambiente',
-    'Transformações Bioquímicas':
-      'Bioquímica: estrutura, propriedade e funções de Biomoléculas',
-    'Transformações Bioquímicas':
-      'Bioquímica: Estrutura, Propriedade e Funções de Biomoléculas',
-    'Origem da Vida e Diversidade dos Seres Vivos':
-      'Evolução e Diversificação da Vida na Terra',
-  };
-
   // fetch matriculas again
-  async function getMatriculas() {
+  async function getEnrollments() {
     const disciplinas = await Axios.get(MATRICULAS_URL);
     return toJSON(disciplinas.data) || {};
   }
 
   // get total number of matriculas that was made until now
-  async function getTotalMatriculas() {
-    return Object.keys(await getMatriculas()).length;
+  async function getAllEnrollments() {
+    const enrollments = await getEnrollments();
+    return Object.keys(enrollments).length;
   }
 
-  // get matriculas by aluno_id
-  async function getMatriculasAluno(aluno_id) {
-    const matriculas = await getMatriculas();
-    return _.get(matriculas, aluno_id);
+  // get matriculas by StudentId
+  async function getStudentEnrollments(studentId) {
+    const enrollments = await getEnrollments();
+    return _.get(enrollments, studentId);
   }
 
   // get current logged student
-  function getAlunoId() {
-    let toReturn = null;
+  function getStudentId() {
+    const scripts = document.querySelectorAll('script');
+    const searchString = 'todasMatriculas';
+    let studentId = null;
 
-    $('script').each(function () {
-      var inside = $(this).text();
-      var test = 'todasMatriculas';
-      if (inside.indexOf(test) != -1) {
-        var regex = /matriculas\[(.*)\]/;
-        var match = regex.exec(inside);
-        toReturn = parseInt(match[1]);
+    for (const script of Array.from(scripts)) {
+      const content = script.textContent || script.innerHTML;
+      if (content.includes(searchString)) {
+        const regex = /matriculas\[(\d+)\]/;
+        const match = content.match(regex);
+
+        if (match && match[1]) {
+          studentId = Number.parseInt(match[1], 10);
+          break; // Interrompe o loop quando o ID é encontrado
+        }
       }
-    });
+    }
 
-    return toReturn;
+    return studentId;
   }
 
   // find courseId for this season
@@ -103,54 +96,53 @@ function Matricula() {
     // check which row matches the name passed
     const course = $('#curso')
       .children()
-      .filter(function (i, item) {
-        return name == _.camelCase($(item).text());
-      })[0];
+      .filter((i, item) => name == _.camelCase($(item).text()))[0];
 
     return $(course).val();
   }
 
   function currentUser() {
-    return $('#usuario_top')
-      .text()
-      .replace(/\s*/, '')
-      .split('|')[0]
-      .trim()
-      .toLowerCase();
+    const userEl = document.querySelector('#usuario_top');
+    const rawContent = userEl.textContent || userEl.innerHTML;
+    const content = rawContent.replace(/\s*/, '');
+    const [user] = content.split('|');
+    return user.trim().toLocaleLowerCase();
   }
 
   // send aluno data
   async function sendAlunoData() {
-    const storageUser = 'ufabc-extension-' + currentUser();
-    const storageRA = 'ufabc-extension-ra-' + currentUser();
+    const sessionUserName = currentUser();
+    const storageUser = `ufabc-extension-${sessionUserName}`;
+    const storageRA = `ufabc-extension-ra-${sessionUserName}`;
     const user = await Utils.storage.getItem(storageUser);
     const ra = await Utils.storage.getItem(storageRA);
 
-    if (!user) return;
+    if (!user) {
+      return;
+    }
 
     // remove as disciplinas cursadas
-    for (var i = 0; i < user.length; i++) {
-      delete user[i].cursadas;
+    for (let i = 0; i < user.length; i++) {
+      user[i].cursadas = undefined;
     }
 
     await nextApi.post('/students', {
-      aluno_id: getAlunoId(),
-      cursos: user.map(function (info) {
+      aluno_id: getStudentId(),
+      cursos: user.map((info) => {
         info.curso_id = findIdForCurso(info.curso);
         return info;
       }),
-      ra: ra,
-      login: currentUser(),
+      ra,
+      login: sessionUserName,
     });
   }
 
   return {
     updateProfessors,
     getProfessors,
-    getMatriculas,
-    getTotalMatriculas,
-    getMatriculasAluno,
-    getAlunoId,
+    getAllEnrollments,
+    getStudentEnrollments,
+    getStudentId,
     findIdForCurso,
     currentUser,
     sendAlunoData,

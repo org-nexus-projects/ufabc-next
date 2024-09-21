@@ -1,12 +1,12 @@
 <template>
   <el-dialog
-    :title="'Disciplina: ' + subjectName"
+    :title="'Disciplina: ' + subject"
     @close="closeDialog()"
-    :visible="value.dialog"
+    :visible="subjectInfo.dialog"
     width="800px"
     top="2vh"
     class="ufabc-element-dialog mt-1">
-    <div v-if='loading || (help_data && help_data.specific && help_data.specific.length)'
+    <div v-if='loading || (helpData && helpData.specific && helpData.specific.length)'
       style="min-height: 200px"
       v-loading="loading"
       element-loading="Carregando">
@@ -16,18 +16,19 @@
 
       <vue-highcharts
         class="ufabc-row ufabc-align-center ufabc-justify-middle"
-          v-if='help_data && help_data.specific && help_data.specific.length'
-          :options="options"
-          :highcharts="Highcharts"
+          v-if='helpData && helpData.specific && helpData.specific.length'
+          :options="chartOptions"
+          :highcharts="highcharts"
           ref="pieChart"
       ></vue-highcharts>
       <SubjectTeachersList
-        v-if='help_data && help_data.specific && help_data.specific.length'
-        :teachers="help_data.specific"
+        v-if='helpData && helpData.specific && helpData.specific.length'
+        :teachers="helpData.specific"
       />
 
     </div>
     <div class="ufabc-row ufabc-align-center ufabc-justify-middle" style="min-height: 100px" v-else>
+     {{ subjectInfo }}
       Nenhum dado encontrado
     </div>
     <span slot="footer" class="dialog-footer">
@@ -35,7 +36,9 @@
     </span>
   </el-dialog>
 </template>
-<script>
+
+<script setup>
+import { ref, computed, watch } from 'vue';
 import VueHighcharts from 'vue2-highcharts';
 import Highcharts3D from 'highcharts/highcharts-3d';
 import Highcharts from 'highcharts';
@@ -83,154 +86,137 @@ const data = {
 
 const nextApi = NextAPI();
 
-export default {
-  name: 'ReviewSubject',
-  props: ['value'],
-  components: {
-    VueHighcharts,
-    SubjectTeachersList,
+const props = defineProps({
+  subjectInfo: {
+    type: Object
   },
+});
 
-  data() {
-    return {
-      options: data,
-      Highcharts,
-      loading: false,
+const chartOptions = ref(data);
+const highcharts = ref(Highcharts)
+const loading = ref(false);
+const helpData = ref(null);
+const filterSelected = ref(null);
+const samplesCount = ref(null);
+const pieChart = ref();
 
-      help_data: null,
-      filterSelected: null,
-      samplesCount: null,
+watch(props.subjectInfo.notifier, (val) => {
+  if(val) {
+    console.log('notify changes')
+  }
+})
 
-      conceitos: [
-        { conceito: 'A' },
-        { conceito: 'B' },
-        { conceito: 'C' },
-        { conceito: 'D' },
-        { conceito: 'F' },
-      ],
+watch(() => props.subjectInfo, (newVal) => {
+  // biome-ignore lint/complexity/useOptionalChain: Babel version does not support it
+  if(newVal && newVal.subject && newVal.subject.id) {
+    setupSubjectStats()
+  }
+}, { immediate: true, deep: true })
 
-      student_cr: null,
-    };
-  },
+// i miss optional chaining :(
+const subject = computed(() => {
+  // biome-ignore lint/complexity/useOptionalChain: Babel version does not support it
+  return helpData.value && helpData.value.subject && helpData.value.subject.name
+    ? helpData.value.subject.name
+    : '';
+});
 
-  created() {
-    this.fetch();
-  },
 
-  watch: {
-    'value.notifier'(val) {
-      if (val) this.$notify(val);
+const possibleComponents = computed(() => {
+  const components = helpData.value.specific;
+  const generalDefaults = {
+    _id: {
+      _id: 'all',
+      name: 'Todas as matérias',
     },
+  };
+  const general = Object.assign(generalDefaults, helpData.value.general);
+  components.push(general);
 
-    'value.subject'(val) {
-      this.fetch();
-    },
-  },
+  return components.reverse();
+});
 
-  computed: {
-    subjectName() {
-      return _.get(this.help_data, 'subject.name', '');
-    },
+function resolveColorForConcept(concept) {
+  return (
+    {
+      A: '#3fcf8c',
+      B: '#b8e986',
+      C: '#f8b74c',
+      D: '#ffa004',
+      F: '#f95469',
+      O: '#A9A9A9',
+    }[concept] || '#A9A9A9'
+  );
+}
 
-    possibleDisciplinas() {
-      let disciplinas = [...this.help_data.specific];
-      let generalDefaults = {
-        _id: {
-          _id: 'all',
-          name: 'Todas as matérias',
-        },
-      };
-      let general = Object.assign(generalDefaults, this.help_data.general);
-      disciplinas.push(general);
+function closeDialog() {
+  props.subjectInfo.dialog = false;
+  filterSelected.value = null;
+  helpData.value = null;
+  samplesCount.value = 0;
+}
 
-      return disciplinas.reverse();
-    },
-  },
+async function setupSubjectStats() {
+  const subjectId = props.subjectInfo.subject.id;
+  console.log(subjectId)
+  if (!subjectId) {
+    return;
+  }
 
-  methods: {
-    resolveColorForConcept(concept) {
-      return (
-        {
-          A: '#3fcf8c',
-          B: '#b8e986',
-          C: '#f8b74c',
-          D: '#ffa004',
-          F: '#f95469',
-          O: '#A9A9A9',
-        }[concept] || '#A9A9A9'
-      );
-    },
+  loading.value = true;
 
-    closeDialog() {
-      this.value.dialog = false;
-      this.filterSelected = null;
-      this.help_data = null;
-      this.samplesCount = 0;
-    },
-
-    fetch() {
-      let subjectId = _.get(this.value, 'subject.id', '');
-      if (!subjectId) return;
-      this.loading = true;
-
-      nextApi
-        .get('/help/subjects/' + subjectId)
-        .then((res) => {
-          this.help_data = res;
-          this.loading = false;
-
-          this.filterSelected = this.possibleDisciplinas[0]._id._id;
-          if (_.get(res, 'general.count', 0)) {
-            setTimeout(() => {
-              this.updateFilter();
-            }, 500);
-          }
-        })
-        .catch((e) => {
-          this.loading = false;
-          console.log(e);
-
-          // Show dialog with error
-          this.closeDialog();
-        });
-    },
-
-    updateFilter() {
-      let pieChart = this.$refs.pieChart;
-      pieChart.delegateMethod('showLoading', 'Carregando...');
-
+  try {
+    const { data: reviews } = await nextApi.get(`/entities/subjects/reviews/${subjectId}`)
+    helpData.value = reviews;
+    loading.value = false;
+    filterSelected.value = possibleComponents.value[0]._id._id;
+    if (reviews.general.count || 0) {
       setTimeout(() => {
-        pieChart.removeSeries();
-
-        let filter;
-        if (this.filterSelected == 'all') {
-          filter = this.help_data.general;
-        } else {
-          filter = _.find(this.help_data.specific, {
-            _id: { _id: this.filterSelected },
-          });
-        }
-
-        let conceitosFiltered = [];
-        let conceitos = filter.distribution;
-        for (let conceito of conceitos) {
-          conceitosFiltered.push({
-            name: conceito.conceito,
-            y: conceito.count,
-            color: this.resolveColorForConcept(conceito.conceito),
-          });
-        }
-        this.samplesCount = filter.count;
-
-        pieChart.addSeries({
-          data: _.sortBy(conceitosFiltered, 'name'),
-        });
-        pieChart.hideLoading();
+        updateFilter()
       }, 500);
-    },
-  },
-};
+    }
+  } catch(error) {
+    loading.value = false;
+    console.log('dialog error', error);
+    closeDialog();
+  }
+}
+function updateFilter() {
+  pieChart.value.delegateMethod('showLoading', 'Carregando...');
+
+  setTimeout(() => {
+    pieChart.value.removeSeries();
+    let filter;
+    if (filterSelected.value === 'all') {
+      filter = helpData.value.general;
+    } else {
+      filter = helpData.value.specific.find((specific) =>
+        specific._id._id === filterSelected.value
+      );
+    }
+
+    const filteredConcepts = [];
+    const distributionConcepts = filter.distribution;
+
+    for (const { conceito, count } of distributionConcepts) {
+      filteredConcepts.push({
+        name: conceito,
+        y: count,
+        color: resolveColorForConcept(conceito),
+      });
+    }
+
+    samplesCount.value = filter.count;
+
+    pieChart.value.addSeries({
+      data: _.sortBy(filteredConcepts, 'name'),
+    });
+
+    pieChart.value.hideLoading();
+  }, 500);
+}
 </script>
+
 <style scoped>
 .information {
   color: rgba(0, 0, 0, 0.6);

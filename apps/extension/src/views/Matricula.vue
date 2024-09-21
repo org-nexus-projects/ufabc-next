@@ -2,7 +2,7 @@
   <div class="ufabc-row filters">
     <div class="mr-3 ufabc-row ufabc-align-center">
       <img
-        :src="getUrl('/images/icon-128.png')"
+        :src="getURL('/images/icon-128.png')"
         style="width: 32px; height: 32px"
       />
     </div>
@@ -77,225 +77,217 @@
             circle
           ></el-button>
         </el-popover>
-
-        <!--         <el-switch
-          class="mr-3 ufabc-element-switch"
-          active-text="Professores"
-          v-model="teachers"
-          @change="changeTeachers()"
-          ></el-switch> -->
       </div>
     </div>
   </div>
 </template>
-<script>
-import $ from 'jquery';
+
+<script setup>
+import { ref, onMounted } from 'vue';
 import matriculaUtils from '../utils/Matricula';
 import Utils from '../utils/extensionUtils';
 import Mustache from 'mustache';
-// await MatriculaHelper.getTotalMatriculas()
 
-export default {
-  name: 'App',
-  data() {
-    return {
-      showWarning: false,
-      selected: false,
-      cursadas: false,
-      teachers: false,
+const getURL = (path) => Utils.getChromeUrl(path);
 
-      shiftFilters: [
-        {
-          name: 'Noturno',
-          class: 'notNoturno',
-          val: true,
-          comparator: 'matutino',
-        },
-        {
-          name: 'Matutino',
-          class: 'notMatutino',
-          val: true,
-          comparator: 'noturno',
-        },
-      ],
+const showWarning = ref(false);
+const selected = ref(false);
+const cursadas = ref(false);
+const teachers = ref(false);
 
-      campusFilters: [
-        {
-          name: 'São Bernardo',
-          class: 'notBernardo',
-          val: true,
-          comparator: 'andr', //isso está correto
-        },
-        {
-          name: 'Santo André',
-          class: 'notAndre',
-          val: true,
-          comparator: 'bernardo',
-        },
-      ],
-    };
+const shiftFilters = ref([
+  {
+    name: 'Noturno',
+    class: 'notNoturno',
+    val: true,
+    comparator: 'matutino',
   },
-  async created() {
+  {
+    name: 'Matutino',
+    class: 'notMatutino',
+    val: true,
+    comparator: 'noturno',
+  },
+]);
+
+const campusFilters = ref([
+  {
+    name: 'São Bernardo',
+    class: 'notBernardo',
+    val: true,
+    comparator: 'andr', //isso está correto
+  },
+  {
+    name: 'Santo André',
+    class: 'notAndre',
+    val: true,
+    comparator: 'bernardo',
+  },
+]);
+
+onMounted(async () => {
+  try {
     const students = await Utils.storage.getItem('ufabc-extension-students');
     const currentUser = matriculaUtils.currentUser();
 
-    const currentStudent = students.find(
-      (student) => student.name == currentUser,
-    );
-    if (currentStudent && currentStudent.lastUpdate) {
-      const diff = Date.now() - currentStudent.lastUpdate;
+    let student = null;
+
+    if (students && Array.isArray(students)) {
+      student = students.find((student) => student.name === currentUser);
+    }
+
+    // biome-ignore lint/complexity/useOptionalChain: Babel does not support
+    if (student && student.lastUpdate) {
+      const diff = Date.now() - student.lastUpdate;
       const MAX_UPDATE_DIFF = 1000 * 60 * 60 * 24 * 7; // 7 days
       if (diff > MAX_UPDATE_DIFF) {
-        this.showWarning = true;
+        showWarning.value = true;
       }
     }
 
-    this.teachers = true;
-    this.changeTeachers();
-  },
+    teachers.value = true;
+    await changeTeachers();
 
-  methods: {
-    getUrl(path) {
-      return Utils.getChromeUrl(path);
-    },
+  } catch (error) {
+    console.error('Error during onMounted execution:', error);
+  }
+});
 
-    applyFilter(params) {
-      // if(this.shiftFilters.every(f => f.val == false) || this.campusFilters.every(f => f.val == false)) return
 
-      if (!params.val) {
-        $('#tabeladisciplinas tr td:nth-child(3)').each(function () {
-          var campus = $(this).text().toLowerCase();
-          if (campus.indexOf(params.comparator) == -1) {
-            $(this).parent().addClass(params.class);
-          }
-        });
-        return;
+async function changeTeachers() {
+  if (!teachers.value) {
+    for (const $element of document.querySelectorAll('.isTeacherReview')) {
+      $element.style.display = 'none'
+    }
+    return;
+  }
+
+  // se ja tiver calculado nao refaz o trabalho
+  const teacherReviews = document.querySelectorAll('.isTeacherReview');
+  if (teacherReviews.length > 0) {
+    for (const $element of document.querySelectorAll('.isTeacherReview')) {
+      $element.style.display = ''
+    }
+    return;
+  }
+
+  let components = await Utils.storage.getItem('next-extension-components');
+
+  if (components == null) {
+    components = await matriculaUtils.getProfessors();
+  }
+
+  const componentsMap = new Map(
+    components.map((component) => [
+      component.disciplina_id.toString(),
+      component,
+    ]),
+  );
+
+  const htmlPop = await Utils.fetchChromeUrl(
+    'pages/matricula/fragments/professorPopover.html',
+  );
+  const corteHtml = await Utils.fetchChromeUrl('pages/matricula/corte.html');
+
+  const mainTable = document.querySelectorAll('table tr');
+
+  for (const row of mainTable) {
+    const el = row.querySelector('td:nth-child(3)');
+    const subjectEl = row.querySelector('td:nth-child(3) > span');
+    const corteEl = row.querySelector('td:nth-child(5)');
+    const componentId = row.getAttribute('value');
+
+    const component = componentsMap.get(componentId);
+    if (!component) {
+      continue;
+    }
+
+    if (component.subject) {
+      subjectEl.setAttribute('subjectId', component.subjectId);
+    }
+    const data = { disciplina: component }
+    const rendered = Mustache.render(htmlPop.data, data)
+
+    el.insertAdjacentHTML(
+      'beforeend',
+      rendered,
+    );
+    corteEl.insertAdjacentHTML('beforeend', corteHtml.data);
+  }
+}
+
+function changeSelected() {
+  const notSelected =  document.querySelectorAll('.notSelecionada')
+  if (!selected.value) {
+    for (const $el of notSelected) {
+      $el.style.display = ''
+    }
+    return;
+  }
+
+  const studentId = matriculaUtils.getStudentId();
+  const enrollments = window.matriculas[studentId] || [];
+  const tableRows = document.querySelectorAll('tr')
+
+  for(const $row of tableRows) {
+    const componentId = $row.getAttribute('value')
+    if (componentId && !enrollments.includes(componentId.toString())) {
+      $row.classList.add('notSelecionada')
+      $row.style.display = 'none'
+    }
+  }
+}
+
+async function changeCursadas() {
+  const isCursadas = document.querySelectorAll('.isCursada');
+  if (!cursadas.value) {
+    for(const $el of isCursadas) {
+      $el.style.display = ''
+    }
+    return;
+  }
+
+  const storageUser = `ufabc-extension-${matriculaUtils.currentUser()}`;
+  const [cursadasData] = await Utils.storage.getItem(storageUser)
+  if(cursadasData == null) {
+    console.log('nao temos o que vc cursou, acesse o sigaa');
+    return;
+  }
+  const allCursadas = cursadasData.cursadas
+  .filter((c) => ['A', 'B', 'C', 'D', 'E'].includes(c.conceito))
+  .map((c) => c.disciplina);
+
+  const trData = document.querySelectorAll('table tr td:nth-child(3)')
+  for(const $el of trData) {
+    const [component] = $el.textContent.split('-')
+    const name = component.substring(0, component.lastIndexOf(' '))
+    if(allCursadas.includes(name)) {
+      $el.parentElement.classList.add('isCursada');
+      $el.parentElement.style.display = 'none';
+    }
+  }
+}
+
+function applyFilter(params) {
+  if (!params.val) {
+    const tableData = document.querySelectorAll('#tabeladisciplinas tr td:nth-child(3)')
+    for(const data of tableData) {
+      const campus = data.textContent.toLocaleLowerCase()
+      if(!campus.includes(params.comparator)) {
+        el.parentElement.classList.add(params.class);
       }
+    }
+    return
+  }
 
-      $('#tabeladisciplinas tr').each(function () {
-        $(this).removeClass(params.class);
-      });
-    },
-    changeSelected() {
-      if (!this.selected) {
-        $('.notSelecionada').css('display', '');
-        return;
-      }
 
-      const aluno_id = matriculaUtils.getAlunoId();
-      const matriculas = window.matriculas[aluno_id] || [];
-
-      $('tr').each(function () {
-        const disciplina_id = $(this).attr('value');
-        if (disciplina_id && !matriculas.includes(disciplina_id.toString())) {
-          $(this).addClass('notSelecionada');
-          $(this).css('display', 'none');
-        }
-      });
-    },
-    changeCursadas() {
-      let self = this;
-      if (!this.cursadas) {
-        $('.isCursada').css('display', '');
-        return;
-      }
-
-      const storageUser = 'ufabc-extension-' + matriculaUtils.currentUser();
-      Utils.storage.getItem(storageUser).then((cursadas) => {
-        if (cursadas == null) {
-          self.$notify({
-            message:
-              'Não temos as diciplinas que você cursou, acesse o Portal do Aluno',
-          });
-          return;
-        }
-
-        // se nao tiver nada precisa mandar ele cadastrar
-        var todas_cursadas = _(cursadas[0].cursadas)
-          .filter((d) => ['A', 'B', 'C', 'D', 'E'].includes(d.conceito))
-          .map('disciplina')
-          .value();
-
-        $('table tr td:nth-child(3)').each(function () {
-          var el = $(this);
-          // tira apenas o nome da disciplina -> remove turma, turno e campus
-          var disciplina = el.text().split('-')[0];
-          disciplina = disciplina.substring(0, disciplina.lastIndexOf(' '));
-          // verifica se ja foi cursada
-          if (todas_cursadas.includes(disciplina)) {
-            el.parent().addClass('isCursada');
-            el.parent().css('display', 'none');
-          }
-        });
-      });
-
-      // chrome.runtime.sendMessage(Utils.EXTENSION_ID, {
-      //   method: 'storage',
-      //   key:
-      // }, function(item) {
-      //   if (item == null) {
-      //     self.$notify({
-      //       message: 'Não temos as diciplinas que você cursou, acesse o Portal do Aluno'
-      //     })
-      //     return
-      //   }
-
-      // })
-    },
-    changeTeachers() {
-      let self = this;
-      if (!this.teachers) {
-        $('.isTeacherReview').css('display', 'none');
-        return;
-      }
-
-      // se ja tiver calculado nao refaz o trabalho
-      if ($('.isTeacherReview').length > 0) {
-        $('.isTeacherReview').css('display', '');
-        return;
-      }
-
-      Utils.storage
-        .getItem('ufabc-extension-disciplinas')
-        .then(async (item) => {
-          if (item == null) {
-            item = await matriculaUtils.getProfessors();
-          }
-
-          const disciplinaMap = new Map([
-            ...item.map((d) => [d.disciplina_id.toString(), d]),
-          ]);
-          const htmlPop = await Utils.fetchChromeUrl(
-            'pages/matricula/fragments/professorPopover.html',
-          );
-          const corteHtml = await Utils.fetchChromeUrl(
-            'pages/matricula/corte.html',
-          );
-
-          $('table tr').each(function () {
-            var el = $(this).find('td:nth-child(3)');
-            var subjectEl = $(this).find('td:nth-child(3) > span');
-            var corteEl = $(this).find('td:nth-child(5)');
-            var disciplinaId = el.parent().attr('value');
-
-            const disciplinaInfo = disciplinaMap.get(disciplinaId);
-            if (!disciplinaInfo) return;
-
-            // Add subject id to span with subject
-            if (disciplinaInfo.subject) {
-              subjectEl.attr('subjectId', disciplinaInfo.subject);
-            }
-
-            const data = { disciplina: disciplinaInfo };
-
-            el.append(Mustache.render(htmlPop.data, data));
-            corteEl.append(corteHtml.data);
-          });
-        });
-    },
-  },
-};
+  const allTr = document.querySelectorAll('#tabeladisciplinas tr')
+  for (const tr of allTr) {
+    tr.classList.remove(params.class)
+  }
+}
 </script>
+
 <style scoped>
 * {
   font-family: Ubuntu;

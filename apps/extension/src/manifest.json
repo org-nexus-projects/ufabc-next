@@ -16,7 +16,7 @@
   "host_permissions": [
     "http://*.ufabc.edu.br/*",
     "https://*.ufabc.edu.br/*",
-    "http://localhost:8000/*",
+    "http://localhost:8011/*",
     "http://*.ufabcnext.com/*",
     "https://*.ufabcnext.com/*"
   ],
@@ -27,7 +27,7 @@
       "matches": [
         "http://*.ufabc.edu.br/*",
         "https://*.ufabc.edu.br/*",
-        "http://localhost:8000/*",
+        "http://localhost:8011/*",
         "http://*.ufabcnext.com/*",
         "https://*.ufabcnext.com/*"
       ],
@@ -39,7 +39,7 @@
     "matches": [
       "http://*.ufabc.edu.br/*",
       "https://*.ufabc.edu.br/*",
-      "http://localhost:8000/*",
+      "http://localhost:8011/*",
       "http://*.ufabcnext.com/*",
       "https://*.ufabcnext.com/*"
     ]
@@ -72,7 +72,7 @@
       "matches": [
         "http://*.ufabc.edu.br/*",
         "https://*.ufabc.edu.br/*",
-        "http://localhost:8000/*",
+        "http://localhost:8011/*",
         "http://*.ufabcnext.com/*",
         "https://*.ufabcnext.com/*"
       ]
