@@ -5,6 +5,7 @@ import { publicModule } from './modules/public/public.module.js';
 import { userModule } from './modules/user/user.module.js';
 import { syncModule } from './modules/sync/sync.module.js';
 import { backOfficeModule } from './modules/backoffice/backoffice.module.js';
+import Oauth2Debug from './plugins/oauth2/oauthFixed.js';
 import { nextJobs } from './queue/NextJobs.js';
 import { nextWorker } from './queue/NextWorker.js';
 import { connect } from 'mongoose';
@@ -18,6 +19,7 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
   try {
     httpErrorsValidator(app);
     await loadPlugins(app);
+    await app.register(Oauth2Debug, Config);
     await app.register(userModule, {
       prefix: '/v2',
     });
