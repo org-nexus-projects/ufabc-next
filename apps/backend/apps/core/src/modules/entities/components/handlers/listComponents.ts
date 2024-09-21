@@ -82,11 +82,8 @@ export async function listComponents() {
     ({ id: _ignore, alunos_matriculados, ...component }) => ({
       ...component,
       requisicoes: alunos_matriculados.length ?? [],
-      teoria: { name: component.teoria?.name, _id: component.teoria?._id },
-      pratica: {
-        _id: component.pratica?._id,
-        name: component.pratica?.name,
-      },
+      teoria: component.teoria?.name,
+      pratica: component.pratica?.name,
       subject: component.subject?.name,
       subjectId: component.subject?._id,
       teoriaId: component.teoria?._id,
