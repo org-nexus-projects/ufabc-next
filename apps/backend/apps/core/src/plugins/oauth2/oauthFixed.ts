@@ -33,6 +33,7 @@ async function oauth2Debug(app: FastifyInstance, opts: Record<string, string>) {
 
   app.get('/login/google/callback', async function (request, reply) {
     try {
+      app.log.warn(this.google);
       const { token } =
         await this.google.getAccessTokenFromAuthorizationCodeFlow(request);
       return token.access_token;
