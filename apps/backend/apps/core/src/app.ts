@@ -41,7 +41,7 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
 
     return app;
   } catch (error) {
-    app.log.fatal({ error }, 'build app error');
+    app.log.fatal(error, 'build app error');
     // Do not let the database connection hanging
     app.addHook('onClose', async () => {
       await mongoConnection.disconnect();

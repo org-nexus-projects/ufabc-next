@@ -17,6 +17,7 @@ async function oauth2Debug(app: FastifyInstance, opts: Record<string, string>) {
     callbackUri: (req) =>
       `${Config.PROTOCOL}://${req.hostname}/login/google/callback`,
     checkStateFunction: () => true,
+    generateStateFunction: () => 'true',
   });
 
   app.get('/login/google', async function (request, reply) {
@@ -34,7 +35,11 @@ async function oauth2Debug(app: FastifyInstance, opts: Record<string, string>) {
 
   app.get('/login/google/callback', async function (request, reply) {
     try {
-      app.log.warn();
+      app.log.warn({
+        URLState: request.query.state,
+        googleStateCookie: request.cookies['oauth2-redirect-state'],
+        cookies: request.cookies,
+      });
       const { token } =
         await this.google.getAccessTokenFromAuthorizationCodeFlow(request);
       return token.access_token;
@@ -45,8 +50,7 @@ async function oauth2Debug(app: FastifyInstance, opts: Record<string, string>) {
       }
 
       reply.log.warn(error, 'error');
-      return reply.status(500).send({
-        error,
+      return reply.status(500).send(error, {
         msg: 'deu pau',
       });
     }
