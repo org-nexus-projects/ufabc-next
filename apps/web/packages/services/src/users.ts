@@ -30,5 +30,5 @@ export const Users = {
   delete: () => api.delete('/users/remove'),
   info: () => api.get<User>('/users/info'),
   facebookAuth: (params: FacebookAuth) =>
-    api.post<FacebookConfirmResponse>('/facebook/sync', params),
+    api.post<FacebookConfirmResponse>('/facebook', params),
 };

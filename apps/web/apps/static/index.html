@@ -919,7 +919,7 @@
 
       let self = this;
       axios
-        .get('https://api.ufabcnext.com/v1/stats/usage')
+        .get('https://api.v2.ufabcnext.com/v2/public/stats/usage')
         .then(function (res) {
           self.stats = res.data;
           var newRendered = Mustache.render(template, {
