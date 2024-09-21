@@ -26,16 +26,18 @@ export const listComponentsKicksSchema = {
   tags: ['Components'],
   description: 'Rota visualizar os chutes de cada disciplina',
   response: {
-    200: z.object({
-      studentId: z.number().int().describe('Id do aluno para a UFABC'),
-      cp: z.number().describe('CP do aluno'),
-      ik: z.number(),
-      reserva: z.boolean(),
-      turno: z.enum(['Matutino', 'Noturno']),
-      curso: z.string().describe('Curso do aluno'),
-      kicked: z
-        .boolean()
-        .describe('Variável que diz se o aluno foi ou não chutado'),
-    }),
+    200: z
+      .object({
+        studentId: z.number().int().describe('Id do aluno para a UFABC'),
+        cp: z.number().describe('CP do aluno'),
+        ik: z.number(),
+        reserva: z.boolean(),
+        turno: z.enum(['Matutino', 'Noturno']),
+        curso: z.string().describe('Curso do aluno'),
+        kicked: z
+          .boolean()
+          .describe('Variável que diz se o aluno foi ou não chutado'),
+      })
+      .array(),
   },
 } satisfies FastifySchema;
