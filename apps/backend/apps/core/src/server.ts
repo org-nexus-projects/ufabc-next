@@ -9,7 +9,7 @@ import type { FastifyServerOptions } from 'fastify';
 
 const appOptions = {
   logger,
-  trustProxy: true,
+  // trustProxy: true,
 } satisfies FastifyServerOptions;
 
 export async function start() {
