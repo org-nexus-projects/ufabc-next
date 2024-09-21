@@ -1,37 +1,10 @@
 {
-  "[javascript]": {
-    "editor.defaultFormatter": "biomejs.biome",
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-      "quickfix.biome": "explicit",
-    }
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "biomejs.biome",
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-      "quickfix.biome": "explicit",
-    }
-  },
-  "[json]": {
-    "editor.quickSuggestions": {
-      "strings": true
-    },
-    "editor.suggest.insertMode": "replace",
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "editor.formatOnSave": true,
-  "editor.inlayHints.enabled": "on",
   "dotenv.enableAutocloaking": false,
-  "material-icon-theme.folders.associations": {
-    "oauth2": "secure",
-    "modules": "components",
-    "workers": "controller"
-  },
-  "material-icon-theme.files.associations": {
-    ".env.prod.secret": "tune"
-  },
   "cSpell.words": [
-    "Ufabc"
-  ]
+    "paralleldrive"
+  ],
+  "editor.formatOnSave": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  }
 }

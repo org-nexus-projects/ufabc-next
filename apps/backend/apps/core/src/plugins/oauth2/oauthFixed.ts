@@ -22,6 +22,7 @@ async function oauth2Debug(app: FastifyInstance, opts: Record<string, string>) {
 
   app.get('/login/google', {}, async function (request, reply) {
     try {
+      console.log('do nosso lado - request', request.query.state);
       app.log.warn({
         URLState: request.query.state,
         googleStateCookie: request.cookies['oauth2-redirect-state'],
@@ -40,6 +41,7 @@ async function oauth2Debug(app: FastifyInstance, opts: Record<string, string>) {
 
   app.get('/login/google/callback', async function (request, reply) {
     try {
+      console.log('do nosso lado - callback', request.query.state);
       app.log.warn({
         URLState: request.query.state,
         googleStateCookie: request.cookies['oauth2-redirect-state'],

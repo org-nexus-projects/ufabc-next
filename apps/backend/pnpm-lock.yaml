@@ -11,6 +11,9 @@ importers:
       '@biomejs/biome':
         specifier: ^1.8.2
         version: 1.8.3
+      tsx:
+        specifier: ^4.15.7
+        version: 4.16.5
       turbo:
         specifier: ^2.0.4
         version: 2.0.11
