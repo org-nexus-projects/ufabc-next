@@ -76,6 +76,22 @@ export type Graduation = {
   components: Array<GraduationComponents>;
 };
 
+export type UFCourse = {
+  name: string;
+  campus: string;
+  coordinator: string;
+  UFcourseId: number;
+};
+
+type UFGrade = {
+  name: string;
+  alias: string;
+  year: string;
+  appliedAt: string;
+  status: string;
+  period: string;
+};
+
 class UFProcessor {
   private readonly baseURL = Config.UF_PROCESSOR_URL;
   private readonly request: typeof ofetch;
@@ -115,6 +131,18 @@ class UFProcessor {
     const components =
       await this.request<UFProcessorComponent[]>('/components');
     return components;
+  }
+
+  async getCourses() {
+    const courses = await this.request<UFCourse[]>('/courses');
+    return courses;
+  }
+
+  async getCourseGrades(UFCourseId: number) {
+    const grades = await this.request<UFGrade[]>(
+      `/courses/grades/${UFCourseId}`,
+    );
+    return grades;
   }
 
   async getComponentsFile(link: string) {

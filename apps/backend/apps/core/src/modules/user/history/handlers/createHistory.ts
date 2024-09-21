@@ -68,18 +68,48 @@ export async function createHistory(
     };
   }
 
+  let history = await HistoryModel.findOne({
+    ra: studentHistory.ra,
+  }).lean<History>();
+
   const course = transformCourseName(
     studentHistory.course,
     studentHistory.courseKind,
+  ) as string;
+  const allUFCourses = await ufProcessor.getCourses();
+  const studentCourse = allUFCourses.find(
+    (UFCourse) => UFCourse.name === course.toLocaleLowerCase(),
   );
-  const UFgraduation = await ufProcessor.getGraduationComponents(73710, '2017');
+
+  if (!studentCourse) {
+    return reply.notFound('not found user course');
+  }
+
+  let studentGrade = '';
+
+  if (history?.grade) {
+    studentGrade = history.grade;
+  } else {
+    const studentCourseGrades = await ufProcessor.getCourseGrades(
+      studentCourse.UFcourseId,
+    );
+
+    if (!studentCourseGrades) {
+      return reply.notFound(
+        'Curso não encontrado (entre em contato conosco por favor)',
+      );
+    }
+    studentGrade = studentCourseGrades.at(0)?.year ?? '';
+  }
+
+  const UFgraduation = await ufProcessor.getGraduationComponents(
+    studentCourse.UFcourseId,
+    studentGrade,
+  );
   const hydratedComponents = hydrateComponents(
     studentHistory.components,
     UFgraduation.components,
   );
-  let history = await HistoryModel.findOne({
-    ra: studentHistory.ra,
-  }).lean<History>();
 
   if (!history && hydratedComponents.length > 0) {
     history = await HistoryModel.create({
@@ -87,7 +117,7 @@ export async function createHistory(
       curso: course,
       disciplinas: hydratedComponents,
       coefficients: null,
-      grade: null,
+      grade: studentGrade,
     });
   } else if (history) {
     history = await HistoryModel.findOneAndUpdate(
