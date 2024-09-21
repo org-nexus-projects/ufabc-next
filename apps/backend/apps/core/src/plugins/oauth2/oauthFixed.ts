@@ -16,6 +16,7 @@ async function oauth2Debug(app: FastifyInstance, opts: Record<string, string>) {
     scope: ['profile', 'email'],
     callbackUri: (req) =>
       `${Config.PROTOCOL}://${req.hostname}/login/google/callback`,
+    checkStateFunction: () => true,
   });
 
   app.get('/login/google', async function (request, reply) {
@@ -33,7 +34,7 @@ async function oauth2Debug(app: FastifyInstance, opts: Record<string, string>) {
 
   app.get('/login/google/callback', async function (request, reply) {
     try {
-      app.log.warn(this.google);
+      app.log.warn();
       const { token } =
         await this.google.getAccessTokenFromAuthorizationCodeFlow(request);
       return token.access_token;
