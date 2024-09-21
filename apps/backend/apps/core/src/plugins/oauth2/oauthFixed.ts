@@ -20,7 +20,7 @@ async function oauth2Debug(app: FastifyInstance, opts: Record<string, string>) {
     // generateStateFunction: () => 'teste',
   });
 
-  app.get('/login/google', async function (request, reply) {
+  app.get('/login/google', {}, async function (request, reply) {
     try {
       app.log.warn({
         URLState: request.query.state,
