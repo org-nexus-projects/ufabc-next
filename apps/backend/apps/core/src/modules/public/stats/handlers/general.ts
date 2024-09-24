@@ -3,20 +3,10 @@ import { ComponentModel } from '@/models/Component.js';
 import { EnrollmentModel } from '@/models/Enrollment.js';
 import { StudentModel } from '@/models/Student.js';
 import { UserModel } from '@/models/User.js';
-import type { currentQuad } from '@next/common';
-import type { FastifyReply, FastifyRequest } from 'fastify';
+import { currentQuad } from '@next/common';
 
-type Season = ReturnType<typeof currentQuad>;
-
-export async function generalStats(
-  request: FastifyRequest<{ Querystring: { season: Season } }>,
-  reply: FastifyReply,
-) {
-  const { season } = request.query;
-  if (!season) {
-    return reply.badRequest('Missing season');
-  }
-
+export async function generalStats() {
+  const season = currentQuad();
   const teacherCountQuery = [
     {
       $group: {
@@ -76,7 +66,11 @@ export async function generalStats(
   ]);
 
   const generalStatsCount = {
-    users: await UserModel.countDocuments({}),
+    users: await UserModel.countDocuments({
+      ra: {
+        $exists: true,
+      },
+    }),
     currentAlunos: await StudentModel.countDocuments({ season }),
     comments: await CommentModel.countDocuments({}),
     enrollments: await EnrollmentModel.countDocuments({

@@ -50,7 +50,7 @@ export async function teacherRoutes(app: FastifyInstance) {
 
   app.get<{ Params: { teacherId: string } }>(
     '/teachers/reviews/:teacherId',
-    { schema: teacherReviewSchema, onRequest: [authenticate] },
+    { schema: teacherReviewSchema },
     teacherReviews,
   );
 

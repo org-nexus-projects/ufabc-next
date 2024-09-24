@@ -11,7 +11,7 @@ const COURSE_SHIFTS = ['Noturno', 'Matutino'] as const;
 
 const studentSchema = new Schema(
   {
-    ra: { type: Number, default: '-' },
+    ra: { type: Number },
     login: { type: String, required: true },
     aluno_id: { type: Number, required: true },
     cursos: [

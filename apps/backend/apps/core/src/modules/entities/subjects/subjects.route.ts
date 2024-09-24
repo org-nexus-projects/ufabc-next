@@ -39,7 +39,7 @@ export async function subjectsRoute(app: FastifyInstance) {
 
   app.get<{ Params: { subjectId: string } }>(
     '/subjects/reviews/:subjectId',
-    { schema: subjectsReviewsSchema, onRequest: [authenticate] },
+    { schema: subjectsReviewsSchema },
     subjectReviews,
   );
 }

@@ -11,7 +11,7 @@ export async function componentsRoute(app: FastifyInstance) {
   app.get('/components', listComponents);
   app.get(
     '/components/:componentId/kicks',
-    { schema: listComponentsKicksSchema, onRequest: [setStudentId] },
+    { onRequest: [setStudentId] },
     listKicked,
   );
 }
