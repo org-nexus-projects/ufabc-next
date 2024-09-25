@@ -13,6 +13,8 @@ import {
   type GraduationComponents,
 } from '@/services/ufprocessor.js';
 
+import { type Subject, SubjectModel } from '@/models/Subject.js';
+
 const CACHE_TTL = 1000 * 60 * 60;
 const historyCache = new LRUCache<string, History>({ max: 3, ttl: CACHE_TTL });
 
@@ -106,9 +108,13 @@ export async function createHistory(
     studentCourse.UFcourseId,
     studentGrade,
   );
-  const hydratedComponents = hydrateComponents(
+
+  const allSubjects = await SubjectModel.find({});
+
+  const hydratedComponents = await hydrateComponents(
     studentHistory.components,
     UFgraduation.components,
+    allSubjects,
   );
 
   if (!history && hydratedComponents.length > 0) {
@@ -137,27 +143,46 @@ export async function createHistory(
   };
 }
 
-function hydrateComponents(
+async function hydrateComponents(
   components: StudentComponent[],
   graduationComponents: GraduationComponents[],
-): HydratedComponent[] {
+  allSubjects: Subject[],
+): Promise<HydratedComponent[]> {
   const hydratedComponents = [];
+
   for (const component of components) {
     const gradComponent = graduationComponents.find(
       (gc) => gc.UFComponentCode === component.codigo,
     );
 
+    let componentCredits = 0;
     if (!gradComponent) {
       // this will always be a free component
       logger.warn(
         { name: component.disciplina, codigo: component.codigo },
         'No matching graduation component found',
       );
+
+      const subject = allSubjects.find(
+        (subject) => subject.name.toLocaleLowerCase() === component.disciplina,
+      );
+
+      if (!subject) {
+        const createdSubject = await SubjectModel.create({
+          name: component.disciplina,
+          creditos: 0,
+        });
+        componentCredits = createdSubject.creditos;
+      } else {
+        componentCredits = subject.creditos;
+      }
+    } else {
+      componentCredits = gradComponent.credits;
     }
 
     hydratedComponents.push({
       disciplina: component.disciplina,
-      creditos: gradComponent?.credits || 0,
+      creditos: componentCredits,
       conceito:
         component.resultado === '--' || component.resultado === ''
           ? null
