@@ -8,7 +8,7 @@ import { listKicked } from './handlers/listKicked.js';
 import type { FastifyInstance } from 'fastify';
 
 export async function componentsRoute(app: FastifyInstance) {
-  app.get('/components', listComponents);
+  app.get('/components', { schema: listComponentsSchema }, listComponents);
   app.get(
     '/components/:componentId/kicks',
     { onRequest: [setStudentId] },

@@ -18,7 +18,6 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
   try {
     httpErrorsValidator(app);
     await loadPlugins(app);
-    // await app.register(Oauth2Debug, Config);
     await app.register(userModule, {
       prefix: '/v2',
     });
