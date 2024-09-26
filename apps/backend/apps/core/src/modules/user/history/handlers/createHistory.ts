@@ -133,6 +133,12 @@ export async function createHistory(
     );
   }
 
+  logger.info({
+    student: studentHistory.ra,
+    course: studentHistory.course,
+    grade: history?.grade,
+    msg: 'Synced Successfully',
+  });
   historyCache.set(cacheKey, history);
 
   return {
