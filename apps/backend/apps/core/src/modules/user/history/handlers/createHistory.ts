@@ -63,12 +63,12 @@ export async function createHistory(
   const cacheKey = `history:${studentHistory.ra}`;
   const cached = historyCache.get(cacheKey);
 
-  if (cached) {
-    return {
-      msg: 'Cached history!',
-      cached,
-    };
-  }
+  // if (cached) {
+  //   return {
+  //     msg: 'Cached history!',
+  //     cached,
+  //   };
+  // }
 
   let history = await HistoryModel.findOne({
     ra: studentHistory.ra,
