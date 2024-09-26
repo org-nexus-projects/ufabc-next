@@ -161,7 +161,7 @@ async function hydrateComponents(
 
   for (const component of components) {
     const gradComponent = graduationComponents.find(
-      (gc) => gc.UFComponentCode === component.codigo,
+      (gc) => gc.name === component.disciplina,
     );
 
     let componentCredits = 0;
