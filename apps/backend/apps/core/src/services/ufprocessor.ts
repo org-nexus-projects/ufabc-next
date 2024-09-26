@@ -99,32 +99,6 @@ class UFProcessor {
   constructor() {
     this.request = ofetch.create({
       baseURL: this.baseURL,
-      async onRequestError({ error }) {
-        logger.warn(
-          {
-            error: error.name,
-            info: error.cause,
-          },
-          '[PROCESSORS] Request error',
-        );
-        error.message = `[PROCESSORS] Request error: ${error.message}`;
-        throw error;
-      },
-      async onResponseError({ error }) {
-        if (!error) {
-          return;
-        }
-
-        logger.warn(
-          {
-            error: error.name,
-            info: error.cause,
-          },
-          '[PROCESSORS] Response error',
-        );
-        error.message = `[PROCESSORS] Response error: ${error.message}`;
-        throw error;
-      },
     });
   }
   async getComponents() {
