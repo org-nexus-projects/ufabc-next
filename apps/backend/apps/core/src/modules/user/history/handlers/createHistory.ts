@@ -74,6 +74,10 @@ export async function createHistory(
     ra: studentHistory.ra,
   }).lean<History>();
 
+  logger.info({
+    msg: 'starting student sync',
+    student: studentHistory.ra,
+  });
   const course = transformCourseName(
     studentHistory.course,
     studentHistory.courseKind,
@@ -133,13 +137,11 @@ export async function createHistory(
     );
   }
 
-  logger.warn(studentHistory);
-
   logger.info({
     student: studentHistory.ra,
-    course: studentHistory.course,
     dbGrade: history?.grade,
     rawGrade: studentGrade,
+    studentHistory,
     msg: 'Synced Successfully',
   });
   historyCache.set(cacheKey, history);
