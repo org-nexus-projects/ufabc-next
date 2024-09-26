@@ -133,7 +133,7 @@ export async function createHistory(
     );
   }
 
-  logger.warn(studentHistory.components);
+  logger.warn(studentHistory);
 
   logger.info({
     student: studentHistory.ra,
