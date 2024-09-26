@@ -1,20 +1,28 @@
 import { LRUCache } from 'lru-cache';
 import { z } from 'zod';
-import { HistoryModel } from '@/models/History.js';
-import { SubjectModel } from '@/models/Subject.js';
+import {
+  type Categories,
+  type History,
+  HistoryModel,
+} from '@/models/History.js';
 import { logger } from '@next/common';
 import { transformCourseName } from '../utils/transformCourseName.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
+import {
+  ufProcessor,
+  type GraduationComponents,
+} from '@/services/ufprocessor.js';
+
+import { type Subject, SubjectModel } from '@/models/Subject.js';
 
 const CACHE_TTL = 1000 * 60 * 60;
-const cache = new LRUCache<string, any>({
-  max: 3,
-  ttl: CACHE_TTL,
-});
+const historyCache = new LRUCache<string, History>({ max: 3, ttl: CACHE_TTL });
 
 const validateSigaaComponents = z.object({
   ano: z.coerce.number(),
-  periodo: z.string(),
+  periodo: z
+    .enum(['1', '2', '3', 'QS'])
+    .transform((p) => (p === 'QS' ? '3' : p)),
   codigo: z.string(),
   situacao: z
     .enum(['APROVADO', 'REPROVADO', 'REPROVADO POR FALTAS', '--', ''])
@@ -24,7 +32,6 @@ const validateSigaaComponents = z.object({
 });
 
 const validateSigaaHistory = z.object({
-  //updateTime: z.date().optional(),
   course: z.string().transform((c) => c.toLocaleLowerCase()),
   ra: z.number(),
   courseKind: z.string().toLowerCase(),
@@ -32,6 +39,16 @@ const validateSigaaHistory = z.object({
 });
 
 type StudentComponent = z.infer<typeof validateSigaaComponents>;
+type HydratedComponent = {
+  disciplina: string;
+  conceito: StudentComponent['resultado'] | null;
+  periodo: StudentComponent['periodo'];
+  codigo: StudentComponent['codigo'];
+  ano: number;
+  situacao: string | null;
+  categoria: Categories;
+  creditos: number;
+};
 
 export async function createHistory(
   request: FastifyRequest,
@@ -44,27 +61,61 @@ export async function createHistory(
   }
 
   const cacheKey = `history:${studentHistory.ra}`;
-  const cached = cache.get(cacheKey);
+  const cached = historyCache.get(cacheKey);
 
   if (cached) {
     return {
-      msg: 'Retrieved from cache',
-      history: cached,
+      msg: 'Cached history!',
+      cached,
     };
   }
 
-  const hydratedComponentsPromises = studentHistory.components.map(
-    (component) => hydrateComponents(component, studentHistory.ra),
-  );
-  const hydratedComponents = await Promise.all(hydratedComponentsPromises);
+  let history = await HistoryModel.findOne({
+    ra: studentHistory.ra,
+  }).lean<History>();
+
   const course = transformCourseName(
     studentHistory.course,
     studentHistory.courseKind,
+  ) as string;
+  const allUFCourses = await ufProcessor.getCourses();
+  const studentCourse = allUFCourses.find(
+    (UFCourse) => UFCourse.name === course.toLocaleLowerCase(),
   );
 
-  let history = await HistoryModel.findOne({
-    ra: studentHistory.ra,
-  });
+  if (!studentCourse) {
+    return reply.notFound('not found user course');
+  }
+
+  let studentGrade = '';
+
+  if (history?.grade) {
+    studentGrade = history.grade;
+  } else {
+    const studentCourseGrades = await ufProcessor.getCourseGrades(
+      studentCourse.UFcourseId,
+    );
+
+    if (!studentCourseGrades) {
+      return reply.notFound(
+        'Curso não encontrado (entre em contato conosco por favor)',
+      );
+    }
+    studentGrade = studentCourseGrades.at(0)?.year ?? '';
+  }
+
+  const UFgraduation = await ufProcessor.getGraduationComponents(
+    studentCourse.UFcourseId,
+    studentGrade,
+  );
+
+  const allSubjects = await SubjectModel.find({});
+
+  const hydratedComponents = await hydrateComponents(
+    studentHistory.components,
+    UFgraduation.components,
+    allSubjects,
+  );
 
   if (!history && hydratedComponents.length > 0) {
     history = await HistoryModel.create({
@@ -72,75 +123,93 @@ export async function createHistory(
       curso: course,
       disciplinas: hydratedComponents,
       coefficients: null,
-      grade: null,
+      grade: studentGrade,
     });
-    cache.set(cacheKey, history);
-    return {
-      msg: `Created history for ${studentHistory.ra}`,
-      history,
-    };
+  } else if (history) {
+    history = await HistoryModel.findOneAndUpdate(
+      { ra: studentHistory.ra, curso: course },
+      { $set: { disciplinas: hydratedComponents } },
+      { new: true },
+    );
   }
 
-  history = await HistoryModel.findOneAndUpdate(
-    {
-      ra: studentHistory.ra,
-      curso: course,
-    },
-    {
-      $set: {
-        disciplinas: hydratedComponents,
-      },
-    },
-    {
-      new: true,
-    },
-  );
-
-  cache.set(cacheKey, history);
+  historyCache.set(cacheKey, history);
 
   return {
-    msg: `Updated history for ${studentHistory.ra}`,
+    msg: history
+      ? `Updated history for ${studentHistory.ra}`
+      : `Created history for ${studentHistory.ra}`,
     history,
   };
 }
 
-async function hydrateComponents(component: StudentComponent, ra: number) {
-  const subjects = await SubjectModel.find({
-    creditos: {
-      $exists: true,
-    },
-  });
-  const normalizedSubjects = subjects.map((subject) => ({
-    name: subject.name.trim().toLocaleLowerCase(),
-    credits: subject.creditos,
-  }));
-  const componentSubject = component.disciplina.trim().toLocaleLowerCase();
-  const validComponent = normalizedSubjects.find(
-    (subject) => subject.name === componentSubject,
-  );
+async function hydrateComponents(
+  components: StudentComponent[],
+  graduationComponents: GraduationComponents[],
+  allSubjects: Subject[],
+): Promise<HydratedComponent[]> {
+  const hydratedComponents = [];
 
-  if (!validComponent) {
-    logger.warn({ name: componentSubject, ra }, 'No valid component found');
-    return;
-  }
-
-  const existingHistory = await HistoryModel.findOne({ ra });
-  let category = null;
-  if (existingHistory) {
-    const existingComponents = existingHistory.disciplinas.find(
-      (disciplina) => disciplina.codigo === component?.codigo || false,
+  for (const component of components) {
+    const gradComponent = graduationComponents.find(
+      (gc) => gc.UFComponentCode === component.codigo,
     );
-    category = existingComponents?.categoria ?? null;
+
+    let componentCredits = 0;
+    if (!gradComponent) {
+      // this will always be a free component
+      logger.warn(
+        { name: component.disciplina, codigo: component.codigo },
+        'No matching graduation component found',
+      );
+
+      const subject = allSubjects.find(
+        (subject) => subject.name.toLocaleLowerCase() === component.disciplina,
+      );
+
+      if (!subject) {
+        const createdSubject = await SubjectModel.create({
+          name: component.disciplina,
+          creditos: 0,
+        });
+        componentCredits = createdSubject.creditos;
+      } else {
+        componentCredits = subject.creditos;
+      }
+    } else {
+      componentCredits = gradComponent.credits;
+    }
+
+    hydratedComponents.push({
+      disciplina: component.disciplina,
+      creditos: componentCredits,
+      conceito:
+        component.resultado === '--' || component.resultado === ''
+          ? null
+          : component.resultado,
+      periodo: component.periodo,
+      situacao:
+        component.situacao === '--' || component.situacao === ''
+          ? null
+          : component.situacao,
+      ano: component.ano,
+      codigo: component.codigo,
+      categoria: resolveCategory(gradComponent?.category),
+    });
   }
 
-  return {
-    conceito: component.resultado === '--' || '' ? null : component.resultado,
-    periodo: component.periodo,
-    situacao: component.situacao === '--' || '' ? null : component.situacao,
-    ano: component.ano,
-    codigo: component.codigo,
-    creditos: validComponent.credits,
-    disciplina: validComponent.name,
-    categoria: category,
-  };
+  return hydratedComponents;
 }
+
+const resolveCategory = (
+  category?: GraduationComponents['category'],
+): Categories => {
+  switch (category) {
+    case 'limited':
+      return 'Opção Limitada';
+    case 'mandatory':
+      return 'Obrigatória';
+    default:
+      return 'Livre Escolha';
+  }
+};

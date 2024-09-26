@@ -59,6 +59,39 @@ export type StudentComponent = {
 };
 export type UFProcessorEnrollment = Record<StudentRA, StudentComponent[]>;
 
+export type GraduationComponents = {
+  name: string;
+  UFComponentCode: string;
+  category: 'limited' | 'mandatory';
+  credits: number;
+};
+
+export type Graduation = {
+  name: string;
+  alias: string;
+  campus: 'sa' | 'sbc';
+  kind: 'licenciatura' | 'graduacao';
+  shift: 'noturno' | 'matutino';
+  grade: string;
+  components: Array<GraduationComponents>;
+};
+
+export type UFCourse = {
+  name: string;
+  campus: string;
+  coordinator: string;
+  UFcourseId: number;
+};
+
+type UFGrade = {
+  name: string;
+  alias: string;
+  year: string;
+  appliedAt: string;
+  status: string;
+  period: string;
+};
+
 class UFProcessor {
   private readonly baseURL = Config.UF_PROCESSOR_URL;
   private readonly request: typeof ofetch;
@@ -100,6 +133,18 @@ class UFProcessor {
     return components;
   }
 
+  async getCourses() {
+    const courses = await this.request<UFCourse[]>('/courses');
+    return courses;
+  }
+
+  async getCourseGrades(UFCourseId: number) {
+    const grades = await this.request<UFGrade[]>(
+      `/courses/grades/${UFCourseId}`,
+    );
+    return grades;
+  }
+
   async getComponentsFile(link: string) {
     const componentsWithTeachers = await this.request<
       UFProcessorComponentFile[]
@@ -126,6 +171,13 @@ class UFProcessor {
       },
     );
     return enrollments;
+  }
+
+  async getGraduationComponents(id: number, year: string) {
+    const graduation = await this.request<Graduation>(
+      `/courses/components/${id}/${year}`,
+    );
+    return graduation;
   }
 }
 
