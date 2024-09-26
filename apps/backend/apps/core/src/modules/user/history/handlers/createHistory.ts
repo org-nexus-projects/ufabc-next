@@ -132,7 +132,7 @@ export async function createHistory(
   } else if (history) {
     history = await HistoryModel.findOneAndUpdate(
       { ra: studentHistory.ra, curso: course },
-      { $set: { disciplinas: hydratedComponents } },
+      { $set: { disciplinas: hydratedComponents, grade: studentGrade } },
       { new: true },
     );
   }
@@ -144,7 +144,7 @@ export async function createHistory(
     studentHistory,
     msg: 'Synced Successfully',
   });
-  historyCache.set(cacheKey, history);
+  historyCache.set(cacheKey, history!);
 
   return {
     msg: history
