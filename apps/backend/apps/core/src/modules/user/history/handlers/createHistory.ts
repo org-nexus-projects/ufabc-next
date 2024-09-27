@@ -77,6 +77,7 @@ export async function createHistory(
   logger.info({
     msg: 'starting student sync',
     student: studentHistory.ra,
+    preParseCourse: studentHistory.course,
   });
   const course = transformCourseName(
     studentHistory.course,
@@ -168,12 +169,6 @@ async function hydrateComponents(
 
     let componentCredits = 0;
     if (!gradComponent) {
-      // this will always be a free component
-      logger.warn(
-        { name: component.disciplina, codigo: component.codigo },
-        'No matching graduation component found',
-      );
-
       const subject = allSubjects.find(
         (subject) => subject.name.toLocaleLowerCase() === component.disciplina,
       );
