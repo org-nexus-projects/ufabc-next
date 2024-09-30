@@ -65,6 +65,7 @@ export async function listComponents() {
     teoria: 1,
     pratica: 1,
     season: 1,
+    campus: 1,
     alunos_matriculados: 1,
     _id: 0,
   };

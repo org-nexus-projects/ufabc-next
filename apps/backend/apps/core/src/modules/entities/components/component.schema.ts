@@ -17,6 +17,7 @@ export const listComponentsSchema = {
         turno: z.enum(['diurno', 'noturno']),
         vagas: z.number().int(),
         requisicoes: z.number().int(),
+        campus: z.enum(['sbc', 'sa']),
         teoria: z.string().optional().describe('Nome do professor'),
         pratica: z.string().optional().describe('Nome do professor'),
         teoriaId: z.coerce.string().optional().describe('Id interno'),
