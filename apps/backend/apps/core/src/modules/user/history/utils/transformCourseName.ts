@@ -1,5 +1,3 @@
-// TODO(joabe): entender como pegar as licenciaturas dps
-
 // little ts trick, it means the type can be of 'bi' or any other string
 type UFABC_GRADUATION_TYPE = 'bi' | (string & {});
 type UFABC_GRADUATION_AGENCIES = keyof typeof KNOWN_COURSES;
