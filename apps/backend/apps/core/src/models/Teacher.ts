@@ -2,6 +2,8 @@ import { type InferSchemaType, Schema, model } from 'mongoose';
 import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 import stringSimilarity from 'string-similarity';
 
+const normalizeName = (str: string) => str.toLowerCase().replace(/[^a-z]/g, '');
+
 const teacherSchema = new Schema(
   {
     name: { type: String, required: true },
@@ -24,18 +26,23 @@ const teacherSchema = new Schema(
           return exactMatch;
         }
 
+        const normalizedSearchName = normalizeName(name);
         const teachers = await this.find({});
+
         const bestMatch = teachers.reduce<any>(
           (best, teacher) => {
-            const similarity = Math.max(
-              stringSimilarity.compareTwoStrings(name, teacher.name),
-              ...teacher.alias.map((alias) =>
-                stringSimilarity.compareTwoStrings(
-                  name,
-                  alias.toLowerCase().replace(/[^a-z]/g, ''),
-                ),
-              ),
+            const nameMatch = stringSimilarity.compareTwoStrings(
+              normalizedSearchName,
+              normalizeName(teacher.name),
             );
+            const aliasMatch = teacher.alias.reduce((maxSimilarity, alias) => {
+              const similarity = stringSimilarity.compareTwoStrings(
+                normalizedSearchName,
+                normalizeName(alias),
+              );
+              return Math.max(maxSimilarity, similarity);
+            }, 0);
+            const similarity = Math.max(nameMatch, aliasMatch);
             return similarity > best.similarity
               ? { teacher, similarity }
               : best;
@@ -44,9 +51,9 @@ const teacherSchema = new Schema(
         );
 
         if (bestMatch.similarity > 0.8) {
+          // You can adjust this threshold
           return bestMatch.teacher;
         }
-
         return null;
       },
     },
