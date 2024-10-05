@@ -5,8 +5,8 @@ function resolveEndpoint(env) {
     {
       development: 'http://localhost:5000/v2',
       staging: 'https://ufabc-matricula-test.cdd.naoseiprogramar.com.br/v1',
-      production: 'https://api.vufabcnext.com/v2',
-    }[env] || 'http://localhost:8011/v1'
+      production: 'https://api.v2.ufabcnext.com/v2',
+    }[env] || 'http://localhost:5000/v2'
   );
 }
 
