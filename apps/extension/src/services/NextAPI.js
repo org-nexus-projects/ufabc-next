@@ -5,13 +5,13 @@ function resolveEndpoint(env) {
     {
       development: 'http://localhost:5000/v2',
       staging: 'https://ufabc-matricula-test.cdd.naoseiprogramar.com.br/v1',
-      production: 'https://api.ufabcnext.com/v1',
+      production: 'https://api.vufabcnext.com/v2',
     }[env] || 'http://localhost:8011/v1'
   );
 }
 
 function NextAPI() {
-  const baseURL = resolveEndpoint('development');
+  const baseURL = resolveEndpoint(process.env.NODE_ENV);
   const REQUEST_TIMEOUT = 5000;
   const nextAPI = Axios.create({
     baseURL,
