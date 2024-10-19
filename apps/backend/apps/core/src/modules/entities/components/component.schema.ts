@@ -22,6 +22,7 @@ export const listComponentsSchema = {
         pratica: z.string().optional().describe('Nome do professor'),
         teoriaId: z.coerce.string().optional().describe('Id interno'),
         praticaId: z.coerce.string().optional().describe('Id interno'),
+        subjectId: z.coerce.string().optional().describe('Id interno'),
       })
       .array(),
   },
