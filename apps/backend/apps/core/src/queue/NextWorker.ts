@@ -26,9 +26,7 @@ export class NextWorker {
 
   public setup() {
     const isTest = Config.NODE_ENV === 'test';
-    const allowedHosts = ['localhost', '127.0.0.1', '0.0.0.0']
-    const isLocalDb = allowedHosts.includes(new URL(Config.MONGODB_CONNECTION_URL).hostname)
-    if (isTest || !isLocalDb) {
+    if (isTest) {
       return;
     }
 
