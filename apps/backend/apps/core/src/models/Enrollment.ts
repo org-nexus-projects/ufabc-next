@@ -57,7 +57,9 @@ const enrollmentSchema = new Schema(
   { timestamps: true },
 );
 
-function setTheoryAndPractice(enrollment: Enrollment) {
+function setTheoryAndPractice(update: { $set: Partial<Enrollment> }) {
+  const enrollment = update.$set;
+
   if ('teoria' in enrollment || 'pratica' in enrollment) {
     const theoryTeacher = enrollment.teoria?._id ?? enrollment.teoria;
     const practiceTeacher = enrollment.pratica?._id ?? enrollment.pratica;
@@ -97,10 +99,24 @@ enrollmentSchema.index({
 
 enrollmentSchema.plugin(mongooseLeanVirtuals);
 
-enrollmentSchema.pre('save', async function () {
-  setTheoryAndPractice(this);
+enrollmentSchema.pre('findOneAndUpdate', function (next) {
+  const update = this.getUpdate();
 
-  await addEnrollmentToGroup(this);
+  if (!update.$set) {
+    update.$set = {};
+  }
+
+  // Your existing pre update logic
+  // biome-ignore lint/style/noNonNullAssertion: <explanation>
+  setTheoryAndPractice(update);
+  next();
+});
+
+// biome-ignore lint/complexity/useArrowFunction: Mongoose needs an anonymous func
+enrollmentSchema.post('findOneAndUpdate', async function (doc) {
+  if (doc) {
+    await addEnrollmentToGroup(doc);
+  }
 });
 
 export type Enrollment = InferSchemaType<typeof enrollmentSchema>;

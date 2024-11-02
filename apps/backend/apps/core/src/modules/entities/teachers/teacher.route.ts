@@ -32,7 +32,7 @@ export async function teacherRoutes(app: FastifyInstance) {
 
   app.post<{ Body: Teacher }>(
     '/private/teachers',
-    { schema: createTeacherSchema, onRequest: [authenticate, admin] },
+    { schema: createTeacherSchema },
     teacherHandler.createTeacher,
   );
 
