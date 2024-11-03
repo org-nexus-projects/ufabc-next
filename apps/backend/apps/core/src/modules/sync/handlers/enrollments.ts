@@ -64,7 +64,7 @@ export async function syncEnrollments(
     return {
       hash: enrollmentsHash,
       size: nextEnrollments.length,
-      sample: nextEnrollments.slice(),
+      sample: nextEnrollments.slice(0, 500),
     };
   }
 
