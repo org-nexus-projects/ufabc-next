@@ -17,7 +17,6 @@ async function oauth2(app: FastifyInstance, opts: NextOauthOptions) {
   const providers = supportedProviders(opts, fastifyOauth2);
 
   for (const provider of objectKeys(providers)) {
-    const startRedirectPath = `/login/${provider}`;
     await app.register(fastifyOauth2, {
       name: provider,
       credentials: {

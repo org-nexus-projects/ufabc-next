@@ -37,6 +37,8 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
     nextJobs.setup();
     nextWorker.setup();
 
+  
+
     return app;
   } catch (error) {
     app.log.fatal(error, 'build app error');
