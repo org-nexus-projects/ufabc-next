@@ -10,10 +10,58 @@ import { nextWorker } from './queue/NextWorker.js';
 import { connect } from 'mongoose';
 import { Config } from './config/config.js';
 import { httpErrorsValidator } from './config/httpErrors.js';
+import { validatorCompiler, serializerCompiler } from 'fastify-zod-openapi';
+import { fastifyAutoload } from '@fastify/autoload';
+import { join } from 'node:path';
 
 export async function buildApp(opts: FastifyServerOptions = {}) {
   const mongoConnection = await connect(Config.MONGODB_CONNECTION_URL);
+
   const app = fastify(opts);
+
+  // for zod open api
+  app.setValidatorCompiler(validatorCompiler);
+  app.setSerializerCompiler(serializerCompiler);
+
+  await app.register(fastifyAutoload, {
+    dir: join(import.meta.dirname, 'plugins/external'),
+    options: { ...opts },
+  });
+
+  await app.register(fastifyAutoload, {
+    dir: join(import.meta.dirname, 'plugins/custom'),
+    options: { ...opts },
+  });
+
+  // TODO: validate this idea
+  // app.register(fastifyAutoload, {
+  //   dir: join(import.meta.dirname, 'routes'),
+  //   autoHooks: true,
+  //   cascadeHooks: true,
+  //   options: { ...opts },
+  // })
+
+  app.setErrorHandler((err, request, _reply) => {
+    app.log.error(
+      {
+        err,
+        request: {
+          method: request.method,
+          url: request.url,
+          query: request.query,
+          params: request.params,
+        },
+      },
+      'Unhandled error occurred',
+    );
+
+    let message = 'Internal Server Error';
+    if (err.statusCode && err.statusCode < 500) {
+      message = err.message;
+    }
+
+    return { message };
+  });
 
   try {
     httpErrorsValidator(app);
@@ -36,8 +84,6 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
 
     nextJobs.setup();
     nextWorker.setup();
-
-  
 
     return app;
   } catch (error) {
