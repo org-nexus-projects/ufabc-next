@@ -1,8 +1,4 @@
-import {
-  type FastifyInstance,
-  type FastifyServerOptions,
-  fastify,
-} from 'fastify';
+import type { FastifyInstance, FastifyServerOptions } from 'fastify';
 import { loadPlugins } from './plugins.js';
 import { entitiesModule } from './modules/entities/entities.module.js';
 import { publicModule } from './modules/public/public.module.js';
@@ -22,8 +18,6 @@ export async function buildApp(
   app: FastifyInstance,
   opts: FastifyServerOptions = {},
 ) {
-  // const mongoConnection = await connect(Config.MONGODB_CONNECTION_URL);
-
   // for zod open api
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
@@ -68,32 +62,52 @@ export async function buildApp(
     return { message };
   });
 
-  try {
-    httpErrorsValidator(app);
-    await loadPlugins(app);
-    await app.register(userModule, {
-      prefix: '/v2',
-    });
-    await app.register(entitiesModule, {
-      prefix: '/v2',
-    });
-    await app.register(publicModule, {
-      prefix: '/v2',
-    });
-    await app.register(syncModule, {
-      prefix: '/v2',
-    });
-    await app.register(backOfficeModule, {
-      prefix: '/v2',
-    });
+  app.setNotFoundHandler(
+    {
+      preHandler: app.rateLimit({
+        max: 3,
+        timeWindow: 500,
+      }),
+    },
+    (request, reply) => {
+      request.log.warn(
+        {
+          request: {
+            method: request.method,
+            url: request.url,
+            query: request.query,
+            params: request.params,
+          },
+        },
+        'Resource not found',
+      );
 
-    // nextJobs.setup();
-    // nextWorker.setup();
+      reply.code(404);
 
-    // return app;
-  } catch (error) {
-    app.log.fatal(error, 'build app error');
+      return { message: 'Not Found' };
+    },
+  );
 
-    process.exit(1);
-  }
+  httpErrorsValidator(app);
+  await loadPlugins(app);
+  await app.register(userModule, {
+    prefix: '/v2',
+  });
+  await app.register(entitiesModule, {
+    prefix: '/v2',
+  });
+  await app.register(publicModule, {
+    prefix: '/v2',
+  });
+  await app.register(syncModule, {
+    prefix: '/v2',
+  });
+  await app.register(backOfficeModule, {
+    prefix: '/v2',
+  });
+
+  // nextJobs.setup();
+  // nextWorker.setup();
+
+  // return app;
 }
