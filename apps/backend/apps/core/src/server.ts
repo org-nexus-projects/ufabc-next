@@ -14,7 +14,7 @@ const appOptions = {
 const app = fastify(appOptions);
 
 export async function start() {
-  app.register(fp(buildApp));
+  await app.register(fp(buildApp));
   if (process.stdout.isTTY) {
     app.log.info(app.printRoutes());
   }

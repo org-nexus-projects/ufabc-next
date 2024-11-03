@@ -33,12 +33,29 @@ export async function buildApp(
   });
 
   // TODO: validate this idea
-  // app.register(fastifyAutoload, {
-  //   dir: join(import.meta.dirname, 'routes'),
-  //   autoHooks: true,
-  //   cascadeHooks: true,
-  //   options: { ...opts },
-  // })
+  app.register(fastifyAutoload, {
+    dir: join(import.meta.dirname, 'routes'),
+    autoHooks: true,
+    cascadeHooks: true,
+    options: { ...opts },
+  });
+
+  await loadPlugins(app);
+  // await app.register(userModule, {
+  //   prefix: '/v2',
+  // });
+  // await app.register(entitiesModule, {
+  //   prefix: '/v2',
+  // });
+  // await app.register(publicModule, {
+  //   prefix: '/v2',
+  // });
+  // await app.register(syncModule, {
+  //   prefix: '/v2',
+  // });
+  // await app.register(backOfficeModule, {
+  //   prefix: '/v2',
+  // });
 
   app.setErrorHandler((err, request, _reply) => {
     app.log.error(
@@ -89,22 +106,6 @@ export async function buildApp(
   );
 
   httpErrorsValidator(app);
-  await loadPlugins(app);
-  await app.register(userModule, {
-    prefix: '/v2',
-  });
-  await app.register(entitiesModule, {
-    prefix: '/v2',
-  });
-  await app.register(publicModule, {
-    prefix: '/v2',
-  });
-  await app.register(syncModule, {
-    prefix: '/v2',
-  });
-  await app.register(backOfficeModule, {
-    prefix: '/v2',
-  });
 
   // nextJobs.setup();
   // nextWorker.setup();

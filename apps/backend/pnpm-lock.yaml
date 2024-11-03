@@ -32,6 +32,9 @@ importers:
       '@fastify/autoload':
         specifier: ^6.0.2
         version: 6.0.2
+      '@fastify/cookie':
+        specifier: ^11.0.1
+        version: 11.0.1
       '@fastify/cors':
         specifier: ^10.0.1
         version: 10.0.1
@@ -50,6 +53,9 @@ importers:
       '@fastify/sensible':
         specifier: ^6.0.1
         version: 6.0.1
+      '@fastify/session':
+        specifier: ^11.0.1
+        version: 11.0.1
       '@fastify/swagger':
         specifier: ^9.2.0
         version: 9.2.0
@@ -763,6 +769,9 @@ packages:
 
   '@fastify/sensible@6.0.1':
     resolution: {integrity: sha512-D0rN0kMeZKP23f4w9MoCI9e4+n7vASFAsGoRNn9bondSbplLeIfR2HcjCbyElAM04jGrPRLi/edyThEPOyC9cQ==}
+
+  '@fastify/session@11.0.1':
+    resolution: {integrity: sha512-I/CRrC6vWktZor9aF5eG9HZh/hxQQ4HY8GntIpeSjl97Q3ly0KnqD+BBGGNtRWOK369tclvL8FEQx3pWTgzSHQ==}
 
   '@fastify/static@6.12.0':
     resolution: {integrity: sha512-KK1B84E6QD/FcQWxDI2aiUCwHxMJBI1KeCUzm1BwYpPY1b742+jeKruGHP2uOluuM6OkBPI8CIANrXcCRtC2oQ==}
@@ -3978,6 +3987,11 @@ snapshots:
       http-errors: 2.0.0
       type-is: 1.6.18
       vary: 1.1.2
+
+  '@fastify/session@11.0.1':
+    dependencies:
+      fastify-plugin: 4.5.1
+      safe-stable-stringify: 2.5.0
 
   '@fastify/static@6.12.0':
     dependencies:

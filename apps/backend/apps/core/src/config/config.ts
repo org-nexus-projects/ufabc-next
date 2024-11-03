@@ -19,6 +19,7 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(32).default(JWT_SECRET),
   MONGODB_CONNECTION_URL: z.string().default('mongodb://127.0.0.1:27017/local'),
   REDIS_CONNECTION_URL: z.string().default('redis://localhost:6379'),
+  RATE_LIMIT_MAX: z.coerce.number().default(5),
   WEB_URL: z.string().default(NEXT_WEB_LOCAL),
   ALLOWED_ORIGINS: z.string().transform((origins) => origins.split(',')),
   P_STAGING_DIR: z.string().default('/logs-local'),
