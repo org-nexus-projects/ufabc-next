@@ -1,4 +1,8 @@
-import { type FastifyServerOptions, fastify } from 'fastify';
+import {
+  type FastifyInstance,
+  type FastifyServerOptions,
+  fastify,
+} from 'fastify';
 import { loadPlugins } from './plugins.js';
 import { entitiesModule } from './modules/entities/entities.module.js';
 import { publicModule } from './modules/public/public.module.js';
@@ -8,16 +12,17 @@ import { backOfficeModule } from './modules/backoffice/backoffice.module.js';
 import { nextJobs } from './queue/NextJobs.js';
 import { nextWorker } from './queue/NextWorker.js';
 import { connect } from 'mongoose';
-import { Config } from './config/config.js';
+// import { Config } from './config/config.js';
 import { httpErrorsValidator } from './config/httpErrors.js';
 import { validatorCompiler, serializerCompiler } from 'fastify-zod-openapi';
 import { fastifyAutoload } from '@fastify/autoload';
 import { join } from 'node:path';
 
-export async function buildApp(opts: FastifyServerOptions = {}) {
-  const mongoConnection = await connect(Config.MONGODB_CONNECTION_URL);
-
-  const app = fastify(opts);
+export async function buildApp(
+  app: FastifyInstance,
+  opts: FastifyServerOptions = {},
+) {
+  // const mongoConnection = await connect(Config.MONGODB_CONNECTION_URL);
 
   // for zod open api
   app.setValidatorCompiler(validatorCompiler);
@@ -82,16 +87,13 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
       prefix: '/v2',
     });
 
-    nextJobs.setup();
-    nextWorker.setup();
+    // nextJobs.setup();
+    // nextWorker.setup();
 
-    return app;
+    // return app;
   } catch (error) {
     app.log.fatal(error, 'build app error');
-    // Do not let the database connection hanging
-    app.addHook('onClose', async () => {
-      await mongoConnection.disconnect();
-    });
+
     process.exit(1);
   }
 }

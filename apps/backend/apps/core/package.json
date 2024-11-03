@@ -8,7 +8,7 @@
   "author": "Joabe Silva <joabevarjao123@gmail.com>",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "node --env-file=.env.dev --import=tsx src/server.ts",
+    "dev": "tsx watch src/server.ts",
     "build": "rimraf dist && node --import=tsx esbuild.ts",
     "build:new": "tsup",
     "tsc": "tsc",
@@ -24,6 +24,7 @@
     "@bull-board/fastify": "^5.21.3",
     "@fastify/autoload": "^6.0.2",
     "@fastify/cors": "^10.0.1",
+    "@fastify/env": "^5.0.1",
     "@fastify/jwt": "^9.0.1",
     "@fastify/oauth2": "^8.1.0",
     "@fastify/sensible": "^6.0.1",

@@ -1,7 +1,13 @@
+import env, { type FastifyEnvOptions } from '@fastify/env';
 import { networkInterfaces } from 'node:os';
 import { z } from 'zod';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 
-process.loadEnvFile('.env.dev');
+declare module 'fastify' {
+  export interface FastifyInstance {
+    config: z.infer<typeof configSchema>;
+  }
+}
 
 const addresses = Object.values(networkInterfaces()).flat();
 const { address } = addresses.find(
@@ -11,7 +17,7 @@ const { address } = addresses.find(
 const NEXT_WEB_LOCAL = 'http://localhost:3000' as const;
 const JWT_SECRET = 'LWp9YJMiUtfQxoepoTL7RkWJi6W5C6ED';
 
-const envSchema = z.object({
+const configSchema = z.object({
   PROTOCOL: z.enum(['http', 'https']).default('http'),
   NODE_ENV: z.enum(['dev', 'test', 'prod']).default('dev'),
   PORT: z.coerce.number().default(5000),
@@ -26,11 +32,11 @@ const envSchema = z.object({
   P_USERNAME: z.string().default('next-logs'),
   P_PASSWORD: z.string().default('logs-password'),
   P_S3_BUCKET: z.string().default('local'),
-  P_S3_URL: z.string().url().optional(),
+  P_S3_URL: z.string().optional(),
   P_S3_ACCESS_KEY: z.string().optional(),
   P_S3_SECRET_KEY: z.string().optional(),
   P_S3_REGION: z.string().optional(),
-  UF_PROCESSOR_URL: z.string().url(),
+  UF_PROCESSOR_URL: z.string(),
   AWS_REGION: z.string(),
   AWS_ACCESS_KEY_ID: z.string(),
   AWS_SECRET_ACCESS_KEY: z.string(),
@@ -38,27 +44,17 @@ const envSchema = z.object({
   OAUTH_GOOGLE_SECRET: z.string().min(16),
 });
 
-const _env = envSchema.safeParse(process.env);
+const schema = zodToJsonSchema(configSchema);
 
-if (!_env.success) {
-  const { fieldErrors } = _env.error.flatten();
-  const errorMessage = Object.entries(fieldErrors)
-    .map(([field, errors]) =>
-      errors ? `${field}: ${errors.join(', ')}` : field,
-    )
-    .join('\n  ');
-  throw new Error(`Missing environment variables:\n  ${errorMessage}`);
-}
+export const autoConfig = {
+  schema,
+  dotenv: true,
+  confKey: 'config',
+} satisfies FastifyEnvOptions;
 
-type EnvConfig = z.infer<typeof envSchema>;
-
-export const Config = Object.freeze(
-  Object.assign(_env.data, {
-    MAILER_CONFIG: {
-      EMAIL_CONFIRMATION_TEMPLATE: 'Confirmation',
-      EMAIL_RECOVERY_TEMPLATE: 'Recovery',
-      EMAIL: 'contato@ufabcnext.com',
-    } as const,
-  }),
-);
-export type Config = EnvConfig & typeof Config;
+/**
+ * This plugins helps to check environment variables.
+ *
+ * @see {@link https://github.com/fastify/fastify-env}
+ */
+export default env;

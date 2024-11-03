@@ -1,25 +1,23 @@
 import gracefullyShutdown from 'close-with-grace';
 import { logger } from '@next/common';
-import { Config } from './config/config.js';
 import { buildApp } from './app.js';
 import { nextWorker } from './queue/NextWorker.js';
 import { nextJobs } from './queue/NextJobs.js';
-import type { ZodTypeProvider } from 'fastify-type-provider-zod';
-import type { FastifyServerOptions } from 'fastify';
+import { fastifyPlugin as fp } from 'fastify-plugin';
+
+import { fastify, type FastifyServerOptions } from 'fastify';
 
 const appOptions = {
   loggerInstance: logger,
-  // trustProxy: true,
 } satisfies FastifyServerOptions;
 
+const app = fastify(appOptions);
+
 export async function start() {
-  const app = await buildApp(appOptions);
-  if (Config.NODE_ENV === 'dev') {
+  app.register(fp(buildApp));
+  if (process.stdout.isTTY) {
     app.log.info(app.printRoutes());
   }
-
-  app.withTypeProvider<ZodTypeProvider>();
-  await app.listen({ port: Config.PORT, host: Config.HOST });
 
   nextJobs.schedule('NexSubjectsSync');
   nextJobs.schedule('NextEnrolledSync');
@@ -31,11 +29,23 @@ export async function start() {
     }
 
     app.log.warn(signal, 'Gracefully exiting app');
+
     await nextJobs.close();
     await nextWorker.close();
     await app.close();
-    process.exit(1);
   });
+
+  await app.ready();
+
+  try {
+    await app.listen({
+      port: app.config?.PORT,
+      host: app.config?.HOST,
+    });
+  } catch (error) {
+    app.log.error(error);
+    process.exit(1);
+  }
 }
 
-await start();
+start();
