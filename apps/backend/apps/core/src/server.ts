@@ -8,7 +8,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import type { FastifyServerOptions } from 'fastify';
 
 const appOptions = {
-  logger,
+  loggerInstance: logger,
   // trustProxy: true,
 } satisfies FastifyServerOptions;
 
