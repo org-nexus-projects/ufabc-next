@@ -10,9 +10,10 @@
   "scripts": {
     "dev": "node --env-file=.env.dev --import=tsx --watch-path=src --watch-path=.env.dev src/server.ts",
     "build": "rimraf dist && node --import=tsx esbuild.ts",
+    "build:new": "tsup",
     "tsc": "tsc",
     "start": "node --env-file=.env.prod dist/server.js",
-    "start:watch": "node --env-file=.env.prod --watch dist/server.js",
+    "start:new": "node --env-file=.env.prod dist/server.js",
     "test": "node --import=tsx runTests.ts",
     "test:watch": "node --import=tsx runTests.ts watch",
     "lint": "biome lint --write --unsafe --diagnostic-level=error ."
@@ -60,6 +61,7 @@
     "pino-pretty": "^11.2.1",
     "rimraf": "^5.0.5",
     "testcontainers": "^10.9.0",
+    "tsup": "^8.1.0",
     "tsx": "^4.15.7",
     "typescript": "^5.5.2"
   },
