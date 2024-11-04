@@ -1,10 +1,23 @@
 import { fastifyPlugin as fp } from 'fastify-plugin';
-import { fastifyOauth2 } from '@fastify/oauth2';
+import {
+  fastifyOauth2,
+  type OAuth2Namespace,
+  type Token,
+} from '@fastify/oauth2';
 import fastifySession from '@fastify/session';
 import fastifyCookie from '@fastify/cookie';
 import type { Auth } from '@/schemas/auth.js';
+import { loginSchema } from '@/schemas/login.js';
+import type { FastifyZodOpenApiTypeProvider } from 'fastify-zod-openapi';
+import { FetchError, ofetch } from 'ofetch';
+import type { LegacyGoogleUser } from '../oauth2/utils/oauthTypes.js';
+import { UserModel, type User } from '@/models/User.js';
+import { Types, type ObjectId } from 'mongoose';
 
 declare module 'fastify' {
+  interface FastifyInstance {
+    google: OAuth2Namespace;
+  }
   interface Session {
     user: Auth;
   }
@@ -12,20 +25,19 @@ declare module 'fastify' {
 
 export default fp(
   async (app) => {
-    // app.register(fastifyCookie);
-    // app.register(fastifySession, {
-    //   secret: app.config.COOKIE_SECRET,
-    //   cookieName: app.config.COOKIE_NAME,
-    //   cookie: {
-    //     secure: app.config.COOKIE_SECURED,
-    //     httpOnly: true,
-    //     maxAge: 1800000,
-    //   },
-    // });
+    app.register(fastifyCookie);
+    app.register(fastifySession, {
+      secret: app.config.COOKIE_SECRET,
+      cookieName: app.config.COOKIE_NAME,
+      cookie: {
+        secure: app.config.COOKIE_SECURED,
+        httpOnly: true,
+        maxAge: 1800000,
+      },
+    });
     await app.register(fastifyOauth2, {
       name: 'google',
-      // userAgent: 'UFABC next (2.0.0)',
-      scope: ['profile', 'email'],
+      userAgent: 'UFABC next (2.0.0)',
       credentials: {
         client: {
           id: app.config.OAUTH_GOOGLE_CLIENT_ID,
@@ -33,44 +45,12 @@ export default fp(
         },
         auth: fastifyOauth2.GOOGLE_CONFIGURATION,
       },
-      startRedirectPath: '/login/google',
+      scope: ['profile', 'email'],
       callbackUri: (req) =>
-        `${app.config.PROTOCOL}://${req.hostname}:5000/login/google`,
+        `${app.config.PROTOCOL}://${req.host}/login/google/callback`,
     });
 
     app.log.info('[PLUGIN] Cookie, Session, Oauth');
-
-    // app.get(`/login/google`, async function (request, reply) {
-    //   try {
-    //     const validatedURI = await this.google.generateAuthorizationUri(
-    //       request,
-    //       reply,
-    //     );
-    //     return reply.redirect(validatedURI);
-    //   } catch (error) {
-    //     request.log.warn(error);
-    //   }
-    // });
-
-    app.get(`/login/google/callback`, async function (request, reply) {
-      try {
-        return {
-          name: 'Joabe',
-        };
-        // await handleOauth.call(this, 'google', request, reply, providers);
-      } catch (error: any) {
-        if (error?.data?.payload) {
-          reply.log.error({ error: error.data.payload }, 'Error in oauth2');
-          return error.data.payload;
-        }
-
-        // Unknwon (probably db) error
-        request.log.warn(error, 'deu merda severa');
-        return reply.internalServerError(
-          'Algo de errado aconteceu no seu login, tente novamente',
-        );
-      }
-    });
   },
   { name: 'oauth2' },
 );

@@ -1,8 +1,14 @@
-import { loginSchema } from '@/schemas/login.js';
+import { UserModel, type User } from '@/models/User.js';
+import { loginSchema, type LegacyGoogleUser } from '@/schemas/login.js';
+import type { Token } from '@fastify/oauth2';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+import { Types } from 'mongoose';
+import { ofetch } from 'ofetch';
+
+const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 
 export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
-  app.get('/googles', async function (request, reply) {
+  app.get('/google', async function (request, reply) {
     const validatedURI = await this.google.generateAuthorizationUri(
       request,
       reply,
@@ -20,18 +26,40 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   });
 
   app.get(
-    '/googles/callback',
+    '/google/callback',
     { schema: loginSchema },
     async function (request, reply) {
       try {
-        request.log.info('vem aqui?');
         const { userId, inApp } = request.query;
         const { token } =
           await this.google.getAccessTokenFromAuthorizationCodeFlow(
             request,
             reply,
           );
-        return reply.send(token);
+        const oauthUser = await getUserDetails(token);
+        const user = await createOrLogin(oauthUser);
+
+        request.session.user = {
+          _id: user._id,
+          ra: user.ra,
+          confirmed: user.confirmed,
+          email: user.email,
+          permissions: user.permissions,
+        };
+
+        const jwtToken = app.jwt.sign(user);
+
+        reply.setCookie(app.config.COOKIE_NAME, jwtToken, {
+          httpOnly: true,
+          secure: app.config.COOKIE_SECURED,
+          sameSite: 'strict',
+          path: '/',
+          maxAge: SEVEN_DAYS,
+        });
+
+        const webURL = new URL(app.config.WEB_URL);
+        const loginRedirect = `${webURL.hostname}/login`;
+        return reply.redirect(loginRedirect);
       } catch (error: any) {
         if (error?.data?.payload) {
           reply.log.error({ error: error.data.payload }, 'Error in oauth2');
@@ -49,3 +77,59 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 };
 
 export default plugin;
+
+async function getUserDetails(token: Token) {
+  const headers = new Headers();
+  headers.append('Authorization', `Bearer ${token.access_token}`);
+
+  const user = await ofetch<LegacyGoogleUser>(
+    'https://www.googleapis.com/plus/v1/people/me',
+    {
+      headers,
+    },
+  );
+
+  const email = user.emails[0].value;
+
+  if (!user.id) {
+    throw new Error('Missing GoogleId');
+  }
+
+  return {
+    email,
+    emailGoogle: email,
+    google: user.id,
+    emailFacebook: null,
+    facebook: null,
+    picture: null,
+  };
+}
+
+async function createOrLogin(oauthUser: User['oauth'], userId?: string) {
+  const findUserQuery: Record<string, unknown>[] = [
+    {
+      'oauth.google': oauthUser?.google,
+    },
+  ];
+
+  if (userId) {
+    const [queryId] = userId.split('?');
+    findUserQuery.push({ _id: new Types.ObjectId(queryId) });
+  }
+
+  const user =
+    (await UserModel.findOne({ $or: findUserQuery })) || new UserModel();
+
+  user.set({
+    active: true,
+    oauth: {
+      google: oauthUser?.google,
+      emailGoogle: oauthUser?.emailGoogle,
+      email: oauthUser?.email,
+    },
+  });
+
+  await user.save();
+
+  return user.toJSON();
+}
