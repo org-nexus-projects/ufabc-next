@@ -1,5 +1,4 @@
 import type { FastifyInstance, FastifyServerOptions } from 'fastify';
-import { loadPlugins } from './plugins.js';
 import { entitiesModule } from './modules/entities/entities.module.js';
 import { publicModule } from './modules/public/public.module.js';
 import { userModule } from './modules/user/user.module.js';
@@ -7,7 +6,6 @@ import { syncModule } from './modules/sync/sync.module.js';
 import { backOfficeModule } from './modules/backoffice/backoffice.module.js';
 import { nextJobs } from './queue/NextJobs.js';
 import { nextWorker } from './queue/NextWorker.js';
-import { connect } from 'mongoose';
 // import { Config } from './config/config.js';
 import { httpErrorsValidator } from './config/httpErrors.js';
 import { validatorCompiler, serializerCompiler } from 'fastify-zod-openapi';
@@ -40,7 +38,6 @@ export async function buildApp(
     options: { ...opts },
   });
 
-  await loadPlugins(app);
   // await app.register(userModule, {
   //   prefix: '/v2',
   // });

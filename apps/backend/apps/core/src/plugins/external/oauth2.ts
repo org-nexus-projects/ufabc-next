@@ -7,12 +7,6 @@ import {
 import fastifySession from '@fastify/session';
 import fastifyCookie from '@fastify/cookie';
 import type { Auth } from '@/schemas/auth.js';
-import { loginSchema } from '@/schemas/login.js';
-import type { FastifyZodOpenApiTypeProvider } from 'fastify-zod-openapi';
-import { FetchError, ofetch } from 'ofetch';
-import type { LegacyGoogleUser } from '../oauth2/utils/oauthTypes.js';
-import { UserModel, type User } from '@/models/User.js';
-import { Types, type ObjectId } from 'mongoose';
 
 declare module 'fastify' {
   interface FastifyInstance {

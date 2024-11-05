@@ -5,8 +5,6 @@ import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import { Types } from 'mongoose';
 import { ofetch } from 'ofetch';
 
-const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
-
 export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get('/google', async function (request, reply) {
     const validatedURI = await this.google.generateAuthorizationUri(
@@ -30,36 +28,28 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     { schema: loginSchema },
     async function (request, reply) {
       try {
-        const { userId, inApp } = request.query;
+        const { userId } = request.query;
         const { token } =
           await this.google.getAccessTokenFromAuthorizationCodeFlow(
             request,
             reply,
           );
         const oauthUser = await getUserDetails(token);
-        const user = await createOrLogin(oauthUser);
+        const user = await createOrLogin(oauthUser, userId);
 
         request.session.user = {
-          _id: user._id,
-          ra: user.ra,
+          studentId: user._id.toJSON(),
+          active: user.active,
           confirmed: user.confirmed,
-          email: user.email,
+          createdAt: user._id.getTimestamp().toString(),
+          oauth: user.oauth,
           permissions: user.permissions,
+          ra: user.ra,
+          studentEmail: user.email,
         };
 
-        const jwtToken = app.jwt.sign(user);
-
-        reply.setCookie(app.config.COOKIE_NAME, jwtToken, {
-          httpOnly: true,
-          secure: app.config.COOKIE_SECURED,
-          sameSite: 'strict',
-          path: '/',
-          maxAge: SEVEN_DAYS,
-        });
-
-        const webURL = new URL(app.config.WEB_URL);
-        const loginRedirect = `${webURL.hostname}/login`;
-        return reply.redirect(loginRedirect);
+        await request.session.save();
+        return reply.redirect('http://localhost:5000/user/info');
       } catch (error: any) {
         if (error?.data?.payload) {
           reply.log.error({ error: error.data.payload }, 'Error in oauth2');
