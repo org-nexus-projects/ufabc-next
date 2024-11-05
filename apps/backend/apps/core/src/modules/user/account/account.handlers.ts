@@ -5,25 +5,6 @@ import { confirmToken } from '../utils/confirmationToken.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export class AccountHandler {
-  async loginFacebook(
-    request: FastifyRequest<{ Body: { ra: number; email: string } }>,
-    reply: FastifyReply,
-  ) {
-    const { ra, email } = request.body;
-    const user = await UserModel.findOne({
-      ra,
-      'oauth.emailFacebook': email,
-    });
-
-    if (!user) {
-      return reply.notFound('User not found');
-    }
-
-    return {
-      token: user.generateJWT(),
-    };
-  }
-
   async confirmNextUser(
     request: FastifyRequest<{ Body: { token: string } }>,
     reply: FastifyReply,
@@ -46,24 +27,6 @@ export class AccountHandler {
 
     return {
       token: user.generateJWT(),
-    };
-  }
-
-  userInfo(request: FastifyRequest, reply: FastifyReply) {
-    const user = request.user;
-
-    if (!user) {
-      return reply.badRequest('User not found');
-    }
-
-    return {
-      id: user._id,
-      email: user.email,
-      ra: user.ra,
-      oauth: user.oauth,
-      confirmed: user.confirmed,
-      active: user.active,
-      createdAt: user._id.getTimestamp(),
     };
   }
 
@@ -90,100 +53,5 @@ export class AccountHandler {
       ra: user.ra,
       email: user.email,
     };
-  }
-
-  async resendNextEmail(request: FastifyRequest, reply: FastifyReply) {
-    const nextUser = await UserModel.findOne({
-      _id: request.user?._id,
-      active: true,
-    });
-
-    if (!nextUser) {
-      return reply.badRequest('User not found');
-    }
-
-    await nextUser.sendConfirmation();
-  }
-
-  async disableUserAccount(request: FastifyRequest, reply: FastifyReply) {
-    const user = await UserModel.findOne({
-      _id: request.user?._id,
-      active: true,
-    });
-
-    if (!user) {
-      return reply.badRequest('User not found');
-    }
-
-    user.active = false;
-    await user.save();
-
-    return {
-      message: 'Foi bom te ter aqui =)',
-    };
-  }
-
-  async setUserDevice(
-    request: FastifyRequest<{
-      Body: {
-        deviceId: string;
-        token: string;
-      };
-    }>,
-    reply: FastifyReply,
-  ) {
-    const { deviceId, token } = request.body;
-    if (!deviceId) {
-      return reply.badRequest('Missing User deviceId');
-    }
-
-    if (!token) {
-      return reply.badRequest('missing token');
-    }
-
-    const userAgent = new UAParser(request.headers['user-agent']);
-    const deviceAgent = userAgent.getDevice();
-
-    const newDevice = {
-      deviceId,
-      token,
-      phone: `${deviceAgent?.vendor}:${deviceAgent?.model} || 'Unparsable'`,
-    };
-
-    // @ts-expect-error fix later
-    request.user?.addDevice(newDevice);
-
-    await request.user?.save();
-
-    return request.user?.devices;
-  }
-
-  async removeUserDevice(
-    request: FastifyRequest<{ Params: { deviceId: string } }>,
-    reply: FastifyReply,
-  ) {
-    const user = request.user;
-    const { deviceId } = request.params;
-    if (!deviceId) {
-      return reply.badRequest('Missing deviceId');
-    }
-
-    if (!user) {
-      return reply.notFound('User not found');
-    }
-
-    const isValidDevice = user.devices.find(
-      (device) => device.deviceId === deviceId,
-    );
-
-    if (!isValidDevice) {
-      return reply.badRequest(`Invalid device ${deviceId}`);
-    }
-
-    user.removeDevice(deviceId);
-
-    await user.save();
-
-    return user.devices;
   }
 }
