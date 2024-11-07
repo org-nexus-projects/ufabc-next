@@ -5,7 +5,11 @@ export default async function (app: FastifyInstance) {
     if (request.url.startsWith('/public') || request.url.startsWith('/login')) {
       return;
     }
-    app.log.warn(request.session);
+
+    if (request.url === '/entities/components') {
+      return;
+    }
+
     if (!request.session.user) {
       return reply.unauthorized(
         'You must be authenticated to access this route.',
