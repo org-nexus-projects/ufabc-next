@@ -38,6 +38,9 @@ export async function buildApp(
     options: { ...opts },
   });
 
+  nextJobs.setup();
+  nextWorker.setup();
+
   // await app.register(userModule, {
   //   prefix: '/v2',
   // });
@@ -101,11 +104,4 @@ export async function buildApp(
       return { message: 'Not Found' };
     },
   );
-
-  httpErrorsValidator(app);
-
-  // nextJobs.setup();
-  // nextWorker.setup();
-
-  // return app;
 }
