@@ -5,7 +5,7 @@ import {
   type History,
   HistoryModel,
 } from '@/models/History.js';
-import { logger } from '@next/common';
+import { generateIdentifier, logger } from '@next/common';
 import { transformCourseName } from '../utils/transformCourseName.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import {
@@ -14,6 +14,7 @@ import {
 } from '@/services/ufprocessor.js';
 
 import { type Subject, SubjectModel } from '@/models/Subject.js';
+import { EnrollmentModel } from '@/models/Enrollment.js';
 
 const CACHE_TTL = 1000 * 60 * 60;
 const historyCache = new LRUCache<string, History>({ max: 3, ttl: CACHE_TTL });
@@ -138,6 +139,14 @@ export async function createHistory(
     );
   }
 
+  if (history) {
+    await updateEnrollments(
+      studentHistory.ra,
+      hydratedComponents,
+      history.coefficients,
+    );
+  }
+
   logger.info({
     student: studentHistory.ra,
     dbGrade: history?.grade,
@@ -145,6 +154,7 @@ export async function createHistory(
     studentHistory,
     msg: 'Synced Successfully',
   });
+
   historyCache.set(cacheKey, history!);
 
   return {
@@ -219,3 +229,66 @@ const resolveCategory = (
       return 'Livre Escolha';
   }
 };
+
+async function updateEnrollments(
+  ra: number,
+  components: HydratedComponent[],
+  coefficients: any,
+) {
+  for (const component of components) {
+    const identifier = generateIdentifier({
+      ra,
+      year: component.ano,
+      quad: component.periodo,
+      disciplina: component.disciplina,
+    });
+
+    const periodCoeff = coefficients?.[component.ano]?.[component.periodo];
+    const enrollmentData = {
+      identifier,
+      ra,
+      year: component.ano,
+      quad: component.periodo,
+      disciplina: component.disciplina,
+      codigo: component.codigo,
+      conceito: component.conceito,
+      creditos: component.creditos,
+      categoria: component.categoria,
+      situacao: component.situacao,
+      cr_acumulado: periodCoeff?.cr_acumulado,
+      ca_acumulado: periodCoeff?.ca_acumulado,
+      cp_acumulado: periodCoeff?.cp_acumulado,
+    };
+
+    try {
+      await EnrollmentModel.findOneAndUpdate(
+        {
+          ra,
+          year: component.ano,
+          quad: component.periodo,
+          disciplina: {
+            $regex: new RegExp(`^${component.disciplina.toLowerCase()}`, 'i'),
+          },
+        },
+        enrollmentData,
+        {
+          new: true,
+        },
+      );
+      logger.info({
+        msg: 'Updated enrollment',
+        identifier,
+        ra,
+        disciplina: component.disciplina,
+      });
+    } catch (error) {
+      logger.error({
+        msg: 'Failed to update enrollment',
+        error,
+        identifier,
+        ra,
+        disciplina: component.disciplina,
+      });
+    }
+  }
+}
