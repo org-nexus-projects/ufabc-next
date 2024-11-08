@@ -41,6 +41,7 @@ export class QueueManager {
 
   createQueue<Payload>(name: string, handler: Processor): Queue {
     if (this.registeredQueues[name]) {
+      this.app.log.warn(this.registeredQueues);
       return this.registeredQueues[name].queue;
     }
 
@@ -62,7 +63,10 @@ export class QueueManager {
     const worker = new Worker<Payload>(
       name,
       async (job) => {
-        await handler({ ...job, app: this.app } as QueueContext<Payload>);
+        await handler({
+          ...job,
+          app: this.app,
+        } as QueueContext<Payload>);
       },
       {
         connection: {
@@ -74,6 +78,10 @@ export class QueueManager {
 
     worker.on('error', (error) => {
       this.app.log.error({ err: error, queueName: name }, 'Queue worker error');
+    });
+
+    worker.on('active', (job) => {
+      this.app.log.info({ jobId: job.id, queueName: name }, 'Job Started');
     });
 
     worker.on('completed', (job) => {

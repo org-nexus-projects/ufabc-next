@@ -1,11 +1,5 @@
-import { QueueManager } from '@/lib/queue.server.js';
+import { QueueManager, type QueueContext } from '@/lib/queue.server.js';
 import { EMAIL_QUEUE, emailProcessor } from '@/queue/email.queue.js';
-import {
-  type Processor,
-  type RedisOptions,
-  Queue as BullQueue,
-  Worker,
-} from 'bullmq';
 import type { FastifyInstance } from 'fastify';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 
@@ -25,6 +19,7 @@ export default fp(
   async (app, opts: { redisURL: URL }) => {
     const queueManager = new QueueManager(app, opts.redisURL);
 
+    // @ts-ignore for now
     queueManager.createQueue(EMAIL_QUEUE, emailProcessor);
 
     app.addHook('onClose', async () => {
