@@ -25,7 +25,7 @@ export default fp(
   async (app, opts: { redisURL: URL }) => {
     const queueManager = new QueueManager(app, opts.redisURL);
 
-    queueManager.createQueue(EMAIL_QUEUE, { handler: emailProcessor });
+    queueManager.createQueue(EMAIL_QUEUE, emailProcessor);
 
     app.addHook('onClose', async () => {
       await queueManager.closeAll();

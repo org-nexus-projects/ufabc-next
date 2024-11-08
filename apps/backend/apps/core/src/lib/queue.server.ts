@@ -1,4 +1,10 @@
-import { Worker, type Processor, Queue, type RedisOptions } from 'bullmq';
+import {
+  Worker,
+  type Processor,
+  Queue,
+  type RedisOptions,
+  type Job,
+} from 'bullmq';
 import type { FastifyInstance } from 'fastify';
 
 export type Queues = Record<
@@ -8,6 +14,11 @@ export type Queues = Record<
     worker: Worker;
   }
 >;
+
+export type QueueContext<Payload> = Job<Payload> & {
+  job: Job<Payload>;
+  app: FastifyInstance;
+};
 
 export class QueueManager {
   private readonly registeredQueues: Queues = {};
@@ -24,31 +35,42 @@ export class QueueManager {
     };
   }
 
-  getQueue(name: string): Queue | undefined {
+  getQueue<Payload>(name: string): Queue<Payload> | undefined {
     return this.registeredQueues[name]?.queue;
   }
 
-  createQueue(
-    name: string,
-    { app, handler }: { app: FastifyInstance; handler: Processor },
-  ): Queue {
+  createQueue<Payload>(name: string, handler: Processor): Queue {
     if (this.registeredQueues[name]) {
       return this.registeredQueues[name].queue;
     }
 
-    const queue = new Queue(name, {
+    const queue = new Queue<Payload>(name, {
       connection: {
         ...this.redisConfig,
         lazyConnect: true,
+      },
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 1_000,
+        },
+        removeOnComplete: true,
       },
     });
 
-    const worker = new Worker(name, handler, {
-      connection: {
-        ...this.redisConfig,
-        lazyConnect: true,
+    const worker = new Worker<Payload>(
+      name,
+      async (job) => {
+        await handler({ ...job, app: this.app } as QueueContext<Payload>);
       },
-    });
+      {
+        connection: {
+          ...this.redisConfig,
+          lazyConnect: true,
+        },
+      },
+    );
 
     worker.on('error', (error) => {
       this.app.log.error({ err: error, queueName: name }, 'Queue worker error');

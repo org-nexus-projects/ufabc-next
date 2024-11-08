@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { Schema, z } from 'zod';
 import { Types } from 'mongoose';
 import 'zod-openapi/extend';
 import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
@@ -40,11 +40,11 @@ const OauthSchema = z.object({
 
 export const SessionUserSchema = z.object({
   studentId: z.string().refine((val) => Types.ObjectId.isValid(val)),
-  studentEmail: z.string().email().optional(),
   ra: z.number().optional(),
-  oauth: OauthSchema.passthrough(),
+  email: z.string().email().optional(),
+  oauth: OauthSchema,
   permissions: z.string().array().default([]),
-  createdAt: z.string(),
+  createdAt: z.date(),
   active: z.boolean().openapi({ description: 'Estado da conta do usuário' }),
   confirmed: z.boolean().openapi({ description: 'Usuário ativou a conta' }),
 });
@@ -56,6 +56,30 @@ export const userAuthSchema = {
       content: {
         'application/json': {
           schema: SessionUserSchema,
+        },
+      },
+    },
+  },
+} satisfies FastifyZodOpenApiSchema;
+
+export const completeUserSchema = {
+  body: z.object({
+    ra: z.coerce.number(),
+    email: z
+      .string()
+      .email()
+      .refine((val) => val.includes('@aluno.ufabc.edu.br'), {
+        message: 'Invalid UFABC email',
+      }),
+  }),
+  response: {
+    200: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            ra: z.number(),
+            email: z.string().email(),
+          }),
         },
       },
     },

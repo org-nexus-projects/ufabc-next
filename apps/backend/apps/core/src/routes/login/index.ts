@@ -36,20 +36,17 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           );
         const oauthUser = await getUserDetails(token);
         const user = await createOrLogin(oauthUser, userId);
+        const jwtToken = this.jwt.sign(
+          {
+            studentId: user._id.toJSON(),
+            active: user.active,
+            confirmed: user.confirmed,
+            email: user.email,
+          },
+          { expiresIn: '7d' },
+        );
 
-        request.session.user = {
-          studentId: user._id.toJSON(),
-          active: user.active,
-          confirmed: user.confirmed,
-          createdAt: user._id.getTimestamp().toString(),
-          oauth: user.oauth,
-          permissions: user.permissions,
-          ra: user.ra,
-          studentEmail: user.email,
-        };
-
-        await request.session.save();
-        return reply.redirect('http://localhost:5000/user/info');
+        return reply.redirect(`http://localhost:3000/login?token=${jwtToken}`);
       } catch (error: any) {
         if (error?.data?.payload) {
           reply.log.error({ error: error.data.payload }, 'Error in oauth2');
