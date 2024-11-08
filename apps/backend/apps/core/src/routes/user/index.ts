@@ -46,14 +46,20 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const user = await UserModel.findOne({
         _id: session.user.studentId,
         active: true,
+        confirmed: false,
       });
 
       if (!user) {
         return reply.notFound('User Not Found');
       }
 
-      // trigger email send
-      // app.jobs.dispatch ?? i dont know
+      const emailQueue = app.queueManager.getQueue('send:email');
+
+      emailQueue?.add('resend-email', {
+        app,
+        job: user,
+      });
+
       return { message: 'E-mail enviado com sucesso' };
     },
   );
