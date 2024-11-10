@@ -61,3 +61,24 @@ export const listComponentsSchema = {
     },
   },
 } satisfies FastifyZodOpenApiSchema;
+
+export const listKickedSchema = {
+  params: z.object({
+    componentId: z.coerce.number().int(),
+  }),
+  querystring: z.object({
+    sort: z.enum(['reserva', 'turno', 'ik', 'cp', 'cr']).optional(),
+    season: z
+      .string()
+      .refine((val) => {
+        const [year, quad] = val.split(':');
+
+        if (!year || !quad) {
+          return false;
+        }
+
+        return true;
+      })
+      .default(currentQuad()),
+  }),
+} satisfies FastifyZodOpenApiSchema;
