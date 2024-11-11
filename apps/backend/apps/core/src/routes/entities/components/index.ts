@@ -1,3 +1,4 @@
+import { orderBy as LodashOrderBy } from 'lodash-es';
 import { Component, ComponentModel } from '@/models/Component.js';
 import { StudentModel } from '@/models/Student.js';
 import type { SubjectDocument } from '@/models/Subject.js';
@@ -105,7 +106,81 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       { $unwind: '$cursos' },
     ]);
 
-    const courses = await StudentModel.aggregate();
+    const courses = await StudentModel.aggregate<{
+      _id: string;
+      ids: number[];
+    }>([
+      {
+        $unwind: '$cursos',
+      },
+      {
+        $match: {
+          'cursos.id_curso': {
+            $ne: null,
+          },
+          season: request.query.season,
+        },
+      },
+      {
+        $project: {
+          'cursos.id_curso': 1,
+          'cursos.nome_curso': {
+            $trim: {
+              input: '$cursos.nome_curso',
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$cursos.nome_curso',
+          ids: {
+            $addToSet: '$cursos.id_curso',
+          },
+        },
+      },
+    ]);
+
+    const interCourses = [
+      'Bacharelado em Ciência e Tecnologia',
+      'Bacharelado em Ciências e Humanidades',
+    ];
+
+    const interCourseIds = courses
+    .filter(({ _id: name }) => interCourses.includes(name))
+    .flatMap(({ ids }) => ids)
+
+    const obrigatorias = getObrigatoriasFromComponents(
+      component.obrigatorias,
+      interCourseIds,
+    );
+
+    const studentsWithGraduation = students.map((student) => {
+      const reserva = obrigatorias.includes(student.cursos.id_curso);
+      const kickedInfo = kicksMap.get(student.aluno_id);
+      const graduationToStudent = {
+        studentId: student.aluno_id,
+        cr: '-',
+        cp: student.cursos.cp,
+        ik: reserva ? student.cursos.ind_afinidade : 0,
+        reserva,
+        turno: student.cursos.turno,
+        curso: student.cursos.nome_curso,
+        ...(kickedInfo || {}),
+      };
+  
+      return graduationToStudent;
+    });
+
+    const sortedStudents = LodashOrderBy(studentsWithGraduation, kicks, kicksOrder);
+    
+    const uniqueStudents = Array.from(
+      new Map(
+        sortedStudents.map((student) => [student.studentId, student]),
+      ).values(),
+    );
+  
+    return uniqueStudents;
   });
 };
 
@@ -156,6 +231,19 @@ function resolveEnrolled(component: Component, isAfterKick: boolean) {
     studentId: id,
     kicked: kicked.includes(id),
   }));
+}
+
+
+/**
+ * @description this code is incorrect, since currently we save ids
+ * that contains this component as 'limitada'
+ */
+function getObrigatoriasFromComponents(
+  obrigatorias: number[],
+  filterList: number[],
+) {
+  const removeSet = new Set(filterList);
+  return obrigatorias.filter((obrigatoria) => !removeSet.has(obrigatoria));
 }
 
 export default plugin;
