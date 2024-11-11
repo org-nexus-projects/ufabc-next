@@ -8,7 +8,7 @@ import {
 } from '@next/common';
 import { omit as LodashOmit } from 'lodash-es';
 import { type Component, ComponentModel } from '@/models/Component.js';
-import { nextJobs } from '@/queue/NextJobs.js';
+// import { nextJobs } from '@/queue/Job.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 export type SyncEnrollmentsRequest = {
@@ -105,7 +105,7 @@ export async function syncEnrollmentsLegacy(
 
   for (const chunk of chunkedEnrollments) {
     // @ts-ignore migrating
-    await nextJobs.dispatch('NextEnrollmentsUpdate', chunk);
+    // await nextJobs.dispatch('NextEnrollmentsUpdate', chunk);
   }
 
   return reply.send({ published: true, msg: 'Enrollments Synced' });

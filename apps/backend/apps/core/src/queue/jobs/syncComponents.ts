@@ -1,56 +1,84 @@
-'import { ComponentModel, type Component } from '@/models/Component.js';
-import { SubjectModel } from '@/models/Subject.js';
-import { ufProcessor } from '@/services/ufprocessor.js';
-import { currentQuad, generateIdentifier, logger } from '@next/common';
+import { type Component, ComponentModel } from '@/models/Component.js';
+import { type Subject, SubjectModel } from '@/models/Subject.js';
+import { getComponents } from '@/modules-v2/ufabc-parser.js';
+import { currentQuad, generateIdentifier } from '@next/common';
+import { camelCase, startCase } from 'lodash-es';
 import type { AnyBulkWriteOperation } from 'mongoose';
+import type { QueueContext } from '../Worker.js';
 
-type NextComponent = Omit<
-  Component,
-  | 'alunos_matriculados'
-  | 'before_kick'
-  | 'after_kick'
-  | 'createdAt'
-  | 'updatedAt'
->;
+export const COMPONENTS_QUEUE = 'sync_components_queue';
 
-export async function syncComponents() {
+export async function syncComponents({ app }: QueueContext) {
   const tenant = currentQuad();
   const [year, quad] = tenant.split(':');
-  const components = await ufProcessor.getComponents();
+  const parserComponents = await getComponents();
 
-  if (!components) {
-    logger.error({ components }, 'Could not get components');
-    return {
-      msg: 'Could not get components',
-      components,
-    };
+  if (!parserComponents) {
+    app.log.error({ parserComponents }, 'Error receiving components');
+    throw new Error('Could not get components');
   }
 
-  const dbSubjects = await SubjectModel.find({}, { name: 1 }).lean();
+  const subjects = await SubjectModel.find({}, { name: 1 }).lean();
+  const uniqSubjects = new Set(
+    subjects.map(({ name }) => name.toLocaleLowerCase()),
+  );
+
+  const missingSubjects = parserComponents.filter(
+    ({ name }) => !uniqSubjects.has(name),
+  );
+
+  if (missingSubjects.length > 0) {
+    const bulkOperations: AnyBulkWriteOperation<Subject>[] = [];
+    app.log.info('Inserting new subjects');
+    for (const component of parserComponents) {
+      const existingSubject = subjects.find(
+        (s) => s.name.toLocaleLowerCase() === component.name,
+      );
+      if (!existingSubject) {
+        bulkOperations.push({
+          insertOne: {
+            document: {
+              name: component.name,
+              creditos: component.credits,
+              search: startCase(camelCase(component.name)),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            },
+          },
+        });
+      } else if (existingSubject.creditos !== component.credits) {
+        bulkOperations.push({
+          updateOne: {
+            filter: {
+              _id: existingSubject._id,
+            },
+            update: {
+              $set: {
+                creditos: component.credits,
+                search: startCase(camelCase(existingSubject.name)),
+              },
+            },
+          },
+        });
+      }
+    }
+
+    await SubjectModel.bulkWrite(bulkOperations);
+  }
+
+  const bulkOperations: AnyBulkWriteOperation<Component>[] = [];
+
+  // retrieve after new subjects were inserted
+  const updatedSubjects = await SubjectModel.find({}, { name: 1 }).lean();
   const subjectsMap = new Map(
-    dbSubjects.map((subject) => [
+    updatedSubjects.map((subject) => [
       subject.name.toLocaleLowerCase(),
       subject._id,
     ]),
   );
 
-  const subjects = new Set(
-    dbSubjects.map(({ name }) => name.toLocaleLowerCase()),
-  );
-  const missingSubjects = components.filter(({ name }) => !subjects.has(name));
-  const missing = [...new Set(missingSubjects.map(({ name }) => name))];
-
-  if (missingSubjects.length > 0) {
-    return {
-      msg: 'missing subjects, check syncSubjects',
-      missing,
-    };
-  }
-
-  const bulkOperations: AnyBulkWriteOperation<Component>[] = [];
-
-  for (const component of components) {
-    const nextComponent: NextComponent = {
+  for (const component of parserComponents) {
+    const dbComponent = {
       codigo: component.UFComponentCode,
       disciplina_id: component.UFComponentId,
       campus: component.campus,
@@ -60,27 +88,34 @@ export async function syncComponents() {
       turno: component.turno,
       vagas: component.vacancies,
       ideal_quad: false,
-      identifier: '',
       quad: Number(quad),
       year: Number(year),
-      subject: subjectsMap.get(component.name.toLocaleLowerCase())!,
-      obrigatorias: component.courses.map((course) => course.UFCourseId),
-    };
+      subject: subjectsMap.get(component.name),
+      identifier: '',
+      // set only mandatory
+      obrigatorias: component.courses
+        .filter((c) => c.category === 'obrigatoria')
+        .map((c) => c.UFCourseId),
+    } as Component;
 
     // @ts-expect-error refactoring
-    nextComponent.identifier = generateIdentifier(nextComponent);
+    dbComponent.identifier = generateIdentifier(dbComponent, [
+      'disciplina',
+      'turno',
+      'campus',
+      'turma',
+    ]);
 
     bulkOperations.push({
       updateOne: {
         filter: {
           season: tenant,
-          identifier: nextComponent.identifier,
+          identifier: dbComponent.identifier,
           disciplina_id: component.UFComponentId,
         },
         update: {
           $set: {
-            ...nextComponent,
-            updatedAt: new Date(),
+            ...dbComponent,
           },
           $setOnInsert: {
             alunos_matriculados: [],
@@ -95,7 +130,7 @@ export async function syncComponents() {
 
   if (bulkOperations.length > 0) {
     const result = await ComponentModel.bulkWrite(bulkOperations);
-    logger.info({
+    app.log.info({
       msg: 'components updated/created',
       modifiedCount: result.modifiedCount,
       insertedCount: result.insertedCount,
@@ -110,7 +145,7 @@ export async function syncComponents() {
     };
   }
 
-  logger.info('No components needed updating or creation');
+  app.log.info('No components needed updating or creation');
   return {
     msg: 'No changes needed',
     modifiedCount: 0,

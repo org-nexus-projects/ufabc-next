@@ -2,7 +2,7 @@ import { ofetch } from 'ofetch';
 import { z } from 'zod';
 import { createHash } from 'node:crypto';
 import { ComponentModel } from '@/models/Component.js';
-import { nextJobs } from '@/queue/NextJobs.js';
+// import { nextJobs } from '@/queue/jobs.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ufProcessor } from '@/services/ufprocessor.js';
 import { hydrateComponent } from '../utils/hydrateComponents.js';
@@ -73,14 +73,14 @@ export async function syncEnrollments(
     Math.ceil(nextEnrollments.length / 3),
   );
 
-  await nextJobs.dispatch('NextEnrollmentsUpdate', chunkedEnrollments[0]);
+  // await nextJobs.dispatch('NextEnrollmentsUpdate', chunkedEnrollments[0]);
 
-  await nextJobs.schedule('NextEnrollmentsUpdate', chunkedEnrollments[1], {
-    toWait: '2 minutes',
-  });
-  await nextJobs.schedule('NextEnrollmentsUpdate', chunkedEnrollments[2], {
-    toWait: '4 minutes',
-  });
+  // await nextJobs.schedule('NextEnrollmentsUpdate', chunkedEnrollments[1], {
+  //   toWait: '2 minutes',
+  // });
+  // await nextJobs.schedule('NextEnrollmentsUpdate', chunkedEnrollments[2], {
+  //   toWait: '4 minutes',
+  // });
 
   return reply.send({ published: true, msg: 'Enrollments Synced' });
 }
