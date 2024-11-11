@@ -18,64 +18,66 @@ export async function syncComponents({ app }: QueueContext) {
     throw new Error('Could not get components');
   }
 
-  const subjects = await SubjectModel.find({}, { name: 1 }).lean();
-  const uniqSubjects = new Set(
-    subjects.map(({ name }) => name.toLocaleLowerCase()),
+  // Get existing subjects and create a case-insensitive lookup map
+  const subjects = await SubjectModel.find({}, { name: 1, creditos: 1 }).lean();
+  const subjectMap = new Map(
+    subjects.map((subject) => [subject.name.toLowerCase(), subject]),
   );
 
-  const missingSubjects = parserComponents.filter(
-    ({ name }) => !uniqSubjects.has(name),
-  );
+  const bulkOperations: AnyBulkWriteOperation<Subject>[] = [];
 
-  if (missingSubjects.length > 0) {
-    const bulkOperations: AnyBulkWriteOperation<Subject>[] = [];
-    app.log.info('Inserting new subjects');
-    for (const component of parserComponents) {
-      const existingSubject = subjects.find(
-        (s) => s.name.toLocaleLowerCase() === component.name,
-      );
-      if (!existingSubject) {
-        bulkOperations.push({
-          insertOne: {
-            document: {
-              name: component.name,
+  for (const component of parserComponents) {
+    const normalizedName = component.name.toLowerCase();
+    const existingSubject = subjectMap.get(normalizedName);
+
+    if (!existingSubject) {
+      // New subject - insert
+      bulkOperations.push({
+        insertOne: {
+          document: {
+            name: component.name,
+            creditos: component.credits,
+            search: startCase(camelCase(component.name)),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        },
+      });
+    } else if (existingSubject.creditos !== component.credits) {
+      // Update existing subject if credits changed
+      bulkOperations.push({
+        updateOne: {
+          filter: {
+            _id: existingSubject._id,
+          },
+          update: {
+            $set: {
               creditos: component.credits,
-              search: startCase(camelCase(component.name)),
-              createdAt: new Date(),
+              search: startCase(camelCase(existingSubject.name)),
               updatedAt: new Date(),
             },
           },
-        });
-      } else if (existingSubject.creditos !== component.credits) {
-        bulkOperations.push({
-          updateOne: {
-            filter: {
-              _id: existingSubject._id,
-            },
-            update: {
-              $set: {
-                creditos: component.credits,
-                search: startCase(camelCase(existingSubject.name)),
-              },
-            },
-          },
-        });
-      }
+        },
+      });
     }
-
-    await SubjectModel.bulkWrite(bulkOperations);
   }
 
-  const bulkOperations: AnyBulkWriteOperation<Component>[] = [];
+  if (bulkOperations.length > 0) {
+    try {
+      await SubjectModel.bulkWrite(bulkOperations, { ordered: false });
+    } catch (error) {
+      app.log.error({ error }, 'Error updating subjects');
+      throw error;
+    }
+  }
 
-  // retrieve after new subjects were inserted
+  // Retrieve updated subjects for component processing
   const updatedSubjects = await SubjectModel.find({}, { name: 1 }).lean();
   const subjectsMap = new Map(
-    updatedSubjects.map((subject) => [
-      subject.name.toLocaleLowerCase(),
-      subject._id,
-    ]),
+    updatedSubjects.map((subject) => [subject.name.toLowerCase(), subject._id]),
   );
+
+  const componentBulkOperations: AnyBulkWriteOperation<Component>[] = [];
 
   for (const component of parserComponents) {
     const dbComponent = {
@@ -90,9 +92,8 @@ export async function syncComponents({ app }: QueueContext) {
       ideal_quad: false,
       quad: Number(quad),
       year: Number(year),
-      subject: subjectsMap.get(component.name),
+      subject: subjectsMap.get(component.name.toLowerCase()),
       identifier: '',
-      // set only mandatory
       obrigatorias: component.courses
         .filter((c) => c.category === 'obrigatoria')
         .map((c) => c.UFCourseId),
@@ -106,7 +107,7 @@ export async function syncComponents({ app }: QueueContext) {
       'turma',
     ]);
 
-    bulkOperations.push({
+    componentBulkOperations.push({
       updateOne: {
         filter: {
           season: tenant,
@@ -128,28 +129,18 @@ export async function syncComponents({ app }: QueueContext) {
     });
   }
 
-  if (bulkOperations.length > 0) {
-    const result = await ComponentModel.bulkWrite(bulkOperations);
-    app.log.info({
-      msg: 'components updated/created',
-      modifiedCount: result.modifiedCount,
-      insertedCount: result.insertedCount,
-      upsertedCount: result.upsertedCount,
-    });
-
-    return {
-      msg: 'components updated/created',
-      modifiedCount: result.modifiedCount,
-      insertedCount: result.insertedCount,
-      upsertedCount: result.upsertedCount,
-    };
+  if (componentBulkOperations.length > 0) {
+    try {
+      const result = await ComponentModel.bulkWrite(componentBulkOperations);
+      return {
+        msg: 'components updated/created',
+        modifiedCount: result.modifiedCount,
+        insertedCount: result.insertedCount,
+        upsertedCount: result.upsertedCount,
+      };
+    } catch (error) {
+      app.log.error({ error }, 'Error updating components');
+      throw error;
+    }
   }
-
-  app.log.info('No components needed updating or creation');
-  return {
-    msg: 'No changes needed',
-    modifiedCount: 0,
-    insertedCount: 0,
-    upsertedCount: 0,
-  };
 }
