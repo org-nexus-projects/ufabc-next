@@ -4,9 +4,6 @@ import {
   type ValidatorProps,
   model,
 } from 'mongoose';
-import jwt from 'jsonwebtoken';
-import { nextJobs } from '@/queue/NextJobs.js';
-import { Config } from '@/config/config.js';
 
 const userSchema = new Schema(
   {
@@ -80,44 +77,10 @@ const userSchema = new Schema(
           (device) => device.deviceId !== deviceId,
         ) as typeof this.devices;
       },
-      async sendConfirmation() {
-        const user = this.toObject({
-          virtuals: true,
-        });
-        await nextJobs.dispatch('NextSendEmail', {
-          email: user.email as string,
-          ra: user.ra,
-        });
-      },
-      generateJWT() {
-        return jwt.sign(
-          {
-            _id: this._id,
-            ra: this.ra,
-            confirmed: this.confirmed,
-            email: this.email,
-            permissions: this.permissions,
-          },
-          Config.JWT_SECRET,
-        );
-      },
-    },
-    virtuals: {
-      isFilled: {
-        get() {
-          return this.ra && this.email;
-        },
-      },
     },
     timestamps: true,
   },
 );
-
-userSchema.pre<UserDocument>('save', async function () {
-  if (this.isFilled && !this.confirmed) {
-    await this.sendConfirmation();
-  }
-});
 
 export type User = InferSchemaType<typeof userSchema>;
 export type UserDocument = ReturnType<(typeof UserModel)['hydrate']>;
