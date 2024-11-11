@@ -52,7 +52,9 @@ const schema = zodToJsonSchema(configSchema);
 
 export const autoConfig = {
   schema,
-  dotenv: true,
+  dotenv: {
+    path: '.env.dev'
+  },
   confKey: 'config',
 } satisfies FastifyEnvOptions;
 

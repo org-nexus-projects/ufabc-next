@@ -1,8 +1,6 @@
 import gracefullyShutdown from 'close-with-grace';
 import { logger } from '@next/common';
 import { buildApp } from './app.js';
-import { nextWorker } from './queue/NextWorker.js';
-import { nextJobs } from './queue/NextJobs.js';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 
 import { fastify, type FastifyServerOptions } from 'fastify';
@@ -19,9 +17,8 @@ export async function start() {
     app.log.info(app.printRoutes());
   }
 
-  nextJobs.schedule('NexSubjectsSync');
-  nextJobs.schedule('NextEnrolledSync');
-  nextJobs.schedule('NextComponentsSync');
+  app.job.schedule('EnrolledSync');
+  app.job.schedule('ComponentsSync');
 
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {
     if (err) {
@@ -30,8 +27,6 @@ export async function start() {
 
     app.log.warn(signal, 'Gracefully exiting app');
 
-    await nextJobs.close();
-    await nextWorker.close();
     await app.close();
   });
 

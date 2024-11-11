@@ -1,75 +1,74 @@
-import { randomUUID } from 'node:crypto';
 import { type Job, type JobsOptions, Queue, type RedisOptions } from 'bullmq';
 import ms from 'ms';
-import { Config } from '@/config/config.js';
-import { NEXT_JOBS, NEXT_QUEUE_JOBS } from './definitions.js';
-import type { JobParameters, NextJobNames } from './NextWorker.js';
+import { JOBS, QUEUE_JOBS } from './definitions.js';
+import type { JobParameters, JobNames } from './Worker.js';
 import { FastifyAdapter } from '@bull-board/fastify';
-import type { FastifyInstance } from 'fastify';
 import { boardUiPath, createBoard } from './board.js';
+import type { FastifyInstance } from 'fastify';
 
-interface NextJob {
+interface JobImpl {
   setup(): Promise<void>;
   close(): Promise<void>;
   clean(grace: number, limit: number, type?: string): Promise<string[]>;
   cancel(jobId: string): Promise<void>;
-  dispatch<T extends NextJobNames>(
+  dispatch<T extends JobNames>(
     jobName: T,
     jobParameters: JobParameters<T>,
   ): Promise<Job>;
 }
 
-export type NextQueue = Record<
+export type QueueImpl = Record<
   string,
-  Queue<JobParameters<NextJobNames> | null, unknown, NextJobNames>
+  Queue<JobParameters<JobNames> | null, unknown, JobNames>
 >;
 
-export class NextJobs implements NextJob {
-  private readonly queues: NextQueue = {};
+export class Jobs implements JobImpl {
+  private readonly queues: QueueImpl = {};
   public readonly queueBoard = FastifyAdapter;
 
-  private readonly REDIS_URL = new URL(Config.REDIS_CONNECTION_URL!);
+  private readonly redisConfig: RedisOptions;
+  private readonly app: FastifyInstance;
 
-  private readonly RedisConnection = {
-    username: this.REDIS_URL.username,
-    password: this.REDIS_URL.password,
-    host: this.REDIS_URL.hostname,
-    port: Number(this.REDIS_URL.port),
-    lazyConnect: true,
-  } satisfies RedisOptions;
-
-  constructor() {
-    for (const queuename of Object.keys(NEXT_QUEUE_JOBS)) {
+  constructor(app: FastifyInstance, redisURL: URL) {
+    this.app = app;
+    this.redisConfig = {
+      username: redisURL.username,
+      password: redisURL.password,
+      host: redisURL.hostname,
+      port: Number(redisURL.port),
+    };
+    for (const queuename of Object.keys(QUEUE_JOBS)) {
       const queue = new Queue<
-        JobParameters<NextJobNames> | null,
+        JobParameters<JobNames> | null,
         unknown,
-        NextJobNames
+        JobNames
       >(queuename, {
         connection: {
-          ...this.RedisConnection,
+          ...this.redisConfig,
         },
         defaultJobOptions: {
-          attempts: 1,
+          attempts: 3,
+          removeOnComplete: true,
         },
       });
       this.queues[queuename] = queue;
     }
   }
 
-  private getQueue(jobName: NextJobNames) {
-    return this.queues[NEXT_JOBS[jobName].queue];
+  private getQueue(jobName: JobNames) {
+    return this.queues[JOBS[jobName].queue];
   }
 
   async setup() {
-    const isTest = Config.NODE_ENV === 'test';
+    const isTest = this.app.config.NODE_ENV === 'test';
     if (isTest) {
       return;
     }
 
-    for (const [jobname, jobDefinition] of Object.entries(NEXT_JOBS)) {
+    for (const [jobname, jobDefinition] of Object.entries(JOBS)) {
       if ('every' in jobDefinition) {
         const queue = this.queues[jobDefinition.queue];
-        await queue.add(jobname as NextJobNames, null, {
+        await queue.add(jobname as JobNames, null, {
           repeat: {
             every: ms(jobDefinition.every),
           },
@@ -78,26 +77,20 @@ export class NextJobs implements NextJob {
     }
   }
 
-  dispatch<T extends NextJobNames>(
-    jobName: T,
-    jobParameters: JobParameters<T>,
-  ) {
+  dispatch<T extends JobNames>(jobName: T, jobParameters: JobParameters<T>) {
     const jobOptions = {
-      jobId: randomUUID(),
       removeOnComplete: true,
     } satisfies JobsOptions;
 
     return this.getQueue(jobName).add(jobName, jobParameters, jobOptions);
   }
 
-  schedule<T extends NextJobNames>(
+  schedule<T extends JobNames>(
     jobName: T,
     jobParameters?: JobParameters<T>,
     { toWait, toWaitInMs }: { toWait?: string; toWaitInMs?: number } = {},
   ) {
-    const options: JobsOptions = {
-      jobId: randomUUID(),
-    };
+    const options: JobsOptions = {};
 
     if (toWait) {
       const convertedToWait = ms(toWait);
@@ -156,14 +149,12 @@ export class NextJobs implements NextJob {
     ).flat();
   }
 
-  board(app: FastifyInstance) {
-    const nextBoard = createBoard(Object.values(this.queues));
-    app.register(nextBoard.registerPlugin(), {
+  board() {
+    const bullBoard = createBoard(Object.values(this.queues));
+    this.app.register(bullBoard.registerPlugin(), {
       prefix: boardUiPath,
       basePath: boardUiPath,
       logLevel: 'silent',
     });
   }
 }
-
-export const nextJobs = new NextJobs();

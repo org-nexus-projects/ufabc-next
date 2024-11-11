@@ -110,8 +110,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           { email, ra },
           { new: true },
         );
-        const emailQueue = app.queueManager.getQueue('send:email');
-        emailQueue?.add('resend-email', user?.toJSON());
+
         return {
           ra,
           email,

@@ -3,11 +3,6 @@ import { entitiesModule } from './modules/entities/entities.module.js';
 import { publicModule } from './modules/public/public.module.js';
 import { userModule } from './modules/user/user.module.js';
 import { syncModule } from './modules/sync/sync.module.js';
-import { backOfficeModule } from './modules/backoffice/backoffice.module.js';
-import { nextJobs } from './queue/NextJobs.js';
-import { nextWorker } from './queue/NextWorker.js';
-// import { Config } from './config/config.js';
-import { httpErrorsValidator } from './config/httpErrors.js';
 import { validatorCompiler, serializerCompiler } from 'fastify-zod-openapi';
 import { fastifyAutoload } from '@fastify/autoload';
 import { join } from 'node:path';
@@ -38,8 +33,8 @@ export async function buildApp(
     options: { ...opts },
   });
 
-  // nextJobs.setup();
-  // nextWorker.setup();
+  app.worker.setup();
+  app.worker.setup();
 
   // await app.register(userModule, {
   //   prefix: '/v2',
@@ -51,9 +46,6 @@ export async function buildApp(
   //   prefix: '/v2',
   // });
   // await app.register(syncModule, {
-  //   prefix: '/v2',
-  // });
-  // await app.register(backOfficeModule, {
   //   prefix: '/v2',
   // });
 

@@ -1,11 +1,12 @@
-import { QueueManager, type QueueContext } from '@/lib/queue.server.js';
-import { EMAIL_QUEUE, emailProcessor } from '@/queue/email.queue.js';
-import type { FastifyInstance } from 'fastify';
+import { QueueWorker } from '@/queue/Worker.js';
+import { Jobs } from '@/queue/Job.js';
 import { fastifyPlugin as fp } from 'fastify-plugin';
+import type { FastifyInstance } from 'fastify';
 
 declare module 'fastify' {
   export interface FastifyInstance {
-    queueManager: QueueManager;
+    worker: QueueWorker;
+    job: Jobs;
   }
 }
 
@@ -17,16 +18,17 @@ export const autoConfig = (app: FastifyInstance) => {
 
 export default fp(
   async (app, opts: { redisURL: URL }) => {
-    const queueManager = new QueueManager(app, opts.redisURL);
-
-    // @ts-ignore for now
-    queueManager.createQueue(EMAIL_QUEUE, emailProcessor);
+    const worker = new QueueWorker(app, opts.redisURL);
+    const jobs = new Jobs(app, opts.redisURL);
 
     app.addHook('onClose', async () => {
-      await queueManager.closeAll();
+      await worker.close();
+      await jobs.close();
     });
 
-    app.decorate('queueManager', queueManager);
+    app.decorate('worker', worker);
+    app.decorate('job', jobs);
+
     app.log.info('[QUEUE] registered');
   },
   { name: 'queue' },
