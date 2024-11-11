@@ -42,7 +42,7 @@ export const SessionUserSchema = z.object({
   studentId: z.string().refine((val) => Types.ObjectId.isValid(val)),
   ra: z.number().optional(),
   email: z.string().email().optional(),
-  oauth: OauthSchema,
+  oauth: z.any().default(OauthSchema),
   permissions: z.string().array().default([]),
   createdAt: z.date(),
   active: z.boolean().openapi({ description: 'Estado da conta do usuário' }),

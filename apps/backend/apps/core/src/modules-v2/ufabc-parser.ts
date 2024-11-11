@@ -13,7 +13,7 @@ export type UfabcParserComponent = {
   courses: Array<{
     name: string | '-';
     UFCourseId: number;
-    category: 'limitada' | 'obrigatoria' | 'livre';
+    category: 'limitada' | 'obrigatoria';
   }>;
   vacancies: number;
   hours: Record<string, { periodicity: string; classPeriod: string[] }>[];

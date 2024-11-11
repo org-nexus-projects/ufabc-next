@@ -61,11 +61,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         studentId: user._id.toJSON(),
         active: user.active,
         confirmed: user.confirmed,
-        createdAt: user._id.getTimestamp().toString(),
+        createdAt: user._id.getTimestamp(),
         oauth: user.oauth,
         permissions: user.permissions,
         ra: user.ra,
-        studentEmail: user.email,
+        email: user.email,
       };
 
       await request.session.save();

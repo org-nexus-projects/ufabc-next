@@ -24,7 +24,12 @@ function createToken(text: string) {
   return `${iv.toString('hex')}:${encrypted.toString('hex')}`;
 }
 
-export async function sendConfirmationEmail(data: User) {
+type Result = {
+  sentTo: string;
+  messageId?: string;
+};
+
+export async function sendConfirmationEmail(data: User): Promise<Result> {
   const emailTemplate = Config.MAILER_CONFIG.EMAIL_CONFIRMATION_TEMPLATE;
 
   if (!data.email) {
@@ -40,14 +45,10 @@ export async function sendConfirmationEmail(data: User) {
   };
 
   try {
-    await sesSendEmail(data, emailTemplate, emailRequest);
-    logger.info({
-      msg: '[QUEUE] email sent',
-      data,
-    });
+    const response = await sesSendEmail(data, emailTemplate, emailRequest);
     return {
-      dataId: `Returned value ${data.ra}`,
-      data,
+      sentTo: `Returned value ${data.ra}`,
+      messageId: response?.MessageId,
     };
   } catch (error) {
     logger.error({ error }, 'Error Sending email');

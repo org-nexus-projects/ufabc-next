@@ -6,8 +6,6 @@ import { updateTeachers } from './jobs/teacherUpdate.js';
 import { syncComponents } from './jobs/syncComponents.js';
 import type { WorkerOptions } from 'bullmq';
 
-type QueueDefinition = Record<string, WorkerOptions>;
-
 const MONTH = 60 * 60 * 24 * 30;
 
 export const QUEUE_JOBS = {
@@ -49,19 +47,9 @@ export const QUEUE_JOBS = {
   'sync:components': {
     concurrency: 1,
   },
-} as const satisfies QueueDefinition;
+} as const;
 
-type JobsDefinition = Record<
-  string,
-  {
-    queue: keyof typeof QUEUE_JOBS;
-    // TODO: remove any
-    handler: (params: any) => Promise<unknown>;
-    every?: string;
-  }
->;
-
-export const REGISTERED_JOBS = {
+export const JOBS = {
   SendEmail: {
     queue: 'send:email',
     handler: sendConfirmationEmail,
@@ -88,4 +76,6 @@ export const REGISTERED_JOBS = {
     queue: 'teacher:updateEnrollments',
     handler: updateTeachers,
   },
-} as const satisfies JobsDefinition;
+} as const;
+
+export type QueueNames = keyof typeof QUEUE_JOBS;
