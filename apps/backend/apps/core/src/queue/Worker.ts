@@ -4,7 +4,7 @@ import {
   Worker,
   type WorkerOptions,
 } from 'bullmq';
-import { JOBS, QUEUE_JOBS } from './definitions.js';
+import { REGISTERED_JOBS, QUEUE_JOBS } from './definitions.js';
 import type { FastifyInstance } from 'fastify';
 
 export type QueueContext = Job<JobReturnData, any, JobNames> & {
@@ -12,11 +12,11 @@ export type QueueContext = Job<JobReturnData, any, JobNames> & {
   app: FastifyInstance;
 };
 
-export type JobNames = keyof typeof JOBS;
+export type JobNames = keyof typeof REGISTERED_JOBS;
 export type JobParameters<T extends JobNames> = Parameters<
-  (typeof JOBS)[T]['handler']
+  (typeof REGISTERED_JOBS)[T]['handler']
 >[0];
-export type JobFn<T extends JobNames> = (typeof JOBS)[T]['handler'];
+export type JobFn<T extends JobNames> = (typeof REGISTERED_JOBS)[T]['handler'];
 export type JobReturnData = Awaited<ReturnType<JobFn<JobNames>>>;
 
 export class QueueWorker {
@@ -88,24 +88,23 @@ export class QueueWorker {
     await Promise.all(workersToClose.map((worker) => worker.close()));
   }
 
-  private WorkerHandler(job: Job<any, JobReturnData, JobNames>) {
-    const handlers = JOBS[job.name].handler;
-    const processor = this.WorkerProcessor(job.name, handlers);
-    return processor(job.data);
+  private WorkerHandler(ctx: QueueContext) {
+    const handlers = REGISTERED_JOBS[ctx.name].handler;
+    const processor = this.WorkerProcessor(ctx.name, handlers);
+    return processor(ctx);
   }
 
   private WorkerProcessor<T extends JobNames>(
-    jobName: string,
+    jobName: JobNames,
     handler: JobFn<T>,
   ) {
-    const processor = async (jobParameters: JobParameters<T>) => {
+    const processor = async (ctx: QueueContext) => {
       try {
-        // @ts-expect-error
-        const response = await handler(jobParameters);
+        const response = await handler(ctx);
         return response;
       } catch (error) {
         this.app.log.error(error, `[QUEUE] Job ${jobName} failed`, {
-          parameters: jobParameters,
+          parameters: ctx.data,
         });
         throw error;
       }

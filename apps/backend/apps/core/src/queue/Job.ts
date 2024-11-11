@@ -1,6 +1,6 @@
 import { type Job, type JobsOptions, Queue, type RedisOptions } from 'bullmq';
 import ms from 'ms';
-import { JOBS, QUEUE_JOBS } from './definitions.js';
+import { REGISTERED_JOBS, QUEUE_JOBS } from './definitions.js';
 import type { JobParameters, JobNames } from './Worker.js';
 import { FastifyAdapter } from '@bull-board/fastify';
 import { boardUiPath, createBoard } from './board.js';
@@ -56,7 +56,7 @@ export class Jobs implements JobImpl {
   }
 
   private getQueue(jobName: JobNames) {
-    return this.queues[JOBS[jobName].queue];
+    return this.queues[REGISTERED_JOBS[jobName].queue];
   }
 
   async setup() {
@@ -65,7 +65,7 @@ export class Jobs implements JobImpl {
       return;
     }
 
-    for (const [jobname, jobDefinition] of Object.entries(JOBS)) {
+    for (const [jobname, jobDefinition] of Object.entries(REGISTERED_JOBS)) {
       if ('every' in jobDefinition) {
         const queue = this.queues[jobDefinition.queue];
         await queue.add(jobname as JobNames, null, {

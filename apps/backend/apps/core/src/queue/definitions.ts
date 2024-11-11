@@ -61,7 +61,7 @@ type JobsDefinition = Record<
   }
 >;
 
-export const JOBS = {
+export const REGISTERED_JOBS = {
   SendEmail: {
     queue: 'send:email',
     handler: sendConfirmationEmail,
