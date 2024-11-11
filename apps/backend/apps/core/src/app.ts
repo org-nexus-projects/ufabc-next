@@ -38,8 +38,8 @@ export async function buildApp(
     options: { ...opts },
   });
 
-  nextJobs.setup();
-  nextWorker.setup();
+  // nextJobs.setup();
+  // nextWorker.setup();
 
   // await app.register(userModule, {
   //   prefix: '/v2',

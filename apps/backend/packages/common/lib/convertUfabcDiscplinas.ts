@@ -5,7 +5,7 @@ import latinize from 'latinize';
 
 export type Disciplina = {
   nome: string;
-  id: string;
+  id: number;
   obrigatorias: number[];
   obrigatoriedades: Array<{
     curso_id: number;
@@ -20,7 +20,7 @@ export type Disciplina = {
       }[];
   turma: string;
   disciplina: string;
-  disciplina_id: string;
+  disciplina_id: number;
   teoria: string | null;
   pratica: string | null;
 };

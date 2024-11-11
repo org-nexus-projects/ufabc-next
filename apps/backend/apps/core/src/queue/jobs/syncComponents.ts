@@ -1,4 +1,4 @@
-import { ComponentModel, type Component } from '@/models/Component.js';
+'import { ComponentModel, type Component } from '@/models/Component.js';
 import { SubjectModel } from '@/models/Subject.js';
 import { ufProcessor } from '@/services/ufprocessor.js';
 import { currentQuad, generateIdentifier, logger } from '@next/common';

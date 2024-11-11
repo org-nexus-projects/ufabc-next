@@ -50,6 +50,7 @@
     "ms": "^2.1.3",
     "ofetch": "^1.3.4",
     "string-similarity": "^4.0.4",
+    "ts-cache-mongoose": "^1.6.6",
     "ua-parser-js": "^1.0.38",
     "unstorage": "^1.10.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz",
