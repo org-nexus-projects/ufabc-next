@@ -5,6 +5,7 @@ import {
   type Auth,
 } from '@/schemas/auth.js';
 import {
+  confirmUserSchema,
   deactivateUserSchema,
   loginFacebookSchema,
   resendEmailSchema,
@@ -57,19 +58,17 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         return reply.notFound('User not found');
       }
 
-      request.session.user = {
-        studentId: user._id.toJSON(),
-        active: user.active,
-        confirmed: user.confirmed,
-        createdAt: user._id.getTimestamp(),
-        oauth: user.oauth,
-        permissions: user.permissions,
-        ra: user.ra,
-        email: user.email,
-      };
+      const jwtToken = app.jwt.sign(
+        {
+          studentId: user._id.toJSON(),
+          active: user.active,
+          confirmed: user.confirmed,
+          email: user.email,
+        },
+        { expiresIn: '2d' },
+      );
 
-      await request.session.save();
-      return { success: true };
+      return { success: true, token: jwtToken };
     },
   );
 
@@ -87,12 +86,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         return reply.notFound('User Not Found');
       }
 
-      const emailQueue = app.queueManager.getQueue('send:email');
-
-      emailQueue?.add('resend-email', {
-        app,
-        job: user,
-      });
+      app.job.dispatch('SendEmail', user.toJSON());
 
       return { message: 'E-mail enviado com sucesso' };
     },
@@ -118,6 +112,46 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       } catch {
         return reply.internalServerError('Could not complete user');
       }
+    },
+  );
+
+  app.post(
+    '/confirm',
+    { schema: confirmUserSchema },
+    async (request, reply) => {
+      const { token } = request.body;
+      const notConfirmedUser = await app.verifyToken(
+        token,
+        app.config.JWT_SECRET,
+      );
+      if (!notConfirmedUser) {
+        return reply.badRequest('Invalid token');
+      }
+      const { email } = JSON.parse(notConfirmedUser) as { email: string };
+      const user = await UserModel.findOne({
+        email,
+      });
+      if (!user) {
+        return reply.notFound('User not found');
+      }
+
+      user.confirmed = true;
+
+      const confirmedUser = await user.save();
+
+      const jwtToken = app.jwt.sign(
+        {
+          studentId: confirmedUser._id.toJSON(),
+          active: confirmedUser.active,
+          confirmed: confirmedUser.confirmed,
+          email: confirmedUser.email,
+        },
+        { expiresIn: '7d' },
+      );
+
+      return {
+        token: jwtToken,
+      };
     },
   );
 

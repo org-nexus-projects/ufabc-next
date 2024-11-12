@@ -1,26 +1,33 @@
-import { type Job, type JobsOptions, Queue, type RedisOptions } from 'bullmq';
+import { type JobsOptions, Queue, type RedisOptions } from 'bullmq';
 import ms from 'ms';
 import { JOBS, QUEUE_JOBS, type QueueNames } from './definitions.js';
 import { FastifyAdapter } from '@bull-board/fastify';
 import { boardUiPath, createBoard } from './board.js';
 import type { FastifyInstance } from 'fastify';
-import type { JobData, JobNames, JobResult } from './types.js';
+import type {
+  JobDataType,
+  JobNames,
+  JobResultType,
+  TypeSafeQueue,
+} from './types.js';
 
 interface JobImpl {
   setup(): Promise<void>;
   close(): Promise<void>;
   clean(grace: number, limit: number, type?: string): Promise<string[]>;
   cancel(jobId: string): Promise<void>;
-  dispatch<T extends JobNames>(
-    jobName: T,
-    jobParameters: JobData<T>,
-  ): Promise<Job<JobData<T>, JobResult<T>, T>>;
 }
 
-export type QueueImpl = Record<QueueNames, Queue<any, any, JobNames>>;
+export type QueueImpl = Record<
+  QueueNames,
+  Queue<JobDataType<JobNames>, JobResultType<JobNames>, JobNames>
+>;
 
 export class Jobs implements JobImpl {
-  private readonly queues: QueueImpl = {} as QueueImpl;
+  private readonly queues: Record<QueueNames, TypeSafeQueue> = {} as Record<
+    QueueNames,
+    TypeSafeQueue
+  >;
   public readonly queueBoard = FastifyAdapter;
 
   private readonly redisConfig: RedisOptions;
@@ -35,31 +42,28 @@ export class Jobs implements JobImpl {
       port: Number(redisURL.port),
     };
     for (const name of Object.keys(QUEUE_JOBS) as QueueNames[]) {
-      const queue = new Queue<JobData<JobNames>, JobResult<JobNames>, JobNames>(
-        name,
-        {
-          connection: {
-            ...this.redisConfig,
-          },
-          defaultJobOptions: {
-            attempts: 3,
-            removeOnComplete: true,
-          },
+      const queue = new Queue<
+        JobDataType<JobNames>,
+        JobResultType<JobNames>,
+        JobNames
+      >(name, {
+        connection: {
+          ...this.redisConfig,
         },
-      );
+        defaultJobOptions: {
+          attempts: 3,
+          removeOnComplete: true,
+        },
+      });
 
       this.queues[name] = queue;
     }
   }
 
-  private getQueue<T extends JobNames>(
-    jobName: T,
-  ): Queue<JobData<T>, JobResult<T>, T> {
-    return this.queues[JOBS[jobName].queue] as Queue<
-      JobData<T>,
-      JobResult<T>,
-      T
-    >;
+  private getQueue<TData, TResult>(
+    jobName: JobNames,
+  ): TypeSafeQueue<TData, TResult> {
+    return this.queues[JOBS[jobName].queue] as TypeSafeQueue<TData, TResult>;
   }
 
   async setup() {
@@ -71,16 +75,23 @@ export class Jobs implements JobImpl {
     for (const [name, jobDefinition] of Object.entries(JOBS)) {
       if ('every' in jobDefinition) {
         const queue = this.queues[jobDefinition.queue];
-        await queue.add(name as JobNames, null, {
-          repeat: {
-            every: ms(jobDefinition.every),
+        await queue.add(
+          name as JobNames,
+          { app: this.app },
+          {
+            repeat: {
+              every: ms(jobDefinition.every),
+            },
           },
-        });
+        );
       }
     }
   }
 
-  dispatch<T extends JobNames>(jobName: T, jobParameters: JobData<T>) {
+  dispatch<T extends JobNames>(
+    jobName: T,
+    jobParameters: Omit<JobDataType<T>, 'app'>,
+  ) {
     const jobOptions = {
       removeOnComplete: true,
     } satisfies JobsOptions;
@@ -90,7 +101,7 @@ export class Jobs implements JobImpl {
 
   schedule<T extends JobNames>(
     jobName: T,
-    jobParameters: JobData<T>,
+    jobParameters: Omit<JobDataType<T>, 'app'>,
     { toWait, toWaitInMs }: { toWait?: string; toWaitInMs?: number } = {},
   ) {
     const options: JobsOptions = {};

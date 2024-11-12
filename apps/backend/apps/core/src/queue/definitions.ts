@@ -1,10 +1,9 @@
-import { sendConfirmationEmail } from './jobs/email.js';
+import { sendConfirmationEmail } from './jobs/email.job.js';
 import { updateEnrollments } from './jobs/enrollmentsUpdate.js';
 import { syncEnrolled } from './jobs/syncEnrolled.js';
 import { updateTeachers } from './jobs/teacherUpdate.js';
 // import { updateUserEnrollments } from './jobs/userEnrollmentsUpdate.js';
-import { syncComponents } from './jobs/syncComponents.js';
-import type { WorkerOptions } from 'bullmq';
+import { syncComponents } from './jobs/components.job.js';
 
 const MONTH = 60 * 60 * 24 * 30;
 

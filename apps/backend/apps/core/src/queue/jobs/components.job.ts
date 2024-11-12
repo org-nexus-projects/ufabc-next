@@ -4,11 +4,19 @@ import { getComponents } from '@/modules-v2/ufabc-parser.js';
 import { currentQuad, generateIdentifier } from '@next/common';
 import { camelCase, startCase } from 'lodash-es';
 import type { AnyBulkWriteOperation } from 'mongoose';
-import type { QueueContext } from '../Worker.js';
+import type { QueueContext } from '../types.js';
 
 export const COMPONENTS_QUEUE = 'sync_components_queue';
 
-export async function syncComponents({ app }: QueueContext) {
+type Result = {
+  status: 'ok';
+  modified: number;
+  inserted: number;
+};
+
+export async function syncComponents({
+  app,
+}: QueueContext<any>): Promise<Result | undefined> {
   const tenant = currentQuad();
   const [year, quad] = tenant.split(':');
   const parserComponents = await getComponents();
@@ -133,10 +141,9 @@ export async function syncComponents({ app }: QueueContext) {
     try {
       const result = await ComponentModel.bulkWrite(componentBulkOperations);
       return {
-        msg: 'components updated/created',
-        modifiedCount: result.modifiedCount,
-        insertedCount: result.insertedCount,
-        upsertedCount: result.upsertedCount,
+        status: 'ok',
+        inserted: result.insertedCount,
+        modified: result.modifiedCount,
       };
     } catch (error) {
       app.log.error({ error }, 'Error updating components');

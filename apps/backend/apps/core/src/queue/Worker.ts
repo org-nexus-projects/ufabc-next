@@ -1,21 +1,15 @@
-import {
-  type Job,
-  type RedisOptions,
-  Worker,
-  type WorkerOptions,
-} from 'bullmq';
+import { type RedisOptions, Worker, type WorkerOptions } from 'bullmq';
 import { JOBS, QUEUE_JOBS } from './definitions.js';
 import type { FastifyInstance } from 'fastify';
 import type {
-  JobData,
   JobNames,
-  JobResult,
+  JobResultType,
   QueueContext,
   TypeSafeWorker,
 } from './types.js';
 
 export class QueueWorker {
-  private workers: Partial<Record<JobNames, TypeSafeWorker<JobNames>>> = {};
+  private workers: Partial<Record<JobNames, TypeSafeWorker>> = {};
   private readonly app: FastifyInstance;
   private readonly redisConfig: RedisOptions;
 
@@ -45,17 +39,14 @@ export class QueueWorker {
         },
         ...settings,
       };
-      const worker = new Worker<
-        JobData<typeof name>,
-        JobResult<typeof name>,
-        typeof name
-      >(
+      const worker = new Worker<unknown, unknown, JobNames>(
         name,
         async (job) => {
-          const processorData = {
-            ...job,
+          // @ts-ignore
+          const processorData: QueueContext = {
+            job,
             app: this.app,
-          } as QueueContext<typeof name>;
+          };
 
           const processor = await this.WorkerHandler(processorData);
           return processor;
@@ -70,7 +61,7 @@ export class QueueWorker {
   }
 
   private buildWorkerEvents(
-    worker: TypeSafeWorker<JobNames>,
+    worker: Worker<unknown, unknown, JobNames>,
     queueName: string,
   ) {
     worker.on('error', (error) => {
@@ -98,25 +89,23 @@ export class QueueWorker {
     await Promise.all(workersToClose.map((worker) => worker.close()));
   }
 
-  private WorkerHandler<T extends JobNames>(ctx: QueueContext<T>) {
-    const handlers = JOBS[ctx.name].handler as (
-      ctx: QueueContext<T>,
-    ) => Promise<JobResult<T>>;
-    const processor = this.WorkerProcessor(ctx.name, handlers);
+  private WorkerHandler<TData>(ctx: QueueContext<TData>) {
+    const handlers = JOBS[ctx.job.name].handler;
+    const processor = this.WorkerProcessor(ctx.job.name, handlers);
     return processor(ctx);
   }
 
-  private WorkerProcessor<T extends JobNames>(
-    jobName: T,
-    handler: (ctx: QueueContext<T>) => Promise<JobResult<T>>,
+  private WorkerProcessor<TData>(
+    jobName: JobNames,
+    handler: (ctx: QueueContext<TData>) => Promise<JobResultType<JobNames>>,
   ) {
-    const processor = async (ctx: QueueContext<T>) => {
+    const processor = async (ctx: QueueContext<TData>) => {
       try {
-        const response = await handler(ctx.data);
+        const response = await handler(ctx);
         return response;
       } catch (error) {
         this.app.log.error(error, `[QUEUE] Job ${jobName} failed`, {
-          parameters: ctx.data,
+          parameters: ctx.job.data,
         });
         throw error;
       }

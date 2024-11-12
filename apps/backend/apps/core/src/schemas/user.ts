@@ -55,6 +55,24 @@ export const loginFacebookSchema = {
           schema: z.object({
             success: z.boolean(),
             message: z.string().optional(),
+            token: z.string(),
+          }),
+        },
+      },
+    },
+  },
+} satisfies FastifyZodOpenApiSchema;
+
+export const confirmUserSchema = {
+  body: z.object({
+    token: z.string(),
+  }),
+  response: {
+    200: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            token: z.string(),
           }),
         },
       },
