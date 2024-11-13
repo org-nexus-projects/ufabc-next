@@ -2,26 +2,10 @@ import { fastifyPlugin as fp } from 'fastify-plugin';
 import {
   createCipheriv,
   createDecipheriv,
+  createHash,
   randomBytes,
-  scryptSync,
 } from 'node:crypto';
-import { promisify } from 'node:util';
-
-const ALGORITHM = 'aes-256-gcm';
-const IV_LENGTH = 12;
-const AUTH_TAG_LENGTH = 16;
-const SALT_LENGTH = 16;
-const KEY_LENGTH = 32;
-
-const SCRYPT_COST = 16384;
-const SCRYPT_BLOCK_SIZE = 8;
-const SCRYPT_PARALLELIZATION = 1;
-const SCRYPT_MAXMEM = 64 * 1024 * 1024; // 64MB max memory
-
-type TokenData = {
-  data: string;
-  expiresAt: number;
-};
+import type { FastifyInstance } from 'fastify';
 
 declare module 'fastify' {
   export interface FastifyInstance {
@@ -30,91 +14,98 @@ declare module 'fastify' {
   }
 }
 
-const scryptAsync = promisify(scryptSync);
+type TokenPayload = {
+  data: string;
+  expiresAt: number;
+};
 
-async function generateKey(secret: string, salt: Buffer): Promise<Buffer> {
-  return scryptAsync(secret, salt, KEY_LENGTH, {
-    cost: SCRYPT_COST,
-    blockSize: SCRYPT_BLOCK_SIZE,
-    parallelization: SCRYPT_PARALLELIZATION,
-    maxmem: SCRYPT_MAXMEM,
-  }) as unknown as Buffer;
-}
-
-async function createToken(data: string, ttlSeconds: number, secret: string) {
-  try {
-    const salt = randomBytes(SALT_LENGTH);
-    const key = await generateKey(secret, salt);
-
-    const iv = randomBytes(IV_LENGTH);
-    const cipher = createCipheriv(ALGORITHM, key, iv, {
-      authTagLength: AUTH_TAG_LENGTH,
-    });
-
-    const tokenData: TokenData = {
-      data,
-      expiresAt: Date.now() + ttlSeconds * 1000,
-    };
-
-    const encrypted = Buffer.concat([
-      cipher.update(JSON.stringify(tokenData), 'utf8'),
-      cipher.final(),
-    ]);
-
-    const authTag = cipher.getAuthTag();
-
-    const token = Buffer.concat([
-      salt, // 16 bytes
-      iv, // 12 bytes
-      authTag, // 16 bytes
-      encrypted, // variable length
-    ]);
-
-    return token.toString('base64url');
-  } catch (error) {
-    throw new Error('Token creation failed');
+function createToken(
+  text: string,
+  config: FastifyInstance['config'],
+  ttlSeconds = 3600,
+): string {
+  // Validate inputs
+  if (!text || typeof text !== 'string') {
+    throw new Error('Invalid input: text must be a non-empty string');
   }
+  if (!Number.isInteger(ttlSeconds) || ttlSeconds <= 0) {
+    throw new Error('Invalid TTL: must be a positive integer');
+  }
+
+  const ALGORITHM = 'aes-256-gcm';
+  const IV_LENGTH = 12;
+  const AUTH_TAG_LENGTH = 16;
+
+  const key = createHash('sha256').update(config.JWT_SECRET).digest();
+
+  const payload: TokenPayload = {
+    data: text,
+    expiresAt: Math.floor(Date.now() / 1000) + ttlSeconds,
+  };
+
+  // Generate random IV
+  const iv = randomBytes(IV_LENGTH);
+
+  const cipher = createCipheriv(ALGORITHM, key, iv, {
+    authTagLength: AUTH_TAG_LENGTH,
+  });
+
+  const jsonPayload = JSON.stringify(payload);
+  const encrypted = Buffer.concat([
+    cipher.update(jsonPayload, 'utf8'),
+    cipher.final(),
+  ]);
+
+  const authTag = cipher.getAuthTag();
+
+  const tokenComponents = {
+    iv: iv.toString('base64'),
+    data: encrypted.toString('base64'),
+    tag: authTag.toString('base64'),
+  };
+
+  return Buffer.from(JSON.stringify(tokenComponents)).toString('base64');
 }
 
-async function verifyToken(
-  token: string,
-  secret: string,
-): Promise<string | null> {
+function verifyToken(token: string, config: FastifyInstance['config']): string {
   try {
-    const tokenBuffer = Buffer.from(token, 'base64url');
+    // Decode token components
+    const components = JSON.parse(
+      Buffer.from(token, 'base64').toString('utf8'),
+    ) as { iv: string; data: string; tag: string };
 
-    const salt = tokenBuffer.subarray(0, SALT_LENGTH);
-    const iv = tokenBuffer.subarray(SALT_LENGTH, SALT_LENGTH + IV_LENGTH);
-    const authTag = tokenBuffer.subarray(
-      SALT_LENGTH + IV_LENGTH,
-      SALT_LENGTH + IV_LENGTH + AUTH_TAG_LENGTH,
+    // Validate token structure
+    if (!components.iv || !components.data || !components.tag) {
+      throw new Error('Invalid token structure');
+    }
+
+    // Recreate decipher
+    const decipher = createDecipheriv(
+      'aes-256-gcm',
+      createHash('sha256').update(config.JWT_SECRET).digest(),
+      Buffer.from(components.iv, 'base64'),
     );
-    const encrypted = tokenBuffer.subarray(
-      SALT_LENGTH + IV_LENGTH + AUTH_TAG_LENGTH,
-    );
 
-    const key = await generateKey(secret, salt);
+    // Set auth tag
+    decipher.setAuthTag(Buffer.from(components.tag, 'base64'));
 
-    const decipher = createDecipheriv(ALGORITHM, key, iv, {
-      authTagLength: AUTH_TAG_LENGTH,
-    });
-    decipher.setAuthTag(authTag);
-
+    // Decrypt
     const decrypted = Buffer.concat([
-      decipher.update(encrypted),
+      decipher.update(Buffer.from(components.data, 'base64')),
       decipher.final(),
     ]);
 
-    const tokenData = JSON.parse(decrypted.toString('utf8')) as TokenData;
+    // Parse payload
+    const payload = JSON.parse(decrypted.toString('utf8')) as TokenPayload;
 
     // Check expiration
-    if (tokenData.expiresAt < Date.now()) {
-      return null;
+    if (payload.expiresAt < Math.floor(Date.now() / 1000)) {
+      throw new Error('Token has expired');
     }
 
-    return tokenData.data;
+    return payload.data;
   } catch (error) {
-    return null;
+    throw new Error('Invalid or expired token');
   }
 }
 
@@ -122,6 +113,8 @@ export default fp(
   async (app) => {
     app.decorate('createToken', createToken);
     app.decorate('verifyToken', verifyToken);
+
+    app.log.warn('[PLUGIN] registered tokens plugin');
   },
   {
     name: 'token-generator',

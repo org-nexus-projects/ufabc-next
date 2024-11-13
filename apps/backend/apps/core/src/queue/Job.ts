@@ -101,7 +101,7 @@ export class Jobs implements JobImpl {
 
   schedule<T extends JobNames>(
     jobName: T,
-    jobParameters: Omit<JobDataType<T>, 'app'>,
+    jobParameters?: Omit<JobDataType<T>, 'app'>,
     { toWait, toWaitInMs }: { toWait?: string; toWaitInMs?: number } = {},
   ) {
     const options: JobsOptions = {};

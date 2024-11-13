@@ -72,25 +72,23 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     },
   );
 
-  app.post(
-    '/resend',
-    { schema: resendEmailSchema },
-    async ({ session }, reply) => {
-      const user = await UserModel.findOne({
-        _id: session.user.studentId,
-        active: true,
-        confirmed: false,
-      });
+  app.post('/resend', { schema: resendEmailSchema }, async (request, reply) => {
+    const decodedUser = request.jwtDecode();
 
-      if (!user) {
-        return reply.notFound('User Not Found');
-      }
+    const user = await UserModel.findOne({
+      _id: decodedUser.studentId,
+      active: true,
+      confirmed: false,
+    });
 
-      app.job.dispatch('SendEmail', user.toJSON());
+    if (!user) {
+      return reply.notFound('User Not Found');
+    }
 
-      return { message: 'E-mail enviado com sucesso' };
-    },
-  );
+    app.job.dispatch('SendEmail', user.toJSON());
+
+    return { message: 'E-mail enviado com sucesso' };
+  });
 
   app.put(
     '/complete',
@@ -105,9 +103,15 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           { new: true },
         );
 
+        if (!user) {
+          return reply.badRequest('Malformed token');
+        }
+
+        app.job.dispatch('SendEmail', user.toJSON());
+
         return {
-          ra,
-          email,
+          ra: user?.ra,
+          email: user?.email,
         };
       } catch {
         return reply.internalServerError('Could not complete user');
@@ -120,10 +124,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     { schema: confirmUserSchema },
     async (request, reply) => {
       const { token } = request.body;
-      const notConfirmedUser = await app.verifyToken(
-        token,
-        app.config.JWT_SECRET,
-      );
+      const notConfirmedUser = app.verifyToken(token, app.config);
+
       if (!notConfirmedUser) {
         return reply.badRequest('Invalid token');
       }

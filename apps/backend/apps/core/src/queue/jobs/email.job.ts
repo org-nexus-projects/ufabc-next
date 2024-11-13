@@ -1,4 +1,3 @@
-import { logger } from '@next/common';
 import { sesSendEmail } from '@/services/ses.js';
 import { Config } from '@/config/config.js';
 import type { User } from '@/models/User.js';
@@ -18,26 +17,24 @@ export async function sendConfirmationEmail(
     throw new Error('Email not found');
   }
 
-  const token = await ctx.app.createToken(
-    JSON.stringify({ email: data.email }),
-    3_600,
-    ctx.app.config.JWT_SECRET,
-  );
-  const emailRequest = {
-    recipient: data?.email,
-    body: {
-      url: `${ctx.app.config.WEB_URL}/confirm?token=${token}`,
-    },
-  };
-
   try {
+    const token = await ctx.app.createToken(
+      JSON.stringify({ email: data.email }),
+      ctx.app.config,
+    );
+    const emailRequest = {
+      recipient: data?.email,
+      body: {
+        url: `${ctx.app.config.WEB_URL}/confirm?token=${token}`,
+      },
+    };
     const response = await sesSendEmail(data, emailTemplate, emailRequest);
     return {
       sentTo: `Returned value ${data.ra}`,
       messageId: response?.MessageId,
     };
   } catch (error) {
-    logger.error({ error }, 'Error Sending email');
+    ctx.app.log.error({ error }, 'Error Sending email');
     throw error;
   }
 }

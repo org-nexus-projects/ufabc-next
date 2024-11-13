@@ -1,5 +1,5 @@
 import { orderBy as LodashOrderBy } from 'lodash-es';
-import { Component, ComponentModel } from '@/models/Component.js';
+import { type Component, ComponentModel } from '@/models/Component.js';
 import { StudentModel } from '@/models/Student.js';
 import type { SubjectDocument } from '@/models/Subject.js';
 import type { TeacherDocument } from '@/models/Teacher.js';
@@ -147,8 +147,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     ];
 
     const interCourseIds = courses
-    .filter(({ _id: name }) => interCourses.includes(name))
-    .flatMap(({ ids }) => ids)
+      .filter(({ _id: name }) => interCourses.includes(name))
+      .flatMap(({ ids }) => ids);
 
     const obrigatorias = getObrigatoriasFromComponents(
       component.obrigatorias,
@@ -168,18 +168,22 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         curso: student.cursos.nome_curso,
         ...(kickedInfo || {}),
       };
-  
+
       return graduationToStudent;
     });
 
-    const sortedStudents = LodashOrderBy(studentsWithGraduation, kicks, kicksOrder);
-    
+    const sortedStudents = LodashOrderBy(
+      studentsWithGraduation,
+      kicks,
+      kicksOrder,
+    );
+
     const uniqueStudents = Array.from(
       new Map(
         sortedStudents.map((student) => [student.studentId, student]),
       ).values(),
     );
-  
+
     return uniqueStudents;
   });
 };
@@ -232,7 +236,6 @@ function resolveEnrolled(component: Component, isAfterKick: boolean) {
     kicked: kicked.includes(id),
   }));
 }
-
 
 /**
  * @description this code is incorrect, since currently we save ids

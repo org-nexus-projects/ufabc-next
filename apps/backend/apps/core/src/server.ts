@@ -17,8 +17,8 @@ export async function start() {
     app.log.info(app.printRoutes());
   }
 
-  app.job.schedule('EnrolledSync');
-  app.job.schedule('ComponentsSync');
+  // app.job.schedule('EnrolledSync');
+  // app.job.schedule('ComponentsSync');
 
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {
     if (err) {

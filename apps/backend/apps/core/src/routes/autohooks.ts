@@ -16,6 +16,8 @@ export default async function (app: FastifyInstance) {
 
     try {
       await request.jwtVerify();
+      const decoded = await request.jwtDecode();
+      app.log.warn(decoded);
     } catch (error) {
       return reply.unauthorized(
         'You must be authenticated to access this route.',

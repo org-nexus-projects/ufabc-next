@@ -40,8 +40,8 @@ const OauthSchema = z.object({
 
 export const SessionUserSchema = z.object({
   studentId: z.string().refine((val) => Types.ObjectId.isValid(val)),
-  ra: z.number().optional(),
-  email: z.string().email().optional(),
+  ra: z.number().optional().nullable(),
+  email: z.string().email().nullable(),
   oauth: z.any().default(OauthSchema),
   permissions: z.string().array().default([]),
   createdAt: z.date(),

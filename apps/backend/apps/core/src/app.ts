@@ -3,7 +3,11 @@ import { entitiesModule } from './modules/entities/entities.module.js';
 import { publicModule } from './modules/public/public.module.js';
 import { userModule } from './modules/user/user.module.js';
 import { syncModule } from './modules/sync/sync.module.js';
-import { validatorCompiler, serializerCompiler } from 'fastify-zod-openapi';
+import {
+  validatorCompiler,
+  serializerCompiler,
+  RequestValidationError,
+} from 'fastify-zod-openapi';
 import { fastifyAutoload } from '@fastify/autoload';
 import { join } from 'node:path';
 
@@ -49,6 +53,20 @@ export async function buildApp(
   //   prefix: '/v2',
   // });
 
+  app.setErrorHandler((error, request, reply) => {
+    if (error.validation) {
+      const zodValidationErrors = error.validation.filter(
+        (err) => err instanceof RequestValidationError,
+      );
+      const zodIssues = zodValidationErrors.map((err) => err.params.issue);
+      const originalError = zodValidationErrors?.[0]?.params.error;
+      return reply.status(422).send({
+        zodIssues,
+        originalError,
+      });
+    }
+  });
+
   app.setErrorHandler((err, request, _reply) => {
     app.log.error(
       {
@@ -69,6 +87,17 @@ export async function buildApp(
     }
 
     return { message };
+  });
+
+  app.setSchemaErrorFormatter((errors, dataVar) => {
+    let message = `${dataVar}:`;
+    for (const error of errors) {
+      if (error instanceof RequestValidationError) {
+        message += ` ${error.instancePath} ${error.keyword}`;
+      }
+    }
+
+    return new Error(message);
   });
 
   app.setNotFoundHandler(
