@@ -137,7 +137,7 @@ const externalNavigationItems = [
   {
     title: 'Snapshot da Matrícula',
     icon: 'mdi-open-in-new',
-    url: 'https://api.ufabcnext.com/snapshot',
+    url: 'https://ufabc-matricula-snapshot.vercel.app',
   },
   {
     title: 'Grupos no WhatsApp',
