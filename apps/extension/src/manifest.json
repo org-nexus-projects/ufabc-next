@@ -18,7 +18,8 @@
     "https://*.ufabc.edu.br/*",
     "http://localhost:8011/*",
     "http://*.ufabcnext.com/*",
-    "https://*.ufabcnext.com/*"
+    "https://*.ufabcnext.com/*",
+    "https://ufabc-matricula-snapshot.vercel.app/*"
   ],
   "content_scripts": [
     {
@@ -29,7 +30,8 @@
         "https://*.ufabc.edu.br/*",
         "http://localhost:8011/*",
         "http://*.ufabcnext.com/*",
-        "https://*.ufabcnext.com/*"
+        "https://*.ufabcnext.com/*",
+        "https://ufabc-matricula-snapshot.vercel.app/*"
       ],
       "run_at": "document_end"
     }
@@ -41,7 +43,8 @@
       "https://*.ufabc.edu.br/*",
       "http://localhost:8011/*",
       "http://*.ufabcnext.com/*",
-      "https://*.ufabcnext.com/*"
+      "https://*.ufabcnext.com/*",
+      "https://ufabc-matricula-snapshot.vercel.app/*"
     ]
   },
   "action": {
@@ -74,7 +77,8 @@
         "https://*.ufabc.edu.br/*",
         "http://localhost:8011/*",
         "http://*.ufabcnext.com/*",
-        "https://*.ufabcnext.com/*"
+        "https://*.ufabcnext.com/*",
+        "https://ufabc-matricula-snapshot.vercel.app/*"
       ]
     }
   ]

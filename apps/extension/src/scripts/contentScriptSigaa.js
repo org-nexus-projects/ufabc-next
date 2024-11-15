@@ -25,7 +25,7 @@ if (isDiscentesPath && document.contains(document.querySelector('.notas'))) {
   const studentHistory = scrapeGradesConsulting();
   // todo: fazer o endpoint
   Axios.post(
-    'https://api.v2.ufabcnext.com/v2/histories/sigaa',
+    'http://localhost:5000/histories/sigaa',
     studentHistory,
     {
       timeout: 60 * 1 * 1000, // 1 minute
