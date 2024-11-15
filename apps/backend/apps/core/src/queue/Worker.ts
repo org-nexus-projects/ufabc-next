@@ -73,7 +73,7 @@ export class QueueWorker {
     });
 
     worker.on('completed', (job) => {
-      this.app.log.debug({ jobId: job.id, queueName }, 'Job completed');
+      this.app.log.info({ jobId: job.id, queueName }, 'Job completed');
     });
 
     worker.on('failed', (job, error) => {
