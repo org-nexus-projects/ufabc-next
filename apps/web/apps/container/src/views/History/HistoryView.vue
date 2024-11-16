@@ -1,24 +1,17 @@
 <template>
   <FeedbackAlert v-if="isErrorEnrollments" />
   <FeedbackAlert v-if="isErrorUser" />
-  <ReviewDialog
-    v-if="showDialog"
-    :enrollment="selectedEnrollment"
-    :showDialog="showDialog"
-    :tags="tags"
-    @update:showDialog="showDialog = $event"
-  />
+  <ReviewDialog v-if="showDialog" :enrollment="selectedEnrollment" :showDialog="showDialog" :tags="tags"
+    @update:showDialog="showDialog = $event" />
   <PaperCard title="Ficha individual do aluno" class="text-next-grey">
     <p class="mt-4">
-      Esta ficha individual é uma réplica do que você pode encontrar no site do
-      <a :href="studentRecordURL">Portal do Aluno.</a>
+      Esta ficha individual é uma réplica do que você podia encontrar no site do
+      <a :href="studentRecordURL">Portal do Aluno</a>, hoje são informações do Sigaa
     </p>
     <p class="mt-4">
       Caso o seu histórico esteja desatualizado, basta acessar o portal
       novamente utilizando a
-      <a class="text-decoration-none" :href="extensionURL"
-        >extensão do UFABC Next</a
-      >
+      <a class="text-decoration-none" :href="extensionURL">extensão do UFABC Next</a>
       e as informações serão atualizadas.
     </p>
     <p class="mt-4">
@@ -58,32 +51,15 @@
                 instalada.
               </v-card-text>
               <v-card-actions class="justify-end">
-                <v-btn
-                  color="next-light-gray"
-                  class="text-subtitle"
-                  target="_blank"
-                  :href="extensionURL"
-                  @click="handleCloseExtensionDialog"
-                  >Não tenho</v-btn
-                >
-                <v-btn
-                  color="success"
-                  class="text-subtitle"
-                  target="_blank"
-                  :href="studentRecordURL"
-                  @click="handleCloseExtensionDialog"
-                  >Já tenho instalado</v-btn
-                >
+                <v-btn color="next-light-gray" class="text-subtitle" target="_blank" :href="extensionURL"
+                  @click="handleCloseExtensionDialog">Não tenho</v-btn>
+                <v-btn color="success" class="text-subtitle" target="_blank" :href="studentRecordURL"
+                  @click="handleCloseExtensionDialog">Já tenho instalado</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
-          <v-tooltip
-            id="extension-dialog"
-            activator="parent"
-            offset="1"
-            location="bottom center"
-            >Atualizar o histórico</v-tooltip
-          >
+          <v-tooltip id="extension-dialog" activator="parent" offset="1" location="bottom center">Atualizar o
+            histórico</v-tooltip>
           <v-icon size="x-large" />
         </v-btn>
         {{
@@ -210,27 +186,15 @@
         </template>
       </TableComponent>
     </div>
-    <div
-      class="mt-5 d-flex justify-center align-center flex-column"
-      v-else-if="!isPendingEnrollments"
-    >
+    <div class="mt-5 d-flex justify-center align-center flex-column" v-else-if="!isPendingEnrollments">
       <h2 class="mb-4">
         Parece que não encontramos os dados do seu histórico :( <br />
         É necessário instalar a
-        <a :href="extensionURL" target="_blank" class="text-decoration-none"
-          >extensão</a
-        >
-        e acessar a tela de Fichas Individuais no
-        <a :href="studentRecordURL" target="_blank" class="text-decoration-none"
-          >Portal do Aluno.</a
-        >
+        <a :href="extensionURL" target="_blank" class="text-decoration-none">extensão</a>
+        e acessar a tela de Consultar Minhas Notas no
+        <a :href="studentRecordURL" target="_blank" class="text-decoration-none">Sigaa.</a>
       </h2>
-      <img
-        src="@/assets/missing_history.svg"
-        width="500"
-        height="400"
-        alt="Histórico não encontrado"
-      />
+      <img src="@/assets/missing_history.svg" width="500" height="400" alt="Histórico não encontrado" />
     </div>
     <CenteredLoading v-if="isPendingEnrollments" />
   </PaperCard>

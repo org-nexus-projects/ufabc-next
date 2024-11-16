@@ -13,4 +13,5 @@ export const conceptsColor = {
 export const extensionURL =
   'https://chrome.google.com/webstore/detail/ufabc-matricula/gphjopenfpnlnffmhhhhdiecgdcopmhk';
 
-export const studentRecordURL = 'https://aluno.ufabc.edu.br/fichas_individuais';
+export const studentRecordURL =
+  'https://sig.ufabc.edu.br/sigaa/portais/discente/discente.jsf';
