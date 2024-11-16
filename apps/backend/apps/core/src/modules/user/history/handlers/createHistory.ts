@@ -4,6 +4,7 @@ import {
   type Categories,
   type History,
   HistoryModel,
+  type Situations,
 } from '@/models/History.js';
 import { generateIdentifier, logger } from '@next/common';
 import { transformCourseName } from '../utils/transformCourseName.js';
@@ -26,8 +27,16 @@ const validateSigaaComponents = z.object({
     .transform((p) => (p === 'QS' ? '3' : p)),
   codigo: z.string(),
   situacao: z
-    .enum(['APROVADO', 'REPROVADO', 'REPROVADO POR FALTAS', '--', ''])
+    .enum([
+      'APROVADO',
+      'REPROVADO',
+      'REPROVADO POR FALTAS',
+      '--',
+      '',
+      'CANCELADO',
+    ])
     .transform((situation) => situation.toLocaleLowerCase()),
+
   disciplina: z.string().transform((name) => name.trim().toLocaleLowerCase()),
   resultado: z.enum(['A', 'B', 'C', 'D', 'E', 'F', 'O', '--', '']),
 });
@@ -204,10 +213,7 @@ async function hydrateComponents(
           ? null
           : component.resultado,
       periodo: component.periodo,
-      situacao:
-        component.situacao === '--' || component.situacao === ''
-          ? null
-          : component.situacao,
+      situacao: resolveSituacao(component.situacao),
       ano: component.ano,
       codigo: component.codigo,
       categoria: resolveCategory(gradComponent?.category),
@@ -228,6 +234,20 @@ const resolveCategory = (
     default:
       return 'Livre Escolha';
   }
+};
+
+const resolveSituacao = (
+  situacao: StudentComponent['situacao'],
+): Situations | null => {
+  if (situacao === '--' || situacao === '') {
+    return null;
+  }
+  if (situacao === 'cancelado') {
+    return 'Trt. Total';
+  }
+
+  // @ts-ignore the case is normalized onRequest
+  return situacao;
 };
 
 async function updateEnrollments(
