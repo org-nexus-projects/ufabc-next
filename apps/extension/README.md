@@ -7,16 +7,8 @@ Node version: >=22
 1. `pnpm install`
 3. `pnpm dev`
 
-Acesse `manage extensions`
-![Alt text](./docs/manage-extension.png)
-
-Clique em `developer mode` no canto superior direito.
-![Alt text](./docs/developer-mode.png)
-
-Após isso, clique no canto superior esquerdo em `load unpacked`.
-
-Depois, certifique-se que irá abrir o caminho com a estrutura a seguir:
-![Alt text](./docs/dist-example.png)
+Um navegador irá se abrir com a extensão já carregada, basta acessar a URL do [Sigaa](https://sig.ufabc.edu.br/sigaa/portais/discente/discente.jsf) ou do site de
+[Snapshot](https://ufabc-matricula-snapshot.vercel.app/) de matrículas.
 
 Agora, a extensão já estará rodando localmente e você pode desenvolver, a extensão possui hot-reload.
 
