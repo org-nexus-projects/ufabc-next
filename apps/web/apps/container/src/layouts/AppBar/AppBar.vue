@@ -93,12 +93,12 @@ const internalNavigationItems = [
     icon: 'mdi-message-draw',
     route: '/reviews',
   },
-  {
-    title: 'Aulões Next',
-    icon: 'mdi-school',
-    route: '/partners',
-    releaseDate: dayjs('08/18/2024')
-  },
+  // {
+  //   title: 'Aulões Next',
+  //   icon: 'mdi-school',
+  //   route: '/partners',
+  //   releaseDate: dayjs('08/18/2024')
+  // },
   {
     title: 'Meu histórico',
     icon: 'mdi-history',
