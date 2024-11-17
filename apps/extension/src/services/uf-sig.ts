@@ -1,4 +1,3 @@
-import { useFetch } from "@vueuse/core";
 import { FetchError, ofetch } from "ofetch";
 import { storage } from 'wxt/storage'
 
