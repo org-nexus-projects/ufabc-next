@@ -2,6 +2,7 @@ import { storage } from "wxt/storage";
 import { scrapeMenu } from "@/scripts/sig/homepage";
 import { successToast } from "@/utils/toasts";
 import "toastify-js/src/toastify.css";
+import '@/assets/tailwind.css'
 
 export default defineContentScript({
 	async main() {
@@ -21,7 +22,8 @@ export default defineContentScript({
 			const student = await scrapeMenu($trs);
       console.log(student)
 			// storage.setItem("sync:student", student);
-			successToast.showToast();
+			// storage.setItem('session:studied', student?.graduation.components)
+      successToast.showToast();
 		}
 
 		// scrape student past classes to retrieve the credits

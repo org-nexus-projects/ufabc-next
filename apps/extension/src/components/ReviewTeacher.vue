@@ -106,7 +106,7 @@ import Highcharts from 'highcharts';
 import { ref, computed, watch, onMounted } from 'vue'
 
 import _ from 'lodash';
-import { NextAPI } from '../services/NextAPI';
+import { NextAPI } from '../services/next';
 import Utils from '../utils/extensionUtils';
 import matriculaUtils from '../utils/Matricula';
 

@@ -119,7 +119,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import _ from 'lodash';
 import draggable from 'vuedraggable';
-import { NextAPI } from '../services/NextAPI';
+import { NextAPI } from '../services/next';
 import matriculaUtils from '../utils/Matricula';
 import { convertDisciplina } from '../utils/convertUfabcDisciplina';
 import { findSeasonKey, findIdeais } from '../utils/season';

@@ -1,4 +1,4 @@
-import { fetchGrades, getUFStudent } from "@/services/UFSig";
+import { fetchGrades, getUFStudent } from "@/services/uf-sig";
 import { normalizeDiacritics } from "@/utils/removeDiacritics";
 import { useChangeCase } from "@vueuse/integrations/useChangeCase";
 import {
