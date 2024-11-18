@@ -13,5 +13,5 @@ export default defineContentScript({
     console.log('joabe')
   },
   runAt: "document_end",
-	matches: ["https://ufabc-matricula-snapshot.vercel.app"],
+	matches: ["https://ufabc-matricula-snapshot.vercel.app/*"],
 })

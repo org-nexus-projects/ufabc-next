@@ -2,11 +2,14 @@ import toast from "toastify-js";
 
 // Utils.injectStyle('styles/portal.css');
 
+const logoWhite = browser.runtime.getURL('/logo-white.svg')
+const loading = browser.runtime.getURL('/loading.svg')
+const error = browser.runtime.getURL('/error.svg')
 
 export const successToast = toast({
   text: `
       <div class='toast-loading-text' style='width: 250px'>
-        <img src="/logo-white.svg" width="120" style="margin-bottom: 8px" />
+        <img src=${logoWhite} width="120" style="margin-bottom: 8px" />
         <p>Obrigado por utilizar o UFABC next 💙</p>
         <p style="padding-bottom: 8px; font-weight: 700;">Sincronizado com sucesso! 📋✅</p>\n\n
       </div>`,
@@ -23,7 +26,7 @@ export const successToast = toast({
 export const processingToast = toast({
   text: `
       <div class='toast-loading-text' style='width: 250px'>
-        <img src="/logo-white.svg" width="120" style="margin-bottom: 8px" />
+        <img src=${logoWhite} width="120" style="margin-bottom: 8px" />
         <p style="padding-bottom: 8px;">Atualizando suas informações...</p>\n\n
         <b>NÃO SAIA DESSA PÁGINA,</b>
         <p>apenas aguarde, no máx. 5 min 🙏</p>
@@ -34,7 +37,7 @@ export const processingToast = toast({
   position: 'right',
   className: 'toast-loading',
   escapeMarkup: false,
-  avatar: '/loading.svg',
+  avatar: loading,
   style: {
     background: 'linear-gradient(to right, #2E7EED, rgba(46, 126, 237, 0.5));',
   },
@@ -43,7 +46,7 @@ export const processingToast = toast({
 export const errorToast = toast({
   text: `
     <div style="width: 228px; display: flex; align-items: end; margin-right: 12px;">
-      <img style="margin-right: 16px;" width="32" height="32" src="/error.svg" />
+      <img style="margin-right: 16px;" width="32" height="32" src=${error} />
         Não foi possível salvar seus dados, recarregue a página e aguarde.
     </div>`,
   duration: -1,

@@ -66,8 +66,10 @@ export async function getUFStudent(ra: string) {
         msg: "A problem has ocurred when fetching, please try again",
         error: error.message,
       })
-      throw error;
+      errorToast.showToast();
     }
+    errorToast.showToast();
     throw error
   }
 }
+

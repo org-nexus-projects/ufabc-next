@@ -1,6 +1,5 @@
 import { fetchGrades, getUFStudent } from "@/services/uf-sig";
 import { normalizeDiacritics } from "@/utils/removeDiacritics";
-import { useChangeCase } from "@vueuse/integrations/useChangeCase";
 import {
 	getUFCourseCurriculums,
 	getUFCourses,
@@ -9,6 +8,8 @@ import {
 	type UFCourseCurriculum,
 } from "@/services/ufabc-parser";
 import { transformCourseName, type Course } from "@/utils/transformCourse";
+import { capitalizeStr } from "@/utils/capitalizeStr";
+import { getPaginatedSubjects } from "@/services/next";
 
 type SigStudent = {
 	matricula: string;
@@ -33,7 +34,7 @@ type ShallowStudent = {
 	startedAt: string;
 };
 
-type Component = {
+type SigComponent = {
 	UFCode: string;
 	name: string;
 	grade: string;
@@ -41,6 +42,8 @@ type Component = {
 	year: string;
 	period: "1" | "2" | "3";
 };
+
+export type HydratedSigComponent = SigComponent & { credits: number }
 
 export type HydratedComponent = Component & {
 	credits: number;
@@ -77,15 +80,12 @@ export async function retrieveStudent(
 	const rawStudent: SigStudent = Object.fromEntries(kvStudent);
 	const [course, campus, kind, shift] = rawStudent.curso.split("  ");
 	const NTIStudent = await getUFStudent(rawStudent.matricula);
-	if (!NTIStudent || "error" in NTIStudent) {
+	if (!NTIStudent) {
+    console.log('could not extract student', NTIStudent)
 		return null;
 	}
 	const fixedShift = shift === "n" ? "noturno" : "matutino";
-	const { value: name } = useChangeCase(
-		NTIStudent.fullname ?? "",
-		"capitalCase",
-		{ locale: "pt-BR" },
-	);
+  const name = capitalizeStr(NTIStudent.fullname)
 
 	const student = {
 		name,
@@ -117,6 +117,7 @@ export async function scrapeMenu(
 		return null;
 	}
 
+
 	const shallowStudent = await retrieveStudent(trs);
 
 	if (!shallowStudent) {
@@ -124,7 +125,7 @@ export async function scrapeMenu(
 	}
 
 	// biome-ignore lint/style/noNonNullAssertion: <explanation>
-	const graduationHistory = await scrapeStudentHistory(page!);
+	const graduationHistory = scrapeStudentHistory(page!);
 	const courses = await getUFCourses();
 	const studentGraduation = courses.find(
 		(course) =>
@@ -158,7 +159,9 @@ export async function scrapeMenu(
 	);
 
 
-	const beauty = graduationHistory.map((component) =>
+  const hydrateSigComponentsPromises = graduationHistory.map(c => hydrateSigComponent(c))
+  const hydrateSigComponents = await Promise.all(hydrateSigComponentsPromises)
+	const components = hydrateSigComponents.map((component) =>
 		hydrateComponents(component, curriculumComponents.components),
 	);
 
@@ -167,7 +170,7 @@ export async function scrapeMenu(
 		graduation: {
 			id: studentGraduation?.UFCourseId,
 			...shallowStudent.graduation,
-			components: beauty,
+			components,
 		},
 		lastUpdate: Date.now(),
 	};
@@ -175,7 +178,7 @@ export async function scrapeMenu(
 	return student;
 }
 
-async function scrapeStudentHistory(page: string) {
+function scrapeStudentHistory(page: string) {
 	const parser = new DOMParser();
 	const gradesDocument = parser.parseFromString(page, "text/html");
 	if (!gradesDocument.body) {
@@ -203,7 +206,7 @@ function extractComponents(table: HTMLTableElement) {
 		const component = {
 			year,
 			period,
-		} as Component;
+		} as SigComponent;
 
 		headers.forEach((header, index) => {
 			switch (header) {
@@ -255,14 +258,13 @@ function resolveCurriculum(ra: string, curriculums: UFCourseCurriculum[]) {
 }
 
 function hydrateComponents(
-	sigComponent: Component,
+	sigComponent: HydratedSigComponent,
 	curriculumComponents: UFComponent[],
 ): HydratedComponent {
 	const match = curriculumComponents.find((c) => c.name === sigComponent.name.toLocaleLowerCase());
 	if (!match) {
 		return {
 			category: "free",
-			credits: 0,
 			...sigComponent,
 		};
 	}
@@ -277,4 +279,15 @@ function hydrateComponents(
 		status: sigComponent.status,
 		year: sigComponent.year,
 	};
+}
+
+async function hydrateSigComponent(sigComponent: SigComponent) {
+  const subjects = await getPaginatedSubjects(true);
+  const match = subjects.data.find(
+    subject => normalizeDiacritics(subject.name.toLowerCase()) === normalizeDiacritics(sigComponent.name.toLowerCase())
+  );
+  return {
+    ...sigComponent,
+    credits: match?.credits ?? 0, // Default to 0 if no match found
+  };
 }
