@@ -9,7 +9,7 @@ import {
 } from "@/services/ufabc-parser";
 import { transformCourseName, type Course } from "@/utils/transformCourse";
 import { capitalizeStr } from "@/utils/capitalizeStr";
-import { getPaginatedSubjects } from "@/services/next";
+import { findSubjectByName, getPaginatedSubjects, type PaginatedSubjects } from "@/services/next";
 
 type SigStudent = {
 	matricula: string;
@@ -158,8 +158,9 @@ export async function scrapeMenu(
 		curriculumByRa?.grade,
 	);
 
-
-  const hydrateSigComponentsPromises = graduationHistory.map(c => hydrateSigComponent(c))
+  const subjects = await getPaginatedSubjects();
+  console.log(subjects)
+  const hydrateSigComponentsPromises = graduationHistory.map(c => hydrateSigComponent(c, subjects))
   const hydrateSigComponents = await Promise.all(hydrateSigComponentsPromises)
 	const components = hydrateSigComponents.map((component) =>
 		hydrateComponents(component, curriculumComponents.components),
@@ -281,13 +282,19 @@ function hydrateComponents(
 	};
 }
 
-async function hydrateSigComponent(sigComponent: SigComponent) {
-  const subjects = await getPaginatedSubjects(true);
-  const match = subjects.data.find(
-    subject => normalizeDiacritics(subject.name.toLowerCase()) === normalizeDiacritics(sigComponent.name.toLowerCase())
-  );
+async function hydrateSigComponent(sigComponent: SigComponent, subjects: PaginatedSubjects) {
+
+  const match = subjects.data.find(s => s.name.toLowerCase() === sigComponent.name.toLowerCase())
+
+  if(!match) {
+    return {
+      ...sigComponent,
+      credits: 0,
+    }
+  }
+
   return {
     ...sigComponent,
-    credits: match?.credits ?? 0, // Default to 0 if no match found
+    credits: match.credits,
   };
 }

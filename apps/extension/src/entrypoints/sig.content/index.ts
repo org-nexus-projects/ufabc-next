@@ -1,8 +1,9 @@
 import { storage } from "wxt/storage";
-import { scrapeMenu } from "@/scripts/sig/homepage";
+import { scrapeMenu, type Student } from "@/scripts/sig/homepage";
 import { successToast } from "@/utils/toasts";
 import "toastify-js/src/toastify.css";
 import '@/assets/tailwind.css'
+import { createStudent } from "@/services/next";
 
 export default defineContentScript({
 	async main() {
@@ -19,10 +20,25 @@ export default defineContentScript({
 		if (shouldFormatItinerary) {
 			// fix here the way a receive the curriculum year, maybe asking for the user
 			// is the best use case
-			const student = await scrapeMenu($trs);
+			const student = await scrapeMenu($trs) as NonNullable<Student>;
+			storage.setItem("sync:student", student);
+      // this will be acessed in the ufabc matriculas, to be filtered.
+			storage.setItem('session:studied', student?.graduation.components)
+      // create the student for next - update code to handle the same ra in BCT and BCC
+      // it should increment the graduation with the BCC data.
       console.log(student)
-			// storage.setItem("sync:student", student);
-			// storage.setItem('session:studied', student?.graduation.components)
+      // await createStudent({
+      //   ra: student.ra,
+      //   components: student.graduation.components,
+      //   // grade: student.graduation.curriculumYear,
+      //   // graduation data
+      //   "mandatory_credits_number": 90,
+	    //   "limited_credits_number": 57,
+	    //   "free_credits_number": 43,
+	    //   "credits_total": 190
+      // })
+
+
       successToast.showToast();
 		}
 
