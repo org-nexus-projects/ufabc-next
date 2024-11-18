@@ -1,16 +1,19 @@
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance } from "fastify";
 
 export default async function (app: FastifyInstance) {
-  app.addHook('onRequest', async (request, reply) => {
+  app.addHook("onRequest", async (request, reply) => {
     if (
-      request.url.startsWith('/public') ||
-      request.url.startsWith('/login') ||
-      request.url.startsWith('/backoffice')
+      request.url.startsWith("/public") ||
+      request.url.startsWith("/login") ||
+      request.url.startsWith("/backoffice")
     ) {
       return;
     }
 
-    if (request.url === '/entities/components') {
+    if (
+      request.url.startsWith("/entities/components") ||
+      request.url.startsWith("/entities/subjects")
+    ) {
       return;
     }
 
@@ -20,7 +23,7 @@ export default async function (app: FastifyInstance) {
       app.log.warn(decoded);
     } catch (error) {
       return reply.unauthorized(
-        'You must be authenticated to access this route.',
+        "You must be authenticated to access this route.",
       );
     }
   });
