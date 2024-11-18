@@ -5,16 +5,15 @@ type UFCourses = {
 	name: string;
 	campus: "santo andré" | "são bernardo do campo";
 	coordinator: string;
-	UFcourseId: number;
+	UFCourseId: number;
 };
 
-export type UFCourseCurriculum = {
-	name: string;
-	alias: string;
-	year: string;
-	appliedAt: string;
-	status: "ativa" | "inativo";
-	period: "matutino" | "noturno";
+export type UFCourseCurriculum =  {
+  name: string;
+  alias: string;
+  grade: string;
+  appliedAt: string;
+  active: boolean;
 };
 
 export type UFComponent = {

@@ -78,7 +78,6 @@ export async function retrieveStudent(
 	const [course, campus, kind, shift] = rawStudent.curso.split("  ");
 	const NTIStudent = await getUFStudent(rawStudent.matricula);
 	if (!NTIStudent || "error" in NTIStudent) {
-		console.log(NTIStudent);
 		return null;
 	}
 	const fixedShift = shift === "n" ? "noturno" : "matutino";
@@ -129,23 +128,22 @@ export async function scrapeMenu(
 	const courses = await getUFCourses();
 	const studentGraduation = courses.find(
 		(course) =>
-      // @ts-ignore it is a string, ts is just dumb
-			course.name === shallowStudent.graduation.course.toLocaleLowerCase(),
+			course.name === shallowStudent.graduation.course,
 	);
 
 	if (!studentGraduation) {
 		console.log("error finding student graduation", shallowStudent.graduation);
 		return null;
 	}
-
 	const graduationCurriculums = await getUFCourseCurriculums(
-		studentGraduation.UFcourseId,
+		studentGraduation.UFCourseId,
 	);
 	const curriculumByRa = resolveCurriculum(
 		shallowStudent.ra,
 		graduationCurriculums,
 	);
-	if (!curriculumByRa) {
+  if (!curriculumByRa) {
+	  console.log('could not get curriculum', curriculumByRa)
 		return null;
 	}
 
@@ -153,10 +151,13 @@ export async function scrapeMenu(
 		console.log("error scrapping student history", graduationHistory);
 		return null;
 	}
+
 	const curriculumComponents = await getUFCurriculumComponents(
-		studentGraduation.UFcourseId,
-		curriculumByRa?.year,
+		studentGraduation.UFCourseId,
+		curriculumByRa?.grade,
 	);
+
+
 	const beauty = graduationHistory.map((component) =>
 		hydrateComponents(component, curriculumComponents.components),
 	);
@@ -164,7 +165,7 @@ export async function scrapeMenu(
 	const student = {
 		...shallowStudent,
 		graduation: {
-			id: studentGraduation?.UFcourseId,
+			id: studentGraduation?.UFCourseId,
 			...shallowStudent.graduation,
 			components: beauty,
 		},
@@ -245,10 +246,10 @@ function extractHeaders(table: HTMLTableElement) {
 function resolveCurriculum(ra: string, curriculums: UFCourseCurriculum[]) {
 	const raYear = ra.slice(2, 6);
 	const sortedCurriculums = curriculums.sort(
-		(a, b) => Number.parseInt(b.year) - Number.parseInt(a.year),
+		(a, b) => Number.parseInt(b.grade) - Number.parseInt(a.grade),
 	);
 	const appropriateCurriculum = sortedCurriculums.find(
-		(curriculum) => Number.parseInt(curriculum.year) <= Number.parseInt(raYear),
+		(curriculum) => Number.parseInt(curriculum.grade) <= Number.parseInt(raYear),
 	);
 	return appropriateCurriculum;
 }
@@ -257,7 +258,7 @@ function hydrateComponents(
 	sigComponent: Component,
 	curriculumComponents: UFComponent[],
 ): HydratedComponent {
-	const match = curriculumComponents.find((c) => c.name === sigComponent.name);
+	const match = curriculumComponents.find((c) => c.name === sigComponent.name.toLocaleLowerCase());
 	if (!match) {
 		return {
 			category: "free",
