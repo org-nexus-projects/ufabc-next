@@ -20,42 +20,42 @@ const KNOWN_COURSES = {
 	},
 	cmcc: {
 		computacao: "Bacharelado em Ciência da Computação",
-		neurociência: "Bacharelado em Neurociência",
-		matemática: "Bacharelado em Matemática",
+		neurociencia: "Bacharelado em Neurociência",
+		matematica: "Bacharelado em Matemática",
 		kind: {
-			matemática: "Licenciatura em Matemática",
+			matematica: "Licenciatura em Matemática",
 		},
 	},
 	cecs: {
-		econômicas: "Bacharelado em Ciências Econômicas",
+		economicas: "Bacharelado em Ciências Econômicas",
 		aeroespacial: "Engenharia Aeroespacial",
 		ambiental: "Engenharia Ambiental e Urbana",
-		biomédica: "Engenharia Biomédica",
+		biomedica: "Engenharia Biomédica",
 		energia: "Engenharia de Energia",
-		gestão: "Engenharia de Gestão",
-		informação: "Engenharia de Informação",
-		robótica: "Engenharia de Instrumentação, Automação e Robótica",
+		gestao: "Engenharia de Gestão",
+		informacao: "Engenharia de Informação",
+		robotica: "Engenharia de Instrumentação, Automação e Robótica",
 		materiais: "Engenharia de Materiais",
 		territorial: "Bacharelado em Planejamento Territorial",
-		políticas: "Bacharelado em Políticas Públicas",
+		politicas: "Bacharelado em Políticas Públicas",
 		internacionais: "Bacharelado em Relações Internacionais",
 	},
 	ccnh: {
 		kind: {
-			química: "Licenciatura em Química",
+			quimica: "Licenciatura em Química",
 			filosofia: "Licenciatura em Filosofia",
-			biológicas: "Licenciatura em Ciências Biológicas",
+			biologicas: "Licenciatura em Ciências Biológicas",
 			física: "Licenciatura em Física",
 		},
-		biológicas: "Bacharelado em Ciências Biológicas",
+		biologicas: "Bacharelado em Ciências Biológicas",
 		filosofia: "Bacharelado em Filosofia",
-		física: "Bacharelado em Física",
-		química: "Bacharelado em Química",
+		fisica: "Bacharelado em Física",
+		quimica: "Bacharelado em Química",
 	},
 } as const;
 
 export function transformCourseName(course: string, kind: string) {
-	const [name, agency, type] = course.split("/") as SigaaCourseSplitted;
+	const [name, agency, type] = course.toLowerCase().split("/") as SigaaCourseSplitted;
 	if (agency === "prograd") {
 		if (type === "bi") {
 			return name.includes("tecnologia")
