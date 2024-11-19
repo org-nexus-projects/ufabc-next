@@ -19,7 +19,7 @@ const KNOWN_COURSES = {
 		naturais: "Licenciatura em Ciências Naturais e Exatas",
 	},
 	cmcc: {
-		computação: "Bacharelado em Ciência da Computação",
+		computacao: "Bacharelado em Ciência da Computação",
 		neurociência: "Bacharelado em Neurociência",
 		matemática: "Bacharelado em Matemática",
 		kind: {

@@ -9,7 +9,7 @@ import {
 } from "@/services/ufabc-parser";
 import { transformCourseName, type Course } from "@/utils/transformCourse";
 import { capitalizeStr } from "@/utils/capitalizeStr";
-import { findSubjectByName, getPaginatedSubjects, type PaginatedSubjects } from "@/services/next";
+import { getPaginatedSubjects, type PaginatedSubjects } from "@/services/next";
 
 type SigStudent = {
 	matricula: string;
@@ -26,11 +26,11 @@ type ShallowStudent = {
 	ra: string;
 	login: string;
 	email: string | undefined;
-	graduation: {
+	graduations: Array<{
 		course: Course;
 		campus: string;
 		shift: string;
-	};
+	}>;
 	startedAt: string;
 };
 
@@ -45,8 +45,7 @@ type SigComponent = {
 
 export type HydratedSigComponent = SigComponent & { credits: number }
 
-export type HydratedComponent = Component & {
-	credits: number;
+export type HydratedComponent = HydratedSigComponent & {
 	category: "free" | "mandatory" | "limited";
 };
 
@@ -55,12 +54,12 @@ export type Student = {
 	ra: string;
 	login: string;
 	email: string | undefined;
-	graduation: {
+	graduations: Array<{
 		course: Course;
 		campus: string;
 		shift: string;
 		components: HydratedComponent[];
-	};
+	}>;
 	startedAt: string;
 	lastUpdate: number;
 };
@@ -94,11 +93,11 @@ export async function retrieveStudent(
 		email: NTIStudent.email.find((email) =>
 			email.includes("@aluno.ufabc.edu.br"),
 		),
-		graduation: {
+		graduations: [{
 			course: transformCourseName(course, kind),
 			campus: campus === "santo andre" ? "sa" : "sbc",
 			shift: fixedShift,
-		},
+		}],
 		startedAt: rawStudent.entrada,
 	};
 
@@ -127,15 +126,16 @@ export async function scrapeMenu(
 	// biome-ignore lint/style/noNonNullAssertion: <explanation>
 	const graduationHistory = scrapeStudentHistory(page!);
 	const courses = await getUFCourses();
-	const studentGraduation = courses.find(
-		(course) =>
-			course.name === shallowStudent.graduation.course,
-	);
+	const currentGraduation = shallowStudent.graduations[0]; // We only have one graduation per screen
+  const studentGraduation = courses.find(
+    (course) => course.name === currentGraduation.course,
+  );
 
 	if (!studentGraduation) {
-		console.log("error finding student graduation", shallowStudent.graduation);
+		console.log("error finding student graduation", currentGraduation);
 		return null;
 	}
+
 	const graduationCurriculums = await getUFCourseCurriculums(
 		studentGraduation.UFCourseId,
 	);
@@ -159,20 +159,22 @@ export async function scrapeMenu(
 	);
 
   const subjects = await getPaginatedSubjects();
-  console.log(subjects)
   const hydrateSigComponentsPromises = graduationHistory.map(c => hydrateSigComponent(c, subjects))
   const hydrateSigComponents = await Promise.all(hydrateSigComponentsPromises)
 	const components = hydrateSigComponents.map((component) =>
 		hydrateComponents(component, curriculumComponents.components),
 	);
 
+  const graduation = {
+    course: currentGraduation.course,
+    campus: currentGraduation.campus,
+    shift: currentGraduation.shift,
+    components,
+  };
+
 	const student = {
 		...shallowStudent,
-		graduation: {
-			id: studentGraduation?.UFCourseId,
-			...shallowStudent.graduation,
-			components,
-		},
+		graduations: [graduation],
 		lastUpdate: Date.now(),
 	};
 

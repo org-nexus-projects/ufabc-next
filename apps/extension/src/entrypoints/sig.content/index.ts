@@ -20,13 +20,17 @@ export default defineContentScript({
 		if (shouldFormatItinerary) {
 			// fix here the way a receive the curriculum year, maybe asking for the user
 			// is the best use case
-			const student = await scrapeMenu($trs) as NonNullable<Student>;
-			storage.setItem("sync:student", student);
-      // this will be acessed in the ufabc matriculas, to be filtered.
-			storage.setItem('session:studied', student?.graduation.components)
+			const currentStudent = await scrapeMenu($trs);
+      if (!currentStudent) {
+        console.error("Failed to scrape student data");
+        return;
+      }
+
+      // Get existing student data if any
+      const existingStudent = await storage.getItem<Student>("sync:student");
+           // this will be acessed in the ufabc matriculas, to be filtered.
       // create the student for next - update code to handle the same ra in BCT and BCC
       // it should increment the graduation with the BCC data.
-      console.log(student)
       // await createStudent({
       //   ra: student.ra,
       //   components: student.graduation.components,
@@ -39,9 +43,70 @@ export default defineContentScript({
       // })
 
 
-      successToast.showToast();
-		}
+      if (existingStudent?.ra === currentStudent.ra) {
+        // Check if this graduation already exists
+        const currentGraduation = currentStudent.graduations[0];
+        const graduationExists = existingStudent.graduations.some(
+          g => g.course === currentGraduation.course
+        );
+        if (!graduationExists) {
+          // Add the new graduation to existing ones
+          const mergedStudent = {
+            ...existingStudent,
+            graduations: [...existingStudent.graduations, currentGraduation],
+            lastUpdate: Date.now()
+          };
 
+          await storage.setItem("sync:student", mergedStudent);
+
+          // Update Next API with the new graduation
+          try {
+            const graduationMetrics = {
+              mandatory_credits_number: 90,
+              limited_credits_number: 57,
+              free_credits_number: 43,
+              credits_total: 190
+            };
+            console.log(storage.getItem('sync:student'))
+            // await updateStudent({
+            //   ra: currentStudent.ra,
+            //   components: currentGraduation.components,
+            //   courseId: currentGraduation.course,
+            //   ...graduationMetrics
+            // });
+
+          } catch (error) {
+            console.error(`Failed to update graduation ${currentGraduation.course}:`, error);
+          }
+        }
+        successToast.showToast();
+
+      } else {
+        // New student, store everything
+        const stu = await storage.setItem("sync:student", currentStudent);
+          console.log('here', stu)
+        // Create student record with first graduation
+        try {
+          const graduationMetrics = {
+            mandatory_credits_number: 90,
+            limited_credits_number: 57,
+            free_credits_number: 43,
+            credits_total: 190
+          };
+
+          // await createStudent({
+          //   ra: currentStudent.ra,
+          //   components: currentStudent.graduations[0].components,
+          //   courseId: currentStudent.graduations[0].course,
+          //   ...graduationMetrics
+          // });
+          successToast.showToast();
+        } catch (error) {
+          console.error('Failed to create student:', error);
+        }
+      }
+      console.log('here', existingStudent)
+    }
 		// scrape student past classes to retrieve the credits
 		// URL: https://sig.ufabc.edu.br/sigaa/portais/discente/turmas.jsf
 
