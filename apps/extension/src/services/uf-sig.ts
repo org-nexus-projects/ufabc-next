@@ -13,7 +13,7 @@ const CACHE_KEY = "NTI_STUDENT";
 const MENU_GRADES_ACTION_ID = "82316"
 
 export async function fetchGrades() {
-	const sigURL = "/sigaa/portais/discente/discente.jsf";
+  const sigURL = new URL(document.location.href)
 	const formData = new FormData();
 
 	formData.append("menu:form_menu_discente", "menu:form_menu_discente");
@@ -30,7 +30,7 @@ export async function fetchGrades() {
 	);
 
 	try {
-		const response = await fetch(sigURL, {
+		const response = await fetch(sigURL.pathname, {
 			method: "POST",
 			credentials: "include",
 			body: formData,

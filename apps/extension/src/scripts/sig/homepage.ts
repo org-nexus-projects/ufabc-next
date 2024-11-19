@@ -139,7 +139,7 @@ export async function scrapeMenu(
 	}
 
 	const graduationCurriculums = await getUFCourseCurriculums(
-		studentGraduation.UFCourseId,
+		studentGraduation.UFcourseId,
 	);
 	const curriculumByRa = resolveCurriculum(
 		shallowStudent.ra,
@@ -156,8 +156,8 @@ export async function scrapeMenu(
 	}
 
 	const curriculumComponents = await getUFCurriculumComponents(
-		studentGraduation.UFCourseId,
-		curriculumByRa?.grade,
+		studentGraduation.UFcourseId,
+		curriculumByRa?.appliedAt,
 	);
 
   const subjects = await getPaginatedSubjects();
@@ -254,10 +254,10 @@ function extractHeaders(table: HTMLTableElement) {
 function resolveCurriculum(ra: string, curriculums: UFCourseCurriculum[]) {
 	const raYear = ra.slice(2, 6);
 	const sortedCurriculums = curriculums.sort(
-		(a, b) => Number.parseInt(b.grade) - Number.parseInt(a.grade),
+		(a, b) => Number.parseInt(b.appliedAt) - Number.parseInt(a.appliedAt),
 	);
 	const appropriateCurriculum = sortedCurriculums.find(
-		(curriculum) => Number.parseInt(curriculum.grade) <= Number.parseInt(raYear),
+		(curriculum) => Number.parseInt(curriculum.appliedAt) <= Number.parseInt(raYear),
 	);
 	return appropriateCurriculum;
 }
