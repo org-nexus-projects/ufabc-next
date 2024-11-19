@@ -127,10 +127,12 @@ export async function scrapeMenu(
 	const graduationHistory = scrapeStudentHistory(page!);
 	const courses = await getUFCourses();
 	const currentGraduation = shallowStudent.graduations[0]; // We only have one graduation per screen
+  console.log(currentGraduation)
   const studentGraduation = courses.find(
-    (course) => course.name === currentGraduation.course,
+    // @ts-ignore
+    (course) => course.name === currentGraduation.course.toLowerCase(),
   );
-
+  console.log(studentGraduation, )
 	if (!studentGraduation) {
 		console.log("error finding student graduation", currentGraduation);
 		return null;
