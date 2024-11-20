@@ -1,9 +1,9 @@
-import { SubjectModel } from "@/models/Subject.js";
-import { listSubjectsSchema } from "@/schemas/entities/subjects.js";
-import type { FastifyPluginAsyncZodOpenApi } from "fastify-zod-openapi";
+import { SubjectModel } from '@/models/Subject.js';
+import { listSubjectsSchema } from '@/schemas/entities/subjects.js';
+import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
-  app.get("/", { schema: listSubjectsSchema }, async (request, reply) => {
+  app.get('/', { schema: listSubjectsSchema }, async (request, reply) => {
     const { limit, page } = request.query;
 
     const [total, subjects] = await Promise.all([

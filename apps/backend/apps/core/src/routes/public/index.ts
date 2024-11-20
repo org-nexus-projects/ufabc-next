@@ -1,6 +1,7 @@
 import { CommentModel } from '@/models/Comment.js';
 import { ComponentModel } from '@/models/Component.js';
 import { EnrollmentModel } from '@/models/Enrollment.js';
+import { GraduationModel } from '@/models/Graduation.js';
 import { StudentModel } from '@/models/Student.js';
 import { UserModel } from '@/models/User.js';
 import { currentQuad } from '@next/common';
@@ -99,6 +100,24 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     publicCache.set('usage', summary);
 
     return summary;
+  });
+
+  app.get('/graduations', { logLevel: 'silent' }, async (request, reply) => {
+    const graduations = await GraduationModel.find(
+      {
+        grade: { $exists: true },
+      },
+      {
+        _id: 0,
+        createdAt: 0,
+        locked: 0,
+        updatedAt: 0,
+        __v: 0,
+        creditsBreakdown: 0,
+      },
+    ).lean();
+
+    return graduations;
   });
 };
 
