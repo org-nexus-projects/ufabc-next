@@ -27,14 +27,6 @@ export const nextService = ofetch.create({
 
 
 export async function getPaginatedSubjects(page = 1, limit = 2_000) {
-  const cachedSubjects = await storage.getItem<PaginatedSubjects>(
-		`session:${SUBJECTS_CACHE_KEY}`,
-	);
-
-  if (cachedSubjects) {
-    return cachedSubjects;
-  }
-
   const paginatedSubjects = await nextService<PaginatedSubjects>("/entities/subjects", {
     params: {
       page: page,
@@ -42,7 +34,6 @@ export async function getPaginatedSubjects(page = 1, limit = 2_000) {
     },
   });
 
-  storage.setItem(`session:${SUBJECTS_CACHE_KEY}`, paginatedSubjects)
   return paginatedSubjects
 }
 

@@ -14,6 +14,10 @@ export type UFCourseCurriculum =  {
   grade: string;
   appliedAt: string;
   active: boolean;
+  freeCredits: number | null;
+  limitedCredits: number | null;
+  mandatoryCredits: number | null;
+  totalCredits: number | null
 };
 
 export type UFComponent = {
