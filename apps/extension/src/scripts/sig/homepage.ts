@@ -139,7 +139,7 @@ export async function scrapeMenu(
 	}
 
 	const graduationCurriculums = await getUFCourseCurriculums(
-		studentGraduation.UFcourseId,
+		studentGraduation.UFCourseId,
 	);
 	const curriculumByRa = resolveCurriculum(
 		shallowStudent.ra,
@@ -156,7 +156,7 @@ export async function scrapeMenu(
 	}
 
 	const curriculumComponents = await getUFCurriculumComponents(
-		studentGraduation.UFcourseId,
+		studentGraduation.UFCourseId,
 		curriculumByRa?.appliedAt,
 	);
 

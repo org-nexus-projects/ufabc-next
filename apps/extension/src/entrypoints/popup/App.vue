@@ -4,10 +4,9 @@ import { useStorage } from '@/composables/useStorage'
 import { useDateFormat } from '@vueuse/core'
 import type { Student } from '@/scripts/sig/homepage'
 
-const { state: student, isLoading: loading, error } = useStorage<Student>('sync:student');
+const { state: student, isLoading: loading, error } = useStorage<Student>('local:student');
 
 const formattedDate = useDateFormat(student.value?.lastUpdate, 'DD/MM/YYYY HH:mm', { locales: 'pt-BR' })
-console.log(student.value)
 </script>
 
 <template>

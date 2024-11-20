@@ -27,8 +27,8 @@ export default defineContentScript({
       }
 
       // Get existing student data if any
-      const existingStudent = await storage.getItem<Student>("sync:student");
-           // this will be acessed in the ufabc matriculas, to be filtered.
+      const existingStudent = await storage.getItem<Student>("local:student");
+        // this will be accessed in the ufabc matriculas, to be filtered.
       // create the student for next - update code to handle the same ra in BCT and BCC
       // it should increment the graduation with the BCC data.
       // await createStudent({
@@ -57,7 +57,7 @@ export default defineContentScript({
             lastUpdate: Date.now()
           };
 
-          await storage.setItem("sync:student", mergedStudent);
+          await storage.setItem("local:student", mergedStudent);
 
           // Update Next API with the new graduation
           try {
@@ -67,7 +67,6 @@ export default defineContentScript({
               free_credits_number: 43,
               credits_total: 190
             };
-            console.log(storage.getItem('sync:student'))
             // await updateStudent({
             //   ra: currentStudent.ra,
             //   components: currentGraduation.components,
@@ -83,8 +82,7 @@ export default defineContentScript({
 
       } else {
         // New student, store everything
-        const stu = await storage.setItem("sync:student", currentStudent);
-          console.log('here', stu)
+        await storage.setItem("local:student", currentStudent);
         // Create student record with first graduation
         try {
           const graduationMetrics = {
