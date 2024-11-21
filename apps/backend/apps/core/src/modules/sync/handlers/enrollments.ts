@@ -2,11 +2,9 @@ import { ofetch } from 'ofetch';
 import { z } from 'zod';
 import { createHash } from 'node:crypto';
 import { ComponentModel } from '@/models/Component.js';
-// import { nextJobs } from '@/queue/jobs.js';
-import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ufProcessor } from '@/services/ufprocessor.js';
 import { hydrateComponent } from '../utils/hydrateComponents.js';
-import { chunk } from 'lodash-es';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
 const validateEnrollmentsBody = z.object({
   season: z.string(),
@@ -33,8 +31,8 @@ export async function syncEnrollments(
     season,
   }).lean();
 
-  const enrollments = await ufProcessor.getEnrollments(link);
-  const kvEnrollments = Object.entries(enrollments);
+  const rawEnrollments = await ufProcessor.getEnrollments(link);
+  const kvEnrollments = Object.entries(rawEnrollments);
   const tenantEnrollments = kvEnrollments.map(([ra, studentComponents]) => {
     const hydratedStudentComponents = hydrateComponent(
       ra,
@@ -52,41 +50,39 @@ export async function syncEnrollments(
       components: hydratedStudentComponents,
     };
   });
-  const nextEnrollments = tenantEnrollments.flatMap(
+  const enrollments = tenantEnrollments.flatMap(
     (enrollment) => enrollment.components,
   );
 
   const enrollmentsHash = createHash('md5')
-    .update(JSON.stringify(nextEnrollments))
+    .update(JSON.stringify(enrollments))
     .digest('hex');
 
   if (enrollmentsHash !== hash) {
     return {
       hash: enrollmentsHash,
-      size: nextEnrollments.length,
-      sample: nextEnrollments.slice(0, 500),
+      size: enrollments.length,
+      sample: enrollments.slice(0, 500),
     };
   }
 
-  const chunkedEnrollments = chunk(
-    nextEnrollments,
-    Math.ceil(nextEnrollments.length / 3),
-  );
+  const enrollmentJobs = enrollments.map(async (enrollment) => {
+    try {
+      await request.server.job.dispatch('ProcessSingleEnrollment', enrollment);
+    } catch (error) {
+      request.log.error({
+        error: error instanceof Error ? error.message : String(error),
+        enrollment,
+        msg: 'Failed to dispatch enrollment processing job',
+      });
+    }
+  });
 
-  // await nextJobs.dispatch('NextEnrollmentsUpdate', chunkedEnrollments[0]);
+  await Promise.all(enrollmentJobs);
 
-  // await nextJobs.schedule('NextEnrollmentsUpdate', chunkedEnrollments[1], {
-  //   toWait: '2 minutes',
-  // });
-  // await nextJobs.schedule('NextEnrollmentsUpdate', chunkedEnrollments[2], {
-  //   toWait: '4 minutes',
-  // });
-
-  return reply.send({ published: true, msg: 'Enrollments Synced' });
-}
-
-function chunkArray<T>(arr: T[], chunkSize: number) {
-  return Array.from({ length: Math.ceil(arr.length / chunkSize) }, (_, i) =>
-    arr.slice(i * chunkSize, i * chunkSize + chunkSize),
-  );
+  return reply.send({
+    published: true,
+    msg: 'Enrollments Synced',
+    totalEnrollments: enrollments.length,
+  });
 }

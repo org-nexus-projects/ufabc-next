@@ -19,6 +19,14 @@ export type UfabcParserComponent = {
   hours: Record<string, { periodicity: string; classPeriod: string[] }>[];
 };
 
+type StudentRA = string;
+export type StudentComponent = {
+  code: string;
+  name: string | null;
+  errors: string[] | [];
+};
+export type UFProcessorEnrollment = Record<StudentRA, StudentComponent[]>;
+
 export const ufabcParserService = ofetch.create({
   baseURL: process.env.UF_PROCESSOR_URL,
   timeout: 45 * 1000, // 45 seconds,
@@ -28,4 +36,16 @@ export async function getComponents() {
   const components =
     await ufabcParserService<UfabcParserComponent[]>('/components');
   return components;
+}
+
+export async function getEnrollments(link: string) {
+  const enrollments = await ufabcParserService<UFProcessorEnrollment>(
+    '/enrollments',
+    {
+      query: {
+        link,
+      },
+    },
+  );
+  return enrollments;
 }

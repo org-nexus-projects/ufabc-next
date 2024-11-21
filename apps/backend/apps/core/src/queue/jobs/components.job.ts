@@ -1,24 +1,14 @@
-import { type Component, ComponentModel } from '@/models/Component.js';
-import { type Subject, SubjectModel } from '@/models/Subject.js';
+import { ComponentModel } from '@/models/Component.js';
+import { SubjectModel } from '@/models/Subject.js';
 import { getComponents } from '@/modules-v2/ufabc-parser.js';
 import { currentQuad, generateIdentifier } from '@next/common';
 import { camelCase, startCase } from 'lodash-es';
-import type { AnyBulkWriteOperation } from 'mongoose';
 import type { QueueContext } from '../types.js';
 
-export const COMPONENTS_QUEUE = 'sync_components_queue';
+type ParserComponent = Awaited<ReturnType<typeof getComponents>>[number];
 
-type Result = {
-  status: 'ok';
-  modified: number;
-  inserted: number;
-};
-
-export async function syncComponents({
-  app,
-}: QueueContext<any>): Promise<Result | undefined> {
+export async function syncComponents({ app }: QueueContext<unknown>) {
   const tenant = currentQuad();
-  const [year, quad] = tenant.split(':');
   const parserComponents = await getComponents();
 
   if (!parserComponents) {
@@ -26,68 +16,37 @@ export async function syncComponents({
     throw new Error('Could not get components');
   }
 
-  // Get existing subjects and create a case-insensitive lookup map
-  const subjects = await SubjectModel.find({}, { name: 1, creditos: 1 }).lean();
-  const subjectMap = new Map(
-    subjects.map((subject) => [subject.name.toLowerCase(), subject]),
-  );
-
-  const bulkOperations: AnyBulkWriteOperation<Subject>[] = [];
-
-  for (const component of parserComponents) {
-    const normalizedName = component.name.toLowerCase();
-    const existingSubject = subjectMap.get(normalizedName);
-
-    if (!existingSubject) {
-      // New subject - insert
-      bulkOperations.push({
-        insertOne: {
-          document: {
-            name: component.name,
-            creditos: component.credits,
-            search: startCase(camelCase(component.name)),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-        },
-      });
-    } else if (existingSubject.creditos !== component.credits) {
-      // Update existing subject if credits changed
-      bulkOperations.push({
-        updateOne: {
-          filter: {
-            _id: existingSubject._id,
-          },
-          update: {
-            $set: {
-              creditos: component.credits,
-              search: startCase(camelCase(existingSubject.name)),
-              updatedAt: new Date(),
-            },
-          },
-        },
-      });
-    }
-  }
-
-  if (bulkOperations.length > 0) {
+  const componentsJobsPromises = parserComponents.map(async (component) => {
     try {
-      await SubjectModel.bulkWrite(bulkOperations, { ordered: false });
+      await app.job.dispatch('ProcessSingleComponent', {
+        component,
+        tenant,
+      });
     } catch (error) {
-      app.log.error({ error }, 'Error updating subjects');
+      app.log.error({
+        error: error instanceof Error ? error.message : String(error),
+        component: component.name,
+        msg: 'Failed to dispatch component processing job',
+      });
       throw error;
     }
-  }
+  });
 
-  // Retrieve updated subjects for component processing
-  const updatedSubjects = await SubjectModel.find({}, { name: 1 }).lean();
-  const subjectsMap = new Map(
-    updatedSubjects.map((subject) => [subject.name.toLowerCase(), subject._id]),
-  );
+  await Promise.all(componentsJobsPromises);
+}
 
-  const componentBulkOperations: AnyBulkWriteOperation<Component>[] = [];
+export async function processComponent({
+  app,
+  job,
+}: QueueContext<{
+  component: ParserComponent;
+  tenant: string;
+}>) {
+  const { component, tenant } = job.data;
+  const [year, quad] = tenant.split(':').map(Number);
 
-  for (const component of parserComponents) {
+  try {
+    const subject = await processSubject(component);
     const dbComponent = {
       codigo: component.UFComponentCode,
       disciplina_id: component.UFComponentId,
@@ -98,16 +57,15 @@ export async function syncComponents({
       turno: component.turno,
       vagas: component.vacancies,
       ideal_quad: false,
-      quad: Number(quad),
-      year: Number(year),
-      subject: subjectsMap.get(component.name.toLowerCase()),
-      identifier: '',
+      quad,
+      year,
+      subject: subject._id,
       obrigatorias: component.courses
         .filter((c) => c.category === 'obrigatoria')
         .map((c) => c.UFCourseId),
-    } as Component;
+      identifier: '',
+    };
 
-    // @ts-expect-error refactoring
     dbComponent.identifier = generateIdentifier(dbComponent, [
       'disciplina',
       'turno',
@@ -115,39 +73,79 @@ export async function syncComponents({
       'turma',
     ]);
 
-    componentBulkOperations.push({
-      updateOne: {
-        filter: {
-          season: tenant,
-          identifier: dbComponent.identifier,
-          disciplina_id: component.UFComponentId,
+    const result = await ComponentModel.findOneAndUpdate(
+      {
+        season: tenant,
+        identifier: dbComponent.identifier,
+        disciplina_id: component.UFComponentId,
+      },
+      {
+        $set: {
+          ...dbComponent,
         },
-        update: {
-          $set: {
-            ...dbComponent,
-          },
-          $setOnInsert: {
-            alunos_matriculados: [],
-            after_kick: [],
-            before_kick: [],
-          },
+        $setOnInsert: {
+          alunos_matriculados: [],
+          after_kick: [],
+          before_kick: [],
         },
+      },
+      {
+        new: true,
         upsert: true,
       },
-    });
-  }
+    );
 
-  if (componentBulkOperations.length > 0) {
-    try {
-      const result = await ComponentModel.bulkWrite(componentBulkOperations);
-      return {
-        status: 'ok',
-        inserted: result.insertedCount,
-        modified: result.modifiedCount,
-      };
-    } catch (error) {
-      app.log.error({ error }, 'Error updating components');
-      throw error;
+    app.log.info({
+      msg: 'Component processed successfully',
+      identifier: dbComponent.identifier,
+      id: result._id,
+      action: result.isNew ? 'inserted' : 'updated',
+    });
+  } catch (error) {
+    app.log.error({
+      msg: 'Error processing component',
+      error: error instanceof Error ? error.message : String(error),
+      component: component.name,
+    });
+
+    throw error;
+  }
+}
+
+async function processSubject(component: ParserComponent) {
+  const normalizedName = component.name.toLowerCase();
+
+  try {
+    // Use findOneAndUpdate instead of separate find and update operations
+    const subject = await SubjectModel.findOneAndUpdate(
+      { name: normalizedName },
+      {
+        $set: {
+          name: normalizedName,
+          creditos: component.credits,
+          search: startCase(camelCase(normalizedName)),
+        },
+      },
+      {
+        new: true,
+        upsert: true,
+        setDefaultsOnInsert: true,
+      },
+    );
+
+    return subject;
+  } catch (error: any) {
+    if (error.code === 11000) {
+      // Handle potential race condition by retrying the find
+      const existingSubject = await SubjectModel.findOne({
+        name: normalizedName,
+      });
+      if (existingSubject) {
+        existingSubject.creditos = component.credits;
+        await existingSubject.save();
+        return existingSubject;
+      }
     }
+    throw error;
   }
 }

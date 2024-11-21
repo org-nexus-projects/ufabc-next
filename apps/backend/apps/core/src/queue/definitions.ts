@@ -1,13 +1,13 @@
 import { sendConfirmationEmail } from './jobs/email.job.js';
-import { updateEnrollments } from './jobs/enrollmentsUpdate.js';
-import { syncEnrolled } from './jobs/syncEnrolled.js';
+import { processSingleEnrollment } from './jobs/enrollments.job.js';
+import { syncEnrolled } from './jobs/enrolled.job.js';
 import { updateTeachers } from './jobs/teacherUpdate.js';
 // import { updateUserEnrollments } from './jobs/userEnrollmentsUpdate.js';
-import { syncComponents } from './jobs/components.job.js';
+import { processComponent, syncComponents } from './jobs/components.job.js';
 import {
   processComponentEnrollment,
   userEnrollmentsUpdate,
-} from './jobs/userEnrollments.job.js';
+} from './jobs/user-enrollments.job.js';
 import type { WorkerOptions } from 'bullmq';
 
 const MONTH = 60 * 60 * 24 * 30;
@@ -25,9 +25,18 @@ export const QUEUE_JOBS: Record<any, WorkerOptions> = {
    * Queue for updating enrollments
    */
   'enrollments:update': {
-    concurrency: 1,
+    concurrency: 10,
     removeOnComplete: {
-      age: 0,
+      count: 1000, // Keep last 1000 successful jobs
+      age: 24 * 60 * 60, // Remove jobs older than 24 hours
+    },
+    removeOnFail: {
+      count: 500, // Keep last 500 failed jobs for debugging
+      age: 24 * 60 * 60,
+    },
+    limiter: {
+      max: 50,
+      duration: 1_000,
     },
   },
   /**
@@ -49,13 +58,18 @@ export const QUEUE_JOBS: Record<any, WorkerOptions> = {
     concurrency: 5,
     removeOnComplete: {
       count: 400,
-      age: MONTH,
+      age: 0,
     },
   },
   'sync:components': {
-    concurrency: 1,
+    concurrency: 10,
     removeOnComplete: {
-      age: 0,
+      count: 1000,
+      age: 24 * 60 * 60,
+    },
+    limiter: {
+      max: 50,
+      duration: 1000,
     },
   },
 } as const;
@@ -75,21 +89,25 @@ export const JOBS = {
     handler: syncComponents,
     every: '1d',
   },
-  EnrollmentsUpdate: {
-    queue: 'enrollments:update',
-    handler: updateEnrollments,
+  ProcessSingleComponent: {
+    queue: 'sync:components',
+    handler: processComponent,
   },
   UserEnrollmentsUpdate: {
     queue: 'userEnrollments:update',
     handler: userEnrollmentsUpdate,
   },
+  ProcessComponentsEnrollments: {
+    queue: 'userEnrollments:update',
+    handler: processComponentEnrollment,
+  },
   TeacherUpdate: {
     queue: 'teacher:updateEnrollments',
     handler: updateTeachers,
   },
-  ProcessComponentsEnrollments: {
-    queue: 'userEnrollments:update',
-    handler: processComponentEnrollment,
+  EnrollmentSync: {
+    queue: 'enrollments:update',
+    handler: processSingleEnrollment,
   },
 } as const;
 

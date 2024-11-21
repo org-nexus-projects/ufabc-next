@@ -58,7 +58,6 @@ export function hydrateComponent(
     });
 
     const disciplina_identifier = generateIdentifier({
-      // @ts-expect-error
       year,
       quad,
       disciplina: nextComponent.disciplina,
