@@ -27,6 +27,10 @@ export type StudentComponent = {
 };
 export type UFProcessorEnrollment = Record<StudentRA, StudentComponent[]>;
 
+type ComponentId = number;
+type StudentIds = number;
+export type UFProcessorEnrolled = Record<ComponentId, StudentIds[]>;
+
 export const ufabcParserService = ofetch.create({
   baseURL: process.env.UF_PROCESSOR_URL,
   timeout: 45 * 1000, // 45 seconds,
@@ -48,4 +52,9 @@ export async function getEnrollments(link: string) {
     },
   );
   return enrollments;
+}
+
+export async function getEnrolledStudents() {
+  const enrolled = await ufabcParserService<UFProcessorEnrolled>('/enrolled');
+  return enrolled;
 }

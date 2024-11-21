@@ -9,8 +9,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "rimraf dist && node --import=tsx esbuild.ts",
-    "build:new": "tsup",
+    "build": "tsup",
     "tsc": "tsc",
     "start": "node --env-file=.env.prod dist/server.js",
     "start:new": "node --env-file=.env.prod dist/server.js",

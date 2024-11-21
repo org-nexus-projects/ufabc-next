@@ -1,9 +1,9 @@
-import gracefullyShutdown from "close-with-grace";
-import { logger } from "@next/common";
-import { buildApp } from "./app.js";
-import { fastifyPlugin as fp } from "fastify-plugin";
+import gracefullyShutdown from 'close-with-grace';
+import { logger } from '@next/common';
+import { buildApp } from './app.js';
+import { fastifyPlugin as fp } from 'fastify-plugin';
 
-import { fastify, type FastifyServerOptions } from "fastify";
+import { fastify, type FastifyServerOptions } from 'fastify';
 
 const appOptions = {
   loggerInstance: logger,
@@ -17,15 +17,15 @@ export async function start() {
     app.log.info(app.printRoutes());
   }
 
-  app.job.schedule("EnrolledSync");
-  app.job.schedule("ComponentsSync");
+  app.job.schedule('EnrolledSync');
+  app.job.schedule('ComponentsSync');
 
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {
     if (err) {
-      app.log.fatal({ err }, "error starting app");
+      app.log.fatal({ err }, 'error starting app');
     }
 
-    app.log.warn(signal, "Gracefully exiting app");
+    app.log.warn(signal, 'Gracefully exiting app');
 
     await app.close();
   });

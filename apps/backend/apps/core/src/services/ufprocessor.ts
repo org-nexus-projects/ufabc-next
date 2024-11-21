@@ -47,10 +47,6 @@ export type UFProcessorComponentFile = {
   hours: Record<string, { periodicity: string; classPeriod: string[] }>[];
 };
 
-type ComponentId = number;
-type StudentIds = number;
-export type UFProcessorEnrolled = Record<ComponentId, StudentIds[]>;
-
 type StudentRA = string;
 export type StudentComponent = {
   code: string;
@@ -128,11 +124,6 @@ class UFProcessor {
       },
     });
     return componentsWithTeachers;
-  }
-
-  async getEnrolledStudents() {
-    const enrolled = await this.request<UFProcessorEnrolled>('/enrolled');
-    return enrolled;
   }
 
   async getEnrollments(link: string) {

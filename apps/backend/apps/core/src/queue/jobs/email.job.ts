@@ -18,7 +18,7 @@ export async function sendConfirmationEmail(
   }
 
   try {
-    const token = await ctx.app.createToken(
+    const token = ctx.app.createToken(
       JSON.stringify({ email: data.email }),
       ctx.app.config,
     );

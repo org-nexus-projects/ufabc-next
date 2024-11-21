@@ -5,7 +5,7 @@ export const listComponentsSchema = {
   tags: ['Components'],
   description: 'Rota para listar as disciplinas do quadrimestre atual',
   response: {
-    200: ,
+    200: {},
   },
 } satisfies FastifySchema;
 
