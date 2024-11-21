@@ -67,28 +67,6 @@ export async function buildApp(
     }
   });
 
-  app.setErrorHandler((err, request, _reply) => {
-    app.log.error(
-      {
-        err,
-        request: {
-          method: request.method,
-          url: request.url,
-          query: request.query,
-          params: request.params,
-        },
-      },
-      'Unhandled error occurred',
-    );
-
-    let message = 'Internal Server Error';
-    if (err.statusCode && err.statusCode < 500) {
-      message = err.message;
-    }
-
-    return { message };
-  });
-
   app.setSchemaErrorFormatter((errors, dataVar) => {
     let message = `${dataVar}:`;
     for (const error of errors) {
