@@ -2,10 +2,14 @@ import { camelCase, chunk as lodashChunk, startCase } from 'lodash-es';
 import latinize from 'latinize';
 
 // TODO: implement IDEAL_QUAD
+// TODO: this is not an _actual_ disciplina
 
 export type Disciplina = {
   nome: string;
   id: number;
+  ra: number;
+  year: number;
+  quad: number;
   obrigatorias: number[];
   obrigatoriedades: Array<{
     curso_id: number;

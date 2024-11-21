@@ -35,7 +35,7 @@ export type Coefficient = {
 
 export type CoefficientsMap = Record<'1' | '2' | '3', Coefficient>;
 
-type HistoryCoefficients = Record<number, CoefficientsMap>;
+export type HistoryCoefficients = Record<number, CoefficientsMap>;
 
 const historiesDisciplinasSchema = new Schema(
   {

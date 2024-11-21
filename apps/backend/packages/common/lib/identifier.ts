@@ -2,7 +2,22 @@ import { createHash } from 'node:crypto';
 import { camelCase } from 'lodash-es';
 import type { Disciplina } from './convertUfabcDiscplinas';
 
-type KeysOptions = keyof Disciplina;
+type KeysOptions =
+  | 'disciplina'
+  | 'turno'
+  | 'campus'
+  | 'turma'
+  | 'nome'
+  | 'id'
+  | 'obrigatorias'
+  | 'obrigatoriedades'
+  | 'horarios'
+  | 'disciplina_id'
+  | 'teoria'
+  | 'pratica'
+  | 'ra'
+  | 'year'
+  | 'quad';
 
 const DEFAULT_FIELDS_TO_ENCODE = [
   'disciplina',

@@ -26,7 +26,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     let history = await HistoryModel.findOne({
       ra: sigHistory.ra,
-    }).lean<History>();
+    });
 
     app.log.info({
       msg: 'starting student sync',
@@ -70,6 +70,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       msg: 'Synced Successfully',
     });
 
+    // dispatch coefficients job.
+    // @ts-ignore, type later
+    await app.job.dispatch('UserEnrollmentsUpdate', history?.toObject());
     return {
       msg: history
         ? `Updated history for ${sigHistory.ra}`

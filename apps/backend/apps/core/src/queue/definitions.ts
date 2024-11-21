@@ -4,10 +4,12 @@ import { syncEnrolled } from './jobs/syncEnrolled.js';
 import { updateTeachers } from './jobs/teacherUpdate.js';
 // import { updateUserEnrollments } from './jobs/userEnrollmentsUpdate.js';
 import { syncComponents } from './jobs/components.job.js';
+import { userEnrollmentsUpdate } from './jobs/userEnrollmentsUpdate.js';
+import type { WorkerOptions } from 'bullmq';
 
 const MONTH = 60 * 60 * 24 * 30;
 
-export const QUEUE_JOBS = {
+export const QUEUE_JOBS: Record<any, WorkerOptions> = {
   /**
    * Queue for sending emails
    */
@@ -42,9 +44,16 @@ export const QUEUE_JOBS = {
    */
   'userEnrollments:update': {
     concurrency: 5,
+    removeOnComplete: {
+      count: 400,
+      age: MONTH,
+    },
   },
   'sync:components': {
     concurrency: 1,
+    removeOnComplete: {
+      age: 0,
+    },
   },
 } as const;
 
@@ -67,10 +76,10 @@ export const JOBS = {
     queue: 'enrollments:update',
     handler: updateEnrollments,
   },
-  // UserEnrollmentsUpdate: {
-  //   queue: 'UserEnrollments:Update',
-  //   handler: updateUserEnrollments,
-  // },
+  UserEnrollmentsUpdate: {
+    queue: 'userEnrollments:update',
+    handler: userEnrollmentsUpdate,
+  },
   TeacherUpdate: {
     queue: 'teacher:updateEnrollments',
     handler: updateTeachers,

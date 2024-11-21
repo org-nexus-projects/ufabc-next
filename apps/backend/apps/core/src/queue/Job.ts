@@ -93,7 +93,7 @@ export class Jobs implements JobImpl {
     jobParameters: Omit<JobDataType<T>, 'app'>,
   ) {
     const jobOptions = {
-      removeOnComplete: true,
+      // removeOnComplete: true,
     } satisfies JobsOptions;
 
     return this.getQueue(jobName).add(jobName, jobParameters, jobOptions);

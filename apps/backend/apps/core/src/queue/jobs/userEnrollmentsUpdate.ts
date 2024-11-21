@@ -1,156 +1,211 @@
-// import {
-//   batchInsertItems,
-//   calculateCoefficients,
-//   generateIdentifier,
-//   modifyPayload,
-// } from '@next/common';
-// import { get } from 'lodash-es';
-// import {
-//   type GraduationDocument,
-//   GraduationModel,
-// } from '@/models/Graduation.js';
-// import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
-// import { SubjectModel } from '@/models/Subject.js';
-// import { EnrollmentModel } from '@/models/Enrollment.js';
-// import type { Coefficient, History } from '@/models/History.js';
+import {
+  GraduationModel,
+  type GraduationDocument,
+} from '@/models/Graduation.js';
+import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
+import { calculateCoefficients, generateIdentifier } from '@next/common';
+import { SubjectModel, type SubjectDocument } from '@/models/Subject.js';
+import type { History, HistoryCoefficients } from '@/models/History.js';
+import type { QueueContext } from '../types.js';
+import { EnrollmentModel, type Enrollment } from '@/models/Enrollment.js';
 
 // //TODO: replace _.get with a native function
 
-// export async function updateUserEnrollments(history: History) {
-//   if (!history.disciplinas) {
-//     return;
-//   }
+type HistoryComponent = History['disciplinas'][number];
 
-//   const isComponents = Array.isArray(history.disciplinas)
-//     ? history.disciplinas
-//     : [history.disciplinas];
+export async function userEnrollmentsUpdate(ctx: QueueContext<History>) {
+  const history = ctx.job.data;
 
-//   const components = isComponents.filter(Boolean);
+  if (!history.disciplinas) {
+    return;
+  }
 
-//   let graduation: GraduationDocument | null = null;
-//   if (history.curso && history.grade) {
-//     graduation = await GraduationModel.findOne({
-//       curso: history.curso,
-//       grade: history.grade,
-//     }).lean(true);
-//   }
+  const isComponents = Array.isArray(history.disciplinas)
+    ? history.disciplinas
+    : [history.disciplinas];
+  const components = isComponents.filter(Boolean);
+  let graduation: GraduationDocument | null = null;
+  if (history.curso && history.grade) {
+    graduation = await GraduationModel.findOne({
+      curso: history.curso,
+      grade: history.grade,
+    });
+  }
 
-//   const coefficients = calculateCoefficients<History['disciplinas']>(
-//     components,
-//     graduation,
-//   );
-//   history.coefficients = coefficients;
+  // @ts-ignore for now
+  const coefficients = calculateCoefficients<History['disciplinas']>(
+    components,
+    graduation,
+  ) as HistoryCoefficients;
 
-//   await GraduationHistoryModel.findOneAndUpdate(
-//     {
-//       curso: checkAndFixCourseName(history.curso!),
-//       grade: history.grade,
-//       ra: history.ra,
-//     },
-//     {
-//       $set: {
-//         curso: checkAndFixCourseName(history.curso!),
-//         grade: history.grade,
-//         ra: history.ra,
-//         coefficients,
-//         disciplinas: disciplinesArr,
-//         graduation: graduation ? graduation._id : null,
-//       },
-//     },
-//     { upsert: true },
-//   );
+  history.coefficients = coefficients;
 
-//   const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
+  try {
+    await GraduationHistoryModel.findOneAndUpdate(
+      {
+        curso: history.curso,
+        grade: history.grade,
+        ra: history.ra,
+      },
+      {
+        $set: {
+          curso: history.curso,
+          grade: history.grade,
+          ra: history.ra,
+          coefficients: history.coefficients,
+          disciplinas: history.disciplinas,
+          graduation: graduation ? graduation._id : null,
+        },
+      },
+      { upsert: true },
+    );
 
-//   const updateOrCreateEnrollments = async (
-//     discipline: History['disciplinas'][number],
-//   ) => {
-//     const disc = {
-//       ra: history.ra,
-//       year: discipline.ano,
-//       quad: Number.parseInt(discipline.periodo!),
-//       disciplina: discipline.disciplina,
-//     };
+    for (const component of components) {
+      try {
+        await processComponent(component, history, ctx);
+      } catch (error) {
+        ctx.app.log.error({
+          error: error instanceof Error ? error.message : String(error),
+          component: component.disciplina,
+          ra: history.ra,
+          msg: 'Failed to process component',
+        });
+        // Don't throw here to allow processing of other components
+      }
+    }
+  } catch (error) {
+    ctx.app.log.error({
+      error: error instanceof Error ? error.message : String(error),
+      ra: history.ra,
+      msg: 'Failed to process student history',
+    });
+    throw error; // Let BullMQ handle the retry
+  }
+}
 
-//     // calculate identifier for this discipline
-//     discipline.identifier =
-//       discipline.identifier || generateIdentifier(disc, keys as any);
+async function processComponent(
+  component: HistoryComponent,
+  history: History,
+  ctx: QueueContext<History>,
+) {
+  const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
 
-//     // find coef for this period
-//     const coef = getLastPeriod(
-//       history.coefficients!,
-//       discipline.ano!,
-//       Number.parseInt(discipline.periodo!),
-//     );
+  const key = {
+    ra: history.ra,
+    year: component.ano,
+    quad: Number(component.periodo),
+    disciplina: component.disciplina,
+  };
 
-//     const subjects = await SubjectModel.find({}).lean(true);
+  component.identifier = component.identifier || generateIdentifier(key, keys);
 
-//     // create enrollment payload
-//     const enrollmentPayload = {
-//       ra: disc.ra!,
-//       year: disc.year!,
-//       quad: disc.quad,
-//       disciplina: disc.disciplina!,
-//       conceito: discipline.conceito!,
-//       creditos: discipline.creditos!,
-//       cr_acumulado: coef?.cr_acumulado ?? get(coef, 'cr_acumulado'),
-//       ca_acumulado: coef?.ca_acumulado ?? get(coef, 'ca_acumulado'),
-//       cp_acumulado: coef?.cp_acumulado ?? get(coef, 'cp_acumulado'),
-//     };
+  const coef = getLastPeriod(
+    history.coefficients,
+    component.ano,
+    Number.parseInt(component.periodo),
+  );
 
-//     // @ts-expect-error I hate mongoose
-//     const modifiedPayload = modifyPayload(enrollmentPayload, subjects, {});
+  const subjects = await SubjectModel.find({}, { name: 1 }).lean<
+    SubjectDocument[]
+  >();
 
-//     await EnrollmentModel.findOneAndUpdate(
-//       {
-//         identifier: discipline.identifier,
-//       },
-//       modifiedPayload,
-//       {
-//         new: true,
-//         upsert: true,
-//       },
-//     );
-//   };
+  const rawEnrollment = {
+    ra: key.ra,
+    year: key.year,
+    quad: key.quad,
+    disciplina: key.disciplina,
+    conceito: component.conceito,
+    creditos: component.creditos,
+    cr_acumulado: coef?.cr_acumulado ?? null,
+    ca_acumulado: coef?.ca_acumulado ?? null,
+    cp_acumulado: coef?.cp_acumulado ?? null,
+    season: `${key.year}:${key.quad}`,
+  };
 
-//   return batchInsertItems(disciplinesArr, (discipline) =>
-//     updateOrCreateEnrollments(discipline),
-//   );
-// }
+  const enrollmentWithSubject = mapSubjects(rawEnrollment, subjects);
 
-// function checkAndFixCourseName(courseName: string) {
-//   return courseName === 'Bacharelado em CIências e Humanidades'
-//     ? 'Bacharelado em Ciências e Humanidades'
-//     : courseName;
-// }
+  try {
+    const enrollment = await EnrollmentModel.findOneAndUpdate(
+      {
+        ra: history.ra,
+        year: component.ano,
+        quad: Number(component.periodo),
+        disciplina: component.disciplina,
+      },
+      enrollmentWithSubject[0], // Take first result since we're processing one at a time
+      { new: true, upsert: true },
+    );
 
-// function getLastPeriod(
-//   disciplines: Record<string, unknown>,
-//   year: number,
-//   quad: number,
-//   begin?: string,
-// ): Coefficient | null {
-//   if (!begin) {
-//     const firstYear = Object.keys(disciplines)[0];
-//     const firstMonth = Object.keys(disciplines[firstYear]!)[0];
-//     begin = `${firstYear}.${firstMonth}`!;
-//   }
+    ctx.app.log.info({
+      msg: 'Enrollment processed successfully',
+      enrollmentId: enrollment._id,
+      ra: enrollment.ra,
+      disciplina: enrollment.disciplina,
+    });
+  } catch (error) {
+    ctx.app.log.error({
+      error: error instanceof Error ? error.message : String(error),
+      component: component.disciplina,
+      ra: history.ra,
+      msg: 'Failed to update enrollment',
+    });
+    throw error;
+  }
+}
 
-//   if (quad === 1) {
-//     quad = 3;
-//     year -= 1;
-//   } else if (quad === 2 || quad === 3) {
-//     quad -= 1;
-//   }
+function getLastPeriod(
+  coefficients: History['coefficients'],
+  year: number,
+  quad: number,
+  begin?: string,
+) {
+  const firstYear = Object.keys(coefficients)[0];
+  const firstMonth = Object.keys(coefficients[Number(firstYear)])[0];
 
-//   if (begin > `${year}.${quad}`) {
-//     return null;
-//   }
+  begin = `${firstYear}.${firstMonth}`;
 
-//   const resp = get(disciplines, `${year}.${quad}`, null);
-//   if (resp === null) {
-//     return getLastPeriod(disciplines, year, quad, begin)!;
-//   }
+  if (quad === 1) {
+    quad = 3;
+    year -= 1;
+  } else if (quad === 2 || quad === 3) {
+    quad -= 1;
+  }
 
-//   return resp as Coefficient;
-// }
+  if (begin > `${year}.${quad}`) {
+    return null;
+  }
+
+  // @ts-ignore for now
+  const resp = coefficients?.[year]?.[quad] ?? null;
+  if (resp == null) {
+    return getLastPeriod(coefficients, year, quad, begin);
+  }
+
+  return resp;
+}
+
+function mapSubjects(
+  enrollment: Partial<Enrollment>,
+  subjects: SubjectDocument[],
+) {
+  const mapSubjects = subjects.map((subject) => subject.search?.toLowerCase());
+  const enrollmentArray = Array.isArray(enrollment) ? enrollment : [enrollment];
+
+  return enrollmentArray
+    .reduce<Partial<Enrollment>[]>((acc, e: any) => {
+      if (!mapSubjects.includes(e.disciplina.toLowerCase())) {
+        acc.push(e);
+      }
+
+      const subject = subjects.find(
+        (s) => s.name?.toLowerCase() === e.disciplina.toLowerCase(),
+      );
+      e.subject = subject?._id.toString() ?? null;
+
+      return acc;
+    }, [])
+    .filter(
+      (e): e is Partial<Enrollment> =>
+        e.disciplina !== '' && e.disciplina != null,
+    );
+}

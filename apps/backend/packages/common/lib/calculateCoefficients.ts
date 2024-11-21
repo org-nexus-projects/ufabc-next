@@ -4,15 +4,9 @@ export type HistoryDiscipline = {
   disciplina: string;
   ano: number;
   creditos: number;
-  categoria: '-' | 'Opção Limitada' | 'Obrigatória';
-  identifier?: string | null;
-  situacao:
-    | 'Repr.Freq'
-    | 'Aprovado'
-    | 'Reprovado'
-    | 'Trt. Total'
-    | 'Apr.S.Nota'
-    | 'Aproveitamento';
+  categoria: 'Livre Escolha' | 'Opção Limitada' | 'Obrigatória' | '-';
+  identifier: string | null | undefined;
+  situacao: string;
   conceito: 'A' | 'B' | 'C' | 'D' | 'O' | 'F' | '-';
 };
 
