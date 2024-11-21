@@ -7,7 +7,7 @@ import { syncComponents } from './jobs/components.job.js';
 import {
   processComponentEnrollment,
   userEnrollmentsUpdate,
-} from './jobs/userEnrollmentsUpdate.js';
+} from './jobs/userEnrollments.job.js';
 import type { WorkerOptions } from 'bullmq';
 
 const MONTH = 60 * 60 * 24 * 30;

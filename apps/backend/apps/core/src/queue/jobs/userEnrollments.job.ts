@@ -1,15 +1,13 @@
+import { calculateCoefficients, generateIdentifier } from '@next/common';
 import {
   GraduationModel,
   type GraduationDocument,
 } from '@/models/Graduation.js';
 import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
-import { calculateCoefficients, generateIdentifier } from '@next/common';
 import { SubjectModel, type SubjectDocument } from '@/models/Subject.js';
+import { EnrollmentModel, type Enrollment } from '@/models/Enrollment.js';
 import type { History, HistoryCoefficients } from '@/models/History.js';
 import type { QueueContext } from '../types.js';
-import { EnrollmentModel, type Enrollment } from '@/models/Enrollment.js';
-
-// //TODO: replace _.get with a native function
 
 type HistoryComponent = History['disciplinas'][number];
 
