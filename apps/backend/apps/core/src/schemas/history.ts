@@ -10,7 +10,7 @@ const SIG_SITUATIONS = [
   'CANCELADO',
 ] as const;
 
-const SIG_RESULTS = ['A', 'B', 'C', 'D', 'E', 'F', 'O', '--', ''] as const;
+const SIG_RESULTS = ['A', 'B', 'C', 'D', 'E', 'F', 'O', '--', '', '0'] as const;
 
 const sigComponents = z.object({
   year: z.coerce.number(),
@@ -32,7 +32,7 @@ const sigComponents = z.object({
   }),
   name: z.string().transform((name) => name.trim().toLocaleLowerCase()),
   grade: z.enum(SIG_RESULTS).transform((result) => {
-    if (result.length === 0 || result === '--') {
+    if (result.length === 0 || result === '--' || result === '0') {
       return null;
     }
     return result;

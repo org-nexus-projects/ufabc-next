@@ -4,7 +4,10 @@ import { syncEnrolled } from './jobs/syncEnrolled.js';
 import { updateTeachers } from './jobs/teacherUpdate.js';
 // import { updateUserEnrollments } from './jobs/userEnrollmentsUpdate.js';
 import { syncComponents } from './jobs/components.job.js';
-import { userEnrollmentsUpdate } from './jobs/userEnrollmentsUpdate.js';
+import {
+  processComponentEnrollment,
+  userEnrollmentsUpdate,
+} from './jobs/userEnrollmentsUpdate.js';
 import type { WorkerOptions } from 'bullmq';
 
 const MONTH = 60 * 60 * 24 * 30;
@@ -83,6 +86,10 @@ export const JOBS = {
   TeacherUpdate: {
     queue: 'teacher:updateEnrollments',
     handler: updateTeachers,
+  },
+  ProcessComponentsEnrollments: {
+    queue: 'userEnrollments:update',
+    handler: processComponentEnrollment,
   },
 } as const;
 

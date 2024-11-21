@@ -60,19 +60,23 @@ export async function userEnrollmentsUpdate(ctx: QueueContext<History>) {
       { upsert: true },
     );
 
-    for (const component of components) {
+    const componentJobs = components.map(async (component) => {
       try {
-        await processComponent(component, history, ctx);
+        await ctx.app.job.dispatch('ProcessComponentsEnrollments', {
+          history,
+          component,
+        });
       } catch (error) {
         ctx.app.log.error({
           error: error instanceof Error ? error.message : String(error),
           component: component.disciplina,
           ra: history.ra,
-          msg: 'Failed to process component',
+          msg: 'Failed to dispatch component processing job',
         });
-        // Don't throw here to allow processing of other components
       }
-    }
+    });
+
+    await Promise.all(componentJobs);
   } catch (error) {
     ctx.app.log.error({
       error: error instanceof Error ? error.message : String(error),
@@ -83,11 +87,14 @@ export async function userEnrollmentsUpdate(ctx: QueueContext<History>) {
   }
 }
 
-async function processComponent(
-  component: HistoryComponent,
-  history: History,
-  ctx: QueueContext<History>,
+export async function processComponentEnrollment(
+  ctx: QueueContext<{
+    history: History;
+    component: HistoryComponent;
+  }>,
 ) {
+  const { history, component } = ctx.job.data;
+
   const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
 
   const key = {
@@ -132,7 +139,9 @@ async function processComponent(
         quad: Number(component.periodo),
         disciplina: component.disciplina,
       },
-      enrollmentWithSubject[0], // Take first result since we're processing one at a time
+      {
+        $set: { ...enrollmentWithSubject[0], identifier: component.identifier },
+      },
       { new: true, upsert: true },
     );
 
