@@ -58,7 +58,7 @@ export async function accountRoutes(app: FastifyInstance) {
     nextAccountHandler.removeUserDevice,
   );
 
-  app.get(
+  app.post(
     '/facebook',
     { schema: loginFacebookSchema },
     nextAccountHandler.loginFacebook,
