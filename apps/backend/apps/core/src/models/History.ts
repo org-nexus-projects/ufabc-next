@@ -21,6 +21,7 @@ const CATEGORIES = [
   '-',
 ] as const;
 export type Categories = (typeof CATEGORIES)[number];
+export type Situations = (typeof POSSIBLE_SITUATIONS)[number];
 
 export type Coefficient = {
   ca_quad: number;
