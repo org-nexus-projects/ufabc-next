@@ -37,7 +37,7 @@ type ShallowStudent = {
 type SigComponent = {
 	UFCode: string;
 	name: string;
-	grade: string;
+	grade: "A" | "B" | "C" | "D" | "O" | "F" | "E" | null;
 	status: string;
 	year: string;
 	period: "1" | "2" | "3";
@@ -58,6 +58,7 @@ export type Student = {
 		course: Course;
 		campus: string;
 		shift: string;
+    grade: string;
 		components: HydratedComponent[];
 	}>;
 	startedAt: string;
@@ -168,6 +169,7 @@ export async function scrapeMenu(
   const graduation = {
     course: currentGraduation.course,
     campus: currentGraduation.campus,
+    grade: curriculumByRa.appliedAt,
     shift: currentGraduation.shift,
     components,
   };

@@ -10,7 +10,21 @@ export type PaginatedSubjects = {
   }[]
 }
 
-const SUBJECTS_CACHE_KEY = 'next:subjects'
+export type SigHistory = {
+  ra: string;
+  grade: string;
+  course: string;
+  components: {
+      grade: "A" | "B" | "C" | "D" | "O" | "F" | "E" | null;
+      name: string;
+      status: string | null;
+      year: string;
+      period: "1" | "2" | "3";
+      UFCode: string;
+      category: "mandatory" | "free" | "limited";
+      credits: number;
+  }[];
+}
 
 function resolveEndpoint() {
   if (import.meta.env.PROD) {
@@ -44,4 +58,12 @@ export async function createStudent(student: Student) {
     body: student,
   })
   return createdStudent;
+}
+
+export async function syncHistory(student: SigHistory) {
+  const syncedStudent = await nextService('/history', {
+    method: 'POST',
+    body: student
+  })
+  return syncedStudent
 }

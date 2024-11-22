@@ -2,8 +2,7 @@ import { storage } from "wxt/storage";
 import { scrapeMenu, type Student } from "@/scripts/sig/homepage";
 import "toastify-js/src/toastify.css";
 import '@/assets/tailwind.css'
-import { createStudent } from "@/services/next";
-import { calculateCoefficients } from "@/utils/calculateCoefficients";
+import { createStudent, syncHistory, type SigHistory } from "@/services/next";
 
 export default defineContentScript({
 	async main() {
@@ -23,7 +22,6 @@ export default defineContentScript({
         }
 
         const existingStudent = await storage.getItem<Student>("local:student");
-
         if (existingStudent?.ra === currentStudent.ra) {
           // Check if this graduation already exists
           const currentGraduation = currentStudent.graduations[0];
@@ -38,11 +36,32 @@ export default defineContentScript({
               lastUpdate: Date.now()
             };
 
+            // update with new course
+            await syncHistory({
+              ra: existingStudent.ra,
+              course: currentGraduation.course as string,
+              grade: currentGraduation.grade,
+              components: currentGraduation.components
+            })
+
             await storage.setItem("local:student", mergedStudent);
           }
+          // update regular student - not new and same course
+          await syncHistory({
+            ra: existingStudent.ra,
+            course: currentGraduation.course as string,
+            grade: currentGraduation.grade,
+            components: currentGraduation.components
+          })
         } else {
           // Create student record with first graduation
           await storage.setItem("local:student", currentStudent);
+          await syncHistory({
+            ra: currentStudent.ra,
+            course: existingStudent?.graduations[0].course as string,
+            grade: existingStudent?.graduations[0].grade as string,
+            components: existingStudent?.graduations[0].components as SigHistory['components']
+          })
         }
 
         successToast.showToast();
