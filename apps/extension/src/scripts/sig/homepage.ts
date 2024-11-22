@@ -226,7 +226,7 @@ function extractComponents(table: HTMLTableElement) {
 						(cell) =>
 							cell.classList.contains("nota") && cell.innerText.trim() !== "",
 					);
-					component.grade = gradeCell ? gradeCell.innerText.trim() : "";
+					component.grade = gradeCell ? gradeCell.innerText.trim() as SigComponent['grade'] : null;
 					break;
 				}
 				case "situacao": {
