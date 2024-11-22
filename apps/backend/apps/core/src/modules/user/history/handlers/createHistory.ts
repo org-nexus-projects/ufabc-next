@@ -95,7 +95,8 @@ export async function createHistory(
   ) as string;
   const allUFCourses = await ufProcessor.getCourses();
   const studentCourse = allUFCourses.find(
-    (UFCourse) => UFCourse.name === course.toLocaleLowerCase(),
+    (UFCourse) =>
+      UFCourse.name.toLocaleLowerCase() === course.toLocaleLowerCase(),
   );
 
   if (!studentCourse) {
