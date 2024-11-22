@@ -109,7 +109,7 @@ export async function createHistory(
     studentGrade = history.grade;
   } else {
     const studentCourseGrades = await ufProcessor.getCourseGrades(
-      studentCourse.UFcourseId,
+      studentCourse.UFCourseId,
     );
 
     if (!studentCourseGrades) {
@@ -121,7 +121,7 @@ export async function createHistory(
   }
 
   const UFgraduation = await ufProcessor.getGraduationComponents(
-    studentCourse.UFcourseId,
+    studentCourse.UFCourseId,
     studentGrade,
   );
 

@@ -80,7 +80,7 @@ export type UFCourse = {
   name: string;
   campus: string;
   coordinator: string;
-  UFcourseId: number;
+  UFCourseId: number;
 };
 
 type UFGrade = {
