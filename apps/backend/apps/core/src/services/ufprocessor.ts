@@ -115,17 +115,6 @@ class UFProcessor {
     return grades;
   }
 
-  async getComponentsFile(link: string) {
-    const componentsWithTeachers = await this.request<
-      UFProcessorComponentFile[]
-    >('/componentsFile', {
-      query: {
-        link,
-      },
-    });
-    return componentsWithTeachers;
-  }
-
   async getEnrollments(link: string) {
     const enrollments = await this.request<UFProcessorEnrollment>(
       '/enrollments',
