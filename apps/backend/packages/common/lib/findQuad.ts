@@ -1,7 +1,7 @@
 export function findQuadFromDate(month: number) {
-  if ([0, 1, 2, 3, 4].includes(month)) return 1;
-  if ([5, 6, 7, 8].includes(month)) return 2;
-  if ([9, 10, 11].includes(month)) return 3;
+  if ([0, 1, 10, 11].includes(month)) return 1;
+  if ([2, 3, 4].includes(month)) return 2;
+  if ([5, 6, 7, 8, 9].includes(month)) return 3;
 }
 
 export function currentQuad(date?: Date): `${number}:${1 | 2 | 3}` {
