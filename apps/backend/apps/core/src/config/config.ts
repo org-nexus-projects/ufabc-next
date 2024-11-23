@@ -31,7 +31,7 @@ const envSchema = z.object({
   P_S3_ACCESS_KEY: z.string().optional(),
   P_S3_SECRET_KEY: z.string().optional(),
   P_S3_REGION: z.string().optional(),
-  UF_PROCESSOR_URL: z.string().url(),
+  UFABC_PARSER_URL: z.string().url(),
   AWS_REGION: z.string(),
   AWS_ACCESS_KEY_ID: z.string(),
   AWS_SECRET_ACCESS_KEY: z.string(),

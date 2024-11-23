@@ -40,7 +40,7 @@ const configSchema = z.object({
   P_S3_ACCESS_KEY: z.string().optional(),
   P_S3_SECRET_KEY: z.string().optional(),
   P_S3_REGION: z.string().optional(),
-  UF_PROCESSOR_URL: z.string(),
+  UFABC_PARSER_URL: z.string(),
   AWS_REGION: z.string(),
   AWS_ACCESS_KEY_ID: z.string(),
   AWS_SECRET_ACCESS_KEY: z.string(),
@@ -53,7 +53,7 @@ const schema = zodToJsonSchema(configSchema);
 export const autoConfig = {
   schema,
   dotenv: {
-    path: '.env.dev'
+    path: '.env.dev',
   },
   confKey: 'config',
 } satisfies FastifyEnvOptions;

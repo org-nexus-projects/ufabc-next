@@ -40,9 +40,6 @@ export async function buildApp(
   app.worker.setup();
   app.worker.setup();
 
-  // await app.register(userModule, {
-  //   prefix: '/v2',
-  // });
   // await app.register(entitiesModule, {
   //   prefix: '/v2',
   // });

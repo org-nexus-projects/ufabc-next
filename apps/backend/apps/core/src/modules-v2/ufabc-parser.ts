@@ -58,7 +58,7 @@ export type UFProcessorComponentFile = {
 };
 
 export const ufabcParserService = ofetch.create({
-  baseURL: process.env.UF_PROCESSOR_URL,
+  baseURL: process.env.UFABC_PARSER_URL,
   timeout: 45 * 1000, // 45 seconds,
 });
 

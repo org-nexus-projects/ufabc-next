@@ -1,25 +1,5 @@
 import { Config } from '@/config/config.js';
-import { logger } from '@next/common';
 import { ofetch } from 'ofetch';
-
-export type UFProcessorComponent = {
-  /** The id as we consume */
-  UFComponentId: number;
-  /** The code as we consume */
-  UFComponentCode: string;
-  campus: 'sbc' | 'sa';
-  name: string;
-  turma: string;
-  turno: 'diurno' | 'noturno';
-  credits: number;
-  courses: Array<{
-    name: string | '-';
-    UFCourseId: number;
-    category: 'limitada' | 'obrigatoria' | 'livre';
-  }>;
-  vacancies: number;
-  hours: Record<string, { periodicity: string; classPeriod: string[] }>[];
-};
 
 export type UFProcessorComponentFile = {
   /** The id as we consume */
@@ -46,14 +26,6 @@ export type UFProcessorComponentFile = {
   };
   hours: Record<string, { periodicity: string; classPeriod: string[] }>[];
 };
-
-type StudentRA = string;
-export type StudentComponent = {
-  code: string;
-  name: string | null;
-  errors: string[] | [];
-};
-export type UFProcessorEnrollment = Record<StudentRA, StudentComponent[]>;
 
 export type GraduationComponents = {
   name: string;
@@ -89,7 +61,7 @@ type UFGrade = {
 };
 
 class UFProcessor {
-  private readonly baseURL = Config.UF_PROCESSOR_URL;
+  private readonly baseURL = Config.UFABC_PARSER_URL;
   private readonly request: typeof ofetch;
 
   constructor() {
@@ -97,12 +69,6 @@ class UFProcessor {
       baseURL: this.baseURL,
     });
   }
-  async getComponents() {
-    const components =
-      await this.request<UFProcessorComponent[]>('/components');
-    return components;
-  }
-
   async getCourses() {
     const courses = await this.request<UFCourse[]>('/courses');
     return courses;
@@ -113,18 +79,6 @@ class UFProcessor {
       `/courses/grades/${UFCourseId}`,
     );
     return grades;
-  }
-
-  async getEnrollments(link: string) {
-    const enrollments = await this.request<UFProcessorEnrollment>(
-      '/enrollments',
-      {
-        query: {
-          link,
-        },
-      },
-    );
-    return enrollments;
   }
 
   async getGraduationComponents(id: number, year: string) {
