@@ -2,7 +2,6 @@ import type { FastifyInstance, FastifyServerOptions } from 'fastify';
 import { entitiesModule } from './modules/entities/entities.module.js';
 import { publicModule } from './modules/public/public.module.js';
 import { userModule } from './modules/user/user.module.js';
-import { syncModule } from './modules/sync/sync.module.js';
 import {
   validatorCompiler,
   serializerCompiler,
@@ -44,9 +43,6 @@ export async function buildApp(
   //   prefix: '/v2',
   // });
   // await app.register(publicModule, {
-  //   prefix: '/v2',
-  // });
-  // await app.register(syncModule, {
   //   prefix: '/v2',
   // });
 
