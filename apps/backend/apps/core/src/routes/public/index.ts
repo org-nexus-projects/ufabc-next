@@ -18,7 +18,7 @@ type ComponentsStats = {
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   const publicCache = app.cache();
 
-  app.get('/summary', { logLevel: 'silent' }, async (request, reply) => {
+  app.get('/summary', { logLevel: 'silent' }, async () => {
     const cached = publicCache.get('summary');
     if (cached) {
       return cached;

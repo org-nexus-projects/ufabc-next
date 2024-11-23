@@ -1,16 +1,22 @@
 import { type Teacher, TeacherModel } from '@/models/Teacher.js';
-import { createTeachersSchema, listTeachersSchema, updateTeacherSchema } from '@/schemas/entities/teachers.js';
+import {
+  createTeachersSchema,
+  listTeachersSchema,
+  searchTeacherSchema,
+  updateTeacherSchema,
+} from '@/schemas/entities/teachers.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+import { camelCase, startCase } from 'lodash-es';
 import { Types } from 'mongoose';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get('/', { schema: listTeachersSchema }, async () => {
-    const teachers = await TeacherModel.find({}).lean<Teacher[]>()
+    const teachers = await TeacherModel.find({}).lean<Teacher[]>();
 
     return teachers;
-  })
-  
-  app.post('/', { schema: createTeachersSchema },async (request, reply) => {
+  });
+
+  app.post('/', { schema: createTeachersSchema }, async (request, reply) => {
     const { names } = request.body;
 
     if (Array.isArray(names)) {
@@ -23,22 +29,63 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return insertedTeacher;
   });
 
-  app.put('/:teacherId', {schema: updateTeacherSchema}, async (request, reply) => {
-    const { teacherId } = request.params;
-    const { alias } = request.body;
+  app.put(
+    '/:teacherId',
+    { schema: updateTeacherSchema },
+    async (request, reply) => {
+      const { teacherId } = request.params;
+      const { alias } = request.body;
 
-    if (!teacherId) {
-      return reply.badRequest('Missing teacherId');
-    }
+      if (!teacherId) {
+        return reply.badRequest('Missing teacherId');
+      }
 
-    const teacherWithAlias = await TeacherModel.findOneAndUpdate(
-      {_id: new Types.ObjectId(teacherId)},
-      { alias },
-      { new: true }
-    ).lean<Teacher>();
+      const teacherWithAlias = await TeacherModel.findOneAndUpdate(
+        { _id: new Types.ObjectId(teacherId) },
+        { alias },
+        { new: true },
+      ).lean<Teacher>();
 
-    return teacherWithAlias;
-  })
+      return teacherWithAlias;
+    },
+  );
+
+  app.get('/search', { schema: searchTeacherSchema }, async (request) => {
+    const { q } = request.query;
+    const escapedText = q.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+    const regex = new RegExp(startCase(camelCase(escapedText)), 'gi');
+
+    const [searchResults] = await TeacherModel.aggregate<{
+      total: number;
+      data: Array<{
+        name: string;
+        alias: string[];
+      }>;
+    }>([
+      {
+        $match: { name: regex },
+      },
+      {
+        $facet: {
+          total: [{ $count: 'total' }],
+          data: [{ $limit: 10 }],
+        },
+      },
+      {
+        $addFields: {
+          total: { $ifNull: [{ $arrayElemAt: ['$total.total', 0] }, 0] },
+        },
+      },
+      {
+        $project: {
+          total: 1,
+          data: 1,
+        },
+      },
+    ]);
+
+    return searchResults;
+  });
 };
 
 export default plugin;

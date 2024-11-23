@@ -3,10 +3,8 @@ import {
   merge as LodashMerge,
   sum as LodashSum,
   sumBy as LodashSumBy,
-  camelCase,
-  startCase,
 } from 'lodash-es';
-import { type Teacher, TeacherModel } from '@/models/Teacher.js';
+import { TeacherModel } from '@/models/Teacher.js';
 import { SubjectModel } from '@/models/Subject.js';
 import { storage } from '@/services/unstorage.js';
 import type { TeacherService } from './teacher.service.js';
@@ -35,59 +33,6 @@ type GroupedDistribution = Record<
 
 export class TeacherHandler {
   constructor(private readonly teacherService: TeacherService) {}
-
-  async listAllTeachers() {
-    const teachers = await this.teacherService.listTeachers({});
-    return teachers;
-  }
-
-  async createTeacher(
-    request: FastifyRequest<{ Body: Teacher }>,
-    reply: FastifyReply,
-  ) {
-    const { name } = request.body;
-
-    if (Array.isArray(name)) {
-      const toInsert = name.map((n) => ({ name: n }));
-      const insertedTeachers = await TeacherModel.create(toInsert);
-      return insertedTeachers;
-    }
-
-    const insertedTeacher = await TeacherModel.create({ name });
-    return insertedTeacher;
-  }
-
-  async updateTeacher(
-    request: FastifyRequest<UpdateTeacherRequest>,
-    reply: FastifyReply,
-  ) {
-    const { teacherId } = request.params;
-    const { alias } = request.body;
-
-    if (!teacherId) {
-      return reply.badRequest('Missing teacherId');
-    }
-
-    const teacherWithAlias = await this.teacherService.setTeacherAlias(
-      teacherId,
-      alias,
-    );
-
-    return teacherWithAlias;
-  }
-
-  async searchTeacher(request: FastifyRequest<{ Querystring: { q: string } }>) {
-    const { q: rawSearch } = request.query;
-    const normalizedSearch = startCase(camelCase(rawSearch));
-    const validatedSearch = normalizedSearch.replaceAll(
-      /[\s#$()*+,.?[\\\]^{|}-]/g,
-      '\\$&',
-    );
-
-    const search = new RegExp(validatedSearch, 'gi');
-    const searchResults = await this.teacherService.findTeacher(search);
-    return searchResults;
-  }
 
   async teacherReview(
     request: FastifyRequest<{ Params: { teacherId: string } }>,

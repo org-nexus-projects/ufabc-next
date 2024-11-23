@@ -1,5 +1,4 @@
 import { type InferSchemaType, Schema, model } from 'mongoose';
-import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 import stringSimilarity from 'string-similarity';
 
 const normalizeName = (str: string) => str.toLowerCase().replace(/[^a-z]/g, '');
@@ -60,14 +59,26 @@ const teacherSchema = new Schema(
   },
 );
 
-teacherSchema.plugin(mongooseLeanVirtuals);
-
 teacherSchema.pre('save', function (next) {
   if (this.isNew) {
     this.name = this.name.toLowerCase();
   }
   next();
 });
+
+teacherSchema.index(
+  {
+    name: 'text',
+    alias: 'text',
+  },
+  {
+    weights: {
+      name: 10, // Name matches are more important
+      alias: 5, // Alias matches are less important
+    },
+    name: 'TeacherTextSearch',
+  },
+);
 
 export type Teacher = InferSchemaType<typeof teacherSchema>;
 export type TeacherDocument = ReturnType<(typeof TeacherModel)['hydrate']>;

@@ -31,8 +31,8 @@ export async function buildApp(
   // TODO: validate this idea
   app.register(fastifyAutoload, {
     dir: join(import.meta.dirname, 'routes'),
-    autoHooks: true,
-    cascadeHooks: true,
+    // autoHooks: true,
+    // cascadeHooks: true,
     options: { ...opts },
   });
 
