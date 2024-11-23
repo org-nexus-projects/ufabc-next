@@ -95,7 +95,7 @@ export async function processComponent({
       },
     );
 
-    app.log.info({
+    app.log.debug({
       msg: 'Component processed successfully',
       identifier: dbComponent.identifier,
       id: result._id,

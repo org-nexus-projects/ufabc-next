@@ -33,6 +33,7 @@ export async function buildApp(
     dir: join(import.meta.dirname, 'routes'),
     // autoHooks: true,
     // cascadeHooks: true,
+    ignorePattern: /^.*(?:test|spec|service).(ts|js)$/,
     options: { ...opts },
   });
 
