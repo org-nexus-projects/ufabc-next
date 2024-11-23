@@ -1,4 +1,5 @@
 import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
+import { camelCase, startCase } from 'lodash-es';
 import { z } from 'zod';
 
 const paginatedSubjectsSchema = z.object({
@@ -24,6 +25,33 @@ export const listSubjectsSchema = {
       content: {
         'application/json': {
           schema: paginatedSubjectsSchema,
+        },
+      },
+    },
+  },
+} satisfies FastifyZodOpenApiSchema;
+
+export const searchSubjectSchema = {
+  querystring: z.object({
+    q: z
+      .string()
+      .transform((str) => startCase(camelCase(str)))
+      .transform((str) => str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')),
+  }),
+  response: {
+    200: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            total: z.number().int(),
+            data: z
+              .object({
+                name: z.string(),
+                search: z.string().nullable(),
+                creditos: z.number().int(),
+              })
+              .array(),
+          }),
         },
       },
     },

@@ -50,10 +50,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     },
   );
 
-  app.get('/search', { schema: searchTeacherSchema }, async (request) => {
+  app.get('/search', async (request) => {
     const { q } = request.query;
-    const escapedText = q.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-    const regex = new RegExp(startCase(camelCase(escapedText)), 'gi');
 
     const [searchResults] = await TeacherModel.aggregate<{
       total: number;
@@ -63,7 +61,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       }>;
     }>([
       {
-        $match: { name: regex },
+        $match: { name: new RegExp(q, 'gi') },
       },
       {
         $facet: {

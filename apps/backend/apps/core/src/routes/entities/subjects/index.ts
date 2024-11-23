@@ -1,5 +1,8 @@
 import { SubjectModel } from '@/models/Subject.js';
-import { listSubjectsSchema } from '@/schemas/entities/subjects.js';
+import {
+  listSubjectsSchema,
+  searchSubjectSchema,
+} from '@/schemas/entities/subjects.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
@@ -25,6 +28,42 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       pages,
       data: results,
     };
+  });
+
+  app.get('/search', { schema: searchSubjectSchema }, async (request) => {
+    const { q } = request.query;
+
+    const [searchResults] = await SubjectModel.aggregate<{
+      total: number;
+      data: Array<{
+        name: string;
+        search: string | null;
+        creditos: number;
+      }>;
+    }>([
+      {
+        $match: { name: new RegExp(q, 'gi') },
+      },
+      {
+        $facet: {
+          total: [{ $count: 'total' }],
+          data: [{ $limit: 10 }],
+        },
+      },
+      {
+        $addFields: {
+          total: { $ifNull: [{ $arrayElemAt: ['$total.total', 0] }, 0] },
+        },
+      },
+      {
+        $project: {
+          total: 1,
+          data: 1,
+        },
+      },
+    ]);
+
+    return searchResults;
   });
 };
 

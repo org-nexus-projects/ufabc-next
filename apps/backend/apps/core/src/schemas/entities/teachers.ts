@@ -1,4 +1,5 @@
 import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
+import { camelCase, startCase } from 'lodash-es';
 import { z } from 'zod';
 
 export const listTeachersSchema = {
@@ -46,19 +47,15 @@ export const updateTeacherSchema = {
     200: {
       content: {
         'application/json': {
-          schema: z
-            .object({
-              name: z.string().openapi({
-                description:
-                  'Nome do professor em que a atualização foi aplicada',
-                example: 'John Doe / john doe',
-              }),
-              alias: z
-                .string()
-                .array()
-                .openapi({ description: 'Alias com sua alteração' }),
-            })
-            .nullable(),
+          schema: z.object({
+            total: z.number().int(),
+            data: z
+              .object({
+                name: z.string(),
+                alias: z.string().array().nullable(),
+              })
+              .array(),
+          }),
         },
       },
     },
@@ -69,9 +66,8 @@ export const searchTeacherSchema = {
   querystring: z.object({
     q: z
       .string()
-      .min(1)
-      .transform((str) => str.toLocaleLowerCase())
-      .transform((str) => str.replaceAll(/[\s#$()*+,.?[\\\]^{|}-]/g, '\\$&')),
+      .transform((str) => startCase(camelCase(str)))
+      .transform((str) => str.replace(/[\s#$()*+,.?[\\\]^{|}-]/g, '\\$&')),
   }),
   response: {
     200: {
@@ -82,7 +78,7 @@ export const searchTeacherSchema = {
             data: z
               .object({
                 name: z.string(),
-                alias: z.string().array(),
+                alias: z.string().array().nullable(),
               })
               .array(),
           }),

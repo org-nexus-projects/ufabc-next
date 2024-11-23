@@ -24,51 +24,6 @@ type GroupedDistribution = Record<
 
 export class SubjectHandler {
   constructor(private readonly subjectService: SubjectService) {}
-
-  async searchSubject(request: FastifyRequest<{ Querystring: { q: string } }>) {
-    const { q: rawSearch } = request.query;
-    const normalizedSearch = startCase(camelCase(rawSearch));
-    const validatedSearch = normalizedSearch.replaceAll(
-      /[\s#$()*+,.?[\\\]^{|}-]/g,
-      '\\$&',
-    );
-
-    const search = new RegExp(validatedSearch, 'gi');
-    const searchResults = await this.subjectService.findSubject(search);
-    return searchResults;
-  }
-
-  async createSubject(
-    request: FastifyRequest<{
-      Body: Array<{ name: string; credits: number }>;
-    }>,
-    reply: FastifyReply,
-  ) {
-    const subjects = request.body;
-
-    if (
-      Array.isArray(subjects) &&
-      subjects.every((item) => item.name && item.credits)
-    ) {
-      const toInsert = subjects.map((item) => ({
-        name: item.name,
-        creditos: item.credits,
-      }));
-
-      const insertedSubjects = await SubjectModel.create(toInsert);
-      return insertedSubjects;
-    }
-
-    return reply.badRequest(
-      'Invalid payload format. Each item must contain both `name` and `credits`.',
-    );
-  }
-
-  async listAllSubjects() {
-    const subjects = await this.subjectService.listSubjects();
-    return subjects;
-  }
-
   // this need a big refactor
   async subjectsReviews(
     request: FastifyRequest<{ Params: { subjectId: string } }>,
