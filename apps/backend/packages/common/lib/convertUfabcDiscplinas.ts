@@ -24,7 +24,7 @@ export type Disciplina = {
       }[];
   turma: string;
   disciplina: string;
-  disciplina_id: number;
+  disciplina_id: number | '-';
   teoria: string | null;
   pratica: string | null;
 };

@@ -38,6 +38,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         turma: 1,
         turno: 1,
         disciplina_id: 1,
+        season: 1,
       },
     )
       .populate<{

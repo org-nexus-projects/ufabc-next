@@ -26,7 +26,7 @@ const configSchema = z.object({
   RATE_LIMIT_MAX: z.coerce.number().default(100),
   MONGODB_CONNECTION_URL: z.string().default('mongodb://127.0.0.1:27017/local'),
   REDIS_CONNECTION_URL: z.string().default('redis://localhost:6379'),
-  COOKIE_SECRET: z.string().min(32),
+  COOKIE_SECRET: z.string().min(32).optional(),
   COOKIE_NAME: z.string().default('cookie'),
   COOKIE_SECURED: z.coerce.boolean().default(false),
   WEB_URL: z.string().default(NEXT_WEB_LOCAL),

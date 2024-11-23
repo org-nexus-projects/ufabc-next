@@ -18,6 +18,7 @@ const NonPaginatedComponentsSchema = z.object({
   teoria: z.string().optional().openapi({ description: 'Nome do professor' }),
   pratica: z.string().optional().openapi({ description: 'Nome do professor' }),
   teoriaId: z.coerce.string().optional().openapi({ description: 'Id interno' }),
+  season: z.string().openapi({ description: 'Chave do tenant' }),
   praticaId: z.coerce
     .string()
     .optional()
