@@ -8,6 +8,7 @@ import {
   userEnrollmentsUpdate,
 } from './jobs/user-enrollments.job.js';
 import type { WorkerOptions } from 'bullmq';
+import { processComponentsTeachers } from './jobs/components-teacher.job.js';
 
 const MONTH = 60 * 60 * 24 * 30;
 
@@ -51,7 +52,8 @@ export const QUEUE_JOBS: Record<any, WorkerOptions> = {
     concurrency: 5,
   },
   /**
-   * Queue for updating our codebase with the users enrollments
+   * Queue for updating our 
+   codebase with the users enrollments
    */
   'userEnrollments:update': {
     concurrency: 5,
@@ -71,6 +73,17 @@ export const QUEUE_JOBS: Record<any, WorkerOptions> = {
       duration: 1000,
     },
   },
+  'sync:components:teachers': {
+    concurrency: 10,
+    removeOnComplete: {
+      count: 1000,
+      age: 24 * 60 * 60,
+    },
+    limiter: {
+      max: 50,
+      duration: 1000,
+    },
+  }
 } as const;
 
 export const JOBS = {
@@ -112,6 +125,10 @@ export const JOBS = {
     queue: 'enrollments:update',
     handler: processSingleEnrollment,
   },
+  ComponentsTeachersSync: {
+    queue: 'sync:components:teachers',
+    handler: processComponentsTeachers,
+  }
 } as const;
 
 export type QueueNames = keyof typeof QUEUE_JOBS;
