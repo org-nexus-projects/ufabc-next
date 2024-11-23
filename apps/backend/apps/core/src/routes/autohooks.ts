@@ -10,15 +10,14 @@ export default async function (app: FastifyInstance) {
       request.url.startsWith('/entities/subjects') ||
       request.url.startsWith('/history') ||
       request.url.startsWith('/sync/enrollments') ||
-      request.url.startsWith('/sync/components')
+      request.url.startsWith('/sync/components') ||
+      request.url.startsWith('/entities/teachers')
     ) {
       return;
     }
 
     try {
       await request.jwtVerify();
-      const decoded = await request.jwtDecode();
-      app.log.warn(decoded);
     } catch (error) {
       return reply.unauthorized(
         'You must be authenticated to access this route.',
