@@ -1,15 +1,18 @@
 import { normalizeDiacritics } from "@/utils/removeDiacritics";
 import { extractCredits } from "@/utils/extractCredits";
 
-export async function scrapeClassesPage(page: string) {
+export function scrapeClassesPage(page: string) {
   const parser = new DOMParser();
-  const gradesDocument = parser.parseFromString(page, "text/html");
-  if (!gradesDocument.body) {
+  const classesDocument = parser.parseFromString(page, "text/html");
+  if (!classesDocument.body) {
     console.log("could not mount document", document);
     return null;
   }
 
-  const $table = document.querySelector<HTMLTableElement>(
+  console.log("classesDocument");
+  console.log(classesDocument);
+
+  const $table = classesDocument.querySelector<HTMLTableElement>(
     "#j_id_jsp_303365748_2 > table > tbody:nth-child(4)"
   );
 
