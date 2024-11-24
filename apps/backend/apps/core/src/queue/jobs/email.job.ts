@@ -1,5 +1,4 @@
 import { sesSendEmail } from '@/services/ses.js';
-import { Config } from '@/config/config.js';
 import type { User } from '@/models/User.js';
 import type { QueueContext } from '../types.js';
 
@@ -8,10 +7,16 @@ type Result = {
   messageId?: string;
 };
 
+const MAILER_CONFIG = {
+  EMAIL_CONFIRMATION_TEMPLATE: 'Confirmation',
+  EMAIL_RECOVERY_TEMPLATE: 'Recovery',
+  EMAIL: 'contato@ufabcnext.com',
+} as const
+
 export async function sendConfirmationEmail(
   ctx: QueueContext<User>,
 ): Promise<Result> {
-  const emailTemplate = Config.MAILER_CONFIG.EMAIL_CONFIRMATION_TEMPLATE;
+  const emailTemplate = MAILER_CONFIG.EMAIL_CONFIRMATION_TEMPLATE;
   const { data } = ctx.job;
   if (!data.email) {
     throw new Error('Email not found');
@@ -28,7 +33,7 @@ export async function sendConfirmationEmail(
         url: `${ctx.app.config.WEB_URL}/confirm?token=${token}`,
       },
     };
-    const response = await sesSendEmail(data, emailTemplate, emailRequest);
+    const response = await sesSendEmail(data, emailTemplate, emailRequest, ctx.app.config);
     return {
       sentTo: `Returned value ${data.ra}`,
       messageId: response?.MessageId,

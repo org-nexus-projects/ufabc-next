@@ -4,7 +4,7 @@ import {
   type SendTemplatedEmailCommandInput,
 } from '@aws-sdk/client-ses';
 import { logger } from '@next/common';
-import { Config } from '@/config/config.js';
+import { FastifyInstance } from 'fastify';
 
 type User = {
   email: string;
@@ -23,12 +23,13 @@ export async function sesSendEmail(
   user: User,
   templateId: 'Confirmation' | 'Recover',
   email: Email,
+  config: FastifyInstance['config']
 ) {
   const sesClient = new SESClient({
-    region: Config.AWS_REGION,
+    region: config.AWS_REGION,
     credentials: {
-      accessKeyId: Config.AWS_ACCESS_KEY_ID,
-      secretAccessKey: Config.AWS_SECRET_ACCESS_KEY,
+      accessKeyId: config.AWS_ACCESS_KEY_ID,
+      secretAccessKey: config.AWS_SECRET_ACCESS_KEY,
     },
   });
   let templateData: string;

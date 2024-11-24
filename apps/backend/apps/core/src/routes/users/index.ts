@@ -157,14 +157,14 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     '/remove',
     { schema: deactivateUserSchema },
     async ({ user }, reply) => {
-      const user = await UserModel.findById(user._id);
+      const currentUser = await UserModel.findById(user._id);
 
-      if (!user) {
+      if (!currentUser) {
         return reply.notFound('User not found');
       }
 
-      user.active = false;
-      await user.save();
+      currentUser.active = false;
+      await currentUser.save();
 
       return {
         message: 'Foi bom te ter aqui =)',
