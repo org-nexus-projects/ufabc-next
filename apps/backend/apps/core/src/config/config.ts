@@ -22,21 +22,13 @@ const envSchema = z.object({
   RATE_LIMIT_MAX: z.coerce.number().default(5),
   WEB_URL: z.string().default(NEXT_WEB_LOCAL),
   ALLOWED_ORIGINS: z.string().transform((origins) => origins.split(',')),
-  P_STAGING_DIR: z.string().default('/logs-local'),
-  P_ADDR: z.string().default(`${address}:8000`),
-  P_USERNAME: z.string().default('next-logs'),
-  P_PASSWORD: z.string().default('logs-password'),
-  P_S3_BUCKET: z.string().default('local'),
-  P_S3_URL: z.string().url().optional(),
-  P_S3_ACCESS_KEY: z.string().optional(),
-  P_S3_SECRET_KEY: z.string().optional(),
-  P_S3_REGION: z.string().optional(),
   UFABC_PARSER_URL: z.string().url(),
   AWS_REGION: z.string(),
   AWS_ACCESS_KEY_ID: z.string(),
   AWS_SECRET_ACCESS_KEY: z.string(),
   OAUTH_GOOGLE_CLIENT_ID: z.string(),
   OAUTH_GOOGLE_SECRET: z.string().min(16),
+  BACKOFFICE_EMAILS: z.string().optional().transform(s => s?.split(',')),
 });
 
 const _env = envSchema.safeParse(process.env);

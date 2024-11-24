@@ -6,6 +6,7 @@ import {
   validatorCompiler,
   serializerCompiler,
   RequestValidationError,
+  ResponseSerializationError,
 } from 'fastify-zod-openapi';
 import { fastifyAutoload } from '@fastify/autoload';
 import { join } from 'node:path';
@@ -31,8 +32,8 @@ export async function buildApp(
   // TODO: validate this idea
   app.register(fastifyAutoload, {
     dir: join(import.meta.dirname, 'routes'),
-    // autoHooks: true,
-    // cascadeHooks: true,
+    autoHooks: true,
+    cascadeHooks: true,
     ignorePattern: /^.*(?:test|spec|service).(ts|js)$/,
     options: { ...opts },
   });
@@ -71,6 +72,52 @@ export async function buildApp(
 
     return new Error(message);
   });
+
+  app.setErrorHandler((error, request, reply) => {
+    
+    if (error instanceof ResponseSerializationError) {
+      app.log.error(
+        {
+          error,
+          request: {
+            method: request.method,
+            url: request.url,
+            query: request.query,
+            params: request.params
+          }
+        },
+        'Error serializing response'
+      )
+
+      return reply.status(500).send({
+        error: error.name,
+        statusCode: 500,
+        message: error.message
+      });
+    }
+
+      app.log.error(
+      {
+        error,
+        request: {
+          method: request.method,
+          url: request.url,
+          query: request.query,
+          params: request.params
+        }
+      },
+      'Unhandled error occurred'
+    )
+
+    reply.code(error.statusCode ?? 500)
+
+    let message = 'Internal Server Error'
+    if (error.statusCode && error.statusCode < 500) {
+      message = error.message
+    }
+
+    return { message }
+  })
 
   app.setNotFoundHandler(
     {

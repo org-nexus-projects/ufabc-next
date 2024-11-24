@@ -15,14 +15,11 @@ export const listTeachersSchema = {
                   'Nome do professor, pode vir minusculo ou em Title Case',
                 example: 'John Doe / john doe',
               }),
-              alias: z
-                .string()
-                .array()
-                .openapi({
-                  description:
-                    'Outros nomes pelo qual o professor ja pode ter aparecido',
-                  example: ['Johnzinho doe'],
-                }),
+              alias: z.string().array().nullish().openapi({
+                description:
+                  'Outros nomes pelo qual o professor ja pode ter aparecido',
+                example: ['Johnzinho doe'],
+              })
             })
             .array(),
         },

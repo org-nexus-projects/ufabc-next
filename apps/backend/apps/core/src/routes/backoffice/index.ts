@@ -11,12 +11,14 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           email: z.string().email(),
         }),
       },
-      preHandler: (request, reply) => request.isAdmin(reply),
     },
     async (request, reply) => {
       const { email } = request.body;
-
-      app.log.warn(request.body);
+      const isValid = app.config.BACKOFFICE_EMAILS?.includes(email)
+      
+      if (!isValid) {
+        return reply.badRequest();
+      }
 
       const user = await UserModel.findOne({
         email,

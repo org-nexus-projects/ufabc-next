@@ -71,8 +71,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     });
 
     // dispatch coefficients job.
-    // @ts-ignore, type later
-    await app.job.dispatch('UserEnrollmentsUpdate', history?.toObject());
+    await app.job.dispatch('UserEnrollmentsUpdate', history?.toJSON() as NonNullable<History>);
     return {
       msg: history
         ? `Updated history for ${sigHistory.ra}`
