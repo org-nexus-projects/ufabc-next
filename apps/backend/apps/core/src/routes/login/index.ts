@@ -38,10 +38,11 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         const user = await createOrLogin(oauthUser, userId);
         const jwtToken = this.jwt.sign(
           {
-            studentId: user._id.toJSON(),
-            active: user.active,
+            _id: user._id,
+            ra: user.ra,
             confirmed: user.confirmed,
             email: user.email,
+            permissions: user.permissions,
           },
           { expiresIn: '7d' },
         );

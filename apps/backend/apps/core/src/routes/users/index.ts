@@ -15,16 +15,14 @@ import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   const usersCache = app.cache<Auth>();
   app.get('/info', { schema: userAuthSchema }, async (request, reply) => {
-    const decodedStudent = await request.jwtDecode<any>();
-
     const cachedResponse = usersCache.get(
-      `user:info:${decodedStudent.studentId}`,
+      `user:info:${request.user._id}`,
     );
     if (cachedResponse) {
       return cachedResponse;
     }
 
-    const user = await UserModel.findById(decodedStudent.studentId);
+    const user = await UserModel.findById(request.user._id);
     if (!user) {
       return reply.badRequest('User not found');
     }
@@ -40,7 +38,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       permissions: user.permissions,
     };
 
-    usersCache.set(`user:info:${decodedStudent.studentId}`, userInfo);
+    usersCache.set(`user:info:${request.user._id}`, userInfo);
 
     return userInfo;
   });
@@ -73,10 +71,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   );
 
   app.post('/resend', { schema: resendEmailSchema }, async (request, reply) => {
-    const decodedUser = request.jwtDecode();
-
     const user = await UserModel.findOne({
-      _id: decodedUser.studentId,
+      _id: request.user._id,
       active: true,
       confirmed: false,
     });
@@ -95,10 +91,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     { schema: completeUserSchema },
     async (request, reply) => {
       const { email, ra } = request.body;
-      const decodedUser = await request.jwtDecode<any>();
       try {
         const user = await UserModel.findByIdAndUpdate(
-          decodedUser.studentId,
+          request.user._id,
           { email, ra },
           { new: true },
         );
@@ -143,10 +138,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       const jwtToken = app.jwt.sign(
         {
-          studentId: confirmedUser._id.toJSON(),
-          active: confirmedUser.active,
+          _id: confirmedUser._id,
+          ra: confirmedUser.ra,
           confirmed: confirmedUser.confirmed,
           email: confirmedUser.email,
+          permissions: confirmedUser.permissions,
         },
         { expiresIn: '7d' },
       );
@@ -160,8 +156,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.delete(
     '/remove',
     { schema: deactivateUserSchema },
-    async ({ session }, reply) => {
-      const user = await UserModel.findById(session.user.studentId);
+    async ({ user }, reply) => {
+      const user = await UserModel.findById(user._id);
 
       if (!user) {
         return reply.notFound('User not found');

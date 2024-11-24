@@ -45,13 +45,8 @@ export const updateTeacherSchema = {
       content: {
         'application/json': {
           schema: z.object({
-            total: z.number().int(),
-            data: z
-              .object({
-                name: z.string(),
-                alias: z.string().array().nullable(),
-              })
-              .array(),
+            name: z.string(),
+            alias: z.string().array(),
           }),
         },
       },
@@ -75,7 +70,7 @@ export const searchTeacherSchema = {
             data: z
               .object({
                 name: z.string(),
-                alias: z.string().array().nullable(),
+                alias: z.string().array().nullish(),
               })
               .array(),
           }),

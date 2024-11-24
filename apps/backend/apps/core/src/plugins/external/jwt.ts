@@ -1,8 +1,18 @@
 import { fastifyJwt } from '@fastify/jwt';
 import { fastifyPlugin as fp } from 'fastify-plugin';
-import type { ObjectId } from 'mongoose';
-import type { UserDocument } from '@/models/User.js';
 import type { FastifyInstance } from 'fastify';
+
+declare module '@fastify/jwt' {
+  interface FastifyJWT {
+    user: {
+      _id: string;
+      ra: number;
+      confirmed: boolean;
+      email: string;
+      permissions: string[];
+    };
+  }
+}
 
 export async function jwtAuth(app: FastifyInstance) {
   try {

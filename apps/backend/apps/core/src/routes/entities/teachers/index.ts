@@ -6,13 +6,11 @@ import {
   updateTeacherSchema,
 } from '@/schemas/entities/teachers.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import { camelCase, startCase } from 'lodash-es';
 import { Types } from 'mongoose';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
-  app.get('/', { schema: listTeachersSchema }, async () => {
+  app.get('/', { schema: listTeachersSchema }, async (request) => {
     const teachers = await TeacherModel.find({}).lean<Teacher[]>();
-
     return teachers;
   });
 
@@ -46,11 +44,15 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         { new: true },
       ).lean<Teacher>();
 
+      if(!teacherWithAlias) {
+        return reply.badRequest('Teacher not found')
+      }
+
       return teacherWithAlias;
     },
   );
 
-  app.get('/search', async (request) => {
+  app.get('/search', { schema: searchTeacherSchema },async (request) => {
     const { q } = request.query;
 
     const [searchResults] = await TeacherModel.aggregate<{
