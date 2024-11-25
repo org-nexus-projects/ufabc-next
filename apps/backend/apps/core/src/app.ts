@@ -34,10 +34,8 @@ export async function buildApp(opts: FastifyServerOptions = {}) {
       prefix: '/v2',
     });
 
-    nextJobs.setup();
-    nextWorker.setup();
-
-  
+    // nextJobs.setup();
+    // nextWorker.setup();
 
     return app;
   } catch (error) {
