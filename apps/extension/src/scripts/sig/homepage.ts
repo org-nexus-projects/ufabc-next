@@ -9,7 +9,7 @@ import {
 } from '@/services/ufabc-parser';
 import { transformCourseName, type Course } from '@/utils/transformCourse';
 import { capitalizeStr } from '@/utils/capitalizeStr';
-import { getPaginatedSubjects, type PaginatedSubjects } from '@/services/next';
+import { getStudentHistory } from '@/services/next';
 import { scrapeClassesPage } from './classesPage';
 
 type SigStudent = {
@@ -152,7 +152,7 @@ export async function scrapeMenu(
 	const graduationCurriculums = await getUFCourseCurriculums(
 		studentGraduation.UFCourseId,
 	);
-	const curriculumByRa = resolveCurriculum(
+	const curriculumByRa = await resolveCurriculum(
 		shallowStudent.ra,
 		graduationCurriculums,
 	);
@@ -272,16 +272,19 @@ function extractHeaders(table: HTMLTableElement) {
 		.filter((header) => wantedFields.includes(header));
 }
 
-function resolveCurriculum(ra: string, curriculums: UFCourseCurriculum[]) {
-	const raYear = ra.slice(2, 6);
-	const sortedCurriculums = curriculums.sort(
-		(a, b) => Number.parseInt(b.appliedAt) - Number.parseInt(a.appliedAt),
-	);
-	const appropriateCurriculum = sortedCurriculums.find(
-		(curriculum) =>
-			Number.parseInt(curriculum.appliedAt) <= Number.parseInt(raYear),
-	);
-	return appropriateCurriculum;
+async function resolveCurriculum(
+	ra: string,
+	curriculums: UFCourseCurriculum[],
+) {
+	const history = await getStudentHistory(Number(ra));
+	if (history?.grade) {
+		const teste = curriculums.find(
+			(curriculum) => curriculum.grade === history.grade,
+		);
+		return teste;
+	}
+
+	return curriculums.at(0);
 }
 
 function hydrateComponents(
@@ -293,8 +296,9 @@ function hydrateComponents(
 	);
 	if (!match) {
 		return {
-			category: 'free',
 			...sigComponent,
+			name: sigComponent.name.toLocaleLowerCase(),
+      category: 'free',
 		};
 	}
 

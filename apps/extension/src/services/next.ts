@@ -1,14 +1,11 @@
 import type { Student } from "@/scripts/sig/homepage";
 import { ofetch } from "ofetch";
 
-export type PaginatedSubjects = {
-  total: number;
-  pages: number;
-  data: {
-    name: string;
-    credits: number;
-  }[];
-};
+export type StudentHistory = {
+	grade: string;
+	ra: number;
+	curso: string;
+}
 
 export type SigHistory = {
   ra: string;
@@ -38,18 +35,10 @@ export const nextService = ofetch.create({
   baseURL: resolveEndpoint(),
 });
 
-export async function getPaginatedSubjects(page = 1, limit = 2_000) {
-  const paginatedSubjects = await nextService<PaginatedSubjects>(
-    "/entities/subjects",
-    {
-      params: {
-        page: page,
-        limit: limit,
-      },
-    }
-  );
+export async function getStudentHistory(ra: number) {
+  const studentHistory = await nextService<StudentHistory>(`/histories/me?ra=${ra}`);
 
-  return paginatedSubjects;
+  return studentHistory;
 }
 
 export async function createStudent(student: Student) {
