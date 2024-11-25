@@ -1,5 +1,5 @@
 import { ComponentModel } from '@/models/Component.js';
-import { SubjectModel } from '@/models/Subject.js';
+import { SubjectModel, type Subject } from '@/models/Subject.js';
 import { getComponents } from '@/modules-v2/ufabc-parser.js';
 import { currentQuad, generateIdentifier } from '@next/common';
 import { camelCase, startCase } from 'lodash-es';
@@ -116,24 +116,24 @@ async function processSubject(component: ParserComponent) {
   const normalizedName = component.name.toLowerCase();
 
   try {
-    // Use findOneAndUpdate instead of separate find and update operations
-    const subject = await SubjectModel.findOneAndUpdate(
-      { name: normalizedName },
-      {
-        $set: {
-          name: normalizedName,
-          creditos: component.credits,
-          search: startCase(camelCase(normalizedName)),
-        },
-      },
-      {
-        new: true,
-        upsert: true,
-        setDefaultsOnInsert: true,
-      },
+    const existingSubjects = await SubjectModel.find({});
+    const matchedSubject = existingSubjects.find(
+      (subject) => subject.name.toLowerCase() === normalizedName,
     );
+    if (matchedSubject) {
+      matchedSubject.creditos = component.credits;
+      matchedSubject.search = startCase(camelCase(normalizedName));
+      await matchedSubject.save();
+      return matchedSubject;
+    }
+    // Use findOneAndUpdate instead of separate find and update operations
+    const newSubject = await SubjectModel.create({
+      name: normalizedName,
+      creditos: component.credits,
+      search: startCase(camelCase(normalizedName)),
+    });
 
-    return subject;
+    return newSubject;
   } catch (error: any) {
     if (error.code === 11000) {
       // Handle potential race condition by retrying the find
