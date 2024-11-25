@@ -20,6 +20,7 @@ const CATEGORIES = [
   '-',
 ] as const;
 export type Categories = (typeof CATEGORIES)[number];
+export type Concept = (typeof CONCEITOS)[number];
 
 export type Coefficient = {
   ca_quad: number;

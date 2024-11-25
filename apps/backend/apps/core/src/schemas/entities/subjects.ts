@@ -1,5 +1,6 @@
 import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 import { camelCase, startCase } from 'lodash-es';
+import { Types } from 'mongoose';
 import { z } from 'zod';
 
 const paginatedSubjectsSchema = z.object({
@@ -56,4 +57,11 @@ export const searchSubjectSchema = {
       },
     },
   },
+} satisfies FastifyZodOpenApiSchema;
+
+export const subjectReviewsSchema = {
+  tags: ['subjects'],
+  params: z.object({
+    subjectId: z.string().transform((str) => new Types.ObjectId(str)),
+  }),
 } satisfies FastifyZodOpenApiSchema;
