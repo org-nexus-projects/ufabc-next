@@ -23,6 +23,58 @@ export type SigHistory = {
   }[];
 };
 
+type Concept = "A" | "B" | "C" | "D" | "O" | "F"
+
+type Distribution = {
+  conceito: Concept;
+  weight: number;
+  count: number;
+  cr_medio: number;
+  numeric: number;
+  numericWeight: number;
+  amount: number;
+  cr_professor: number;
+}
+
+type DetailedReviews = {
+  _id: {
+    mainTeacher: string;
+  }
+  distribution: Array<Distribution>
+  numericWeight: number;
+  numeric: number;
+  amount: number;
+  count: number;
+  cr_professor: number;
+  cr_medio: number;
+  teacher: {
+    _id: string;
+    name: string;
+    alias: string[] | null
+  }
+}
+
+type SubjectReview = {
+  subject: {
+    _id: string,
+    name: string,
+    search: string,
+    updatedAt: string,
+    creditos: number
+  }
+  general:  {
+    distribution: Array<Distribution>
+    cr_medio: number;
+    cr_professor: number;
+    count: number;
+    amount: number;
+    numeric: number;
+    numericWeight: number;
+    weight: number;
+  }
+  specific: Array<DetailedReviews>
+}
+
 function resolveEndpoint() {
   if (import.meta.env.PROD) {
     return "https://api.v2.ufabcnext.com";
@@ -55,4 +107,9 @@ export async function syncHistory(student: SigHistory) {
     body: student,
   });
   return syncedStudent;
+}
+
+export async function getSubjectReviews(subjectId: string) {
+  const reviews = await nextService<SubjectReview>(`/entities/subjects/reviews/${subjectId}`)
+  return reviews;
 }
