@@ -2,7 +2,10 @@ import { currentQuad } from "@next/common";
 import { FastifyZodOpenApiSchema } from "fastify-zod-openapi";
 import { z } from "zod";
 
+const tags = ['Students']
+
 export const listStudentsStatsComponents = {
+  tags,
   querystring: z.object({
     season: z.string().default(currentQuad()),
   }),
@@ -18,4 +21,37 @@ export const listStudentsStatsComponents = {
       }
     }
   }
+} satisfies FastifyZodOpenApiSchema
+
+export const listStudentSchema = {
+  tags,
+  response: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            studentId: z.number().int(),
+            login: z.string(),
+          })
+        }
+      }
+    }
+  }
+} satisfies FastifyZodOpenApiSchema
+
+export const createStudentSchema = {
+  tags,
+  body: z.object({
+    studentId: z.number().int(),
+    ra: z.number(),
+    login: z.string(),
+    graduations: z.object({
+      courseId: z.number().int().array(),
+      name: z.string(),
+      cp: z.number().optional(),
+      cr: z.number().optional(),
+      ind_afinidade: z.number().optional(),
+      quads: z.number().optional(),
+    }).array()
+  })
 } satisfies FastifyZodOpenApiSchema
