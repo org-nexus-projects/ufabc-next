@@ -112,7 +112,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       );
 
       const subject = await SubjectModel.findOne({
-        _id: subjectId,
+        _id: validSubjectId,
       }).lean();
       const teacher = await TeacherModel.populate(stats, 'teacher');
       const resp = {
