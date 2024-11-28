@@ -7,6 +7,7 @@ import {
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import { rawSubjectsReviews, type Distribution } from './service.js';
 import { TeacherModel } from '@/models/Teacher.js';
+import { Types } from 'mongoose';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   const subjectsCache = app.cache<{}>();
@@ -72,9 +73,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
   app.get(
     '/reviews/:subjectId',
-    { schema: subjectReviewsSchema },
     async (request, reply) => {
-      const { subjectId } = request.params;
+      const { subjectId } = request.params as { subjectId: string } ;
 
       if (!subjectId) {
         return reply.badRequest('Missing SubjectId');
@@ -87,7 +87,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         return cached;
       }
 
-      const stats = await rawSubjectsReviews(subjectId);
+      const validSubjectId = new Types.ObjectId(subjectId)
+      const stats = await rawSubjectsReviews(validSubjectId);
       // biome-ignore lint/complexity/noForEach: <explanation>
       stats.forEach((s) => {
         s.cr_medio = s.numeric / s.amount;

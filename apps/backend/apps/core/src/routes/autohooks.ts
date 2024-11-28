@@ -1,13 +1,14 @@
 import type { FastifyInstance } from 'fastify';
 
-
 const PUBLIC_ROUTES = [
   '/public',
   '/login',
   '/backoffice',
+  '/history',
   '/entities/components',
   '/entities/subjects',
-  '/history',
+  '/entities/students/stats/components',
+  '/entities/students/courses',
 ];
 
 const isPublicRoute = (url: string): boolean => {
