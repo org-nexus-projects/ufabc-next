@@ -42,6 +42,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       total: number;
       data: Array<{
         name: string;
+        _id: string;
         search: string | null;
         creditos: number;
       }>;
@@ -71,64 +72,61 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return searchResults;
   });
 
-  app.get(
-    '/reviews/:subjectId',
-    async (request, reply) => {
-      const { subjectId } = request.params as { subjectId: string } ;
+  app.get('/reviews/:subjectId', async (request, reply) => {
+    const { subjectId } = request.params as { subjectId: string };
 
-      if (!subjectId) {
-        return reply.badRequest('Missing SubjectId');
-      }
+    if (!subjectId) {
+      return reply.badRequest('Missing SubjectId');
+    }
 
-      const cacheKey = `reviews:${subjectId.toString()}`;
-      const cached = subjectsCache.get(cacheKey);
+    const cacheKey = `reviews:${subjectId.toString()}`;
+    const cached = subjectsCache.get(cacheKey);
 
-      if (cached) {
-        return cached;
-      }
+    if (cached) {
+      return cached;
+    }
 
-      const validSubjectId = new Types.ObjectId(subjectId)
-      const stats = await rawSubjectsReviews(validSubjectId);
-      // biome-ignore lint/complexity/noForEach: <explanation>
-      stats.forEach((s) => {
-        s.cr_medio = s.numeric / s.amount;
-      });
+    const validSubjectId = new Types.ObjectId(subjectId);
+    const stats = await rawSubjectsReviews(validSubjectId);
+    // biome-ignore lint/complexity/noForEach: <explanation>
+    stats.forEach((s) => {
+      s.cr_medio = s.numeric / s.amount;
+    });
 
-      const generalDistribution = stats
-        .flatMap((stat) => stat.distribution)
-        .reduce(
-          (acc, dist) => {
-            if (!acc[dist.conceito]) {
-              acc[dist.conceito] = [];
-            }
-            acc[dist.conceito].push(dist);
-            return acc;
-          },
-          {} as Record<string, Distribution[]>,
-        );
-
-      const generalDistributions = Object.entries(generalDistribution).map(
-        ([key, value]) => getMean(value, key),
+    const generalDistribution = stats
+      .flatMap((stat) => stat.distribution)
+      .reduce(
+        (acc, dist) => {
+          if (!acc[dist.conceito]) {
+            acc[dist.conceito] = [];
+          }
+          acc[dist.conceito].push(dist);
+          return acc;
+        },
+        {} as Record<string, Distribution[]>,
       );
 
-      const subject = await SubjectModel.findOne({
-        _id: validSubjectId,
-      }).lean();
-      const teacher = await TeacherModel.populate(stats, 'teacher');
-      const resp = {
-        subject: subject as NonNullable<Subject>,
-        general: {
-          ...getMean(generalDistributions),
-          distribution: generalDistributions,
-        },
-        specific: teacher,
-      };
+    const generalDistributions = Object.entries(generalDistribution).map(
+      ([key, value]) => getMean(value, key),
+    );
 
-      subjectsCache.set(cacheKey, resp);
+    const subject = await SubjectModel.findOne({
+      _id: validSubjectId,
+    }).lean();
+    const teacher = await TeacherModel.populate(stats, 'teacher');
+    const resp = {
+      subject: subject as NonNullable<Subject>,
+      general: {
+        ...getMean(generalDistributions),
+        distribution: generalDistributions,
+      },
+      specific: teacher,
+    };
 
-      return resp;
-    },
-  );
+    subjectsCache.set(cacheKey, resp);
+
+    return resp;
+  });
 };
 
 function getMean(value: Distribution[], key?: string): Distribution {

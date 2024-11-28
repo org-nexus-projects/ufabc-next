@@ -71,14 +71,11 @@ export async function processSingleEnrolled({
         tenant,
       });
 
-      return {
-        status: 'warning',
-        message: 'Component not found',
-        componentId,
-      };
+      const componentNotFound = new Error(`Component Not found ${componentId}`);
+      throw componentNotFound;
     }
 
-    app.log.info({
+    app.log.debug({
       msg: 'Component enrollment updated',
       componentId,
       studentCount: students.length,

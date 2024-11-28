@@ -1,8 +1,9 @@
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import { findComment, findOne, listByRa } from './service.js';
+import { listUserEnrollments } from '@/schemas/entities/enrollments.js';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
-  app.get('/', async ({ user }, reply) => {
+  app.get('/', { schema: listUserEnrollments }, async ({ user }) => {
     const userEnrollments = await listByRa(user.ra);
     return userEnrollments;
   });

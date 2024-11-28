@@ -47,6 +47,7 @@ export const searchSubjectSchema = {
             total: z.number().int(),
             data: z
               .object({
+                _id: z.coerce.string(),
                 name: z.string(),
                 search: z.string().nullable(),
                 creditos: z.number().int(),
