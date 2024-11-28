@@ -1,5 +1,4 @@
 import type { FastifyInstance, FastifyServerOptions } from 'fastify';
-import { entitiesModule } from './modules/entities/entities.module.js';
 import { publicModule } from './modules/public/public.module.js';
 import { userModule } from './modules/user/user.module.js';
 import {
@@ -74,7 +73,6 @@ export async function buildApp(
   });
 
   app.setErrorHandler((error, request, reply) => {
-    
     if (error instanceof ResponseSerializationError) {
       app.log.error(
         {
@@ -83,41 +81,41 @@ export async function buildApp(
             method: request.method,
             url: request.url,
             query: request.query,
-            params: request.params
-          }
+            params: request.params,
+          },
         },
-        'Error serializing response'
-      )
+        'Error serializing response',
+      );
 
       return reply.status(500).send({
         error: error.name,
         statusCode: 500,
-        message: error.message
+        message: error.message,
       });
     }
 
-      app.log.error(
+    app.log.error(
       {
         error,
         request: {
           method: request.method,
           url: request.url,
           query: request.query,
-          params: request.params
-        }
+          params: request.params,
+        },
       },
-      'Unhandled error occurred'
-    )
+      'Unhandled error occurred',
+    );
 
-    reply.code(error.statusCode ?? 500)
+    reply.code(error.statusCode ?? 500);
 
-    let message = 'Internal Server Error'
+    let message = 'Internal Server Error';
     if (error.statusCode && error.statusCode < 500) {
-      message = error.message
+      message = error.message;
     }
 
-    return { message }
-  })
+    return { message };
+  });
 
   app.setNotFoundHandler(
     {
