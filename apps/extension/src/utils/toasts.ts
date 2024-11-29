@@ -1,10 +1,8 @@
 import toast from "toastify-js";
 
-// Utils.injectStyle('styles/portal.css');
-
-const logoWhite = browser.runtime.getURL('/logo-white.svg')
-const loading = browser.runtime.getURL('/loading.svg')
-const error = browser.runtime.getURL('/error.svg')
+const logoWhite = '@/public/logo-white.svg'
+const loading = '@/public/loading.svg'
+const error = '@/public/error.svg'
 
 export const successToast = toast({
   text: `

@@ -5,7 +5,7 @@ type UFCourses = {
 	name: string;
 	campus: "santo andré" | "são bernardo do campo";
 	coordinator: string;
-	UFCourseId: number;
+	UFCourseId: number[];
 };
 
 export type UFCourseCurriculum =  {
@@ -96,7 +96,7 @@ export async function getUFCurriculumComponents(
 	curriculum: string,
 ) {
 	const cachedComponents = await storage.getItem<UFCurriculumComponents>(
-		`session:${CURRICULUM_COMPONENTS_CACHE}`,
+		`local:${CURRICULUM_COMPONENTS_CACHE}`,
 	);
 	if (cachedComponents) {
 		return cachedComponents;
@@ -106,7 +106,7 @@ export async function getUFCurriculumComponents(
 		`/courses/components/${courseId}/${curriculum}`,
 	);
 	await storage.setItem(
-		`session:${CURRICULUM_COMPONENTS_CACHE}`,
+		`local:${CURRICULUM_COMPONENTS_CACHE}`,
 		curriculumComponents,
 	);
 	return curriculumComponents;

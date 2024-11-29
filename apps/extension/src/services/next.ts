@@ -75,12 +75,28 @@ type SubjectReview = {
   specific: Array<DetailedReviews>
 }
 
+type Component = {
+	identifier: string;
+	disciplina_id: number;
+	subject: string;
+	subjectId: string;
+	turma: string;
+	turno: "diurno" | "noturno";
+	vagas: number;
+	requisicoes: number;
+	campus: "sbc" | "sa";
+	teoria?: string;
+	teoriaId?: string;
+	pratica?: string;
+	praticaId?: string;
+};
+
 function resolveEndpoint() {
   if (import.meta.env.PROD) {
     return "https://api.v2.ufabcnext.com";
   }
 
-  return "https://api.v2.ufabcnext.com/v2";
+  return "http://localhost:5000";
 }
 
 export const nextService = ofetch.create({
@@ -102,7 +118,7 @@ export async function createStudent(student: Student) {
 }
 
 export async function syncHistory(student: SigHistory) {
-  const syncedStudent = await nextService("/history", {
+  const syncedStudent = await nextService("/histories", {
     method: "POST",
     body: student,
   });
@@ -112,4 +128,10 @@ export async function syncHistory(student: SigHistory) {
 export async function getSubjectReviews(subjectId: string) {
   const reviews = await nextService<SubjectReview>(`/entities/subjects/reviews/${subjectId}`)
   return reviews;
+}
+
+
+export async function getComponents() {
+  const components = nextService<Component[]>('/entities/components')
+  return components;
 }

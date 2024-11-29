@@ -9,9 +9,6 @@ export function scrapeClassesPage(page: string) {
     return null;
   }
 
-  console.log("classesDocument");
-  console.log(classesDocument);
-
   const $table = classesDocument.querySelector<HTMLTableElement>(
     "#j_id_jsp_303365748_2 > table > tbody:nth-child(4)"
   );
