@@ -160,30 +160,38 @@ watch(filterSelected, () => {
   width="800px"
   top="2vh"
   :model-value="isOpen"
-  class="ufabc-element-dialog mt-1">
-  <div v-if='loading || (subjectDistributionData && subjectDistributionData.specific && subjectDistributionData.specific.length)'
+  :align-center="true"
+  class="element-dialog mt-4">
+  <div v-if='loading || subjectDistributionData?.specific?.length'
     style="min-height: 200px"
     v-loading="loading"
     element-loading="Carregando">
-    <div class="samples" v-if='samplesCount >= 0'>
+    <div class="text-center mt-4" v-if='samplesCount >= 0'>
       Total de amostras <b>{{samplesCount}}</b>
     </div>
 
     <Chart
-      class="ufabc-row ufabc-align-center ufabc-justify-middle"
-        v-if='subjectDistributionData && subjectDistributionData.specific && subjectDistributionData.specific.length'
+      class="flex flex-row items-center justify-center"
+        v-if='subjectDistributionData?.specific?.length'
         :options="chartOptions"
         ref="pieChart"
     ></Chart>
 
   </div>
-  <div class="ufabc-row ufabc-align-center ufabc-justify-middle" style="min-height: 100px" v-else>
+  <div v-else class="flex flex-row items-center justify-center" style="min-height: 100px">
     Nenhum dado encontrado
   </div>
-  <span slot="footer" class="dialog-footer">
-    <i class="information">* Dados baseados nos alunos que utilizam a extensão</i>
-  </span>
+  <template #footer>
+    <span class="flex">
+      <i class="text-[rgba(0,_0,_0,_0.6)] inline-flex text-sm flex-row mr-4">* Dados baseados nos alunos que utilizam a extensão</i>
+    </span>
+  </template>
+
 </el-dialog>
 </template>
 
-<style scoped lang="css"></style>
+<style lang="css">
+.element-dialog .el-dialog__body {
+  padding-top: 16px;
+}
+</style>
