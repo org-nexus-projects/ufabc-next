@@ -4,7 +4,8 @@ const PUBLIC_ROUTES = [
   '/public',
   '/login',
   '/backoffice',
-  '/history',
+  '/histories',
+  '/histories/me',
   '/entities/components',
   '/entities/subjects',
   '/entities/students/stats/components',
@@ -12,21 +13,23 @@ const PUBLIC_ROUTES = [
 ];
 
 const isPublicRoute = (url: string): boolean => {
-  return PUBLIC_ROUTES.some(route => url.startsWith(route));
+  return PUBLIC_ROUTES.some((route) => url.startsWith(route));
 };
 
 export default async function (app: FastifyInstance) {
   app.addHook('onRequest', async (request, reply) => {
-    const isPublic = isPublicRoute(request.url)
-    
+    const isPublic = isPublicRoute(request.url);
+
     if (isPublic) {
       return;
     }
 
     try {
       await request.jwtVerify();
-    } catch(error) {
-      return reply.unauthorized('You must be authenticated to access this route');
+    } catch (error) {
+      return reply.unauthorized(
+        'You must be authenticated to access this route',
+      );
     }
   });
 }

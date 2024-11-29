@@ -3,7 +3,7 @@ import {
   type Categories,
   type History,
 } from '@/models/History.js';
-import { sigHistorySchema } from '@/schemas/history.js';
+import { sigHistorySchema, studentHistorySchema } from '@/schemas/history.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
@@ -71,11 +71,40 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     });
 
     // dispatch coefficients job.
-    await app.job.dispatch('UserEnrollmentsUpdate', history?.toJSON() as NonNullable<History>);
+    await app.job.dispatch(
+      'UserEnrollmentsUpdate',
+      history?.toJSON() as NonNullable<History>,
+    );
     return {
       msg: history
         ? `Updated history for ${sigHistory.ra}`
         : `Created history for ${sigHistory.ra}`,
+    };
+  });
+
+  app.get('/me', { schema: studentHistorySchema }, async (request, reply) => {
+    const { ra } = request.query;
+
+    const userHistory = await HistoryModel.findOne(
+      {
+        ra,
+      },
+      {
+        _id: 0,
+        grade: 1,
+        curso: 1,
+        ra: 1,
+      },
+    ).lean();
+
+    if (!userHistory) {
+      return reply.badRequest('History not found');
+    }
+
+    return {
+      curso: userHistory.curso,
+      grade: userHistory.grade,
+      ra: userHistory.ra,
     };
   });
 };
