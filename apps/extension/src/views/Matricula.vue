@@ -83,10 +83,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import matriculaUtils from '../utils/Matricula';
-import Utils from '../utils/extensionUtils';
-import Mustache from 'mustache';
+import { ref, onMounted } from "vue";
+import matriculaUtils from "../utils/Matricula";
+import Utils from "../utils/extensionUtils";
+import Mustache from "mustache";
 
 const getURL = (path) => Utils.getChromeUrl(path);
 
@@ -97,37 +97,37 @@ const teachers = ref(false);
 
 const shiftFilters = ref([
   {
-    name: 'Noturno',
-    class: 'notNoturno',
+    name: "Noturno",
+    class: "notNoturno",
     val: true,
-    comparator: 'matutino',
+    comparator: "matutino",
   },
   {
-    name: 'Matutino',
-    class: 'notMatutino',
+    name: "Matutino",
+    class: "notMatutino",
     val: true,
-    comparator: 'noturno',
+    comparator: "noturno",
   },
 ]);
 
 const campusFilters = ref([
   {
-    name: 'São Bernardo',
-    class: 'notBernardo',
+    name: "São Bernardo",
+    class: "notBernardo",
     val: true,
-    comparator: 'andr', //isso está correto
+    comparator: "andr", //isso está correto
   },
   {
-    name: 'Santo André',
-    class: 'notAndre',
+    name: "Santo André",
+    class: "notAndre",
     val: true,
-    comparator: 'bernardo',
+    comparator: "bernardo",
   },
 ]);
 
 onMounted(async () => {
   try {
-    const students = await Utils.storage.getItem('ufabc-extension-students');
+    const students = await Utils.storage.getItem("ufabc-extension-students");
     const currentUser = matriculaUtils.currentUser();
 
     let student = null;
@@ -147,31 +147,29 @@ onMounted(async () => {
 
     teachers.value = true;
     await changeTeachers();
-
   } catch (error) {
-    console.error('Error during onMounted execution:', error);
+    console.error("Error during onMounted execution:", error);
   }
 });
 
-
 async function changeTeachers() {
   if (!teachers.value) {
-    for (const $element of document.querySelectorAll('.isTeacherReview')) {
-      $element.style.display = 'none'
+    for (const $element of document.querySelectorAll(".isTeacherReview")) {
+      $element.style.display = "none";
     }
     return;
   }
 
   // se ja tiver calculado nao refaz o trabalho
-  const teacherReviews = document.querySelectorAll('.isTeacherReview');
+  const teacherReviews = document.querySelectorAll(".isTeacherReview");
   if (teacherReviews.length > 0) {
-    for (const $element of document.querySelectorAll('.isTeacherReview')) {
-      $element.style.display = ''
+    for (const $element of document.querySelectorAll(".isTeacherReview")) {
+      $element.style.display = "";
     }
     return;
   }
 
-  let components = await Utils.storage.getItem('next-extension-components');
+  let components = await Utils.storage.getItem("next-extension-components");
 
   if (components == null) {
     components = await matriculaUtils.getProfessors();
@@ -181,21 +179,21 @@ async function changeTeachers() {
     components.map((component) => [
       component.disciplina_id.toString(),
       component,
-    ]),
+    ])
   );
 
   const htmlPop = await Utils.fetchChromeUrl(
-    'pages/matricula/fragments/professorPopover.html',
+    "pages/matricula/fragments/professorPopover.html"
   );
-  const corteHtml = await Utils.fetchChromeUrl('pages/matricula/corte.html');
+  const corteHtml = await Utils.fetchChromeUrl("pages/matricula/corte.html");
 
-  const mainTable = document.querySelectorAll('table tr');
+  const mainTable = document.querySelectorAll("table tr");
 
   for (const row of mainTable) {
-    const el = row.querySelector('td:nth-child(3)');
-    const subjectEl = row.querySelector('td:nth-child(3) > span');
-    const corteEl = row.querySelector('td:nth-child(5)');
-    const componentId = row.getAttribute('value');
+    const el = row.querySelector("td:nth-child(3)");
+    const subjectEl = row.querySelector("td:nth-child(3) > span");
+    const corteEl = row.querySelector("td:nth-child(5)");
+    const componentId = row.getAttribute("value");
 
     const component = componentsMap.get(componentId);
     if (!component) {
@@ -203,87 +201,96 @@ async function changeTeachers() {
     }
 
     if (component.subject) {
-      subjectEl.setAttribute('subjectId', component.subjectId);
+      subjectEl.setAttribute("subjectId", component.subjectId);
     }
-    const data = { disciplina: component }
-    const rendered = Mustache.render(htmlPop.data, data)
+    const data = { disciplina: component };
+    const rendered = Mustache.render(htmlPop.data, {
+      disciplina: {
+        teoria: {
+          _id: component.teoriaId,
+          name: component.teoria,
+        },
+        pratica: {
+          _id: component.praticaId,
+          name: component.pratica,
+        },
+      },
+    });
 
-    el.insertAdjacentHTML(
-      'beforeend',
-      rendered,
-    );
-    corteEl.insertAdjacentHTML('beforeend', corteHtml.data);
+    el.insertAdjacentHTML("beforeend", rendered);
+    corteEl.insertAdjacentHTML("beforeend", corteHtml.data);
   }
 }
 
 function changeSelected() {
-  const notSelected =  document.querySelectorAll('.notSelecionada')
+  const notSelected = document.querySelectorAll(".notSelecionada");
   if (!selected.value) {
     for (const $el of notSelected) {
-      $el.style.display = ''
+      $el.style.display = "";
     }
     return;
   }
 
   const studentId = matriculaUtils.getStudentId();
   const enrollments = window.matriculas[studentId] || [];
-  const tableRows = document.querySelectorAll('tr')
+  const tableRows = document.querySelectorAll("tr");
 
-  for(const $row of tableRows) {
-    const componentId = $row.getAttribute('value')
+  for (const $row of tableRows) {
+    const componentId = $row.getAttribute("value");
     if (componentId && !enrollments.includes(componentId.toString())) {
-      $row.classList.add('notSelecionada')
-      $row.style.display = 'none'
+      $row.classList.add("notSelecionada");
+      $row.style.display = "none";
     }
   }
 }
 
 async function changeCursadas() {
-  const isCursadas = document.querySelectorAll('.isCursada');
+  const isCursadas = document.querySelectorAll(".isCursada");
   if (!cursadas.value) {
-    for(const $el of isCursadas) {
-      $el.style.display = ''
+    for (const $el of isCursadas) {
+      $el.style.display = "";
     }
     return;
   }
 
   const storageUser = `ufabc-extension-${matriculaUtils.currentUser()}`;
-  const [cursadasData] = await Utils.storage.getItem(storageUser)
-  if(cursadasData == null) {
-    console.log('nao temos o que vc cursou, acesse o sigaa');
+  const [cursadasData] = await Utils.storage.getItem(storageUser);
+  if (cursadasData == null) {
+    console.log("nao temos o que vc cursou, acesse o sigaa");
     return;
   }
   const allCursadas = cursadasData.cursadas
-  .filter((c) => ['A', 'B', 'C', 'D', 'E'].includes(c.conceito))
-  .map((c) => c.disciplina);
+    .filter((c) => ["A", "B", "C", "D", "E"].includes(c.conceito))
+    .map((c) => c.disciplina);
 
-  const trData = document.querySelectorAll('table tr td:nth-child(3)')
-  for(const $el of trData) {
-    const [component] = $el.textContent.split('-')
-    const name = component.substring(0, component.lastIndexOf(' '))
-    if(allCursadas.includes(name)) {
-      $el.parentElement.classList.add('isCursada');
-      $el.parentElement.style.display = 'none';
+  const trData = document.querySelectorAll("table tr td:nth-child(3)");
+  for (const $el of trData) {
+    const [component] = $el.textContent.split("-");
+    const name = component.substring(0, component.lastIndexOf(" "));
+    if (allCursadas.includes(name)) {
+      $el.parentElement.classList.add("isCursada");
+      $el.parentElement.style.display = "none";
     }
   }
 }
 
 function applyFilter(params) {
   if (!params.val) {
-    const tableData = document.querySelectorAll('#tabeladisciplinas tr td:nth-child(3)')
-    for(const data of tableData) {
-      const campus = data.textContent.toLocaleLowerCase()
-      if(!campus.includes(params.comparator)) {
+    const tableData = document.querySelectorAll(
+      "#tabeladisciplinas tr td:nth-child(3)"
+    );
+    for (const data of tableData) {
+      const campus = data.textContent.toLocaleLowerCase();
+      if (!campus.includes(params.comparator)) {
         el.parentElement.classList.add(params.class);
       }
     }
-    return
+    return;
   }
 
-
-  const allTr = document.querySelectorAll('#tabeladisciplinas tr')
+  const allTr = document.querySelectorAll("#tabeladisciplinas tr");
   for (const tr of allTr) {
-    tr.classList.remove(params.class)
+    tr.classList.remove(params.class);
   }
 }
 </script>
