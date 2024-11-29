@@ -1,8 +1,13 @@
 import { getUFEnrolled } from "@/services/ufabc-parser";
 import UFABCMatricula from "@/entrypoints/matricula.content/UFABC-Matricula.vue";
-import './style.css'
+import HighchartsVue from "highcharts-vue";
+import Highcharts from "highcharts";
+// import annotationsInit from "highcharts/modules/annotations";
+// import accessibility from "highcharts/modules/accessibility";
+import Highcharts3D from 'highcharts/highcharts-3d'
 import type { Student } from "@/scripts/sig/homepage";
 import type { ContentScriptContext } from "wxt/client";
+import './style.css'
 
 
 
@@ -39,6 +44,10 @@ async function mountUFABCMatriculaFilters(ctx: ContentScriptContext) {
 			const wrapper = document.createElement("div");
       container.append(wrapper);
 
+      // accessibility(Highcharts);
+			// annotationsInit(Highcharts)
+      // Highcharts3D(Highcharts);
+
 
       const matriculas = await getUFEnrolled();
       window.matriculas = matriculas;
@@ -46,14 +55,15 @@ async function mountUFABCMatriculaFilters(ctx: ContentScriptContext) {
       const app = createApp(UFABCMatricula);
       app.provide("matriculas", window.matriculas);
 
+      app.use(HighchartsVue);
 
 			app.mount(wrapper);
 			return { app, wrapper };
 		},
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		onRemove(mounted: any) {
-			mounted?.app.unmount();
-			mounted?.wrapper.remove();
+		async onRemove(mounted) {
+      const resolvedMounted = await mounted;
+			resolvedMounted?.app.unmount();
+			resolvedMounted?.wrapper.remove();
 		},
 	});
 }

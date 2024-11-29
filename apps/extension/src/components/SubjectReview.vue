@@ -1,0 +1,189 @@
+<script setup lang="ts">
+import { getSubjectReviews, type SubjectReview } from '@/services/next';
+import { Chart } from 'highcharts-vue';
+
+const props = defineProps<{
+  isOpen: boolean
+  subjectId: string | null
+}>()
+
+const emit = defineEmits(['close'])
+const subjectDistributionData = ref<SubjectReview | null>(null)
+const loading = ref(false);
+const samplesCount = ref<number>(0);
+const filterSelected = ref(null)
+const chartOptions = ref({
+  chart: {
+    type: "pie",
+    plotBackgroundColor: null,
+    plotBorderWidth: null,
+    plotShadow: false,
+    options3d: {
+      enabled: true,
+      alpha: 45
+    },
+    width: 380,
+    height: 240
+  },
+  title: {
+    text: ''
+  },
+  tooltip: {
+    pointFormat: 'Porcentagem: <b>{point.percentage:.1f}%</b>'
+  },
+  plotOptions: {
+    pie: {
+      animation: {
+        duration: 200,
+      },
+      depth: 20,
+      allowPointSelect: true,
+      cursor: 'pointer',
+      dataLabels: {
+        format: '{key}: <b>{point.percentage:.1f}%</b>',
+        enabled: true
+      },
+      showInLegend: true
+    }
+  },
+  series: []
+});
+
+const subject = computed(() => subjectDistributionData.value?.subject.name ?? '')
+
+const possibleComponents = computed(() => {
+  const components = subjectDistributionData?.value?.specific;
+  const generalDefaults = {
+    _id: {
+      _id: 'all',
+      name: 'Todas as matérias',
+    },
+  };
+  const general = Object.assign(generalDefaults, subjectDistributionData?.value?.general);
+  // @ts-ignore Nullable case
+  components?.push(general);
+
+  return components?.reverse();
+});
+
+function closeDialog() {
+  filterSelected.value = null
+  subjectDistributionData.value = null;
+  samplesCount.value = 0
+  emit('close')
+}
+
+async function setupSubjectStats() {
+  const subjectId = props.subjectId;
+
+  if (!subjectId) {
+    return;
+  }
+
+  loading.value = true;
+
+  try {
+    const reviews = await getSubjectReviews(subjectId)
+    subjectDistributionData.value = reviews;
+    loading.value = false;
+
+    if (!possibleComponents.value) {
+      return;
+    }
+
+    filterSelected.value = possibleComponents.value[0]._id._id;
+    if (reviews.general.count || 0) {
+      setTimeout(() => {
+        updateFilter()
+      }, 500);
+    }
+  } catch(error) {
+    console.log('dialog error', error);
+    closeDialog();
+  } finally {
+    loading.value = false;
+  }
+}
+
+function updateFilter() {
+  if (!subjectDistributionData.value) {
+    return
+  }
+
+  let filter;
+  if (filterSelected.value === 'all') {
+    filter = subjectDistributionData.value.general;
+  } else {
+    filter = subjectDistributionData.value.specific.find((specific) =>
+      specific._id._id === filterSelected.value
+    );
+  }
+
+  const gradesFiltered = filter?.distribution.map(grade => ({
+    name: grade.conceito,
+    y: grade.count,
+    color: resolveColorForConcept(grade.conceito)
+  }))
+
+  samplesCount.value = filter?.count ?? 0
+
+  chartOptions.value = {
+    ...chartOptions.value,
+    series: [{
+      name: 'Conceito',
+      data: gradesFiltered,
+    }],
+    plotOptions: {
+      colors: gradesFiltered.map(grade => resolveColorForConcept(grade.name))
+    }
+  }
+}
+
+watch(() => props.subjectId, async (newSubjectId) => {
+  if (newSubjectId) {
+    await setupSubjectStats()
+  }
+}, { immediate: true })
+
+watch(filterSelected, () => {
+  if (subjectDistributionData.value) {
+    updateFilter()
+  }
+})
+</script>
+
+<template>
+  <el-dialog
+  :title="'Disciplina: ' + subject"
+  @close="closeDialog()"
+  :visible="isOpen"
+  width="800px"
+  top="2vh"
+  :model-value="isOpen"
+  class="ufabc-element-dialog mt-1">
+  <div v-if='loading || (subjectDistributionData && subjectDistributionData.specific && subjectDistributionData.specific.length)'
+    style="min-height: 200px"
+    v-loading="loading"
+    element-loading="Carregando">
+    <div class="samples" v-if='samplesCount >= 0'>
+      Total de amostras <b>{{samplesCount}}</b>
+    </div>
+
+    <Chart
+      class="ufabc-row ufabc-align-center ufabc-justify-middle"
+        v-if='subjectDistributionData && subjectDistributionData.specific && subjectDistributionData.specific.length'
+        :options="chartOptions"
+        ref="pieChart"
+    ></Chart>
+
+  </div>
+  <div class="ufabc-row ufabc-align-center ufabc-justify-middle" style="min-height: 100px" v-else>
+    Nenhum dado encontrado
+  </div>
+  <span slot="footer" class="dialog-footer">
+    <i class="information">* Dados baseados nos alunos que utilizam a extensão</i>
+  </span>
+</el-dialog>
+</template>
+
+<style scoped lang="css"></style>

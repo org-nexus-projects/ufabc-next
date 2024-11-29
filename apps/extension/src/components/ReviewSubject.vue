@@ -181,6 +181,7 @@ async function setupSubjectStats() {
     closeDialog();
   }
 }
+
 function updateFilter() {
   pieChart.value.delegateMethod('showLoading', 'Carregando...');
 

@@ -23,10 +23,10 @@ export type SigHistory = {
   }[];
 };
 
-type Concept = "A" | "B" | "C" | "D" | "O" | "F"
+export type Grade = "A" | "B" | "C" | "D" | "O" | "F";
 
-type Distribution = {
-  conceito: Concept;
+export type Distribution = {
+  conceito: Grade;
   weight: number;
   count: number;
   cr_medio: number;
@@ -54,7 +54,7 @@ type DetailedReviews = {
   }
 }
 
-type SubjectReview = {
+export type SubjectReview = {
   subject: {
     _id: string,
     name: string,
