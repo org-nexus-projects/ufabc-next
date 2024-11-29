@@ -6,6 +6,7 @@ import { Types } from 'mongoose';
 type SearchResult = {
   total: number;
   data: Array<{
+    _id: string;
     name: string;
     alias: string[];
   }>;

@@ -12,6 +12,7 @@ const enrollmentsListSchema = z.object({
   comments: z.string().array().optional(),
   conceito: z.string(),
   createdAt: z.date(),
+  updatedAt: z.date(),
   creditos: z.number().int(),
   identifier: z.string(),
   season: z.string(),

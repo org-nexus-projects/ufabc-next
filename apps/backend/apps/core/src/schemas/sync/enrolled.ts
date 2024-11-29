@@ -9,4 +9,17 @@ export const syncEnrolledSchema = {
   body: z.object({
     operation: z.union([z.literal('after_kick'), z.literal('before_kick')]),
   }),
+  response: {
+    200: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            status: z.string(),
+            time: z.number(),
+            componentsProcessed: z.number(),
+          }),
+        },
+      },
+    },
+  },
 } satisfies FastifyZodOpenApiSchema;

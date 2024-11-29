@@ -15,12 +15,11 @@ import { syncEnrolledSchema } from '@/schemas/sync/enrolled.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
-  app.addHook('onRequest', (request, reply) => request.isAdmin(reply));
-
   app.post(
     '/enrollments',
     {
       schema: syncEnrollmentsSchema,
+      preHandler: (request, reply) => request.isAdmin(reply),
     },
     async (request, reply) => {
       const { hash, season, link } = request.body;
@@ -97,7 +96,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
   app.put(
     '/components',
-    { schema: syncComponentsSchema },
+    {
+      schema: syncComponentsSchema,
+      preHandler: (request, reply) => request.isAdmin(reply),
+    },
     async (request, reply) => {
       const { season, hash, link, ignoreErrors } = request.body;
       const componentsWithTeachers = await getComponentsFile(link);
@@ -207,53 +209,54 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     },
   );
 
-  app.put('/enrolled', { schema: syncEnrolledSchema }, async (request) => {
-    const { operation } = request.body;
-    const { season } = request.query;
+  app.put(
+    '/enrolled',
+    {
+      schema: syncEnrolledSchema,
+      preHandler: (request, reply) => request.isAdmin(reply),
+    },
+    async (request) => {
+      const { operation } = request.body;
+      const { season } = request.query;
 
-    const enrolledStudents = getEnrolledStudents();
+      const enrolledStudents = await getEnrolledStudents();
 
-    const start = Date.now();
-    let successCount = 0;
-    let errorCount = 0;
+      const start = Date.now();
 
-    for (const [componentId, students] of Object.entries(enrolledStudents)) {
-      try {
-        await ComponentModel.findOneAndUpdate(
-          {
-            disciplina_id: Number(componentId),
-            season,
-          },
-          {
-            $set: {
-              [operation]: students,
-            },
-          },
-          {
-            upsert: true,
-            new: true,
-          },
-        );
-        successCount++;
-      } catch (updateError) {
-        errorCount++;
-        request.log.error(
-          {
-            error: updateError,
-            componentId,
-          },
-          'Error updating individual component',
-        );
-      }
-    }
+      const enrolledOperationsPromises = Object.entries(enrolledStudents).map(
+        async ([componentId, students]) => {
+          try {
+            await ComponentModel.findOneAndUpdate(
+              {
+                disciplina_id: Number(componentId),
+                season,
+              },
+              {
+                $set: {
+                  [operation]: students,
+                },
+              },
+              { upsert: true, new: true },
+            );
+          } catch (error) {
+            request.log.error({
+              error: error instanceof Error ? error.message : String(error),
+              students,
+              msg: 'Failed to process Enrolled processing job',
+            });
+          }
+        },
+      );
 
-    return {
-      status: 'ok',
-      time: Date.now() - start,
-      componentsProcessed: successCount,
-      componentsFailed: errorCount,
-    };
-  });
+      const processed = await Promise.all(enrolledOperationsPromises);
+
+      return {
+        status: 'ok',
+        time: Date.now() - start,
+        componentsProcessed: processed.length,
+      };
+    },
+  );
 };
 
 function hydrateComponent(
