@@ -1,5 +1,5 @@
 import { getUFEnrolled } from "@/services/ufabc-parser";
-import UFABCMatricula from "@/views/UFABC-Matricula.vue";
+import UFABCMatricula from "@/entrypoints/matricula.content/UFABC-Matricula.vue";
 import './style.css'
 import type { Student } from "@/scripts/sig/homepage";
 import type { ContentScriptContext } from "wxt/client";
@@ -12,21 +12,17 @@ export default defineContentScript({
 		ui.mount();
 
     const $meio =  document.querySelector<HTMLDivElement>("#meio");
-
-    if (!$meio) {
-      return;
-    }
-
-    const student = await storage.getItem<Student>('local:student')
-    const ufabcMatriculaStudent = await storage.getItem(`sync:${student?.ra}`)
-    console.log(student, ufabcMatriculaStudent)
-    const $mountedUi = $meio.firstChild as unknown as HTMLDivElement;
+    const $mountedUi = $meio?.firstChild as unknown as HTMLDivElement;
 
     $mountedUi.style.position = "sticky";
 		$mountedUi.style.top = "0px";
 		$mountedUi.style.zIndex = "9";
 
     // TODO(Joabesv): create student here
+    const student = await storage.getItem<Student>('local:student')
+    const ufabcMatriculaStudent = await storage.getItem(`sync:${student?.ra}`)
+    console.log(student, ufabcMatriculaStudent)
+
   },
   runAt: "document_end",
   cssInjectionMode: 'ui',
