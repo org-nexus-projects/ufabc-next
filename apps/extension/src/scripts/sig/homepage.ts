@@ -53,6 +53,7 @@ export type Student = {
 	name: string;
 	ra: string;
 	login: string;
+  studentId: number | undefined
 	email: string | undefined;
 	graduations: Array<{
 		course: Course;
@@ -140,8 +141,8 @@ export async function scrapeMenu(
 	const courses = await getUFCourses();
 	const currentGraduation = shallowStudent.graduations[0]; // We only have one graduation per screen
 	const studentGraduation = courses.find(
-		// @ts-ignore
 		(course) =>
+		  // @ts-ignore
 			course.name.toLowerCase() === currentGraduation.course.toLowerCase(),
 	);
 	if (!studentGraduation) {
@@ -149,8 +150,9 @@ export async function scrapeMenu(
 		return null;
 	}
 
-	const graduationCurriculums = await getUFCourseCurriculums(
-		studentGraduation.UFCourseId,
+  const UFCourseIdList = Array.isArray(studentGraduation.UFCourseId) ? studentGraduation.UFCourseId : [studentGraduation.UFCourseId]
+  const graduationCurriculums = await getUFCourseCurriculums(
+		UFCourseIdList[0],
 	);
 	const curriculumByRa = await resolveCurriculum(
 		shallowStudent.ra,
@@ -167,7 +169,7 @@ export async function scrapeMenu(
 	}
 
 	const curriculumComponents = await getUFCurriculumComponents(
-		studentGraduation.UFCourseId,
+		UFCourseIdList[0],
 		curriculumByRa?.appliedAt,
 	);
 
