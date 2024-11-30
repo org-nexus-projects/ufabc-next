@@ -1,14 +1,34 @@
 import { orderBy as LodashOrderBy } from 'lodash-es';
 import { type Component, ComponentModel } from '@/models/Component.js';
 import { StudentModel } from '@/models/Student.js';
-import type { SubjectDocument } from '@/models/Subject.js';
-import type { TeacherDocument } from '@/models/Teacher.js';
 import {
   listComponentsSchema,
   listKickedSchema,
   type NonPaginatedComponents,
 } from '@/schemas/entities/components.js';
+import { currentQuad } from '@next/common';
+import type { preHandlerAsyncHookHandler } from 'fastify';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+import type { SubjectDocument } from '@/models/Subject.js';
+import type { TeacherDocument } from '@/models/Teacher.js';
+
+const validateStudent: preHandlerAsyncHookHandler = async (request, reply) => {
+  const { studentId } = request.query as {
+    studentId: number;
+  }
+  const season = currentQuad();
+  const student = await StudentModel.findOne({
+    season,
+    aluno_id: studentId,
+  })
+
+
+  if (!student) {
+    return reply.forbidden('StudentId')
+  }
+
+  return;
+}
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   const componentsListCache = app.cache<NonPaginatedComponents[]>();
@@ -64,7 +84,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return nonPaginatedComponents;
   });
 
-  app.get('/kicks', { schema: listKickedSchema }, async (request, reply) => {
+  app.get('/:componentId/kicks', { preHandler: [validateStudent], schema: listKickedSchema }, async (request, reply) => {
     const component = await ComponentModel.findOne({
       season: request.query.season,
       disciplina_id: request.params.componentId,
