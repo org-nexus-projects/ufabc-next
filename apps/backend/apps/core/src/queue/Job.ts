@@ -10,6 +10,7 @@ import type {
   JobResultType,
   TypeSafeQueue,
 } from './types.js';
+import { ulid } from 'ulidx';
 
 interface JobImpl {
   setup(): Promise<void>;
@@ -77,7 +78,7 @@ export class Jobs implements JobImpl {
         const queue = this.queues[jobDefinition.queue];
         await queue.add(
           name as JobNames,
-          { app: this.app },
+          {},
           {
             repeat: {
               every: ms(jobDefinition.every),
@@ -93,7 +94,7 @@ export class Jobs implements JobImpl {
     jobParameters: Omit<JobDataType<T>, 'app'>,
   ) {
     const jobOptions = {
-      // removeOnComplete: true,
+      jobId: ulid(),
     } satisfies JobsOptions;
 
     return this.getQueue(jobName).add(jobName, jobParameters, jobOptions);

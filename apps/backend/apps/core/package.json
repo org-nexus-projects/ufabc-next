@@ -45,6 +45,7 @@
     "ms": "^2.1.3",
     "ofetch": "^1.3.4",
     "string-similarity": "^4.0.4",
+    "ulidx": "^2.4.1",
     "zod": "^3.23.6",
     "zod-openapi": "^3.3.0",
     "zod-to-json-schema": "^3.23.5"

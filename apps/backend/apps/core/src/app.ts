@@ -36,6 +36,7 @@ export async function buildApp(
   });
 
   app.worker.setup();
+  app.job.setup();
 
   app.setErrorHandler((error, request, reply) => {
     if (error.validation) {

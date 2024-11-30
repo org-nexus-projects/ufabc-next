@@ -73,6 +73,8 @@ export async function processComponent({
       'turma',
     ]);
 
+    app.log.debug(dbComponent, 'Generated component')
+
     const result = await ComponentModel.findOneAndUpdate(
       {
         season: tenant,
