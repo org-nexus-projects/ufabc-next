@@ -1,4 +1,4 @@
-import { authenticate } from '@/hooks/authenticate.js';
+// import { authenticate } from '@/hooks/authenticate.js';
 import { CommentModel } from '@/models/Comment.js';
 import { EnrollmentModel } from '@/models/Enrollment.js';
 import { type Reaction, ReactionModel } from '@/models/Reaction.js';
@@ -35,37 +35,37 @@ export async function commentRoute(app: FastifyInstance) {
 
   app.post<CreateCommentRequest>(
     '/',
-    { schema: createCommentSchema, onRequest: [authenticate] },
+    { schema: createCommentSchema },
     commentHandler.createComment,
   );
 
   app.put<UpdateCommentRequest>(
     '/:commentId',
-    { schema: updateCommentSchema, onRequest: [authenticate] },
+    { schema: updateCommentSchema },
     commentHandler.updateComment,
   );
 
   app.delete<{ Params: { commentId: Types.ObjectId } }>(
     '/:commentId',
-    { schema: deleteCommentSchema, onRequest: [authenticate] },
+    { schema: deleteCommentSchema },
     commentHandler.deleteComment,
   );
 
   app.get<{ Params: { userId: Types.ObjectId } }>(
     '/:userId/missing',
-    { schema: missingCommentSchema, onRequest: [authenticate] },
+    { schema: missingCommentSchema },
     commentHandler.missingComment,
   );
 
   app.get<CommentsOnTeacherRequest>(
     '/:teacherId/:subjectId',
-    { schema: commentsOnTeacherSchema, onRequest: [authenticate] },
+    { schema: commentsOnTeacherSchema },
     commentHandler.commentsOnTeacher,
   );
 
   app.post<CreateCommentReaction>(
     '/reactions/:commentId',
-    { schema: createCommentReactionSchema, onRequest: [authenticate] },
+    { schema: createCommentReactionSchema },
     commentHandler.createCommentReaction,
   );
 
@@ -73,7 +73,7 @@ export async function commentRoute(app: FastifyInstance) {
     Params: { commentId: Types.ObjectId; kind: Reaction['kind'] };
   }>(
     '/reactions/:commentId/:kind',
-    { schema: removeCommentReactionSchema, onRequest: [authenticate] },
+    { schema: removeCommentReactionSchema },
     commentHandler.removeCommentReaction,
   );
 }

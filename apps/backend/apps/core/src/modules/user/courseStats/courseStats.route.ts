@@ -1,7 +1,6 @@
 import { HistoryModel } from '@/models/History.js';
 import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
 import { GraduationModel } from '@/models/Graduation.js';
-import { authenticate } from '@/hooks/authenticate.js';
 import { CourseStatsRepository } from './courseStats.repository.js';
 import { CourseStatsService } from './courseStats.service.js';
 import { CourseStatsHandlers } from './courseStats.handlers.js';
@@ -24,19 +23,19 @@ export async function courseStatsRoute(app: FastifyInstance) {
 
   app.get(
     '/grades',
-    { schema: gradesStatsSchema, onRequest: [authenticate] },
+    { schema: gradesStatsSchema },
     courseStatsHandler.gradesStats,
   );
 
   app.get<{ Querystring: { ra: number } }>(
     '/history',
-    { schema: graduationHistorySchema, onRequest: [authenticate] },
+    { schema: graduationHistorySchema },
     courseStatsHandler.graduationHistory,
   );
 
   app.get(
     '/user/grades',
-    { schema: userGraduationStatsSchema, onRequest: [authenticate] },
+    { schema: userGraduationStatsSchema },
     courseStatsHandler.userGraduationStats,
   );
 }
