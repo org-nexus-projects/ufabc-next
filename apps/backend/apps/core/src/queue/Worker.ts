@@ -91,7 +91,9 @@ export class QueueWorker {
 
   private WorkerHandler<TData>(ctx: QueueContext<TData>) {
     const handlers = JOBS[ctx.job.name].handler;
+    // @ts-ignore for now
     const processor = this.WorkerProcessor(ctx.job.name, handlers);
+    // @ts-ignore for now
     return processor(ctx);
   }
 

@@ -9,7 +9,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   });
 
   app.get('/:enrollmentId', async (request, reply) => {
-    const { enrollmentId } = request.params;
+    const { enrollmentId } = request.params as { enrollmentId: string };
     const enrollment = await findOne(enrollmentId, request.user.ra);
 
     if (!enrollment) {

@@ -3,13 +3,32 @@ import {
   type Enrollment as EnrollmentEntity,
   EnrollmentModel,
 } from '@/models/Enrollment.js';
-import type { HydratedComponent } from '@/modules/sync/utils/hydrateComponents.js';
 import type { QueueContext } from '../types.js';
+import type { Types } from 'mongoose';
+
+type HydratedComponent = {
+  disciplina_id: number | '-';
+  codigo: string;
+  disciplina: string;
+  campus: 'sbc' | 'sa';
+  turma: string;
+  turno: 'diurno' | 'noturno';
+  vagas: number;
+  teoria: Types.ObjectId;
+  pratica: Types.ObjectId;
+  season: string;
+  year: number;
+  ra: number;
+  quad: number;
+  subject: Types.ObjectId;
+};
 
 type Enrollment = Omit<
   EnrollmentEntity,
   'createdAt' | 'updatedAt' | 'comments'
->;
+> & {
+  disciplina_identifier?: string;
+};
 
 export async function processSingleEnrollment(
   ctx: QueueContext<HydratedComponent>,

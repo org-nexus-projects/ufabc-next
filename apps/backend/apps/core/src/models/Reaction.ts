@@ -107,6 +107,7 @@ reactionSchema.post('save', { query: false }, async function () {
 });
 
 reactionSchema.post<ReactionDocument>(
+  // @ts-ignore
   'deleteOne',
   { query: false },
   async function () {

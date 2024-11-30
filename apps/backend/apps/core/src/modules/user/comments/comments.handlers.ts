@@ -133,6 +133,7 @@ export class CommentHandler {
       throw new Error('userId was not passed');
     }
 
+    // @ts-expect-error: complaining about add timestamps
     const user = request.user?.id === userId ? request.user : null;
 
     if (!user) {
@@ -175,6 +176,7 @@ export class CommentHandler {
     const comments = await this.commentService.commentsReactions(
       teacherId,
       subjectId,
+      // @ts-expect-error: complaining about add timestamps
       userId,
       limit,
       page,
@@ -208,10 +210,10 @@ export class CommentHandler {
       return reply.notFound('Comment not found');
     }
 
-    // @ts-expect-error: complaining about add timestamps
     const reaction = await this.commentService.createCommentReaction({
       kind,
       comment: comment._id,
+      // @ts-ignore
       user: user?._id,
     });
 
@@ -234,9 +236,9 @@ export class CommentHandler {
       return reply.badRequest('CommentId and Kind are necessary');
     }
 
-    // @ts-expect-error: complaining about add timestamps
     const reaction = await this.commentService.findCommentReaction({
       active: true,
+      // @ts-ignore
       user: user._id,
       comment: commentId,
       kind,

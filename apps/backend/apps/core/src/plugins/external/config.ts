@@ -1,5 +1,4 @@
 import env, { type FastifyEnvOptions } from '@fastify/env';
-import { networkInterfaces } from 'node:os';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
@@ -8,11 +7,6 @@ declare module 'fastify' {
     config: z.infer<typeof configSchema>;
   }
 }
-
-const addresses = Object.values(networkInterfaces()).flat();
-const { address } = addresses.find(
-  (address) => address?.family === 'IPv4' && !address?.internal,
-) ?? { address: 'localhost' };
 
 const NEXT_WEB_LOCAL = 'http://localhost:3000' as const;
 const JWT_SECRET = 'LWp9YJMiUtfQxoepoTL7RkWJi6W5C6ED';
@@ -37,7 +31,10 @@ const configSchema = z.object({
   AWS_SECRET_ACCESS_KEY: z.string(),
   OAUTH_GOOGLE_CLIENT_ID: z.string(),
   OAUTH_GOOGLE_SECRET: z.string().min(16),
-  BACKOFFICE_EMAILS: z.string().optional().transform(s => s?.split(',')),
+  BACKOFFICE_EMAILS: z
+    .string()
+    .optional()
+    .transform((s) => s?.split(',')),
 });
 
 const schema = zodToJsonSchema(configSchema);

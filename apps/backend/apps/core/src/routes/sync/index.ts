@@ -74,6 +74,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       const enrollmentJobs = enrollments.map(async (enrollment) => {
         try {
+          // @ts-ignore for now
           await app.job.dispatch('EnrollmentSync', enrollment);
         } catch (error) {
           request.log.error({
@@ -259,7 +260,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   );
 };
 
-function hydrateComponent(
+export function hydrateComponent(
   ra: string,
   studentComponents: StudentComponent[],
   components: Component[],

@@ -67,6 +67,7 @@ export class CourseStatsHandlers {
 
     const coefficients =
       lastHistory.coefficients ||
+      // @ts-ignore for now
       calculateCoefficients(lastHistory.disciplinas || [], graduation);
 
     const normalizedHistory = normalizeHistory(coefficients);

@@ -1,5 +1,5 @@
 import { ComponentModel } from '@/models/Component.js';
-import { SubjectModel, type Subject } from '@/models/Subject.js';
+import { SubjectModel } from '@/models/Subject.js';
 import { getComponents } from '@/modules-v2/ufabc-parser.js';
 import { currentQuad, generateIdentifier } from '@next/common';
 import { camelCase, startCase } from 'lodash-es';
@@ -42,6 +42,9 @@ export async function processComponent({
   component: ParserComponent;
   tenant: string;
 }>) {
+  if (!job.data) {
+    return;
+  }
   const { component, tenant } = job.data;
   const [year, quad] = tenant.split(':').map(Number);
 
@@ -73,7 +76,7 @@ export async function processComponent({
       'turma',
     ]);
 
-    app.log.debug(dbComponent, 'Generated component')
+    app.log.debug(dbComponent, 'Generated component');
 
     const result = await ComponentModel.findOneAndUpdate(
       {
@@ -105,6 +108,7 @@ export async function processComponent({
     });
   } catch (error) {
     app.log.error({
+      info: job.data,
       msg: 'Error processing component',
       error: error instanceof Error ? error.message : String(error),
       component: component.name,

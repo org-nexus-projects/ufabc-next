@@ -1,4 +1,4 @@
-import { type Teacher, TeacherModel } from '@/models/Teacher.js';
+import { TeacherModel } from '@/models/Teacher.js';
 import {
   createTeachersSchema,
   listTeachersSchema,

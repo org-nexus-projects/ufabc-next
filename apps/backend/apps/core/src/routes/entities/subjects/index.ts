@@ -2,7 +2,6 @@ import { SubjectModel, type Subject } from '@/models/Subject.js';
 import {
   listSubjectsSchema,
   searchSubjectSchema,
-  subjectReviewsSchema,
 } from '@/schemas/entities/subjects.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import { rawSubjectsReviews, type Distribution } from './service.js';

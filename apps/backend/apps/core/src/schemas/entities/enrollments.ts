@@ -38,6 +38,8 @@ const enrollmentsListSchema = z.object({
     .optional(),
 });
 
+export type EnrollmentsList = z.infer<typeof enrollmentsListSchema>;
+
 export const listUserEnrollments = {
   response: {
     200: {

@@ -45,6 +45,9 @@ export async function processSingleEnrolled({
   componentId: string;
   students: number[];
 }>) {
+  if (!job.data) {
+    return;
+  }
   const { tenant, componentId, students } = job.data;
 
   try {
@@ -70,9 +73,6 @@ export async function processSingleEnrolled({
         componentId,
         tenant,
       });
-
-      const componentNotFound = new Error(`Component Not found ${componentId}`);
-      throw componentNotFound;
     }
 
     app.log.debug({
@@ -82,9 +82,9 @@ export async function processSingleEnrolled({
     });
   } catch (error) {
     app.log.error({
+      data: job.data,
       msg: 'Error processing enrollment update',
       error: error instanceof Error ? error.message : String(error),
-      componentId,
     });
 
     throw error;

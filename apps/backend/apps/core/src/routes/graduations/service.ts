@@ -1,5 +1,5 @@
-import { GraduationSubject, GraduationSubjectModel } from "@/models/GraduationSubject.js";
-import { SubjectDocument } from "@/models/Subject.js";
+import { GraduationSubjectModel } from '@/models/GraduationSubject.js';
+import type { SubjectDocument } from '@/models/Subject.js';
 
 type PopulatedFields = {
   subject: SubjectDocument;
@@ -7,7 +7,7 @@ type PopulatedFields = {
 
 export async function getTotal() {
   const graduationSubjectsCount = await GraduationSubjectModel.countDocuments();
-  return graduationSubjectsCount
+  return graduationSubjectsCount;
 }
 
 export async function getPaginated(page: number, limit: number) {
@@ -15,12 +15,17 @@ export async function getPaginated(page: number, limit: number) {
     .limit(limit)
     .skip((page - 1) * limit)
     .populate<PopulatedFields>('subject')
-    .lean()
+    .lean();
 
   return paginatedGraduationSubjects;
 }
 
 export async function listSubjectsById(graduationId: string, limit: number) {
-  const subjects = await GraduationSubjectModel.find({ graduation: graduationId }).limit(limit).populate<PopulatedFields>("subject").lean()
-  return subjects
+  const subjects = await GraduationSubjectModel.find({
+    graduation: graduationId,
+  })
+    .limit(limit)
+    .populate<PopulatedFields>('subject')
+    .lean();
+  return subjects;
 }

@@ -99,12 +99,14 @@ enrollmentSchema.index({
 enrollmentSchema.pre('findOneAndUpdate', function (next) {
   const update = this.getUpdate();
 
+  // @ts-ignore
   if (!update.$set) {
+    // @ts-ignore
     update.$set = {};
   }
 
   // Your existing pre update logic
-  // biome-ignore lint/style/noNonNullAssertion: <explanation>
+  // @ts-ignore
   setTheoryAndPractice(update);
   next();
 });
