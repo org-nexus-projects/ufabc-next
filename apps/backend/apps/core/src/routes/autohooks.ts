@@ -10,6 +10,7 @@ const PUBLIC_ROUTES = [
   '/entities/subjects',
   '/entities/students/stats/components',
   '/entities/students/courses',
+  '/public/stats/components'
 ];
 
 const isPublicRoute = (url: string): boolean => {

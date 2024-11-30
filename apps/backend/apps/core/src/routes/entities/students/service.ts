@@ -1,5 +1,4 @@
 import { ComponentModel } from "@/models/Component.js";
-import { GraduationHistoryModel } from "@/models/GraduationHistory.js";
 import { HistoryModel } from "@/models/History.js";
 import { StudentModel } from "@/models/Student.js";
 import { currentQuad } from "@next/common";
@@ -64,7 +63,6 @@ export async function getAllCourses() {
 
   return courses;
 }
-
 
 export async function getStudent(ra: number) {
   const season = currentQuad();

@@ -15,7 +15,7 @@ const enrollmentsListSchema = z.object({
   updatedAt: z.date(),
   creditos: z.number().int(),
   identifier: z.string(),
-  season: z.string(),
+  season: z.string().optional(),
   subject: z.object({
     _id: z.coerce.string(),
     name: z.string(),

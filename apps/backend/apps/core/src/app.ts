@@ -1,6 +1,4 @@
 import type { FastifyInstance, FastifyServerOptions } from 'fastify';
-import { publicModule } from './modules/public/public.module.js';
-import { userModule } from './modules/user/user.module.js';
 import {
   validatorCompiler,
   serializerCompiler,
@@ -38,14 +36,6 @@ export async function buildApp(
   });
 
   app.worker.setup();
-  app.worker.setup();
-
-  // await app.register(entitiesModule, {
-  //   prefix: '/v2',
-  // });
-  // await app.register(publicModule, {
-  //   prefix: '/v2',
-  // });
 
   app.setErrorHandler((error, request, reply) => {
     if (error.validation) {
