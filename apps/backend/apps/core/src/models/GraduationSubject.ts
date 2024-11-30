@@ -9,11 +9,11 @@ const graduationSubjectSchema = new Schema(
     /** One of: firstLevelMandatory, secondLevelMandatory, thirdLevelMandatory */
     subcategory: String,
 
-    creditos: Number,
-    codigo: String,
+    creditos: { type: Number, required: true },
+    codigo: { type: String, required: true },
 
-    year: Number,
-    quad: Number,
+    year: { type: Number, required: true },
+    quad: { type: Number, required: true },
 
     /** Array of codes for equivalents */
     equivalents: [String],
