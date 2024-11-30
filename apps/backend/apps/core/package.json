@@ -9,9 +9,9 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsup",
+    "build": "rimraf dist && tspc",
     "tsc": "tsc",
-    "start": "node --env-file=.env.dev dist/server.js",
+    "start": "node --env-file=.env.prod dist/server.js",
     "test": "node --import=tsx runTests.ts",
     "test:watch": "node --import=tsx runTests.ts watch",
     "lint": "biome lint --write --unsafe --diagnostic-level=error ."
@@ -59,10 +59,13 @@
     "@types/string-similarity": "^4.0.2",
     "fastify-tsconfig": "^2.0.0",
     "pino-pretty": "^11.2.1",
+    "rimraf": "^6.0.1",
     "testcontainers": "^10.9.0",
+    "ts-patch": "^3.2.1",
     "tsup": "^8.1.0",
     "tsx": "^4.15.7",
-    "typescript": "^5.5.2"
+    "typescript": "^5.5.2",
+    "typescript-transform-paths": "^3.5.2"
   },
   "engines": {
     "node": "^22"

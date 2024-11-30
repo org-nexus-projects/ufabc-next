@@ -13,7 +13,7 @@ const app = fastify(appOptions);
 
 export async function start() {
   await app.register(fp(buildApp));
-  if (process.stdout.isTTY) {
+  if (app.config.NODE_ENV === 'dev') {
     app.log.info(app.printRoutes());
   }
 
