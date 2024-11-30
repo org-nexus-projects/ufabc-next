@@ -21,6 +21,6 @@ export async function getPaginated(page: number, limit: number) {
 }
 
 export async function listSubjectsById(graduationId: string, limit: number) {
-  const subjects = await GraduationSubjectModel.find({ graduation: graduationId }).limit(number).populate<PopulatedFields>("subject").lean()
+  const subjects = await GraduationSubjectModel.find({ graduation: graduationId }).limit(limit).populate<PopulatedFields>("subject").lean()
   return subjects
 }
