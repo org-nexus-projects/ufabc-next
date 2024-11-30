@@ -62,7 +62,6 @@
     "rimraf": "^6.0.1",
     "testcontainers": "^10.9.0",
     "ts-patch": "^3.2.1",
-    "tsup": "^8.1.0",
     "tsx": "^4.15.7",
     "typescript": "^5.5.2",
     "typescript-transform-paths": "^3.5.2"
