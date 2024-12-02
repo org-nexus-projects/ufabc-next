@@ -1,7 +1,7 @@
 import { sendConfirmationEmail } from './jobs/email.job.js';
 import { processSingleEnrollment } from './jobs/enrollments.job.js';
 import { processSingleEnrolled, syncEnrolled } from './jobs/enrolled.job.js';
-import { updateTeachers } from './jobs/teacher-update.job.js';
+// import { updateTeachers } from './jobs/teacher-update.job.js';
 import { processComponent, syncComponents } from './jobs/components.job.js';
 import {
   processComponentEnrollment,
@@ -83,7 +83,7 @@ export const QUEUE_JOBS: Record<any, WorkerOptions> = {
       max: 50,
       duration: 1000,
     },
-  }
+  },
 } as const;
 
 export const JOBS = {
@@ -117,10 +117,10 @@ export const JOBS = {
     queue: 'userEnrollments:update',
     handler: processComponentEnrollment,
   },
-  TeacherUpdate: {
-    queue: 'teacher:updateEnrollments',
-    handler: updateTeachers,
-  },
+  // TeacherUpdate: {
+  //   queue: 'teacher:updateEnrollments',
+  //   handler: updateTeachers,
+  // },
   EnrollmentSync: {
     queue: 'enrollments:update',
     handler: processSingleEnrollment,
@@ -128,7 +128,7 @@ export const JOBS = {
   ComponentsTeachersSync: {
     queue: 'sync:components:teachers',
     handler: processComponentsTeachers,
-  }
+  },
 } as const;
 
 export type QueueNames = keyof typeof QUEUE_JOBS;

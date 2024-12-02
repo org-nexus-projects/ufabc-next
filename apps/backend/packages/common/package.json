@@ -22,15 +22,10 @@
     "test:coverage": "c8 --all --src=lib node --test --import=tsx lib/*.spec.ts"
   },
   "dependencies": {
-    "difflib": "^0.2.4",
-    "latinize": "^2.0.0",
-    "mathjs": "^13.0.0",
-    "pino": "9.3.2"
+    "difflib": "^0.2.4"
   },
   "devDependencies": {
     "@next/tsconfig": "workspace:*",
-    "@types/difflib": "^0.2.7",
-    "@types/latinize": "^0.2.18",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^20.14.7",
     "c8": "^10.1.2",

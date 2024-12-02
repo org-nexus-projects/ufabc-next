@@ -1,9 +1,8 @@
 import gracefullyShutdown from 'close-with-grace';
-import { logger } from '@next/common';
 import { buildApp } from './app.js';
 import { fastifyPlugin as fp } from 'fastify-plugin';
-
 import { fastify, type FastifyServerOptions } from 'fastify';
+import { logger } from './utils/logger.js';
 
 const appOptions = {
   loggerInstance: logger,
