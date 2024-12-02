@@ -1,7 +1,7 @@
-import { type Comment, CommentModel } from "@/models/Comment.js";
-import { EnrollmentModel } from "@/models/Enrollment.js";
-import { Reaction, ReactionModel } from "@/models/Reaction";
-import { FilterQuery, Types } from "mongoose";
+import { type Comment, CommentModel } from '@/models/Comment.js';
+import { EnrollmentModel } from '@/models/Enrollment.js';
+import { type Reaction, ReactionModel } from '@/models/Reaction.js';
+import type { FilterQuery, Types } from 'mongoose';
 
 export async function getUserEnrollments(ra: number) {
   const userEnrollments = await EnrollmentModel.find({
@@ -17,9 +17,9 @@ export async function getUserComments(ra: number) {
 }
 
 export async function findById(id: string) {
-  const enrollment = await EnrollmentModel.findById(id)
+  const enrollment = await EnrollmentModel.findById(id);
 
-  return enrollment  
+  return enrollment;
 }
 
 export async function insert(comment: Partial<Comment>) {
@@ -30,7 +30,7 @@ export async function insert(comment: Partial<Comment>) {
 export async function findCommentById(commentId: string) {
   const comment = await CommentModel.findOne({
     _id: commentId,
-    active: true
+    active: true,
   });
 
   return comment;
@@ -41,24 +41,25 @@ export async function getReactions(
   subjectId: string,
   userId: Types.ObjectId,
   limit: number,
-  page: number
+  page: number,
 ) {
   const reactions = await CommentModel.commentsByReaction<Comment>(
     {
       teacher: teacherId,
       subject: subjectId,
-    }, 
-    userId, 
+    },
+    userId,
     ['enrollment', 'subject'],
-    limit, 
-    page
-  )
+    limit,
+    page,
+  );
 
-
-  return reactions
+  return reactions;
 }
 
-export async function createReaction(reaction: Omit<Reaction, 'createdAt' | 'updatedAt'>) {
+export async function createReaction(
+  reaction: Omit<Reaction, 'createdAt' | 'updatedAt'>,
+) {
   const createdReaction = await ReactionModel.create(reaction);
   return createdReaction;
 }
@@ -69,6 +70,6 @@ export async function findReactionById(filter: FilterQuery<Reaction>) {
 }
 
 export async function deleteReaction(commentId: string) {
-  const deletedReaction = await ReactionModel.deleteOne({ comment: commentId })
+  const deletedReaction = await ReactionModel.deleteOne({ comment: commentId });
   return deletedReaction;
 }

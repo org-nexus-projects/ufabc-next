@@ -50,12 +50,14 @@ const historiesDisciplinasSchema = new Schema(
     situacao: {
       type: String,
       enum: POSSIBLE_SITUATIONS,
+      required: true,
     },
     creditos: { type: Number, required: true },
     categoria: { type: String, required: true, enum: CATEGORIES },
     conceito: {
       type: String,
       enum: CONCEITOS,
+      default: null,
     },
     identifier: String,
   },

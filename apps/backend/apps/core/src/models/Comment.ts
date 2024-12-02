@@ -1,4 +1,10 @@
-import { FilterQuery, type InferSchemaType, Schema, type Types, model } from 'mongoose';
+import {
+  type FilterQuery,
+  type InferSchemaType,
+  Schema,
+  type Types,
+  model,
+} from 'mongoose';
 import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 import { EnrollmentModel } from './Enrollment.js';
 import { ReactionModel } from './Reaction.js';
@@ -109,7 +115,7 @@ const commentSchema = new Schema(
             user: userId,
             kind: 'star',
           });
-          
+
           comment.myReactions = {
             like: !!likes,
             recommendation: !!recommendations,

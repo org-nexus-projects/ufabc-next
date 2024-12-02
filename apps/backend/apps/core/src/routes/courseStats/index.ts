@@ -1,53 +1,34 @@
+import { gradesStatsSchema, userGradesSchema } from '@/schemas/courseStats.js';
+import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+import {
+  findLatestHistory,
+  findOneGraduation,
+  getCrDistribution,
+  getGraduationHistory,
+} from './service.js';
 import { calculateCoefficients } from '@next/common';
 import type { GraduationHistory } from '@/models/GraduationHistory.js';
-import type { CourseStatsService } from './courseStats.service.js';
-import type { FastifyReply, FastifyRequest } from 'fastify';
 
-export class CourseStatsHandlers {
-  constructor(private readonly courseStatsService: CourseStatsService) {}
-
-  async gradesStats() {
+const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
+  app.get('/grades', { schema: gradesStatsSchema }, async (request, reply) => {
     // TODO: discover why points is a 40 constant
     const POINTS = 40;
     const INTERVAL = 4 / POINTS;
-
-    const rawDistribution = await this.courseStatsService.usersCrDistribution(
-      POINTS,
-      INTERVAL,
-    );
-
+    const rawDistribution = await getCrDistribution(POINTS, INTERVAL);
     const distributions = [];
     for (const distribution of rawDistribution) {
-      // @ts-expect-error doesn't harm
       distribution._id = distribution._id.toFixed(2);
-      // @ts-expect-error doesn't harm
       distribution.point = distribution.point.toFixed(2);
       distributions.push(distribution);
     }
 
     return distributions;
-  }
+  });
 
-  async graduationHistory(
-    request: FastifyRequest<{ Querystring: { ra: number } }>,
-  ) {
-    const userHistory = await this.courseStatsService.userGraduationHistory(
-      request.user?.ra ?? request.query.ra,
-    );
-    return { docs: userHistory };
-  }
-
-  async userGraduationStats(request: FastifyRequest, reply: FastifyReply) {
-    const user = request.user;
-
-    if (!user?.ra) {
-      return reply.unauthorized('Missing User RA');
-    }
-
+  app.get('/history', { schema: userGradesSchema }, async ({ user }, reply) => {
     // This code is necessary for show data to performance page - get the coefficients from the last history
     // Example: users with BCT concluded and BCC in progress will have the BCC coefficients showed on the performance screen.
-    const lastHistory =
-      await this.courseStatsService.recentUserGraduationHistory(user.ra);
+    const lastHistory = await findLatestHistory(user.ra);
 
     // Next step
     // Needs to add a querie to get the coefficients from the first historyGraduatiation and show that on the performance screen.
@@ -59,7 +40,7 @@ export class CourseStatsHandlers {
 
     let graduation = null;
     if (lastHistory.curso && lastHistory.grade) {
-      graduation = await this.courseStatsService.findGraduation(
+      graduation = await findOneGraduation(
         lastHistory.curso,
         lastHistory.grade,
       );
@@ -67,14 +48,17 @@ export class CourseStatsHandlers {
 
     const coefficients =
       lastHistory.coefficients ||
-      // @ts-ignore for now
-      calculateCoefficients(lastHistory.disciplinas || [], graduation);
-
+      calculateCoefficients(lastHistory.disciplinas ?? [], graduation);
     const normalizedHistory = normalizeHistory(coefficients);
 
     return normalizedHistory;
-  }
-}
+  });
+
+  app.get('/users/grades', async ({ user }) => {
+    const userHistory = await getGraduationHistory(user.ra);
+    return { docs: userHistory };
+  });
+};
 
 function normalizeHistory(history: GraduationHistory['coefficients']) {
   const total = [];
@@ -96,3 +80,5 @@ function normalizeHistory(history: GraduationHistory['coefficients']) {
 
   return total;
 }
+
+export default plugin;
