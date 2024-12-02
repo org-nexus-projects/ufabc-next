@@ -1,6 +1,7 @@
-import { missingCommentsSchema, createCommentSchema, updateCommentSchema, deleteCommentSchema } from "@/schemas/comments.js";
+import { missingCommentsSchema, createCommentSchema, updateCommentSchema, deleteCommentSchema, commentsOnTeacherSchema, createReactionSchema, deleteReactionSchema } from "@/schemas/comments.js";
 import { FastifyPluginAsyncZodOpenApi } from "fastify-zod-openapi";
-import { findById, findCommentById, getUserComments, getUserEnrollments, insert } from "./service.js";
+import { createReaction, deleteReaction, findById, findCommentById, findReactionById, getReactions, getUserComments, getUserEnrollments, insert } from "./service.js";
+import { Types } from "mongoose";
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
  app.get('/:userId/missing', { schema: missingCommentsSchema },async (request, reply) => {
@@ -97,6 +98,82 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     await comment.save();
 
     return comment;
+ })
+
+ app.get('/:teacherId/:subjectId', { schema: commentsOnTeacherSchema }, async (request, reply) => {
+  const { teacherId, subjectId } = request.params;
+  const { limit, page } = request.query;
+
+  if (!teacherId) {
+    request.log.warn({ params: request.params }, 'Missing teacherId');
+    return reply.badRequest('teacherId was not passed');
+  }
+
+  const { data, total } = await getReactions(
+    teacherId,
+    subjectId,
+    new Types.ObjectId(request.user._id),
+    limit,
+    page  
+  );
+
+  return {
+    data,
+    total
+  }
+ })
+
+ app.post('/reactions/:commentId', { schema: createReactionSchema },async (request, reply) => {
+    const { commentId } = request.params;
+    const { kind } = request.body;
+    const user = request.user;
+
+    if (!user) {
+      return reply.unauthorized('Must be logged');
+    }
+
+    if (!commentId) {
+      return reply.badRequest('CommentId was not passed');
+    }
+
+    const comment = await findCommentById(commentId);
+
+    if (!comment) {
+      return reply.notFound('Comment not found');
+    }
+
+    const reaction = await createReaction({
+      kind,
+      comment: comment._id,
+      user: new Types.ObjectId(user?._id),
+      active: true,
+    });
+
+    return reaction;
+ })
+
+ app.delete('/reactions/:commentId/:kind', {schema: deleteReactionSchema},async (request, reply) => {
+  const { commentId, kind } = request.params;
+  if (!commentId && !kind) {
+    return reply.badRequest('CommentId and Kind are necessary');
+  }
+
+  const reaction = await findReactionById({
+    active: true,
+    user: request.user._id,
+    comment: commentId,
+    kind,
+  })
+
+  if (!reaction) {
+    return reply.notFound(
+      `Reação não encontrada no comentário: ${commentId}`,
+    );
+  }
+  
+  await deleteReaction(commentId);
+
+  return { status: 'ok' }
  })
 }
 

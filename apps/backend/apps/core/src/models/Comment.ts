@@ -1,4 +1,4 @@
-import { type InferSchemaType, Schema, type Types, model } from 'mongoose';
+import { FilterQuery, type InferSchemaType, Schema, type Types, model } from 'mongoose';
 import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 import { EnrollmentModel } from './Enrollment.js';
 import { ReactionModel } from './Reaction.js';
@@ -71,8 +71,8 @@ const commentSchema = new Schema(
   },
   {
     statics: {
-      async commentsByReaction(
-        query,
+      async commentsByReaction<T>(
+        query: FilterQuery<T>,
         userId: Types.ObjectId,
         populateFields: string[] = ['enrollment', 'subject'],
         limit = 10,
@@ -109,7 +109,7 @@ const commentSchema = new Schema(
             user: userId,
             kind: 'star',
           });
-          // @ts-expect-error Object is created dynamically
+          
           comment.myReactions = {
             like: !!likes,
             recommendation: !!recommendations,
