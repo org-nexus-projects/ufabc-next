@@ -4,8 +4,8 @@ export type HistoryDiscipline = {
   disciplina: string;
   ano: number;
   creditos: number;
-  categoria: 'Livre Escolha' | 'Opção Limitada' | 'Obrigatória' | '-';
-  identifier: string | null | undefined;
+  categoria: 'Livre Escolha' | 'Opção Limitada' | 'Obrigatória' | '-' | null;
+  identifier?: string | null;
   situacao: string;
   conceito: 'A' | 'B' | 'C' | 'D' | 'O' | 'F' | '-';
 };
@@ -222,7 +222,7 @@ function convertLetterToNumber(letter: string) {
   }
 }
 
-function parseCategory(category: string) {
+function parseCategory(category: string | null) {
   switch (category) {
     case 'Livre Escolha':
       return 'free';
