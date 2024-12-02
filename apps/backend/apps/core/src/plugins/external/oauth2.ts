@@ -28,7 +28,7 @@ export default fp(
         `${app.config.PROTOCOL}://${req.host}/login/google/callback`,
     });
 
-    app.log.info('[PLUGIN] Cookie, Session, Oauth');
+    app.log.info('[PLUGIN] Oauth');
   },
   { name: 'oauth2' },
 );

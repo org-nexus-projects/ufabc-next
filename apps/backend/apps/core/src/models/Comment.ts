@@ -5,7 +5,6 @@ import {
   type Types,
   model,
 } from 'mongoose';
-import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 import { EnrollmentModel } from './Enrollment.js';
 import { ReactionModel } from './Reaction.js';
 
@@ -133,8 +132,6 @@ const commentSchema = new Schema(
     timestamps: true,
   },
 );
-
-commentSchema.plugin(mongooseLeanVirtuals);
 
 commentSchema.pre('save', async function () {
   if (this.isNew) {

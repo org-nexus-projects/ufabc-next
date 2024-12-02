@@ -114,7 +114,7 @@ export default fp(
     app.decorate('createToken', createToken);
     app.decorate('verifyToken', verifyToken);
 
-    app.log.warn('[PLUGIN] registered tokens plugin');
+    app.log.info('[PLUGIN] registered tokens plugin');
   },
   {
     name: 'token-generator',

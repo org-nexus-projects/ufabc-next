@@ -1,5 +1,5 @@
 import { CommentModel } from '@/models/Comment.js';
-import { Component, ComponentModel } from '@/models/Component.js';
+import { type Component, ComponentModel } from '@/models/Component.js';
 import { EnrollmentModel } from '@/models/Enrollment.js';
 import { GraduationModel } from '@/models/Graduation.js';
 import { StudentModel } from '@/models/Student.js';
@@ -14,7 +14,7 @@ import { currentQuad } from '@next/common';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import type { FilterQuery, PipelineStage } from 'mongoose';
 import { getAllCourses } from './service.js';
-import { resolveStep } from '@/utils/resolveStatsSteps.js';
+import { resolveStep } from '@/utils/resolve-stats-steps.js';
 
 type ComponentsStats = {
   teachers: number;
@@ -249,115 +249,120 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return platformGeneralStats;
   });
 
-  app.get('/stats/components/:action?', { logLevel: 'silent', schema: listComponentsResume }, async (request, reply) => {
-    const { action } = request.params;
-    const { limit, page, season, courseId, ratio, turno } = request.query;
-    
-    const match: FilterQuery<Component> = { season }
+  app.get(
+    '/stats/components/:action?',
+    { logLevel: 'silent', schema: listComponentsResume },
+    async (request, reply) => {
+      const { action } = request.params;
+      const { limit, page, season, courseId, ratio, turno } = request.query;
 
+      const match: FilterQuery<Component> = { season };
 
-    if (turno) {
-      match.turno = turno
-    }
+      if (turno) {
+        match.turno = turno;
+      }
 
-    if (courseId) {
-      const courses = await getAllCourses()
-      const interCourses = [
-        'Bacharelado em Ciência e Tecnologia',
-        'Bacharelado em Ciências e Humanidades',
+      if (courseId) {
+        const courses = await getAllCourses();
+        const interCourses = [
+          'Bacharelado em Ciência e Tecnologia',
+          'Bacharelado em Ciências e Humanidades',
+        ];
+
+        const interCourseIds = courses
+          .filter(({ names }) => interCourses.includes(names))
+          .flatMap(({ UFCourseIds }) => UFCourseIds);
+
+        match.obrigatorias = { $in: [courseId] };
+
+        if (!interCourseIds.includes(courseId)) {
+          match.obrigatorias.$nin = interCourseIds;
+        }
+      }
+
+      const isPrevious = await ComponentModel.countDocuments({
+        season,
+        before_kick: { $exists: true, $ne: [] },
+      });
+      const dataKey = isPrevious ? '$before_kick' : '$alunos_matriculados';
+
+      const pipeline: any = [
+        { $match: match },
+        {
+          $project: {
+            vagas: 1,
+            turno: 1,
+            codigo: 1,
+            disciplina: 1,
+            obrigatorias: 1,
+            turma: 1,
+            requisicoes: { $size: { $ifNull: [dataKey, []] } },
+          },
+        },
+        { $match: { vagas: { $gt: 0 } } },
+        {
+          $project: {
+            vagas: 1,
+            turno: 1,
+            codigo: 1,
+            disciplina: 1,
+            obrigatorias: 1,
+            requisicoes: 1,
+            turma: 1,
+            deficit: { $subtract: ['$requisicoes', '$vagas'] },
+            ratio: { $divide: ['$requisicoes', '$vagas'] },
+          },
+        },
       ];
 
-      const interCourseIds = courses.filter(({ names }) => interCourses.includes(names)).flatMap(({ UFCourseIds }) => UFCourseIds)
-
-      match.obrigatorias = { $in: [courseId] }
-
-      if (!interCourseIds.includes(courseId)) {
-        match.obrigatorias.$nin = interCourseIds;
+      if (ratio) {
+        pipeline.push({ $match: { ratio: { $gt: ratio } } });
       }
-    }
 
-    const isPrevious = await ComponentModel.countDocuments({
-      season,
-      before_kick: { $exists: true, $ne: [] },
-    });
-    const dataKey = isPrevious ? '$before_kick' : '$alunos_matriculados';
-    
-    const pipeline: any = [
-      { $match: match },
-      {
-        $project: {
-          vagas: 1,
-          turno: 1,
-          codigo: 1,
-          disciplina: 1,
-          obrigatorias: 1,
-          turma: 1,
-          requisicoes: { $size: { $ifNull: [dataKey, []] } },
-        },
-      },
-      { $match: { vagas: { $gt: 0 } } },
-      {
-        $project: {
-          vagas: 1,
-          turno: 1,
-          codigo: 1,
-          disciplina: 1,
-          obrigatorias: 1,
-          requisicoes: 1,
-          turma: 1,
-          deficit: { $subtract: ['$requisicoes', '$vagas'] },
-          ratio: { $divide: ['$requisicoes', '$vagas'] },
-        },
-      },
-    ];
-  
-    if (ratio) {
-      pipeline.push({ $match: { ratio: { $gt: ratio } } });
-    }
-  
-    pipeline.push(...resolveStep(action ?? 'overview', turno, courseId));
-  
-    pipeline.push(
-      {
-        $facet: {
-          total: [{ $count: 'total' }],
-          data: [
-            { $sort: { [ratio != null ? 'ratio' : 'deficit']: -1 } },
-            { $skip: page * limit },
-            { $limit: limit },
-            {
-              $project: {
-                codigo: 1,
-                disciplina: 1,
-                turma: 1,
-                turno: 1,
-                vagas: 1,
-                requisicoes: 1,
-                deficit: 1,
-                ratio: 1,
+      pipeline.push(...resolveStep(action ?? 'overview', turno, courseId));
+
+      pipeline.push(
+        {
+          $facet: {
+            total: [{ $count: 'total' }],
+            data: [
+              { $sort: { [ratio != null ? 'ratio' : 'deficit']: -1 } },
+              { $skip: page * limit },
+              { $limit: limit },
+              {
+                $project: {
+                  codigo: 1,
+                  disciplina: 1,
+                  turma: 1,
+                  turno: 1,
+                  vagas: 1,
+                  requisicoes: 1,
+                  deficit: 1,
+                  ratio: 1,
+                },
               },
-            },
-          ],
+            ],
+          },
         },
-      },
-      {
-        $addFields: {
-          total: { $ifNull: [{ $arrayElemAt: ['$total.total', 0] }, 0] },
-          page,
+        {
+          $addFields: {
+            total: { $ifNull: [{ $arrayElemAt: ['$total.total', 0] }, 0] },
+            page,
+          },
         },
-      },
-      {
-        $project: {
-          total: 1,
-          data: 1,
-          page: 1,
+        {
+          $project: {
+            total: 1,
+            data: 1,
+            page: 1,
+          },
         },
-      },
-    );
+      );
 
-    const [result] = await ComponentModel.aggregate(pipeline);
-    return result;
-  })
+      const [result] = await ComponentModel.aggregate(pipeline);
+      return result;
+    },
+  );
 };
 
 export default plugin;

@@ -46,3 +46,4 @@ build
 tmp
 .env.dev
 debug.js
+logs
