@@ -1,7 +1,7 @@
 import { currentQuad } from '@next/common';
 import { ComponentModel } from '@/models/Component.js';
 import type { QueueContext } from '../types.js';
-import { getEnrolledStudents } from '@/modules-v2/ufabc-parser.js';
+import { getEnrolledStudents } from '@/modules/ufabc-parser.js';
 
 export async function syncEnrolled({ app }: QueueContext<void>) {
   const tenant = currentQuad();
