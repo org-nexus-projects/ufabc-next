@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { getSubjectReviews, type SubjectReview } from '@/services/next';
-import { Chart } from 'highcharts-vue';
+import { Chart , type ChartProps } from 'highcharts-vue';
+
+type ChartOptions = ChartProps['options']
 
 const props = defineProps<{
   isOpen: boolean
@@ -12,41 +14,32 @@ const subjectDistributionData = ref<SubjectReview | null>(null)
 const loading = ref(false);
 const samplesCount = ref<number>(0);
 const filterSelected = ref(null)
-const chartOptions = ref({
+const chartOptions = ref<ChartOptions>({
   chart: {
     type: "pie",
-    plotBackgroundColor: null,
-    plotBorderWidth: null,
+    plotBackgroundColor: undefined,
+    plotBorderWidth: undefined,
     plotShadow: false,
-    options3d: {
-      enabled: true,
-      alpha: 45
-    },
     width: 380,
     height: 240
   },
   title: {
     text: ''
   },
-  tooltip: {
-    pointFormat: 'Porcentagem: <b>{point.percentage:.1f}%</b>'
-  },
   plotOptions: {
     pie: {
-      animation: {
-        duration: 200,
-      },
-      depth: 20,
       allowPointSelect: true,
       cursor: 'pointer',
       dataLabels: {
-        format: '{key}: <b>{point.percentage:.1f}%</b>',
-        enabled: true
+        enabled: true,
+        format: '<b>{point.name}</b>: {point.percentage:.1f} %',
       },
-      showInLegend: true
+      showInLegend: true,
+      animation: {
+        duration: 200,
+      },
     }
   },
-  series: []
 });
 
 const subject = computed(() => subjectDistributionData.value?.subject.name ?? '')
@@ -129,12 +122,16 @@ function updateFilter() {
 
   chartOptions.value = {
     ...chartOptions.value,
-    series: [{
+    series: [
+    {
       name: 'Conceito',
       data: gradesFiltered,
-    }],
+    },
+  ],
     plotOptions: {
-      colors: gradesFiltered.map(grade => resolveColorForConcept(grade.name))
+      pie: {
+        colors: gradesFiltered?.map(grade => grade.color)
+      }
     }
   }
 }
