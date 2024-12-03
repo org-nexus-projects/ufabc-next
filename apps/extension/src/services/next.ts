@@ -75,7 +75,7 @@ export type SubjectReview = {
   specific: Array<DetailedReviews>
 }
 
-type Component = {
+export type Component = {
 	identifier: string;
 	disciplina_id: number;
 	subject: string;
@@ -134,4 +134,9 @@ export async function getSubjectReviews(subjectId: string) {
 export async function getComponents() {
   const components = nextService<Component[]>('/entities/components')
   return components;
+}
+
+export async function getKicksInfo(kickId: string, studentId: string) {
+  const kicksData = await nextService(`/entities/components/${kickId}/kicks?studentId=${studentId}`)
+  return kicksData;
 }
