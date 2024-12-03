@@ -59,6 +59,11 @@ const subjectReview = ref<{ isOpen: boolean; subjectId: string | null }>({
     subjectId: null,
 });
 
+const kicksModal = ref<{ isOpen: boolean; corteId: string | null }>({
+  isOpen: false,
+  corteId: null
+})
+
 function openSubjectReview(subjectId: string) {
   subjectReview.value.isOpen = true;
   subjectReview.value.subjectId = subjectId;
@@ -67,6 +72,17 @@ function openSubjectReview(subjectId: string) {
 function closeSubjectReview() {
   subjectReview.value.isOpen = false;
   subjectReview.value.subjectId = null;
+}
+
+
+function openKicksModal(corteId: string) {
+  kicksModal.value.isOpen = true;
+  kicksModal.value.corteId = corteId;
+}
+
+function closeKicksModal() {
+  kicksModal.value.isOpen = false;
+  kicksModal.value.corteId = null;
 }
 
 function changeSelected() {
@@ -155,6 +171,7 @@ function applyFilter(params: Filter) {
   }
 }
 
+
 function handleClick(event: MouseEvent) {
 const target = event.target as HTMLElement;
   if (target.closest("#cortes")) {
@@ -164,11 +181,10 @@ const target = event.target as HTMLElement;
     }
     const corteId =
       corteElement.parentElement?.parentElement?.getAttribute("value");
-    // if (corteId) {
-    //   openModal(corteId);
-    // }
+    if (corteId) {
+      openKicksModal(corteId);
+    }
   } else if (target.matches("span.sa, span.sbc")) {
-    console.log(target)
     const subjectId = target.getAttribute("subjectId");
     if (subjectId) {
       openSubjectReview(subjectId);
@@ -308,11 +324,18 @@ onUnmounted(() => {
       </el-popover>
     </section>
   </div>
+
     <SubjectReview
       :is-open="subjectReview.isOpen"
       :subject-id="subjectReview.subjectId"
       @close="closeSubjectReview"
     />
+    <KicksModal
+      :is-open="kicksModal.isOpen"
+      :corte-id="kicksModal.corteId"
+      @close="closeKicksModal"
+    />
+
 </template>
 
 <style scoped lang="css"></style>
