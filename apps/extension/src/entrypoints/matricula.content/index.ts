@@ -1,4 +1,4 @@
-import { getUFEnrolled } from "@/services/ufabc-parser";
+import { getUFComponents, getUFEnrolled } from "@/services/ufabc-parser";
 import UFABCMatricula from "@/entrypoints/matricula.content/UFABC-Matricula.vue";
 import HighchartsVue from "highcharts-vue";
 import Highcharts from "highcharts";
@@ -9,12 +9,18 @@ import type { Student } from "@/scripts/sig/homepage";
 import type { ContentScriptContext } from "wxt/client";
 import './style.css'
 
-
+export type UFABCMatriculaStudent = {
+  studentId: number
+  graduationId: string
+}
 
 export default defineContentScript({
   async main(ctx) {
-    const ui = await mountUFABCMatriculaFilters(ctx);
-		ui.mount();
+    const student = await storage.getItem<Student>('local:student')
+    const ufabcMatriculaStudent = await storage.getItem<UFABCMatriculaStudent>(`sync:${student?.ra}`)
+
+    const ui = await mountUFABCMatriculaFilters(ctx, ufabcMatriculaStudent);
+    ui.mount();
 
     const $meio =  document.querySelector<HTMLDivElement>("#meio");
     const $mountedUi = $meio?.firstChild as unknown as HTMLDivElement;
@@ -24,8 +30,6 @@ export default defineContentScript({
 		$mountedUi.style.zIndex = "9";
 
     // TODO(Joabesv): create student here
-    const student = await storage.getItem<Student>('local:student')
-    const ufabcMatriculaStudent = await storage.getItem(`sync:${student?.ra}`)
     console.log(student, ufabcMatriculaStudent)
 
   },
@@ -34,7 +38,7 @@ export default defineContentScript({
 	matches: ["https://ufabc-matricula-snapshot.vercel.app/*", 'https://api.ufabcnext.com/snapshot', 'https://matricula.ufabc.edu.br/matricula'],
 })
 
-async function mountUFABCMatriculaFilters(ctx: ContentScriptContext) {
+async function mountUFABCMatriculaFilters(ctx: ContentScriptContext, student: UFABCMatriculaStudent | null) {
 	return createShadowRootUi(ctx, {
 		name: "matriculas-filter",
 		position: "inline",
@@ -49,11 +53,18 @@ async function mountUFABCMatriculaFilters(ctx: ContentScriptContext) {
       // Highcharts3D(Highcharts);
 
 
+      if (!student) {
+        return;
+      }
+
       const matriculas = await getUFEnrolled();
+      const ufabcComponents = await getUFComponents();
       window.matriculas = matriculas;
 
       const app = createApp(UFABCMatricula);
       app.provide("matriculas", window.matriculas);
+      app.provide("components", ufabcComponents);
+      app.provide('student', student)
 
       app.use(HighchartsVue);
 
