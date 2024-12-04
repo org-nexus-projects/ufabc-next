@@ -17,12 +17,9 @@ const NonPaginatedComponentsSchema = z.object({
   campus: z.enum(['sbc', 'sa', 'santo andre', 'sao bernardo']),
   teoria: z.string().optional().openapi({ description: 'Nome do professor' }),
   pratica: z.string().optional().openapi({ description: 'Nome do professor' }),
-  teoriaId: z.coerce.string().optional().openapi({ description: 'Id interno' }),
+  teoriaId: z.any(), // z.coerce.string().optional().openapi({ description: 'Id interno' }),
   season: z.string().openapi({ description: 'Chave do tenant' }),
-  praticaId: z.coerce
-    .string()
-    .optional()
-    .openapi({ description: 'Id interno' }),
+  praticaId: z.any(),
   subjectId: z.coerce
     .string()
     .optional()
@@ -81,5 +78,15 @@ export const listKickedSchema = {
         return true;
       })
       .default(currentQuad()),
+    studentId: z.coerce.number(),
   }),
+  response: {
+    200: {
+      content: {
+        'application/json': {
+          schema: z.any(),
+        },
+      },
+    },
+  },
 } satisfies FastifyZodOpenApiSchema;

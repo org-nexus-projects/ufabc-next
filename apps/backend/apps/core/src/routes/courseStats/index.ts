@@ -54,8 +54,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return normalizedHistory;
   });
 
-  app.get('/users/grades', async ({ user }) => {
+  app.get('/user/grades', async ({ user }) => {
     const userHistory = await getGraduationHistory(user.ra);
+    if (userHistory.length === 0) {
+      return null;
+    }
     return { docs: userHistory };
   });
 };

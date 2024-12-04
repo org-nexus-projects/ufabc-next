@@ -14,8 +14,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     },
     async (request, reply) => {
       const { email } = request.body;
-      const isValid = app.config.BACKOFFICE_EMAILS?.includes(email)
-      
+      const isValid = app.config.BACKOFFICE_EMAILS?.includes(email);
+
       if (!isValid) {
         return reply.badRequest();
       }
@@ -25,7 +25,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       });
 
       if (!user) {
-        return reply.notFound('User not found');
+        return reply.badRequest('User not found');
       }
 
       const token = app.jwt.sign(

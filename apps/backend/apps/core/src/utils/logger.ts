@@ -30,8 +30,10 @@ const loggerSetup = {
           target: 'pino-pretty',
           options: {
             ...pinoPrettyOptions,
-            destination: 1, // stdout
+            destination: 1,
+            // timestamp: pino.stdTimeFunctions.isoTime,
           },
+          level: 'info',
         },
         {
           target: 'pino/file',
@@ -63,13 +65,12 @@ const loggerSetup = {
 export function buildLogger(env: 'dev' | 'prod' = 'dev') {
   const baseConfig = {
     level: process.env.LOG_LEVEL ?? (env === 'dev' ? 'info' : 'warn'),
-    timestamp: pino.stdTimeFunctions.isoTime,
   } satisfies LoggerOptions;
 
   const config =
-    env === 'dev'
-      ? { ...baseConfig, ...loggerSetup.dev }
-      : { ...baseConfig, ...loggerSetup.prod };
+    env !== 'dev'
+      ? { ...baseConfig, ...loggerSetup.prod }
+      : { ...loggerSetup.dev };
 
   return pino(config);
 }

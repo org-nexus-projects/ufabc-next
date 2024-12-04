@@ -6,29 +6,27 @@ import {
   listKickedSchema,
   type NonPaginatedComponents,
 } from '@/schemas/entities/components.js';
-import { currentQuad } from '@next/common';
 import type { preHandlerAsyncHookHandler } from 'fastify';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import type { SubjectDocument } from '@/models/Subject.js';
 import type { TeacherDocument } from '@/models/Teacher.js';
 
 const validateStudent: preHandlerAsyncHookHandler = async (request, reply) => {
-  const { studentId } = request.query as {
+  const { studentId, season } = request.query as {
     studentId: number;
-  }
-  const season = currentQuad();
+    season: string;
+  };
   const student = await StudentModel.findOne({
     season,
     aluno_id: studentId,
-  })
-
+  });
 
   if (!student) {
-    return reply.forbidden('StudentId')
+    return reply.forbidden('StudentId');
   }
 
   return;
-}
+};
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   const componentsListCache = app.cache<NonPaginatedComponents[]>();
@@ -66,7 +64,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         teoria: TeacherDocument;
         subject: SubjectDocument;
       }>(['pratica', 'teoria', 'subject'])
-      .lean(true);
+      .lean();
 
     const nonPaginatedComponents = components.map((component) => ({
       ...component,
@@ -81,132 +79,137 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     componentsListCache.set(cacheKey, nonPaginatedComponents);
 
+    app.log.warn(app.config.MONGODB_CONNECTION_URL);
+
     return nonPaginatedComponents;
   });
+  app.get(
+    '/:componentId/kicks',
+    { preHandler: [validateStudent], schema: listKickedSchema },
+    async (request, reply) => {
+      const component = await ComponentModel.findOne({
+        season: request.query.season,
+        disciplina_id: request.params.componentId,
+      }).lean();
 
-  app.get('/:componentId/kicks', { preHandler: [validateStudent], schema: listKickedSchema }, async (request, reply) => {
-    const component = await ComponentModel.findOne({
-      season: request.query.season,
-      disciplina_id: request.params.componentId,
-    }).lean();
+      if (!component) {
+        return reply.badRequest('Component not found');
+      }
 
-    if (!component) {
-      return reply.notFound('Component not found');
-    }
+      // if a sort param has not been passed uses ideal_quad
+      const kicks = request.query.sort
+        ? [request.query.sort]
+        : kickRule(component.ideal_quad, request.query.season);
 
-    // if a sort param has not been passed uses ideal_quad
-    const kicks = request.query.sort
-      ? [request.query.sort]
-      : kickRule(component.ideal_quad, request.query.season);
+      const kicksOrder = kicks.map((kick) =>
+        kick === 'turno'
+          ? component.turno === 'diurno'
+            ? 'asc'
+            : 'desc'
+          : 'desc',
+      );
 
-    const kicksOrder = kicks.map((kick) =>
-      kick === 'turno'
-        ? component.turno === 'diurno'
-          ? 'asc'
-          : 'desc'
-        : 'desc',
-    );
+      const isAfterKick = component.after_kick
+        ? component.after_kick.length > 0
+        : false;
 
-    const isAfterKick = component.after_kick
-      ? component.after_kick.length > 0
-      : false;
+      const resolveKicked = resolveEnrolled(component, isAfterKick);
 
-    const resolveKicked = resolveEnrolled(component, isAfterKick);
+      const kicksMap = new Map(
+        resolveKicked.map((kicked) => [kicked.studentId, kicked]),
+      );
 
-    const kicksMap = new Map(
-      resolveKicked.map((kicked) => [kicked.studentId, kicked]),
-    );
-
-    const students = await StudentModel.aggregate([
-      {
-        $match: {
-          season: request.query.season,
-          aluno_id: { $in: resolveKicked.map((kicked) => kicked.studentId) },
-        },
-      },
-      { $unwind: '$cursos' },
-    ]);
-
-    const courses = await StudentModel.aggregate<{
-      _id: string;
-      ids: number[];
-    }>([
-      {
-        $unwind: '$cursos',
-      },
-      {
-        $match: {
-          'cursos.id_curso': {
-            $ne: null,
+      const students = await StudentModel.aggregate([
+        {
+          $match: {
+            season: request.query.season,
+            aluno_id: { $in: resolveKicked.map((kicked) => kicked.studentId) },
           },
-          season: request.query.season,
         },
-      },
-      {
-        $project: {
-          'cursos.id_curso': 1,
-          'cursos.nome_curso': {
-            $trim: {
-              input: '$cursos.nome_curso',
+        { $unwind: '$cursos' },
+      ]);
+
+      const courses = await StudentModel.aggregate<{
+        _id: string;
+        ids: number[];
+      }>([
+        {
+          $unwind: '$cursos',
+        },
+        {
+          $match: {
+            'cursos.id_curso': {
+              $ne: null,
+            },
+            season: request.query.season,
+          },
+        },
+        {
+          $project: {
+            'cursos.id_curso': 1,
+            'cursos.nome_curso': {
+              $trim: {
+                input: '$cursos.nome_curso',
+              },
             },
           },
         },
-      },
-      {
-        $group: {
-          _id: '$cursos.nome_curso',
-          ids: {
-            $addToSet: '$cursos.id_curso',
+        {
+          $group: {
+            _id: '$cursos.nome_curso',
+            ids: {
+              $addToSet: '$cursos.id_curso',
+            },
           },
         },
-      },
-    ]);
+      ]);
 
-    const interCourses = [
-      'Bacharelado em Ciência e Tecnologia',
-      'Bacharelado em Ciências e Humanidades',
-    ];
+      const interCourses = [
+        'Bacharelado em Ciência e Tecnologia',
+        'Bacharelado em Ciências e Humanidades',
+      ];
 
-    const interCourseIds = courses
-      .filter(({ _id: name }) => interCourses.includes(name))
-      .flatMap(({ ids }) => ids);
+      const interCourseIds = courses
+        .filter(({ _id: name }) => interCourses.includes(name))
+        .flatMap(({ ids }) => ids);
 
-    const obrigatorias = getObrigatoriasFromComponents(
-      component.obrigatorias,
-      interCourseIds,
-    );
+      const obrigatorias = getObrigatoriasFromComponents(
+        component.obrigatorias,
+        interCourseIds,
+      );
 
-    const studentsWithGraduation = students.map((student) => {
-      const reserva = obrigatorias.includes(student.cursos.id_curso);
-      const kickedInfo = kicksMap.get(student.aluno_id);
-      const graduationToStudent = {
-        studentId: student.aluno_id,
-        cr: '-',
-        cp: student.cursos.cp,
-        ik: reserva ? student.cursos.ind_afinidade : 0,
-        reserva,
-        turno: student.cursos.turno,
-        curso: student.cursos.nome_curso,
-        ...(kickedInfo || {}),
-      };
+      const studentsWithGraduation = students.map((student) => {
+        const reserva = obrigatorias.includes(student.cursos.id_curso);
+        const kickedInfo = kicksMap.get(student.aluno_id);
+        const graduationToStudent = {
+          studentId: student.aluno_id,
+          cr: '-',
+          cp: student.cursos.cp,
+          ik: reserva ? student.cursos.ind_afinidade : 0,
+          reserva,
+          turno: student.cursos.turno,
+          curso: student.cursos.nome_curso,
+          ...(kickedInfo || {}),
+        };
 
-      return graduationToStudent;
-    });
+        return graduationToStudent;
+      });
 
-    const sortedStudents = LodashOrderBy(
-      studentsWithGraduation,
-      kicks,
-      kicksOrder,
-    );
+      const sortedStudents = LodashOrderBy(
+        studentsWithGraduation,
+        kicks,
+        kicksOrder,
+      );
 
-    const uniqueStudents = Array.from(
-      new Map(
-        sortedStudents.map((student) => [student.studentId, student]),
-      ).values(),
-    );
+      const uniqueStudents = Array.from(
+        new Map(
+          sortedStudents.map((student) => [student.studentId, student]),
+        ).values(),
+      );
 
-    return uniqueStudents;
-  });
+      return uniqueStudents;
+    },
+  );
 };
 
 function kickRule(idealQuad: boolean, season: string) {
