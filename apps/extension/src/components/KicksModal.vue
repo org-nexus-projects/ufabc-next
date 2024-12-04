@@ -299,19 +299,19 @@ onMounted(async () => {
 
 <style>
 .el-table .aluno-row {
-  --el-table-tr-bg-color: #B7D3FF !important;
+  color: #B7D3FF !important;
 }
 
 .el-table .kicked-row {
-  --el-table-tr-bg-color: #f95469 !important;
+  color: #f95469 !important;
 }
 
 .el-table .probably-kicked-row {
-  --el-table-tr-bg-color: #f3a939 !important;
+  color: #f3a939 !important;
 }
 
 .el-table .not-kicked-row {
-  --el-table-tr-bg-color: #3fcf8c !important;
+  color: #3fcf8c !important;
 }
 
 .kicks-table > el-table,
