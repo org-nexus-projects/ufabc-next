@@ -189,7 +189,8 @@ const kicksForecast = computed(() => {
   if (!props.corteId || !matriculas || !matriculaStudent?.studentId) {
     return;
   }
-  const requests = matriculas[matriculaStudent?.studentId].reduce((a, c) => a + 1, 0);
+  const requests = Object.values(matriculas).reduce((count, current) =>
+  current.includes(props.corteId?.toString()) ? count + 1 : count, 0);
   return kicks.value.length * component.value?.vacancies / requests
 })
 
@@ -269,7 +270,6 @@ type TableData = {
 }
 
 function tableRowClassname({ row, rowIndex }: TableData) {
-  console.log(kicksForecast.value)
   if (row.studentId === matriculaStudent?.studentId) {
     return 'aluno-row'
   } if (kicksForecast.value && rowIndex <= kicksForecast.value) {
