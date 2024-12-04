@@ -58,12 +58,10 @@ async function mountUFABCMatriculaFilters(ctx: ContentScriptContext, student: UF
       }
 
       const matriculas = await getUFEnrolled();
-      const ufabcComponents = await getUFComponents();
       window.matriculas = matriculas;
 
       const app = createApp(UFABCMatricula);
       app.provide("matriculas", window.matriculas);
-      app.provide("components", ufabcComponents);
       app.provide('student', student)
 
       app.use(HighchartsVue);

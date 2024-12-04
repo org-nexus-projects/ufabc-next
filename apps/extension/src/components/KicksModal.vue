@@ -1,12 +1,91 @@
 <template>
-  <h1>Joabe</h1>
+  <el-dialog
+      :title="component.name ? 'Disciplina: ' + component.name : 'Cortes'"
+      @close="closeModal"
+      :modelValue="isOpen"
+      @update:modelValue="closeModal"
+      light
+      class="w-1/2"
+    >
+    <div v-loading="loading" element-loading="Carregando" >
+      <div class="border border-solid border-[rgba(0,0,0,0.07)] ">
+          <div class="flex flex-row items-center">
+              Critérios
+              <el-popover
+                placement="top-start"
+                width="340"
+                trigger="hover"
+                :content="criteriaContent">
+                <template #reference>
+                  <Info :size="16" class="ml-1 cursor-pointer"/>
+                </template>
+
+              </el-popover>
+            <!-- Fill space -->
+            <div class="flex-auto"></div>
+            <el-button round text type="primary" @click="restore">
+              Restaurar Ordem
+            </el-button>
+          </div>
+
+          <div></div>
+
+          <span class="block text-sm mt-2">
+            * Arraste para alterar a ordem dos critérios
+          </span>
+      </div>
+      <!-- subtitle -->
+       <div class="border border-solid border-[rgba(0,0,0,0.07)] mb-4 p-2">
+          <span class="block mb-2">Legenda</span>
+          <div class="flex flex-row justify-between">
+            <!-- You-->
+          <div class="flex flex-row items-center">
+            <div class="bg-[#B7D3FF] mr-1" style="width: 12px; height: 12px;">
+            </div>
+            <span>Você</span>
+          </div>
+          <!-- kicked-->
+          <div class="flex flex-row items-center">
+            <div class="bg-[#f95469] mr-1" style="width: 12px; height: 12px;">
+            </div>
+            <span>Certeza de chute</span>
+          </div>
+          <!-- probably-kicked-->
+          <div class="flex flex-row items-center">
+            <div class="bg-[#f3a939] mr-1" style="width: 12px; height: 12px;">
+            </div>
+            <span>Provavelmente será chutado</span>
+          </div>
+          <!-- not-kicked-->
+          <div class="flex flex-row items-center">
+            <div class="bg-[#3fcf8c] mr-1" style="width: 12px; height: 12px;">
+            </div>
+            <span>Provavelmente não será chutado</span>
+          </div>
+
+          </div>
+       </div>
+    </div>
+    <template #footer class="flex">
+      <span class="text-left flex-auto">
+        <a href="https://bit.ly/extensao-problemas" target="_blank">Está com problemas com a extensão? <br />Clique aqui</a>
+      </span>
+      <i class="text-[rgba(0,_0,_0,_0.6)] inline-flex text-sm flex-row mr-4">* Dados baseados nos alunos que utilizam a extensão</i>
+      <el-button @click="closeModal">
+        Fechar
+      </el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
 import type { UFABCMatriculaStudent } from '@/entrypoints/matricula.content';
-import { getKicksInfo, type Component } from '@/services/next';
+import { getKicksInfo } from '@/services/next';
+import { getUFComponents, type UFSeasonComponents } from '@/services/ufabc-parser';
 import { findIdeais, findSeasonKey } from '@/utils/season';
 import { orderBy } from 'lodash-es';
+import { FetchError } from 'ofetch';
+import { Info } from 'lucide-vue-next'
 
 type Headers = {
   text: string;
@@ -23,16 +102,14 @@ const emit = defineEmits(['close']);
 const loading = ref(false)
 const kicks = ref([])
 const headers = ref<Headers[]>([])
-const ufabcComponents = inject<Component[]>('components')
 const matriculaStudent = inject<UFABCMatriculaStudent>('student')
+const matriculas = inject<typeof window.matriculas>('matriculas')
+const component = ref({} as UFSeasonComponents)
 
 const criteriaContent = "Os critérios são definidos com base nos critérios abaixo e seu peso, você pode alterar o peso arrastando o critérios para que fiquem na ordem desejada."
 
-// @ts-ignore
-const component: ComputedRef<Component> = computed(() => ufabcComponents?.find(c => c.disciplina_id === Number.parseInt(props.corteId)))
-
 const defaultHeaders = computed(() => {
-  const isIdeal = findIdeais().includes(component?.value?.disciplina_id.toString() ?? '')
+  const isIdeal = findIdeais().includes(component?.value?.UFComponentId?.toString() ?? '')
   const base = [
     { text: 'Reserva', sortable: false, value: 'reserva' },
     { text: 'Turno', value: 'turno', sortable: false },
@@ -61,8 +138,11 @@ const defaultHeaders = computed(() => {
 // })
 
 const kicksForecast = computed(() => {
-  const requests = component.value.requisicoes;
-  return kicks.value.length * component.value.vagas / requests
+  if (!props.corteId || !matriculas) {
+    return;
+  }
+  const requests = matriculas[Number(props.corteId)].reduce((a, c) => a + 1, 0);
+  return kicks.value.length * component.value?.vacancies / requests
 })
 
 async function fetch() {
@@ -79,9 +159,13 @@ async function fetch() {
     kicks.value = kicksInfo
     resort();
   } catch(error: any) {
-    if(error?.name === 'Forbidden') {
-      console.log('add dialog here', error)
+    if(error instanceof FetchError) {
+      if (error.name === 'forbidden') {
+        console.log('add dialog here', error)
+      }
+      console.log(error)
     }
+
     console.log(error)
   } finally {
     loading.value = false
@@ -100,13 +184,41 @@ function resort() {
   kicks.value = orderBy(kicks.value, sortOrder, sortRef)
 }
 
+function restore() {
+  headers.value = defaultHeaders.value;
+  resort()
+}
+
 function closeModal() {
   emit('close');
 }
 
-watch(() => props.isOpen, (newIsOpen) => {
+function tableRowClassname({ row, rowIndex }: { row: Record<string, string>; rowIndex: number }) {
+  if (row.studentId === matriculaStudent?.studentId.toString()) {
+    // student-row
+    return 'bg-[#B7D3FF]'
+  }
+
+  if (rowIndex <= kicksForecast.value) {
+    // .probably-kicked-row
+    return 'bg-[#3fcf8c]'
+  }
+
+  if (rowIndex >= component.value.vacancies) {
+    // kicked row
+    return 'bg-[#f95469]'
+  }
+
+  return 'bg-[#f3a939]'
+}
+
+watch(() => props.isOpen, async (newIsOpen) => {
   if (newIsOpen && props.corteId) {
     headers.value = defaultHeaders.value
+    const ufabcComponents = await getUFComponents()
+    const match = ufabcComponents.find(c => c.UFComponentId === Number.parseInt(props.corteId))
+    // @ts-ignore
+    component.value = match
     fetch()
   }
 })
