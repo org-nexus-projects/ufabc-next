@@ -8,6 +8,7 @@
       class="w-1/2"
     >
     <div v-loading="loading" element-loading="Carregando" >
+      <!-- Filters -->
       <div class="border border-solid border-[rgba(0,0,0,0.07)] ">
           <div class="flex flex-row items-center">
               Critérios
@@ -72,6 +73,35 @@
 
           </div>
        </div>
+
+       <!-- Table -->
+        <el-table
+          :data="transformed"
+          max-height="250"
+          style="width: 100%"
+          empty-text="Não há dados"
+          :row-class-name="tableRowClassname"
+          class="shadow-[0px_5px_26px_-4px_rgba(0,0,0,0.2)] kicks-table"
+          >
+            <el-table-column  type="index" width="50">
+            </el-table-column>
+            <el-table-column
+              v-for="(header, index) in headers"
+              :prop="header.value"
+              :key="index"
+              :label="header.text">
+            </el-table-column>
+        </el-table>
+
+        <div class="flex h-[78px] w-full flex-wrap items-center justify-center mt-6 py-2 rounded-xl bg-[#f4f4f5]">
+          <el-alert
+            :closable="false"
+            title="Mantenha sempre seus dados atualizados para a previsão dos chutes ser mais precisa."
+            type="info"
+            show-icon>
+            <a href='https://sig.ufabc.edu.br/sigaa/portais/discente/discente.jsf' target='_blank'>Clique aqui para atualizar</a>
+          </el-alert>
+        </div>
     </div>
     <template #footer class="flex">
       <span class="text-left flex-auto">
@@ -137,19 +167,20 @@ const defaultHeaders = computed(() => {
   return base
 })
 
-// const transformed = computed(() => {
-//   return kicks.value.map(d => ({
-//     ...d,
-//     reserva: d.reserva ? 'Sim' : 'Não',
-//     ik: d.ik.toFixed(3)
-//   }))
-// })
+const transformed = computed(() => {
+  return kicks.value.map(d => ({
+    ...d,
+    reserva: d.reserva ? 'Sim' : 'Não',
+    ik: d.ik.toFixed(3)
+  }))
+})
 
 const kicksForecast = computed(() => {
   if (!props.corteId || !matriculas) {
     return;
   }
-  const requests = matriculas[Number(props.corteId)].reduce((a, c) => a + 1, 0);
+  console.log(props.corteId)
+  const requests = matriculas[matriculaStudent?.studentId].reduce((a, c) => a + 1, 0);
   return kicks.value.length * component.value?.vacancies / requests
 })
 
@@ -158,7 +189,7 @@ async function fetch() {
     return;
   }
 
-  const studentId = matriculaStudent?.studentId.toString() ?? ''
+  const studentId = matriculaStudent?.studentId?.toString() ?? ''
 
   loading.value = true;
 
@@ -206,23 +237,29 @@ function removedFilter(value: string) {
   resort()
 }
 
-function tableRowClassname({ row, rowIndex }: { row: Record<string, string>; rowIndex: number }) {
-  if (row.studentId === matriculaStudent?.studentId.toString()) {
-    // student-row
-    return 'bg-[#B7D3FF]'
+type TableData = {
+  row: {
+    studentId: number;
+    cr: number | '-'
+    cp: number;
+    ik: string;
+    reserva: 'Sim' | 'Não'
+    curso: string
+    turno: 'Matutino' | 'Noturno'
   }
+  rowIndex: number
+}
 
-  if (rowIndex <= kicksForecast.value) {
-    // .probably-kicked-row
-    return 'bg-[#3fcf8c]'
+function tableRowClassname({ row, rowIndex }: TableData) {
+  console.log(kicksForecast.value)
+  if (row.studentId === matriculaStudent?.studentId) {
+    return 'aluno-row'
+  } if (rowIndex <= kicksForecast.value) {
+    return 'not-kicked-row'
+  } if (rowIndex >= component.value?.vacancies) {
+    return 'kicked-row'
   }
-
-  if (rowIndex >= component.value.vacancies) {
-    // kicked row
-    return 'bg-[#f95469]'
-  }
-
-  return 'bg-[#f3a939]'
+  return 'probably-kicked-row'
 }
 
 watch(() => props.isOpen, async (newIsOpen) => {
@@ -241,48 +278,29 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped>
-.information {
-  color: rgba(0, 0, 0, 0.6);
-  display: inline-flex;
-  font-size: 11px;
-  flex-direction: row;
-  margin-right: 16px;
+<style>
+.el-table .aluno-row {
+  --el-table-tr-bg-color: #B7D3FF !important;
 }
-.drag-info {
-  font-family: Ubuntu;
-  font-size: 11px;
-  margin-top: 8px;
+
+.el-table .kicked-row {
+  --el-table-tr-bg-color: #f95469 !important;
 }
-.dialog-footer {
-  display: flex;
+
+.el-table .probably-kicked-row {
+  --el-table-tr-bg-color: #f3a939 !important;
 }
-.troubleshooting {
-  text-align: left;
-  flex: 1 1 auto;
+
+.el-table .not-kicked-row {
+  --el-table-tr-bg-color: #3fcf8c !important;
 }
-.troubleshooting a {
-  color: #ed5167!important;
-  text-decoration: underline;
+
+.kicks-table > el-table,
+.kicks-table tr,
+.kicks-table td,
+.kicks-table th {
+  @apply text-center border-[0px_0px_1px_0px] border-[#ebeef5] border-solid;
+  /* border: none !important; */
 }
-.update-alert {
-  display: flex;
-  background: #f4f4f5;
-  height: 78px;
-  width: 100%;
-  margin-top: 24px;
-  border-radius: 12px;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  padding-top: 8px;
-  padding-bottom: 8px;
-}
-.update-alert a{
-  color: #1976d2!important;
-  text-decoration: underline;
-}
-.update-alert .el-alert__content{
-  padding-left: 16px!important;
-}
+
 </style>
