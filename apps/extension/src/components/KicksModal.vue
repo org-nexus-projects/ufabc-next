@@ -19,7 +19,6 @@
                 <template #reference>
                   <Info :size="16" class="ml-1 cursor-pointer"/>
                 </template>
-
               </el-popover>
             <!-- Fill space -->
             <div class="flex-auto"></div>
@@ -28,7 +27,15 @@
             </el-button>
           </div>
 
-          <div></div>
+          <draggable v-model="headers" @change="resort" item-key="value">
+            <template #item="{ element }">
+              <div class="cursor-move" style="display: inline-block !important;">
+                <el-tag closable @close="removedFilter(element.value)">
+                  {{ element.text }}
+                </el-tag>
+              </div>
+            </template>
+          </draggable>
 
           <span class="block text-sm mt-2">
             * Arraste para alterar a ordem dos critérios
@@ -86,6 +93,7 @@ import { findIdeais, findSeasonKey } from '@/utils/season';
 import { orderBy } from 'lodash-es';
 import { FetchError } from 'ofetch';
 import { Info } from 'lucide-vue-next'
+import draggable from 'vuedraggable'
 
 type Headers = {
   text: string;
@@ -191,6 +199,11 @@ function restore() {
 
 function closeModal() {
   emit('close');
+}
+
+function removedFilter(value: string) {
+  headers.value = headers.value.filter(h => h.value !== value)
+  resort()
 }
 
 function tableRowClassname({ row, rowIndex }: { row: Record<string, string>; rowIndex: number }) {
