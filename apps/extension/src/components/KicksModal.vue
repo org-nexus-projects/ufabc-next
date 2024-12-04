@@ -124,6 +124,7 @@ import { orderBy } from 'lodash-es';
 import { FetchError } from 'ofetch';
 import { Info } from 'lucide-vue-next'
 import draggable from 'vuedraggable'
+import { ElNotification } from 'element-plus';
 
 type Headers = {
   text: string;
@@ -138,7 +139,15 @@ const props = defineProps<{
 const emit = defineEmits(['close']);
 
 const loading = ref(false)
-const kicks = ref([])
+const kicks = ref<{
+    studentId: number;
+    cr: number | '-'
+    cp: number;
+    ik: string;
+    reserva: 'Sim' | 'Não'
+    curso: string
+    turno: 'Matutino' | 'Noturno'
+  }[]>([])
 const headers = ref<Headers[]>([])
 const matriculaStudent = inject<UFABCMatriculaStudent>('student')
 const matriculas = inject<typeof window.matriculas>('matriculas')
@@ -171,15 +180,15 @@ const transformed = computed(() => {
   return kicks.value.map(d => ({
     ...d,
     reserva: d.reserva ? 'Sim' : 'Não',
-    ik: d.ik.toFixed(3)
+    ik: Number(d.ik).toFixed(3)
   }))
 })
 
+
 const kicksForecast = computed(() => {
-  if (!props.corteId || !matriculas) {
+  if (!props.corteId || !matriculas || !matriculaStudent?.studentId) {
     return;
   }
-  console.log(props.corteId)
   const requests = matriculas[matriculaStudent?.studentId].reduce((a, c) => a + 1, 0);
   return kicks.value.length * component.value?.vacancies / requests
 })
@@ -199,13 +208,22 @@ async function fetch() {
     resort();
   } catch(error: any) {
     if(error instanceof FetchError) {
-      if (error.name === 'forbidden') {
-        console.log('add dialog here', error)
+      if (error.response?.statusText === 'Forbidden') {
+        ElNotification({
+          type: 'warning',
+          message: 'Não temos as disciplinas que você cursou, acesse o Sigaa'
+        })
       }
-      console.log(error)
+      ElNotification({
+      type: 'error',
+          message: 'Estamos com problemas no servidor, por favor tente novamente mais tarde!'
+        })
     }
 
-    console.log(error)
+    ElNotification({
+      type: 'error',
+          message: 'Erro Inesperado, recaregue  a pagina e tente novamente'
+        })
   } finally {
     loading.value = false
   }
@@ -254,7 +272,7 @@ function tableRowClassname({ row, rowIndex }: TableData) {
   console.log(kicksForecast.value)
   if (row.studentId === matriculaStudent?.studentId) {
     return 'aluno-row'
-  } if (rowIndex <= kicksForecast.value) {
+  } if (kicksForecast.value && rowIndex <= kicksForecast.value) {
     return 'not-kicked-row'
   } if (rowIndex >= component.value?.vacancies) {
     return 'kicked-row'
@@ -266,6 +284,7 @@ watch(() => props.isOpen, async (newIsOpen) => {
   if (newIsOpen && props.corteId) {
     headers.value = defaultHeaders.value
     const ufabcComponents = await getUFComponents()
+    // @ts-ignore
     const match = ufabcComponents.find(c => c.UFComponentId === Number.parseInt(props.corteId))
     // @ts-ignore
     component.value = match
