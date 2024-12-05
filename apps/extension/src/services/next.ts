@@ -36,7 +36,7 @@ export type Distribution = {
   cr_professor: number;
 }
 
-type DetailedReviews = {
+type SubjectDetailedReview = {
   _id: {
     mainTeacher: string;
   }
@@ -52,6 +52,25 @@ type DetailedReviews = {
     name: string;
     alias: string[] | null
   }
+}
+
+type TeacherDetailedReview = {
+  _id: {
+    _id: string;
+    name: string;
+    search: string;
+    updatedAt: string;
+    createdAt: string
+    __v: number;
+    creditos: number;
+  }
+  distribution: Array<Distribution>
+  numericWeight: number;
+  numeric: number;
+  amount: number;
+  count: number;
+  cr_professor: number;
+  cr_medio: number;
 }
 
 export type SubjectReview = {
@@ -72,7 +91,27 @@ export type SubjectReview = {
     numericWeight: number;
     weight: number;
   }
-  specific: Array<DetailedReviews>
+  specific: Array<SubjectDetailedReview>
+}
+
+export type TeacherReview = {
+  teacher: {
+    _id: string;
+    name: string;
+    alias?: string[]
+    updatedAt?: string
+  }
+  general: {
+    cr_medio: string | null
+    cr_professor: string | null
+    count: number;
+    amount: number;
+    numeric: number
+    numericWeight: number;
+    weight: number;
+    distribution: Array<Distribution>
+  }
+  specific: Array<TeacherDetailedReview>
 }
 
 export type Component = {
@@ -131,7 +170,7 @@ export async function getSubjectReviews(subjectId: string) {
 }
 
 export async function getTeacherReviews(teacherId: string) {
-  const reviews = await nextService<SubjectReview>(`/entities/teachers/reviews/${teacherId}`)
+  const reviews = await nextService<TeacherReview>(`/entities/teachers/reviews/${teacherId}`)
   return reviews;
 }
 
