@@ -209,7 +209,7 @@ const target = event.target as HTMLElement;
   } else if(target.matches('.ReviewTeacher')) {
     const teacherId = target.getAttribute('data')
     const teacherName = target.getAttribute('teacherName')
-    if (teacherId) {
+    if (teacherId && teacherName) {
       openTeacherReview(teacherId, teacherName)
     }
   }
@@ -362,6 +362,7 @@ onUnmounted(() => {
     :is-open="teacherReview.isOpen"
     :teacher-id="teacherReview.teacherId"
     :name="teacherReview.name"
+    @close="closeTeacherReview"
    />
 </template>
 
