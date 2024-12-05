@@ -64,6 +64,12 @@ const kicksModal = ref<{ isOpen: boolean; corteId: string | null }>({
   corteId: null
 })
 
+const teacherReview = ref<{ isOpen: boolean; teacherId: string | null; name: string | null }>({
+  isOpen: false,
+  name: null,
+  teacherId: null
+})
+
 function openSubjectReview(subjectId: string) {
   subjectReview.value.isOpen = true;
   subjectReview.value.subjectId = subjectId;
@@ -74,6 +80,17 @@ function closeSubjectReview() {
   subjectReview.value.subjectId = null;
 }
 
+function openTeacherReview(teacherId: string, name: string) {
+  teacherReview.value.isOpen = true
+  teacherReview.value.teacherId = teacherId
+  teacherReview.value.name = name;
+}
+
+function closeTeacherReview() {
+  teacherReview.value.isOpen = false;
+  teacherReview.value.teacherId = null;
+  teacherReview.value.name = null;
+}
 
 function openKicksModal(corteId: string) {
   kicksModal.value.isOpen = true;
@@ -188,6 +205,12 @@ const target = event.target as HTMLElement;
     const subjectId = target.getAttribute("subjectId");
     if (subjectId) {
       openSubjectReview(subjectId);
+    }
+  } else if(target.matches('.ReviewTeacher')) {
+    const teacherId = target.getAttribute('data')
+    const teacherName = target.getAttribute('teacherName')
+    if (teacherId) {
+      openTeacherReview(teacherId, teacherName)
     }
   }
 }
@@ -335,7 +358,11 @@ onUnmounted(() => {
       :corte-id="kicksModal.corteId"
       @close="closeKicksModal"
     />
-
+   <TeacherReview
+    :is-open="teacherReview.isOpen"
+    :teacher-id="teacherReview.teacherId"
+    :name="teacherReview.name"
+   />
 </template>
 
 <style scoped lang="css"></style>

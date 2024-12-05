@@ -4,7 +4,7 @@
     <a
       :data="teoriaId"
       :teacherName="teoria"
-      class="cursor-pointer text-amber-500 hover:text-amber-600 ReviewTeacher Help"
+      class="ReviewTeacher cursor-pointer text-amber-500 hover:text-amber-600 ReviewTeacher Help"
     >
       {{ teoria }}
     </a>
@@ -14,7 +14,7 @@
     <a
       :data="praticaId"
       :teacherName="pratica"
-      class="cursor-pointer text-amber-500 hover:text-amber-600 ReviewTeacher Help"
+      class="ReviewTeacher cursor-pointer text-amber-500 hover:text-amber-600 ReviewTeacher Help"
     >
       {{ pratica }}
     </a>

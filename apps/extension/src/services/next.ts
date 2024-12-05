@@ -130,6 +130,10 @@ export async function getSubjectReviews(subjectId: string) {
   return reviews;
 }
 
+export async function getTeacherReviews(teacherId: string) {
+  const reviews = await nextService<SubjectReview>(`/entities/teachers/reviews/${teacherId}`)
+  return reviews;
+}
 
 export async function getComponents() {
   const components = nextService<Component[]>('/entities/components')
@@ -139,4 +143,16 @@ export async function getComponents() {
 export async function getKicksInfo(kickId: string, studentId: string) {
   const kicksData = await nextService(`/entities/components/${kickId}/kicks?studentId=${studentId}`)
   return kicksData;
+}
+
+
+export async function getStudent(login: string, ra: string) {
+  const student = await nextService('/entities/students/student', {
+    query: {
+      login,
+      ra
+    }
+  })
+
+  return student;
 }

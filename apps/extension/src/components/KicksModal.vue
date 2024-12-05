@@ -9,7 +9,7 @@
     >
     <div v-loading="loading" element-loading="Carregando" >
       <!-- Filters -->
-      <div class="border border-solid border-[rgba(0,0,0,0.07)] ">
+      <div class="border border-solid border-[rgba(0,0,0,0.07)] mb-4 p-2">
           <div class="flex flex-row items-center">
               Critérios
               <el-popover
