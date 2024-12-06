@@ -175,7 +175,7 @@ export async function getTeacherReviews(teacherId: string) {
 }
 
 export async function getComponents() {
-  const components = nextService<Component[]>('/entities/components')
+  const components = await nextService<Component[]>('/entities/components')
   return components;
 }
 

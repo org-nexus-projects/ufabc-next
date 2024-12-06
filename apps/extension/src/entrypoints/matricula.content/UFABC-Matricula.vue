@@ -5,6 +5,7 @@ import { getComponents } from '@/services/next';
 import { render } from 'vue';
 import type { Student } from '@/scripts/sig/homepage';
 import SubjectReview from '@/components/SubjectReview.vue';
+import type { UFABCMatriculaStudent } from '.';
 
 
 type Filter = {
@@ -23,6 +24,7 @@ const showWarning = ref(false);
 const teachers = ref(false);
 
 const { state: student } = useStorage<Student>('local:student');
+const { state: matriculaStudent } = useStorage<UFABCMatriculaStudent>(`sync:${student.value?.ra}`)
 
 const campusFilters = ref<Filter[]>([
   {
@@ -102,6 +104,7 @@ function closeKicksModal() {
   kicksModal.value.corteId = null;
 }
 
+// todo: utilizar o storage da extensão
 function changeSelected() {
   const notSelected = document.querySelectorAll<HTMLTableCaptionElement>('.notSelecionada')
   if (!selected.value) {
@@ -111,14 +114,15 @@ function changeSelected() {
     return;
   }
 
-  const studentId = getStudentId()
-  if (!studentId) {
+  if (!matriculaStudent.value) {
     console.log('show some message to the user')
     return
   }
 
+  console.log('matriculaStudent.value', matriculaStudent.value);
+  console.log('matriculas', matriculas);
 
-  const enrollments = matriculas?.[studentId] || []
+  const enrollments = matriculas?.[matriculaStudent.value.studentId] || []
   const tableRows = document.querySelectorAll('tr')
 
   for (const $row of tableRows) {
@@ -285,12 +289,12 @@ async function buildComponents() {
 
 onMounted(async () => {
   document.body.addEventListener("click", handleClick);
-  const studentId = getStudentId()
-  const graduationId = getStudentCourseId()
-  await storage.setItem(`sync:${student.value?.ra}`, {
-    studentId,
-    graduationId,
-  })
+  // const studentId = getStudentId()
+  // const graduationId = getStudentCourseId()
+  // await storage.setItem(`sync:${student.value?.ra}`, {
+  //   studentId,
+  //   graduationId,
+  // })
 
   teachers.value = true;
   await buildComponents();
