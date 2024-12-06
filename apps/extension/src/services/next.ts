@@ -130,6 +130,18 @@ export type Component = {
 	praticaId?: string;
 };
 
+export type MatriculaStudent =  {
+  studentId: number;
+  graduations: {
+      courseId: number;
+      name: string;
+      shift: "Noturno" | "Matutino";
+      affinity: number;
+      cp: number;
+      cr: number;
+  }[];
+}
+
 function resolveEndpoint() {
   if (import.meta.env.PROD) {
     return "https://api.v2.ufabcnext.com";
@@ -186,7 +198,7 @@ export async function getKicksInfo(kickId: string, studentId: string) {
 
 
 export async function getStudent(login: string, ra: string) {
-  const student = await nextService('/entities/students/student', {
+  const student = await nextService<MatriculaStudent>('/entities/students/student', {
     query: {
       login,
       ra

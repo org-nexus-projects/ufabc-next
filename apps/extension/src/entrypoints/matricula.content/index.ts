@@ -2,12 +2,13 @@ import { getUFComponents, getUFEnrolled } from '@/services/ufabc-parser';
 import UFABCMatricula from '@/entrypoints/matricula.content/UFABC-Matricula.vue';
 import HighchartsVue from 'highcharts-vue';
 import Highcharts from 'highcharts';
-// import annotationsInit from "highcharts/modules/annotations";
-// import accessibility from "highcharts/modules/accessibility";
+import annotationsInit from "highcharts/modules/annotations";
+import accessibility from "highcharts/modules/accessibility";
 import Highcharts3D from 'highcharts/highcharts-3d';
 import type { Student } from '@/scripts/sig/homepage';
 import type { ContentScriptContext } from 'wxt/client';
 import './style.css';
+import 'element-plus/theme-chalk/index.css'
 
 export type UFABCMatriculaStudent = {
 	studentId: number;
@@ -65,25 +66,10 @@ async function mountUFABCMatriculaFilters(
 				graduationId: 74,
 			});
 
-<<<<<<< Updated upstream
-			if (!student) {
-				return;
-			}
-=======
-      // await storage.setItem(`sync:11202232364`, {
-      //   studentId: 557736,
-      //   graduationId: 74
-      // })
-
-      // await storage.setItem(`sync:11202232364`, {
-      //   studentId: 557736,
-      //   graduationId: 74
-      // })
 
       if (!student) {
         return;
       }
->>>>>>> Stashed changes
 
 			const matriculas = await getUFEnrolled();
 			window.matriculas = matriculas;
