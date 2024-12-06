@@ -18,6 +18,10 @@ export type UFABCMatriculaStudent = {
 export default defineContentScript({
 	async main(ctx) {
 		const student = await storage.getItem<Student>('local:student');
+    await storage.setItem(`sync:${student?.ra}`, {
+      studentId: 557736,
+      graduationId: 74,
+    })
 		const ufabcMatriculaStudent = await storage.getItem<UFABCMatriculaStudent>(
 			`sync:${student?.ra}`,
 		);

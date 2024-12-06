@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getSubjectReviews, type SubjectReview } from '@/services/next';
 import { Chart , type ChartProps } from 'highcharts-vue';
+import SubjectTeachersList from './SubjectTeachersList.vue';
 
 type ChartOptions = ChartProps['options']
 
@@ -174,6 +175,10 @@ watch(filterSelected, () => {
         ref="pieChart"
     ></Chart>
 
+    <SubjectTeachersList
+      v-if="subjectDistributionData?.specific.length"
+      :teachers="[...subjectDistributionData.specific]"
+    />
   </div>
   <div v-else class="flex flex-row items-center justify-center" style="min-height: 100px">
     Nenhum dado encontrado

@@ -68,7 +68,7 @@ importers:
         version: 1.12.3
       '@wxt-dev/module-vue':
         specifier: ^1.0.0
-        version: 1.0.2(vite@5.4.11(@types/node@20.14.2)(less@2.7.3)(sass@1.77.5))(vue@3.5.13(typescript@5.6.3))(wxt@0.19.16(@types/node@20.14.2)(less@2.7.3)(rollup@4.27.2)(sass@1.77.5))
+        version: 1.0.2(vite@5.4.11(@types/node@20.14.2)(less@2.7.3)(sass@1.77.5))(vue@3.5.13(typescript@5.6.3))(wxt@0.19.19(@types/node@20.14.2)(less@2.7.3)(rollup@4.27.2)(sass@1.77.5))
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.49)
@@ -87,12 +87,15 @@ importers:
       unplugin-vue-components:
         specifier: ^0.27.4
         version: 0.27.4(@babel/parser@7.26.2)(rollup@4.27.2)(vue@3.5.13(typescript@5.6.3))
+      vue-router:
+        specifier: ^4.5.0
+        version: 4.5.0(vue@3.5.13(typescript@5.6.3))
       vue-tsc:
         specifier: ^2.0.29
         version: 2.1.10(typescript@5.6.3)
       wxt:
-        specifier: ^0.19.1
-        version: 0.19.16(@types/node@20.14.2)(less@2.7.3)(rollup@4.27.2)(sass@1.77.5)
+        specifier: ^0.19.19
+        version: 0.19.19(@types/node@20.14.2)(less@2.7.3)(rollup@4.27.2)(sass@1.77.5)
 
 packages:
 
@@ -616,6 +619,9 @@ packages:
   '@vue/compiler-vue2@2.7.16':
     resolution: {integrity: sha512-qYC3Psj9S/mfu9uVi5WvNZIzq+xnXMhOwbTFKKDD7b1lhpnn71jXSFdTQ+WsIEk0ONCd7VV2IMm7ONl6tbQ86A==}
 
+  '@vue/devtools-api@6.6.4':
+    resolution: {integrity: sha512-sGhTPMuXqZ1rVOk32RylztWkfXTRhuS7vgAKv0zjqk8gbsHkJ7xfFf+jbySxt7tWObEJwyKaHMikV/WGDiQm8g==}
+
   '@vue/language-core@2.1.10':
     resolution: {integrity: sha512-DAI289d0K3AB5TUG3xDp9OuQ71CnrujQwJrQnfuZDwo6eGNf0UoRlPuaVNO+Zrn65PC3j0oB2i7mNmVPggeGeQ==}
     peerDependencies:
@@ -813,8 +819,8 @@ packages:
   aws-sign2@0.6.0:
     resolution: {integrity: sha512-JnJpAS0p9RmixkOvW2XwDxxzs1bd4/VAGIl6Q0EC5YOo+p+hqIhtDhn/nmFnB/xUNXbLkpE2mOjgVIBRKD4xYw==}
 
-  aws4@1.13.0:
-    resolution: {integrity: sha512-3AungXC4I8kKsS9PuS4JH2nc+0bVY/mjgrephHTIi8fpEeGsTHBUJeosp0Wc1myYMElmD0B3Oc4XL/HVJ4PV2g==}
+  aws4@1.13.2:
+    resolution: {integrity: sha512-lHe62zvbTB5eEABUVi/AwVh0ZKY9rMMDhmm+eeyuuUQbQ3+J+fONVQOZyj+DdrvD4BY33uYniyRJ4UJIaSKAfw==}
 
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
@@ -912,8 +918,12 @@ packages:
     resolution: {integrity: sha512-zkDT5WAF4hSSoUgyfg5tFIxz8XQK+25W/TLVojJTMKBaxevLBBtLxgqguAuVQB8PVW79FVjHcU+GJ9tVbDZ9mQ==}
     engines: {node: '>=14.16'}
 
-  call-bind@1.0.7:
-    resolution: {integrity: sha512-GHTSNSYICQ7scH7sZ+M2rFopRoLh8t2bLSW6BbgrtLsahOIB5iyAVJf9GjWK3cYTDaMj4XdBpM1cA6pIS0Kv2w==}
+  call-bind-apply-helpers@1.0.0:
+    resolution: {integrity: sha512-CCKAP2tkPau7D3GE8+V8R6sQubA9R5foIzGp+85EXCVSCivuxBNAWqcpn72PKYiIcqoViv/kcUDpaEIMBVi1lQ==}
+    engines: {node: '>= 0.4'}
+
+  call-bind@1.0.8:
+    resolution: {integrity: sha512-oKlSFMcMwpUg2ednkhQ454wfWiU/ul3CkJe/PEHcTKuiX6RpbehUiFMXu13HalGZxfUwCQzZG747YXBn1im9ww==}
     engines: {node: '>= 0.4'}
 
   camelcase-css@2.0.1:
@@ -1403,9 +1413,8 @@ packages:
     resolution: {integrity: sha512-5uYhsJH8VJBTv7oslg4BznJYhDoRI6waYCxMmCdnTrcCrHA/fCFKoTFz2JKKE0HdDFUF7/oQuhzumXJK7paBRQ==}
     engines: {node: '>= 0.4'}
 
-  get-port@7.1.0:
-    resolution: {integrity: sha512-QB9NKEeDg3xxVwCCwJQ9+xycaz6pBB6iQ76wiWMl1927n0Kir6alPiP+yuiICLLU4jpMe08dXfpebuQppFA2zw==}
-    engines: {node: '>=16'}
+  get-port-please@3.1.2:
+    resolution: {integrity: sha512-Gxc29eLs1fbn6LQ4jSU4vXjlwyZhF5HsGuMAa7gqBP4Rw4yxxltyDUuF5MBclFzDTXO+ACchGQoeela4DSfzdQ==}
 
   get-stream@5.2.0:
     resolution: {integrity: sha512-nBF+F1rAZVCu/p7rjzgA+Yb4lfYXrpl7a6VmJrU8wF9I1CKvP/QwPNZHnOlwbTkY6dvtFIzFMSyQXbLoTQPRpA==}
@@ -1449,8 +1458,9 @@ packages:
     resolution: {integrity: sha512-NBcGGFbBA9s1VzD41QXDG+3++t9Mn5t1FpLdhESY6oKY4gYTFpX4wO3sqGUa0Srjtbfj3szX0RnemmrVRUdULA==}
     engines: {node: '>=10'}
 
-  gopd@1.0.1:
-    resolution: {integrity: sha512-d65bNlIadxvpb/A2abVdlqKqV563juRnZ1Wtk6s1sIR8uNsXR70xqIzVqxVf1eTqDunwT2MkczEeaezCKTZhwA==}
+  gopd@1.2.0:
+    resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
+    engines: {node: '>= 0.4'}
 
   got@12.6.1:
     resolution: {integrity: sha512-mThBblvlAF1d4O5oqyvN+ZxLAYwIJK7bpMxgYqPD9okW0C3qm5FFn7k811QrcuEBwaogR3ngOFoCfs6mRv7teQ==}
@@ -1484,12 +1494,12 @@ packages:
   has-property-descriptors@1.0.2:
     resolution: {integrity: sha512-55JNKuIW+vq4Ke1BjOTjM2YctQIvCT7GFzHwmfZPGo5wnrgkid0YQtnAleFSqumZm4az3n2BS+erby5ipJdgrg==}
 
-  has-proto@1.0.3:
-    resolution: {integrity: sha512-SJ1amZAJUiZS+PhsVLf5tGydlaVB8EdFpaSO4gmiUKUOxk8qzn5AIy4ZeJUmh22znIdk/uMAUT2pl3FxzVUH+Q==}
+  has-proto@1.1.0:
+    resolution: {integrity: sha512-QLdzI9IIO1Jg7f9GT1gXpPpXArAn6cS31R1eEZqz08Gc+uQ8/XiqHWt17Fiw+2p6oTTIq5GXEpQkAlA88YRl/Q==}
     engines: {node: '>= 0.4'}
 
-  has-symbols@1.0.3:
-    resolution: {integrity: sha512-l3LCuF6MgDNwTDKkdYGEihYjt5pRPbEg46rtlmnSPlUbgmB8LOIrKJbYYFBSbnPaJexMKtiPO8hmeRjRz2Td+A==}
+  has-symbols@1.1.0:
+    resolution: {integrity: sha512-1cDNdwJ2Jaohmb3sg4OmKaMBwuC48sYni5HUw2DvsC8LjGTLK9h+eb1X6RyuOHe4hT0ULCW68iomhjUoKUqlPQ==}
     engines: {node: '>= 0.4'}
 
   has-yarn@3.0.0:
@@ -1569,8 +1579,8 @@ packages:
   immediate@3.0.6:
     resolution: {integrity: sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==}
 
-  immutable@4.3.6:
-    resolution: {integrity: sha512-Ju0+lEMyzMVZarkTn/gqRpdqd5dOPaz1mCZ0SH3JV6iFw81PldE/PEB1hWVEA288HPt4WXW8O7AWxB10M+03QQ==}
+  immutable@4.3.7:
+    resolution: {integrity: sha512-1hqclzwYwjRDFLjcFxOM5AYkkG0rpFPpr1RLPMEuGczoS7YA8gLhy8SWXYRAA/XwfEHpfo3cw5JGioS32fnMRw==}
 
   import-lazy@4.0.0:
     resolution: {integrity: sha512-rKtvo6a868b5Hu3heneU+L4yEQ4jYKLtjpnPeUdK7h0yzXGmyBTypknlkCvHFBqfX9YlorEiMM6Dnq/5atfHkw==}
@@ -2795,6 +2805,11 @@ packages:
       '@vue/composition-api':
         optional: true
 
+  vue-router@4.5.0:
+    resolution: {integrity: sha512-HDuk+PuH5monfNuY+ct49mNmkCRK4xJAV9Ts4z9UFc4rzdDnxQLyCMGGc8pKhZhHTVzfanpNwB/lwqevcBwI4w==}
+    peerDependencies:
+      vue: ^3.2.0
+
   vue-sonner@1.2.5:
     resolution: {integrity: sha512-dAFCdq2cYxEwvW4gHuJhySCXklmxOWzjl5QwkNL9IIdkqyvSkdu+YnAbnJBdIAH/zo1bhXTuGG+m0Two4AX/KA==}
 
@@ -2883,8 +2898,8 @@ packages:
       utf-8-validate:
         optional: true
 
-  wxt@0.19.16:
-    resolution: {integrity: sha512-bruLIg+KPXv5ZJEwhHLE5sYyG53ch55WR6klSVax+dBB8Bp4VxCp9cxSptAk/M/l8Qcji26/Cd6K35F19eODmg==}
+  wxt@0.19.19:
+    resolution: {integrity: sha512-m/ejGRvM7ZxlvNMHfy9pO//6qCLZmIQIt55p78MaLM4wqN5DYZIcqfr5ynnR9HmISNspMFDq54eGtkAsxT4YhA==}
     hasBin: true
 
   xdg-basedir@5.1.0:
@@ -3344,6 +3359,8 @@ snapshots:
       de-indent: 1.0.2
       he: 1.2.0
 
+  '@vue/devtools-api@6.6.4': {}
+
   '@vue/language-core@2.1.10(typescript@5.6.3)':
     dependencies:
       '@volar/language-core': 2.4.10
@@ -3442,10 +3459,10 @@ snapshots:
 
   '@webext-core/match-patterns@1.0.3': {}
 
-  '@wxt-dev/module-vue@1.0.2(vite@5.4.11(@types/node@20.14.2)(less@2.7.3)(sass@1.77.5))(vue@3.5.13(typescript@5.6.3))(wxt@0.19.16(@types/node@20.14.2)(less@2.7.3)(rollup@4.27.2)(sass@1.77.5))':
+  '@wxt-dev/module-vue@1.0.2(vite@5.4.11(@types/node@20.14.2)(less@2.7.3)(sass@1.77.5))(vue@3.5.13(typescript@5.6.3))(wxt@0.19.19(@types/node@20.14.2)(less@2.7.3)(rollup@4.27.2)(sass@1.77.5))':
     dependencies:
       '@vitejs/plugin-vue': 5.2.0(vite@5.4.11(@types/node@20.14.2)(less@2.7.3)(sass@1.77.5))(vue@3.5.13(typescript@5.6.3))
-      wxt: 0.19.16(@types/node@20.14.2)(less@2.7.3)(rollup@4.27.2)(sass@1.77.5)
+      wxt: 0.19.19(@types/node@20.14.2)(less@2.7.3)(rollup@4.27.2)(sass@1.77.5)
     transitivePeerDependencies:
       - vite
       - vue
@@ -3538,7 +3555,7 @@ snapshots:
   aws-sign2@0.6.0:
     optional: true
 
-  aws4@1.13.0:
+  aws4@1.13.2:
     optional: true
 
   balanced-match@1.0.2: {}
@@ -3659,11 +3676,16 @@ snapshots:
       normalize-url: 8.0.1
       responselike: 3.0.0
 
-  call-bind@1.0.7:
+  call-bind-apply-helpers@1.0.0:
     dependencies:
-      es-define-property: 1.0.0
       es-errors: 1.3.0
       function-bind: 1.1.2
+    optional: true
+
+  call-bind@1.0.8:
+    dependencies:
+      call-bind-apply-helpers: 1.0.0
+      es-define-property: 1.0.0
       get-intrinsic: 1.2.4
       set-function-length: 1.2.2
     optional: true
@@ -3897,7 +3919,7 @@ snapshots:
     dependencies:
       es-define-property: 1.0.0
       es-errors: 1.3.0
-      gopd: 1.0.1
+      gopd: 1.2.0
     optional: true
 
   define-lazy-prop@2.0.0: {}
@@ -4200,12 +4222,12 @@ snapshots:
     dependencies:
       es-errors: 1.3.0
       function-bind: 1.1.2
-      has-proto: 1.0.3
-      has-symbols: 1.0.3
+      has-proto: 1.1.0
+      has-symbols: 1.1.0
       hasown: 2.0.2
     optional: true
 
-  get-port@7.1.0: {}
+  get-port-please@3.1.2: {}
 
   get-stream@5.2.0:
     dependencies:
@@ -4263,9 +4285,7 @@ snapshots:
     dependencies:
       ini: 2.0.0
 
-  gopd@1.0.1:
-    dependencies:
-      get-intrinsic: 1.2.4
+  gopd@1.2.0:
     optional: true
 
   got@12.6.1:
@@ -4306,10 +4326,12 @@ snapshots:
       es-define-property: 1.0.0
     optional: true
 
-  has-proto@1.0.3:
+  has-proto@1.1.0:
+    dependencies:
+      call-bind: 1.0.8
     optional: true
 
-  has-symbols@1.0.3:
+  has-symbols@1.1.0:
     optional: true
 
   has-yarn@3.0.0: {}
@@ -4378,7 +4400,7 @@ snapshots:
 
   immediate@3.0.6: {}
 
-  immutable@4.3.6:
+  immutable@4.3.7:
     optional: true
 
   import-lazy@4.0.0: {}
@@ -4520,7 +4542,7 @@ snapshots:
 
   json-stable-stringify@1.1.1:
     dependencies:
-      call-bind: 1.0.7
+      call-bind: 1.0.8
       isarray: 2.0.5
       jsonify: 0.0.1
       object-keys: 1.1.1
@@ -5132,7 +5154,7 @@ snapshots:
   request@2.81.0:
     dependencies:
       aws-sign2: 0.6.0
-      aws4: 1.13.0
+      aws4: 1.13.2
       caseless: 0.12.0
       combined-stream: 1.0.8
       extend: 3.0.2
@@ -5235,7 +5257,7 @@ snapshots:
   sass@1.77.5:
     dependencies:
       chokidar: 3.6.0
-      immutable: 4.3.6
+      immutable: 4.3.7
       source-map-js: 1.2.1
     optional: true
 
@@ -5255,7 +5277,7 @@ snapshots:
       es-errors: 1.3.0
       function-bind: 1.1.2
       get-intrinsic: 1.2.4
-      gopd: 1.0.1
+      gopd: 1.2.0
       has-property-descriptors: 1.0.2
     optional: true
 
@@ -5644,6 +5666,11 @@ snapshots:
     dependencies:
       vue: 3.5.13(typescript@5.6.3)
 
+  vue-router@4.5.0(vue@3.5.13(typescript@5.6.3)):
+    dependencies:
+      '@vue/devtools-api': 6.6.4
+      vue: 3.5.13(typescript@5.6.3)
+
   vue-sonner@1.2.5: {}
 
   vue-tsc@2.1.10(typescript@5.6.3):
@@ -5758,7 +5785,7 @@ snapshots:
 
   ws@8.18.0: {}
 
-  wxt@0.19.16(@types/node@20.14.2)(less@2.7.3)(rollup@4.27.2)(sass@1.77.5):
+  wxt@0.19.19(@types/node@20.14.2)(less@2.7.3)(rollup@4.27.2)(sass@1.77.5):
     dependencies:
       '@aklinker1/rollup-plugin-visualizer': 5.12.0(rollup@4.27.2)
       '@types/chrome': 0.0.280
@@ -5779,7 +5806,7 @@ snapshots:
       fast-glob: 3.3.2
       filesize: 10.1.6
       fs-extra: 11.2.0
-      get-port: 7.1.0
+      get-port-please: 3.1.2
       giget: 1.2.3
       hookable: 5.5.3
       is-wsl: 3.1.0

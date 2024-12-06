@@ -289,8 +289,8 @@ async function buildComponents() {
 
 onMounted(async () => {
   document.body.addEventListener("click", handleClick);
-  // const studentId = getStudentId()
-  // const graduationId = getStudentCourseId()
+  const studentId = getStudentId()
+  const graduationId = getStudentCourseId()
   // await storage.setItem(`sync:${student.value?.ra}`, {
   //   studentId,
   //   graduationId,
