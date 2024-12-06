@@ -23,10 +23,10 @@ export type SigHistory = {
   }[];
 };
 
-type Concept = "A" | "B" | "C" | "D" | "O" | "F"
+export type Grade = "A" | "B" | "C" | "D" | "O" | "F";
 
-type Distribution = {
-  conceito: Concept;
+export type Distribution = {
+  conceito: Grade;
   weight: number;
   count: number;
   cr_medio: number;
@@ -36,7 +36,7 @@ type Distribution = {
   cr_professor: number;
 }
 
-type DetailedReviews = {
+type SubjectDetailedReview = {
   _id: {
     mainTeacher: string;
   }
@@ -54,7 +54,26 @@ type DetailedReviews = {
   }
 }
 
-type SubjectReview = {
+type TeacherDetailedReview = {
+  _id: {
+    _id: string;
+    name: string;
+    search: string;
+    updatedAt: string;
+    createdAt: string
+    __v: number;
+    creditos: number;
+  }
+  distribution: Array<Distribution>
+  numericWeight: number;
+  numeric: number;
+  amount: number;
+  count: number;
+  cr_professor: number;
+  cr_medio: number;
+}
+
+export type SubjectReview = {
   subject: {
     _id: string,
     name: string,
@@ -72,10 +91,30 @@ type SubjectReview = {
     numericWeight: number;
     weight: number;
   }
-  specific: Array<DetailedReviews>
+  specific: Array<SubjectDetailedReview>
 }
 
-type Component = {
+export type TeacherReview = {
+  teacher: {
+    _id: string;
+    name: string;
+    alias?: string[]
+    updatedAt?: string
+  }
+  general: {
+    cr_medio: string | null
+    cr_professor: string | null
+    count: number;
+    amount: number;
+    numeric: number
+    numericWeight: number;
+    weight: number;
+    distribution: Array<Distribution>
+  }
+  specific: Array<TeacherDetailedReview>
+}
+
+export type Component = {
 	identifier: string;
 	disciplina_id: number;
 	subject: string;
@@ -90,6 +129,18 @@ type Component = {
 	pratica?: string;
 	praticaId?: string;
 };
+
+export type MatriculaStudent =  {
+  studentId: number;
+  graduations: {
+      courseId: number;
+      name: string;
+      shift: "Noturno" | "Matutino";
+      affinity: number;
+      cp: number;
+      cr: number;
+  }[];
+}
 
 function resolveEndpoint() {
   if (import.meta.env.PROD) {
@@ -130,8 +181,29 @@ export async function getSubjectReviews(subjectId: string) {
   return reviews;
 }
 
+export async function getTeacherReviews(teacherId: string) {
+  const reviews = await nextService<TeacherReview>(`/entities/teachers/reviews/${teacherId}`)
+  return reviews;
+}
 
 export async function getComponents() {
-  const components = nextService<Component[]>('/entities/components')
+  const components = await nextService<Component[]>('/entities/components')
   return components;
+}
+
+export async function getKicksInfo(kickId: string, studentId: string) {
+  const kicksData = await nextService(`/entities/components/${kickId}/kicks?studentId=${studentId}`)
+  return kicksData;
+}
+
+
+export async function getStudent(login: string, ra: string) {
+  const student = await nextService<MatriculaStudent>('/entities/students/student', {
+    query: {
+      login,
+      ra
+    }
+  })
+
+  return student;
 }

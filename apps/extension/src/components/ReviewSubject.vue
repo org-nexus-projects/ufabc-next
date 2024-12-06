@@ -28,7 +28,6 @@
 
     </div>
     <div class="ufabc-row ufabc-align-center ufabc-justify-middle" style="min-height: 100px" v-else>
-     {{ subjectInfo }}
       Nenhum dado encontrado
     </div>
     <span slot="footer" class="dialog-footer">
@@ -181,6 +180,7 @@ async function setupSubjectStats() {
     closeDialog();
   }
 }
+
 function updateFilter() {
   pieChart.value.delegateMethod('showLoading', 'Carregando...');
 

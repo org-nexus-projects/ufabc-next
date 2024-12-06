@@ -1,20 +1,20 @@
 <template>
-  <div v-if="teoria" class="mt-1.5 text-xs font-bold uppercase">
+  <div v-if="teoria" class="mt-1.5 text-xs font-bold uppercase cursor-pointer">
     Teoria:
     <a
       :data="teoriaId"
       :teacherName="teoria"
-      class="cursor-pointer text-amber-500 hover:text-amber-600 ReviewTeacher Help"
+      class="ReviewTeacher text-amber-500 hover:text-amber-600 ReviewTeacher Help"
     >
       {{ teoria }}
     </a>
   </div>
-  <div v-if="pratica" class="mt-1.5 text-xs font-bold uppercase">
+  <div v-if="pratica" class="mt-1.5 text-xs font-bold uppercase cursor-pointer">
     Prática:
     <a
       :data="praticaId"
       :teacherName="pratica"
-      class="cursor-pointer text-amber-500 hover:text-amber-600 ReviewTeacher Help"
+      class="ReviewTeacher text-amber-500 hover:text-amber-600 ReviewTeacher Help"
     >
       {{ pratica }}
     </a>

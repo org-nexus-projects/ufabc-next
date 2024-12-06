@@ -4,6 +4,8 @@ import Teachers from '@/components/Teachers.vue';
 import { getComponents } from '@/services/next';
 import { render } from 'vue';
 import type { Student } from '@/scripts/sig/homepage';
+import SubjectReview from '@/components/SubjectReview.vue';
+import type { UFABCMatriculaStudent } from '.';
 
 
 type Filter = {
@@ -22,6 +24,7 @@ const showWarning = ref(false);
 const teachers = ref(false);
 
 const { state: student } = useStorage<Student>('local:student');
+const { state: matriculaStudent } = useStorage<UFABCMatriculaStudent>(`sync:${student.value?.ra}`)
 
 const campusFilters = ref<Filter[]>([
   {
@@ -53,6 +56,55 @@ const shiftFilters = ref<Filter[]>([
   },
 ]);
 
+const subjectReview = ref<{ isOpen: boolean; subjectId: string | null }>({
+    isOpen: false,
+    subjectId: null,
+});
+
+const kicksModal = ref<{ isOpen: boolean; corteId: string | null }>({
+  isOpen: false,
+  corteId: null
+})
+
+const teacherReview = ref<{ isOpen: boolean; teacherId: string | null; name: string | null }>({
+  isOpen: false,
+  name: null,
+  teacherId: null
+})
+
+function openSubjectReview(subjectId: string) {
+  subjectReview.value.isOpen = true;
+  subjectReview.value.subjectId = subjectId;
+}
+
+function closeSubjectReview() {
+  subjectReview.value.isOpen = false;
+  subjectReview.value.subjectId = null;
+}
+
+function openTeacherReview(teacherId: string, name: string) {
+  teacherReview.value.isOpen = true
+  teacherReview.value.teacherId = teacherId
+  teacherReview.value.name = name;
+}
+
+function closeTeacherReview() {
+  teacherReview.value.isOpen = false;
+  teacherReview.value.teacherId = null;
+  teacherReview.value.name = null;
+}
+
+function openKicksModal(corteId: string) {
+  kicksModal.value.isOpen = true;
+  kicksModal.value.corteId = corteId;
+}
+
+function closeKicksModal() {
+  kicksModal.value.isOpen = false;
+  kicksModal.value.corteId = null;
+}
+
+// todo: utilizar o storage da extensão
 function changeSelected() {
   const notSelected = document.querySelectorAll<HTMLTableCaptionElement>('.notSelecionada')
   if (!selected.value) {
@@ -62,19 +114,15 @@ function changeSelected() {
     return;
   }
 
-  const studentId = getStudentId()
-  const graduationId = getStudentCourseId()
-  if (!studentId) {
+  if (!matriculaStudent.value) {
     console.log('show some message to the user')
     return
   }
 
-  storage.setItem(`sync:${student.value?.ra}`, {
-    studentId,
-    graduationId,
-  })
+  console.log('matriculaStudent.value', matriculaStudent.value);
+  console.log('matriculas', matriculas);
 
-  const enrollments = matriculas?.[studentId] || []
+  const enrollments = matriculas?.[matriculaStudent.value.studentId] || []
   const tableRows = document.querySelectorAll('tr')
 
   for (const $row of tableRows) {
@@ -144,6 +192,33 @@ function applyFilter(params: Filter) {
   }
 }
 
+
+function handleClick(event: MouseEvent) {
+const target = event.target as HTMLElement;
+  if (target.closest("#cortes")) {
+    const corteElement = target.closest("#cortes");
+    if (!corteElement) {
+      return;
+    }
+    const corteId =
+      corteElement.parentElement?.parentElement?.getAttribute("value");
+    if (corteId) {
+      openKicksModal(corteId);
+    }
+  } else if (target.matches("span.sa, span.sbc")) {
+    const subjectId = target.getAttribute("subjectId");
+    if (subjectId) {
+      openSubjectReview(subjectId);
+    }
+  } else if(target.matches('.ReviewTeacher')) {
+    const teacherId = target.getAttribute('data')
+    const teacherName = target.getAttribute('teacherName')
+    if (teacherId && teacherName) {
+      openTeacherReview(teacherId, teacherName)
+    }
+  }
+}
+
 async function buildComponents() {
   if (!teachers.value) {
     for (const $element of document.querySelectorAll<HTMLTableCaptionElement>('.isTeacherReview')) {
@@ -184,13 +259,13 @@ async function buildComponents() {
     if (component.subject && subjectEl) {
       subjectEl.style.cursor = 'pointer'
 
-      // subjectEl.addEventListener('mouseenter', () => {
-      //   subjectEl.style.textDecoration = 'underline';
-      // });
+      subjectEl.addEventListener('mouseenter', () => {
+        subjectEl.style.textDecoration = 'underline';
+      });
 
-      // subjectEl.addEventListener('mouseleave', () => {
-      //   subjectEl.style.textDecoration = 'none';
-      // });
+      subjectEl.addEventListener('mouseleave', () => {
+        subjectEl.style.textDecoration = 'none';
+      });
 
       subjectEl.setAttribute('subjectId', component.subjectId);
     }
@@ -211,9 +286,22 @@ async function buildComponents() {
     render(h(Cortes), cortesContainer)
   }
 }
+
 onMounted(async () => {
-  await buildComponents();
+  document.body.addEventListener("click", handleClick);
+  // const studentId = getStudentId()
+  // const graduationId = getStudentCourseId()
+  // await storage.setItem(`sync:${student.value?.ra}`, {
+  //   studentId,
+  //   graduationId,
+  // })
+
   teachers.value = true;
+  await buildComponents();
+})
+
+onUnmounted(() => {
+  document.body.removeEventListener('click', handleClick)
 })
 </script>
 
@@ -263,6 +351,23 @@ onMounted(async () => {
       </el-popover>
     </section>
   </div>
+
+    <SubjectReview
+      :is-open="subjectReview.isOpen"
+      :subject-id="subjectReview.subjectId"
+      @close="closeSubjectReview"
+    />
+    <KicksModal
+      :is-open="kicksModal.isOpen"
+      :corte-id="kicksModal.corteId"
+      @close="closeKicksModal"
+    />
+   <TeacherReview
+    :is-open="teacherReview.isOpen"
+    :teacher-id="teacherReview.teacherId"
+    :name="teacherReview.name"
+    @close="closeTeacherReview"
+   />
 </template>
 
 <style scoped lang="css"></style>

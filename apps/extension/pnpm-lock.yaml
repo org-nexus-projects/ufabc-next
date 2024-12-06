@@ -23,6 +23,12 @@ importers:
       element-plus:
         specifier: ^2.8.4
         version: 2.8.8(vue@3.5.13(typescript@5.6.3))
+      highcharts:
+        specifier: ^12.0.1
+        version: 12.0.1
+      highcharts-vue:
+        specifier: ^2.0.1
+        version: 2.0.1(highcharts@12.0.1)(vue@3.5.13(typescript@5.6.3))
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
@@ -1502,6 +1508,15 @@ packages:
   he@1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
+
+  highcharts-vue@2.0.1:
+    resolution: {integrity: sha512-7yVaKvsWlx7OgmKFXE2D99fi/0tr2A85H4KUz3jL7CRQhAwvEvXgtDIyTBGLHJsOC5L9VlppAI7k6KfIi0j0hg==}
+    peerDependencies:
+      highcharts: '>=5.0.0'
+      vue: '>=3.0.0'
+
+  highcharts@12.0.1:
+    resolution: {integrity: sha512-86pku0cZnHfEu6uqbbEpU50XKHcAFFXeD4pYvxlVBRDLRDlxpT0WuClgJBuBJZof1ZjFUh1D7IxUxFgt9Epb7Q==}
 
   highlight.js@10.7.3:
     resolution: {integrity: sha512-tzcUFauisWKNHaRkN4Wjl/ZA07gENAjFl3J/c480dprkGTg5EQstgaNFqBfUqCq54kZRIEcreTsAgF/m2quD7A==}
@@ -4312,6 +4327,13 @@ snapshots:
     optional: true
 
   he@1.2.0: {}
+
+  highcharts-vue@2.0.1(highcharts@12.0.1)(vue@3.5.13(typescript@5.6.3)):
+    dependencies:
+      highcharts: 12.0.1
+      vue: 3.5.13(typescript@5.6.3)
+
+  highcharts@12.0.1: {}
 
   highlight.js@10.7.3: {}
 
