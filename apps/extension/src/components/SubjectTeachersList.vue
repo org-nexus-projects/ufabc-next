@@ -1,43 +1,24 @@
 <template>
   <el-radio-group v-model="sortButton" size="default">
-    <el-radio :label="0">Maior Aprovação</el-radio>
-    <el-radio :label="3">Melhor média</el-radio>
-    <el-radio :label="1">Maior Reprovação</el-radio>
-    <el-radio :label="2">Maior nº de amostras</el-radio>
+    <el-radio :value="0">Maior Aprovação</el-radio>
+    <el-radio :value="3">Melhor média</el-radio>
+    <el-radio :value="1">Maior Reprovação</el-radio>
   </el-radio-group>
 
-  <el-table ref="teachersList" @row-click="openTeacher($event)" @sort-change="onSortChange" :data="teachersSorted"
-    :class="['w-full', 'teacher-table-mobile:max-sm']" empty-text="Nenhum resultado encontrado">
-    <el-table-column fixed="left" prop="teacher.name" sortable label="Nome do professor" :min-width="'max-sm:220px'"
-      :width="'max-sm:auto sm:180px'">
+  <el-table ref="teachersList" @sort-change="onSortChange" :data="teachersSorted" class="w-full"
+    empty-text="Nenhum resultado encontrado" border>
+    <el-table-column fixed="left" prop="teacher.name" sortable label="Nome do professor" min-width="220" width="180px">
       <template #default="scope">
-        <div v-if="scope.row.teacher && scope.row.teacher.name" class="break-words">
+        <span v-if="scope.row.teacher && scope.row.teacher.name" class="break-words">
           {{ scope.row.teacher.name }}
-        </div>
-        <div v-else class="break-words">
+        </span>
+        <span v-else class="break-words">
           Professor desconhecido
-        </div>
-
-        <template v-if="'max-sm:block sm:hidden'">
-          <div class="grading">
-            <el-tooltip v-for="concept in concepts" :key="concept.code" placement="top" :hide-after="0"
-              :content="`${concept.code}: ${scope.row.concepts[concept.code]['percentage']}% (${scope.row.concepts[concept.code]['count']} notas)`">
-              <span class="grading-segment" :class="scope.row.count < unthrustableThreshold ? 'unthrustable' : ''"
-                :style="{
-                  background: concept.color,
-                  width: `${scope.row.concepts[concept.code]['percentage']}%`
-                }">
-              </span>
-            </el-tooltip>
-
-            <span v-if="scope.row.count < unthrustableThreshold" class="low-samples">Dados sem muitas amostras</span>
-          </div>
-          <div>Amostras: {{ scope.row.count }}</div>
-        </template>
+        </span>
       </template>
     </el-table-column>
 
-    <el-table-column label="Conceitos" v-if="'max-sm:hidden sm:block'">
+    <el-table-column label="Conceitos">
       <template #default="scope">
         <div class="grading">
           <el-tooltip v-for="concept in concepts" :key="concept.code" placement="top" :hide-after="0"
@@ -54,16 +35,15 @@
       </template>
     </el-table-column>
 
-    <el-table-column v-if="'max-sm:hidden sm:block'" sortable align="center" prop="count" label="Amostras" width="120">
+    <el-table-column sortable align="center" prop="count" label="Amostras" width="120">
     </el-table-column>
   </el-table>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { useRouter } from 'vue-router';
 import { orderBy, sum } from 'lodash-es';
-import type { Distribution, Grade, TeacherReview } from '@/services/next';
+import type { Distribution, Grade } from '@/services/next';
 
 type TeacherListProps = {
   teachers: Array<{
@@ -80,13 +60,14 @@ type TeacherListProps = {
     numericWeight: number;
     weight: number;
     distribution: Distribution[]
+    concepts?: { count: number; percentage: number }
+    approval?: number
+    reproof?: number
   }>
 }
 
 const { teachers = [] } = defineProps<TeacherListProps>()
 
-// we dont have vue-router, so i really dont know if this worked before
-const router = useRouter();
 const sortButton = ref(0)
 const teachersList = useTemplateRef('teachersList')
 const unthrustableThreshold = 10
@@ -124,17 +105,6 @@ watch(() => sortButton, (val) => {
   }
 });
 
-const openTeacher = (teacher: TeacherReview['teacher']) => {
-  const teacherId = teacher._id ?? null;
-  if (teacherId) {
-    router.replace({ query: {} });
-    router.push({
-      name: 'reviews',
-      query: { teacherId, subjectId: null },
-    });
-  }
-};
-
 const teachersSorted = computed(() => {
   let order = [['teacher.name'], ['desc']];
   if (sortButton.value === 0) {
@@ -147,8 +117,6 @@ const teachersSorted = computed(() => {
       ['reproof', 'approval'],
       ['desc', 'desc'],
     ];
-  } else if (sortButton.value === 2) {
-    order = [['count'], ['desc']];
   } else if (sortButton.value === 3) {
     order = [['cr_professor'], ['desc']];
   }
@@ -163,20 +131,26 @@ const teachersPopulated = computed(() => {
   const reproofConcepts = ['F', 'O']
 
   return teachersToPopulate.map(teacher => {
-    teacher.concepts = {}
+    teacher.concepts = {
+      count: 0,
+      percentage: 0
+    }
 
     // biome-ignore lint/complexity/noForEach: <explanation>
     possibleConcepts.forEach(c => {
+      // @ts-ignore
       teacher.concepts[c] = {
-        percentage: calculateGradePercentage(teacher.distribution, c),
-        count: findGradeCount(teacher.distribution, c)
+        percentage: calculateGradePercentage(teacher.distribution, c as Grade),
+        count: findGradeCount(teacher.distribution, c as Grade)
       }
     })
 
     teacher.approval = approvalConcepts.reduce((total, c) =>
+      // @ts-ignore
       total + teacher.concepts[c].percentage, 0)
 
     teacher.reproof = reproofConcepts.reduce((total, c) =>
+      // @ts-ignore
       total + teacher.concepts[c].percentage, 0)
 
     return teacher

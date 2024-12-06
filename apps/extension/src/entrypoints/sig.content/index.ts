@@ -2,7 +2,8 @@ import { storage } from "wxt/storage";
 import { scrapeMenu, type Student } from "@/scripts/sig/homepage";
 import "toastify-js/src/toastify.css";
 import '@/assets/tailwind.css'
-import { createStudent, syncHistory, type SigHistory } from "@/services/next";
+import { syncHistory, type SigHistory } from "@/services/next";
+import { processingToast, errorToast, successToast } from '@/utils/toasts'
 
 export default defineContentScript({
 	async main() {

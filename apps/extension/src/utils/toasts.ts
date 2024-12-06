@@ -1,8 +1,7 @@
 import toast from "toastify-js";
-
-const logoWhite = '@/public/logo-white.svg'
-const loading = '@/public/loading.svg'
-const error = '@/public/error.svg'
+import logoWhite from '@/public/logo-white.svg'
+import loading from '@/public/loading.svg'
+import errorImg from '@/public/error.svg'
 
 export const successToast = toast({
   text: `
@@ -44,7 +43,7 @@ export const processingToast = toast({
 export const errorToast = toast({
   text: `
     <div style="width: 228px; display: flex; align-items: end; margin-right: 12px;">
-      <img style="margin-right: 16px;" width="32" height="32" src=${error} />
+      <img style="margin-right: 16px;" width="32" height="32" src=${errorImg} />
         Não foi possível salvar seus dados, recarregue a página e aguarde.
     </div>`,
   duration: -1,
