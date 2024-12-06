@@ -261,8 +261,7 @@ watch(filterSelected, (newFilter) => {
           </p>
           <div class="flex relative mt-6 mb-5 mx-[38px]">
             <div class="conceito-target" :class="targetStudentConcept">
-              <span class="text-[#4a90e2] mt-[-18px] mb-[17px] block">
-              </span>
+
               <div class="text-center text-[11px]">Você</div>
               <div class="w-[46px] h-[68px] rounded border-4 border-solid border-[#4a90e2]"></div>
             </div>
