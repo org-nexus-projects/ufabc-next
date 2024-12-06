@@ -4,6 +4,22 @@ import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 
 const tags = ['Students'];
 
+const listMatriculaStudentSchema = z.object({
+  studentId: z.number().int(),
+  graduations: z
+    .object({
+      courseId: z.number().int(),
+      name: z.string(),
+      cp: z.number().optional(),
+      cr: z.number().optional(),
+      affinity: z.number().optional(),
+      shift: z.enum(['noturno', 'matutino', 'Noturno', 'Matutino', 'Diurno']),
+    })
+    .array(),
+});
+
+export type MatriculaStudent = z.infer<typeof listMatriculaStudentSchema>;
+
 export const listStudentsStatsComponents = {
   tags,
   querystring: z.object({
@@ -58,4 +74,20 @@ export const createStudentSchema = {
       })
       .array(),
   }),
+} satisfies FastifyZodOpenApiSchema;
+
+export const listMatriculaStudent = {
+  querystring: z.object({
+    ra: z.coerce.number(),
+    login: z.string(),
+  }),
+  response: {
+    200: {
+      content: {
+        'application/json': {
+          schema: listMatriculaStudentSchema,
+        },
+      },
+    },
+  },
 } satisfies FastifyZodOpenApiSchema;

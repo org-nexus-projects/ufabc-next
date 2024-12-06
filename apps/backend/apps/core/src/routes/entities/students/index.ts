@@ -1,8 +1,10 @@
 import { ComponentModel } from '@/models/Component.js';
 import {
   createStudentSchema,
+  listMatriculaStudent,
   listStudentSchema,
   listStudentsStatsComponents,
+  type MatriculaStudent,
 } from '@/schemas/entities/students.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import {
@@ -52,11 +54,32 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     };
   });
 
-  app.get('/student', async (request, reply) => {
-    const { ra, login } = request.query;
-    const student = await getStudent({ ra, login });
-    return student;
-  });
+  app.get(
+    '/student',
+    { schema: listMatriculaStudent },
+    async (request, reply) => {
+      const { ra, login } = request.query;
+      const student = await getStudent({ ra, login });
+
+      if (!student) {
+        return reply.badRequest('Student not found');
+      }
+
+      const matriculaStudent = {
+        studentId: student.aluno_id,
+        graduations: student.cursos.map((c) => ({
+          courseId: c.id_curso,
+          name: c.nome_curso,
+          shift: c.turno,
+          affinity: c.ind_afinidade,
+          cp: c.cp,
+          cr: c.cr,
+        })),
+      } satisfies MatriculaStudent;
+
+      return matriculaStudent;
+    },
+  );
 
   app.post('/', { schema: createStudentSchema }, async (request, reply) => {
     const { studentId, graduations, ra, login } = request.body;
