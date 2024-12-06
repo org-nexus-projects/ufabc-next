@@ -61,10 +61,11 @@ const conceitos = ref<Record<string, Grade>[]>([
 ])
 
 const possibleComponents = computed(() => {
-  if (!teacherReviewData) {
+  if (!teacherReviewData.value) {
     return;
   }
-  const components = teacherReviewData?.value?.specific
+
+  const components = [...(teacherReviewData.value.specific || [])]
   const generalDefaults = {
     _id: {
       _id: 'all',
@@ -102,6 +103,21 @@ const hasAttendanceList = computed(() => {
   return hasList ? 'Provavelmente esse professor cobra presença 👎' : 'Provavelmente esse professor NÃO cobra presença 👍'
 })
 
+const targetStudentConcept = computed(() => {
+  if (!studentCR.value || !conceptDistribution.value.length) {
+    return
+  }
+
+  const allCRS = conceptDistribution.value.filter(({ conceito }) => conceito !== 'O' && conceito !== 'F').map(item => item.cr_medio)
+  const closest = allCRS.reduce((prev, curr) =>
+    Math.abs(curr - studentCR.value) < Math.abs(prev - studentCR.value) ? curr : prev
+  );
+
+  const target = conceptDistribution.value.find(c => c.cr_medio === closest);
+
+  return target?.conceito ?? ''
+})
+
 function closeDialog() {
   filterSelected.value = null
   teacherReviewData.value = null;
@@ -130,11 +146,13 @@ async function setupTeacherReviewStats() {
   try {
     const reviews = await getTeacherReviews(props.teacherId)
     teacherReviewData.value = reviews
-    if (reviews.general.count) {
-      filterSelected.value = possibleComponents?.value?.[0]._id._id;
-      setTimeout(() => {
-        updateFilter()
-      }, 500);
+
+    // Only set initial filter if there are reviews
+    if (reviews.general.count && possibleComponents?.value?.length > 0) {
+      // Use nextTick to avoid immediate recursive updates
+      nextTick(() => {
+        filterSelected.value = possibleComponents?.value?.[0]?._id._id;
+      })
     }
   } catch (err) {
     console.log(err)
@@ -159,6 +177,10 @@ async function fetchStudent() {
 }
 
 function updateFilter() {
+  if (!teacherReviewData.value) {
+    return
+  }
+
   let filter;
   if (filterSelected.value === 'all') {
     filter = teacherReviewData?.value?.general;
@@ -181,25 +203,28 @@ function updateFilter() {
     series: [
       {
         name: 'Conceito',
-        data: gradesFiltered,
+        data: sortBy(gradesFiltered, 'name'),
       },
     ],
-    plotOptions: {
-      pie: {
-        colors: gradesFiltered?.map(grade => grade.color)
-      }
-    }
+    // plotOptions: {
+    //   pie: {
+    //     colors: gradesFiltered?.map(grade => grade.color)
+    //   }
+    // }
   }
 }
 
-watch(() => props.teacherId, async (newTeacherId) => {
+watch(() => props.teacherId, (newTeacherId) => {
   if (newTeacherId) {
-    await setupTeacherReviewStats()
+    // Reset state before fetching new data
+    teacherReviewData.value = null;
+    filterSelected.value = null;
+    setupTeacherReviewStats()
   }
 }, { immediate: true })
 
-watch(filterSelected, () => {
-  if (teacherReviewData.value) {
+watch(filterSelected, (newFilter) => {
+  if (teacherReviewData.value && newFilter !== null) {
     updateFilter()
   }
 })
@@ -208,42 +233,66 @@ watch(filterSelected, () => {
 <template>
   <el-dialog :title="'Professor: ' + name" @close="closeDialog()" :visible="isOpen" width="460px" top="2vh"
     :model-value="isOpen" :align-center="true" class="element-dialog mt-4">
-    <div style="min-height: 200px" v-loading="loading" element-loading="Carregando"
-      v-if="loading || teacherReviewData?.specific?.length">
-      <el-select class="ufabc-flex ufabc-row mb-2" placeholder="Selecione a matéria" @change="updateFilter()"
-        v-model="filterSelected">
+    <div v-if="loading ||
+     (teacherReviewData?.specific?.length)"
+      style="min-height: 200px"
+      v-loading="loading" element-loading="Carregando">
+
+      <el-select style="width: 100%" class="flex flex-row flex-auto mb-2" placeholder="Selecione a matéria" @change="updateFilter()"
+        v-model="filterSelected" v-if="teacherReviewData?.specific?.length">
         <el-option v-for="option in possibleComponents" :key="option._id._id" :label="option._id.name"
           :value="option._id._id">
         </el-option>
       </el-select>
 
-      <div class="text-center mt-4" v-if='samplesCount >= 0'>
-        Total de amostras <b>{{samplesCount}}</b>
+      <div class="text-center mt-4" v-if="samplesCount >= 0">
+        Total de amostras <b>{{ samplesCount }}</b>
       </div>
 
-      <Chart class="flex flex-row items-center justify-center" :options="chartOptions" />
+      <Chart class="flex flex-row items-center justify-center"
+        v-if="teacherReviewData?.specific?.length" :options="chartOptions"
+        ></Chart>
 
-      <div class="mt-2" style="text-align: center;">
+      <div class="mt-2" style="text-align: center">
         <b>* {{ hasAttendanceList }}</b>
       </div>
 
-      <div class="w-12 h-16 rounded border-4 border-solid border-[#4a90e2]">
-        <div class="flex flex-row text-sm text-[#f95469] flex-wrap w-[42px] mr-0.5 mb-1"
-          v-for="(concept, index) in conceitos" :key="index">
-          <div class="conceito" :class="concept.conceito">{{ concept.conceito }} </div>
-          <div class="flex w-full text-xs justify-center h-5 items-center text-[rgba(0,0,0,0.35)] mt-0.5 bg-[#e6e6e6]">
-            {{ findConcept(concept.conceito) }}
+      <div class="flex flex-row items-center flex-wrap justify-center mt-3">
+        <div class="flex flex-row items-center justify-center h-10 rounded text-[#4a90e2] text-[15px] w-[300px] border-2 border-solid border-[#4a90e2]" v-if="studentCR">
+          Seu CR é <b class="ml-1">{{ studentCR.toFixed(2) }}</b>
+        </div>
+        <div class="w-[300px] rounded mt-1.5 border-2 border-solid border-[#e6e6e6]" v-if="conceptDistribution.length && studentCR">
+          <div class="text-center text-sm mt-2.5 mx-5">
+            Com seu CR {{ studentCR.toFixed(2) }}, seu conceito com este
+            professor <b>provavelmente</b> será:
+          </div>
+          <div class="flex relative mt-6 mb-5 mx-[38px];">
+            <div class="absolute -left-0.5 bottom-0" :class="targetStudentConcept">
+              <div class="text-[#4a90e2] mt-[-18px] mb-[17px]">
+                <div class="text-center text-[11px]">Você</div>
+              </div>
+              <div class="w-[46px] h-[68px] rounded border-4 border-solid border-[#4a90e2]"></div>
+            </div>
+            <div class="text-sm text-[#f95469] flex-wrap w-[42px] mr-0.5 mb-1 flex flex-row" v-for="(conceito, index) in conceitos" :key="index">
+              <div class="conceito" :class="conceito.conceito">
+                {{ conceito.conceito }}
+              </div>
+              <div class="flex w-full text-xs justify-center h-5 items-center text-[rgba(0,0,0,0.35)] mt-0.5 bg-[#e6e6e6]">
+                {{ findConcept(conceito.conceito) }}
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
     </div>
-    <div class="ufabc-row ufabc-align-center ufabc-justify-middle" style="min-height: 100px" v-else>
+    <div class="flex flex-row items-center justify-center" style="min-height: 100px" v-else>
       Nenhum dado encontrado
     </div>
-    <span slot="footer" class="dialog-footer">
-      <i class="information">* Dados baseados nos alunos que utilizam a extensão</i>
-    </span>
+    <template #footer>
+      <span class="flex">
+        <i class="text-[rgba(0,_0,_0,_0.6)] inline-flex text- sm flex-row mr-4">* Dados baseados nos alunos que utilizam a extensão</i>
+      </span>
+    </template>
   </el-dialog>
 </template>
 

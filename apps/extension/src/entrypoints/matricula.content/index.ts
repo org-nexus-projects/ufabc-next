@@ -65,9 +65,20 @@ async function mountUFABCMatriculaFilters(
 				graduationId: 74,
 			});
 
+<<<<<<< Updated upstream
 			if (!student) {
 				return;
 			}
+=======
+      // await storage.setItem(`sync:11202232364`, {
+      //   studentId: 557736,
+      //   graduationId: 74
+      // })
+
+      if (!student) {
+        return;
+      }
+>>>>>>> Stashed changes
 
 			const matriculas = await getUFEnrolled();
 			window.matriculas = matriculas;
