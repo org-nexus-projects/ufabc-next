@@ -40,7 +40,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   });
 
   app.get('/', { schema: listStudentSchema }, async ({ user }, reply) => {
-    const student = await getStudent(user.ra);
+    const student = await getStudent({ ra: user.ra });
 
     if (!student) {
       return reply.badRequest('Student not found');
@@ -50,6 +50,12 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       studentId: student.aluno_id,
       login: student.login,
     };
+  });
+
+  app.get('/student', async (request, reply) => {
+    const { ra, login } = request.query;
+    const student = await getStudent({ ra, login });
+    return student;
   });
 
   app.post('/', { schema: createStudentSchema }, async (request, reply) => {
