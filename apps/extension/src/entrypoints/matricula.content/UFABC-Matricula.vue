@@ -3,9 +3,9 @@ import Cortes from '@/components/Cortes.vue';
 import Teachers from '@/components/Teachers.vue';
 import { getComponents } from '@/services/next';
 import { render } from 'vue';
-import type { Student } from '@/scripts/sig/homepage';
 import SubjectReview from '@/components/SubjectReview.vue';
 import type { UFABCMatriculaStudent } from '.';
+import type { Student } from '@/scripts/sig/homepage';
 
 
 type Filter = {
@@ -308,12 +308,12 @@ onUnmounted(() => {
 <template>
   <div
     class="flex flex-row sticky top-0 bg-white min-h-14 pl-6 pt-1.5 z-10 pb-3 border-b border-black/[0.08] rounded-b-lg">
-    <div class="mr-3 flex flex-row items-center">
+    <div class="mr-4 flex flex-row items-center">
       <img src="@/public/icon-38.png" class="w-8 h-8" />
     </div>
 
     <section class="mr-5">
-      <h3 class="text-sm mb-0.5 text-black/90">Câmpus</h3>
+      <h3 class="font-medium text-[14px] mb-0.5 text-black/90">Câmpus</h3>
       <el-checkbox v-for="(filter, index) in campusFilters" :key="index" @change="applyFilter(filter)"
         v-model="filter.val">
         {{ filter.name }}
@@ -321,7 +321,7 @@ onUnmounted(() => {
     </section>
 
     <section class="mr-5">
-      <h3 class="text-sm mb-0.5 text-black/90">Turno</h3>
+      <h3 class="font-medium text-[14px] mb-0.5 text-black/90">Turno</h3>
       <el-checkbox v-for="(filter, index) in shiftFilters" :key="index" @change="applyFilter(filter)"
         v-model="filter.val">
         {{ filter.name }}
@@ -329,7 +329,7 @@ onUnmounted(() => {
     </section>
 
     <section class="pr-5">
-      <h3 class="text-sm mb-0.5 text-black/90">Filtros</h3>
+      <h3 class="font-medium text-[14px] mb-0.5 text-black/90">Filtros</h3>
       <el-switch class="mr-3" active-text="Disciplinas escolhidas" v-model="selected" @change="changeSelected()">
       </el-switch>
 

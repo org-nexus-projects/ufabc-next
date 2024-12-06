@@ -1,9 +1,11 @@
 <template>
-  <el-radio-group v-model="sortButton" size="default">
-    <el-radio :value="0">Maior Aprovação</el-radio>
-    <el-radio :value="3">Melhor média</el-radio>
-    <el-radio :value="1">Maior Reprovação</el-radio>
-  </el-radio-group>
+  <div class="flex flex-row justify-center m-3">
+    <el-radio-group v-model="sortButton" size="default">
+      <el-radio :value="0">Maior Aprovação</el-radio>
+      <el-radio :value="3">Melhor média</el-radio>
+      <el-radio :value="1">Maior Reprovação</el-radio>
+    </el-radio-group>
+  </div>
 
   <el-table ref="teachersList" @sort-change="onSortChange" :data="teachersSorted" class="w-full"
     empty-text="Nenhum resultado encontrado" border>
@@ -42,7 +44,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { orderBy, sum } from 'lodash-es';
+import { orderBy } from 'lodash-es';
 import type { Distribution, Grade } from '@/services/next';
 
 type TeacherListProps = {

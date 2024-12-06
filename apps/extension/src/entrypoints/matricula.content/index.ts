@@ -1,4 +1,6 @@
-import { getUFComponents, getUFEnrolled } from '@/services/ufabc-parser';
+import './style.css';
+import 'element-plus/theme-chalk/index.css'
+import { getUFEnrolled } from '@/services/ufabc-parser';
 import UFABCMatricula from '@/entrypoints/matricula.content/UFABC-Matricula.vue';
 import HighchartsVue from 'highcharts-vue';
 import Highcharts from 'highcharts';
@@ -7,8 +9,6 @@ import accessibility from "highcharts/modules/accessibility";
 import Highcharts3D from 'highcharts/highcharts-3d';
 import type { Student } from '@/scripts/sig/homepage';
 import type { ContentScriptContext } from 'wxt/client';
-import './style.css';
-import 'element-plus/theme-chalk/index.css'
 
 export type UFABCMatriculaStudent = {
 	studentId: number;
