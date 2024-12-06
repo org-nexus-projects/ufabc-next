@@ -75,6 +75,11 @@ async function mountUFABCMatriculaFilters(
       //   graduationId: 74
       // })
 
+      // await storage.setItem(`sync:11202232364`, {
+      //   studentId: 557736,
+      //   graduationId: 74
+      // })
+
       if (!student) {
         return;
       }
