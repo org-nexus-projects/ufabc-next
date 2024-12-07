@@ -79,8 +79,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     componentsListCache.set(cacheKey, nonPaginatedComponents);
 
-    app.log.warn(app.config.MONGODB_CONNECTION_URL);
-
     return nonPaginatedComponents;
   });
   app.get(
