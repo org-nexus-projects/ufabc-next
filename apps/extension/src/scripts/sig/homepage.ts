@@ -1,5 +1,5 @@
 import { fetchGrades, fetchClasses, getUFStudent } from '@/services/uf-sig';
-import { normalizeDiacritics } from '@/utils/removeDiacritics';
+import { normalizeDiacritics } from '@/utils/remove-diacritics';
 import {
 	getUFCourseCurriculums,
 	getUFCourses,
@@ -7,10 +7,10 @@ import {
 	type UFComponent,
 	type UFCourseCurriculum,
 } from '@/services/ufabc-parser';
-import { transformCourseName, type Course } from '@/utils/transformCourse';
-import { capitalizeStr } from '@/utils/capitalizeStr';
+import { transformCourseName, type Course } from '@/utils/transform-course';
+import { capitalizeStr } from '@/utils/capitalize-Str';
 import { getStudentHistory } from '@/services/next';
-import { scrapeClassesPage } from './classesPage';
+import { scrapeClassesPage } from './classes-page';
 
 type SigStudent = {
 	matricula: string;

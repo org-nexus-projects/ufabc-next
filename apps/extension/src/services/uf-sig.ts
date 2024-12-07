@@ -62,7 +62,6 @@ export async function getUFStudent(ra: string) {
     await storage.setItem(`session:${CACHE_KEY}`, student);
     return student;
   } catch (error) {
-    // ADD TOASTS
     if (error instanceof FetchError) {
       console.log({
         msg: "A problem has ocurred when fetching, please try again",
@@ -87,7 +86,7 @@ export async function fetchClasses() {
     const classes = await response.text();
     return { data: classes, error: null };
   } catch (error) {
-    console.log("deu merda mateus!", error);
+    errorToast.showToast();
     return {
       data: null,
       error,

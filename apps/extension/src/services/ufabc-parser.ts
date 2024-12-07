@@ -59,7 +59,6 @@ const ufParserService = ofetch.create({
 const COURSES_CACHE = "ufCoursesCache";
 const COURSE_CURRICULUM_CACHE = "ufCourseCurriculums";
 const CURRICULUM_COMPONENTS_CACHE = "ufCurriculumComponents";
-const UF_COMPONENTS_CACHE = 'ufComponents'
 
 export async function getUFCourses() {
 	const cachedCourses = await storage.getItem<UFCourses[]>(
@@ -132,11 +131,6 @@ export async function getUFEnrolled() {
 }
 
 export async function getUFComponents() {
-	const cachedComponents = await storage.getItem<UFSeasonComponents[]>(`local:${UF_COMPONENTS_CACHE}`)
-	if (cachedComponents) {
-		return cachedComponents
-	}
 	const ufComponents = await ufParserService<UFSeasonComponents[]>("/components");
-	await storage.setItem(`local:${UF_COMPONENTS_CACHE}`, ufComponents)
 	return ufComponents
 }

@@ -1,5 +1,5 @@
-import { normalizeDiacritics } from "@/utils/removeDiacritics";
-import { extractCredits } from "@/utils/extractCredits";
+import { normalizeDiacritics } from "@/utils/remove-diacritics";
+import { extractCredits } from "@/utils/extract-credits";
 
 export function scrapeClassesPage(page: string) {
   const parser = new DOMParser();
