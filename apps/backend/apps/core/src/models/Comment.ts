@@ -1,4 +1,5 @@
 import {
+  type AnyObject,
   type FilterQuery,
   type InferSchemaType,
   Schema,
@@ -76,8 +77,8 @@ const commentSchema = new Schema(
   },
   {
     statics: {
-      async commentsByReaction<T>(
-        query: FilterQuery<T>,
+      async commentsByReaction(
+        query: FilterQuery<AnyObject>,
         userId: Types.ObjectId,
         populateFields: string[] = ['enrollment', 'subject'],
         limit = 10,
@@ -115,6 +116,7 @@ const commentSchema = new Schema(
             kind: 'star',
           });
 
+          // @ts-ignore dynmaic obj property
           comment.myReactions = {
             like: !!likes,
             recommendation: !!recommendations,

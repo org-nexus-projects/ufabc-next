@@ -43,7 +43,7 @@ export async function getReactions(
   limit: number,
   page: number,
 ) {
-  const reactions = await CommentModel.commentsByReaction<Comment>(
+  const reactions = await CommentModel.commentsByReaction(
     {
       teacher: teacherId,
       subject: subjectId,
