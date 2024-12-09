@@ -30,7 +30,6 @@ export async function userEnrollmentsUpdate(ctx: QueueContext<History>) {
     });
   }
 
-  // @ts-ignore for now
   const coefficients = calculateCoefficients<History['disciplinas']>(
     components,
     graduation,
@@ -143,7 +142,7 @@ export async function processComponentEnrollment(
       { new: true, upsert: true },
     );
 
-    ctx.app.log.info({
+    ctx.app.log.debug({
       msg: 'Enrollment processed successfully',
       enrollmentId: enrollment._id,
       ra: enrollment.ra,

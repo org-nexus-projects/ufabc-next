@@ -1,7 +1,7 @@
 import {
   HistoryModel,
   type Categories,
-  type History,
+  type HistoryDocument,
 } from '@/models/History.js';
 import { StudentModel } from '@/models/Student.js';
 import { sigHistorySchema, studentHistorySchema } from '@/schemas/history.js';
@@ -51,7 +51,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         ra: sigHistory.ra,
         curso: sigHistory.course,
         disciplinas: mapComponentsToInsert,
-        coefficients: null,
         grade: sigHistory.grade,
       });
     } else if (history) {
@@ -75,7 +74,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     // dispatch coefficients job.
     await app.job.dispatch(
       'UserEnrollmentsUpdate',
-      history?.toJSON() as NonNullable<History>,
+      history as NonNullable<HistoryDocument>,
     );
     return {
       msg: history
@@ -100,13 +99,13 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     ).lean();
 
     if (!userHistory) {
-      return reply.badRequest('History not found');
+      return null;
     }
 
     return {
-      curso: userHistory.curso,
-      grade: userHistory.grade,
-      ra: userHistory.ra,
+      curso: userHistory?.curso,
+      grade: userHistory?.grade,
+      ra: userHistory?.ra,
     };
   });
 

@@ -26,12 +26,12 @@ export async function syncEnrolled({ app }: QueueContext<void>) {
   await Promise.all(enrolledPromises);
 
   app.log.info({
-    msg: 'Enrollment sync tasks dispatched',
+    msg: 'Enrolledsync tasks dispatched',
     totalEnrollments: enrollmentTasks.length,
   });
 
   return {
-    msg: 'Enrollment sync initiated',
+    msg: 'Enrolled sync initiated',
     totalEnrollments: enrollmentTasks.length,
   };
 }
@@ -45,7 +45,7 @@ export async function processSingleEnrolled({
   componentId: string;
   students: number[];
 }>) {
-  if (!job.data) {
+  if (!job.data.tenant) {
     return;
   }
   const { tenant, componentId, students } = job.data;
@@ -69,21 +69,21 @@ export async function processSingleEnrolled({
 
     if (!result) {
       app.log.warn({
-        msg: 'Component not found for enrollment update',
+        msg: 'Component not found for enrolled update',
         componentId,
         tenant,
       });
     }
 
     app.log.debug({
-      msg: 'Component enrollment updated',
+      msg: 'Component enrolled updated',
       componentId,
       studentCount: students.length,
     });
   } catch (error) {
     app.log.error({
       data: job.data,
-      msg: 'Error processing enrollment update',
+      msg: 'Error processing enrolled update',
       error: error instanceof Error ? error.message : String(error),
     });
 

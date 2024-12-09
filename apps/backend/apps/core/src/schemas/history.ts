@@ -44,13 +44,10 @@ const sigHistoryBody = z.object({
   ra: z.coerce.number().openapi({
     description: 'RA do aluno na UFABC',
   }),
-  course: z
-    .string()
-    .transform((c) => c.toLocaleLowerCase())
-    .openapi({
-      description: 'Curso do aluno',
-      example: 'bacharelado em ciencia e tecnologia',
-    }),
+  course: z.string().openapi({
+    description: 'Curso do aluno',
+    example: 'bacharelado em ciencia e tecnologia',
+  }),
   grade: z.string(),
   components: sigComponents
     .array()
@@ -84,11 +81,13 @@ export const studentHistorySchema = {
     200: {
       content: {
         'application/json': {
-          schema: z.object({
-            curso: z.string(),
-            grade: z.string().nullish(),
-            ra: z.coerce.number(),
-          }),
+          schema: z
+            .object({
+              curso: z.string(),
+              grade: z.string().nullish(),
+              ra: z.coerce.number(),
+            })
+            .nullable(),
         },
       },
     },

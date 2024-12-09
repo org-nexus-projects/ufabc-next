@@ -42,7 +42,8 @@ export async function processComponent({
   component: ParserComponent;
   tenant: string;
 }>) {
-  if (!job.data) {
+  if (!job.data.tenant || !job.data.component) {
+    app.log.info('Discarding job with useless data');
     return;
   }
   const { component, tenant } = job.data;
