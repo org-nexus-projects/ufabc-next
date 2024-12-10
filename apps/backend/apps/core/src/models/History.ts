@@ -6,6 +6,7 @@ const POSSIBLE_SITUATIONS = [
   'Aprovado',
   'Reprovado',
   'Trt. Total',
+  'trt. total',
   'Apr.S.Nota',
   'Aproveitamento',
   'reprovado',
@@ -51,7 +52,7 @@ const historiesDisciplinasSchema = new Schema(
     situacao: {
       type: String,
       enum: POSSIBLE_SITUATIONS,
-      required: true,
+      default: null,
     },
     creditos: { type: Number, required: true },
     categoria: { type: String, required: true, enum: CATEGORIES },

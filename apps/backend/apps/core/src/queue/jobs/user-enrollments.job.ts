@@ -6,12 +6,19 @@ import {
 import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
 import { SubjectModel, type SubjectDocument } from '@/models/Subject.js';
 import { EnrollmentModel, type Enrollment } from '@/models/Enrollment.js';
-import type { History, HistoryCoefficients } from '@/models/History.js';
+import {
+  type History,
+  type HistoryCoefficients,
+  type HistoryDocument,
+  HistoryModel,
+} from '@/models/History.js';
 import type { QueueContext } from '../types.js';
 
 type HistoryComponent = History['disciplinas'][number];
 
-export async function userEnrollmentsUpdate(ctx: QueueContext<History>) {
+export async function userEnrollmentsUpdate(
+  ctx: QueueContext<HistoryDocument>,
+) {
   const history = ctx.job.data;
 
   if (!history.disciplinas) {
@@ -30,7 +37,7 @@ export async function userEnrollmentsUpdate(ctx: QueueContext<History>) {
     });
   }
 
-  const coefficients = calculateCoefficients<History['disciplinas']>(
+  const coefficients = calculateCoefficients<HistoryComponent>(
     components,
     graduation,
   ) as HistoryCoefficients;
@@ -38,6 +45,14 @@ export async function userEnrollmentsUpdate(ctx: QueueContext<History>) {
   history.coefficients = coefficients;
 
   try {
+    await HistoryModel.findOneAndUpdate(
+      { ra: history.ra, grade: history.grade, curso: history.curso },
+      {
+        $set: {
+          coefficients: history.coefficients,
+        },
+      },
+    );
     await GraduationHistoryModel.findOneAndUpdate(
       {
         curso: history.curso,
@@ -57,7 +72,7 @@ export async function userEnrollmentsUpdate(ctx: QueueContext<History>) {
       { upsert: true },
     );
 
-    const componentJobs = components.map(async (component) => {
+    const enrollmentJobs = components.map(async (component) => {
       try {
         await ctx.app.job.dispatch('ProcessComponentsEnrollments', {
           history,
@@ -73,7 +88,7 @@ export async function userEnrollmentsUpdate(ctx: QueueContext<History>) {
       }
     });
 
-    await Promise.all(componentJobs);
+    await Promise.all(enrollmentJobs);
   } catch (error) {
     ctx.app.log.error({
       error: error instanceof Error ? error.message : String(error),
@@ -86,7 +101,7 @@ export async function userEnrollmentsUpdate(ctx: QueueContext<History>) {
 
 export async function processComponentEnrollment(
   ctx: QueueContext<{
-    history: History;
+    history: HistoryDocument;
     component: HistoryComponent;
   }>,
 ) {
