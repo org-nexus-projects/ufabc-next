@@ -21,4 +21,9 @@ export default defineConfig({
 			}),
 		],
 	}),
+  dev: {
+    server: {
+      port: 3002,
+    }
+  }
 });

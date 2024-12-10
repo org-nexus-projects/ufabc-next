@@ -56,13 +56,13 @@ export default defineContentScript({
           })
         } else {
           // Create student record with first graduation
-          await storage.setItem("local:student", currentStudent);
           await syncHistory({
             ra: currentStudent.ra,
             course: existingStudent?.graduations[0].course as string,
             grade: existingStudent?.graduations[0].grade as string,
             components: existingStudent?.graduations[0].components as SigHistory['components']
           })
+          await storage.setItem("local:student", currentStudent);
         }
 
         successToast.showToast();

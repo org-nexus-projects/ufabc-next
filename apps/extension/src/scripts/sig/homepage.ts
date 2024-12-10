@@ -53,7 +53,7 @@ export type Student = {
 	name: string;
 	ra: string;
 	login: string;
-  studentId: number | undefined
+  studentId?: number | undefined
 	email: string | undefined;
 	graduations: Array<{
 		course: Course;
@@ -170,7 +170,7 @@ export async function scrapeMenu(
 
 	const curriculumComponents = await getUFCurriculumComponents(
 		UFCourseIdList[0],
-		curriculumByRa?.appliedAt,
+		curriculumByRa?.grade,
 	);
 
 	const components = graduationHistory.map((component) =>
@@ -279,14 +279,15 @@ async function resolveCurriculum(
 	curriculums: UFCourseCurriculum[],
 ) {
 	const history = await getStudentHistory(Number(ra));
-	if (history?.grade) {
-		const teste = curriculums.find(
-			(curriculum) => curriculum.grade === history.grade,
-		);
-		return teste;
-	}
 
-	return curriculums.at(0);
+  if (!history || !history.grade) {
+	  return curriculums.at(-1);
+  }
+
+  const currentCurriculum = curriculums.find(
+    (curriculum) => curriculum.grade === history.grade,
+  );
+  return currentCurriculum;
 }
 
 function hydrateComponents(
