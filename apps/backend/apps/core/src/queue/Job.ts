@@ -80,6 +80,9 @@ export class Jobs implements JobImpl {
           mongoose: _mongoose,
           job: _job,
           worker: _worker,
+          server: _server,
+          config: _config,
+          jwt: _jwt,
           ...app
         } = this.app;
         await queue.add(
