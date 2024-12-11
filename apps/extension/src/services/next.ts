@@ -139,6 +139,7 @@ export type MatriculaStudent =  {
       affinity: number;
       cp: number;
       cr: number;
+      ca: number
   }[];
 }
 

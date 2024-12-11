@@ -2,7 +2,7 @@ import { storage } from "wxt/storage";
 import { scrapeMenu, type Student } from "@/scripts/sig/homepage";
 import "toastify-js/src/toastify.css";
 import '@/assets/tailwind.css'
-import { syncHistory, type SigHistory } from "@/services/next";
+import { createStudent, syncHistory, type SigHistory } from "@/services/next";
 import { processingToast, errorToast, successToast } from '@/utils/toasts'
 
 export default defineContentScript({
@@ -46,6 +46,7 @@ export default defineContentScript({
             })
 
             await storage.setItem("local:student", mergedStudent);
+            await createStudent(mergedStudent)
           }
           // update regular student - not new and same course
           await syncHistory({
@@ -55,6 +56,7 @@ export default defineContentScript({
             components: currentGraduation.components
           })
         } else {
+          await storage.setItem("local:student", currentStudent);
           // Create student record with first graduation
           await syncHistory({
             ra: currentStudent.ra,
@@ -62,7 +64,6 @@ export default defineContentScript({
             grade: existingStudent?.graduations[0].grade as string,
             components: existingStudent?.graduations[0].components as SigHistory['components']
           })
-          await storage.setItem("local:student", currentStudent);
         }
 
         successToast.showToast();

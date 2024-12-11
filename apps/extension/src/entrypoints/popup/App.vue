@@ -3,10 +3,22 @@ import { Loader2 } from 'lucide-vue-next'
 import { useStorage } from '@/composables/useStorage'
 import { useDateFormat } from '@vueuse/core'
 import type { Student } from '@/scripts/sig/homepage'
+import { getStudent, type MatriculaStudent } from '@/services/next';
 
 const { state: student, isLoading: loading, error } = useStorage<Student>('local:student');
 
+const studentCoefficients = ref<MatriculaStudent>()
+
 const formattedDate = useDateFormat(student.value?.lastUpdate, 'DD/MM/YYYY HH:mm', { locales: 'pt-BR' })
+
+onMounted(async () => {
+  if (!student.value) {
+    return;
+  }
+  const matriculaStudent = await getStudent(student.value.login, student.value.ra)
+  studentCoefficients.value = matriculaStudent;
+})
+
 </script>
 
 <template>
@@ -32,16 +44,16 @@ const formattedDate = useDateFormat(student.value?.lastUpdate, 'DD/MM/YYYY HH:mm
             <h3 class="font-bold flex-auto">{{ student.login }}</h3>
             <span class="flex-none text-right text-sm">{{ student.ra }}</span>
           </div>
-          <template v-if="student.graduations?.length">
-            <div class="mb-2 border border-solid border-[#efefef] rounded p-1.5" v-for="graduation in student.graduations">
+          <template v-if="studentCoefficients">
+            <div class="mb-2 border border-solid border-[#efefef] rounded p-1.5" v-for="graduation in studentCoefficients.graduations">
               <div class="text-sm mb-1">
-                {{ graduation.course }}<br />
+                {{ graduation.name }}<br />
                 <b>{{ graduation.shift }}</b>
               </div>
               <div class="flex">
-                <span class="flex-1 text-sm text-left text-[#c78d00]">CP: {{ 1 }}</span>
-                <span class="flex-1 text-sm text-center text-[#05C218]">CR: {{ 1 }}</span>
-                <span class="flex-1 text-sm text-right text-[#2E7EED]">CA: {{ 1 }}</span>
+                <span class="flex-1 text-sm text-left text-[#c78d00]">CP: {{ graduation.cp }}</span>
+                <span class="flex-1 text-sm text-center text-[#05C218]">CR: {{ graduation.cr }}</span>
+                <span class="flex-1 text-sm text-right text-[#2E7EED]">CA: {{ graduation.ca }}</span>
               </div>
             </div>
           </template>

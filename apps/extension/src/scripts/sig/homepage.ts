@@ -180,7 +180,7 @@ export async function scrapeMenu(
 	const graduation = {
 		course: currentGraduation.course,
 		campus: currentGraduation.campus,
-		grade: curriculumByRa.appliedAt,
+		grade: curriculumByRa.grade,
 		shift: currentGraduation.shift,
 		components,
 	};
