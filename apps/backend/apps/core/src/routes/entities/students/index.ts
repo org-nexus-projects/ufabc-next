@@ -74,6 +74,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           affinity: c.ind_afinidade,
           cp: c.cp,
           cr: c.cr,
+          ca: c.ca,
         })),
       } satisfies MatriculaStudent;
 

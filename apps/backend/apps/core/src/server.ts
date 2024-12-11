@@ -33,8 +33,8 @@ export async function start() {
 
   try {
     await app.listen({
-      port: app.config?.PORT,
-      host: app.config?.HOST,
+      port: app.config.PORT,
+      host: app.config.HOST,
     });
   } catch (error) {
     app.log.error(error);

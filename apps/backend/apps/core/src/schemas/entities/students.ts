@@ -12,6 +12,7 @@ const listMatriculaStudentSchema = z.object({
       name: z.string(),
       cp: z.number().optional(),
       cr: z.number().optional(),
+      ca: z.number().optional(),
       affinity: z.number().optional(),
       shift: z.enum(['noturno', 'matutino', 'Noturno', 'Matutino', 'Diurno']),
     })

@@ -19,6 +19,7 @@ const studentSchema = new Schema(
         nome_curso: { type: String, required: true },
         cp: { type: Number, required: true },
         cr: { type: Number, required: true },
+        ca: { type: Number, required: true },
         ind_afinidade: { type: Number, required: true },
         turno: { type: String, required: true, enum: COURSE_SHIFTS },
       },
