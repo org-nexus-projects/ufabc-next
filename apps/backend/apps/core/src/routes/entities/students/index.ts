@@ -6,6 +6,7 @@ import {
   listStudentSchema,
   listStudentsStatsComponents,
   type MatriculaStudent,
+  updateStudentSchema,
 } from '@/schemas/entities/students.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import {
@@ -14,6 +15,7 @@ import {
   getStudent,
   getGraduation,
   createOrInsert,
+  update,
 } from './service.js';
 import { currentQuad, lastQuad } from '@next/common';
 import { type Student, StudentModel } from '@/models/Student.js';
@@ -146,6 +148,24 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         UFCourseId: c.id_curso,
         turno: c.turno,
       })),
+    };
+  });
+
+  app.put('/', { schema: updateStudentSchema }, async (request, reply) => {
+    const { login, ra, studentId } = request.body;
+
+    const updatedStudent = await update({
+      login,
+      ra,
+      studentId,
+    });
+
+    if (!updatedStudent) {
+      return reply.notFound('Could not find student');
+    }
+
+    return {
+      msg: 'ok',
     };
   });
 };

@@ -21,12 +21,12 @@ const studentSchema = new Schema(
     login: { type: String, required: true },
     aluno_id: { type: Number, required: true, default: null },
     cursos: [coursesSchema],
-    year: { type: Number, default: null, required: true },
+    year: { type: Number, required: false },
     quad: {
       type: Number,
       min: 1,
       max: 3,
-      default: null,
+      required: false,
     },
     quads: { type: Number, required: false },
     season: {

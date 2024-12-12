@@ -5,7 +5,7 @@ import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 const tags = ['Students'];
 
 const listMatriculaStudentSchema = z.object({
-  studentId: z.number().int(),
+  studentId: z.number().int().nullable(),
   graduations: z
     .object({
       courseId: z.number().int(),
@@ -83,6 +83,7 @@ export const createStudentSchema = {
 } satisfies FastifyZodOpenApiSchema;
 
 export const listMatriculaStudent = {
+  tags,
   querystring: z.object({
     ra: z.coerce.number(),
     login: z.string(),
@@ -92,6 +93,32 @@ export const listMatriculaStudent = {
       content: {
         'application/json': {
           schema: listMatriculaStudentSchema,
+        },
+      },
+    },
+  },
+} satisfies FastifyZodOpenApiSchema;
+
+export const updateStudentSchema = {
+  tags,
+  body: z.object({
+    ra: z.coerce.number().openapi({
+      example: 112222332,
+    }),
+    login: z.string().openapi({
+      example: 'john.doe',
+    }),
+    studentId: z.number().int(),
+  }),
+  response: {
+    204: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            msg: z.string().openapi({
+              example: 'ok',
+            }),
+          }),
         },
       },
     },
