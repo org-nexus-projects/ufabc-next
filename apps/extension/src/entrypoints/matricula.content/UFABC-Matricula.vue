@@ -119,9 +119,6 @@ function changeSelected() {
     return
   }
 
-  console.log('matriculaStudent.value', matriculaStudent.value);
-  console.log('matriculas', matriculas);
-
   const enrollments = matriculas?.[matriculaStudent.value.studentId] || []
   const tableRows = document.querySelectorAll('tr')
 

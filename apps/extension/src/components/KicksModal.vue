@@ -30,7 +30,7 @@
 
           <draggable v-model="headers" @change="resort" item-key="value">
             <template #item="{ element }">
-              <div class="cursor-move" style="display: inline-block !important;">
+              <div class="cursor-move p-2" style="display: inline-block !important;">
                 <el-tag closable @close="removedFilter(element.value)">
                   {{ element.text }}
                 </el-tag>
