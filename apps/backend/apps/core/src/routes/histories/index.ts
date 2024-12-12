@@ -19,7 +19,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     const cacheKey = `history:${sigHistory.ra}`;
     const cached = historyCache.get(cacheKey);
-
     if (cached) {
       return {
         msg: 'Cached history!',
@@ -70,6 +69,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       sigHistory,
       msg: 'Synced Successfully',
     });
+
+    historyCache.set(cacheKey, history?.toJSON() as NonNullable<History>);
 
     // dispatch coefficients job.
     await app.job.dispatch(

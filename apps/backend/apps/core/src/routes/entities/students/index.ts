@@ -1,6 +1,6 @@
 import { ComponentModel } from '@/models/Component.js';
 import {
-  CreateStudent,
+  type CreateStudent,
   createStudentSchema,
   listMatriculaStudent,
   listStudentSchema,
@@ -17,7 +17,7 @@ import {
 } from './service.js';
 import { currentQuad, lastQuad } from '@next/common';
 import { type Student, StudentModel } from '@/models/Student.js';
-import { HistoryDocument } from '@/models/History.js';
+import type { HistoryDocument } from '@/models/History.js';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get(
@@ -74,9 +74,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           name: c.nome_curso,
           shift: c.turno,
           affinity: c.ind_afinidade,
-          cp: c.cp,
-          cr: c.cr,
-          ca: c.ca,
+          cp: c.cp ?? 0,
+          cr: c.cr ?? 0,
+          ca: c.ca ?? 0,
         })),
       } satisfies MatriculaStudent;
 
@@ -85,18 +85,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   );
 
   app.post('/', { schema: createStudentSchema }, async (request, reply) => {
-    const { studentId, graduations, ra, login } = request.body;
-
-    if (!studentId) {
-      request.log.warn({
-        msg: 'Non-vinculated student',
-        student: {
-          ra,
-          login,
-        },
-      });
-      return;
-    }
+    const { graduations, ra, login } = request.body;
 
     const season = currentQuad();
     const isPrevious = await ComponentModel.countDocuments({
@@ -118,7 +107,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     if (isMissingCourseId || !ra) {
       // called by snapshot page
       const student = await StudentModel.findOne({
-        aluno_id: studentId,
+        aluno_id: request.body.studentId,
       }).lean<Student>();
 
       return student;
@@ -127,18 +116,37 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     const studentGraduations = await Promise.all(
       graduations.map(async (graduation) => {
         const history = await getGraduation(ra, graduation.name);
-        return calculateGraduationMetrics(graduation, history);
+        return calculateGraduationMetrics(
+          graduation,
+          history as NonNullable<HistoryDocument>,
+        );
       }),
     );
+
+    request.log.warn({
+      msg: 'Created student',
+      student: {
+        ra,
+        login,
+        studentId: request.body.studentId,
+      },
+    });
 
     const student = await createOrInsert({
       ra,
       login,
       graduations: studentGraduations,
-      studentId,
     });
 
-    return student;
+    return {
+      _id: student._id,
+      login: student.login,
+      graduations: student.cursos.map((c) => ({
+        name: c.nome_curso,
+        UFCourseId: c.id_curso,
+        turno: c.turno,
+      })),
+    };
   });
 };
 
@@ -152,9 +160,9 @@ function calculateGraduationMetrics(
   const twoQuadAgoSeason = lastQuad(threeMonthsAgo);
 
   // Extract coefficient values
-  const cpBeforePandemic = history?.coefficients?.[2019]?.[3].cp_acumulado;
-  const cpFreezed = history?.coefficients?.[2021]?.[2].cp_acumulado;
-  const cpPastQuad = history?.coefficients?.[year]?.[quad].cp_acumulado;
+  const cpBeforePandemic = history?.coefficients?.[2019]?.[3]?.cp_acumulado;
+  const cpFreezed = history?.coefficients?.[2021]?.[2]?.cp_acumulado;
+  const cpPastQuad = history?.coefficients?.[year]?.[quad]?.cp_acumulado;
   const cpTwoQuadsAgo =
     history?.coefficients?.[twoQuadAgoSeason.year]?.[twoQuadAgoSeason.quad]
       ?.cp_acumulado;
@@ -170,12 +178,13 @@ function calculateGraduationMetrics(
 
   const calculateFinalCp = () => {
     if (!cpBeforePandemic) {
-      return Math.min(Number((cpTotal || graduation.cp!).toFixed(3)), 1);
+      return Math.min(Number((cpTotal || graduation.cp!)?.toFixed(3)), 1);
     }
-    return Math.min(Number((cpBeforePandemic + cpTotal!).toFixed(3)), 1);
+    return Math.min(Number((cpBeforePandemic + cpTotal!)?.toFixed(3)), 1);
   };
 
-  const sanitizeValue = (value: number) => (Number.isFinite(value) ? value : 0);
+  const sanitizeValue = (value: number | undefined) =>
+    value && Number.isFinite(value) ? value : 0;
 
   const finalCp = calculateFinalCp();
   const cr = sanitizeValue(graduation.cr);
@@ -185,7 +194,9 @@ function calculateGraduationMetrics(
   const ind_afinidade = 0.07 * cr + 0.63 * cp + 0.005 * quads;
 
   return {
-    ...graduation,
+    nome_curso: graduation.name,
+    id_curso: graduation.courseId,
+    turno: graduation.turno,
     cr,
     cp,
     quads,

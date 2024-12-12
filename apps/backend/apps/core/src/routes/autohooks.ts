@@ -12,6 +12,7 @@ const PUBLIC_ROUTES = [
   '/entities/students/stats/components',
   '/entities/students/courses',
   '/entities/students/student',
+  '/entities/students',
   '/public/stats/components',
 ];
 

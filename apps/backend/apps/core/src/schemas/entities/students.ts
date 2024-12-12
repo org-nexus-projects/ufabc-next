@@ -23,11 +23,12 @@ export type MatriculaStudent = z.infer<typeof listMatriculaStudentSchema>;
 
 const createStudentSchemaRequest = z.object({
   studentId: z.number().int().optional(),
-  ra: z.number(),
+  ra: z.coerce.number(),
   login: z.string(),
   graduations: z
     .object({
-      courseId: z.number().int().array(),
+      courseId: z.number().int(),
+      turno: z.enum(['Noturno', 'Matutino', 'noturno', 'matutino']),
       name: z.string(),
       cp: z.number().optional(),
       cr: z.number().optional(),

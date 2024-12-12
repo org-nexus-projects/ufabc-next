@@ -92,10 +92,11 @@ export async function getGraduation(ra: number, name: string) {
 type CreateStudent = {
   ra: number;
   login: string;
-  studentId: number;
+  studentId?: number;
   graduations: {
-    name: string;
-    courseId: number[];
+    nome_curso: string;
+    id_curso: number;
+    turno: 'Noturno' | 'Matutino' | 'noturno' | 'matutino';
     cp: number | undefined;
     cr: number | undefined;
     ind_afinidade: number | undefined;
@@ -109,11 +110,13 @@ export async function createOrInsert({
   login,
   graduations,
 }: CreateStudent) {
+  const season = currentQuad();
   const student = await StudentModel.findOneAndUpdate(
     {
       aluno_id: studentId,
+      season,
     },
-    { ra, login, cursos: graduations },
+    { ra, login, cursos: graduations, season },
     { new: true, upsert: true },
   );
 
