@@ -2,7 +2,7 @@ import { storage } from "wxt/storage";
 import { scrapeMenu, type Student } from "@/scripts/sig/homepage";
 import "toastify-js/src/toastify.css";
 import '@/assets/tailwind.css'
-import { createStudent, syncHistory, type SigHistory } from "@/services/next";
+import { createStudent, syncHistory } from "@/services/next";
 import { processingToast, errorToast, successToast } from '@/utils/toasts'
 
 export default defineContentScript({
@@ -46,8 +46,24 @@ export default defineContentScript({
             })
 
             await storage.setItem("local:student", mergedStudent);
-            await createStudent(mergedStudent)
+            const studentToCreateGraduations =  mergedStudent.graduations.map(g => ({
+              name: g.course as string,
+              courseId: g.UFCourseId,
+              turno: g.shift,
+              quads: calculateQuadrimestres({ entranceQuad: mergedStudent.startedAt }),
+            }))
+            await createStudent({
+              login: mergedStudent.login,
+              ra: mergedStudent.ra,
+              graduations: studentToCreateGraduations
+            })
           }
+          const studentToCreateGraduations =  existingStudent.graduations.map(g => ({
+            name: g.course as string,
+            courseId: g.UFCourseId,
+            turno: g.shift,
+            quads: calculateQuadrimestres({ entranceQuad: existingStudent.startedAt }),
+          }))
           // update regular student - not new and same course
           await syncHistory({
             ra: existingStudent.ra,
@@ -55,14 +71,30 @@ export default defineContentScript({
             grade: currentGraduation.grade,
             components: currentGraduation.components
           })
+          await createStudent({
+            login: existingStudent.login,
+            ra: existingStudent.ra,
+            graduations: studentToCreateGraduations
+          })
         } else {
           await storage.setItem("local:student", currentStudent);
           // Create student record with first graduation
           await syncHistory({
             ra: currentStudent.ra,
-            course: existingStudent?.graduations[0].course as string,
-            grade: existingStudent?.graduations[0].grade as string,
-            components: existingStudent?.graduations[0].components as SigHistory['components']
+            course: currentStudent?.graduations[0].course as string,
+            grade: currentStudent?.graduations[0].grade,
+            components: currentStudent?.graduations[0].components
+          })
+          const studentToCreateGraduations =  currentStudent.graduations.map(g => ({
+            name: g.course as string,
+            courseId: g.UFCourseId,
+            turno: g.shift,
+            quads: calculateQuadrimestres({ entranceQuad: currentStudent.startedAt }) ?? 0,
+          }))
+          await createStudent({
+            login: currentStudent.login,
+            ra: currentStudent.ra,
+            graduations: studentToCreateGraduations
           })
         }
 
@@ -78,21 +110,3 @@ export default defineContentScript({
 	runAt: "document_end",
 	matches: ["https://sig.ufabc.edu.br/sigaa/portais/discente/discente.jsf"],
 });
-
-
-			// fix here the way a receive the curriculum year, maybe asking for the user
-			// is the best use case
-  // this will be accessed in the ufabc matriculas, to be filtered.
-      // create the student for next - update code to handle the same ra in BCT and BCC
-      // it should increment the graduation with the BCC data.
-      // await createStudent({
-      //   ra: student.ra,
-      //   components: student.graduation.components,
-      //   // grade: student.graduation.curriculumYear,
-      //   // graduation data
-      //   "mandatory_credits_number": 90,
-	    //   "limited_credits_number": 57,
-	    //   "free_credits_number": 43,
-	    //   "credits_total": 190
-      // })
-

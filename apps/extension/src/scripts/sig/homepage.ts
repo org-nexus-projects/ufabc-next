@@ -60,6 +60,7 @@ export type Student = {
 		campus: string;
 		shift: string;
 		grade: string;
+    UFCourseId: number;
 		components: HydratedComponent[];
 	}>;
 	startedAt: string;
@@ -182,6 +183,7 @@ export async function scrapeMenu(
 		campus: currentGraduation.campus,
 		grade: curriculumByRa.grade,
 		shift: currentGraduation.shift,
+    UFCourseId: UFCourseIdList[0],
 		components,
 	};
 

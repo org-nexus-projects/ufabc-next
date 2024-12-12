@@ -5,6 +5,12 @@ type Season = {
   year: number;
 };
 
+type QuadrimestreCalculationParams = {
+  entranceQuad: string;
+  trancamentos?: string[]; // List of quadrimestres with trancamento
+}
+
+
 export function findQuadFromDate(month: number): number {
   if ([0, 1, 2, 10, 11].includes(month)) {
     return 1;
@@ -30,6 +36,26 @@ export function findSeason(date: dayjs.Dayjs = dayjs()): Season {
 export function findSeasonKey(date: dayjs.Dayjs = dayjs()): string {
   const { year, quad } = findSeason(date);
   return `${year}:${quad}`;
+}
+
+export function calculateQuadrimestres({
+  entranceQuad,
+  trancamentos = []
+}: QuadrimestreCalculationParams) {
+  // Parse entrance quad
+  const [year, quad] = entranceQuad.split('.').map(Number);
+
+  // Get current season
+  const currentSeason = findSeason();
+  console.log(currentSeason, entranceQuad)
+  // Calculate total quadrimestres
+  const totalQuadrimestres = (currentSeason.year - year) * 3 + (currentSeason.quad - quad) + 1;
+
+  // Subtract trancamentos
+  const effectiveQuadrimestres = totalQuadrimestres - trancamentos.length;
+
+  // Ensure non-negative result
+  return Math.max(0, effectiveQuadrimestres);
 }
 
 export function findIdeais(date: dayjs.Dayjs = dayjs()): string[] {

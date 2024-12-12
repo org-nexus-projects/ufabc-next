@@ -143,6 +143,20 @@ export type MatriculaStudent =  {
   }[];
 }
 
+type CreateStudent = {
+  ra: string;
+  login: string;
+  graduations: {
+      name: string;
+      courseId: number;
+      cp?: number | undefined;
+      cr?: number | undefined;
+      quads?: number | undefined;
+      turno: string;
+  }[];
+  studentId?: number | undefined;
+}
+
 function resolveEndpoint() {
   if (import.meta.env.PROD) {
     return "https://api.v2.ufabcnext.com";
@@ -161,8 +175,8 @@ export async function getStudentHistory(ra: number) {
   return studentHistory;
 }
 
-export async function createStudent(student: Student) {
-  const createdStudent = await nextService("/entities/student", {
+export async function createStudent(student: CreateStudent) {
+  const createdStudent = await nextService("/entities/students", {
     method: "POST",
     body: student,
   });
