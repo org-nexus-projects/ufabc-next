@@ -13,9 +13,8 @@ const studentCoefficients = ref<MatriculaStudent | null>(null)
 const isFetching = ref(false)
 const fetchError = ref<Error | null>(null)
 
-// Use watchEffect to trigger fetch when student data is available
 watchEffect(() => {
-  // Only fetch if student data exists and has the required properties
+  // Only fetch if student data exists
   if (student.value?.ra && student.value?.login) {
     isFetching.value = true
     fetchStudentCoefficients()
