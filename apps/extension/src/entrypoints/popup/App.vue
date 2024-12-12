@@ -3,22 +3,43 @@ import { Loader2 } from 'lucide-vue-next'
 import { useStorage } from '@/composables/useStorage'
 import { useDateFormat } from '@vueuse/core'
 import type { Student } from '@/scripts/sig/homepage'
-import { getStudent, type MatriculaStudent } from '@/services/next';
+import { type MatriculaStudent, nextURL } from '@/services/next';
 
 const { state: student, isLoading: loading, error } = useStorage<Student>('local:student');
 
-const studentCoefficients = ref<MatriculaStudent>()
-
 const formattedDate = useDateFormat(student.value?.lastUpdate, 'DD/MM/YYYY HH:mm', { locales: 'pt-BR' })
 
-onMounted(async () => {
-  if (!student.value) {
-    return;
+const studentCoefficients = ref<MatriculaStudent | null>(null)
+const isFetching = ref(false)
+const fetchError = ref<Error | null>(null)
+
+// Use watchEffect to trigger fetch when student data is available
+watchEffect(() => {
+  // Only fetch if student data exists and has the required properties
+  if (student.value?.ra && student.value?.login) {
+    isFetching.value = true
+    fetchStudentCoefficients()
   }
-  const matriculaStudent = await getStudent(student.value.login, student.value.ra)
-  studentCoefficients.value = matriculaStudent;
 })
 
+async function fetchStudentCoefficients() {
+  try {
+    const response = await fetch(`${nextURL}/entities/students/student?ra=${student.value?.ra}&login=${student.value?.login}`)
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch student coefficients')
+    }
+
+    studentCoefficients.value = await response.json()
+    fetchError.value = null
+  } catch (error) {
+    console.error('Error fetching student coefficients:', error)
+    fetchError.value = error instanceof Error ? error : new Error('An unknown error occurred')
+    studentCoefficients.value = null
+  } finally {
+    isFetching.value = false
+  }
+}
 </script>
 
 <template>
@@ -44,7 +65,7 @@ onMounted(async () => {
             <h3 class="font-bold flex-auto">{{ student.login }}</h3>
             <span class="flex-none text-right text-sm">{{ student.ra }}</span>
           </div>
-          <template v-if="studentCoefficients">
+          <template v-if="!isFetching && studentCoefficients">
             <div class="mb-2 border border-solid border-[#efefef] rounded p-1.5" v-for="graduation in studentCoefficients.graduations">
               <div class="text-sm mb-1">
                 {{ graduation.name }}<br />
@@ -53,7 +74,7 @@ onMounted(async () => {
               <div class="flex">
                 <span class="flex-1 text-sm text-left text-[#c78d00]">CP: {{ graduation.cp }}</span>
                 <span class="flex-1 text-sm text-center text-[#05C218]">CR: {{ graduation.cr }}</span>
-                <span class="flex-1 text-sm text-right text-[#2E7EED]">CA: {{ graduation.ca }}</span>
+                <span v-if="!graduation.ca" class="flex-1 text-sm text-right text-[#2E7EED]">CA: {{ graduation.ca }}</span>
               </div>
             </div>
           </template>

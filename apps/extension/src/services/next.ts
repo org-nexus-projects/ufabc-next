@@ -1,4 +1,3 @@
-import type { Student } from "@/scripts/sig/homepage";
 import { ofetch } from "ofetch";
 
 export type StudentHistory = {
@@ -165,8 +164,10 @@ function resolveEndpoint() {
   return "http://localhost:5000";
 }
 
+export const nextURL = resolveEndpoint()
+
 export const nextService = ofetch.create({
-  baseURL: resolveEndpoint(),
+  baseURL: nextURL,
 });
 
 export async function getStudentHistory(ra: number) {
