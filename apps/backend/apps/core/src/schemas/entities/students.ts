@@ -21,6 +21,24 @@ const listMatriculaStudentSchema = z.object({
 
 export type MatriculaStudent = z.infer<typeof listMatriculaStudentSchema>;
 
+const createStudentSchemaRequest = z.object({
+  studentId: z.number().int().optional(),
+  ra: z.number(),
+  login: z.string(),
+  graduations: z
+    .object({
+      courseId: z.number().int().array(),
+      name: z.string(),
+      cp: z.number().optional(),
+      cr: z.number().optional(),
+      ind_afinidade: z.number().optional(),
+      quads: z.number().optional(),
+    })
+    .array(),
+});
+
+export type CreateStudent = z.infer<typeof createStudentSchemaRequest>;
+
 export const listStudentsStatsComponents = {
   tags,
   querystring: z.object({
@@ -60,21 +78,7 @@ export const listStudentSchema = {
 
 export const createStudentSchema = {
   tags,
-  body: z.object({
-    studentId: z.number().int(),
-    ra: z.number(),
-    login: z.string(),
-    graduations: z
-      .object({
-        courseId: z.number().int().array(),
-        name: z.string(),
-        cp: z.number().optional(),
-        cr: z.number().optional(),
-        ind_afinidade: z.number().optional(),
-        quads: z.number().optional(),
-      })
-      .array(),
-  }),
+  body: createStudentSchemaRequest,
 } satisfies FastifyZodOpenApiSchema;
 
 export const listMatriculaStudent = {

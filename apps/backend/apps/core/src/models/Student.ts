@@ -12,19 +12,19 @@ const studentSchema = new Schema(
   {
     ra: { type: Number },
     login: { type: String, required: true },
-    aluno_id: { type: Number, required: true },
+    aluno_id: { type: Number, required: true, default: null },
     cursos: [
       {
         id_curso: { type: Number, required: true },
         nome_curso: { type: String, required: true },
-        cp: { type: Number, required: true },
-        cr: { type: Number, required: true },
-        ca: { type: Number, required: true },
+        cp: { type: Number, required: false },
+        cr: { type: Number, required: false },
+        ca: { type: Number, required: false },
         ind_afinidade: { type: Number, required: true },
         turno: { type: String, required: true, enum: COURSE_SHIFTS },
       },
     ],
-    year: Number,
+    year: { type: Number, default: null, required: true },
     quad: {
       type: Number,
       min: 1,

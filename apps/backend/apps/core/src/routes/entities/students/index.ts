@@ -1,5 +1,6 @@
 import { ComponentModel } from '@/models/Component.js';
 import {
+  CreateStudent,
   createStudentSchema,
   listMatriculaStudent,
   listStudentSchema,
@@ -16,6 +17,7 @@ import {
 } from './service.js';
 import { currentQuad, lastQuad } from '@next/common';
 import { type Student, StudentModel } from '@/models/Student.js';
+import { HistoryDocument } from '@/models/History.js';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get(
@@ -86,7 +88,14 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     const { studentId, graduations, ra, login } = request.body;
 
     if (!studentId) {
-      return reply.badRequest('Missing studentId');
+      request.log.warn({
+        msg: 'Non-vinculated student',
+        student: {
+          ra,
+          login,
+        },
+      });
+      return;
     }
 
     const season = currentQuad();
@@ -99,7 +108,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       // past student, do not update anymore
       const student = await StudentModel.findOne({
         season,
-        aluno_id: studentId,
+        ra,
       }).lean<Student>();
       return student;
     }
@@ -115,58 +124,16 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       return student;
     }
 
-    const studentGraduationsPromises = graduations.map(async (g) => {
-      const history = await getGraduation(ra, g.name);
-
-      const cpBeforePandemic = history?.coefficients?.[2019]?.[3].cp_acumulado;
-      // Sum cp before pandemic + cp after freezed
-      const cpFreezed = history?.coefficients?.[2021]?.[2].cp_acumulado;
-
-      const { quad, year } = lastQuad();
-      const cpPastQuad = history?.coefficients?.[year]?.[quad].cp_acumulado;
-
-      const threeMonthsAgo = new Date();
-      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-
-      const twoQuadAgoSeason = lastQuad(threeMonthsAgo);
-      const cpTwoQuadsAgo =
-        history?.coefficients?.[twoQuadAgoSeason.year]?.[twoQuadAgoSeason.quad]
-          .cp_acumulado;
-
-      let cpTotal = null;
-      if ((cpPastQuad || cpTwoQuadsAgo) && cpFreezed) {
-        cpTotal = (cpPastQuad! || cpTwoQuadsAgo!) - cpFreezed;
-      }
-
-      let finalCp = null;
-      // If student enter after 2019.3
-      if (!cpBeforePandemic) {
-        if (!cpTotal) {
-          cpTotal = g.cp;
-        }
-        finalCp = Math.min(Number(cpTotal?.toFixed(3)), 1);
-      } else {
-        finalCp = Math.min(Number((cpBeforePandemic + cpTotal!).toFixed(3)), 1);
-      }
-
-      g.cr = Number.isFinite(g.cr) ? g.cr : 0;
-      g.cp = Number.isFinite(g.cp) ? finalCp : 0;
-      g.quads = Number.isFinite(g.quads) ? g.quads : 0;
-
-      // refer
-      // https://www.ufabc.edu.br/administracao/conselhos/consepe/resolucoes/resolucao-consepe-no-147-define-os-coeficientes-de-desempenho-utilizados-nos-cursos-de-graduacao-da-ufabc
-      // @ts-ignore for now
-      g.ind_afinidade = 0.07 * g.cr + 0.63 * g.cp + 0.005 * g.quads;
-
-      return g;
-    });
-
-    const studentGraduations = await Promise.all(studentGraduationsPromises);
+    const studentGraduations = await Promise.all(
+      graduations.map(async (graduation) => {
+        const history = await getGraduation(ra, graduation.name);
+        return calculateGraduationMetrics(graduation, history);
+      }),
+    );
 
     const student = await createOrInsert({
       ra,
       login,
-      // @ts-ignore for now
       graduations: studentGraduations,
       studentId,
     });
@@ -174,5 +141,56 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return student;
   });
 };
+
+function calculateGraduationMetrics(
+  graduation: CreateStudent['graduations'][number],
+  history: HistoryDocument,
+) {
+  const { quad, year } = lastQuad();
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+  const twoQuadAgoSeason = lastQuad(threeMonthsAgo);
+
+  // Extract coefficient values
+  const cpBeforePandemic = history?.coefficients?.[2019]?.[3].cp_acumulado;
+  const cpFreezed = history?.coefficients?.[2021]?.[2].cp_acumulado;
+  const cpPastQuad = history?.coefficients?.[year]?.[quad].cp_acumulado;
+  const cpTwoQuadsAgo =
+    history?.coefficients?.[twoQuadAgoSeason.year]?.[twoQuadAgoSeason.quad]
+      ?.cp_acumulado;
+
+  const calculateTotalCp = () => {
+    if ((cpPastQuad || cpTwoQuadsAgo) && cpFreezed) {
+      return (cpPastQuad || cpTwoQuadsAgo) - cpFreezed;
+    }
+    return null;
+  };
+
+  const cpTotal = calculateTotalCp();
+
+  const calculateFinalCp = () => {
+    if (!cpBeforePandemic) {
+      return Math.min(Number((cpTotal || graduation.cp!).toFixed(3)), 1);
+    }
+    return Math.min(Number((cpBeforePandemic + cpTotal!).toFixed(3)), 1);
+  };
+
+  const sanitizeValue = (value: number) => (Number.isFinite(value) ? value : 0);
+
+  const finalCp = calculateFinalCp();
+  const cr = sanitizeValue(graduation.cr);
+  const cp = sanitizeValue(finalCp);
+  const quads = sanitizeValue(graduation.quads ?? 0);
+  // Calculate affinity index
+  const ind_afinidade = 0.07 * cr + 0.63 * cp + 0.005 * quads;
+
+  return {
+    ...graduation,
+    cr,
+    cp,
+    quads,
+    ind_afinidade,
+  };
+}
 
 export default plugin;
