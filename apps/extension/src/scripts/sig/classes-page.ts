@@ -50,5 +50,5 @@ export function scrapeClassesPage(page: string) {
         name: normalizedName.trim().toLocaleLowerCase(),
         credits: extractCredits(normalizedProvisionPeriod),
       };
-    });
+    }).filter(component => component !== null);
 }

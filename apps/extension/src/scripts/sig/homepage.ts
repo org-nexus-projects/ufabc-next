@@ -260,7 +260,8 @@ function extractComponents(
 
 		const matchComponent = classesData.find((c) => c.name === component.name);
 
-		return { ...component, credits: matchComponent?.credits };
+		// 0 here should not happen, but hey you never know!
+		return { ...component, credits: matchComponent?.credits ?? 0 };
 	});
 
 	return components;
