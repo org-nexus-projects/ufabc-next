@@ -9,6 +9,7 @@ import accessibility from "highcharts/modules/accessibility";
 import Highcharts3D from 'highcharts/highcharts-3d';
 import type { Student } from '@/scripts/sig/homepage';
 import type { ContentScriptContext } from 'wxt/client';
+import { updateStudent } from '@/services/next';
 
 export type UFABCMatriculaStudent = {
 	studentId: number;
@@ -18,10 +19,6 @@ export type UFABCMatriculaStudent = {
 export default defineContentScript({
 	async main(ctx) {
 		const student = await storage.getItem<Student>('local:student');
-    await storage.setItem(`sync:${student?.ra}`, {
-      studentId: 557736,
-      graduationId: 74,
-    })
 		const ufabcMatriculaStudent = await storage.getItem<UFABCMatriculaStudent>(
 			`sync:${student?.ra}`,
 		);
@@ -37,7 +34,9 @@ export default defineContentScript({
 		$mountedUi.style.zIndex = '9';
 
 		// TODO(Joabesv): create student here
-		console.log(student, ufabcMatriculaStudent);
+    if (ufabcMatriculaStudent && student) {
+      await updateStudent(student.login, student.ra, ufabcMatriculaStudent.studentId)
+    }
 	},
 	runAt: 'document_end',
 	cssInjectionMode: 'ui',
@@ -64,16 +63,6 @@ async function mountUFABCMatriculaFilters(
 			// accessibility(Highcharts);
 			// annotationsInit(Highcharts)
 			// Highcharts3D(Highcharts);
-
-			await storage.setItem('sync:11202231117', {
-				studentId: 551100,
-				graduationId: 74,
-			});
-
-
-      if (!student) {
-        return;
-      }
 
 			const matriculas = await getUFEnrolled();
 			window.matriculas = matriculas;

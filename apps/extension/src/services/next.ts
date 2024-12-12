@@ -223,3 +223,15 @@ export async function getStudent(login: string, ra: string) {
 
   return student;
 }
+
+export async function updateStudent(login: string, ra: string, studentId: number) {
+  const updatedStudent = await nextService<{ msg: string }>('/entities/students', {
+    method: 'PUT',
+    body: {
+      login,
+      ra,
+      studentId
+    }
+  })
+  return updatedStudent
+}

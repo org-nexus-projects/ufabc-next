@@ -291,10 +291,10 @@ onMounted(async () => {
   document.body.addEventListener("click", handleClick);
   const studentId = getStudentId()
   const graduationId = getStudentCourseId()
-  // await storage.setItem(`sync:${student.value?.ra}`, {
-  //   studentId,
-  //   graduationId,
-  // })
+  await storage.setItem(`sync:${student.value?.ra}`, {
+    studentId,
+    graduationId,
+  })
 
   teachers.value = true;
   await buildComponents();
