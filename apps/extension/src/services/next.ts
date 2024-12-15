@@ -207,7 +207,7 @@ export async function getComponents() {
   return components;
 }
 
-export async function getKicksInfo(kickId: string, studentId: string) {
+export async function getKicksInfo(kickId: string, studentId: number) {
   const kicksData = await nextService(`/entities/components/${kickId}/kicks?studentId=${studentId}`)
   return kicksData;
 }

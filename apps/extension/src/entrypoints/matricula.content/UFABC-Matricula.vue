@@ -16,6 +16,7 @@ type Filter = {
 }
 
 const matriculas = inject<typeof window.matriculas>('matriculas')
+const matriculaStudent = inject<UFABCMatriculaStudent>('student')
 
 const selected = ref(false)
 const cursadas = ref(false)
@@ -24,7 +25,6 @@ const showWarning = ref(false);
 const teachers = ref(false);
 
 const { state: student } = useStorage<Student>('local:student');
-const { state: matriculaStudent } = useStorage<UFABCMatriculaStudent>(`sync:${student.value?.ra}`)
 
 const campusFilters = ref<Filter[]>([
   {
@@ -114,12 +114,12 @@ function changeSelected() {
     return;
   }
 
-  if (!matriculaStudent.value) {
+  if (!matriculaStudent) {
     console.log('show some message to the user')
     return
   }
 
-  const enrollments = matriculas?.[matriculaStudent.value.studentId] || []
+  const enrollments = matriculas?.[matriculaStudent?.studentId] || []
   const tableRows = document.querySelectorAll('tr')
 
   for (const $row of tableRows) {

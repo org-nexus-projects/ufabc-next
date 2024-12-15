@@ -22,7 +22,6 @@ export default defineContentScript({
 		const ufabcMatriculaStudent = await storage.getItem<UFABCMatriculaStudent>(
 			`sync:${student?.ra}`,
 		);
-
 		const ui = await mountUFABCMatriculaFilters(ctx, ufabcMatriculaStudent);
 		ui.mount();
 
@@ -33,9 +32,21 @@ export default defineContentScript({
 		$mountedUi.style.top = '0px';
 		$mountedUi.style.zIndex = '9';
 
-		// TODO(Joabesv): create student here
     if (ufabcMatriculaStudent && student) {
       await updateStudent(student.login, student.ra, ufabcMatriculaStudent.studentId)
+    }
+
+    const URLS_TO_CHECK = ['http://localhost:3003', 'https://ufabc-matricula-snapshot.vercel.app']
+    const origin = new URL(document.location.href).origin
+
+    if (URLS_TO_CHECK.includes(origin)) {
+      document.dispatchEvent(new CustomEvent('student-info', {
+        detail: {
+          ra: student?.ra,
+          login: student?.login,
+          hasStudent: !!student
+        },
+      }))
     }
 	},
 	runAt: 'document_end',
@@ -67,7 +78,6 @@ async function mountUFABCMatriculaFilters(
 
 			const matriculas = await getUFEnrolled();
 			window.matriculas = matriculas;
-
 			const app = createApp(UFABCMatricula);
 			app.provide('matriculas', window.matriculas);
 			app.provide('student', student);

@@ -195,16 +195,15 @@ const kicksForecast = computed(() => {
 })
 
 async function fetch() {
-  if (!props.corteId) {
+  if (!props.corteId || !matriculaStudent) {
     return;
   }
 
-  const studentId = matriculaStudent?.studentId?.toString() ?? ''
 
   loading.value = true;
 
   try {
-    const kicksInfo = await getKicksInfo(props.corteId, studentId);
+    const kicksInfo = await getKicksInfo(props.corteId, matriculaStudent?.studentId);
     kicks.value = kicksInfo
     resort();
   } catch(error: any) {
