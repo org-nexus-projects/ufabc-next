@@ -19,6 +19,13 @@
       {{ pratica }}
     </a>
   </div>
+  <div v-else-if="!teoria && !pratica" class="mt-1.5 text-xs font-bold uppercase cursor-pointer">
+    <a
+      class="ReviewTeacher text-amber-500 hover:text-amber-600 ReviewTeacher"
+    >
+      Professor não registrado pela UFABC
+    </a>
+  </div>
 </template>
 
 <script setup lang="ts">
