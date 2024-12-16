@@ -122,10 +122,9 @@ export async function scrapeMenu(
 
 	const { data: classesPage, error: classesError } = await fetchClasses();
 	if (classesError || !classesPage) {
-		console.log({
-			msg: 'Ocorreu um erro ao extrair as turmas, por favor tente novamente mais tarde!',
-			error,
-		});
+		const msg =  'Ocorreu um erro ao extrair as turmas, por favor tente novamente mais tarde!'
+    console.error(error)
+    scrappingErrorToast(msg).showToast();
 		return null;
 	}
 

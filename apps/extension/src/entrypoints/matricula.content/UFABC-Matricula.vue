@@ -8,6 +8,7 @@ import { useStorage } from '@/composables/useStorage'
 import { getStudentCourseId, getStudentId } from '@/utils/ufabc-matricula-student'
 import type { UFABCMatriculaStudent } from '.';
 import type { Student } from '@/scripts/sig/homepage';
+import { toast, Toaster } from 'vue-sonner'
 
 
 type Filter = {
@@ -142,9 +143,8 @@ function changeCursadas() {
     }
     return;
   }
-
-  if (!student.value) {
-    console.warn('Não encontramos suas disciplinas cursadas, por favor acesse o sigaa')
+  if (student.value) {
+    toast.warning('Não encontramos suas disciplinas cursadas, por favor acesse o sigaa')
     return
   }
 
@@ -329,6 +329,7 @@ onUnmounted(() => {
 
     <section class="pr-5">
       <h3 class="font-medium text-[14px] mb-0.5 text-black/90">Filtros</h3>
+      <Toaster position="top-right"/>
       <el-switch class="mr-3" active-text="Disciplinas escolhidas" v-model="selected" @change="changeSelected()">
       </el-switch>
 
