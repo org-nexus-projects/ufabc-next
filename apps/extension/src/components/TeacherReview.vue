@@ -3,6 +3,8 @@ import type { Student } from '@/scripts/sig/homepage';
 import { getStudent, getTeacherReviews, type TeacherReview, type Grade } from '@/services/next';
 import { type ChartProps, Chart } from 'highcharts-vue';
 import { sortBy } from 'lodash-es';
+import { useStorage } from '@/composables/useStorage'
+import { resolveColorForConcept } from '@/utils/grades-colors'
 
 type ChartOptions = ChartProps['options']
 
@@ -224,7 +226,7 @@ watch(filterSelected, (newFilter) => {
       v-loading="loading" element-loading="Carregando">
 
       <el-select
-          class="flex flex-row flex-auto mb-2 w-full"
+      class="flex flex-row flex-auto mb-2"
           placeholder="Selecione a matéria"
           v-model="filterSelected"
           @change="updateFilter()"

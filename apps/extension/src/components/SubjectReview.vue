@@ -2,6 +2,7 @@
 import { getSubjectReviews, type SubjectReview } from '@/services/next';
 import { Chart , type ChartProps } from 'highcharts-vue';
 import SubjectTeachersList from './SubjectTeachersList.vue';
+import { resolveColorForConcept } from '@/utils/grades-colors'
 
 type ChartOptions = ChartProps['options']
 

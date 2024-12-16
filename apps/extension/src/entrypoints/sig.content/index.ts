@@ -4,6 +4,7 @@ import "toastify-js/src/toastify.css";
 import '@/assets/tailwind.css'
 import { createStudent, syncHistory } from "@/services/next";
 import { processingToast, errorToast, successToast } from '@/utils/toasts'
+import { calculateQuadrimestres } from '@/utils/season'
 
 export default defineContentScript({
 	async main() {

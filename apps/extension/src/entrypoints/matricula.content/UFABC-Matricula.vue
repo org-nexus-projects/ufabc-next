@@ -4,6 +4,8 @@ import Teachers from '@/components/Teachers.vue';
 import { getComponents } from '@/services/next';
 import { render } from 'vue';
 import SubjectReview from '@/components/SubjectReview.vue';
+import { useStorage } from '@/composables/useStorage'
+import { getStudentCourseId, getStudentId } from '@/utils/ufabc-matricula-student'
 import type { UFABCMatriculaStudent } from '.';
 import type { Student } from '@/scripts/sig/homepage';
 

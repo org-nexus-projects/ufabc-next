@@ -1,5 +1,4 @@
 import './style.css';
-import 'element-plus/theme-chalk/index.css'
 import { getUFEnrolled } from '@/services/ufabc-parser';
 import UFABCMatricula from '@/entrypoints/matricula.content/UFABC-Matricula.vue';
 import HighchartsVue from 'highcharts-vue';

@@ -195,7 +195,7 @@ const kicksForecast = computed(() => {
 })
 
 async function fetch() {
-  if (!props.corteId || !matriculaStudent) {
+  if (!props.corteId) {
     return;
   }
 

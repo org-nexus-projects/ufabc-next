@@ -24,10 +24,10 @@
       <template #default="scope">
         <div class="grading">
           <el-tooltip v-for="concept in concepts" :key="concept.code" placement="top" :hide-after="0"
-            :content="`${concept.code}: ${scope.row.concepts[concept.code]['percentage']}% (${scope.row.concepts[concept.code]['count']} notas)`">
+            :content="`${concept.code}: ${scope.row.concepts[concept.code]['percentage']?.toFixed(0)}% (${scope.row.concepts[concept.code]['count']} notas)`">
             <span class="grading-segment" :class="scope.row.count < unthrustableThreshold ? 'unthrustable' : ''" :style="{
               background: concept.color,
-              width: `${scope.row.concepts[concept.code]['percentage']}%`
+              width: `${scope.row.concepts[concept.code]?.percentage?.toFixed(0)}%`
             }">
             </span>
           </el-tooltip>
