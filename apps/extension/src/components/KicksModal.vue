@@ -5,7 +5,7 @@
       :modelValue="isOpen"
       @update:modelValue="closeModal"
       light
-      class="w-1/2"
+      class="w-[720px]"
     >
     <div v-loading="loading" element-loading="Carregando" >
       <!-- Filters -->
@@ -99,18 +99,20 @@
             title="Mantenha sempre seus dados atualizados para a previsão dos chutes ser mais precisa."
             type="info"
             show-icon>
-            <a href='https://sig.ufabc.edu.br/sigaa/portais/discente/discente.jsf' target='_blank'>Clique aqui para atualizar</a>
+            <a href='https://sig.ufabc.edu.br/sigaa/portais/discente/discente.jsf' target='_blank' class="underline decoration-sky-500">Clique aqui para atualizar</a>
           </el-alert>
         </div>
     </div>
-    <template #footer class="flex">
-      <span class="text-left flex-auto">
-        <a href="https://bit.ly/extensao-problemas" target="_blank">Está com problemas com a extensão? <br />Clique aqui</a>
-      </span>
-      <i class="text-[rgba(0,_0,_0,_0.6)] inline-flex text-sm flex-row mr-4">* Dados baseados nos alunos que utilizam a extensão</i>
-      <el-button @click="closeModal">
-        Fechar
-      </el-button>
+    <template #footer>
+      <div class="flex">
+        <span class="text-left flex-auto">
+          <a href="https://bit.ly/extensao-problemas" target="_blank" class="underline decoration-red-500">Está com problemas com a extensão? <br />Clique aqui</a>
+        </span>
+        <i class="text-[rgba(0,_0,_0,_0.6)] inline-flex text-sm flex-row mr-4">* Dados baseados nos alunos que utilizam a extensão</i>
+        <el-button @click="closeModal">
+          Fechar
+        </el-button>
+      </div>
     </template>
   </el-dialog>
 </template>
@@ -296,7 +298,7 @@ onMounted(async () => {
 });
 </script>
 
-<style>
+<style lang="css">
 .el-table .aluno-row {
   color: #B7D3FF !important;
 }
@@ -320,5 +322,4 @@ onMounted(async () => {
   @apply text-center border-[0px_0px_1px_0px] border-[#ebeef5] border-solid;
   /* border: none !important; */
 }
-
 </style>
