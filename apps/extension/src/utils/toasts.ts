@@ -56,3 +56,21 @@ export const errorToast = toast({
     background: '#E74C3C;',
   },
 });
+
+
+export const scrappingErrorToast = (msg: string) => toast({
+  text: `
+    <div style="width: 228px; display: flex; align-items: end; margin-right: 12px;">
+      <img style="margin-right: 16px;" width="32" height="32" src=${errorImg} />
+        ${msg}
+    </div>`,
+  duration: -1,
+  close: true,
+  gravity: 'bottom',
+  position: 'right',
+  className: 'toast-error-container',
+  escapeMarkup: false,
+  style: {
+    background: '#E74C3C;',
+  },
+});

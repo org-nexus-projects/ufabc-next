@@ -47,7 +47,6 @@ export function calculateQuadrimestres({
 
   // Get current season
   const currentSeason = findSeason();
-  console.log(currentSeason, entranceQuad)
   // Calculate total quadrimestres
   const totalQuadrimestres = (currentSeason.year - year) * 3 + (currentSeason.quad - quad) + 1;
 

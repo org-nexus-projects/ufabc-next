@@ -114,10 +114,9 @@ export async function scrapeMenu(
 ): Promise<Student | null> {
 	const { data: page, error } = await fetchGrades();
 	if (error || !page) {
-		console.log({
-			msg: 'Ocorreu um erro ao extrair as disciplinas cursadas, por favor tente novamente mais tarde!',
-			error,
-		});
+		const msg = 'Ocorreu um erro ao extrair as disciplinas cursadas, por favor tente novamente mais tarde!'
+    console.error(error)
+    scrappingErrorToast(msg).showToast();
 		return null;
 	}
 
