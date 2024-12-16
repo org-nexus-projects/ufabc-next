@@ -1,27 +1,27 @@
 <template>
-  <div v-if="teoria" class="mt-1.5 text-xs font-bold uppercase cursor-pointer">
+  <div v-if="teoria" class="mt-1.5 min-h-5 text-[13px] font-bold uppercase cursor-pointer">
     Teoria:
     <a
       :data="teoriaId"
       :teacherName="teoria"
-      class="ReviewTeacher text-amber-500 hover:text-amber-600 ReviewTeacher Help"
+      class="ReviewTeacher text-amber-500 hover:text-amber-600 text-[13px]"
     >
       {{ teoria }}
     </a>
   </div>
-  <div v-if="pratica" class="mt-1.5 text-xs font-bold uppercase cursor-pointer">
+  <div v-if="pratica" class="mt-1.5 min-h-5 text-[13px] font-bold uppercase cursor-pointer">
     Prática:
     <a
       :data="praticaId"
       :teacherName="pratica"
-      class="ReviewTeacher text-amber-500 hover:text-amber-600 ReviewTeacher Help"
+      class="ReviewTeacher text-amber-500 hover:text-amber-600 text-[13px]"
     >
       {{ pratica }}
     </a>
   </div>
-  <div v-else-if="!teoria && !pratica" class="mt-1.5 text-xs font-bold uppercase cursor-pointer">
+  <div v-else-if="!teoria && !pratica" class="mt-1.5 min-h-5 text-[13px] font-bold uppercase">
     <a
-      class="ReviewTeacher text-amber-500 hover:text-amber-600 ReviewTeacher"
+      class="text-amber-500 hover:text-amber-600 text-[13px]"
     >
       Professor não registrado pela UFABC
     </a>
