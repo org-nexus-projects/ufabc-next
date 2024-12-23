@@ -33,7 +33,7 @@ const createStudentSchemaRequest = z.object({
       cp: z.number().optional(),
       cr: z.number().optional(),
       ind_afinidade: z.number().optional(),
-      quads: z.number().optional(),
+      quads: z.number().nullish(),
     })
     .array(),
 });
