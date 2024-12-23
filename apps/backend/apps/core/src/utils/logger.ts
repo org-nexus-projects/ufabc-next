@@ -64,7 +64,7 @@ const loggerSetup = {
 
 export function buildLogger(env: 'dev' | 'prod' = 'dev') {
   const baseConfig = {
-    level: process.env.LOG_LEVEL ?? (env === 'dev' ? 'info' : 'warn'),
+    level: process.env.LOG_LEVEL ?? (env === 'dev' ? 'info' : 'info'),
   } satisfies LoggerOptions;
 
   const config =
