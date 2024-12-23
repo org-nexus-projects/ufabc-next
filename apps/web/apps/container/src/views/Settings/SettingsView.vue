@@ -114,10 +114,9 @@ const userLogin = computed(() => {
   return user.value?.email?.replace('@aluno.ufabc.edu.br', '');
 });
 
-const apiPath = api.defaults.baseURL?.replace('/v2', '');
 
 const addGoogleAccount = computed(() => {
-  return `${apiPath}login/google?userId=${user.value?._id}`;
+  return `${api.defaults.baseURL}/login/google?userId=${user.value?._id}`;
 });
 
 

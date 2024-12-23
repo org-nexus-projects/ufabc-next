@@ -14,7 +14,7 @@ import {
 import { historiesGraduations } from './performance';
 import { comments, subject, subjectSearch, teacher, teacherSearch } from './reviews';
 
-const baseUrl = 'https://api.v2.ufabcnext.com/v2';
+const baseUrl = 'https://api.v2.ufabcnext.com';
 
 export const handlers = [
   http.get(`${baseUrl}/users/info`, () => HttpResponse.json(user)),

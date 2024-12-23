@@ -919,7 +919,7 @@
 
       let self = this;
       axios
-        .get('https://api.v2.ufabcnext.com/v2/public/stats/usage')
+        .get('https://api.v2.ufabcnext.com/public/stats/usage')
         .then(function (res) {
           self.stats = res.data;
           var newRendered = Mustache.render(template, {
@@ -1023,7 +1023,7 @@
           e.preventDefault();
           const email = document.getElementById('emailInput').value;
           const { data: res } = await axios.post(
-            'http://localhost:5000/v2/backoffice/token',
+            'http://localhost:5000/backoffice/token',
             { email },
           );
           const token = res.token?.replace('Bearer ', '');
