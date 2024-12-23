@@ -1,5 +1,4 @@
 import { type InferSchemaType, Schema, model } from 'mongoose';
-import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 
 const graduationSubjectSchema = new Schema(
   {
@@ -10,11 +9,11 @@ const graduationSubjectSchema = new Schema(
     /** One of: firstLevelMandatory, secondLevelMandatory, thirdLevelMandatory */
     subcategory: String,
 
-    creditos: Number,
-    codigo: String,
+    creditos: { type: Number, required: true },
+    codigo: { type: String, required: true },
 
-    year: Number,
-    quad: Number,
+    year: { type: Number, required: true },
+    quad: { type: Number, required: true },
 
     /** Array of codes for equivalents */
     equivalents: [String],
@@ -33,8 +32,6 @@ const graduationSubjectSchema = new Schema(
 );
 
 graduationSubjectSchema.index({ graduation: 'asc' });
-
-graduationSubjectSchema.plugin(mongooseLeanVirtuals);
 
 export type GraduationSubject = InferSchemaType<typeof graduationSubjectSchema>;
 export const GraduationSubjectModel = model(

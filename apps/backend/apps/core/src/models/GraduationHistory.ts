@@ -5,7 +5,6 @@ import {
   type Types,
   model,
 } from 'mongoose';
-import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 import type { CoefficientsMap } from './History.js';
 
 const CONCEITOS = ['A', 'B', 'C', 'D', 'O', 'F', '-'] as const;
@@ -81,7 +80,6 @@ const graduationHistorySchema = new Schema<
   { timestamps: true },
 );
 
-graduationHistorySchema.plugin(mongooseLeanVirtuals);
 export type { GraduationHistory };
 export const GraduationHistoryModel = model<
   GraduationHistory,

@@ -1,18 +1,12 @@
-export type HistoryDiscipline = {
+export type HistoryComponent = {
   periodo: '1' | '2' | '3';
   codigo: string;
   disciplina: string;
   ano: number;
   creditos: number;
-  categoria: '-' | 'Opção Limitada' | 'Obrigatória';
+  categoria: 'Livre Escolha' | 'Opção Limitada' | 'Obrigatória' | '-' | null;
   identifier?: string | null;
-  situacao:
-    | 'Repr.Freq'
-    | 'Aprovado'
-    | 'Reprovado'
-    | 'Trt. Total'
-    | 'Apr.S.Nota'
-    | 'Aproveitamento';
+  situacao: string;
   conceito: 'A' | 'B' | 'C' | 'D' | 'O' | 'F' | '-';
 };
 
@@ -31,76 +25,50 @@ type Graduation = {
   credits_total?: number;
 };
 
-export function calculateCoefficients<
-  TDisciplinas extends Array<HistoryDiscipline>,
->(components: TDisciplinas, graduation: Graduation | null) {
-  const componentsPerYearAndQuad: Map<
-    number,
-    Map<number, HistoryDiscipline[]>
-  > = new Map();
-
-  const componentsCoefficient: Map<
-    number,
-    Map<number, Record<string, unknown>>
-  > = new Map();
+export function calculateCoefficients<TComponent extends HistoryComponent>(
+  components: TComponent[],
+  graduation: Graduation | null,
+) {
+  const componentsHash = {} as Record<any, any>;
 
   for (const component of components) {
-    const { ano, periodo } = component;
-
-    if (!componentsPerYearAndQuad.has(ano)) {
-      componentsPerYearAndQuad.set(ano, new Map());
-    }
-
-    if (!componentsCoefficient.has(ano)) {
-      componentsCoefficient.set(ano, new Map());
-    }
-
-    if (!componentsPerYearAndQuad.get(ano)?.has(Number.parseInt(periodo))) {
-      componentsPerYearAndQuad.get(ano)?.set(Number.parseInt(periodo), []);
-    }
-
-    if (!componentsCoefficient.get(ano)?.has(Number.parseInt(periodo))) {
-      componentsCoefficient.get(ano)?.set(Number.parseInt(periodo), {});
-    }
-
-    componentsPerYearAndQuad
-      .get(ano)
-      ?.get(Number.parseInt(periodo))
-      ?.push(component);
+    componentsHash[component.ano] = componentsHash[component.ano] ?? {};
+    componentsHash[component.ano][component.periodo] =
+      componentsHash[component.ano][component.periodo] ?? [];
+    componentsHash[component.ano][component.periodo].push(component);
   }
 
-  const unique: Record<string, boolean> = {};
-  const uniqComponent: Record<string, boolean> = {};
+  const unique: Record<any, any> = {};
+  const uniqueComponent: Record<any, any> = {};
   let accumulated_credits = 0;
   let accumulated_conceitos = 0;
   let accumulated_unique = 0;
+
   let accumulated_credits_free = 0;
   let accumulated_credits_limited = 0;
   let accumulated_credits_mandatory = 0;
 
-  for (const [ano, quadMap] of componentsPerYearAndQuad) {
-    for (const [periodo, components] of quadMap) {
+  for (const year in componentsHash) {
+    for (const quad in componentsHash[year]) {
       let period_credits = 0;
       let conceitos_quad = 0;
       let period_unique = 0;
       let period_aprovados = 0;
+
       let credits_free = 0;
       let credits_mandatory = 0;
       let credits_limited = 0;
 
-      for (const component of components) {
-        const {
-          creditos,
-          conceito,
-          categoria,
-          codigo,
-          disciplina: name,
-        } = component;
+      for (const component in componentsHash[year][quad]) {
+        const currComponent: HistoryComponent =
+          componentsHash[year][quad][component];
+        const creditos = Number.parseInt(currComponent.creditos.toString(), 10);
+        const convertable =
+          convertLetterToNumber(currComponent.conceito) * creditos;
 
-        const convertable = convertLetterToNumber(conceito) * creditos;
-        const category = parseCategory(categoria);
+        const category = parseCategory(currComponent.categoria);
 
-        if (category && isAprovado(conceito)) {
+        if (category && isAprovado(currComponent.conceito)) {
           if (category === 'free') {
             credits_free += creditos;
           }
@@ -112,19 +80,22 @@ export function calculateCoefficients<
           }
         }
 
-        if (convertable < 0) {
+        if (Number.isNaN(convertable) || convertable < 0) {
           continue;
         }
 
         conceitos_quad += convertable;
         period_credits += creditos;
 
-        if (isAprovado(conceito)) {
+        if (isAprovado(currComponent.conceito)) {
           period_aprovados += creditos;
         }
-        if (!(name in uniqComponent)) {
-          unique[codigo] = true;
-          uniqComponent[name] = true;
+
+        const name = currComponent.disciplina;
+        const UFComponentCode = componentsHash[year][quad][component].codigo;
+        if (!(name in uniqueComponent)) {
+          unique[UFComponentCode] = true;
+          uniqueComponent[name] = true;
           accumulated_unique += creditos;
           period_unique += creditos;
         }
@@ -152,7 +123,7 @@ export function calculateCoefficients<
 
       let cp_acumulado = 0;
 
-      if (graduation !== null && graduation !== undefined) {
+      if (graduation && hasValidGraduationCredits(graduation)) {
         const totalLimitedCredits = Math.min(
           accumulated_credits_limited,
           graduation.limited_credits_number,
@@ -164,71 +135,61 @@ export function calculateCoefficients<
 
         // excess limited credits are added to free credits
         let excessLimitedCredits = 0;
-
         if (accumulated_credits_limited > graduation.limited_credits_number) {
           excessLimitedCredits =
             accumulated_credits_limited - totalLimitedCredits;
         }
-
         const totalFreeCredits = Math.min(
           accumulated_credits_free + excessLimitedCredits,
           graduation.free_credits_number,
         );
+
+        const creditsTotal =
+          graduation.credits_total ||
+          graduation.free_credits_number +
+            graduation.limited_credits_number +
+            graduation.mandatory_credits_number;
+
         const totalCredits =
           Math.max(totalFreeCredits, 0) +
           Math.max(totalLimitedCredits, 0) +
           Math.max(totalMandatoryCredits, 0);
-
-        cp_acumulado = (totalCredits * 1) / graduation.credits_total!;
+        cp_acumulado = (totalCredits * 1) / creditsTotal;
       }
 
-      const result = {
+      componentsHash[year][quad] = {
         ca_quad,
         ca_acumulado,
         cr_quad,
         cr_acumulado,
-        cp_acumulado: cp_acumulado
-          ? Math.round(cp_acumulado * 1000) / 1000
-          : cp_acumulado,
+        cp_acumulado: cp_acumulado ? roundTo(cp_acumulado, 3) : cp_acumulado,
         percentage_approved,
         accumulated_credits,
         period_credits,
       };
-
-      componentsCoefficient.get(ano)?.set(periodo, result);
     }
   }
 
-  return mapToObject(componentsCoefficient);
+  return componentsHash;
 }
 
-function isAprovado(letter: string) {
-  return !['F', '0', 'O', 'I'].includes(letter);
+function convertLetterToNumber(letter: HistoryComponent['conceito']) {
+  const gradeMap = {
+    A: 4,
+    B: 3,
+    C: 2,
+    D: 1,
+    F: 0,
+    O: 0,
+    '-': -1,
+    E: -1,
+    I: -1,
+  };
+
+  return gradeMap[letter] ?? undefined;
 }
 
-function convertLetterToNumber(letter: string) {
-  switch (letter) {
-    case 'A':
-      return 4;
-    case 'B':
-      return 3;
-    case 'C':
-      return 2;
-    case 'D':
-      return 1;
-    case 'F':
-    case 'O':
-      return 0;
-    case '-':
-    case 'E':
-    case 'I':
-      return -1;
-    default:
-      return 1; // Default value when the input is not recognized
-  }
-}
-
-function parseCategory(category: string) {
+function parseCategory(category: HistoryComponent['categoria'] | null) {
   switch (category) {
     case 'Livre Escolha':
       return 'free';
@@ -241,10 +202,25 @@ function parseCategory(category: string) {
   }
 }
 
-function mapToObject(map: Map<unknown, unknown>): Record<string, unknown> {
-  return Object.fromEntries(
-    Array.from(map.entries(), ([k, v]) =>
-      v instanceof Map ? [k, mapToObject(v)] : [k, v],
-    ),
+const isAprovado = (letter: HistoryComponent['conceito']) =>
+  !['F', '0', 'O', 'I'].includes(letter);
+
+// one-dumb-liner
+const isNumber = (a: string) => typeof a === 'number';
+
+const hasValidGraduationCredits = (graduation: any): boolean =>
+  graduation &&
+  [
+    'credits_total',
+    'limited_credits_number',
+    'free_credits_number',
+    'mandatory_credits_number',
+  ].every((field: any) => isNumber(graduation[field]));
+
+// https://stackoverflow.com/questions/33429136/round-to-3-decimal-points-in-javascript-jquery
+function roundTo(n: number, decimalPlaces: number) {
+  // @ts-expect-error ignore
+  return +(+`${Math.round(`${n}e+${decimalPlaces}`)}e-${decimalPlaces}`).toFixed(
+    decimalPlaces,
   );
 }

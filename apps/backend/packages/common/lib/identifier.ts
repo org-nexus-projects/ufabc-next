@@ -1,8 +1,47 @@
 import { createHash } from 'node:crypto';
 import { camelCase } from 'lodash-es';
-import type { Disciplina } from './convertUfabcDiscplinas';
 
-type KeysOptions = keyof Disciplina;
+type Disciplina = {
+  nome: string;
+  id: number;
+  ra: number;
+  year: number;
+  quad: number;
+  obrigatorias: number[];
+  obrigatoriedades: Array<{
+    curso_id: number;
+    obrigatoriedade: 'limitada' | 'obrigatoria' | 'livre';
+  }>;
+  campus: 'santo andre' | 'sao bernardo' | 'sbc' | 'sa';
+  turno: 'noturno' | 'diurno' | 'tarde' | null;
+  horarios:
+    | string
+    | {
+        horas: string[];
+      }[];
+  turma: string;
+  disciplina: string;
+  disciplina_id: number | '-';
+  teoria: string | null;
+  pratica: string | null;
+};
+
+type KeysOptions =
+  | 'disciplina'
+  | 'turno'
+  | 'campus'
+  | 'turma'
+  | 'nome'
+  | 'id'
+  | 'obrigatorias'
+  | 'obrigatoriedades'
+  | 'horarios'
+  | 'disciplina_id'
+  | 'teoria'
+  | 'pratica'
+  | 'ra'
+  | 'year'
+  | 'quad';
 
 const DEFAULT_FIELDS_TO_ENCODE = [
   'disciplina',

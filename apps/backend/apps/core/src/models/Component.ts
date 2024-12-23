@@ -12,7 +12,7 @@ const componentSchema = new Schema(
   {
     disciplina_id: { type: Number, required: true },
     disciplina: { type: String, required: true },
-    turno: { type: String, required: true },
+    turno: { type: String, required: true, enum: ['diurno', 'noturno'] },
     turma: { type: String, required: true },
     vagas: { type: Number, required: true },
     obrigatorias: { type: [Number], default: [] },

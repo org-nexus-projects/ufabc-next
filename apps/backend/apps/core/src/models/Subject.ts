@@ -9,6 +9,7 @@ const subjectSchema = new Schema(
     },
     search: {
       type: String,
+      index: 'text',
     },
     creditos: {
       type: Number,
@@ -18,23 +19,10 @@ const subjectSchema = new Schema(
   { timestamps: true },
 );
 
-subjectSchema.index({ name: 'asc', search: 'asc' }, { unique: true });
+subjectSchema.index({ name: 1 }, { unique: true });
 
-subjectSchema.pre('save', async function () {
-  const existingSubject = await SubjectModel.findOne({
-    $or: [{ name: this.name }, { search: this.search }],
-  });
-
-  if (!existingSubject) {
-    this.search = startCase(camelCase(this.name));
-    return;
-  }
-
-  const error = new Error(
-    `Subject with name "${this.name}" or search "${this.search}" already exists.`,
-  );
-
-  throw error;
+subjectSchema.pre('save', function () {
+  this.search = startCase(camelCase(this.name));
 });
 
 export type Subject = InferSchemaType<typeof subjectSchema>;

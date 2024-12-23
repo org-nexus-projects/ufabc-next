@@ -1,10 +1,28 @@
 {
-  "extends": ["@next/tsconfig/apps.json"],
+  "extends": [
+    "fastify-tsconfig"
+  ],
   "compilerOptions": {
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "plugins": [
+      {
+        "transform": "typescript-transform-paths"
+      }
+    ],
+    "outDir": "dist",
+    "rootDir": "src"
   },
-  "include": ["src/**/*.ts", "esbuild.ts", "test/**/*.ts", "runTests.ts"],
-  "exclude": ["node_modules/**/*"]
+  "include": [
+    "src/**/*.ts",
+    "esbuild.ts",
+    "test/**/*.ts",
+    "runTests.ts"
+  ],
+  "exclude": [
+    "node_modules/**/*"
+  ]
 }

@@ -1,5 +1,4 @@
 import { type InferSchemaType, Schema, model } from 'mongoose';
-import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 import { GroupModel } from './Group.js';
 
 const COMMENT_TYPE = ['teoria', 'pratica'] as const;
@@ -97,17 +96,17 @@ enrollmentSchema.index({
   conceito: 'asc',
 });
 
-enrollmentSchema.plugin(mongooseLeanVirtuals);
-
 enrollmentSchema.pre('findOneAndUpdate', function (next) {
   const update = this.getUpdate();
 
+  // @ts-ignore
   if (!update.$set) {
+    // @ts-ignore
     update.$set = {};
   }
 
   // Your existing pre update logic
-  // biome-ignore lint/style/noNonNullAssertion: <explanation>
+  // @ts-ignore
   setTheoryAndPractice(update);
   next();
 });

@@ -1,21 +1,22 @@
-import { sendConfirmationEmail } from './jobs/email.js';
-import { updateEnrollments } from './jobs/enrollmentsUpdate.js';
-import { syncEnrolled } from './jobs/syncEnrolled.js';
-import { updateTeachers } from './jobs/teacherUpdate.js';
-// import { updateUserEnrollments } from './jobs/userEnrollmentsUpdate.js';
-import { syncSubjects } from './jobs/syncSubjects.js';
-import { syncComponents } from './jobs/syncComponents.js';
+import { sendConfirmationEmail } from './jobs/email.job.js';
+import { processSingleEnrollment } from './jobs/enrollments.job.js';
+import { processSingleEnrolled, syncEnrolled } from './jobs/enrolled.job.js';
+import { updateTeachers } from './jobs/teacher-update.job.js';
+import { processComponent, syncComponents } from './jobs/components.job.js';
+import {
+  processComponentEnrollment,
+  userEnrollmentsUpdate,
+} from './jobs/user-enrollments.job.js';
 import type { WorkerOptions } from 'bullmq';
-
-type QueueDefinition = Record<string, WorkerOptions>;
+import { processComponentsTeachers } from './jobs/components-teacher.job.js';
 
 const MONTH = 60 * 60 * 24 * 30;
 
-export const NEXT_QUEUE_JOBS = {
+export const QUEUE_JOBS: Record<any, WorkerOptions> = {
   /**
    * Queue for sending emails
    */
-  'Send:Email': {
+  'send:email': {
     removeOnComplete: {
       age: MONTH,
     },
@@ -23,81 +24,111 @@ export const NEXT_QUEUE_JOBS = {
   /**
    * Queue for updating enrollments
    */
-  'Enrollments:Update': {
-    concurrency: 1,
+  'enrollments:update': {
+    concurrency: 10,
     removeOnComplete: {
-      age: 0,
+      count: 1000, // Keep last 1000 successful jobs
+      age: 24 * 60 * 60, // Remove jobs older than 24 hours
+    },
+    removeOnFail: {
+      count: 500, // Keep last 500 failed jobs for debugging
+      age: 24 * 60 * 60,
+    },
+    limiter: {
+      max: 50,
+      duration: 1_000,
     },
   },
   /**
    * Queue for updating enrollments the teacher had lectures in
    */
-  'Teacher:UpdateEnrollments': {
+  'teacher:updateEnrollments': {
     concurrency: 5,
   },
   /**
    * Queue for Syncing Matriculas with UFABC
    */
-  'Sync:Enrolled': {
+  'sync:enrolled': {
     concurrency: 5,
   },
   /**
-   * Queue for updating our codebase with the users enrollments
+   * Queue for updating our 
+   codebase with the users enrollments
    */
-  'UserEnrollments:Update': {
+  'userEnrollments:update': {
     concurrency: 5,
+    removeOnComplete: {
+      count: 400,
+      age: 0,
+    },
   },
-  /**
-   * Queue to assert all Subjects have credits
-   */
-  'Sync:Subject': {
+  'sync:components': {
     concurrency: 10,
+    removeOnComplete: {
+      count: 1000,
+      age: 24 * 60 * 60,
+    },
+    limiter: {
+      max: 50,
+      duration: 1000,
+    },
   },
-  'Sync:Components': {
-    concurrency: 1,
+  'sync:components:teachers': {
+    concurrency: 10,
+    removeOnComplete: {
+      count: 1000,
+      age: 24 * 60 * 60,
+    },
+    limiter: {
+      max: 50,
+      duration: 1000,
+    },
   },
-} as const satisfies QueueDefinition;
+} as const;
 
-type JobsDefinition = Record<
-  string,
-  {
-    queue: keyof typeof NEXT_QUEUE_JOBS;
-    // TODO: remove any
-    handler: (params: any) => Promise<unknown>;
-    every?: string;
-  }
->;
-
-export const NEXT_JOBS = {
-  NextSendEmail: {
-    queue: 'Send:Email',
+export const JOBS = {
+  SendEmail: {
+    queue: 'send:email',
     handler: sendConfirmationEmail,
   },
-  NextEnrolledSync: {
-    queue: 'Sync:Enrolled',
+  EnrolledSync: {
+    queue: 'sync:enrolled',
     handler: syncEnrolled,
+  },
+  ProcessSingleEnrolled: {
+    queue: 'sync:enrolled',
+    handler: processSingleEnrolled,
     every: '2 minutes',
   },
-  NexSubjectsSync: {
-    queue: 'Sync:Subject',
-    handler: syncSubjects,
-    every: '1d',
-  },
-  NextComponentsSync: {
-    queue: 'Sync:Components',
+  ComponentsSync: {
+    queue: 'sync:components',
     handler: syncComponents,
-    every: '1d',
   },
-  NextEnrollmentsUpdate: {
-    queue: 'Enrollments:Update',
-    handler: updateEnrollments,
+  ProcessSingleComponent: {
+    queue: 'sync:components',
+    handler: processComponent,
+    every: '2 minutes',
   },
-  // NextUserEnrollmentsUpdate: {
-  //   queue: 'UserEnrollments:Update',
-  //   handler: updateUserEnrollments,
-  // },
-  NextTeacherUpdate: {
-    queue: 'Teacher:UpdateEnrollments',
+  UserEnrollmentsUpdate: {
+    queue: 'userEnrollments:update',
+    handler: userEnrollmentsUpdate,
+  },
+  ProcessComponentsEnrollments: {
+    queue: 'userEnrollments:update',
+    handler: processComponentEnrollment,
+  },
+  TeacherUpdate: {
+    queue: 'teacher:updateEnrollments',
     handler: updateTeachers,
   },
-} as const satisfies JobsDefinition;
+  EnrollmentSync: {
+    queue: 'enrollments:update',
+    handler: processSingleEnrollment,
+  },
+  ComponentsTeachersSync: {
+    queue: 'sync:components:teachers',
+    handler: processComponentsTeachers,
+  },
+} as const;
+
+export type QueueNames = keyof typeof QUEUE_JOBS;

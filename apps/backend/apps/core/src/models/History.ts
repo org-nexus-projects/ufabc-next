@@ -1,5 +1,4 @@
 import { type InferSchemaType, type Model, Schema, model } from 'mongoose';
-import { mongooseLeanVirtuals } from 'mongoose-lean-virtuals';
 
 const CONCEITOS = ['A', 'B', 'C', 'D', 'O', 'F', '-'] as const;
 const POSSIBLE_SITUATIONS = [
@@ -7,6 +6,7 @@ const POSSIBLE_SITUATIONS = [
   'Aprovado',
   'Reprovado',
   'Trt. Total',
+  'trt. total',
   'Apr.S.Nota',
   'Aproveitamento',
   'reprovado',
@@ -21,6 +21,7 @@ const CATEGORIES = [
   '-',
 ] as const;
 export type Categories = (typeof CATEGORIES)[number];
+export type Concept = (typeof CONCEITOS)[number];
 export type Situations = (typeof POSSIBLE_SITUATIONS)[number];
 
 export type Coefficient = {
@@ -36,7 +37,7 @@ export type Coefficient = {
 
 export type CoefficientsMap = Record<'1' | '2' | '3', Coefficient>;
 
-type HistoryCoefficients = Record<number, CoefficientsMap>;
+export type HistoryCoefficients = Record<number, CoefficientsMap>;
 
 const historiesDisciplinasSchema = new Schema(
   {
@@ -51,12 +52,14 @@ const historiesDisciplinasSchema = new Schema(
     situacao: {
       type: String,
       enum: POSSIBLE_SITUATIONS,
+      default: null,
     },
     creditos: { type: Number, required: true },
     categoria: { type: String, required: true, enum: CATEGORIES },
     conceito: {
       type: String,
       enum: CONCEITOS,
+      default: null,
     },
     identifier: String,
   },
@@ -78,34 +81,15 @@ const historySchema = new Schema<History, THistoryModel>(
     ra: { type: Number, required: true },
     disciplinas: [historiesDisciplinasSchema],
     coefficients: Object,
-    curso: String,
+    curso: { type: String, required: true },
     grade: String,
   },
   {
-    // methods: {
-    //   async updateEnrollments() {
-    //     await updateUserEnrollments(this.toObject({ virtuals: true }));
-    //   },
-    // },
     timestamps: true,
   },
 );
 
-historySchema.plugin(mongooseLeanVirtuals);
-
 historySchema.index({ curso: 'asc', grade: 'asc' });
-
-// historySchema.pre('findOneAndUpdate', async function () {
-//   const update = this.getUpdate() as History;
-//   await nextJobs.dispatch('NextUserEnrollmentsUpdate', update);
-// });
-
-// historySchema.post('save', async function () {
-// await nextJobs.dispatch(
-//   'NextUserEnrollmentsUpdate',
-//   this.toObject({ virtuals: true }),
-// );
-// });
 
 export const HistoryModel = model<History, THistoryModel>(
   'histories',
