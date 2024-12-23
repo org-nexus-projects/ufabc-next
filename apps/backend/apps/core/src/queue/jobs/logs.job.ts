@@ -1,4 +1,4 @@
-import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { ListObjectsCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import {
   mkdir,
   readdir,
@@ -45,7 +45,9 @@ export async function uploadLogsToS3(ctx: QueueContext<S3UploadJob>) {
       const stats = await stat(filePath);
       const dayOld = Date.now() - stats.mtime.getTime() > 24 * 60 * 60 * 1000;
 
-      if (!dayOld) continue;
+      if (!dayOld) {
+        continue;
+      }
 
       if (!localOnly) {
         const fileContent = await readFile(filePath);
@@ -56,13 +58,13 @@ export async function uploadLogsToS3(ctx: QueueContext<S3UploadJob>) {
             Body: fileContent,
           }),
         );
-        ctx.app.log.debug(`Uploaded to S3: ${file}`);
+        ctx.app.log.info(`Uploaded to S3: ${file}`);
       }
 
       // Move to archive
       const archivePath = join(ARCHIVE_DIR, file);
       await rename(filePath, archivePath);
-      ctx.app.log.debug(`Archived: ${file}`);
+      ctx.app.log.info(`Archived: ${file}`);
 
       // Clean old archives
       const archiveStats = await stat(archivePath);
@@ -72,7 +74,7 @@ export async function uploadLogsToS3(ctx: QueueContext<S3UploadJob>) {
 
       if (isOld) {
         await unlink(archivePath);
-        ctx.app.log.debug(`Deleted old archive: ${file}`);
+        ctx.app.log.info(`Deleted old archive: ${file}`);
       }
     }
   } catch (error) {
