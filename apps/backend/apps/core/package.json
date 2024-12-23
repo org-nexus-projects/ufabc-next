@@ -17,6 +17,7 @@
     "lint": "biome lint --write --unsafe --diagnostic-level=error ."
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.717.0",
     "@aws-sdk/client-ses": "^3.600.0",
     "@bull-board/api": "^6.3.3",
     "@bull-board/fastify": "^6.3.3",
