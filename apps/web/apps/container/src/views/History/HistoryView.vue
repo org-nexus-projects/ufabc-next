@@ -6,12 +6,13 @@
   <PaperCard title="Ficha individual do aluno" class="text-next-grey">
     <p class="mt-4">
       Esta ficha individual é uma réplica do que você podia encontrar no site do
-      <a :href="studentRecordURL">Portal do Aluno</a>, hoje são informações do Sigaa
+      <a href="https://aluno.ufabc.edu.br/">Portal do Aluno</a>, hoje são informações do <a
+        :href="studentRecordURL">Sigaa</a>
     </p>
     <p class="mt-4">
-      Caso o seu histórico esteja desatualizado, basta acessar o portal
+      Caso o seu histórico esteja desatualizado, basta acessar o Sigaa
       novamente utilizando a
-      <a class="text-decoration-none" :href="extensionURL">extensão do UFABC Next</a>
+      <a class="text-decoration-none" :href="extensionURL">extensão do UFABC next</a>
       e as informações serão atualizadas.
     </p>
     <p class="mt-4">
@@ -32,21 +33,15 @@
         }}
       </div>
       <div class="chip">
-        <v-btn
-          icon="mdi-refresh"
-          @click="handleOpenExtensionDialog"
-          flat
-          variant="text"
-          size="x-small"
-          aria-labelledby="extension-dialog"
-        >
+        <v-btn icon="mdi-refresh" @click="handleOpenExtensionDialog" flat variant="text" size="x-small"
+          aria-labelledby="extension-dialog">
           <v-dialog v-model="extensionDialog" width="360">
             <v-card class="pa-4">
               <v-card-title class="text-h6 px-2">
                 Atualizar histórico
               </v-card-title>
               <v-card-text class="text-subtitle-2 px-2">
-                Para atualizar o seu histórico no UFABC Next, é preciso ter a
+                Para atualizar o seu histórico no UFABC next, é preciso ter a
                 <a :href="extensionURL" target="_blank">extensão</a>
                 instalada.
               </v-card-text>
@@ -77,20 +72,12 @@
     </div>
   </PaperCard>
   <PaperCard class="mt-4">
-    <div
-      v-if="!!enrollmentByDateKeysSorted.length"
-      class="horizontal-scroll-except-first-column"
-    >
+    <div v-if="!!enrollmentByDateKeysSorted.length" class="horizontal-scroll-except-first-column">
       <TableComponent>
         <template #head>
           <tr>
-            <th
-              v-for="item in tableHead"
-              :key="item"
-              :class="`text-white text-caption ${
-                item !== 'Disciplina' ? 'text-center' : ''
-              } text-uppercase`"
-            >
+            <th v-for="item in tableHead" :key="item" :class="`text-white text-caption ${item !== 'Disciplina' ? 'text-center' : ''
+              } text-uppercase`">
               {{ item }}
             </th>
           </tr>
@@ -98,11 +85,7 @@
         <template #body>
           <template v-for="date in enrollmentByDateKeysSorted" :key="date">
             <tr class="bg-white">
-              <td
-                style="position: sticky; left: 0"
-                colspan="1"
-                class="text-left"
-              >
+              <td style="position: sticky; left: 0" colspan="1" class="text-left">
                 {{ Number(date) % 10 }}
                 de
                 {{ Math.round(Number(date) / 10) }}
@@ -110,74 +93,39 @@
               <td :colspan="tableHead.length - 1"></td>
             </tr>
             <tr v-for="item in enrollmentByDate?.[date]" :key="item._id">
-              <td
-                rowspan="1"
-                colspan="1"
-                :class="`bg-secondary text-left text-next-${
-                  subjectConceptClass[item.conceito]
-                }`"
-                style="position: sticky; left: 0; z-index: 1"
-              >
+              <td rowspan="1" colspan="1" :class="`bg-secondary text-left text-next-${subjectConceptClass[item.conceito]
+                }`" style="position: sticky; left: 0; z-index: 1">
                 {{ item.disciplina }}
               </td>
               <td rowspan="1" colspan="1" class="px-2" style="max-width: 200px">
-                <div
-                  :class="`text-next-light-gray text-caption d-flex align-center ${
-                    item.teoria?.name ? 'justify-left' : 'justify-center'
-                  }`"
-                >
-                  <v-btn
-                    v-if="item.teoria?.name"
-                    flat
-                    variant="text"
-                    icon="mdi-message-draw"
-                    class="text-subtitle-2"
-                    size="x-small"
-                    @click="handleOpenDialog(item, 'teoria')"
-                  >
-                    <v-icon
-                      :color="
-                        item.comments?.includes('teoria')
-                          ? 'ufabcnext-green'
-                          : ''
-                      "
-                    />
+                <div :class="`text-next-light-gray text-caption d-flex align-center ${item.teoria?.name ? 'justify-left' : 'justify-center'
+                  }`">
+                  <v-btn v-if="item.teoria?.name" flat variant="text" icon="mdi-message-draw" class="text-subtitle-2"
+                    size="x-small" @click="handleOpenDialog(item, 'teoria')">
+                    <v-icon :color="item.comments?.includes('teoria')
+                      ? 'ufabcnext-green'
+                      : ''
+                      " />
                   </v-btn>
                   <span class="text-truncate">{{
                     item.teoria?.name || '-'
-                  }}</span>
+                    }}</span>
                 </div>
               </td>
               <td rowspan="1" colspan="1" class="px-2" style="max-width: 200px">
-                <div
-                  :class="`text-next-light-gray text-truncate text-caption d-flex align-center ${
-                    item.pratica?.name ? 'justify-left' : 'justify-center'
-                  }`"
-                >
-                  <v-btn
-                    v-if="item.pratica?.name"
-                    flat
-                    variant="text"
-                    icon="mdi-message-draw"
-                    class="text-subtitle-2"
-                    size="x-small"
-                    @click="handleOpenDialog(item, 'pratica')"
-                  >
-                    <v-icon
-                      :color="hasCommented(item) ? 'ufabcnext-green' : ''"
-                    />
+                <div :class="`text-next-light-gray text-truncate text-caption d-flex align-center ${item.pratica?.name ? 'justify-left' : 'justify-center'
+                  }`">
+                  <v-btn v-if="item.pratica?.name" flat variant="text" icon="mdi-message-draw" class="text-subtitle-2"
+                    size="x-small" @click="handleOpenDialog(item, 'pratica')">
+                    <v-icon :color="hasCommented(item) ? 'ufabcnext-green' : ''" />
                   </v-btn>
                   <span class="text-truncate">{{
                     item.pratica?.name || '-'
-                  }}</span>
+                    }}</span>
                 </div>
               </td>
-              <td
-                rowspan="1"
-                colspan="1"
-                class="font-weight-bold text-body-1"
-                :style="`color: ${conceptsColor[item.conceito]}`"
-              >
+              <td rowspan="1" colspan="1" class="font-weight-bold text-body-1"
+                :style="`color: ${conceptsColor[item.conceito]}`">
                 {{ item.conceito }}
               </td>
               <td>{{ item.creditos }}</td>
@@ -206,6 +154,7 @@
   flex-wrap: wrap;
   gap: 1rem;
 }
+
 .chip {
   min-height: 48px;
   border-radius: 4px;
@@ -222,13 +171,16 @@
   font-size: 18px;
   font-weight: 400;
   color: rgba(0, 0, 0, 0.75);
+
   & button {
     width: var(--v-btn-width);
     height: var(--v-btn-height);
   }
+
   & i {
     font-size: 20px;
   }
+
   & span {
     font-size: 16px;
   }
@@ -275,8 +227,8 @@ const handleOpenDialog = (
     enrollment.pratica?._id === enrollment.teoria?._id
       ? 'teoria e prática'
       : type === 'pratica'
-      ? 'prática'
-      : 'teoria',
+        ? 'prática'
+        : 'teoria',
     formatSeason(processedEnrollment.year + ':' + processedEnrollment.quad),
     isEAD && 'EAD',
   ].filter(Boolean) as string[];
