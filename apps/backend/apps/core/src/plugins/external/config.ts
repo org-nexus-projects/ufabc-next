@@ -26,6 +26,7 @@ const configSchema = z.object({
   AWS_REGION: z.string(),
   AWS_ACCESS_KEY_ID: z.string(),
   AWS_SECRET_ACCESS_KEY: z.string(),
+  AWS_LOGS_BUCKET: z.string().optional(),
   OAUTH_GOOGLE_CLIENT_ID: z.string(),
   OAUTH_GOOGLE_SECRET: z.string().min(16),
   BACKOFFICE_EMAILS: z

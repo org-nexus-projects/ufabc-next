@@ -1,50 +1,84 @@
-import { readdir, readFile, unlink } from 'node:fs/promises';
-import type { QueueContext } from '../types.js';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
+import {
+  mkdir,
+  readdir,
+  readFile,
+  rename,
+  stat,
+  unlink,
+} from 'node:fs/promises';
 import { join } from 'node:path';
 import { s3Client } from '@/lib/aws.service.js';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
+import type { QueueContext } from '../types.js';
+import { existsSync } from 'node:fs';
 
 type S3UploadJob = {
-  folderPath: string;
-  bucket: string;
+  bucket?: string;
+  localOnly?: boolean;
+  retentionDays?: number;
 };
+
+const LOGS_DIR = join(process.cwd(), 'logs');
+const ARCHIVE_DIR = join(LOGS_DIR, 'archive');
 
 export async function uploadLogsToS3(ctx: QueueContext<S3UploadJob>) {
   const {
-    data: { folderPath, bucket },
+    data: { bucket, localOnly = false, retentionDays = 7 },
   } = ctx.job;
 
   try {
-    const files = await readdir(folderPath);
-    const logFiles = files.filter((file) => file.startsWith('app-'));
+    ctx.app.log.info('init logs processing');
+    if (!existsSync(LOGS_DIR)) {
+      ctx.app.log.warn('No logs directory found, skipping...');
+      return;
+    }
+    if (!existsSync(ARCHIVE_DIR)) {
+      await mkdir(ARCHIVE_DIR, { recursive: true });
+    }
+    const files = await readdir(LOGS_DIR);
+    const logFiles = files.filter(
+      (file) => file.startsWith('app-') && !file.includes('archive'),
+    );
 
     for (const file of logFiles) {
-      const filePath = join(folderPath, file);
-      const fileContent = await readFile(filePath);
+      const filePath = join(LOGS_DIR, file);
+      const stats = await stat(filePath);
+      const dayOld = Date.now() - stats.mtime.getTime() > 24 * 60 * 60 * 1000;
 
-      await s3Client.send(
-        new PutObjectCommand({
-          Bucket: bucket,
-          Key: `logs/${file}`,
-          Body: fileContent,
-        }),
-      );
+      if (!dayOld) continue;
 
-      // delete after upload
-      await unlink(filePath);
+      if (!localOnly) {
+        const fileContent = await readFile(filePath);
+        await s3Client.send(
+          new PutObjectCommand({
+            Bucket: bucket,
+            Key: `logs/${file}`,
+            Body: fileContent,
+          }),
+        );
+        ctx.app.log.debug(`Uploaded to S3: ${file}`);
+      }
 
-      ctx.app.log.debug({
-        msg: 'Log file uploaded to S3',
-        file,
-        bucket,
-      });
+      // Move to archive
+      const archivePath = join(ARCHIVE_DIR, file);
+      await rename(filePath, archivePath);
+      ctx.app.log.debug(`Archived: ${file}`);
+
+      // Clean old archives
+      const archiveStats = await stat(archivePath);
+      const isOld =
+        Date.now() - archiveStats.mtime.getTime() >
+        retentionDays * 24 * 60 * 60 * 1000;
+
+      if (isOld) {
+        await unlink(archivePath);
+        ctx.app.log.debug(`Deleted old archive: ${file}`);
+      }
     }
   } catch (error) {
     ctx.app.log.error({
-      msg: 'Error uploading logs to S3',
+      msg: 'Error managing log files',
       error: error instanceof Error ? error.message : String(error),
-      folderPath,
-      bucket,
     });
     throw error;
   }
