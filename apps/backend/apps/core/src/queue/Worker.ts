@@ -87,6 +87,7 @@ export class QueueWorker {
   public async close() {
     const workersToClose = Object.values(this.workers);
     await Promise.all(workersToClose.map((worker) => worker.close()));
+    this.app.log.info('closing workers...');
   }
 
   private WorkerHandler<TData>(ctx: QueueContext<TData>) {
