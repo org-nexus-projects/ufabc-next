@@ -1,27 +1,12 @@
 <template>
-  <CenteredLoading
-    class="mt-10"
-    v-if="
-      isPendingCrHistory || isPendingCpHistory || isPendingCrDistributionData
-    "
-  />
+  <CenteredLoading class="mt-10" v-if="
+    isPendingCrHistory || isPendingCpHistory || isPendingCrDistributionData
+  " />
   <v-layout class="flex-column align-center justify-center" v-else>
     <v-row align="stretch" no-gutters class="w-100">
-      <v-col
-        v-for="card in cards"
-        :key="card.title"
-        cols="12"
-        sm="3"
-        class="mb-2 mb-sm-0"
-      >
-        <PerformanceCard
-          :title="card.title"
-          :subTitle="card.subtitle"
-          :description="card.content"
-          :color="card.color"
-          :icon="card.icon"
-          :tooltip="card?.tooltip"
-        >
+      <v-col v-for="card in cards" :key="card.title" cols="12" sm="3" class="mb-2 mb-sm-0">
+        <PerformanceCard :title="card.title" :subTitle="card.subtitle" :description="card.content" :color="card.color"
+          :icon="card.icon" :tooltip="card?.tooltip">
         </PerformanceCard>
       </v-col>
     </v-row>
@@ -29,14 +14,8 @@
       <Chart :options="crHistoryOptions" />
     </PaperCard>
     <PaperCard class="w-100 mt-4">
-      <v-select
-        :items="cpHistoryData"
-        :item-title="(course) => course.curso"
-        :item-value="(course) => course"
-        v-model="currentCpCourse"
-        variant="outlined"
-        class="course-select"
-      />
+      <v-select :items="cpHistoryData" :item-title="(course) => course.curso" :item-value="(course) => course"
+        v-model="currentCpCourse" variant="outlined" class="course-select" />
       <Chart :options="cpHistoryOptions" />
     </PaperCard>
     <PaperCard class="w-100 mt-4">
@@ -87,6 +66,7 @@ const { data: crHistoryData, isPending: isPendingCrHistory } = useQuery({
 });
 
 const crHistorySeries = computed(() => {
+  console.log('crHistorySeries', crHistoryData.value)
   const arrCrHistory = crHistoryData.value?.map((quad) => {
     const roundedCr = parseFloat(quad.cr_acumulado.toFixed(2));
     return [formatSeason(quad.season), roundedCr];
@@ -184,6 +164,7 @@ const { data: crDistributionData, isPending: isPendingCrDistributionData } =
     select: (response) => response.data,
   });
 
+console.log('crDistributionSeries', crDistributionData.value)
 const crDistributionSeries = computed(() => {
   const arrCrDistribution = crDistributionData.value?.map((element) => {
     return [Number(element._id), element.total];
@@ -249,6 +230,7 @@ const crDistributionOptions = ref({
 });
 
 const userMaxCr = computed(() => {
+  console.log('maxCR', crHistoryData.value)
   const crAcumulados = crHistoryData.value?.map((quad) => quad.cr_acumulado);
   if (crAcumulados) {
     return Math.max(...crAcumulados).toFixed(2);

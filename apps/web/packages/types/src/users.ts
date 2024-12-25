@@ -22,4 +22,5 @@ export type User = {
   ra: number;
   createdAt: string;
   devices: Device[];
+  permissions: string[];
 };
