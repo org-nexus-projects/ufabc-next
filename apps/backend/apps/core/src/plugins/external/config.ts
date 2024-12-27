@@ -33,6 +33,7 @@ const configSchema = z.object({
     .string()
     .optional()
     .transform((s) => s?.split(',')),
+  BOARD_PATH: z.string().optional().default('/board/ui'),
 });
 
 const schema = zodToJsonSchema(configSchema);

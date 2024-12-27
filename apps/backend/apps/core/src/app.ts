@@ -26,14 +26,6 @@ export async function buildApp(
     options: { ...opts },
   });
 
-  app.addHook('onRequest', async (req, reply) => {
-    if (req.url.startsWith('/board/ui')) {
-      return reply.unauthorized();
-    }
-
-    return;
-  });
-
   // TODO: validate this idea
   app.register(fastifyAutoload, {
     dir: join(import.meta.dirname, 'routes'),
