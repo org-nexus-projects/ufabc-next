@@ -106,9 +106,11 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         msg: 'Logging admin',
         userId,
       });
-      const redirectURL = `${app.config.PROTOCOL}://${request.host}${app.config.BOARD_PATH}`;
-
-      return reply.redirect(redirectURL);
+      const redirectURL = new URL(
+        app.config.BOARD_PATH,
+        `${app.config.PROTOCOL}://${request.host}`,
+      );
+      return reply.redirect(redirectURL.href);
     },
   );
 };
