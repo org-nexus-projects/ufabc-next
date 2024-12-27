@@ -5,10 +5,10 @@ import { z } from 'zod';
 const graduationsListSchema = z.object({
   curso: z.string(),
   grade: z.string(),
-  credits_total: z.number().int().nullable(),
-  free_credits_number: z.number().int().nullable(),
-  limited_credits_number: z.number().int().nullable(),
-  mandatory_credits_number: z.number().int().nullable(),
+  credits_total: z.number().int().nullish(),
+  free_credits_number: z.number().int().nullish(),
+  limited_credits_number: z.number().int().nullish(),
+  mandatory_credits_number: z.number().int().nullish(),
 });
 
 export type GraduationList = z.infer<typeof graduationsListSchema>;
@@ -46,12 +46,12 @@ export const listStudentStats = {
 export const listComponentsResume = {
   params: z.object({
     action: z
-    .union([
-      z.literal('overview'),
-      z.literal('component'),
-      z.literal('courses'),
-    ])
-    .optional()
+      .union([
+        z.literal('overview'),
+        z.literal('component'),
+        z.literal('courses'),
+      ])
+      .optional(),
   }),
   querystring: z.object({
     season: z.string().optional().default(currentQuad()),
@@ -64,10 +64,10 @@ export const listComponentsResume = {
   response: {
     200: {
       content: {
-        "application/json": {
-          schema: z.any()
-        }
-      }
-    }
-  }
-} satisfies FastifyZodOpenApiSchema
+        'application/json': {
+          schema: z.any(),
+        },
+      },
+    },
+  },
+} satisfies FastifyZodOpenApiSchema;

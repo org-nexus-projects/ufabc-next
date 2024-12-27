@@ -1,5 +1,9 @@
 import { UserModel, type User } from '@/models/User.js';
-import { loginSchema, type LegacyGoogleUser } from '@/schemas/login.js';
+import {
+  jobsLoginSchema,
+  loginSchema,
+  type LegacyGoogleUser,
+} from '@/schemas/login.js';
 import type { Token } from '@fastify/oauth2';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import { Types } from 'mongoose';
@@ -36,6 +40,13 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           );
         const oauthUser = await getUserDetails(token);
         const user = await createOrLogin(oauthUser, userId);
+        request.log.info(
+          {
+            ufabcEmail: user.email,
+            _id: user._id,
+          },
+          'user logged successfully',
+        );
         const jwtToken = this.jwt.sign(
           {
             _id: user._id,
@@ -47,7 +58,11 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           { expiresIn: '7d' },
         );
 
-        return reply.redirect(`http://localhost:3000/login?token=${jwtToken}`);
+        const redirectURL = new URL('login', app.config.WEB_URL);
+
+        redirectURL.searchParams.append('token', jwtToken);
+
+        return reply.redirect(redirectURL.href);
       } catch (error: any) {
         if (error?.data?.payload) {
           reply.log.error({ error: error.data.payload }, 'Error in oauth2');
@@ -60,6 +75,40 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           'Algo de errado aconteceu no seu login, tente novamente',
         );
       }
+    },
+  );
+
+  app.get(
+    '/jobs-monitoring',
+    { schema: jobsLoginSchema },
+    async (request, reply) => {
+      const { userId } = request.query;
+      const user = await UserModel.findById(userId);
+
+      if (!user) {
+        request.log.warn({
+          msg: 'Unregistered user',
+          userId,
+        });
+        return reply.notFound('User not found');
+      }
+
+      if (!user.permissions.includes('admin')) {
+        request.log.warn({
+          msg: 'Unauthorized jobs request',
+          userId,
+          email: user.email,
+        });
+        return reply.unauthorized();
+      }
+
+      request.log.info({
+        msg: 'Logging admin',
+        userId,
+      });
+      const redirectURL = `${app.config.PROTOCOL}://${request.host}/board/ui`;
+
+      return reply.redirect(redirectURL);
     },
   );
 };

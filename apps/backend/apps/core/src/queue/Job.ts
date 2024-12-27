@@ -151,6 +151,7 @@ export class Jobs implements JobImpl {
   async close() {
     const jobsToClose = Object.values(this.queues);
     await Promise.all(jobsToClose.map((queue) => queue.close()));
+    this.app.log.info('closing queues...');
   }
 
   async clean(
@@ -175,18 +176,6 @@ export class Jobs implements JobImpl {
 
   board() {
     const bullBoard = createBoard(Object.values(this.queues));
-    // this.app.addHook('onRequest', async (request, reply) => {
-    //   try {
-    //     if (request.url.startsWith(boardUiPath)) {
-    //       await request.jwtVerify();
-    //     }
-    //     return;
-    //   } catch (error) {
-    //     return reply
-    //       .status(401)
-    //       .send({ error: 'Unauthorized', message: 'Authentication Failed' });
-    //   }
-    // });
     this.app.register(bullBoard.registerPlugin(), {
       prefix: boardUiPath,
       basePath: boardUiPath,
