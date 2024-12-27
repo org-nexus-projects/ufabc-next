@@ -29,7 +29,7 @@ export default fp(
     app.decorate('worker', worker);
     app.decorate('job', jobs);
 
-    // app.job.board();
+    app.job.board();
 
     app.log.info('[QUEUE] registered');
   },
