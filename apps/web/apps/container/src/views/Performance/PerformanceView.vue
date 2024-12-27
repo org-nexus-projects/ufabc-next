@@ -66,7 +66,6 @@ const { data: crHistoryData, isPending: isPendingCrHistory } = useQuery({
 });
 
 const crHistorySeries = computed(() => {
-  console.log('crHistorySeries', crHistoryData.value)
   const arrCrHistory = crHistoryData.value?.map((quad) => {
     const roundedCr = parseFloat(quad.cr_acumulado.toFixed(2));
     return [formatSeason(quad.season), roundedCr];
@@ -164,7 +163,6 @@ const { data: crDistributionData, isPending: isPendingCrDistributionData } =
     select: (response) => response.data,
   });
 
-console.log('crDistributionSeries', crDistributionData.value)
 const crDistributionSeries = computed(() => {
   const arrCrDistribution = crDistributionData.value?.map((element) => {
     return [Number(element._id), element.total];
@@ -230,7 +228,6 @@ const crDistributionOptions = ref({
 });
 
 const userMaxCr = computed(() => {
-  console.log('maxCR', crHistoryData.value)
   const crAcumulados = crHistoryData.value?.map((quad) => quad.cr_acumulado);
   if (crAcumulados) {
     return Math.max(...crAcumulados).toFixed(2);
