@@ -70,12 +70,13 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       msg: 'Synced Successfully',
     });
 
-    historyCache.set(cacheKey, history?.toJSON() as NonNullable<History>);
+    const flattenJsonHistory = history?.toJSON() as unknown as History;
+    historyCache.set(cacheKey, flattenJsonHistory);
 
     // dispatch coefficients job.
     await app.job.dispatch(
       'UserEnrollmentsUpdate',
-      history as NonNullable<HistoryDocument>,
+      history as unknown as HistoryDocument,
     );
     return {
       msg: history
