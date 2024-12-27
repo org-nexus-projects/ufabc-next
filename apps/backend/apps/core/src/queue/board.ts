@@ -6,7 +6,7 @@ import type { Queue } from 'bullmq';
 export const boardUiPath = process.env.BOARD_PATH as string;
 export function createBoard(queues: Queue[]) {
   const adapter = new FastifyAdapter();
-  adapter.setBasePath(boardUiPath ?? '/jobs');
+  adapter.setBasePath(boardUiPath ?? '/board');
 
   createBullBoard({
     serverAdapter: adapter,
