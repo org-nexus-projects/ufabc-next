@@ -9,6 +9,7 @@ import type { preHandlerAsyncHookHandler } from 'fastify';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import type { SubjectDocument } from '@/models/Subject.js';
 import type { TeacherDocument } from '@/models/Teacher.js';
+import { currentQuad } from '@next/common';
 
 const validateStudent: preHandlerAsyncHookHandler = async (request, reply) => {
   const { studentId, season } = request.query as {
@@ -42,7 +43,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     const components = await ComponentModel.find(
       {
         // @ts-ignore
-        season: request.query.season,
+        season: request.query.season ?? currentQuad(),
       },
       {
         _id: 0,
