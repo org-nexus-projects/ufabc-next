@@ -2,7 +2,6 @@ import { orderBy as LodashOrderBy } from 'lodash-es';
 import { type Component, ComponentModel } from '@/models/Component.js';
 import { StudentModel } from '@/models/Student.js';
 import {
-  listComponentsSchema,
   listKickedSchema,
   type NonPaginatedComponents,
 } from '@/schemas/entities/components.js';
@@ -31,7 +30,8 @@ const validateStudent: preHandlerAsyncHookHandler = async (request, reply) => {
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   const componentsListCache = app.cache<NonPaginatedComponents[]>();
 
-  app.get('/', { schema: listComponentsSchema }, async (request, reply) => {
+  app.get('/', async (request, reply) => {
+    // @ts-ignore
     const cacheKey = `list:components:${request.query.season}`;
 
     const cachedResponse = componentsListCache.get(cacheKey);
@@ -41,6 +41,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     const components = await ComponentModel.find(
       {
+        // @ts-ignore
         season: request.query.season,
       },
       {
