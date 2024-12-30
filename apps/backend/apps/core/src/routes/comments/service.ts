@@ -1,7 +1,7 @@
 import { type Comment, CommentModel } from '@/models/Comment.js';
 import { EnrollmentModel } from '@/models/Enrollment.js';
 import { type Reaction, ReactionModel } from '@/models/Reaction.js';
-import type { FilterQuery, Types } from 'mongoose';
+import type { AnyObject, FilterQuery, ObjectId, Types } from 'mongoose';
 
 export async function getUserEnrollments(ra: number) {
   const userEnrollments = await EnrollmentModel.find({
@@ -27,7 +27,7 @@ export async function insert(comment: Partial<Comment>) {
   return createdComment;
 }
 
-export async function findCommentById(commentId: string) {
+export async function findCommentById(commentId: Types.ObjectId) {
   const comment = await CommentModel.findOne({
     _id: commentId,
     active: true,
@@ -36,18 +36,31 @@ export async function findCommentById(commentId: string) {
   return comment;
 }
 
-export async function getReactions(
-  teacherId: string,
-  subjectId: string,
-  userId: Types.ObjectId,
-  limit: number,
-  page: number,
-) {
+type GetReactionQuery = {
+  teacherId: Types.ObjectId;
+  subjectId?: Types.ObjectId | null;
+  userId: Types.ObjectId;
+  limit: number;
+  page: number;
+};
+
+export async function getReactions({
+  subjectId,
+  teacherId,
+  userId,
+  page,
+  limit,
+}: GetReactionQuery) {
+  const filter: FilterQuery<AnyObject> = {
+    teacherId,
+  };
+
+  if (subjectId) {
+    filter.subjectId = subjectId;
+  }
+
   const reactions = await CommentModel.commentsByReaction(
-    {
-      teacher: teacherId,
-      subject: subjectId,
-    },
+    filter,
     userId,
     ['enrollment', 'subject'],
     limit,
@@ -69,7 +82,7 @@ export async function findReactionById(filter: FilterQuery<Reaction>) {
   return reaction;
 }
 
-export async function deleteReaction(commentId: string) {
+export async function deleteReaction(commentId: Types.ObjectId) {
   const deletedReaction = await ReactionModel.deleteOne({ comment: commentId });
   return deletedReaction;
 }

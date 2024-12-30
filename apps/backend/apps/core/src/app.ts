@@ -85,27 +85,33 @@ export async function buildApp(
       });
     }
 
-    app.log.error(
-      {
-        error,
-        request: {
-          method: request.method,
-          url: request.url,
-          query: request.query,
-          params: request.params,
-        },
-      },
-      'Unhandled error occurred',
-    );
-
-    reply.code(error.statusCode ?? 500);
-
-    let message = 'Internal Server Error';
-    if (error.statusCode && error.statusCode < 500) {
-      message = error.message;
+    if (!error) {
+      return;
     }
 
-    return { message };
+    if (error) {
+      app.log.error(
+        {
+          error,
+          request: {
+            method: request.method,
+            url: request.url,
+            query: request.query,
+            params: request.params,
+          },
+        },
+        'Unhandled error occurred',
+      );
+
+      reply.code(error.statusCode ?? 500);
+
+      let message = 'Internal Server Error';
+      if (error.statusCode && error.statusCode < 500) {
+        message = error.message;
+      }
+
+      return { message };
+    }
   });
 
   app.setNotFoundHandler(

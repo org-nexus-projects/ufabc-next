@@ -142,6 +142,32 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   );
 
   app.get(
+    '/:teacherId',
+    { schema: commentsOnTeacherSchema },
+    async (request, reply) => {
+      const { teacherId } = request.params;
+      const { limit, page } = request.query;
+
+      if (!teacherId) {
+        request.log.warn({ params: request.params }, 'Missing teacherId');
+        return reply.badRequest('teacherId was not passed');
+      }
+
+      const { data, total } = await getReactions({
+        teacherId,
+        userId: new Types.ObjectId(request.user._id),
+        limit,
+        page,
+      });
+
+      return {
+        data,
+        total,
+      };
+    },
+  );
+
+  app.get(
     '/:teacherId/:subjectId',
     { schema: commentsOnTeacherSchema },
     async (request, reply) => {
@@ -153,13 +179,13 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         return reply.badRequest('teacherId was not passed');
       }
 
-      const { data, total } = await getReactions(
+      const { data, total } = await getReactions({
         teacherId,
         subjectId,
-        new Types.ObjectId(request.user._id),
+        userId: new Types.ObjectId(request.user._id),
         limit,
         page,
-      );
+      });
 
       return {
         data,
