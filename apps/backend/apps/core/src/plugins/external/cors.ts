@@ -5,6 +5,20 @@ import type { FastifyInstance } from 'fastify';
 export async function cors(app: FastifyInstance) {
   try {
     await app.register(fastifyCors, {
+      origin: '*',
+    });
+    app.log.info(
+      `[PLUGIN] CORS, allowed for origins: ${app.config.ALLOWED_ORIGINS}`,
+    );
+  } catch (error) {
+    app.log.error(error, '[PLUGIN] error in Cors');
+  }
+}
+
+export default fp(cors, { name: 'Cors' });
+
+/**
+ * , {
       origin: (origin, cb) => {
         if (!origin) {
           cb(null, true);
@@ -30,13 +44,5 @@ export async function cors(app: FastifyInstance) {
         'Accept',
         'Authorization',
       ],
-    });
-    app.log.info(
-      `[PLUGIN] CORS, allowed for origins: ${app.config.ALLOWED_ORIGINS}`,
-    );
-  } catch (error) {
-    app.log.error(error, '[PLUGIN] error in Cors');
-  }
-}
-
-export default fp(cors, { name: 'Cors' });
+    }
+ */
