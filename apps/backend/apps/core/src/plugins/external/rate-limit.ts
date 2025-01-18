@@ -1,5 +1,5 @@
 import fastifyRateLimit from '@fastify/rate-limit';
-import type { FastifyInstance } from 'fastify';
+// import type { FastifyInstance } from 'fastify';
 
 // export const autoConfig = (app: FastifyInstance) => {
 //   return {
@@ -8,9 +8,9 @@ import type { FastifyInstance } from 'fastify';
 //   };
 // };
 
-// /**
-//  * This plugins is low overhead rate limiter for your routes.
-//  *
-//  * @see {@link https://github.com/fastify/fastify-helmet}
-//  */
-// export default fastifyRateLimit;
+/**
+ * This plugins is low overhead rate limiter for your routes.
+ *
+ * @see {@link https://github.com/fastify/fastify-helmet}
+ */
+export default fastifyRateLimit;
