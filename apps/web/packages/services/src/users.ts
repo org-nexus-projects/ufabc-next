@@ -21,6 +21,10 @@ export type UserConfirmResponse = {
   token: string;
 };
 
+export type EmailResponse = {
+  email: string;
+};
+
 export const Users = {
   completeSignup: (params: UserSignup) => api.put('/users/complete', params),
   confirmSignup: (token: string) =>
@@ -31,4 +35,5 @@ export const Users = {
   info: () => api.get<User>('/users/info'),
   facebookAuth: (params: FacebookAuth) =>
     api.post<FacebookConfirmResponse>('/facebook/sync', params),
+  getEmail: (ra: string) => api.get<EmailResponse>(`/users/check-email/${ra}`)
 };
