@@ -175,6 +175,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get(
     '/check-email',
     { schema: validateUserEmailSchema },
+    // @ts-ignore
     async (request, reply) => {
       const { ra } = request.query;
 
