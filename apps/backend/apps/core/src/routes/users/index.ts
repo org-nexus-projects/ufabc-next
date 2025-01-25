@@ -200,7 +200,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         return reply.badRequest('User must not have contract with UFABC');
       }
 
-      return checkUser.email[0];
+      return { email: checkUser.email[0] };
     },
   );
 };
