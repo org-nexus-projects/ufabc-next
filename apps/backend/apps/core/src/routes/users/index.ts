@@ -1,4 +1,5 @@
 import { UserModel } from '@/models/User.js';
+import { getEmployeeData, getStudentData } from '@/modules/email-validator.js';
 import {
   completeUserSchema,
   userAuthSchema,
@@ -9,15 +10,14 @@ import {
   deactivateUserSchema,
   loginFacebookSchema,
   resendEmailSchema,
+  validateUserEmailSchema,
 } from '@/schemas/user.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   const usersCache = app.cache<Auth>();
   app.get('/info', { schema: userAuthSchema }, async (request, reply) => {
-    const cachedResponse = usersCache.get(
-      `user:info:${request.user._id}`,
-    );
+    const cachedResponse = usersCache.get(`user:info:${request.user._id}`);
     if (cachedResponse) {
       return cachedResponse;
     }
@@ -169,6 +169,38 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       return {
         message: 'Foi bom te ter aqui =)',
       };
+    },
+  );
+
+  app.get(
+    '/check-email',
+    { schema: validateUserEmailSchema },
+    // @ts-ignore
+    async (request, reply) => {
+      const { ra } = request.query;
+
+      const checkUser = await getStudentData(ra);
+
+      if (!checkUser) {
+        return reply.badRequest('User does not exist');
+      }
+
+      const employeePromises = checkUser.email.map(
+        async (email) => await getEmployeeData(email),
+      );
+      const employees = await Promise.all(employeePromises);
+      const validEmployees = employees.filter((employee) => employee !== null);
+
+      if (validEmployees.length > 0) {
+        request.log.warn('UFABC employee', {
+          employeeId: validEmployees[0].siape,
+          area: validEmployees[0].unidade_exercicio,
+          name: validEmployees[0].nome,
+        });
+        return reply.badRequest('User must not have contract with UFABC');
+      }
+
+      return checkUser.email[0];
     },
   );
 };

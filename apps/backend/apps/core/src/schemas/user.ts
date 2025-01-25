@@ -79,3 +79,33 @@ export const confirmUserSchema = {
     },
   },
 } satisfies FastifyZodOpenApiSchema;
+
+export const validateUserEmailSchema = {
+  querystring: z.object({
+    ra: z.string().describe('Student ID (RA) of the user to validate'),
+  }),
+  response: {
+    400: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            message: z
+              .string()
+              .describe(
+                'Error message when the user does not exist or is an UFABC employee',
+              ),
+          }),
+        },
+      },
+    },
+    200: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            email: z.string().describe('Valid email address of the user'),
+          }),
+        },
+      },
+    },
+  },
+} satisfies FastifyZodOpenApiSchema;
