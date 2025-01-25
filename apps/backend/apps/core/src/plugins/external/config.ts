@@ -34,6 +34,7 @@ const configSchema = z.object({
     .optional()
     .transform((s) => s?.split(',')),
   BOARD_PATH: z.string().optional(),
+  EMAIL_API: z.string().optional(),
 });
 
 const schema = zodToJsonSchema(configSchema);
