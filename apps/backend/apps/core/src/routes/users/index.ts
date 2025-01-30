@@ -197,7 +197,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           area: validEmployees[0].unidade_exercicio,
           name: validEmployees[0].nome,
         });
-        return reply.badRequest('O aluno não pode ter contrato de trabalho com a UFABC');
+        return reply.forbidden('O aluno não pode ter contrato de trabalho com a UFABC');
       }
 
       return { email: checkUser.email[0] };
