@@ -1,4 +1,5 @@
 <template>
+  <FeedbackAlert v-if="fetchEmailError" text="O RA digitado não existe. Por favor, tente novamente" />
   <v-form @submit.prevent="onSubmit">
     <v-container class="container pt-md-10">
       <v-row class="d-flex mb-5 flex-grow-0">
@@ -55,19 +56,18 @@
               Falta pouco para completar o seu cadastro
             </h1>
 
-            <v-text-field v-model.trim="ra.value.value" label="Insira seu RA" variant="solo" class="mb-4 w-100"
-              placeholder="11201911111" prepend-inner-icon="mdi-school" :error-messages="ra.errorMessage.value" />
-            
-              <v-text-field v-model.trim="raConfirm.value.value" label="Confirme seu RA" variant="solo" class="w-100"
+            <v-text-field v-model.trim="ra.value.value" @update:focused="getUserEmail" label="Insira seu RA"
+              :disabled="isFetchEmailLoading" variant="solo" class="mb-4 w-100" placeholder="11201911111"
+              prepend-inner-icon="mdi-school" :error-messages="ra.errorMessage.value" />
+
+            <v-text-field v-model.trim="raConfirm.value.value" @update:focused="getUserEmail"
+              :disabled="isFetchEmailLoading" label="Confirme seu RA" variant="solo" class="w-100"
               placeholder="11201911111" prepend-inner-icon="mdi-school-outline"
               :error-messages="raConfirm.errorMessage.value" />
-          
-              <v-text-field  @click="getEmail('ra')" v-model.trim="ra.value.value" label="Email institucional" variant="solo" class="mb-4 w-100"
-              placeholder="joao.silva" prepend-inner-icon="mdi-email" :error-messages="email.errorMessage.value"
-               readonly/>
-            
 
-
+            <v-text-field v-model.trim="email.value.value" :loading="isFetchEmailLoading" :disabled="true"
+              label="Email institucional" variant="solo" class="mb-4 w-100" placeholder="joao.silva"
+              prepend-inner-icon="mdi-email" :error-messages="email.errorMessage.value" readonly />
             <v-checkbox v-model="check.value.value" :error-messages="check.errorMessage.value" class="align-self-start">
               <template #label>
                 <span>
@@ -150,7 +150,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useMutation, useQuery } from '@tanstack/vue-query';
 import { Users } from 'services';
 import { z } from 'zod';
@@ -160,8 +160,8 @@ import { AxiosError } from 'axios';
 import { RequestError } from 'types';
 import { ElMessage } from 'element-plus';
 import { useDisplay } from 'vuetify';
-import { watch } from 'vue';
 import { useAuth } from '@/stores/useAuth';
+import { FeedbackAlert } from '@/components/FeedbackAlert';
 const { logOut } = useAuth();
 
 const handleLogout = () => {
@@ -185,10 +185,6 @@ const validationSchema = toTypedSchema(
           required_error: 'Este campo é obrigatório',
           invalid_type_error: 'Digite um email UFABC válido',
         })
-        .refine(
-          (email) => !/@/.test(email),
-          'Não digite o conteúdo depois do @',
-        )
         .refine((email) => /^\S+$/.test(email), 'Não digite espaços em branco'),
       ra: z
         .object({
@@ -257,13 +253,26 @@ const onSubmit = handleSubmit(({ email, ra }) =>
   }),
 );
 
-const getEmail = useQuery({
+const isFetchEmailEnabled = computed(() => raConfirm.value.value === ra.value.value);
+const { refetch: fetchEmail, isLoading: isFetchEmailLoading, data: verifiedEmail, error: fetchEmailError } = useQuery({
   queryKey: ['email'],
-  queryFn: () => Users.getEmail(ra.value.value),
-  select: (response) => response.data,
+  queryFn: async () => await Users.getEmail(ra.value.value),
+  enabled: false,
 });
 
-console.log(getEmail.data)  
+const getUserEmail = (fieldState: boolean) => {
+  if (fieldState || !ra.value.value || !isFetchEmailEnabled.value) {
+    return;
+  }
+
+  fetchEmail();
+};
+
+watch(() => verifiedEmail.value, (newEmail) => {
+  if (newEmail) {
+    email.value.value = newEmail.data.email
+  }
+})
 
 const { mutate: mutateResendEmail, isPending: isPendingResendEmail } =
   useMutation({

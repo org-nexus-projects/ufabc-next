@@ -35,5 +35,6 @@ export const Users = {
   info: () => api.get<User>('/users/info'),
   facebookAuth: (params: FacebookAuth) =>
     api.post<FacebookConfirmResponse>('/facebook/sync', params),
-  getEmail: (ra: string) => api.get<EmailResponse>(`/users/check-email/${ra}`)
+  getEmail: (ra: string) =>
+    api.get<EmailResponse>('/users/check-email', { params: { ra } }),
 };
