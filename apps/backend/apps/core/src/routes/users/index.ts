@@ -43,32 +43,32 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return userInfo;
   });
 
-  app.post(
-    '/facebook',
-    { schema: loginFacebookSchema },
-    async (request, reply) => {
-      const user = await UserModel.findOne({
-        ra: request.body.ra,
-        'oauth.emailFacebook': request.body.email,
-      });
+  // app.post(
+  //   '/facebook',
+  //   { schema: loginFacebookSchema },
+  //   async (request, reply) => {
+  //     const user = await UserModel.findOne({
+  //       ra: request.body.ra,
+  //       'oauth.emailFacebook': request.body.email,
+  //     });
 
-      if (!user) {
-        return reply.notFound('User not found');
-      }
+  //     if (!user) {
+  //       return reply.notFound('User not found');
+  //     }
 
-      const jwtToken = app.jwt.sign(
-        {
-          studentId: user._id.toJSON(),
-          active: user.active,
-          confirmed: user.confirmed,
-          email: user.email,
-        },
-        { expiresIn: '2d' },
-      );
+  //     const jwtToken = app.jwt.sign(
+  //       {
+  //         studentId: user._id.toJSON(),
+  //         active: user.active,
+  //         confirmed: user.confirmed,
+  //         email: user.email,
+  //       },
+  //       { expiresIn: '2d' },
+  //     );
 
-      return { success: true, token: jwtToken };
-    },
-  );
+  //     return { success: true, token: jwtToken };
+  //   },
+  // );
 
   app.post('/resend', { schema: resendEmailSchema }, async (request, reply) => {
     const user = await UserModel.findOne({
