@@ -1,3 +1,4 @@
+import axios from 'axios';
 import type { User } from 'types';
 
 import { api } from './api';
@@ -37,4 +38,12 @@ export const Users = {
     api.post<FacebookConfirmResponse>('/facebook/sync', params),
   getEmail: (ra: string) =>
     api.get<EmailResponse>('/users/check-email', { params: { ra } }),
+};
+
+export const UsersV2 = {
+  getEmail: (ra: string) =>
+    axios.get('/users/check-email', {
+      baseURL: 'https://api.v2.ufabcnext.com',
+      params: { ra },
+    }),
 };

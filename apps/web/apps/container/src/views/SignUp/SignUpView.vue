@@ -1,5 +1,5 @@
 <template>
-  <FeedbackAlert v-if="fetchEmailError" text="O RA digitado não existe. Por favor, tente novamente" />
+  <FeedbackAlert v-if="fetchEmailError" :text="handleEmailError" />
   <v-form @submit.prevent="onSubmit">
     <v-container class="container pt-md-10">
       <v-row class="d-flex mb-5 flex-grow-0">
@@ -152,7 +152,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
 import { useMutation, useQuery } from '@tanstack/vue-query';
-import { Users } from 'services';
+import { Users, UsersV2 } from 'services';
 import { z } from 'zod';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm, useField } from 'vee-validate';
@@ -256,9 +256,22 @@ const onSubmit = handleSubmit(({ email, ra }) =>
 const isFetchEmailEnabled = computed(() => raConfirm.value.value === ra.value.value);
 const { refetch: fetchEmail, isLoading: isFetchEmailLoading, data: verifiedEmail, error: fetchEmailError } = useQuery({
   queryKey: ['email'],
-  queryFn: async () => await Users.getEmail(ra.value.value),
+  queryFn: () => UsersV2.getEmail(ra.value.value),
   enabled: false,
 });
+
+const handleEmailError = computed(() => {
+  if (fetchEmailError.value.response.status === 400) {
+    return fetchEmailError.value.response.data.message
+  }
+
+  if (fetchEmailError.value.response.status === 403) {
+    return fetchEmailError.value.response.data.message
+  }
+
+  return 'Um Erro inesperado ocorreu, tente novamente'
+})
+
 
 const getUserEmail = (fieldState: boolean) => {
   if (fieldState || !ra.value.value || !isFetchEmailEnabled.value) {
