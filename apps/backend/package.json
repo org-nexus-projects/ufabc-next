@@ -2,6 +2,7 @@
   "name": "ufabc-next-backend",
   "version": "0.0.1",
   "private": false,
+  "packageManager": "pnpm@9.7.0",
   "type": "module",
   "scripts": {
     "dev": "turbo run dev --parallel",
@@ -16,5 +17,9 @@
     "@biomejs/biome": "^1.8.2",
     "tsx": "^4.15.7",
     "turbo": "^2.0.4"
+  },
+  "engines": {
+    "node": "^22",
+    "pnpm": "^9"
   }
 }
