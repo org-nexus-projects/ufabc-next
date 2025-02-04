@@ -8,7 +8,6 @@ import {
 import {
   confirmUserSchema,
   deactivateUserSchema,
-  loginFacebookSchema,
   resendEmailSchema,
   validateUserEmailSchema,
 } from '@/schemas/user.js';
@@ -182,7 +181,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const checkUser = await getStudentData(ra);
 
       if (!checkUser) {
-        return reply.badRequest('O RA digitado não existe. Por favor, tente novamente');
+        return reply.badRequest(
+          'O RA digitado não existe. Por favor, tente novamente',
+        );
       }
 
       const employeePromises = checkUser.email.map(
@@ -197,7 +198,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           area: validEmployees[0].unidade_exercicio,
           name: validEmployees[0].nome,
         });
-        return reply.forbidden('O aluno não pode ter contrato de trabalho com a UFABC');
+        return reply.forbidden(
+          'O aluno não pode ter contrato de trabalho com a UFABC',
+        );
       }
 
       return { email: checkUser.email[0] };
