@@ -7,7 +7,7 @@
           <img height="32" src="@/assets/logo.svg" alt="logo do UFABC Next" />
           <v-btn v-if="!smAndDown" @click="handleLogout" prepend-icon="mdi-exit-to-app"
             style="text-transform: unset !important" color="ufabcnext-red">
-            Usar outra conta do google/facebook
+            Usar outra conta do google
           </v-btn>
         </v-col>
       </v-row>
@@ -55,7 +55,6 @@
             <h1 class="text-h6 text-md-h5 text-center text-md-start font-weight-bold mb-4">
               Falta pouco para completar o seu cadastro
             </h1>
-
             <v-text-field v-model.trim="ra.value.value" @update:focused="getUserEmail" label="Insira seu RA"
               :disabled="isFetchEmailLoading" variant="solo" class="mb-4 w-100" placeholder="11201911111"
               prepend-inner-icon="mdi-school" :error-messages="ra.errorMessage.value" />
@@ -68,6 +67,7 @@
             <v-text-field v-model.trim="email.value.value" :loading="isFetchEmailLoading" :disabled="true"
               label="Email institucional" variant="solo" class="mb-4 w-100" placeholder="joao.silva"
               prepend-inner-icon="mdi-email" :error-messages="email.errorMessage.value" readonly />
+              
             <v-checkbox v-model="check.value.value" :error-messages="check.errorMessage.value" class="align-self-start">
               <template #label>
                 <span>
@@ -136,11 +136,11 @@
       </v-row>
       <v-row v-if="smAndDown">
         <v-col class="d-flex justify-end w-100">
-          <v-btn label="Usar outra conta do google/facebook" @click="handleLogout" prepend-icon="mdi-exit-to-app"
+          <v-btn label="Usar outra conta do google" @click="handleLogout" prepend-icon="mdi-exit-to-app"
             style="text-transform: unset !important" color="ufabcnext-red" size="large">
             <div>
               <p>Usar outra conta do</p>
-              <p>google/facebook</p>
+              <p>google</p>
             </div>
           </v-btn>
         </v-col>
