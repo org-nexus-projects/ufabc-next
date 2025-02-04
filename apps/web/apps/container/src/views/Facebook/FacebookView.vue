@@ -56,8 +56,7 @@ const { mutate: mutateFacebook, isPending: isPendingSubmit } = useMutation({
 const windowLocation = window.location;
 const redirectToHome = () => (windowLocation.pathname = '/');
 const onSubmit = handleSubmit(() =>
-  // mutateFacebook({ email: email.toLowerCase(), ra }),
-  {console.log('ai papai')}
+  mutateFacebook({ email: email.toLowerCase(), ra }),
 );
 </script>
 

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import type { User } from 'types';
 
 import { api } from './api';
@@ -21,6 +22,10 @@ export type UserConfirmResponse = {
   token: string;
 };
 
+export type EmailResponse = {
+  email: string;
+};
+
 export const Users = {
   completeSignup: (params: UserSignup) => api.put('/users/complete', params),
   confirmSignup: (token: string) =>
@@ -30,5 +35,15 @@ export const Users = {
   delete: () => api.delete('/users/me/delete'),
   info: () => api.get<User>('/users/info'),
   // facebookAuth: (params: FacebookAuth) =>
-  //   api.post<FacebookConfirmResponse>('/facebook/sync', params),
+  // api.post<FacebookConfirmResponse>('/facebook/sync', params),
+  getEmail: (ra: string) =>
+    api.get<EmailResponse>('/users/check-email', { params: { ra } }),
+};
+
+export const UsersV2 = {
+  getEmail: (ra: string) =>
+    axios.get('/users/check-email', {
+      baseURL: 'https://api.v2.ufabcnext.com',
+      params: { ra },
+    }),
 };
