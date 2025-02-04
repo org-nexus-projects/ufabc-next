@@ -17,7 +17,7 @@ ENV GIT_SECRET_PASSWORD=$GIT_SECRET_PASSWORD
 RUN apk update && apk add --no-cache libc6-compat
 WORKDIR /workspace
 # enable corepack for pnpm
-RUN npm i -g pnpm
+RUN npm i -g pnpm@9.7.0
 
 FROM runtime as fetcher
 COPY pnpm*.yaml ./
