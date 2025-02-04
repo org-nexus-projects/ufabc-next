@@ -17,7 +17,7 @@ ENV GIT_SECRET_PASSWORD=$GIT_SECRET_PASSWORD
 RUN apk update && apk add --no-cache libc6-compat
 WORKDIR /workspace
 # enable corepack for pnpm
-RUN corepack enable
+RUN npm i -g pnpm
 
 FROM runtime as fetcher
 COPY pnpm*.yaml ./
@@ -41,7 +41,7 @@ RUN pnpm i
 # build app
 
 RUN  --mount=type=cache,target=/workspace/node_modules/.cache \
-    pnpm turbo run build --filter="${APP_NAME}"
+  pnpm turbo run build --filter="${APP_NAME}"
 
 # deploy app
 FROM builder as deployer
