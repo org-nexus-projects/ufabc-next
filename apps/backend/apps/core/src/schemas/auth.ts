@@ -68,7 +68,7 @@ export const completeUserSchema = {
     email: z
       .string()
       .email()
-      .refine((val) => val.includes('@aluno.ufabc.edu.br'), {
+      .refine((val) => val.includes('ufabc.edu.br'), {
         message: 'Invalid UFABC email',
       }),
   }),
