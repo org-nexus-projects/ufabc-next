@@ -9,6 +9,7 @@ import Highcharts3D from 'highcharts/highcharts-3d';
 import type { Student } from '@/scripts/sig/homepage';
 import type { ContentScriptContext } from 'wxt/client';
 import { updateStudent } from '@/services/next';
+import { VueQueryPlugin } from '@tanstack/vue-query';
 
 export type UFABCMatriculaStudent = {
 	studentId: number;
@@ -82,6 +83,7 @@ async function mountUFABCMatriculaFilters(
 			app.provide('student', student);
 
 			app.use(HighchartsVue);
+      app.use(VueQueryPlugin)
 
 			app.mount(wrapper);
 			return { app, wrapper };

@@ -6,9 +6,12 @@ import { render } from 'vue';
 import SubjectReview from '@/components/SubjectReview.vue';
 import { useStorage } from '@/composables/useStorage'
 import { getStudentCourseId, getStudentId } from '@/utils/ufabc-matricula-student'
+import { toast, Toaster } from 'vue-sonner'
+import { useQuery } from '@tanstack/vue-query';
+import { useFilters } from '@/composables/useFilters'
+import { useModals } from '@/composables/useModals'
 import type { UFABCMatriculaStudent } from '.';
 import type { Student } from '@/scripts/sig/homepage';
-import { toast, Toaster } from 'vue-sonner'
 
 
 type Filter = {
@@ -21,58 +24,17 @@ type Filter = {
 const matriculas = inject<typeof window.matriculas>('matriculas')
 const matriculaStudent = inject<UFABCMatriculaStudent>('student')
 
+const { state: student } = useStorage<Student>('local:student');
+const { campusFilters, shiftFilters, applyFilter } = useFilters()
+const { subjectReview, kicksModal, teacherReview } = useModals()
+
 const selected = ref(false)
 const cursadas = ref(false)
-
 const showWarning = ref(false);
 const teachers = ref(false);
-
-const { state: student } = useStorage<Student>('local:student');
-
-const campusFilters = ref<Filter[]>([
-  {
-    name: 'São Bernardo',
-    class: 'notBernardo',
-    val: true,
-    comparator: 'andr', //isso está correto
-  },
-  {
-    name: 'Santo André',
-    class: 'notAndre',
-    val: true,
-    comparator: 'bernardo',
-  },
-]);
-
-const shiftFilters = ref<Filter[]>([
-  {
-    name: 'Noturno',
-    class: 'notNoturno',
-    val: true,
-    comparator: 'diurno',
-  },
-  {
-    name: 'Matutino',
-    class: 'notMatutino',
-    val: true,
-    comparator: 'noturno',
-  },
-]);
-
-const subjectReview = ref<{ isOpen: boolean; subjectId: string | null }>({
-    isOpen: false,
-    subjectId: null,
-});
-
-const kicksModal = ref<{ isOpen: boolean; corteId: string | null }>({
-  isOpen: false,
-  corteId: null
-})
-
-const teacherReview = ref<{ isOpen: boolean; teacherId: string | null; name: string | null }>({
-  isOpen: false,
-  name: null,
-  teacherId: null
+const { data: components } = useQuery({
+  queryKey: ['components'],
+  queryFn: () => getComponents(),
 })
 
 function openSubjectReview(subjectId: string) {
@@ -166,32 +128,6 @@ function changeCursadas() {
   }
 }
 
-function applyFilter(params: Filter) {
-  if (!params.val) {
-    const tableData = document.querySelectorAll<HTMLTableElement>('#tabeladisciplinas tr td:nth-child(3)')
-    for (const data of tableData) {
-      const subject = data.textContent?.toLocaleLowerCase()
-      if (!subject) {
-        return;
-      }
-      if (!subject?.includes(params.comparator.toLocaleLowerCase())) {
-        if (data.parentElement) {
-          data.parentElement.style.display = 'none';
-        }
-      }
-    }
-
-    return
-  }
-
-
-  const allTr = document.querySelectorAll<HTMLTableRowElement>('#tabeladisciplinas tr')
-  for (const tr of allTr) {
-    tr.style.display = ''
-  }
-}
-
-
 function handleClick(event: MouseEvent) {
 const target = event.target as HTMLElement;
   if (target.closest("#cortes")) {
@@ -217,6 +153,8 @@ const target = event.target as HTMLElement;
     }
   }
 }
+
+
 
 async function buildComponents() {
   if (!teachers.value) {
@@ -285,6 +223,7 @@ async function buildComponents() {
     render(h(Cortes), cortesContainer)
   }
 }
+
 
 onMounted(async () => {
   document.body.addEventListener("click", handleClick);
