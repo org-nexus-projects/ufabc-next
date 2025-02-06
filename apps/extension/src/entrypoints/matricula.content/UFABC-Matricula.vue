@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { getComponents } from '@/services/next';
-import { render } from 'vue';
 import SubjectReview from '@/components/SubjectReview.vue';
 import { useStorage } from '@/composables/useStorage'
 import { getStudentCourseId, getStudentId } from '@/utils/ufabc-matricula-student'
 import { toast, Toaster } from 'vue-sonner'
-import { useQuery } from '@tanstack/vue-query';
 import { useFilters } from '@/composables/useFilters'
 import { useModals } from '@/composables/useModals'
 import { useComponentsBuilder } from '@/composables/useComponentsBuilder'
@@ -82,7 +79,6 @@ function changeSelected() {
     }
   }
 }
-
 
 function changeCursadas() {
   const isCursadas = document.querySelectorAll<HTMLSpanElement>('.isCursada');
