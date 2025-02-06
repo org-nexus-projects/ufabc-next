@@ -6,6 +6,7 @@ import { toast, Toaster } from 'vue-sonner'
 import { useFilters } from '@/composables/useFilters'
 import { useModals } from '@/composables/useModals'
 import { useComponentsBuilder } from '@/composables/useComponentsBuilder'
+import { useStudentSync } from '@/hooks/useMatriculaStudent'
 import type { UFABCMatriculaStudent } from '.';
 import type { Student } from '@/scripts/sig/homepage';
 
@@ -138,16 +139,27 @@ const target = event.target as HTMLElement;
 }
 
 onMounted(async () => {
+  buildComponents();
   document.body.addEventListener("click", handleClick);
+  teachers.value = true;
+
   const studentId = getStudentId()
   const graduationId = getStudentCourseId()
-  await storage.setItem(`sync:${student.value?.ra}`, {
-    studentId,
-    graduationId,
-  })
 
-  teachers.value = true;
-  buildComponents();
+  if (student.value) {
+    // update state locally
+    await storage.setItem(`sync:${student.value.ra}`, {
+      studentId,
+      graduationId,
+    })
+    // save in database
+    const { mutate } = useStudentSync()
+    mutate({
+      login: student.value.login,
+      ra: student.value.ra,
+      studentId,
+    })
+  }
 })
 
 onUnmounted(() => {
@@ -193,7 +205,7 @@ onUnmounted(() => {
         <div>
           Faz mais de uma semana que você não sincroniza seus dados.<br />
           Isso pode acabar afetando a ordem dos chutes. <br /><br />
-          <a href="https://aluno.ufabc.edu.br/fichas_individuais" target="_blank" class="text-[#0000ee]">
+          <a href="https://sig.ufabc.edu.br/sigaa/portais/discente/discente.jsf" target="_blank" class="text-[#0000ee]">
             Atualizar dados agora
           </a>
         </div>
@@ -220,5 +232,3 @@ onUnmounted(() => {
     @close="closeTeacherReview"
    />
 </template>
-
-<style scoped lang="css"></style>

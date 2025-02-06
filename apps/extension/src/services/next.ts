@@ -224,7 +224,7 @@ export async function getStudent(login: string, ra: string) {
   return student;
 }
 
-export async function updateStudent(login: string, ra: string, studentId: number) {
+export async function updateStudent(login: string, ra: string, studentId: number | null) {
   const updatedStudent = await nextService<{ msg: string }>('/entities/students', {
     method: 'PUT',
     body: {

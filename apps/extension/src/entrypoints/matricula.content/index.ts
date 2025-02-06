@@ -8,7 +8,6 @@ import accessibility from "highcharts/modules/accessibility";
 import Highcharts3D from 'highcharts/highcharts-3d';
 import type { Student } from '@/scripts/sig/homepage';
 import type { ContentScriptContext } from 'wxt/client';
-import { updateStudent } from '@/services/next';
 import { VueQueryPlugin } from '@tanstack/vue-query';
 
 export type UFABCMatriculaStudent = {
@@ -32,9 +31,6 @@ export default defineContentScript({
 		$mountedUi.style.top = '0px';
 		$mountedUi.style.zIndex = '9';
 
-    if (ufabcMatriculaStudent && student) {
-      await updateStudent(student.login, student.ra, ufabcMatriculaStudent.studentId)
-    }
 
     const URLS_TO_CHECK = ['http://localhost:3003', 'https://ufabc-matricula-snapshot.vercel.app']
     const origin = new URL(document.location.href).origin
