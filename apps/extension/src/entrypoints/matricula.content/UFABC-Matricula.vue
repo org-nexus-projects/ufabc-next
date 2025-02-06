@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import Cortes from '@/components/Cortes.vue';
-import Teachers from '@/components/Teachers.vue';
 import { getComponents } from '@/services/next';
 import { render } from 'vue';
 import SubjectReview from '@/components/SubjectReview.vue';
@@ -10,16 +8,9 @@ import { toast, Toaster } from 'vue-sonner'
 import { useQuery } from '@tanstack/vue-query';
 import { useFilters } from '@/composables/useFilters'
 import { useModals } from '@/composables/useModals'
+import { useComponentsBuilder } from '@/composables/useComponentsBuilder'
 import type { UFABCMatriculaStudent } from '.';
 import type { Student } from '@/scripts/sig/homepage';
-
-
-type Filter = {
-  name: 'Santo André' | 'São Bernardo' | 'Noturno' | 'Matutino'
-  val: boolean
-  comparator: 'bernardo' | 'andr' | 'diurno' | 'noturno'
-  class: 'notAndre' | 'notBernardo' | 'notNoturno' | 'notMatutino'
-}
 
 const matriculas = inject<typeof window.matriculas>('matriculas')
 const matriculaStudent = inject<UFABCMatriculaStudent>('student')
@@ -27,15 +18,11 @@ const matriculaStudent = inject<UFABCMatriculaStudent>('student')
 const { state: student } = useStorage<Student>('local:student');
 const { campusFilters, shiftFilters, applyFilter } = useFilters()
 const { subjectReview, kicksModal, teacherReview } = useModals()
+const { teachers, buildComponents } = useComponentsBuilder()
 
 const selected = ref(false)
 const cursadas = ref(false)
 const showWarning = ref(false);
-const teachers = ref(false);
-const { data: components } = useQuery({
-  queryKey: ['components'],
-  queryFn: () => getComponents(),
-})
 
 function openSubjectReview(subjectId: string) {
   subjectReview.value.isOpen = true;
@@ -105,7 +92,7 @@ function changeCursadas() {
     }
     return;
   }
-  if (student.value) {
+  if (!student.value) {
     toast.warning('Não encontramos suas disciplinas cursadas, por favor acesse o sigaa')
     return
   }
@@ -154,77 +141,6 @@ const target = event.target as HTMLElement;
   }
 }
 
-
-
-async function buildComponents() {
-  if (!teachers.value) {
-    for (const $element of document.querySelectorAll<HTMLTableCaptionElement>('.isTeacherReview')) {
-      $element.style.display = 'none'
-    }
-    return
-  }
- // se ja tiver calculado nao refaz o trabalho
- const teacherReviews = document.querySelectorAll<HTMLTableCaptionElement>('.isTeacherReview');
-  if (teacherReviews.length > 0) {
-    for (const $element of document.querySelectorAll<HTMLTableCaptionElement>('.isTeacherReview')) {
-      $element.style.display = ''
-    }
-    return;
-  }
-  const components = await getComponents()
-  const componentsMap = new Map(
-    components.map((component) => [
-      component.disciplina_id.toString(),
-      component,
-    ]),
-  );
-
-  const mainTable = document.querySelectorAll('table tr');
-  for (const row of mainTable) {
-    const el = row.querySelector<HTMLTableColElement>('td:nth-child(3)');
-    const subjectEl = row.querySelector<HTMLSpanElement>('td:nth-child(3) > span');
-    const corteEl = row.querySelector('td:nth-child(5)');
-    const componentId = row.getAttribute('value');
-    if (!componentId) {
-      continue;
-    }
-    const component = componentsMap.get(componentId);
-    if (!component) {
-      continue;
-    }
-
-    if (component.subject && subjectEl) {
-      subjectEl.style.cursor = 'pointer'
-
-      subjectEl.addEventListener('mouseenter', () => {
-        subjectEl.style.textDecoration = 'underline';
-      });
-
-      subjectEl.addEventListener('mouseleave', () => {
-        subjectEl.style.textDecoration = 'none';
-      });
-
-      subjectEl.setAttribute('subjectId', component.subjectId);
-    }
-
-    const teacherContainer = document.createElement('div')
-    el?.appendChild(teacherContainer)
-
-    render(h(Teachers, {
-      teoria: component.teoria,
-      teoriaId: component.teoriaId,
-      pratica: component.pratica,
-      praticaId: component.praticaId,
-    }), teacherContainer)
-
-    const cortesContainer = document.createElement('div');
-    corteEl?.appendChild(cortesContainer);
-
-    render(h(Cortes), cortesContainer)
-  }
-}
-
-
 onMounted(async () => {
   document.body.addEventListener("click", handleClick);
   const studentId = getStudentId()
@@ -235,7 +151,7 @@ onMounted(async () => {
   })
 
   teachers.value = true;
-  await buildComponents();
+  buildComponents();
 })
 
 onUnmounted(() => {

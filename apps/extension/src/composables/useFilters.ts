@@ -44,6 +44,7 @@ export function useFilters() {
       for (const data of tableData) {
         const subject = data.textContent?.toLocaleLowerCase()
         if (!subject?.includes(params.comparator.toLocaleLowerCase())) {
+          // biome-ignore lint/style/noNonNullAssertion: <explanation>
           data.parentElement!.style.display = 'none'
         }
       }
