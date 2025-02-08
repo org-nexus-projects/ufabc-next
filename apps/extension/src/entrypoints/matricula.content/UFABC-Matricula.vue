@@ -12,8 +12,6 @@ import { updateStudent } from "@/services/next"
 import type { UFABCMatriculaStudent } from '.';
 import type { Student } from '@/scripts/sig/homepage';
 
-
-
 const matriculas = inject<typeof window.matriculas>('matriculas')
 const matriculaStudent = inject<UFABCMatriculaStudent>('student')
 
@@ -47,16 +45,16 @@ const useStudentInit = () => {
     const studentId = getStudentId();
     const graduationId = getStudentCourseId();
 
-      await storage.setItem(`sync:${student.value.ra}`, {
-        studentId,
-        graduationId,
-      });
+    await storage.setItem(`sync:${student.value.ra}`, {
+      studentId,
+      graduationId,
+    });
 
-      await studentMutation.mutateAsync({
-        login: student.value.login,
-        ra: student.value.ra,
-        studentId,
-      });
+    await studentMutation.mutateAsync({
+      login: student.value.login,
+      ra: student.value.ra,
+      studentId,
+    });
   };
 
   return { initializeStudent };
@@ -180,7 +178,7 @@ const target = event.target as HTMLElement;
 
 watch(() => student.value, async (newStudent) => {
   if (newStudent) {
-    const { initializeStudent } = await useStudentInit();
+    const { initializeStudent } = useStudentInit();
     await initializeStudent();
   }
 }, { immediate: true });
