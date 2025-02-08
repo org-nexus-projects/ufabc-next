@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import SubjectReview from '@/components/SubjectReview.vue';
+
+import { useMutation } from '@tanstack/vue-query';
+import { toast, Toaster } from 'vue-sonner'
 import { useStorage } from '@/composables/useStorage'
 import { getStudentCourseId, getStudentId } from '@/utils/ufabc-matricula-student'
-import { toast, Toaster } from 'vue-sonner'
 import { useFilters } from '@/composables/useFilters'
 import { useModals } from '@/composables/useModals'
 import { useComponentsBuilder } from '@/composables/useComponentsBuilder'
-import { useStudentSync } from '@/hooks/useMatriculaStudent'
+import { updateStudent } from "@/services/next"
 import type { UFABCMatriculaStudent } from '.';
 import type { Student } from '@/scripts/sig/homepage';
+
+
 
 const matriculas = inject<typeof window.matriculas>('matriculas')
 const matriculaStudent = inject<UFABCMatriculaStudent>('student')
@@ -21,6 +25,42 @@ const { teachers, buildComponents } = useComponentsBuilder()
 const selected = ref(false)
 const cursadas = ref(false)
 const showWarning = ref(false);
+
+const studentMutation = useMutation({
+  mutationFn: ({ login, ra, studentId }: {
+    login: string,
+    ra: string,
+    studentId: number | null
+  }) => updateStudent(login, ra, studentId),
+  onError: (error) => {
+    console.error('Failed to sync student:', error)
+    toast.error('Failed to sync student data')
+  }
+})
+
+const useStudentInit = () => {
+  const initializeStudent = async () => {
+    if (!student.value) {
+      return;
+    }
+
+    const studentId = getStudentId();
+    const graduationId = getStudentCourseId();
+
+      await storage.setItem(`sync:${student.value.ra}`, {
+        studentId,
+        graduationId,
+      });
+
+      await studentMutation.mutateAsync({
+        login: student.value.login,
+        ra: student.value.ra,
+        studentId,
+      });
+  };
+
+  return { initializeStudent };
+};
 
 function openSubjectReview(subjectId: string) {
   subjectReview.value.isOpen = true;
@@ -138,28 +178,18 @@ const target = event.target as HTMLElement;
   }
 }
 
-onMounted(async () => {
-  buildComponents();
-  document.body.addEventListener("click", handleClick);
-  teachers.value = true;
-
-  const studentId = getStudentId()
-  const graduationId = getStudentCourseId()
-
-  if (student.value) {
-    // update state locally
-    await storage.setItem(`sync:${student.value.ra}`, {
-      studentId,
-      graduationId,
-    })
-    // save in database
-    const { mutate } = useStudentSync()
-    mutate({
-      login: student.value.login,
-      ra: student.value.ra,
-      studentId,
-    })
+watch(() => student.value, async (newStudent) => {
+  if (newStudent) {
+    const { initializeStudent } = await useStudentInit();
+    await initializeStudent();
   }
+}, { immediate: true });
+
+
+onMounted(async () => {
+  document.body.addEventListener("click", handleClick);
+  buildComponents();
+  teachers.value = true;
 })
 
 onUnmounted(() => {

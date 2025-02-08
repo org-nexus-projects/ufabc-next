@@ -50,7 +50,7 @@ export function useComponentsBuilder() {
     queryKey: ['components'],
     queryFn: async () => getComponents(),
     retry: 3,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    // staleTime: 1000 * 60 * 5, // 5 minutes
     initialData: [], // Provide empty array as initial data
   })
 

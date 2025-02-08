@@ -18,9 +18,12 @@ export type UFABCMatriculaStudent = {
 export default defineContentScript({
 	async main(ctx) {
 		const student = await storage.getItem<Student>('local:student');
+    console.log('contentScriptStudent', student)
 		const ufabcMatriculaStudent = await storage.getItem<UFABCMatriculaStudent>(
 			`sync:${student?.ra}`,
 		);
+    console.log('matricula', ufabcMatriculaStudent)
+
 		const ui = await mountUFABCMatriculaFilters(ctx, ufabcMatriculaStudent);
 		ui.mount();
 
@@ -57,7 +60,7 @@ export default defineContentScript({
 
 async function mountUFABCMatriculaFilters(
 	ctx: ContentScriptContext,
-	student: UFABCMatriculaStudent | null,
+	matriculaStudent: UFABCMatriculaStudent | null,
 ) {
 	return createShadowRootUi(ctx, {
 		name: 'matriculas-filter',
@@ -76,7 +79,7 @@ async function mountUFABCMatriculaFilters(
 			window.matriculas = matriculas;
 			const app = createApp(UFABCMatricula);
 			app.provide('matriculas', window.matriculas);
-			app.provide('student', student);
+			app.provide('student', matriculaStudent);
 
 			app.use(HighchartsVue);
       app.use(VueQueryPlugin)
