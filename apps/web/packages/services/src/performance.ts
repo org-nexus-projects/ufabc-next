@@ -60,8 +60,8 @@ type HistoriesGraduations = {
 };
 
 export const Performance = {
-  getCrHistory: () => api.get<QuadInformation[]>('courseStats/user/grades'),
+  getCrHistory: () => api.get<QuadInformation[]>('courseStats/history'),
   getCrDistribution: () => api.get<CrDistributionData[]>('courseStats/grades'),
   getHistoriesGraduations: () =>
-    api.get<HistoriesGraduations>('courseStats/history'),
+    api.get<HistoriesGraduations>('/courseStats/user/grades'),
 };
