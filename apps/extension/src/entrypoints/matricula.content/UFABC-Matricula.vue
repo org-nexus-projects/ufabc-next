@@ -53,7 +53,7 @@ const useStudentInit = () => {
     await studentMutation.mutateAsync({
       login: student.value.login,
       ra: student.value.ra,
-      studentId,
+      studentId: 557736,
     });
   };
 
@@ -177,8 +177,8 @@ const target = event.target as HTMLElement;
 }
 
 watch(() => student.value, async (newStudent) => {
+  const { initializeStudent } = useStudentInit();
   if (newStudent) {
-    const { initializeStudent } = useStudentInit();
     await initializeStudent();
   }
 }, { immediate: true });
