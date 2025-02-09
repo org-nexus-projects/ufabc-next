@@ -19,7 +19,7 @@ const studentSchema = new Schema(
   {
     ra: { type: Number },
     login: { type: String, required: true },
-    aluno_id: { type: Number, required: true, default: null },
+    aluno_id: { type: Number, required: false },
     cursos: [coursesSchema],
     year: { type: Number, required: false },
     quad: {
