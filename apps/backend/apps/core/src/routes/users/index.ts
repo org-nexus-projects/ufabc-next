@@ -8,6 +8,8 @@ import {
 import {
   confirmUserSchema,
   deactivateUserSchema,
+  getFacebookUserEmailSchema,
+  loginFacebookSchema,
   resendEmailSchema,
   validateUserEmailSchema,
 } from '@/schemas/user.js';
@@ -42,32 +44,57 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return userInfo;
   });
 
-  // app.post(
-  //   '/facebook',
-  //   { schema: loginFacebookSchema },
-  //   async (request, reply) => {
-  //     const user = await UserModel.findOne({
-  //       ra: request.body.ra,
-  //       'oauth.emailFacebook': request.body.email,
-  //     });
+  app.get(
+    '/facebook/email',
+    { schema: getFacebookUserEmailSchema },
+    async (request, reply) => {
+      const { ra } = request.query;
 
-  //     if (!user) {
-  //       return reply.notFound('User not found');
-  //     }
+      const user = await UserModel.findOne({
+        ra,
+      }).lean();
 
-  //     const jwtToken = app.jwt.sign(
-  //       {
-  //         studentId: user._id.toJSON(),
-  //         active: user.active,
-  //         confirmed: user.confirmed,
-  //         email: user.email,
-  //       },
-  //       { expiresIn: '2d' },
-  //     );
+      if (!user) {
+        return reply.notFound('Usuario não encontrado');
+      }
 
-  //     return { success: true, token: jwtToken };
-  //   },
-  // );
+      if (!user.oauth?.emailFacebook || !user.oauth.email) {
+        return reply.badRequest('Usuario nao possui conta do facebook');
+      }
+
+      return {
+        email: user.email,
+      };
+    },
+  );
+
+  app.post(
+    '/facebook',
+    { schema: loginFacebookSchema },
+    async (request, reply) => {
+      const user = await UserModel.findOne({
+        ra: request.body.ra,
+        email: request.body.email,
+        'oauth.facebook': { $exists: true },
+      });
+
+      if (!user) {
+        return reply.notFound('Usuario não encontrado');
+      }
+
+      const jwtToken = app.jwt.sign(
+        {
+          studentId: user._id.toJSON(),
+          active: user.active,
+          confirmed: user.confirmed,
+          email: user.email,
+        },
+        { expiresIn: '2d' },
+      );
+
+      return { success: true, token: jwtToken };
+    },
+  );
 
   app.post('/resend', { schema: resendEmailSchema }, async (request, reply) => {
     const user = await UserModel.findOne({
