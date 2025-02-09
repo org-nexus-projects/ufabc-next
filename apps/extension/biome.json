@@ -19,12 +19,19 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true
+			"recommended": true,
+      "complexity": {
+        "noForEach": "info"
+      },
+      "suspicious": {
+        "noAssignInExpressions": "off"
+      }
 		}
 	},
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "single"
 		}
-	}
+	},
+
 }

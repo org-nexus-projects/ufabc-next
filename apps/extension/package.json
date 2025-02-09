@@ -1,5 +1,5 @@
 {
-  "name": "@next/extension",
+  "name": "UFABC next - extensão",
   "private": true,
   "version": "2.0.0",
   "description": "Adiciona funcionalidades novas em sistemas da UFABC",
@@ -36,6 +36,7 @@
     "wxt": "^0.19.19"
   },
   "dependencies": {
+    "@tanstack/vue-query": "^5.66.0",
     "@vueuse/core": "^11.1.0",
     "@vueuse/integrations": "^11.1.0",
     "change-case": "^5.4.4",

@@ -8,7 +8,7 @@ import accessibility from "highcharts/modules/accessibility";
 import Highcharts3D from 'highcharts/highcharts-3d';
 import type { Student } from '@/scripts/sig/homepage';
 import type { ContentScriptContext } from 'wxt/client';
-import { updateStudent } from '@/services/next';
+import { VueQueryPlugin } from '@tanstack/vue-query';
 
 export type UFABCMatriculaStudent = {
 	studentId: number;
@@ -18,9 +18,12 @@ export type UFABCMatriculaStudent = {
 export default defineContentScript({
 	async main(ctx) {
 		const student = await storage.getItem<Student>('local:student');
+    console.log('contentScriptStudent', student)
 		const ufabcMatriculaStudent = await storage.getItem<UFABCMatriculaStudent>(
 			`sync:${student?.ra}`,
 		);
+    console.log('matricula', ufabcMatriculaStudent)
+
 		const ui = await mountUFABCMatriculaFilters(ctx, ufabcMatriculaStudent);
 		ui.mount();
 
@@ -31,9 +34,6 @@ export default defineContentScript({
 		$mountedUi.style.top = '0px';
 		$mountedUi.style.zIndex = '9';
 
-    if (ufabcMatriculaStudent && student) {
-      await updateStudent(student.login, student.ra, ufabcMatriculaStudent.studentId)
-    }
 
     const URLS_TO_CHECK = ['http://localhost:3003', 'https://ufabc-matricula-snapshot.vercel.app']
     const origin = new URL(document.location.href).origin
@@ -60,7 +60,7 @@ export default defineContentScript({
 
 async function mountUFABCMatriculaFilters(
 	ctx: ContentScriptContext,
-	student: UFABCMatriculaStudent | null,
+	matriculaStudent: UFABCMatriculaStudent | null,
 ) {
 	return createShadowRootUi(ctx, {
 		name: 'matriculas-filter',
@@ -79,9 +79,10 @@ async function mountUFABCMatriculaFilters(
 			window.matriculas = matriculas;
 			const app = createApp(UFABCMatricula);
 			app.provide('matriculas', window.matriculas);
-			app.provide('student', student);
+			app.provide('student', matriculaStudent);
 
 			app.use(HighchartsVue);
+      app.use(VueQueryPlugin)
 
 			app.mount(wrapper);
 			return { app, wrapper };

@@ -207,7 +207,7 @@ export async function getComponents() {
   return components;
 }
 
-export async function getKicksInfo(kickId: string, studentId: number) {
+export async function getKicksInfo(kickId: string, studentId?: number) {
   const kicksData = await nextService(`/entities/components/${kickId}/kicks?studentId=${studentId}`)
   return kicksData;
 }
@@ -224,7 +224,7 @@ export async function getStudent(login: string, ra: string) {
   return student;
 }
 
-export async function updateStudent(login: string, ra: string, studentId: number) {
+export async function updateStudent(login: string, ra: string, studentId: number | null) {
   const updatedStudent = await nextService<{ msg: string }>('/entities/students', {
     method: 'PUT',
     body: {
