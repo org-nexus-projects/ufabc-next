@@ -53,7 +53,7 @@ const useStudentInit = () => {
     await studentMutation.mutateAsync({
       login: student.value.login,
       ra: student.value.ra,
-      studentId: 557736,
+      studentId,
     });
   };
 
