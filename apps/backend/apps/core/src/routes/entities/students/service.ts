@@ -107,7 +107,7 @@ type CreateStudent = {
 type UpdateStudent = {
   ra: number;
   login: string;
-  studentId: number;
+  studentId: number | null | undefined;
 };
 
 export async function createOrInsert({
@@ -117,6 +117,7 @@ export async function createOrInsert({
   graduations,
 }: CreateStudent) {
   const season = currentQuad();
+
   const student = await StudentModel.findOneAndUpdate(
     {
       aluno_id: studentId,
@@ -139,6 +140,10 @@ export async function update({ ra, login, studentId }: UpdateStudent) {
 
   if (!student) {
     return null;
+  }
+
+  if (student.aluno_id) {
+    return student;
   }
 
   student.aluno_id = studentId;

@@ -1,8 +1,10 @@
 import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 import { z } from 'zod';
 
+const tags = ['User'];
+
 export const deactivateUserSchema = {
-  tags: ['User'],
+  tags,
   response: {
     200: {
       content: {
@@ -29,7 +31,7 @@ export const deactivateUserSchema = {
 } satisfies FastifyZodOpenApiSchema;
 
 export const resendEmailSchema = {
-  tags: ['User'],
+  tags,
   response: {
     200: {
       content: {
@@ -81,6 +83,7 @@ export const confirmUserSchema = {
 } satisfies FastifyZodOpenApiSchema;
 
 export const validateUserEmailSchema = {
+  tags,
   querystring: z.object({
     ra: z.string().describe('Student ID (RA) of the user to validate'),
   }),
@@ -103,6 +106,42 @@ export const validateUserEmailSchema = {
         'application/json': {
           schema: z.object({
             email: z.string().describe('Valid email address of the user'),
+          }),
+        },
+      },
+    },
+  },
+} satisfies FastifyZodOpenApiSchema;
+
+export const getFacebookUserEmailSchema = {
+  tags,
+  querystring: z.object({
+    ra: z.string(),
+  }),
+  response: {
+    400: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    404: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            message: z.string(),
+          }),
+        },
+      },
+    },
+    200: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            email: z.string().email(),
           }),
         },
       },
