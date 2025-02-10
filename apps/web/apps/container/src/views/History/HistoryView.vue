@@ -11,7 +11,7 @@
   <PaperCard title="Ficha individual do aluno" class="text-next-grey">
     <p class="mt-4">
       Esta ficha individual é uma réplica do que você pode encontrar no site do
-      <a :href="studentRecordURL">Portal do Aluno.</a>
+      <a :href="studentRecordURL">Sigaa.</a>
     </p>
     <p class="mt-4">
       Caso o seu histórico esteja desatualizado, basta acessar o portal
@@ -222,7 +222,7 @@
         >
         e acessar a tela de Fichas Individuais no
         <a :href="studentRecordURL" target="_blank" class="text-decoration-none"
-          >Portal do Aluno.</a
+          >Sigaa</a
         >
       </h2>
       <img
