@@ -8,7 +8,7 @@ import { useForm, useField } from 'vee-validate';
 import { ElMessage } from 'element-plus';
 
 import { useAuth } from '@/stores/useAuth';
-// import { Users } from 'services';
+import { Users } from 'services';
 
 const facebookNotFound = ref(false);
 
@@ -36,7 +36,7 @@ const { value: emailField, errorMessage: emailErrorMessage } =
   useField('email');
 const { value: raField, errorMessage: raErrorMessage } = useField('ra');
 const { mutate: mutateFacebook, isPending: isPendingSubmit } = useMutation({
-  mutationFn: () => { },
+  mutationFn: Users.facebookAuth,
   onSuccess({ data }) {
     ElMessage({
       message: 'Realizando seu login',
@@ -55,7 +55,7 @@ const { mutate: mutateFacebook, isPending: isPendingSubmit } = useMutation({
 
 const windowLocation = window.location;
 const redirectToHome = () => (windowLocation.pathname = '/');
-const onSubmit = handleSubmit(() =>
+const onSubmit = handleSubmit(({ email, ra }) =>
   mutateFacebook({ email: email.toLowerCase(), ra }),
 );
 </script>

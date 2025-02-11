@@ -13,7 +13,7 @@ const ConfirmationView = () =>
   import('@/views/Confirmation/ConfirmationView.vue');
 const RecoveryView = () => import('@/views/Recovery/RecoveryView.vue');
 const CalengradeView = () => import('@/views/Calengrade/CalengradeView.vue');
-// const FacebookView = () => import('@/views/Facebook/FacebookView.vue');
+const FacebookView = () => import('@/views/Facebook/FacebookView.vue');
 
 const isJWT = (token: string) =>
   /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/=]*$/.test(token);
@@ -117,15 +117,15 @@ const routes: Array<RouteRecordRaw> = [
       title: 'Calengrade',
     },
   },
-  // {
-  //   path: '/autenticar-facebook',
-  //   name: 'Autenticar Facebook',
-  //   component: FacebookView,
-  //   meta: {
-  //     title: 'Autenticar Facebook',
-  //     auth: false,
-  //   },
-  // },
+  {
+    path: '/autenticar-facebook',
+    name: 'Autenticar Facebook',
+    component: FacebookView,
+    meta: {
+      title: 'Autenticar Facebook',
+      auth: false,
+    },
+  },
   // {
   //   path: '/partners',
   //   name: 'Next Class Noc',

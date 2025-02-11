@@ -30,11 +30,12 @@
                 Usuário desde {{ createdAt }}
               </div>
               <div style="display: flex; flex-direction: column; gap: 10px">
-                <!-- <a href="#" class="links-settings" v-if="user?.oauth?.facebook">
+                <a href="#" class="links-settings" v-if="user?.oauth?.facebook">
                   <v-icon color="ufabcnext-green">mdi-check</v-icon>
                   Conta do Facebook associada
                 </a>
-
+                
+                <!-- 
                 <a :href="addFacebookAccount" target="_blank" class="links-settings add-account" v-else-if="user">
                   <v-icon color="ufabcnext-blue" class="mr-2">mdi-plus-circle-outline</v-icon>
                   Associar à uma conta do Facebook

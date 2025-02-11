@@ -34,8 +34,8 @@ export const Users = {
   recovery: (email: string) => api.post('/users/me/recover', { email }),
   delete: () => api.delete('/users/me/delete'),
   info: () => api.get<User>('/users/info'),
-  // facebookAuth: (params: FacebookAuth) =>
-  // api.post<FacebookConfirmResponse>('/facebook/sync', params),
+  facebookAuth: (params: FacebookAuth) =>
+    api.post<FacebookConfirmResponse>('/facebook/sync', params),
   getEmail: (ra: string) =>
     api.get<EmailResponse>('/users/check-email', { params: { ra } }),
 };
