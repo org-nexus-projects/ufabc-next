@@ -308,7 +308,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             disciplina: 1,
             obrigatorias: 1,
             requisicoes: 1,
-            turma: 1,
+            turma: 1,    
             deficit: { $subtract: ['$requisicoes', '$vagas'] },
             ratio: { $divide: ['$requisicoes', '$vagas'] },
           },
@@ -319,8 +319,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         pipeline.push({ $match: { ratio: { $gt: ratio } } });
       }
 
-      pipeline.push(...resolveStep(action ?? 'overview', turno, courseId));
+      if (action) {
+        pipeline.push(...resolveStep(action, turno, courseId));
+      }
 
+ 
       pipeline.push(
         {
           $facet: {
