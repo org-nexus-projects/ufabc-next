@@ -11,8 +11,8 @@ const enrollmentsListSchema = z.object({
   cp_acumulado: z.number().nullish(),
   comments: z.string().array().optional(),
   conceito: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.date().nullish(),
+  updatedAt: z.date().nullish(),
   creditos: z.number().int(),
   identifier: z.string(),
   season: z.string().optional(),
@@ -21,7 +21,7 @@ const enrollmentsListSchema = z.object({
     name: z.string(),
     search: z.string(),
     creditos: z.number(),
-  }),
+  }).nullish(),
   teoria: z
     .object({
       _id: z.coerce.string(),
