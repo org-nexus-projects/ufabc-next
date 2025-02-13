@@ -15,7 +15,7 @@ const PUBLIC_ROUTES = [
   '/entities/students',
   '/public/stats/components',
   '/users/check-email',
-  '/users/facebook/email',
+  '/users/facebook',
 ];
 
 const isPublicRoute = (url: string): boolean => {

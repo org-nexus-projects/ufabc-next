@@ -26,6 +26,11 @@ export default fp(
       scope: ['profile', 'email'],
       callbackUri: (req) =>
         `${app.config.PROTOCOL}://${req.host}/login/google/callback`,
+      generateStateFunction: (request) => {
+        // @ts-ignore
+        return request.query.userId ?? null;
+      },
+      checkStateFunction: () => true,
     });
 
     app.log.info('[PLUGIN] Oauth');

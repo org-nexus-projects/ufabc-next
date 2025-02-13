@@ -16,7 +16,7 @@ const configSchema = z.object({
   NODE_ENV: z.enum(['dev', 'test', 'prod']).default('dev'),
   PORT: z.coerce.number().default(5000),
   HOST: z.string().min(4).default('0.0.0.0'),
-  JWT_SECRET: z.string().min(32).default(JWT_SECRET),
+  JWT_SECRET: z.string().default(JWT_SECRET),
   RATE_LIMIT_MAX: z.coerce.number().default(100),
   MONGODB_CONNECTION_URL: z.string().default('mongodb://127.0.0.1:27017/local'),
   REDIS_CONNECTION_URL: z.string().default('redis://localhost:6379'),

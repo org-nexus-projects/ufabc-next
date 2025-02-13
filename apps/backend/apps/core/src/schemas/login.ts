@@ -62,11 +62,7 @@ export const loginSchema = {
         'Váriavel legada que informava, se o acesso estava acontecendo pelo aplicativo',
       example: false,
     }),
-    userId: z.string().default('').openapi({
-      description:
-        'Id interno do usuário, util para cadastrar um segundo método de autenticação para o usuário',
-    }),
-    state: z.string(),
+    state: z.string().nullable(),
     code: z.string(),
     authuser: z.string(),
     prompt: z.string(),

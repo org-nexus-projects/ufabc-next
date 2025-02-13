@@ -32,7 +32,7 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     { schema: loginSchema },
     async function (request, reply) {
       try {
-        const { userId } = request.query;
+        const userId = request.query.state;
         const { token } =
           await this.google.getAccessTokenFromAuthorizationCodeFlow(
             request,
@@ -144,7 +144,7 @@ async function getUserDetails(token: Token) {
   };
 }
 
-async function createOrLogin(oauthUser: User['oauth'], userId?: string) {
+async function createOrLogin(oauthUser: User['oauth'], userId: string | null) {
   const findUserQuery: Record<string, unknown>[] = [
     {
       'oauth.google': oauthUser?.google,

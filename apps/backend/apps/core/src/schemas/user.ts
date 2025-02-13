@@ -47,7 +47,7 @@ export const resendEmailSchema = {
 
 export const loginFacebookSchema = {
   body: z.object({
-    ra: z.number(),
+    ra: z.coerce.number(),
     email: z.string().email(),
   }),
   response: {
