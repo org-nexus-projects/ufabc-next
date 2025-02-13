@@ -28,7 +28,7 @@ export default fp(
         `${app.config.PROTOCOL}://${req.host}/login/google/callback`,
       generateStateFunction: (request) => {
         // @ts-ignore
-        return request.query.userId ?? null;
+        return request.query.userId;
       },
       checkStateFunction: () => true,
     });

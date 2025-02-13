@@ -144,16 +144,15 @@ async function getUserDetails(token: Token) {
   };
 }
 
-async function createOrLogin(oauthUser: User['oauth'], userId: string | null) {
+async function createOrLogin(oauthUser: User['oauth'], userId: string) {
   const findUserQuery: Record<string, unknown>[] = [
     {
       'oauth.google': oauthUser?.google,
     },
   ];
 
-  if (userId) {
-    const [queryId] = userId.split('?');
-    findUserQuery.push({ _id: new Types.ObjectId(queryId) });
+  if (userId !== 'undefined') {
+    findUserQuery.push({ _id: new Types.ObjectId(userId) });
   }
 
   const user =

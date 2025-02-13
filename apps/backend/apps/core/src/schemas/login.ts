@@ -62,7 +62,7 @@ export const loginSchema = {
         'Váriavel legada que informava, se o acesso estava acontecendo pelo aplicativo',
       example: false,
     }),
-    state: z.string().nullable(),
+    state: z.string(),
     code: z.string(),
     authuser: z.string(),
     prompt: z.string(),
