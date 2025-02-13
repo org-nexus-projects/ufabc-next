@@ -8,7 +8,6 @@ import {
 import {
   confirmUserSchema,
   deactivateUserSchema,
-  getFacebookUserEmailSchema,
   loginFacebookSchema,
   resendEmailSchema,
   validateUserEmailSchema,
