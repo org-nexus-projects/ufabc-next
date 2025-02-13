@@ -29,7 +29,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     }
 
     const userInfo = {
-      studentId: user._id.toString(),
+      _id: user._id.toString(),
       ra: user.ra,
       active: user.active,
       confirmed: user.confirmed,
@@ -44,37 +44,14 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return userInfo;
   });
 
-  app.get(
-    '/facebook/email',
-    { schema: getFacebookUserEmailSchema },
-    async (request, reply) => {
-      const { ra } = request.query;
-
-      const user = await UserModel.findOne({
-        ra,
-      }).lean();
-
-      if (!user) {
-        return reply.notFound('Usuario não encontrado');
-      }
-
-      if (!user.oauth?.emailFacebook || !user.oauth.email) {
-        return reply.badRequest('Usuario nao possui conta do facebook');
-      }
-
-      return {
-        email: user.email,
-      };
-    },
-  );
-
   app.post(
     '/facebook',
     { schema: loginFacebookSchema },
     async (request, reply) => {
+      const { ra, email } = request.body;
       const user = await UserModel.findOne({
-        ra: request.body.ra,
-        email: request.body.email,
+        ra,
+        $or: [{ 'oauth.facebookEmail': email }, { 'oauth.email': email }],
         'oauth.facebook': { $exists: true },
       });
 
@@ -82,9 +59,21 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         return reply.notFound('Usuario não encontrado');
       }
 
+      const userEmails = [user.oauth?.emailFacebook, user.oauth?.email].filter(
+        Boolean,
+      );
+
+      if (!userEmails.includes(email)) {
+        throw new Error(
+          'Email does not match the registered email for this RA',
+        );
+      }
+
       const jwtToken = app.jwt.sign(
         {
-          studentId: user._id.toJSON(),
+          _id: user._id.toJSON(),
+          ra: user.ra,
+          permissions: user.permissions,
           active: user.active,
           confirmed: user.confirmed,
           email: user.email,
