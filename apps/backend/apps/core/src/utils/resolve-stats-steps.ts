@@ -6,7 +6,6 @@ export function resolveStep(
   turno?: string,
   courseId?: number,
 ) {
-  console.log('aaa', action);
   switch (action) {
     case 'overview':
       return getOverviewSteps();

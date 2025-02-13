@@ -52,11 +52,11 @@ export async function getReactions({
   limit,
 }: GetReactionQuery) {
   const filter: FilterQuery<AnyObject> = {
-    teacherId,
+    teacher: teacherId,
   };
 
   if (subjectId) {
-    filter.subjectId = subjectId;
+    filter.subject = subjectId;
   }
 
   const reactions = await CommentModel.commentsByReaction(
