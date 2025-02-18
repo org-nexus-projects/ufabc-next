@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { authStore } from 'stores';
-import NextClassView from '@/views/Partners/NextClass/NextClassView.vue';
+// import NextClassView from '@/views/Partners/NextClass/NextClassView.vue';
 const ReviewsView = () => import('@/views/Reviews/ReviewsView.vue');
 const PerformanceView = () => import('@/views/Performance/PerformanceView.vue');
 const PlanningView = () => import('@/views/Planning/PlanningView.vue');
@@ -126,16 +126,16 @@ const routes: Array<RouteRecordRaw> = [
       auth: false,
     },
   },
-  {
-    path: '/partners',
-    name: 'Next Class Noc',
-    component: NextClassView,
-    meta: {
-      title: 'Next Class Noc',
-      auth: false,
-      confirmed: true,
-    },
-  },
+  // {
+  //   path: '/partners',
+  //   name: 'Next Class Noc',
+  //   component: NextClassView,
+  //   meta: {
+  //     title: 'Next Class Noc',
+  //     auth: false,
+  //     confirmed: true,
+  //   },
+  // },
   {
     path: '/:pathMatch(.*)*',
     redirect: (to) => {
@@ -189,7 +189,7 @@ router.beforeEach(async (to, _from, next) => {
   const isLocal = process.env.VUE_APP_MF_ENV === 'local';
 
   const notConfirmedRedirectPath = '/signup';
-  const authenticatedRedirectPath = '/partners';
+  const authenticatedRedirectPath = '/reviews';
   const notAuthenticatedRedirect = () =>
     isLocal ? next(notConfirmedRedirectPath) : (window.location.pathname = '/');
 

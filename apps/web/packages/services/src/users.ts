@@ -1,3 +1,4 @@
+import axios from 'axios';
 import type { User } from 'types';
 
 import { api } from './api';
@@ -21,6 +22,10 @@ export type UserConfirmResponse = {
   token: string;
 };
 
+export type EmailResponse = {
+  email: string;
+};
+
 export const Users = {
   completeSignup: (params: UserSignup) => api.put('/users/complete', params),
   confirmSignup: (token: string) =>
@@ -31,4 +36,7 @@ export const Users = {
   info: () => api.get<User>('/users/info'),
   facebookAuth: (params: FacebookAuth) =>
     api.post<FacebookConfirmResponse>('/users/facebook', params),
+    api.post<FacebookConfirmResponse>('/facebook/sync', params),
+  getEmail: (ra: string) =>
+    api.get<EmailResponse>('/users/check-email', { params: { ra } }),
 };

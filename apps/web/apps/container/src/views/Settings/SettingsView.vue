@@ -34,7 +34,6 @@
                   <v-icon color="ufabcnext-green">mdi-check</v-icon>
                   Conta do Facebook associada
                 </a>
-
                 <a href="#" class="links-settings" v-if="user?.oauth?.google">
                   <v-icon color="ufabcnext-green">mdi-check</v-icon>
                   Conta do Google associada
