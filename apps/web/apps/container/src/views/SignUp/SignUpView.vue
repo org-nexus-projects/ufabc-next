@@ -95,7 +95,7 @@
               Enviamos um email de confirmação para
             </h1>
             <span class="text-h6 text-md-h5 text-center text-md-start font-weight-bold text-primary text-break pb-4">
-              {{ email.value.value }}@aluno.ufabc.edu.br
+              {{ email.value.value }}
             </span>
 
             <v-row class="w-100 flex-grow-0 mb-7 mb-md-0">
@@ -152,7 +152,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
 import { useMutation, useQuery } from '@tanstack/vue-query';
-import { Users, UsersV2 } from 'services';
+import { Users } from 'services';
 import { z } from 'zod';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm, useField } from 'vee-validate';
@@ -248,7 +248,7 @@ const { mutate: mutateSignUp, isPending: isPendingSubmit } = useMutation({
 
 const onSubmit = handleSubmit(({ email, ra }) =>
   mutateSignUp({
-    email: `${email.toLowerCase()}@aluno.ufabc.edu.br`,
+    email: email.toLowerCase(),
     ra: Number(ra.ra),
   }),
 );
@@ -256,7 +256,7 @@ const onSubmit = handleSubmit(({ email, ra }) =>
 const isFetchEmailEnabled = computed(() => raConfirm.value.value === ra.value.value);
 const { refetch: fetchEmail, isLoading: isFetchEmailLoading, data: verifiedEmail, error: fetchEmailError } = useQuery({
   queryKey: ['email'],
-  queryFn: () => UsersV2.getEmail(ra.value.value),
+  queryFn: () => Users.getEmail(ra.value.value),
   enabled: false,
 });
 

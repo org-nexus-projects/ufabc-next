@@ -1,4 +1,3 @@
-import axios from 'axios';
 import type { User } from 'types';
 
 import { api } from './api';
@@ -36,7 +35,6 @@ export const Users = {
   info: () => api.get<User>('/users/info'),
   facebookAuth: (params: FacebookAuth) =>
     api.post<FacebookConfirmResponse>('/users/facebook', params),
-    api.post<FacebookConfirmResponse>('/facebook/sync', params),
   getEmail: (ra: string) =>
     api.get<EmailResponse>('/users/check-email', { params: { ra } }),
 };
