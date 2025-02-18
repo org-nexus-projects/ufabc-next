@@ -113,8 +113,33 @@
         margin-top: 0px !important;
       }
       .google-button:hover,
-      .facebook-button:hover {
+      .facebook-button:hover,
+      .local-login-button:hover {
         transform: scale(1.05, 1.05);
+      }
+      .local-login-button {
+        background-color: #6fc276;
+        color: white !important;
+        border-radius: 3px;
+        font-size: 16px;
+        font-weight: bold;
+        height: 50px;
+        margin-bottom: 12px;
+        padding: 18px 22px 16px 60px;
+        position: relative;
+        transition: all 0.3s;
+        width: 263px;
+        cursor: pointer;
+        display: inline-block;
+        font-family: Montserrat;
+        text-decoration: none !important;
+      }
+      .local-login-button > svg {
+        left: 13px;
+        position: absolute;
+        top: calc(50% - 1em);
+        width: 32px;
+        margin-top: 5px !important;
       }
       .recovery-button {
         background-color: #777777 !important;
@@ -215,6 +240,9 @@
         line-height: 1.2;
         letter-spacing: -1px;
       }
+      .hidden {
+        display: none;
+      }
     </style>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.2.1/mustache.js"></script>
@@ -277,7 +305,7 @@
                 <li class="nav-item">
                   <a
                     class="nav-link js-scroll-trigger"
-                    href="https://api.ufabcnext.com/snapshot"
+                    href="https://ufabc-matricula-snapshot.vercel.app"
                     >Snapshot</a
                   >
                 </li>
@@ -314,6 +342,7 @@
                       <img src="assets/icons/google-logo.png" />
                       Entrar com Google
                     </a>
+                    <div id="dev-login"></div>
                     <a
                       class="recovery-button"
                       href="https://ufabcnext.com/app/recovery"
@@ -859,13 +888,13 @@
       const resolveEndpoint = (origin) => {
         if (origin === 'file://') {
           // local backend
-          return 'http://localhost:8011/v1/connect/google';
+          return 'http://localhost:5000/login/google';
         } else if (origin.includes('dev')) {
           // staging url
-          return 'https://api.ufabcnext.com/connect/google';
+          return 'https://api.v2.ufabcnext.com/login/google';
         } else {
           // production url
-          return 'https://api.ufabcnext.com/connect/google';
+          return 'https://api.v2.ufabcnext.com/login/google';
         }
       };
       var template = $('#stats-counter').html();
@@ -890,7 +919,7 @@
 
       let self = this;
       axios
-        .get('https://api.ufabcnext.com/v1/stats/usage')
+        .get('https://api.v2.ufabcnext.com/public/stats/usage')
         .then(function (res) {
           self.stats = res.data;
           var newRendered = Mustache.render(template, {
@@ -903,6 +932,33 @@
         .catch(function (err) {
           console.log(err);
         });
+
+      const devLoginBtn = `<a
+                        class="local-login-button"
+                        data-toggle="modal"
+                        data-target="#localLoginModal"
+                      >
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="avatar-icon"
+                        >
+                          <circle cx="12" cy="8" r="4" fill="white" />
+                          <path
+                            d="M20 19v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6z"
+                            fill="white"
+                          />
+                        </svg>
+                        Entrar localmente
+                      </a>`;
+
+      const isLocal = window.location.origin.includes('file://');
+      if (isLocal) {
+        const devLoginContainer = document.querySelector('#dev-login');
+        devLoginContainer.insertAdjacentHTML('afterend', devLoginBtn);
+      }
     </script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script
@@ -917,6 +973,66 @@
       gtag('js', new Date());
 
       gtag('config', 'UA-138205557-1');
+    </script>
+
+    <div
+      class="modal fade"
+      id="localLoginModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="localLoginModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="localLoginModalLabel">Local Login</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="localLoginForm">
+              <div class="form-group">
+                <input
+                  type="email"
+                  class="form-control"
+                  id="emailInput"
+                  aria-describedby="emailHelp"
+                  placeholder="Enter email"
+                  required
+                />
+              </div>
+              <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const localLoginForm = document.getElementById('localLoginForm');
+
+        localLoginForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          const email = document.getElementById('emailInput').value;
+          const { data: res } = await axios.post(
+            'http://localhost:5000/backoffice/token',
+            { email },
+          );
+          const token = res.token?.replace('Bearer ', '');
+
+          $('#localLoginModal').modal('hide');
+          localLoginForm.reset();
+          window.location.href = `http://localhost:3000?token=${encodeURIComponent(token)}`;
+        });
+      });
     </script>
   </body>
 </html>

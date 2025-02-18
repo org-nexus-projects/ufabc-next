@@ -34,18 +34,10 @@
                   <v-icon color="ufabcnext-green">mdi-check</v-icon>
                   Conta do Facebook associada
                 </a>
-                
-                <!-- 
-                <a :href="addFacebookAccount" target="_blank" class="links-settings add-account" v-else-if="user">
-                  <v-icon color="ufabcnext-blue" class="mr-2">mdi-plus-circle-outline</v-icon>
-                  Associar à uma conta do Facebook
-                </a> -->
-
                 <a href="#" class="links-settings" v-if="user?.oauth?.google">
                   <v-icon color="ufabcnext-green">mdi-check</v-icon>
                   Conta do Google associada
                 </a>
-
                 <a :href="addGoogleAccount" target="_blank" class="links-settings add-account" v-else-if="user">
                   <v-icon color="ufabcnext-blue" class="mr-2">mdi-plus-circle-outline</v-icon>
                   Associar à uma conta do Google
@@ -121,15 +113,11 @@ const userLogin = computed(() => {
   return user.value?.email?.replace('@aluno.ufabc.edu.br', '');
 });
 
-const apiPath = api.defaults.baseURL?.replace('/v1', '');
 
 const addGoogleAccount = computed(() => {
-  return apiPath + 'connect/google?userId=' + user.value?._id;
+  return `${api.defaults.baseURL}/login/google?userId=${user.value?._id}`;
 });
 
-// const addFacebookAccount = computed(() => {
-//   return apiPath + 'connect/facebook?userId=' + user.value?._id;
-// });
 
 const createdAt = computed(() => {
   if (user.value?.createdAt) {

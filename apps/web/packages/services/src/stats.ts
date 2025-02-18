@@ -22,18 +22,18 @@ export type StatsParams = {
 
 export const StatsSubjects = {
   getAllClasses: (params: StatsParams) =>
-    api.get<PageableReturn<StatsClass>>('/stats/disciplinas', { params }),
+    api.get<PageableReturn<StatsClass>>('public/stats/components', { params }),
   getAllCourses: (params: StatsParams) =>
-    api.get<PageableReturn<StatsCourse>>('/stats/disciplinas/courses', {
+    api.get<PageableReturn<StatsCourse>>('public/stats/components/courses', {
       params,
     }),
   getAllSubjects: (params: StatsParams) =>
-    api.get<PageableReturn<StatsSubject>>('/stats/disciplinas/disciplines', {
+    api.get<PageableReturn<StatsSubject>>('public/stats/components/component', {
       params,
     }),
   getAllCoursesNames: () => api.get<CourseName[]>('/histories/courses'),
   getOverview: (params: Pick<StatsParams, 'season'>) =>
-    api.get<StatsOverview>('/stats/disciplinas/overview', { params }),
+    api.get<StatsOverview>('public/stats/components/overview', { params }),
   getUsage: (params: Pick<StatsParams, 'season'>) =>
-    api.get<StatsUsage>('/stats/usage', { params }),
+    api.get<StatsUsage>('public/stats/usage', { params }),
 };

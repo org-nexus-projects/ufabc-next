@@ -75,6 +75,7 @@ import dayjs from 'dayjs';
 import { computed, ref } from 'vue';
 import { useAuth } from '@/stores/useAuth';
 import { useAliasInitials } from '@/utils/composables/aliasInitials';
+import { api } from 'services';
 
 const { logOut, user } = useAuth();
 const handleLogout = () => {
@@ -93,12 +94,12 @@ const internalNavigationItems = [
     icon: 'mdi-message-draw',
     route: '/reviews',
   },
-  {
-    title: 'Aulões Next',
-    icon: 'mdi-school',
-    route: '/partners',
-    releaseDate: dayjs('08/18/2024')
-  },
+  // {
+  //   title: 'Aulões Next',
+  //   icon: 'mdi-school',
+  //   route: '/partners',
+  //   releaseDate: dayjs('08/18/2024')
+  // },
   {
     title: 'Meu histórico',
     icon: 'mdi-history',
@@ -130,14 +131,15 @@ const internalNavigationItems = [
     icon: 'mdi-cog',
     route: '/settings',
   },
-
 ];
+
+const apiURL = api.defaults.baseURL ?? 'https://api.v2.ufabcnext.com'
 
 const externalNavigationItems = [
   {
     title: 'Snapshot da Matrícula',
     icon: 'mdi-open-in-new',
-    url: 'https://api.ufabcnext.com/snapshot',
+    url: 'https://ufabc-matricula-snapshot.vercel.app',
   },
   {
     title: 'Grupos no WhatsApp',
@@ -149,6 +151,11 @@ const externalNavigationItems = [
     icon: 'mdi-download',
     url: 'https://chrome.google.com/webstore/detail/ufabc-next/gphjopenfpnlnffmhhhhdiecgdcopmhk',
   },
+  ...(user.value?.permissions?.includes('admin') ? [{
+    title: 'Monitoramento de Jobs',
+    icon: 'mdi-open-in-new',
+    url: `${apiURL}/login/jobs-monitoring?userId=${user.value?._id}`
+  }] : [])
 ];
 </script>
 
