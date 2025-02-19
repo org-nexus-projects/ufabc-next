@@ -23,7 +23,7 @@ const ARCHIVE_DIR = join(LOGS_DIR, 'archive');
 
 export async function uploadLogsToS3(ctx: QueueContext<S3UploadJob>) {
   const {
-    data: { bucket, localOnly = false, retentionDays = 7 },
+    data: { bucket, retentionDays = 7, localOnly },
   } = ctx.job;
 
   try {

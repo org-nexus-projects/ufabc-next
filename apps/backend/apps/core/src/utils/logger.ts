@@ -15,6 +15,10 @@ const getLogFilePath = () => {
   return join(logDirectory, `app-${dateString}.log`);
 };
 
+const timeFormatter = {
+  timestamp: () => `,"time":"${new Date().toISOString()}"`,
+};
+
 const pinoPrettyOptions = {
   colorize: true,
   translateTime: 'HH:MM:ss.l',
@@ -24,6 +28,7 @@ const pinoPrettyOptions = {
 // Logger configurations for different environments
 const loggerSetup = {
   dev: {
+    timestamp: timeFormatter.timestamp,
     transport: {
       targets: [
         {
@@ -31,7 +36,6 @@ const loggerSetup = {
           options: {
             ...pinoPrettyOptions,
             destination: 1,
-            // timestamp: pino.stdTimeFunctions.isoTime,
           },
           level: 'info',
         },
@@ -48,6 +52,7 @@ const loggerSetup = {
 
   // Minimal config for production
   prod: {
+    timestamp: timeFormatter.timestamp,
     transport: {
       targets: [
         {
@@ -55,6 +60,7 @@ const loggerSetup = {
           options: {
             destination: getLogFilePath(),
             mkdir: true,
+            timestamp: timeFormatter.timestamp,
           },
         },
       ],
