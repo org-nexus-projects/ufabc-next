@@ -60,7 +60,6 @@ const loggerSetup = {
           options: {
             destination: getLogFilePath(),
             mkdir: true,
-            timestamp: timeFormatter.timestamp,
           },
         },
       ],
