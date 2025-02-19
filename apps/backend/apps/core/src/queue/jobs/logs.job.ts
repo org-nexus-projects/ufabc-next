@@ -39,7 +39,13 @@ export async function uploadLogsToS3(ctx: QueueContext<S3UploadJob>) {
     const logFiles = files.filter(
       (file) => file.startsWith('app-') && !file.includes('archive'),
     );
-
+    ctx.app.log.info(
+      {
+        files,
+        jobData: ctx.job.data,
+      },
+      'Files encountered',
+    );
     for (const file of logFiles) {
       const filePath = join(LOGS_DIR, file);
       const stats = await stat(filePath);
@@ -51,13 +57,12 @@ export async function uploadLogsToS3(ctx: QueueContext<S3UploadJob>) {
 
       if (!localOnly) {
         const fileContent = await readFile(filePath);
-        await s3Client.send(
-          new PutObjectCommand({
-            Bucket: bucket,
-            Key: `logs/${file}`,
-            Body: fileContent,
-          }),
-        );
+        const command = new PutObjectCommand({
+          Bucket: bucket,
+          Key: `logs/${file}`,
+          Body: fileContent,
+        });
+        await s3Client.send(command);
         ctx.app.log.info(`Uploaded to S3: ${file}`);
       }
 
