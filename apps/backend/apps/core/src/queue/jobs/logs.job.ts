@@ -38,20 +38,22 @@ export async function uploadLogsToS3(ctx: QueueContext<unknown>) {
       {
         files,
         jobData: ctx.job.data,
+        logFiles,
       },
       'Files encountered',
     );
     for (const file of logFiles) {
       const filePath = join(LOGS_DIR, file);
+      ctx.app.log.info(`Processing file: ${file}: ${filePath}`);
       const stats = await stat(filePath);
-      const dayOld = Date.now() - stats.mtime.getTime() > 24 * 60 * 60 * 1000;
+      // const dayOld = Date.now() - stats.mtime.getTime() > 24 * 60 * 60 * 1000;
+      // if (!dayOld) {
+      //   continue;
+      // }
 
-      if (!dayOld) {
-        continue;
-      }
-
-      if (!localOnly) {
+      // if (!localOnly) {
         const fileContent = await readFile(filePath);
+        ctx.app.log.info(`Read file: ${fileContent}`);
         const command = new PutObjectCommand({
           Bucket: bucket,
           Key: `logs/${file}`,
@@ -59,7 +61,7 @@ export async function uploadLogsToS3(ctx: QueueContext<unknown>) {
         });
         await s3Client.send(command);
         ctx.app.log.info(`Uploaded to S3: ${file}`);
-      }
+      // }
 
       // Move to archive
       const archivePath = join(ARCHIVE_DIR, file);
