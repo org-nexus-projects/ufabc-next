@@ -13,14 +13,14 @@ const enrollmentsListSchema = z.object({
   conceito: z.string(),
   createdAt: z.date().nullish(),
   updatedAt: z.date().nullish(),
-  creditos: z.number().int(),
+  creditos: z.number().int().nullish(),
   identifier: z.string(),
   season: z.string().optional(),
   subject: z.object({
     _id: z.coerce.string(),
     name: z.string(),
     search: z.string(),
-    creditos: z.number(),
+    creditos: z.number().nullish(),
   }).nullish(),
   teoria: z
     .object({
