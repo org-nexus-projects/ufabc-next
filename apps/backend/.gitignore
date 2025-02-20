@@ -47,3 +47,4 @@ tmp
 .env.dev
 debug.js
 logs
+scripts/docker/localstack

@@ -30,7 +30,7 @@ services:
       AWS_SECRET_ACCESS_KEY: "AWS_SECRET_ACCESS_KEY_LOCALSTACK"
       DEBUG: "1"
     volumes:
-      - "./localstack:/var/lib/localstack"   
+      - "./scripts/docker/localstack:/var/lib/localstack"
 
 volumes:
   next-db-data:
