@@ -11,17 +11,33 @@ if (!existsSync(logDirectory)) {
 }
 
 const getLogFilePath = () => {
-  const dateString = new Date().toISOString().split('T')[0];
-  return join(logDirectory, `app-${dateString}.log`);
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return join(logDirectory, `app-${year}-${month}-${day}.log`);
 };
 
 const timeFormatter = {
-  timestamp: () => `,"time":"${new Date().toISOString()}"`,
+  timestamp: () => {
+    const date = new Date();
+    return `,"time":"${date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      fractionalSecondDigits: 3,
+      hour12: false,
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    })}"`;
+  },
 };
 
 const pinoPrettyOptions = {
   colorize: true,
-  translateTime: 'HH:MM:ss.l',
+  translateTime: 'SYS:standard', // Uses system's local time
   ignore: 'pid,hostname',
 } satisfies PrettyOptions;
 
