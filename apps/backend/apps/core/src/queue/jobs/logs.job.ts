@@ -12,19 +12,14 @@ import { s3Client } from '@/lib/aws.service.js';
 import type { QueueContext } from '../types.js';
 import { existsSync } from 'node:fs';
 
-type S3UploadJob = {
-  bucket?: string;
-  localOnly?: boolean;
-  retentionDays?: number;
-};
-
 const LOGS_DIR = join(process.cwd(), 'logs');
 const ARCHIVE_DIR = join(LOGS_DIR, 'archive');
 
-export async function uploadLogsToS3(ctx: QueueContext<S3UploadJob>) {
-  const {
-    data: { bucket, retentionDays = 7, localOnly },
-  } = ctx.job;
+const DEFAULT_RETENTION_DAYS = 7;
+
+export async function uploadLogsToS3(ctx: QueueContext<unknown>) {
+  const bucket = process.env.AWS_LOGS_BUCKET;
+  const localOnly = process.env.NODE_ENV === 'dev';
 
   try {
     ctx.app.log.info('init logs processing');
@@ -75,7 +70,7 @@ export async function uploadLogsToS3(ctx: QueueContext<S3UploadJob>) {
       const archiveStats = await stat(archivePath);
       const isOld =
         Date.now() - archiveStats.mtime.getTime() >
-        retentionDays * 24 * 60 * 60 * 1000;
+        DEFAULT_RETENTION_DAYS * 24 * 60 * 60 * 1000;
 
       if (isOld) {
         await unlink(archivePath);

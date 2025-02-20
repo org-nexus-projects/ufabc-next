@@ -18,11 +18,7 @@ export async function start() {
 
   app.job.schedule('EnrolledSync');
   app.job.schedule('ComponentsSync');
-  app.job.schedule('LogsUpload', {
-    bucket: app.config.AWS_LOGS_BUCKET,
-    localOnly: app.config.NODE_ENV === 'dev',
-    retentionDays: 7,
-  });
+  app.job.schedule('LogsUpload');
 
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {
     if (err) {
