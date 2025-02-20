@@ -28,14 +28,14 @@ const enrollmentsListSchema = z.object({
       name: z.string(),
       alias: z.string().array().nullish(),
     })
-    .optional(),
+    .nullish(),
   pratica: z
     .object({
       _id: z.coerce.string(),
       name: z.string(),
       alias: z.string().array().nullish(),
     })
-    .optional(),
+    .nullish(),
 });
 
 export type EnrollmentsList = z.infer<typeof enrollmentsListSchema>;
