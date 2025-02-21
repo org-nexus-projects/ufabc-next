@@ -27,7 +27,7 @@ export async function findLatestHistory(ra: number) {
   const lastHistory = await HistoryModel.findOne({
     ra,
     disciplinas: { $ne: [] },
-  }).sort({ createdAt: -1 });
+  }).sort({ updatedAt: -1 });
 
   return lastHistory;
 }
