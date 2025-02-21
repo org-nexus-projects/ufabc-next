@@ -37,6 +37,7 @@ const configSchema = z.object({
   EMAIL_API: z.string().optional(),
   AXIOM_TOKEN: z.string().optional(),
   AXIOM_DATASET: z.string().optional(),
+  BOARD_PATH: z.string(),
 });
 
 const schema = zodToJsonSchema(configSchema);
