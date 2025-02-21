@@ -101,6 +101,14 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         season,
         ra,
       }).lean<Student>();
+      request.log.warn(
+        {
+          login,
+          studentId: student?.aluno_id,
+          content: request.body,
+        },
+        'Already created',
+      );
       return student;
     }
 
@@ -110,20 +118,27 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       // called by snapshot page
       const student = await StudentModel.findOne({
         aluno_id: request.body.studentId,
+        season,
       }).lean<Student>();
-
+      request.log.warn(
+        {
+          login,
+          studentId: student?.aluno_id,
+          content: request.body,
+        },
+        'Snapshot call',
+      );
       return student;
     }
 
-    const studentGraduations = await Promise.all(
-      graduations.map(async (graduation) => {
-        const history = await getGraduation(ra, graduation.name);
-        return calculateGraduationMetrics(
-          graduation,
-          history as NonNullable<HistoryDocument>,
-        );
-      }),
-    );
+    const graduationPromises = graduations.map(async (graduation) => {
+      const history = await getGraduation(ra, graduation.name);
+      return calculateGraduationMetrics(
+        graduation,
+        history as NonNullable<HistoryDocument>,
+      );
+    });
+    const studentGraduations = await Promise.all(graduationPromises);
 
     request.log.warn({
       msg: 'Created student',
