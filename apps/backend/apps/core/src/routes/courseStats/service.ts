@@ -26,6 +26,7 @@ export async function getCrDistribution(points: number, interval: number) {
 export async function findLatestHistory(ra: number) {
   const lastHistory = await HistoryModel.findOne({
     ra,
+    disciplinas: { $ne: [] },
   }).sort({ createdAt: -1 });
 
   return lastHistory;
