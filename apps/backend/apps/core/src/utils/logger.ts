@@ -1,5 +1,6 @@
 import { type LoggerOptions, pino } from 'pino';
 import type { PrettyOptions } from 'pino-pretty';
+import type { Options as AxiomOptions } from '@axiomhq/pino';
 import { mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -18,33 +19,21 @@ const getLogFilePath = () => {
   return join(logDirectory, `app-${year}-${month}-${day}.log`);
 };
 
-const timeFormatter = {
-  timestamp: () => {
-    const date = new Date();
-    return `,"time":"${date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      fractionalSecondDigits: 3,
-      hour12: false,
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    })}"`;
-  },
-};
-
 const pinoPrettyOptions = {
   colorize: true,
   translateTime: 'SYS:standard', // Uses system's local time
   ignore: 'pid,hostname',
 } satisfies PrettyOptions;
 
+const axiomOptions = {
+  dataset: process.env.AXIOM_DATASET as string,
+  token: process.env.AXIOM_TOKEN as string,
+} satisfies AxiomOptions;
+
 // Logger configurations for different environments
 const loggerSetup = {
   dev: {
-    timestamp: timeFormatter.timestamp,
+    timestamp: pino.stdTimeFunctions.isoTime,
     transport: {
       targets: [
         {
@@ -68,7 +57,7 @@ const loggerSetup = {
 
   // Minimal config for production
   prod: {
-    timestamp: timeFormatter.timestamp,
+    timestamp: pino.stdTimeFunctions.isoTime,
     transport: {
       targets: [
         {
@@ -77,6 +66,10 @@ const loggerSetup = {
             destination: getLogFilePath(),
             mkdir: true,
           },
+        },
+        {
+          target: '@axiomhq/pino',
+          options: axiomOptions,
         },
       ],
     },
