@@ -26,6 +26,7 @@ const configSchema = z.object({
   AWS_REGION: z.string(),
   AWS_ACCESS_KEY_ID: z.string(),
   AWS_SECRET_ACCESS_KEY: z.string(),
+  USE_LOCALSTACK: z.coerce.boolean().default(true),
   AWS_LOGS_BUCKET: z.string().optional(),
   OAUTH_GOOGLE_CLIENT_ID: z.string(),
   OAUTH_GOOGLE_SECRET: z.string().min(16),
@@ -33,8 +34,10 @@ const configSchema = z.object({
     .string()
     .optional()
     .transform((s) => s?.split(',')),
-  BOARD_PATH: z.string().optional(),
   EMAIL_API: z.string().optional(),
+  AXIOM_TOKEN: z.string().optional(),
+  AXIOM_DATASET: z.string().optional(),
+  BOARD_PATH: z.string(),
 });
 
 const schema = zodToJsonSchema(configSchema);
