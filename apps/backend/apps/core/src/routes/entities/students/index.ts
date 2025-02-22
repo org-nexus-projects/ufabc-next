@@ -94,8 +94,12 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       before_kick: { $exists: true, $ne: [] },
       season,
     });
+    const student = await StudentModel.findOne({
+      season,
+      ra,
+    }).lean<Student>();
 
-    if (isPrevious) {
+    if (isPrevious && student) {
       // past student, do not update anymore
       const student = await StudentModel.findOne({
         season,
@@ -131,16 +135,16 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     });
     const studentGraduations = await Promise.all(graduationPromises);
 
-    const student = await createOrInsert({
+    const createdStudent = await createOrInsert({
       ra,
       login,
       graduations: studentGraduations,
     });
 
     return {
-      _id: student._id,
-      login: student.login,
-      graduations: student.cursos.map((c) => ({
+      _id: createdStudent._id,
+      login: createdStudent.login,
+      graduations: createdStudent.cursos.map((c) => ({
         name: c.nome_curso,
         UFCourseId: c.id_curso,
         turno: c.turno,
