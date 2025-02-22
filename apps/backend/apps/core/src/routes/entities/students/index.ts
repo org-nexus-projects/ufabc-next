@@ -87,7 +87,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   );
 
   app.post('/', { schema: createStudentSchema }, async (request, reply) => {
-    const { graduations, ra, login } = request.body;
+    const { studentId, graduations, ra, login } = request.body;
 
     const season = currentQuad();
     const isPrevious = await ComponentModel.countDocuments({
@@ -101,14 +101,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         season,
         ra,
       }).lean<Student>();
-      request.log.warn(
-        {
-          login,
-          studentId: student?.aluno_id,
-          content: request.body,
-        },
-        'Already created',
-      );
+      request.log.warn(student, 'Already created');
       return student;
     }
 
@@ -117,17 +110,15 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     if (isMissingCourseId || !ra) {
       // called by snapshot page
       const student = await StudentModel.findOne({
-        aluno_id: request.body.studentId,
+        $or: [
+          {
+            aluno_id: studentId,
+          },
+          { login },
+        ],
         season,
       }).lean<Student>();
-      request.log.warn(
-        {
-          login,
-          studentId: student?.aluno_id,
-          content: request.body,
-        },
-        'Snapshot call',
-      );
+      request.log.warn(student, 'Snapshot call');
       return student;
     }
 
@@ -139,15 +130,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       );
     });
     const studentGraduations = await Promise.all(graduationPromises);
-
-    request.log.warn({
-      msg: 'Created student',
-      student: {
-        ra,
-        login,
-        studentId: request.body.studentId,
-      },
-    });
 
     const student = await createOrInsert({
       ra,
@@ -189,41 +171,39 @@ function calculateGraduationMetrics(
   graduation: CreateStudent['graduations'][number],
   history: HistoryDocument,
 ) {
+  const cpBeforePandemic = history?.coefficients?.[2019]?.[3]?.cp_acumulado;
+  const cpFreezed = history?.coefficients?.[2021]?.[2]?.cp_acumulado;
+
   const { quad, year } = lastQuad();
+  const cpLastQuad = history?.coefficients?.[year]?.[quad]?.cp_acumulado;
+
   const threeMonthsAgo = new Date();
   threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
   const twoQuadAgoSeason = lastQuad(threeMonthsAgo);
-
-  // Extract coefficient values
-  const cpBeforePandemic = history?.coefficients?.[2019]?.[3]?.cp_acumulado;
-  const cpFreezed = history?.coefficients?.[2021]?.[2]?.cp_acumulado;
-  const cpPastQuad = history?.coefficients?.[year]?.[quad]?.cp_acumulado;
-  const cpTwoQuadsAgo =
+  const cpTwoQuadAgo =
     history?.coefficients?.[twoQuadAgoSeason.year]?.[twoQuadAgoSeason.quad]
       ?.cp_acumulado;
 
-  const calculateTotalCp = () => {
-    if ((cpPastQuad || cpTwoQuadsAgo) && cpFreezed) {
-      return (cpPastQuad || cpTwoQuadsAgo) - cpFreezed;
+  let cpTotal = null;
+  if ((cpLastQuad || cpTwoQuadAgo) && cpFreezed) {
+    cpTotal = (cpLastQuad || cpTwoQuadAgo) - cpFreezed;
+  }
+
+  let finalCP = null;
+  if (!cpBeforePandemic) {
+    if (!cpTotal) {
+      cpTotal = graduation.cp;
     }
-    return null;
-  };
+    finalCP = Math.min(Number((cpTotal || 0).toFixed(3)), 1);
+  } else {
+    finalCP = Math.min(
+      Number((cpBeforePandemic + (cpTotal || 0)).toFixed(3)),
+      1,
+    );
+  }
 
-  const cpTotal = calculateTotalCp();
-
-  const calculateFinalCp = () => {
-    if (!cpBeforePandemic) {
-      return Math.min(Number((cpTotal || graduation.cp!)?.toFixed(3)), 1);
-    }
-    return Math.min(Number((cpBeforePandemic + cpTotal!)?.toFixed(3)), 1);
-  };
-
-  const sanitizeValue = (value: number | undefined) =>
-    value && Number.isFinite(value) ? value : 0;
-
-  const finalCp = calculateFinalCp();
   const cr = sanitizeValue(graduation.cr);
-  const cp = sanitizeValue(finalCp);
+  const cp = sanitizeValue(finalCP);
   const quads = sanitizeValue(graduation.quads ?? 0);
   // Calculate affinity index
   const ind_afinidade = 0.07 * cr + 0.63 * cp + 0.005 * quads;
@@ -238,5 +218,8 @@ function calculateGraduationMetrics(
     ind_afinidade,
   };
 }
+
+const sanitizeValue = (value: number | undefined) =>
+  value && Number.isFinite(value) ? value : 0;
 
 export default plugin;

@@ -120,10 +120,10 @@ export async function createOrInsert({
 
   const student = await StudentModel.findOneAndUpdate(
     {
-      aluno_id: studentId,
+      ra,
       season,
     },
-    { ra, login, cursos: graduations, season },
+    { ra, login, cursos: graduations },
     { new: true, upsert: true },
   );
 
