@@ -1,7 +1,9 @@
 import { UserModel, type User } from '@/models/User.js';
 import {
+  createCardSchema,
   jobsLoginSchema,
   loginSchema,
+  notionSchema,
   type LegacyGoogleUser,
 } from '@/schemas/login.js';
 import type { Token } from '@fastify/oauth2';
@@ -10,7 +12,7 @@ import { Types } from 'mongoose';
 import { ofetch } from 'ofetch';
 
 export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
-  app.get('/google', async function (request, reply) {
+  app.get('/google', async function(request, reply) {
     const validatedURI = await this.google.generateAuthorizationUri(
       request,
       reply,
@@ -30,7 +32,7 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get(
     '/google/callback',
     { schema: loginSchema },
-    async function (request, reply) {
+    async function(request, reply) {
       try {
         const userId = request.query.state;
         const { token } =
@@ -113,9 +115,142 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       return reply.redirect(redirectURL.href);
     },
   );
+
+  app.get('notion', async (request, reply) => {
+    const notionUrl = 'https://api.notion.com/v1';
+    const notionOauthUrl = new URL('/oauth/authorize', notionUrl);
+
+    notionOauthUrl.searchParams.set('client_id', app.config.NOTION_CLIENT_ID);
+    notionOauthUrl.searchParams.set('response_type', 'code');
+    notionOauthUrl.searchParams.set('owner', 'user');
+    notionOauthUrl.searchParams.set(
+      'redirect_uri',
+      encodeURIComponent(
+        `${app.config.PROTOCOL}://${request.host}/login/notion/callback`,
+      ),
+    );
+
+    request.log.info({
+      obj: notionOauthUrl.href,
+      msg: 'redirecting notion oauth',
+    });
+
+    reply.redirect(notionOauthUrl.href);
+  });
+
+  app.get(
+    '/notion/callback',
+    { schema: notionSchema },
+    async (request, reply) => {
+      const { code } = request.query;
+
+      if (!code) {
+        return reply.badRequest('Authorization code missing');
+      }
+
+      const notionRedirectUri = `${app.config.PROTOCOL}://${request.host}/login/notion/callback`;
+
+      const { NOTION_CLIENT_ID, NOTION_CLIENT_SECRET } = app.config;
+
+      const response = await getNotionTokenResponse(
+        code,
+        notionRedirectUri,
+        NOTION_CLIENT_ID,
+        NOTION_CLIENT_SECRET,
+      );
+
+      request.log.info({
+        obj: response,
+        msg: 'notion token response',
+      });
+
+      return reply.send({
+        message: 'OAuth successful',
+        access_token: response.access_token,
+      });
+    },
+  );
+
+  app.post(
+    '/create-card',
+    { schema: createCardSchema },
+    async (request, reply) => {
+      const { accessToken, email, ra, admissionYear, proofOfError } =
+        request.body;
+
+      if (!accessToken || !email || !ra || !admissionYear || !proofOfError) {
+        return reply.badRequest('All fields are required.');
+      }
+
+      const notionPayload = {
+        parent: { database_id: app.config.NOTION_DATABASE_ID },
+        properties: {
+          Email: { title: [{ text: { content: email } }] },
+          RA: { number: ra },
+          'Ano de Ingresso': { number: admissionYear },
+          'Evidência do Erro': { url: proofOfError },
+        },
+      };
+
+      const notionUrl = 'https://api.notion.com/v1';
+      const notionPageUrl = new URL('/pages', notionUrl);
+
+      const notionResponse = await postCardToNotion(
+        notionPageUrl.href,
+        notionPayload,
+        accessToken,
+      );
+
+      return reply.send({
+        message: 'Card created!',
+        data: notionResponse,
+      });
+    },
+  );
 };
 
 export default plugin;
+
+async function getNotionTokenResponse(
+  code: string,
+  redirectUri: string,
+  clientId: string,
+  clientSecret: string,
+) {
+  const notionUrl = 'https://api.notion.com/v1';
+  const notionTokenUrl = new URL('/oauth/token', notionUrl);
+  const headers = new Headers();
+
+  headers.append('grant_type', 'authorization_code');
+  headers.append('code', code);
+  headers.append('redirect_uri', redirectUri);
+  headers.append('client_id', clientId);
+  headers.append('client_secret', clientSecret);
+
+  const response = await ofetch(notionTokenUrl.href, {
+    headers,
+  });
+
+  return response;
+}
+
+async function postCardToNotion(
+  notionUrl: string,
+  notionPayload: object,
+  token: string,
+) {
+  const headers = new Headers();
+  headers.append('Authorization', `Bearer ${token}`);
+  headers.append('Notion-Version', '2022-06-28');
+
+  const notionResponse = await ofetch(notionUrl, {
+    method: 'POST',
+    body: notionPayload,
+    headers,
+  });
+
+  return notionResponse;
+}
 
 async function getUserDetails(token: Token) {
   const headers = new Headers();
