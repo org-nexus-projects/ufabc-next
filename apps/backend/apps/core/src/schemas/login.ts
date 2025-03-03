@@ -1,5 +1,5 @@
 import type { FastifySchema } from 'fastify';
-import { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
+import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 import { Types } from 'mongoose';
 import { z } from 'zod';
 import 'zod-openapi/extend';
@@ -71,16 +71,11 @@ export const loginSchema = {
   tags: ['Login'],
 } satisfies FastifySchema;
 
-export const jobsLoginSchema = {
+export const loginNotionSchema = {
   querystring: z.object({
-    userId: z.string().transform((val) => new Types.ObjectId(val)),
+    code: z.string(),
   }),
-} satisfies FastifySchema;
-
-export const notionSchema = {
-  querystring: z.object({
-    code: z.string().nullish(),
-  }),
+  tags: ['Login'],
 } satisfies FastifySchema;
 
 export const createCardSchema = {

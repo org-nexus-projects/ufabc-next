@@ -1,9 +1,8 @@
 import { UserModel, type User } from '@/models/User.js';
 import {
   createCardSchema,
-  jobsLoginSchema,
+  loginNotionSchema,
   loginSchema,
-  notionSchema,
   type LegacyGoogleUser,
 } from '@/schemas/login.js';
 import type { Token } from '@fastify/oauth2';
@@ -12,7 +11,7 @@ import { Types } from 'mongoose';
 import { ofetch } from 'ofetch';
 
 export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
-  app.get('/google', async function(request, reply) {
+  app.get('/google', async function (request, reply) {
     const validatedURI = await this.google.generateAuthorizationUri(
       request,
       reply,
@@ -32,7 +31,7 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get(
     '/google/callback',
     { schema: loginSchema },
-    async function(request, reply) {
+    async function (request, reply) {
       try {
         const userId = request.query.state;
         const { token } =
@@ -80,94 +79,39 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     },
   );
 
-  app.get(
-    '/jobs-monitoring',
-    { schema: jobsLoginSchema },
-    async (request, reply) => {
-      const { userId } = request.query;
-      const user = await UserModel.findById(userId);
-
-      if (!user) {
-        request.log.warn({
-          msg: 'Unregistered user',
-          userId,
-        });
-        return reply.notFound('User not found');
-      }
-
-      if (!user.permissions.includes('admin')) {
-        request.log.warn({
-          msg: 'Unauthorized jobs request',
-          userId,
-          email: user.email,
-        });
-        return reply.unauthorized();
-      }
-
-      request.log.info({
-        msg: 'Logging admin',
-        userId,
-      });
-      const redirectURL = new URL(
-        app.config.BOARD_PATH ?? '',
-        `${app.config.PROTOCOL}://${request.host}`,
-      );
-      return reply.redirect(redirectURL.href);
-    },
-  );
-
-  app.get('notion', async (request, reply) => {
-    const notionUrl = 'https://api.notion.com/v1';
-    const notionOauthUrl = new URL('/oauth/authorize', notionUrl);
-
-    notionOauthUrl.searchParams.set('client_id', app.config.NOTION_CLIENT_ID);
-    notionOauthUrl.searchParams.set('response_type', 'code');
-    notionOauthUrl.searchParams.set('owner', 'user');
-    notionOauthUrl.searchParams.set(
-      'redirect_uri',
-      encodeURIComponent(
-        `${app.config.PROTOCOL}://${request.host}/login/notion/callback`,
-      ),
+  app.get('/notion', async function (request, reply) {
+    const validatedURI = await this.notion.generateAuthorizationUri(
+      request,
+      reply,
     );
-
-    request.log.info({
-      obj: notionOauthUrl.href,
-      msg: 'redirecting notion oauth',
-    });
-
-    reply.redirect(notionOauthUrl.href);
+    app.log.info(validatedURI, 'generated notion URL');
+    // Use URL constructor for better URL handling
+    const redirectURL = new URL(validatedURI);
+    if (!redirectURL) {
+      return reply.internalServerError('Could not generate URL');
+    }
+    app.log.warn(
+      {
+        url: redirectURL.hostname,
+        query: redirectURL.search.split('&'),
+        port: request.hostname,
+      },
+      '[OAUTH] notion start',
+    );
+    return reply.redirect(validatedURI);
   });
 
   app.get(
     '/notion/callback',
-    { schema: notionSchema },
-    async (request, reply) => {
-      const { code } = request.query;
+    { schema: loginNotionSchema },
+    async function (request, reply) {
+      const { token } =
+        await this.notion.getAccessTokenFromAuthorizationCodeFlow(
+          request,
+          reply,
+        );
 
-      if (!code) {
-        return reply.badRequest('Authorization code missing');
-      }
-
-      const notionRedirectUri = `${app.config.PROTOCOL}://${request.host}/login/notion/callback`;
-
-      const { NOTION_CLIENT_ID, NOTION_CLIENT_SECRET } = app.config;
-
-      const response = await getNotionTokenResponse(
-        code,
-        notionRedirectUri,
-        NOTION_CLIENT_ID,
-        NOTION_CLIENT_SECRET,
-      );
-
-      request.log.info({
-        obj: response,
-        msg: 'notion token response',
-      });
-
-      return reply.send({
-        message: 'OAuth successful',
-        access_token: response.access_token,
-      });
+      return token;
     },
   );
 
@@ -211,29 +155,6 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
 export default plugin;
 
-async function getNotionTokenResponse(
-  code: string,
-  redirectUri: string,
-  clientId: string,
-  clientSecret: string,
-) {
-  const notionUrl = 'https://api.notion.com/v1';
-  const notionTokenUrl = new URL('/oauth/token', notionUrl);
-  const headers = new Headers();
-
-  headers.append('grant_type', 'authorization_code');
-  headers.append('code', code);
-  headers.append('redirect_uri', redirectUri);
-  headers.append('client_id', clientId);
-  headers.append('client_secret', clientSecret);
-
-  const response = await ofetch(notionTokenUrl.href, {
-    headers,
-  });
-
-  return response;
-}
-
 async function postCardToNotion(
   notionUrl: string,
   notionPayload: object,
@@ -276,6 +197,32 @@ async function getUserDetails(token: Token) {
     emailFacebook: null,
     facebook: null,
     picture: null,
+  };
+}
+
+async function getNotionUserDetails(token: Token) {
+  const headers = new Headers();
+  headers.append('Authorization', `Bearer ${token.access_token}`);
+  headers.append('Notion-Version', '2022-06-28');
+
+  const userData = await ofetch('https://api.notion.com/v1/users/me', {
+    headers,
+  });
+
+  if (!userData.bot || !userData.bot.owner) {
+    throw new Error('Missing Notion user data');
+  }
+
+  // Extract workspace info from bot owner
+  const workspace = userData.bot.owner;
+
+  return {
+    notionId: userData.id,
+    workspaceId: workspace.workspace_id || workspace.id,
+    workspaceName: workspace.name,
+    accessToken: token.access_token,
+    workspaceIcon: workspace.icon,
+    botId: userData.bot.id,
   };
 }
 
