@@ -38,6 +38,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       permissions: user.permissions,
     };
 
+    request.log.info(userInfo, 'setting user to cache');
     usersCache.set(`user:info:${request.user._id}`, userInfo);
 
     return userInfo;

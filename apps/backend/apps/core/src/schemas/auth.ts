@@ -65,12 +65,7 @@ export const userAuthSchema = {
 export const completeUserSchema = {
   body: z.object({
     ra: z.coerce.number(),
-    email: z
-      .string()
-      .email()
-      .refine((val) => val.includes('ufabc.edu.br'), {
-        message: 'Invalid UFABC email',
-      }),
+    email: z.string().email(),
   }),
   response: {
     200: {
