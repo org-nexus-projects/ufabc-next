@@ -158,13 +158,32 @@ async function createOrLogin(oauthUser: User['oauth'], userId: string) {
   const user =
     (await UserModel.findOne({ $or: findUserQuery })) || new UserModel();
 
+  const updatedOauth = user.oauth;
+
+  if (!updatedOauth?.google && oauthUser?.google) {
+    // @ts-ignore
+    updatedOauth.google = oauthUser.google;
+  }
+  if (!updatedOauth?.emailGoogle && oauthUser?.emailGoogle) {
+    // @ts-ignore
+    updatedOauth.emailGoogle = oauthUser.emailGoogle;
+  }
+  if (!updatedOauth?.email && oauthUser?.email) {
+    // @ts-ignore
+    updatedOauth.email = oauthUser.email;
+  }
+  if (!updatedOauth?.facebook && oauthUser?.facebook) {
+    // @ts-ignore
+    updatedOauth.facebook = oauthUser.facebook;
+  }
+  if (!updatedOauth?.emailFacebook && oauthUser?.emailFacebook) {
+    // @ts-ignore
+    updatedOauth.emailFacebook = oauthUser.emailFacebook;
+  }
+
   user.set({
     active: true,
-    oauth: {
-      google: oauthUser?.google,
-      emailGoogle: oauthUser?.emailGoogle,
-      email: oauthUser?.email,
-    },
+    oauth: updatedOauth,
   });
 
   await user.save();
