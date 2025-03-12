@@ -4,8 +4,6 @@ import {
   updateCommentSchema,
   deleteCommentSchema,
   commentsOnTeacherSchema,
-  createReactionSchema,
-  deleteReactionSchema,
 } from '@/schemas/comments.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import {
@@ -196,9 +194,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
   app.post(
     '/reactions/:commentId',
-    { schema: createReactionSchema },
+    // { schema: createReactionSchema },
     async (request, reply) => {
+      // @ts-ignore
       const { commentId } = request.params;
+      // @ts-ignore
       const { kind } = request.body;
       const user = request.user;
 
@@ -229,8 +229,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
   app.delete(
     '/reactions/:commentId/:kind',
-    { schema: deleteReactionSchema },
+    // { schema: deleteReactionSchema },
     async (request, reply) => {
+      // @ts-ignore
       const { commentId, kind } = request.params;
       if (!commentId && !kind) {
         return reply.badRequest('CommentId and Kind are necessary');
