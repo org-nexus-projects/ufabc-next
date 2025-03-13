@@ -80,6 +80,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       comment,
       type,
       enrollment: enrollment._id,
+      // @ts-ignore for nwo
+      teacher: enrollment[type],
       subject: enrollment.subject,
       ra: enrollment.ra.toString(),
     });
