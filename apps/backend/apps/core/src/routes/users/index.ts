@@ -1,10 +1,6 @@
 import { UserModel } from '@/models/User.js';
 import { getEmployeeData, getStudentData } from '@/modules/email-validator.js';
-import {
-  completeUserSchema,
-  userAuthSchema,
-  type Auth,
-} from '@/schemas/auth.js';
+import { completeUserSchema, type Auth } from '@/schemas/auth.js';
 import {
   confirmUserSchema,
   deactivateUserSchema,
@@ -16,7 +12,7 @@ import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   const usersCache = app.cache<Auth>();
-  app.get('/info', { schema: userAuthSchema }, async (request, reply) => {
+  app.get('/info', async (request, reply) => {
     const cachedResponse = usersCache.get(`user:info:${request.user._id}`);
     if (cachedResponse) {
       return cachedResponse;
