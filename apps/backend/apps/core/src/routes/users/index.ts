@@ -65,17 +65,14 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         );
       }
 
-      const jwtToken = app.jwt.sign(
-        {
-          _id: user._id.toJSON(),
-          ra: user.ra,
-          permissions: user.permissions,
-          active: user.active,
-          confirmed: user.confirmed,
-          email: user.email,
-        },
-        { expiresIn: '2d' },
-      );
+      const jwtToken = app.jwt.sign({
+        _id: user._id.toJSON(),
+        ra: user.ra,
+        permissions: user.permissions,
+        active: user.active,
+        confirmed: user.confirmed,
+        email: user.email,
+      });
 
       return { success: true, token: jwtToken };
     },
@@ -147,16 +144,13 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       const confirmedUser = await user.save();
 
-      const jwtToken = app.jwt.sign(
-        {
-          _id: confirmedUser._id,
-          ra: confirmedUser.ra,
-          confirmed: confirmedUser.confirmed,
-          email: confirmedUser.email,
-          permissions: confirmedUser.permissions,
-        },
-        { expiresIn: '7d' },
-      );
+      const jwtToken = app.jwt.sign({
+        _id: confirmedUser._id,
+        ra: confirmedUser.ra,
+        confirmed: confirmedUser.confirmed,
+        email: confirmedUser.email,
+        permissions: confirmedUser.permissions,
+      });
 
       return {
         token: jwtToken,

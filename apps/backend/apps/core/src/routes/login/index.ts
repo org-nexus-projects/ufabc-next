@@ -47,16 +47,13 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           },
           'user logged successfully',
         );
-        const jwtToken = this.jwt.sign(
-          {
-            _id: user._id,
-            ra: user.ra,
-            confirmed: user.confirmed,
-            email: user.email,
-            permissions: user.permissions,
-          },
-          { expiresIn: '7d' },
-        );
+        const jwtToken = this.jwt.sign({
+          _id: user._id,
+          ra: user.ra,
+          confirmed: user.confirmed,
+          email: user.email,
+          permissions: user.permissions,
+        });
 
         const redirectURL = new URL('login', app.config.WEB_URL);
 
