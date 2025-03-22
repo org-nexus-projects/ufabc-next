@@ -182,7 +182,18 @@ router.beforeEach(async (to, _from, next) => {
     (record) => record.meta.confirmed === false,
   );
 
-  const { isLoggedIn, user } = authStore.getState();
+  const { isLoggedIn, user, logOut } = authStore.getState();
+
+  if (isLoggedIn() && user) {
+    const expirationPeriod = 1 * 24 * 60 * 60; // 1 day
+    const currentTime = Math.floor(Date.now() / 1000);
+    const expirationTime = user.iat + expirationPeriod;
+
+    if (expirationTime < currentTime) {
+      logOut();
+      return next('/');
+    }
+  }
 
   const userConfirmed = user?.confirmed;
 

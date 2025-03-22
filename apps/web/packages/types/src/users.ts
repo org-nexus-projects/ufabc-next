@@ -23,4 +23,5 @@ export type User = {
   createdAt: string;
   devices: Device[];
   permissions: string[];
+  iat: number;
 };

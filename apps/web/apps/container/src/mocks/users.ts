@@ -15,7 +15,8 @@ export const user = {
   },
   ra: 11201810622,
   email: 'email@aluno.ufabc.edu.br',
-  permissions: []
+  permissions: [],
+  iat: 9999999,
 } satisfies User;
 
 export const userGrades = [
