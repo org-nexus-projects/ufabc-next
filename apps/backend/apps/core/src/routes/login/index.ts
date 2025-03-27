@@ -1,8 +1,5 @@
 import { UserModel, type User } from '@/models/User.js';
-import {
-  jobsLoginSchema,
-  type LegacyGoogleUser,
-} from '@/schemas/login.js';
+import { jobsLoginSchema, type LegacyGoogleUser } from '@/schemas/login.js';
 import type { Token } from '@fastify/oauth2';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import { Types } from 'mongoose';
@@ -26,53 +23,53 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return reply.redirect(validatedURI);
   });
 
-  app.get(
-    '/google/callback',
-    async function (request, reply) {
-      try {
-        // @ts-ignore
-        const userId = request.query.state;
-        const { token } =
-          await this.google.getAccessTokenFromAuthorizationCodeFlow(
-            request,
-            reply,
-          );
-        const oauthUser = await getUserDetails(token, request.log);
-        const user = await createOrLogin(oauthUser, userId, request.log);
-        request.log.info(
-          {
-            ufabcEmail: user.email,
-            _id: user._id,
-          },
-          'user logged successfully',
+  app.get('/google/callback', async function (request, reply) {
+    try {
+      // @ts-ignore
+      const userId = request.query.state;
+      const { token } =
+        await this.google.getAccessTokenFromAuthorizationCodeFlow(
+          request,
+          reply,
         );
-        const jwtToken = this.jwt.sign({
+      const oauthUser = await getUserDetails(token, request.log);
+      const user = await createOrLogin(oauthUser, userId, request.log);
+      request.log.info(
+        {
+          ufabcEmail: user.email,
           _id: user._id,
-          ra: user.ra,
-          confirmed: user.confirmed,
-          email: user.email,
-          permissions: user.permissions,
-        });
+        },
+        'user logged successfully',
+      );
+      const jwtToken = this.jwt.sign({
+        _id: user._id,
+        ra: user.ra,
+        confirmed: user.confirmed,
+        email: user.email,
+        permissions: user.permissions,
+      });
 
-        const redirectURL = new URL('login', app.config.WEB_URL);
+      const redirectURL = new URL('login', app.config.WEB_URL);
 
-        redirectURL.searchParams.append('token', jwtToken);
+      redirectURL.searchParams.append('token', jwtToken);
 
-        return reply.redirect(redirectURL.href);
-      } catch (error: any) {
-        if (error?.data?.payload) {
-          reply.log.error({ originalError: error, error: error.data.payload }, 'Error in oauth2');
-          return error.data.payload;
-        }
-
-        // Unknwon (probably db) error
-        request.log.error(error, 'deu merda severa');
-        return reply.internalServerError(
-          'Algo de errado aconteceu no seu login, tente novamente',
+      return reply.redirect(redirectURL.href);
+    } catch (error: any) {
+      if (error?.data?.payload) {
+        reply.log.error(
+          { originalError: error, error: error.data.payload },
+          'Error in oauth2',
         );
+        return error.data.payload;
       }
-    },
-  );
+
+      // Unknwon (probably db) error
+      request.log.error(error, 'deu merda severa');
+      return reply.internalServerError(
+        'Algo de errado aconteceu no seu login, tente novamente',
+      );
+    }
+  });
 
   app.get(
     '/jobs-monitoring',
@@ -125,8 +122,8 @@ async function getUserDetails(token: Token, logger: any) {
   );
 
   logger.info(user, {
-    msg: 'Google User'
-  })
+    msg: 'Google User',
+  });
 
   const email = user.emails[0].value;
 
@@ -144,7 +141,11 @@ async function getUserDetails(token: Token, logger: any) {
   };
 }
 
-async function createOrLogin(oauthUser: User['oauth'], userId: string, logger: any) {
+async function createOrLogin(
+  oauthUser: User['oauth'],
+  userId: string,
+  logger: any,
+) {
   try {
     const findUserQuery: Record<string, unknown>[] = [];
 
@@ -162,9 +163,10 @@ async function createOrLogin(oauthUser: User['oauth'], userId: string, logger: a
     }
 
     // Find existing user or create a new one
-    let user = findUserQuery.length > 0 
-      ? await UserModel.findOne({ $or: findUserQuery }) 
-      : null;
+    let user =
+      findUserQuery.length > 0
+        ? await UserModel.findOne({ $or: findUserQuery })
+        : null;
 
     // If no user found, create a new one
     if (!user) {
@@ -175,8 +177,8 @@ async function createOrLogin(oauthUser: User['oauth'], userId: string, logger: a
           emailGoogle: oauthUser?.emailGoogle,
           email: oauthUser?.email,
           facebook: oauthUser?.facebook,
-          emailFacebook: oauthUser?.emailFacebook
-        }
+          emailFacebook: oauthUser?.emailFacebook,
+        },
       });
     } else {
       // Update existing user's OAuth information
@@ -188,8 +190,8 @@ async function createOrLogin(oauthUser: User['oauth'], userId: string, logger: a
           emailGoogle: user.oauth?.emailGoogle || oauthUser?.emailGoogle,
           email: user.oauth?.email || oauthUser?.email,
           facebook: user.oauth?.facebook || oauthUser?.facebook,
-          emailFacebook: user.oauth?.emailFacebook || oauthUser?.emailFacebook
-        }
+          emailFacebook: user.oauth?.emailFacebook || oauthUser?.emailFacebook,
+        },
       });
     }
 
@@ -206,4 +208,3 @@ async function createOrLogin(oauthUser: User['oauth'], userId: string, logger: a
     throw error;
   }
 }
-
