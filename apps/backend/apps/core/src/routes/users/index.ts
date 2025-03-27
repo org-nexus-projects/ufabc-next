@@ -97,6 +97,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.put(
     '/complete',
     { schema: completeUserSchema },
+    // @ts-ignore
     async (request, reply) => {
       const { email, ra } = request.body;
       try {
@@ -116,7 +117,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           ra: user?.ra,
           email: user?.email,
         };
-      } catch(err) {
+
+      } catch(error) {
+        request.log.error({ msg: 'error completing user', error })
         console.error(err);
         return reply.internalServerError('Could not complete user');
       }
