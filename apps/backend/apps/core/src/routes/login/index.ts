@@ -145,55 +145,65 @@ async function getUserDetails(token: Token, logger: any) {
 }
 
 async function createOrLogin(oauthUser: User['oauth'], userId: string, logger: any) {
-  const findUserQuery: Record<string, unknown>[] = [
-    {
-      'oauth.google': oauthUser?.google,
-    },
-  ];
+  try {
+    const findUserQuery: Record<string, unknown>[] = [];
 
-  if (userId !== 'undefined') {
-    findUserQuery.push({ _id: new Types.ObjectId(userId) });
+    if (oauthUser?.google) {
+      findUserQuery.push({ 'oauth.google': oauthUser.google });
+    }
+
+    // Add user ID if provided and valid
+    if (userId && userId !== 'undefined') {
+      try {
+        findUserQuery.push({ _id: new Types.ObjectId(userId) });
+      } catch (error) {
+        logger.warn('Invalid user ID provided', { userId });
+      }
+    }
+
+    // Find existing user or create a new one
+    let user = findUserQuery.length > 0 
+      ? await UserModel.findOne({ $or: findUserQuery }) 
+      : null;
+
+    // If no user found, create a new one
+    if (!user) {
+      user = new UserModel({
+        active: true,
+        oauth: {
+          google: oauthUser?.google,
+          emailGoogle: oauthUser?.emailGoogle,
+          email: oauthUser?.email,
+          facebook: oauthUser?.facebook,
+          emailFacebook: oauthUser?.emailFacebook
+        }
+      });
+    } else {
+      // Update existing user's OAuth information
+      user.set({
+        active: true,
+        oauth: {
+          ...user.oauth,
+          google: user.oauth?.google || oauthUser?.google,
+          emailGoogle: user.oauth?.emailGoogle || oauthUser?.emailGoogle,
+          email: user.oauth?.email || oauthUser?.email,
+          facebook: user.oauth?.facebook || oauthUser?.facebook,
+          emailFacebook: user.oauth?.emailFacebook || oauthUser?.emailFacebook
+        }
+      });
+    }
+
+    // Log user information
+    logger.info(user.toObject(), { msg: 'User before save' });
+
+    // Save the user
+    await user.save();
+
+    // Return user data
+    return user.toJSON();
+  } catch (error) {
+    logger.error('Error in createOrLogin', { error, oauthUser });
+    throw error;
   }
-
-  const user =
-    (await UserModel.findOne({ $or: findUserQuery })) || new UserModel();
-
-  logger.info(user.toObject(), {
-    msg: 'database user'
-  })
-
-  const updatedOauth = user.oauth;
-
-  if (!updatedOauth?.google && oauthUser?.google) {
-    // @ts-ignore
-    updatedOauth.google = oauthUser.google;
-  }
-  if (!updatedOauth?.emailGoogle && oauthUser?.emailGoogle) {
-    // @ts-ignore
-    updatedOauth.emailGoogle = oauthUser.emailGoogle;
-  }
-  if (!updatedOauth?.email && oauthUser?.email) {
-    // @ts-ignore
-    updatedOauth.email = oauthUser.email;
-  }
-  if (!updatedOauth?.facebook && oauthUser?.facebook) {
-    // @ts-ignore
-    updatedOauth.facebook = oauthUser.facebook;
-  }
-  if (!updatedOauth?.emailFacebook && oauthUser?.emailFacebook) {
-    // @ts-ignore
-    updatedOauth.emailFacebook = oauthUser.emailFacebook;
-  }
-
-  user.set({
-    active: true,
-    oauth: updatedOauth,
-  });
-  logger.info(user, {
-    msg: 'database user after update/login'
-  })
-
-  await user.save();
-
-  return user.toJSON();
 }
+
