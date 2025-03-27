@@ -120,7 +120,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       } catch(error) {
         request.log.error({ msg: 'error completing user', error })
-        console.error(err);
+        console.error(error);
         return reply.internalServerError('Could not complete user');
       }
     },
