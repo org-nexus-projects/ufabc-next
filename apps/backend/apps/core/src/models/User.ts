@@ -11,7 +11,7 @@ const userSchema = new Schema(
       type: Number,
       unique: true,
       partialFilterExpression: { ra: { $exists: true } },
-      default: null,
+      //default: null,
     },
     email: {
       type: String,
@@ -23,7 +23,7 @@ const userSchema = new Schema(
       },
       unique: true,
       partialFilterExpression: { email: { $exists: true } },
-      default: null,
+      //default: null,
     },
     confirmed: {
       type: Boolean,

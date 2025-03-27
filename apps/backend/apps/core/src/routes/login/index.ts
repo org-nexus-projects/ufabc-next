@@ -194,7 +194,7 @@ async function createOrLogin(oauthUser: User['oauth'], userId: string, logger: a
     }
 
     // Log user information
-    logger.info(user.toObject(), { msg: 'User before save' });
+    logger.info({ user: user.toJSON() , msg: 'User before save' });
 
     // Save the user
     await user.save();
