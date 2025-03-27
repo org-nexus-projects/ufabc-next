@@ -47,11 +47,14 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const { ra, email } = request.body;
       const user = await UserModel.findOne({
         ra,
-        $or: [{ 'oauth.facebookEmail': email }, { 'oauth.email': email }, {'oauth.emailFacebook': email}],
-        'oauth.facebook': { $exists: true },
+        $or: [
+          { 'oauth.facebookEmail': email },
+          { 'oauth.email': email },
+          { 'oauth.emailFacebook': email },
+        ],
       });
 
-      if (!user) {  
+      if (!user) {
         return reply.notFound('Usuario não encontrado');
       }
 
@@ -117,9 +120,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           ra: user?.ra,
           email: user?.email,
         };
-
-      } catch(error) {
-        request.log.error({ msg: 'error completing user', error })
+      } catch (error) {
+        request.log.error({ msg: 'error completing user', error });
         console.error(error);
         return reply.internalServerError('Could not complete user');
       }
