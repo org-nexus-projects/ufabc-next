@@ -158,7 +158,7 @@ async function createOrLogin(oauthUser: User['oauth'], userId: string, logger: a
   const user =
     (await UserModel.findOne({ $or: findUserQuery })) || new UserModel();
 
-  logger.info(user, {
+  logger.info(user.toObject(), {
     msg: 'database user'
   })
 
