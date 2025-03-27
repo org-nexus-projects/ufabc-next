@@ -117,7 +117,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           ra: user?.ra,
           email: user?.email,
         };
-      } catch {
+      } catch(error) {
+        request.log.error({ msg: 'error completing user', error })
         return reply.internalServerError('Could not complete user');
       }
     },

@@ -64,7 +64,7 @@ export const userAuthSchema = {
 
 export const completeUserSchema = {
   body: z.object({
-    ra: z.coerce.number(),
+    ra: z.any(),
     email: z.string().email(),
   }),
   response: {
