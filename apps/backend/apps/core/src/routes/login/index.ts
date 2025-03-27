@@ -1,7 +1,6 @@
 import { UserModel, type User } from '@/models/User.js';
 import {
   jobsLoginSchema,
-  loginSchema,
   type LegacyGoogleUser,
 } from '@/schemas/login.js';
 import type { Token } from '@fastify/oauth2';
