@@ -29,17 +29,17 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
   app.get(
     '/google/callback',
-    { schema: loginSchema },
     async function (request, reply) {
       try {
+        // @ts-ignore
         const userId = request.query.state;
         const { token } =
           await this.google.getAccessTokenFromAuthorizationCodeFlow(
             request,
             reply,
           );
-        const oauthUser = await getUserDetails(token);
-        const user = await createOrLogin(oauthUser, userId);
+        const oauthUser = await getUserDetails(token, request.log);
+        const user = await createOrLogin(oauthUser, userId, request.log);
         request.log.info(
           {
             ufabcEmail: user.email,
@@ -62,12 +62,12 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         return reply.redirect(redirectURL.href);
       } catch (error: any) {
         if (error?.data?.payload) {
-          reply.log.error({ error: error.data.payload }, 'Error in oauth2');
+          reply.log.error({ originalError: error, error: error.data.payload }, 'Error in oauth2');
           return error.data.payload;
         }
 
         // Unknwon (probably db) error
-        request.log.warn(error, 'deu merda severa');
+        request.log.error(error, 'deu merda severa');
         return reply.internalServerError(
           'Algo de errado aconteceu no seu login, tente novamente',
         );
@@ -114,7 +114,7 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
 export default plugin;
 
-async function getUserDetails(token: Token) {
+async function getUserDetails(token: Token, logger: any) {
   const headers = new Headers();
   headers.append('Authorization', `Bearer ${token.access_token}`);
 
@@ -124,6 +124,10 @@ async function getUserDetails(token: Token) {
       headers,
     },
   );
+
+  logger.info(user, {
+    msg: 'Google User'
+  })
 
   const email = user.emails[0].value;
 
@@ -141,7 +145,7 @@ async function getUserDetails(token: Token) {
   };
 }
 
-async function createOrLogin(oauthUser: User['oauth'], userId: string) {
+async function createOrLogin(oauthUser: User['oauth'], userId: string, logger: any) {
   const findUserQuery: Record<string, unknown>[] = [
     {
       'oauth.google': oauthUser?.google,
@@ -154,6 +158,10 @@ async function createOrLogin(oauthUser: User['oauth'], userId: string) {
 
   const user =
     (await UserModel.findOne({ $or: findUserQuery })) || new UserModel();
+
+  logger.info(user, {
+    msg: 'database user'
+  })
 
   const updatedOauth = user.oauth;
 
@@ -182,6 +190,9 @@ async function createOrLogin(oauthUser: User['oauth'], userId: string) {
     active: true,
     oauth: updatedOauth,
   });
+  logger.info(user, {
+    msg: 'database user after update/login'
+  })
 
   await user.save();
 
