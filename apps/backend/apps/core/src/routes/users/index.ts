@@ -97,6 +97,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.put(
     '/complete',
     { schema: completeUserSchema },
+    // @ts-ignore
     async (request, reply) => {
       const { email, ra } = request.body;
       try {

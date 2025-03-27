@@ -196,7 +196,7 @@ async function createOrLogin(
     }
 
     // Log user information
-    logger.info({ msg: 'User before save', user: user.toObject() });
+    logger.info({ user: user.toJSON() , msg: 'User before save' });
 
     // Save the user
     await user.save();
