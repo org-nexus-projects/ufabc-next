@@ -67,8 +67,7 @@ jobs:
             docker pull ${{ secrets.AWS_ACCOUNT_ID }}.${{ secrets.ECR_REGISTRY }}/unext-backend-ecr:${{ github.sha }}
             docker stop unext-backend
             docker rm unext-backend
-            docker run -d --name unext-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.AWS_ACCOUNT_ID }}.${{ secrets.ECR_REGISTRY }}/unext-backend-ecr:${{ github.sha }}
-
+            docker run --restart unless-stopped -d --name unext-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.AWS_ACCOUNT_ID }}.${{ secrets.ECR_REGISTRY }}/unext-backend-ecr:${{ github.sha }}
       - name: 🏗️ Revoke runner ip address
         if: ${{ always() && steps.whitelist-ip.conclusion == 'success' }}
         run: |
