@@ -113,20 +113,20 @@ export const JOBS = {
   EnrolledSync: {
     queue: 'sync:enrolled',
     handler: syncEnrolled,
+    every: '2 minutes',
   },
   ProcessSingleEnrolled: {
     queue: 'sync:enrolled',
     handler: processSingleEnrolled,
-    every: '2 minutes',
   },
   ComponentsSync: {
     queue: 'sync:components',
     handler: syncComponents,
+    every: '2 minutes',
   },
   ProcessSingleComponent: {
     queue: 'sync:components',
     handler: processComponent,
-    every: '2 minutes',
   },
   UserEnrollmentsUpdate: {
     queue: 'userEnrollments:update',
