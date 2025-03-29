@@ -57,6 +57,11 @@ const componentSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'teachers',
     },
+    groupURL: {
+      type: String,
+      required: false,
+      default: null,
+    },
   },
   {
     timestamps: true,
