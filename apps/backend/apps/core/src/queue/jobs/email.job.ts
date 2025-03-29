@@ -21,27 +21,36 @@ type Email = {
   };
 };
 
-export async function sendConfirmationEmail(ctx: QueueContext<User>) {
-  const emailTemplate = MAILER_CONFIG.EMAIL_CONFIRMATION_TEMPLATE;
-  const { data } = ctx.job;
-  if (!data.email) {
+type EmailJobData = {
+  user: User;
+  kind: 'Confirmation' | 'Recover';
+};
+
+export async function sendConfirmationEmail(ctx: QueueContext<EmailJobData>) {
+  const { user, kind } = ctx.job.data;
+  const emailTemplate =
+    kind === 'Confirmation'
+      ? MAILER_CONFIG.EMAIL_CONFIRMATION_TEMPLATE
+      : MAILER_CONFIG.EMAIL_RECOVERY_TEMPLATE;
+
+  if (!user.email) {
     throw new Error('Email not found');
   }
 
   try {
     const token = ctx.app.createToken(
-      JSON.stringify({ email: data.email }),
+      JSON.stringify({ email: user.email }),
       ctx.app.config,
     );
     const emailRequest = {
-      recipient: data?.email,
+      recipient: user.email,
       body: {
         url: `${ctx.app.config.WEB_URL}/confirm?token=${token}`,
       },
     };
-    const response = await sesSendEmail(data, emailTemplate, emailRequest);
+    const response = await sesSendEmail(user, emailTemplate, emailRequest);
     ctx.app.log.warn({
-      sentTo: `Returned value ${data.ra}`,
+      sentTo: `Returned value ${user.ra}`,
       messageId: response?.MessageId,
     });
   } catch (error) {
@@ -52,7 +61,7 @@ export async function sendConfirmationEmail(ctx: QueueContext<User>) {
 
 export async function sesSendEmail(
   user: User,
-  templateId: 'Confirmation' | 'Recover',
+  templateId: 'Confirmation' | 'Recovery',
   email: Email,
 ) {
   let templateData: string;

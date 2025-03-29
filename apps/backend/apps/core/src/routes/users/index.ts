@@ -6,6 +6,7 @@ import {
   deactivateUserSchema,
   loginFacebookSchema,
   resendEmailSchema,
+  sendRecoveryEmailSchema,
   validateUserEmailSchema,
 } from '@/schemas/user.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
@@ -92,7 +93,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       return reply.notFound('User Not Found');
     }
 
-    app.job.dispatch('SendEmail', user.toJSON());
+    app.job.dispatch('SendEmail', {
+      kind: 'Confirmation',
+      user: user.toJSON(),
+    });
 
     return { message: 'E-mail enviado com sucesso' };
   });
@@ -114,7 +118,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           return reply.badRequest('Malformed token');
         }
 
-        app.job.dispatch('SendEmail', user.toJSON());
+        app.job.dispatch('SendEmail', {
+          kind: 'Confirmation',
+          user: user.toJSON(),
+        });
 
         return {
           ra: user?.ra,
@@ -212,6 +219,24 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       }
 
       return { email: checkUser.email[0] };
+    },
+  );
+
+  app.post(
+    '/recover',
+    { schema: sendRecoveryEmailSchema },
+    async (request, reply) => {
+      const { email } = request.body;
+      const user = await UserModel.findOne({ email }).lean();
+
+      if (!user) {
+        return reply.badRequest(`E-mail inválido: ${email}`);
+      }
+
+      await app.job.dispatch('SendEmail', {
+        kind: 'Recover',
+        user,
+      });
     },
   );
 };
