@@ -237,6 +237,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         kind: 'Recover',
         user,
       });
+
+      return reply.send({
+        msg: 'success',
+      });
     },
   );
 };

@@ -8,7 +8,7 @@ import { sesClient } from '@/lib/aws.service.js';
 
 const MAILER_CONFIG = {
   EMAIL_CONFIRMATION_TEMPLATE: 'Confirmation',
-  EMAIL_RECOVERY_TEMPLATE: 'Recovery',
+  EMAIL_RECOVERY_TEMPLATE: 'Recover',
   EMAIL: 'contato@ufabcnext.com',
 } as const;
 
@@ -36,7 +36,7 @@ export async function sendConfirmationEmail(ctx: QueueContext<EmailJobData>) {
   if (!user.email) {
     throw new Error('Email not found');
   }
-
+  ctx.app.log.info({ msg: 'eai pai', user });
   try {
     const token = ctx.app.createToken(
       JSON.stringify({ email: user.email }),
@@ -50,7 +50,8 @@ export async function sendConfirmationEmail(ctx: QueueContext<EmailJobData>) {
     };
     const response = await sesSendEmail(user, emailTemplate, emailRequest);
     ctx.app.log.warn({
-      sentTo: `Returned value ${user.ra}`,
+      sentTo: `Returned value ${user.ra}:${user.email}`,
+
       messageId: response?.MessageId,
     });
   } catch (error) {
@@ -61,7 +62,7 @@ export async function sendConfirmationEmail(ctx: QueueContext<EmailJobData>) {
 
 export async function sesSendEmail(
   user: User,
-  templateId: 'Confirmation' | 'Recovery',
+  templateId: 'Confirmation' | 'Recover',
   email: Email,
 ) {
   let templateData: string;
