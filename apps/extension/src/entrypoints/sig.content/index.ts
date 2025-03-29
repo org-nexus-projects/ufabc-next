@@ -11,9 +11,9 @@ export default defineContentScript({
 		const sigURL = new URL(document.location.href);
     const itineraryTable = document.querySelector<HTMLTableElement>("#turmas-portal");
     const $trs = document.querySelectorAll<HTMLTableRowElement>("#agenda-docente tbody tr");
-
+    // const facto = await browser.cookies.getAll({  })
+    console.log(browser)
     const shouldFormatItinerary = sigURL.pathname.includes("/portais/discente/discente.jsf") && itineraryTable;
-
     if (shouldFormatItinerary) {
       try {
         processingToast.showToast();

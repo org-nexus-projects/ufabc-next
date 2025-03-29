@@ -61,24 +61,24 @@ const COURSE_CURRICULUM_CACHE = "ufCourseCurriculums";
 const CURRICULUM_COMPONENTS_CACHE = "ufCurriculumComponents";
 
 export async function getUFCourses() {
-	const cachedCourses = await storage.getItem<UFCourses[]>(
-		`session:${COURSES_CACHE}`,
-	);
-	if (cachedCourses) {
-		return cachedCourses;
-	}
+	// const cachedCourses = await storage.getItem<UFCourses[]>(
+	// 	`session:${COURSES_CACHE}`,
+	// );
+	// if (cachedCourses) {
+	// 	return cachedCourses;
+	// }
 	const courses = await ufParserService<UFCourses[]>("/courses");
-	await storage.setItem(`session:${COURSES_CACHE}`, courses);
+	// await storage.setItem(`session:${COURSES_CACHE}`, courses);
 	return courses;
 }
 
 export async function getUFCourseCurriculums(courseId: number) {
-	const cachedCurriculums = await storage.getItem<UFCourseCurriculum[]>(
-		`session:${COURSE_CURRICULUM_CACHE}`,
-	);
-	if (cachedCurriculums) {
-		return cachedCurriculums;
-	}
+	// const cachedCurriculums = await storage.getItem<UFCourseCurriculum[]>(
+	// 	`session:${COURSE_CURRICULUM_CACHE}`,
+	// );
+	// if (cachedCurriculums) {
+	// 	return cachedCurriculums;
+	// }
 
 	const courseCurriculums = await ufParserService<UFCourseCurriculum[]>(
 		`/courses/grades/${courseId}`,
@@ -94,12 +94,12 @@ export async function getUFCurriculumComponents(
 	courseId: number,
 	curriculum: string,
 ) {
-	const cachedComponents = await storage.getItem<UFCurriculumComponents>(
-		`local:${CURRICULUM_COMPONENTS_CACHE}`,
-	);
-	if (cachedComponents) {
-		return cachedComponents;
-	}
+	// const cachedComponents = await storage.getItem<UFCurriculumComponents>(
+	// 	`local:${CURRICULUM_COMPONENTS_CACHE}`,
+	// );
+	// if (cachedComponents) {
+	// 	return cachedComponents;
+	// }
 
 	const curriculumComponents = await ufParserService<UFCurriculumComponents>(
 		`/courses/components/${courseId}/${curriculum}`,

@@ -94,7 +94,7 @@ export async function retrieveStudent(
 		ra: rawStudent.matricula,
 		login: NTIStudent.username,
 		email: NTIStudent.email.find((email) =>
-			email.includes('@aluno.ufabc.edu.br'),
+			email.includes('ufabc.edu.br'),
 		),
 		graduations: [
 			{
