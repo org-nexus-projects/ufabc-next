@@ -10,19 +10,20 @@ const MAILER_CONFIG = {
   EMAIL_CONFIRMATION_TEMPLATE: 'Confirmation',
   EMAIL_RECOVERY_TEMPLATE: 'Recover',
   EMAIL: 'contato@ufabcnext.com',
+  RECOVERY_URL: 'https://api.v2.ufabcnext.com/login',
 } as const;
 
 type Email = {
   recipient: string;
   body: {
-    url: string;
+    url?: string;
     recovery_facebook?: string;
     recovery_google?: string;
   };
 };
 
 type EmailJobData = {
-  user: User;
+  user: User & { _id: string };
   kind: 'Confirmation' | 'Recover';
 };
 
@@ -36,22 +37,40 @@ export async function sendConfirmationEmail(ctx: QueueContext<EmailJobData>) {
   if (!user.email) {
     throw new Error('Email not found');
   }
-  ctx.app.log.info({ msg: 'eai pai', user });
-  try {
-    const token = ctx.app.createToken(
-      JSON.stringify({ email: user.email }),
-      ctx.app.config,
-    );
-    const emailRequest = {
-      recipient: user.email,
-      body: {
-        url: `${ctx.app.config.WEB_URL}/confirm?token=${token}`,
-      },
-    };
-    const response = await sesSendEmail(user, emailTemplate, emailRequest);
-    ctx.app.log.warn({
-      sentTo: `Returned value ${user.ra}:${user.email}`,
 
+  try {
+    let emailRequest: Email;
+
+    if (kind === 'Confirmation') {
+      const token = ctx.app.createToken(
+        JSON.stringify({ email: user.email }),
+        ctx.app.config,
+      );
+      emailRequest = {
+        recipient: user.email,
+        body: {
+          url: `${ctx.app.config.WEB_URL}/confirm?token=${token}`,
+        },
+      };
+    } else {
+      // Recovery email
+      emailRequest = {
+        recipient: user.email,
+        body: {
+          recovery_facebook: 'https://api.v2.ufabcnext.com/users/facebook',
+          recovery_google: `${MAILER_CONFIG.RECOVERY_URL}/google?userId=${user._id}`,
+        },
+      };
+    }
+
+    const response = await sesSendEmail(
+      user,
+      emailTemplate,
+      emailRequest,
+      ctx.app.log,
+    );
+    ctx.app.log.info({
+      sentTo: `${user.email}`,
       messageId: response?.MessageId,
     });
   } catch (error) {
@@ -64,6 +83,7 @@ export async function sesSendEmail(
   user: User,
   templateId: 'Confirmation' | 'Recover',
   email: Email,
+  log: any,
 ) {
   let templateData: string;
   if (templateId === 'Confirmation') {
@@ -91,6 +111,11 @@ export async function sesSendEmail(
     const command = new SendTemplatedEmailCommand(sendTemplatedEmailCommand);
     const data = await sesClient.send(command);
     return data;
+  } catch (error) {
+    log.error(error, {
+      msg: 'error calling ses',
+    });
+    throw error;
   } finally {
     sesClient.destroy();
   }

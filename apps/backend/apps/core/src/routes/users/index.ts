@@ -1,4 +1,4 @@
-import { UserModel } from '@/models/User.js';
+import { UserModel, type User } from '@/models/User.js';
 import { getEmployeeData, getStudentData } from '@/modules/email-validator.js';
 import { completeUserSchema, type Auth } from '@/schemas/auth.js';
 import {
@@ -95,7 +95,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     app.job.dispatch('SendEmail', {
       kind: 'Confirmation',
-      user: user.toJSON(),
+      user: user.toJSON() as unknown as User & { _id: string },
     });
 
     return { message: 'E-mail enviado com sucesso' };
@@ -120,7 +120,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
         app.job.dispatch('SendEmail', {
           kind: 'Confirmation',
-          user: user.toJSON(),
+          user: user.toJSON() as unknown as User & { _id: string },
         });
 
         return {
@@ -129,7 +129,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         };
       } catch (error) {
         request.log.error({ msg: 'error completing user', error });
-        console.error(error);
         return reply.internalServerError('Could not complete user');
       }
     },
@@ -227,7 +226,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     { schema: sendRecoveryEmailSchema },
     async (request, reply) => {
       const { email } = request.body;
-      const user = await UserModel.findOne({ email }).lean();
+      const user = await UserModel.findOne({ email }).lean<
+        User & { _id: string }
+      >();
 
       if (!user) {
         return reply.badRequest(`E-mail inválido: ${email}`);
