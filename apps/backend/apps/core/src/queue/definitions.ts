@@ -113,7 +113,7 @@ export const JOBS = {
   EnrolledSync: {
     queue: 'sync:enrolled',
     handler: syncEnrolled,
-    every: '2 minutes',
+    every: '3 minutes',
   },
   ProcessSingleEnrolled: {
     queue: 'sync:enrolled',
