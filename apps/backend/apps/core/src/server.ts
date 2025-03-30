@@ -6,7 +6,6 @@ import { logger } from './utils/logger.js';
 
 const appOptions = {
   loggerInstance: logger,
-  pluginTimeout: 36_000,
 } satisfies FastifyServerOptions;
 
 const app = fastify(appOptions);
