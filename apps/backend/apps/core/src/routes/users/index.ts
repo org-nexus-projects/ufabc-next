@@ -1,4 +1,4 @@
-import { UserModel } from '@/models/User.js';
+import { UserModel, type User } from '@/models/User.js';
 import { getEmployeeData, getStudentData } from '@/modules/email-validator.js';
 import { completeUserSchema, type Auth } from '@/schemas/auth.js';
 import {
@@ -6,6 +6,7 @@ import {
   deactivateUserSchema,
   loginFacebookSchema,
   resendEmailSchema,
+  sendRecoveryEmailSchema,
   validateUserEmailSchema,
 } from '@/schemas/user.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
@@ -92,7 +93,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       return reply.notFound('User Not Found');
     }
 
-    app.job.dispatch('SendEmail', user.toJSON());
+    app.job.dispatch('SendEmail', {
+      kind: 'Confirmation',
+      user: user.toJSON() as unknown as User & { _id: string },
+    });
 
     return { message: 'E-mail enviado com sucesso' };
   });
@@ -114,7 +118,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           return reply.badRequest('Malformed token');
         }
 
-        app.job.dispatch('SendEmail', user.toJSON());
+        app.job.dispatch('SendEmail', {
+          kind: 'Confirmation',
+          user: user.toJSON() as unknown as User & { _id: string },
+        });
 
         return {
           ra: user?.ra,
@@ -122,7 +129,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         };
       } catch (error) {
         request.log.error({ msg: 'error completing user', error });
-        console.error(error);
         return reply.internalServerError('Could not complete user');
       }
     },
@@ -212,6 +218,30 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       }
 
       return { email: checkUser.email[0] };
+    },
+  );
+
+  app.post(
+    '/recover',
+    { schema: sendRecoveryEmailSchema },
+    async (request, reply) => {
+      const { email } = request.body;
+      const user = await UserModel.findOne({ email }).lean<
+        User & { _id: string }
+      >();
+
+      if (!user) {
+        return reply.badRequest(`E-mail inválido: ${email}`);
+      }
+
+      await app.job.dispatch('SendEmail', {
+        kind: 'Recover',
+        user,
+      });
+
+      return reply.send({
+        msg: 'success',
+      });
     },
   );
 };
