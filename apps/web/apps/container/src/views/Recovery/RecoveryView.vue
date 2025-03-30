@@ -1,29 +1,56 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useMutation } from '@tanstack/vue-query';
+import { ref, computed, watch } from 'vue';
+import { useMutation, useQuery } from '@tanstack/vue-query';
 import { Users } from 'services';
 import { z } from 'zod';
 
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm, useField } from 'vee-validate';
 import { useRouter } from 'vue-router';
+import { FeedbackAlert } from '@/components/FeedbackAlert';
 
 const router = useRouter();
 
 const redirectToHome = () => (window.location.pathname = '/');
 
 const validationSchema = toTypedSchema(
-  z.object({
-    email: z
-      .string({
-        required_error: 'Este campo é obrigatório',
-        invalid_type_error: 'Digite um email UFABC válido',
-      })
-      .refine(
-        (email) => /^[A-Za-z0-9._%+-]+@aluno\.ufabc\.edu\.br$/.test(email),
-        'Digite um email UFABC válido',
-      ),
-  }),
+  z
+    .object({
+      email: z
+        .string({
+          required_error: 'Este campo é obrigatório',
+          invalid_type_error: 'Digite um email UFABC válido',
+        })
+        .refine((email) => /^\S+$/.test(email), 'Não digite espaços em branco'),
+      ra: z
+        .object({
+          ra: z
+            .string({
+              required_error: 'Este campo é obrigatório',
+              invalid_type_error: 'Digite um RA válido',
+            })
+            .regex(/^\d+$/, {
+              message: 'Insira apenas números',
+            })
+            .refine(
+              (ra) => ra.length >= 8,
+              'O campo RA deve conter pelo menos 8 dígitos.',
+            ),
+          confirm: z.string({
+            required_error: 'Este campo é obrigatório',
+            invalid_type_error: 'Digite um RA válido',
+          }),
+        })
+        .superRefine((val, ctx) => {
+          if (val.ra !== val.confirm) {
+            ctx.addIssue({
+              code: 'custom',
+              message: 'Os campos RA devem ser iguais',
+              path: ['confirm'],
+            });
+          }
+        }),
+    })
 );
 
 const { handleSubmit, meta } = useForm({
@@ -31,6 +58,45 @@ const { handleSubmit, meta } = useForm({
 });
 
 const email = useField('email');
+const ra = useField<string>('ra.ra');
+const raConfirm = useField('ra.confirm');
+
+const isFetchEmailEnabled = computed(() => raConfirm.value.value === ra.value.value);
+const { refetch: fetchEmail, isLoading: isFetchEmailLoading, data: verifiedEmail, error: fetchEmailError } = useQuery({
+  queryKey: ['email'],
+  queryFn: () => Users.getEmail(ra.value.value),
+  enabled: false,
+});
+
+const handleEmailError = computed(() => {
+  if (!fetchEmailError.value) {
+    return 'Um Erro inesperado ocorreu, tente novamente';
+  }
+  
+  if (fetchEmailError.value.response.status === 400) {
+    return fetchEmailError.value.response.data.message
+  }
+
+  if (fetchEmailError.value.response.status === 403) {
+    return fetchEmailError.value.response.data.message
+  }
+
+  return 'Um Erro inesperado ocorreu, tente novamente'
+})
+
+const getUserEmail = (fieldState: boolean) => {
+  if (fieldState || !ra.value.value || !isFetchEmailEnabled.value) {
+    return;
+  }
+
+  fetchEmail();
+};
+
+watch(() => verifiedEmail.value, (newEmail) => {
+  if (newEmail) {
+    email.value.value = newEmail.data.email
+  }
+})
 
 const recoveryStep = ref(0);
 
@@ -51,22 +117,15 @@ const onSubmit = handleSubmit(({ email }) =>
 
 <template>
   <v-container>
+    <FeedbackAlert v-if="fetchEmailError" :text="handleEmailError" />
+
     <v-row>
-      <img
-        style="max-width: 200px; height: auto"
-        src="@/assets/logo.svg"
-        alt="logo do UFABC Next"
-      />
+      <img style="max-width: 200px; height: auto" src="@/assets/logo.svg" alt="logo do UFABC Next" />
     </v-row>
 
     <v-row>
       <v-col cols="12" md="6">
-        <img
-          class="pa-6"
-          src="@/assets/recovery.svg"
-          style="width: 100%"
-          alt="Imagem minimalista de dois estudantes"
-        />
+        <img class="pa-6" src="@/assets/recovery.svg" style="width: 100%" alt="Imagem minimalista de dois estudantes" />
       </v-col>
 
       <v-col cols="12" md="6">
@@ -75,27 +134,25 @@ const onSubmit = handleSubmit(({ email }) =>
             Criou uma conta no Next e não consegue acessar?
           </h1>
           <v-form @submit.prevent="onSubmit">
-            <v-text-field
-              v-model.trim="email.value.value"
-              label="Insira seu email institucional"
-              variant="solo"
-              class="mb-4"
-              placeholder="seu.email@aluno.ufabc.edu.br"
-              prepend-inner-icon="mdi-email"
-              :error-messages="email.errorMessage.value"
-            ></v-text-field>
+            <v-text-field v-model.trim="ra.value.value" @update:focused="getUserEmail" label="Insira seu RA"
+              :disabled="isFetchEmailLoading" variant="solo" class="mb-4 w-100" placeholder="11201911111"
+              prepend-inner-icon="mdi-school" :error-messages="ra.errorMessage.value" />
+
+            <v-text-field v-model.trim="raConfirm.value.value" @update:focused="getUserEmail"
+              :disabled="isFetchEmailLoading" label="Confirme seu RA" variant="solo" class="mb-4 w-100"
+              placeholder="11201911111" prepend-inner-icon="mdi-school-outline"
+              :error-messages="raConfirm.errorMessage.value" />
+
+            <v-text-field v-model.trim="email.value.value" :loading="isFetchEmailLoading" :disabled="true"
+              label="Email institucional" variant="solo" class="mb-4 w-100" placeholder="seu.email@aluno.ufabc.edu.br"
+              prepend-inner-icon="mdi-email" :error-messages="email.errorMessage.value" readonly />
+
             <div class="d-flex">
-              <v-btn class="mr-2" rounded size="large" @click="router.go(-1)">
+              <v-btn :disabled="isFetchEmailLoading || isPendingSubmit" class="mr-2" rounded size="large" @click="router.go(-1)">
                 <v-icon class="mr-1">mdi-arrow-left</v-icon> Anterior
               </v-btn>
-              <v-btn
-                color="#4a90e2"
-                type="submit"
-                rounded
-                size="large"
-                :loading="isPendingSubmit"
-                :disabled="!meta.valid"
-              >
+              <v-btn color="#4a90e2" type="submit" rounded size="large" :loading="isPendingSubmit"
+                :disabled="!meta.valid">
                 Próximo <v-icon class="ml-1">mdi-arrow-right</v-icon>
               </v-btn>
             </div>
@@ -114,11 +171,7 @@ const onSubmit = handleSubmit(({ email }) =>
             </p>
             <p class="mb-4">
               Envie uma DM para nosso
-              <a
-                href="https://www.instagram.com/ufabc_next/?hl=pt-br"
-                target="_blank"
-                >Instagram</a
-              >
+              <a href="https://www.instagram.com/ufabc_next/?hl=pt-br" target="_blank">Instagram</a>
               e te atenderemos!
             </p>
             <p class="mb-4">
@@ -126,11 +179,8 @@ const onSubmit = handleSubmit(({ email }) =>
             </p>
             <p>
               Aproveite e conheça o projeto no
-              <a
-                href="https://github.com/ufabc-next/ufabc-next-web"
-                target="_blank"
-                >GitHub</a
-              >, sua ajuda será bem-vinda!
+              <a href="https://github.com/ufabc-next/ufabc-next-web" target="_blank">GitHub</a>, sua ajuda será
+              bem-vinda!
             </p>
           </div>
         </section>
@@ -141,9 +191,7 @@ const onSubmit = handleSubmit(({ email }) =>
           </h1>
           <p class="mb-4">
             Você recebeu um email para recuperar sua conta,
-            <a href="https://www.outlook.com/aluno.ufabc.edu.br" target="_blank"
-              >clique aqui</a
-            >
+            <a href="https://www.outlook.com/aluno.ufabc.edu.br" target="_blank">clique aqui</a>
             para acessar seu email institucional.
           </p>
 
@@ -151,11 +199,7 @@ const onSubmit = handleSubmit(({ email }) =>
             <p class="mb-4">
               Caso você não tenha recebido o email de recuperação de conta,
               envie uma DM para nosso
-              <a
-                href="https://www.instagram.com/ufabc_next/?hl=pt-br"
-                target="_blank"
-                >Instagram</a
-              >
+              <a href="https://www.instagram.com/ufabc_next/?hl=pt-br" target="_blank">Instagram</a>
               e te atenderemos!
             </p>
             <p class="mb-4">
@@ -164,14 +208,7 @@ const onSubmit = handleSubmit(({ email }) =>
           </div>
         </section>
 
-        <v-btn
-          v-show="recoveryStep === 1"
-          color="#4a90e2"
-          class="mt-3"
-          rounded
-          size="large"
-          @click="redirectToHome()"
-        >
+        <v-btn v-show="recoveryStep === 1" color="#4a90e2" class="mt-3" rounded size="large" @click="redirectToHome()">
           Voltar para a home
         </v-btn>
       </v-col>
