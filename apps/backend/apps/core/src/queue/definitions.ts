@@ -122,7 +122,7 @@ export const JOBS = {
   ComponentsSync: {
     queue: 'sync:components',
     handler: syncComponents,
-    every: '2 minutes',
+    every: '1 day',
   },
   ProcessSingleComponent: {
     queue: 'sync:components',
