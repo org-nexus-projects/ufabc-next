@@ -5,14 +5,16 @@ import '@/assets/tailwind.css'
 import { createStudent, syncHistory } from "@/services/next";
 import { processingToast, errorToast, successToast } from '@/utils/toasts'
 import { calculateQuadrimestres } from '@/utils/season'
+import type { Cookies } from "wxt/browser";
 
 export default defineContentScript({
 	async main() {
+    const sessionId = await getToken();
+
+    console.log(sessionId)
 		const sigURL = new URL(document.location.href);
     const itineraryTable = document.querySelector<HTMLTableElement>("#turmas-portal");
     const $trs = document.querySelectorAll<HTMLTableRowElement>("#agenda-docente tbody tr");
-    // const facto = await browser.cookies.getAll({  })
-    console.log(browser)
     const shouldFormatItinerary = sigURL.pathname.includes("/portais/discente/discente.jsf") && itineraryTable;
     if (shouldFormatItinerary) {
       try {
@@ -111,3 +113,18 @@ export default defineContentScript({
 	runAt: "document_end",
 	matches: ["https://sig.ufabc.edu.br/sigaa/portais/discente/discente.jsf"],
 });
+
+type Token = {
+
+}
+
+async function getToken() {
+  try {
+    const token: Cookies.Cookie = await browser.runtime.sendMessage({ action: "getToken" });
+    console.log(token)
+    return token;
+  } catch (error) {
+    console.error("Failed to get JSESSIONID from background script:", error);
+    return null;
+  }
+}
