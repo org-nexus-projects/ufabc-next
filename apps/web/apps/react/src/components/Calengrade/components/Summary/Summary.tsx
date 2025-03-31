@@ -35,7 +35,6 @@ export const Summary = () => {
   // When first loaded, make sure there's a default quarter if not already set
   useEffect(() => {
     if (!calengrade.quarter?.startDate || !calengrade.quarter?.endDate) {
-      // Initialize with a default quarter only if none exists
       const defaultQuarterIndex = findCurrentQuarter();
       setCalengrade({
         ...calengrade,

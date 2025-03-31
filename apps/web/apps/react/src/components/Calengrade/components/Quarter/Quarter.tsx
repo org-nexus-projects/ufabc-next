@@ -43,7 +43,6 @@ export default function Quarter() {
     return 0;
   });
 
-  // Initialize dates based on the selected quarter or existing context data
   const [startDate, setStartDate] = useState(
     () => calengrade.quarter?.startDate || definedQuarters[quarter].startDate,
   );
@@ -51,15 +50,12 @@ export default function Quarter() {
     () => calengrade.quarter?.endDate || definedQuarters[quarter].endDate,
   );
 
-  // State for formatted dates (Brazilian format for display)
   const [formattedStartDate, setFormattedStartDate] = useState('');
   const [formattedEndDate, setFormattedEndDate] = useState('');
 
   const [startDateError, setStartDateError] = useState('');
   const [endDateError, setEndDateError] = useState('');
 
-  // Update context when quarter, startDate, or endDate changes
-  // But don't include calengrade in dependencies to avoid infinite loop
   useEffect(() => {
     const title =
       quarter === 0
@@ -76,9 +72,7 @@ export default function Quarter() {
     }));
   }, [quarter, startDate, endDate, setCalengrade]);
 
-  // Format the dates whenever they change
   useEffect(() => {
-    // Format dates to Brazilian format for display
     if (startDate) {
       const date = new Date(`${startDate}T00:00:00.000`);
       const day = String(date.getDate()).padStart(2, '0');
@@ -96,9 +90,7 @@ export default function Quarter() {
     }
   }, [startDate, endDate]);
 
-  // Update both start and end dates when quarter changes
   const handleQuarterChange = (value: number) => {
-    console.log('Selected quarter:', value);
     if (value >= 0 && value < definedQuarters.length) {
       setStartDate(definedQuarters[value].startDate);
       setEndDate(definedQuarters[value].endDate);
@@ -106,13 +98,12 @@ export default function Quarter() {
     setQuarter(value);
   };
 
-  // Parse date from Brazilian format to ISO format
   const parseBrazilianDate = (brazilianDate: string): string | null => {
     const parts = brazilianDate.split('/');
     if (parts.length !== 3) return null;
 
     const day = parseInt(parts[0]);
-    const month = parseInt(parts[1]) - 1; // JS months are 0-indexed
+    const month = parseInt(parts[1]) - 1; // months are 0-indexed
     const year = parseInt(parts[2]);
 
     const date = new Date(year, month, day);
