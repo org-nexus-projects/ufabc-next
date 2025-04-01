@@ -134,3 +134,7 @@ export async function getUFComponents() {
 	const ufComponents = await ufParserService<UFSeasonComponents[]>("/components");
 	return ufComponents
 }
+
+export async function getStudentGrades(sessionId: string) {
+
+}

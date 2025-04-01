@@ -1,3 +1,4 @@
+import { ofetch } from 'ofetch'
 import { storage } from "wxt/storage";
 import { scrapeMenu, type Student } from "@/scripts/sig/homepage";
 import "toastify-js/src/toastify.css";
@@ -5,101 +6,106 @@ import '@/assets/tailwind.css'
 import { createStudent, syncHistory } from "@/services/next";
 import { processingToast, errorToast, successToast } from '@/utils/toasts'
 import { calculateQuadrimestres } from '@/utils/season'
-import type { Cookies } from "wxt/browser";
+import { sendMessage } from "@/messaging";
 
 export default defineContentScript({
 	async main() {
     const sessionId = await getToken();
-
-    console.log(sessionId)
-		const sigURL = new URL(document.location.href);
+    if (!sessionId) {
+      return;
+    }
+    const aa = new Headers()
+    aa.append('cookie', `JSESSIONID=${sessionId}`)
+    const res = await ofetch(`http://localhost:5001/sig/grades?token=${sessionId}`)
+    console.log(await res)
+    const sigURL = new URL(document.location.href);
     const itineraryTable = document.querySelector<HTMLTableElement>("#turmas-portal");
     const $trs = document.querySelectorAll<HTMLTableRowElement>("#agenda-docente tbody tr");
     const shouldFormatItinerary = sigURL.pathname.includes("/portais/discente/discente.jsf") && itineraryTable;
     if (shouldFormatItinerary) {
       try {
-        processingToast.showToast();
-        const currentStudent = await scrapeMenu($trs);
+      //   processingToast.showToast();
+      //   const currentStudent = await scrapeMenu($trs);
 
-        if (!currentStudent) {
-          throw new Error("Failed to scrape student data");
-        }
+      //   if (!currentStudent) {
+      //     throw new Error("Failed to scrape student data");
+      //   }
 
-        const existingStudent = await storage.getItem<Student>("local:student");
-        if (existingStudent?.ra === currentStudent.ra) {
-          // Check if this graduation already exists
-          const currentGraduation = currentStudent.graduations[0];
-          const graduationExists = existingStudent.graduations.some(
-            g => g.course === currentGraduation.course
-          );
+      //   const existingStudent = await storage.getItem<Student>("local:student");
+      //   if (existingStudent?.ra === currentStudent.ra) {
+      //     // Check if this graduation already exists
+      //     const currentGraduation = currentStudent.graduations[0];
+      //     const graduationExists = existingStudent.graduations.some(
+      //       g => g.course === currentGraduation.course
+      //     );
 
-          if (!graduationExists) {
-            const mergedStudent = {
-              ...existingStudent,
-              graduations: [...existingStudent.graduations, currentGraduation],
-              lastUpdate: Date.now()
-            };
+      //     if (!graduationExists) {
+      //       const mergedStudent = {
+      //         ...existingStudent,
+      //         graduations: [...existingStudent.graduations, currentGraduation],
+      //         lastUpdate: Date.now()
+      //       };
 
-            // update with new course
-            await syncHistory({
-              ra: existingStudent.ra,
-              course: currentGraduation.course as string,
-              grade: currentGraduation.grade,
-              components: currentGraduation.components
-            })
+      //       // update with new course
+      //       await syncHistory({
+      //         ra: existingStudent.ra,
+      //         course: currentGraduation.course as string,
+      //         grade: currentGraduation.grade,
+      //         components: currentGraduation.components
+      //       })
 
-            await storage.setItem("local:student", mergedStudent);
-            const studentToCreateGraduations =  mergedStudent.graduations.map(g => ({
-              name: g.course as string,
-              courseId: g.UFCourseId,
-              turno: g.shift,
-              quads: calculateQuadrimestres({ entranceQuad: mergedStudent.startedAt }),
-            }))
-            await createStudent({
-              login: mergedStudent.login,
-              ra: mergedStudent.ra,
-              graduations: studentToCreateGraduations
-            })
-          }
-          const studentToCreateGraduations =  existingStudent.graduations.map(g => ({
-            name: g.course as string,
-            courseId: g.UFCourseId,
-            turno: g.shift,
-            quads: calculateQuadrimestres({ entranceQuad: existingStudent.startedAt }),
-          }))
-          // update regular student - not new and same course
-          await syncHistory({
-            ra: existingStudent.ra,
-            course: currentGraduation.course as string,
-            grade: currentGraduation.grade,
-            components: currentGraduation.components
-          })
-          await createStudent({
-            login: existingStudent.login,
-            ra: existingStudent.ra,
-            graduations: studentToCreateGraduations
-          })
-        } else {
-          await storage.setItem("local:student", currentStudent);
-          // Create student record with first graduation
-          await syncHistory({
-            ra: currentStudent.ra,
-            course: currentStudent?.graduations[0].course as string,
-            grade: currentStudent?.graduations[0].grade,
-            components: currentStudent?.graduations[0].components
-          })
-          const studentToCreateGraduations =  currentStudent.graduations.map(g => ({
-            name: g.course as string,
-            courseId: g.UFCourseId,
-            turno: g.shift,
-            quads: calculateQuadrimestres({ entranceQuad: currentStudent.startedAt }) ?? 0,
-          }))
-          await createStudent({
-            login: currentStudent.login,
-            ra: currentStudent.ra,
-            graduations: studentToCreateGraduations
-          })
-        }
+      //       await storage.setItem("local:student", mergedStudent);
+      //       const studentToCreateGraduations =  mergedStudent.graduations.map(g => ({
+      //         name: g.course as string,
+      //         courseId: g.UFCourseId,
+      //         turno: g.shift,
+      //         quads: calculateQuadrimestres({ entranceQuad: mergedStudent.startedAt }),
+      //       }))
+      //       await createStudent({
+      //         login: mergedStudent.login,
+      //         ra: mergedStudent.ra,
+      //         graduations: studentToCreateGraduations
+      //       })
+      //     }
+      //     const studentToCreateGraduations =  existingStudent.graduations.map(g => ({
+      //       name: g.course as string,
+      //       courseId: g.UFCourseId,
+      //       turno: g.shift,
+      //       quads: calculateQuadrimestres({ entranceQuad: existingStudent.startedAt }),
+      //     }))
+      //     // update regular student - not new and same course
+      //     await syncHistory({
+      //       ra: existingStudent.ra,
+      //       course: currentGraduation.course as string,
+      //       grade: currentGraduation.grade,
+      //       components: currentGraduation.components
+      //     })
+      //     await createStudent({
+      //       login: existingStudent.login,
+      //       ra: existingStudent.ra,
+      //       graduations: studentToCreateGraduations
+      //     })
+      //   } else {
+      //     await storage.setItem("local:student", currentStudent);
+      //     // Create student record with first graduation
+      //     await syncHistory({
+      //       ra: currentStudent.ra,
+      //       course: currentStudent?.graduations[0].course as string,
+      //       grade: currentStudent?.graduations[0].grade,
+      //       components: currentStudent?.graduations[0].components
+      //     })
+      //     const studentToCreateGraduations =  currentStudent.graduations.map(g => ({
+      //       name: g.course as string,
+      //       courseId: g.UFCourseId,
+      //       turno: g.shift,
+      //       quads: calculateQuadrimestres({ entranceQuad: currentStudent.startedAt }) ?? 0,
+      //     }))
+      //     await createStudent({
+      //       login: currentStudent.login,
+      //       ra: currentStudent.ra,
+      //       graduations: studentToCreateGraduations
+      //     })
+      //   }
 
         successToast.showToast();
       } catch (error) {
@@ -120,9 +126,15 @@ type Token = {
 
 async function getToken() {
   try {
-    const token: Cookies.Cookie = await browser.runtime.sendMessage({ action: "getToken" });
-    console.log(token)
-    return token;
+    const token = await sendMessage('getToken', {
+      action: 'getToken',
+      pageURL: document.URL
+    })
+    if (!token) {
+      console.error('Could not retrieve token, please try again')
+      return null
+    }
+    return token.value;
   } catch (error) {
     console.error("Failed to get JSESSIONID from background script:", error);
     return null;
