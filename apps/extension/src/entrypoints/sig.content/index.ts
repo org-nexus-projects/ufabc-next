@@ -11,15 +11,18 @@ import { getStudentGrades, getStudentSigHistory } from '@/services/ufabc-parser'
 
 export default defineContentScript({
 	async main() {
+    const viewStateID = document.querySelector<HTMLInputElement>(
+      'input[name="javax.faces.ViewState"]'
+    )
     const sessionId = await getToken();
-    if (!sessionId) {
+    if (!sessionId || !viewStateID) {
       return;
     }
     // TODO(Joabe): move to background processing
     // https://webext-core.aklinker1.io/proxy-service/installation/
-    const history = await getStudentSigHistory(sessionId, 'history');
-    const { data: reportPage, error } = await getStudentGrades(sessionId, 'student-report');
-    
+    const history = await getStudentSigHistory(sessionId, viewStateID.value, 'history');
+    const { data: reportPage, error } = await getStudentGrades(sessionId, viewStateID.value, 'student-report');
+
     if (error || !reportPage) {
       const msg = 'Ocorreu um erro ao extrair as disciplinas cursadas, por favor tente novamente mais tarde!'
       scrappingErrorToast(msg).showToast();

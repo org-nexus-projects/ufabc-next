@@ -137,21 +137,23 @@ export async function getUFComponents() {
 
 type Action = 'history' | 'student-report' | 'student'
 
-export async function getStudentGrades(sessionId: string, action: Action) {
+export async function getStudentGrades(sessionId: string, viewStateID: string, action: Action) {
 	const $grades = await ufParserService<{ data: string | null; error: string | null }>('/sig/grades', {
 		query: {
 			token: sessionId,
 			action,
+      viewState: viewStateID
 		}
 	});
 	return $grades;
 }
 
-export async function getStudentSigHistory(sessionId: string, action: Action) {
+export async function getStudentSigHistory(sessionId: string, viewStateID: string, action: Action) {
 	const $history = await ufParserService<{ data: string | null; error: string | null }>('/sig/history', {
 		query: {
 			token: sessionId,
 			action,
+      viewState: viewStateID
 		}
 	});
 	return $history;
