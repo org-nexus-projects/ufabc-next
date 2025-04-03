@@ -1,6 +1,7 @@
 import { fetchGrades, fetchClasses, getUFStudent } from '@/services/uf-sig';
 import { normalizeDiacritics } from '@/utils/remove-diacritics';
 import {
+	getStudentSig,
 	getUFCourseCurriculums,
 	getUFCourses,
 	getUFCurriculumComponents,
@@ -69,6 +70,7 @@ export type Student = {
 
 export async function retrieveStudent(
 	pageTrs: NodeListOf<HTMLTableRowElement>,
+	sessionId: string,
 ): Promise<ShallowStudent | null> {
 	const rows = Array.from(pageTrs);
 	const kvStudent = rows.map((row) => {
@@ -80,61 +82,29 @@ export async function retrieveStudent(
 	});
 
 	const rawStudent: SigStudent = Object.fromEntries(kvStudent);
-	const [course, campus, kind, shift] = rawStudent.curso.split('  ');
-	const NTIStudent = await getUFStudent(rawStudent.matricula);
-	if (!NTIStudent) {
-		console.log('could not extract student', NTIStudent);
+	const student = await getStudentSig({
+		...rawStudent,
+		sessionId,
+	}, 'student');
+
+	if (student.error) {
 		return null;
 	}
-	const fixedShift = shift === 'n' ? 'noturno' : 'matutino';
-	const name = capitalizeStr(NTIStudent.fullname);
 
-	const student = {
-		name,
-		ra: rawStudent.matricula,
-		login: NTIStudent.username,
-		email: NTIStudent.email.find((email) =>
-			email.includes('ufabc.edu.br'),
-		),
-		graduations: [
-			{
-				course: transformCourseName(course, kind),
-				campus: campus === 'santo andre' ? 'sa' : 'sbc',
-				shift: fixedShift,
-			},
-		],
-		startedAt: rawStudent.entrada,
-	};
-
-	return student;
+	return student.data;
 }
 
 export async function scrapeMenu(
 	trs: NodeListOf<HTMLTableRowElement>,
+	sessionId: string
 ): Promise<Student | null> {
-	const { data: page, error } = await fetchGrades();
-	if (error || !page) {
-		const msg = 'Ocorreu um erro ao extrair as disciplinas cursadas, por favor tente novamente mais tarde!'
-    console.error(error)
-    scrappingErrorToast(msg).showToast();
+	// const classesData = scrapeClassesPage(classesPage);
+	const shallowStudent = await retrieveStudent(trs, sessionId);
+
+	if (!shallowStudent) {
 		return null;
 	}
-
-	const { data: classesPage, error: classesError } = await fetchClasses();
-	if (classesError || !classesPage) {
-		const msg =  'Ocorreu um erro ao extrair as turmas, por favor tente novamente mais tarde!'
-    console.error(error)
-    scrappingErrorToast(msg).showToast();
-		return null;
-	}
-
-	const classesData = scrapeClassesPage(classesPage);
-
-	const shallowStudent = await retrieveStudent(trs);
-
-	if (!shallowStudent || !classesData) {
-		return null;
-	}
+	return shallowStudent;
 
 	const graduationHistory = scrapeStudentHistory(page, classesData);
 	const courses = await getUFCourses();

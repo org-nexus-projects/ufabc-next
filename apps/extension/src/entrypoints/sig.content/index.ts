@@ -7,6 +7,7 @@ import { createStudent, syncHistory } from "@/services/next";
 import { processingToast, errorToast, successToast } from '@/utils/toasts'
 import { calculateQuadrimestres } from '@/utils/season'
 import { sendMessage } from "@/messaging";
+import { getStudentGrades, getStudentSigHistory } from '@/services/ufabc-parser';
 
 export default defineContentScript({
 	async main() {
@@ -14,19 +15,28 @@ export default defineContentScript({
     if (!sessionId) {
       return;
     }
-    const aa = new Headers()
-    aa.append('cookie', `JSESSIONID=${sessionId}`)
-    const res = await ofetch(`http://localhost:5001/sig/grades?token=${sessionId}`)
-    console.log(await res)
+    // TODO(Joabe): move to background processing
+    // https://webext-core.aklinker1.io/proxy-service/installation/
+    const history = await getStudentSigHistory(sessionId, 'history');
+    const { data: reportPage, error } = await getStudentGrades(sessionId, 'student-report');
+    
+    if (error || !reportPage) {
+      const msg = 'Ocorreu um erro ao extrair as disciplinas cursadas, por favor tente novamente mais tarde!'
+      scrappingErrorToast(msg).showToast();
+      return null;
+    }
+
     const sigURL = new URL(document.location.href);
+    console.log(history.data)
+    console.log(reportPage)
     const itineraryTable = document.querySelector<HTMLTableElement>("#turmas-portal");
     const $trs = document.querySelectorAll<HTMLTableRowElement>("#agenda-docente tbody tr");
     const shouldFormatItinerary = sigURL.pathname.includes("/portais/discente/discente.jsf") && itineraryTable;
     if (shouldFormatItinerary) {
       try {
-      //   processingToast.showToast();
-      //   const currentStudent = await scrapeMenu($trs);
-
+        processingToast.showToast();
+        const currentStudent = await scrapeMenu($trs, sessionId);
+        console.log(currentStudent)
       //   if (!currentStudent) {
       //     throw new Error("Failed to scrape student data");
       //   }

@@ -135,6 +135,60 @@ export async function getUFComponents() {
 	return ufComponents
 }
 
-export async function getStudentGrades(sessionId: string) {
+type Action = 'history' | 'student-report' | 'student'
 
+export async function getStudentGrades(sessionId: string, action: Action) {
+	const $grades = await ufParserService<{ data: string | null; error: string | null }>('/sig/grades', {
+		query: {
+			token: sessionId,
+			action,
+		}
+	});
+	return $grades;
+}
+
+export async function getStudentSigHistory(sessionId: string, action: Action) {
+	const $history = await ufParserService<{ data: string | null; error: string | null }>('/sig/history', {
+		query: {
+			token: sessionId,
+			action,
+		}
+	});
+	return $history;
+}
+
+type SigStudent = {
+	matricula: string;
+	email: string;
+	/** @example 2022:2 */
+	entrada: string;
+	nivel: 'graduacao' | 'licenciatura';
+	status: string;
+	curso: string;
+	sessionId: string;
+};
+
+type ShallowStudent = {
+	name: string;
+	ra: string;
+	login: string;
+	email: string | undefined;
+	graduations: Array<{
+		course: Course;
+		campus: string;
+		shift: string;
+	}>;
+	startedAt: string;
+};
+
+export async function getStudentSig(student: SigStudent, action: Action) {
+	const $student = await ufParserService<{ data: ShallowStudent | null; error: string | null }>('/sig/me', {
+		method: 'POST',
+		body: student,
+		query: {
+			token: student.sessionId,
+			action,
+		}
+	});
+	return $student;
 }
