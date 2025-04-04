@@ -1,42 +1,10 @@
 import { ofetch } from "ofetch";
-import { storage } from "wxt/storage";
-
-type UFCourses = {
-	name: string;
-	campus: "santo andré" | "são bernardo do campo";
-	coordinator: string;
-	UFCourseId: number[];
-};
-
-export type UFCourseCurriculum =  {
-  name: string;
-  alias: string;
-  grade: string;
-  appliedAt: string;
-  active: boolean;
-  freeCredits: number | null;
-  limitedCredits: number | null;
-  mandatoryCredits: number | null;
-  totalCredits: number | null
-};
 
 export type UFComponent = {
 	name: string;
 	UFComponentCode: string;
 	category: "limited" | "mandatory";
 	credits: number;
-};
-
-type UFCurriculumComponents = {
-	name: string;
-	alias: string;
-	creditsTotal: number;
-	limitedCredits?: number;
-	campus: "sa" | "sbc";
-	kind: "bacharelado" | "licenciatura";
-	shift: "noturno" | "matutino";
-	grade: string;
-	components: UFComponent[];
 };
 
 export type UFSeasonComponents = {
@@ -52,64 +20,71 @@ export type UFSeasonComponents = {
 	hours: unknown
 }
 
+type Action = 'history' | 'student-report' | 'student'
+
+type Student = ShallowStudent & {
+  sessionId: string
+}
+
+type SigStudent = {
+	matricula: string;
+	email: string;
+	/** @example 2022:2 */
+	entrada: string;
+	nivel: 'graduacao' | 'licenciatura';
+	status: string;
+	curso: string;
+	sessionId: string;
+};
+
+export type ShallowStudent = {
+	name: string;
+	ra: string;
+	login: string;
+	email: string | undefined;
+	graduations: Array<{
+		course: Course;
+		campus: string;
+		shift: string;
+	}>;
+	startedAt: string;
+};
+
+type SigComponent = {
+	UFCode: string;
+	name: string;
+	grade: 'A' | 'B' | 'C' | 'D' | 'O' | 'F' | 'E' | null;
+	status: string;
+	year: string;
+	period: '1' | '2' | '3';
+	credits: number;
+};
+
+type HydratedComponent = SigComponent & {
+	category: 'free' | 'mandatory' | 'limited';
+};
+
+export type CompleteStudent = {
+	name: string;
+	ra: string;
+	login: string;
+  studentId?: number | undefined
+	email: string | undefined;
+	graduations: Array<{
+		course: Course;
+		campus: string;
+		shift: string;
+		grade: string;
+    UFCourseId: number;
+		components: HydratedComponent[];
+	}>;
+	startedAt: string;
+	lastUpdate: number;
+};
+
 const ufParserService = ofetch.create({
 	baseURL: import.meta.env.VITE_UFABC_PARSER_URL,
 });
-
-const COURSES_CACHE = "ufCoursesCache";
-const COURSE_CURRICULUM_CACHE = "ufCourseCurriculums";
-const CURRICULUM_COMPONENTS_CACHE = "ufCurriculumComponents";
-
-export async function getUFCourses() {
-	// const cachedCourses = await storage.getItem<UFCourses[]>(
-	// 	`session:${COURSES_CACHE}`,
-	// );
-	// if (cachedCourses) {
-	// 	return cachedCourses;
-	// }
-	const courses = await ufParserService<UFCourses[]>("/courses");
-	// await storage.setItem(`session:${COURSES_CACHE}`, courses);
-	return courses;
-}
-
-export async function getUFCourseCurriculums(courseId: number) {
-	// const cachedCurriculums = await storage.getItem<UFCourseCurriculum[]>(
-	// 	`session:${COURSE_CURRICULUM_CACHE}`,
-	// );
-	// if (cachedCurriculums) {
-	// 	return cachedCurriculums;
-	// }
-
-	const courseCurriculums = await ufParserService<UFCourseCurriculum[]>(
-		`/courses/grades/${courseId}`,
-	);
-	await storage.setItem(
-		`session:${COURSE_CURRICULUM_CACHE}`,
-		courseCurriculums,
-	);
-	return courseCurriculums;
-}
-
-export async function getUFCurriculumComponents(
-	courseId: number,
-	curriculum: string,
-) {
-	// const cachedComponents = await storage.getItem<UFCurriculumComponents>(
-	// 	`local:${CURRICULUM_COMPONENTS_CACHE}`,
-	// );
-	// if (cachedComponents) {
-	// 	return cachedComponents;
-	// }
-
-	const curriculumComponents = await ufParserService<UFCurriculumComponents>(
-		`/courses/components/${courseId}/${curriculum}`,
-	);
-	await storage.setItem(
-		`local:${CURRICULUM_COMPONENTS_CACHE}`,
-		curriculumComponents,
-	);
-	return curriculumComponents;
-}
 
 export async function getUFEnrolled() {
 	const enrolled =
@@ -135,15 +110,15 @@ export async function getUFComponents() {
 	return ufComponents
 }
 
-type Action = 'history' | 'student-report' | 'student'
-
-export async function getStudentGrades(sessionId: string, viewStateID: string, action: Action) {
-	const $grades = await ufParserService<{ data: string | null; error: string | null }>('/sig/grades', {
+export async function getStudentGrades(student: Student, viewStateID: string, action: Action) {
+	const $grades = await ufParserService<{ data: CompleteStudent | null; error: string | null }>('/sig/grades', {
+    method: 'POST',
 		query: {
-			token: sessionId,
+			token: student.sessionId,
 			action,
       viewState: viewStateID
-		}
+		},
+    body: student
 	});
 	return $grades;
 }
@@ -158,30 +133,6 @@ export async function getStudentSigHistory(sessionId: string, viewStateID: strin
 	});
 	return $history;
 }
-
-type SigStudent = {
-	matricula: string;
-	email: string;
-	/** @example 2022:2 */
-	entrada: string;
-	nivel: 'graduacao' | 'licenciatura';
-	status: string;
-	curso: string;
-	sessionId: string;
-};
-
-type ShallowStudent = {
-	name: string;
-	ra: string;
-	login: string;
-	email: string | undefined;
-	graduations: Array<{
-		course: Course;
-		campus: string;
-		shift: string;
-	}>;
-	startedAt: string;
-};
 
 export async function getStudentSig(student: SigStudent, action: Action) {
 	const $student = await ufParserService<{ data: ShallowStudent | null; error: string | null }>('/sig/me', {
