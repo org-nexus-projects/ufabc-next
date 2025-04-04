@@ -33,8 +33,6 @@ export default defineContentScript({
         // https://webext-core.aklinker1.io/proxy-service/installation/
         // const history = await getStudentSigHistory(sessionId, viewStateID.value, 'history');
 
-        console.log(currentStudent)
-
         if (error || !currentStudent) {
           console.log(error)
           throw new Error('Erro ao buscar informações');
