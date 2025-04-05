@@ -1,10 +1,10 @@
 import { notionClient } from '@/lib/notion.service.js';
 import type { QueueContext } from '../types.js';
 
-//TODO:figure out what should be inserted into the notion database
 type NotionPage = {
   email: string;
   ra: string;
+  problemTitle: string;
   problemDescription: string;
 };
 
@@ -15,8 +15,67 @@ export async function postInfoIntoNotionDB(ctx: QueueContext<NotionPage>) {
       parent: {
         database_id: ctx.app.config.NOTION_DATABASE_ID,
       },
-      //TODO: figure out database structure
-      properties: {},
+      properties: {
+        Status: {
+          type: 'status',
+          status: { name: 'Not started' },
+        },
+        Name: {
+          type: 'title',
+          title: [
+            {
+              type: 'text',
+              text: {
+                content: data.problemTitle,
+              },
+            },
+          ],
+        },
+      },
+      children: [
+        {
+          object: 'block',
+          type: 'paragraph',
+          paragraph: {
+            rich_text: [
+              {
+                type: 'text',
+                text: {
+                  content: data.problemDescription,
+                },
+              },
+            ],
+          },
+        },
+        {
+          object: 'block',
+          type: 'paragraph',
+          paragraph: {
+            rich_text: [
+              {
+                type: 'text',
+                text: {
+                  content: data.ra,
+                },
+              },
+            ],
+          },
+        },
+        {
+          object: 'block',
+          type: 'paragraph',
+          paragraph: {
+            rich_text: [
+              {
+                type: 'text',
+                text: {
+                  content: data.email,
+                },
+              },
+            ],
+          },
+        },
+      ],
     });
 
     ctx.app.log.debug({
