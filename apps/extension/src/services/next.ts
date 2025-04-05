@@ -161,7 +161,7 @@ function resolveEndpoint() {
     return "https://api.v2.ufabcnext.com";
   }
 
-  return "http://localhost:5000";
+  return "https://api.v2.ufabcnext.com";
 }
 
 export const nextURL = resolveEndpoint()

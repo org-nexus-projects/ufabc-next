@@ -6,7 +6,7 @@ import { createStudent, syncHistory } from '@/services/next';
 import { processingToast, errorToast, successToast } from '@/utils/toasts'
 import { calculateQuadrimestres } from '@/utils/season'
 import { sendMessage } from '@/messaging';
-import type { CompleteStudent } from '@/services/ufabc-parser';
+import { getStudentSigHistory, type CompleteStudent } from '@/services/ufabc-parser';
 
 export default defineContentScript({
 	async main() {
@@ -31,8 +31,8 @@ export default defineContentScript({
         const { data: currentStudent, error } = await scrapeMenu($trs, sessionId, viewStateID.value);
         // TODO(Joabe): move to background processing
         // https://webext-core.aklinker1.io/proxy-service/installation/
-        // const history = await getStudentSigHistory(sessionId, viewStateID.value, 'history');
-
+        const history = await getStudentSigHistory(sessionId, viewStateID.value, 'history');
+        console.log(history)
         if (error || !currentStudent) {
           console.log(error)
           throw new Error('Erro ao buscar informações');

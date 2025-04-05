@@ -51,7 +51,7 @@ export default defineContentScript({
 	runAt: 'document_end',
 	cssInjectionMode: 'ui',
 	matches: [
-		'http://localhost:3003/*',
+		'http://localhost/*',
 		'https://ufabc-matricula-snapshot.vercel.app/*',
 		'https://api.ufabcnext.com/snapshot',
 		'https://matricula.ufabc.edu.br/matricula',
