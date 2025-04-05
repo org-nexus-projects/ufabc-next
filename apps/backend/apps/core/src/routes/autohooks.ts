@@ -16,6 +16,7 @@ const PUBLIC_ROUTES = [
   '/public/stats/components',
   '/users/check-email',
   '/users/facebook',
+  'help/forms',
 ];
 
 const isPublicRoute = (url: string): boolean => {
