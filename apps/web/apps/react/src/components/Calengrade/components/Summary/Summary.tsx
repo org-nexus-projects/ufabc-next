@@ -12,7 +12,7 @@ export const Summary = () => {
   const [summary, setSummary] = useState(() => calengrade.summary ?? '');
   const [message, setMessage] = useState<[string, 'info' | 'error'] | []>([]);
 
-  const [quarter] = useState(() => {
+  const findCurrentQuarter = () => {
     const now = Date.now();
     for (let q = 1; q < definedQuarters.length; q++) {
       const quarterEndDate = new Date(
@@ -30,14 +30,22 @@ export const Summary = () => {
       }
     }
     return 0;
-  });
+  };
 
+  // When first loaded, make sure there's a default quarter if not already set
   useEffect(() => {
-    setCalengrade((calengrade) => ({
-      ...calengrade,
-      quarter: definedQuarters[quarter],
-    }));
-  }, [quarter, setCalengrade]);
+    if (!calengrade.quarter?.startDate || !calengrade.quarter?.endDate) {
+      const defaultQuarterIndex = findCurrentQuarter();
+      setCalengrade({
+        ...calengrade,
+        quarter: {
+          title: definedQuarters[defaultQuarterIndex].title,
+          startDate: definedQuarters[defaultQuarterIndex].startDate,
+          endDate: definedQuarters[defaultQuarterIndex].endDate,
+        },
+      });
+    }
+  }, [calengrade, setCalengrade]);
 
   const handleChange = (value: string) => {
     setSummary(value);
@@ -112,7 +120,8 @@ export const Summary = () => {
 
         <h3>
           <div>
-            <strong>Quadrimestre:</strong> {calengrade.quarter.title} (
+            <strong>Quadrimestre:</strong>{' '}
+            {calengrade.quarter?.title || 'Não selecionado'} (
             <button
               onClick={() => setActiveScreen('quarter')}
               className="quadri"

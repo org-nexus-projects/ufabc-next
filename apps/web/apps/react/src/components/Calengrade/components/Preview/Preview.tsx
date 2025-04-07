@@ -7,10 +7,9 @@ import { handleCalendar } from '../../utils/calendar';
 
 export const Preview = () => {
   const { calengrade, setCalengrade, setActiveScreen } = useCalengradeContext();
-
   const {
     classes,
-    quarter: { startDate, endDate },
+    quarter: { startDate, endDate, title },
     calendar,
   } = calengrade;
 
@@ -19,12 +18,10 @@ export const Preview = () => {
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-
     if (!timer) {
       interval = setInterval(() => setStep((s) => s + 1), 1000);
       setTimer(interval);
     }
-
     return () => {
       clearInterval(interval);
     };
@@ -45,31 +42,32 @@ export const Preview = () => {
               endDate,
             });
 
-        setCalengrade({
-          ...calengrade,
+        setCalengrade((prevState) => ({
+          ...prevState,
           calendar: newCalendar,
-        });
+        }));
         break;
 
       case 1: // Download
         try {
-          const {
-            calendar,
-            quarter: { title },
-          } = calengrade;
-
-          if (calendar && typeof calendar === 'string') {
-            const blob = new Blob([calendar], { type: 'text/calendar' });
+          if (calengrade.calendar && typeof calengrade.calendar === 'string') {
+            // Set content type with charset
+            const blob = new Blob([calengrade.calendar], {
+              type: 'text/calendar;charset=utf-8',
+            });
 
             const downloadURL = URL.createObjectURL(blob);
-
             const downloadLink = document.createElement('a');
 
+            // Create a safe filename
+            const safeTitle = title
+              ? title.replace(/[^a-zA-Z0-9\-_]/g, '_')
+              : 'Quadrimestre';
+
             downloadLink.href = downloadURL;
-            downloadLink.download = `Meu Calengrade - ${title}.ics`;
+            downloadLink.download = `Meu Calengrade - ${safeTitle}.ics`;
             downloadLink.href = downloadURL;
             downloadLink.click();
-
             URL.revokeObjectURL(downloadURL);
           } else {
             if (timer) clearInterval(timer);
@@ -95,7 +93,6 @@ export const Preview = () => {
         <h1>{step === 0 ? 'Gerando o seu calengrade' : 'Fazendo download'}</h1>
         <h2>...</h2>
       </div>
-
       <div className="flex-fill d-flex align-center">
         <img src={loadingImage} alt="Calendário acadêmico" />
       </div>
