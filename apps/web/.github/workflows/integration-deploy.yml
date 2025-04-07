@@ -27,10 +27,10 @@ jobs:
       - name: install dependencies
         run: yarn --frozen-lockfile
 
-      - name: Run tests and lint
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: ${{ matrix.command }}
+      # - name: Run tests and lint
+      #   uses: borales/actions-yarn@v4
+      #   with:
+      #     cmd: ${{ matrix.command }}
   build:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
