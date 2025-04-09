@@ -1,18 +1,16 @@
-import { listGraduationsSubjectsSchema } from '@/schemas/graduations.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import { z } from 'zod';
-
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.post(
     '/form',
     {
       schema: {
-        body: {
+        body: z.object({
           email: z.string().email(),
           ra: z.string(),
           problemTitle: z.string(),
           problemDescription: z.string(),
-        },
+        }),
       },
     },
     async function(request, reply) {
@@ -22,3 +20,5 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     },
   );
 };
+
+export default plugin;
