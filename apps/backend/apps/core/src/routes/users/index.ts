@@ -1,22 +1,19 @@
-import { UserModel } from '@/models/User.js';
+import { UserModel, type User } from '@/models/User.js';
 import { getEmployeeData, getStudentData } from '@/modules/email-validator.js';
-import {
-  completeUserSchema,
-  userAuthSchema,
-  type Auth,
-} from '@/schemas/auth.js';
+import { completeUserSchema, type Auth } from '@/schemas/auth.js';
 import {
   confirmUserSchema,
   deactivateUserSchema,
   loginFacebookSchema,
   resendEmailSchema,
+  sendRecoveryEmailSchema,
   validateUserEmailSchema,
 } from '@/schemas/user.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   const usersCache = app.cache<Auth>();
-  app.get('/info', { schema: userAuthSchema }, async (request, reply) => {
+  app.get('/info', async (request, reply) => {
     const cachedResponse = usersCache.get(`user:info:${request.user._id}`);
     if (cachedResponse) {
       return cachedResponse;
@@ -38,6 +35,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       permissions: user.permissions,
     };
 
+    request.log.info(userInfo, 'setting user to cache');
     usersCache.set(`user:info:${request.user._id}`, userInfo);
 
     return userInfo;
@@ -50,8 +48,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const { ra, email } = request.body;
       const user = await UserModel.findOne({
         ra,
-        $or: [{ 'oauth.facebookEmail': email }, { 'oauth.email': email }],
-        'oauth.facebook': { $exists: true },
+        $or: [
+          { 'oauth.facebookEmail': email },
+          { 'oauth.email': email },
+          { 'oauth.emailFacebook': email },
+        ],
       });
 
       if (!user) {
@@ -68,17 +69,14 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         );
       }
 
-      const jwtToken = app.jwt.sign(
-        {
-          _id: user._id.toJSON(),
-          ra: user.ra,
-          permissions: user.permissions,
-          active: user.active,
-          confirmed: user.confirmed,
-          email: user.email,
-        },
-        { expiresIn: '2d' },
-      );
+      const jwtToken = app.jwt.sign({
+        _id: user._id.toJSON(),
+        ra: user.ra,
+        permissions: user.permissions,
+        active: user.active,
+        confirmed: user.confirmed,
+        email: user.email,
+      });
 
       return { success: true, token: jwtToken };
     },
@@ -95,7 +93,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       return reply.notFound('User Not Found');
     }
 
-    app.job.dispatch('SendEmail', user.toJSON());
+    app.job.dispatch('SendEmail', {
+      kind: 'Confirmation',
+      user: user.toJSON() as unknown as User & { _id: string },
+    });
 
     return { message: 'E-mail enviado com sucesso' };
   });
@@ -103,6 +104,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.put(
     '/complete',
     { schema: completeUserSchema },
+    // @ts-ignore
     async (request, reply) => {
       const { email, ra } = request.body;
       try {
@@ -116,13 +118,17 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           return reply.badRequest('Malformed token');
         }
 
-        app.job.dispatch('SendEmail', user.toJSON());
+        app.job.dispatch('SendEmail', {
+          kind: 'Confirmation',
+          user: user.toJSON() as unknown as User & { _id: string },
+        });
 
         return {
           ra: user?.ra,
           email: user?.email,
         };
-      } catch {
+      } catch (error) {
+        request.log.error({ msg: 'error completing user', error });
         return reply.internalServerError('Could not complete user');
       }
     },
@@ -150,16 +156,13 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       const confirmedUser = await user.save();
 
-      const jwtToken = app.jwt.sign(
-        {
-          _id: confirmedUser._id,
-          ra: confirmedUser.ra,
-          confirmed: confirmedUser.confirmed,
-          email: confirmedUser.email,
-          permissions: confirmedUser.permissions,
-        },
-        { expiresIn: '7d' },
-      );
+      const jwtToken = app.jwt.sign({
+        _id: confirmedUser._id,
+        ra: confirmedUser.ra,
+        confirmed: confirmedUser.confirmed,
+        email: confirmedUser.email,
+        permissions: confirmedUser.permissions,
+      });
 
       return {
         token: jwtToken,
@@ -215,6 +218,30 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       }
 
       return { email: checkUser.email[0] };
+    },
+  );
+
+  app.post(
+    '/recover',
+    { schema: sendRecoveryEmailSchema },
+    async (request, reply) => {
+      const { email } = request.body;
+      const user = await UserModel.findOne({ email }).lean<
+        User & { _id: string }
+      >();
+
+      if (!user) {
+        return reply.badRequest(`E-mail inválido: ${email}`);
+      }
+
+      await app.job.dispatch('SendEmail', {
+        kind: 'Recover',
+        user,
+      });
+
+      return reply.send({
+        msg: 'success',
+      });
     },
   );
 };

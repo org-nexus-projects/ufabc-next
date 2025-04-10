@@ -50,7 +50,7 @@ export const searchSubjectSchema = {
                 _id: z.coerce.string(),
                 name: z.string(),
                 search: z.string().nullable(),
-                creditos: z.number().int().nullable(),
+                creditos: z.number().int().nullish(),
               })
               .array(),
           }),

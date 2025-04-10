@@ -148,3 +148,10 @@ export const getFacebookUserEmailSchema = {
     },
   },
 } satisfies FastifyZodOpenApiSchema;
+
+export const sendRecoveryEmailSchema = {
+  tags,
+  body: z.object({
+    email: z.string().email(),
+  }),
+} satisfies FastifyZodOpenApiSchema;

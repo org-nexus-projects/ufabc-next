@@ -41,7 +41,7 @@ const OauthSchema = z.object({
 export const SessionUserSchema = z.object({
   _id: z.string().refine((val) => Types.ObjectId.isValid(val)),
   ra: z.number().optional().nullable(),
-  email: z.string().email().nullable(),
+  email: z.string().email().nullish(),
   oauth: z.any().default(OauthSchema),
   permissions: z.string().array().default([]),
   createdAt: z.date(),
@@ -64,13 +64,8 @@ export const userAuthSchema = {
 
 export const completeUserSchema = {
   body: z.object({
-    ra: z.coerce.number(),
-    email: z
-      .string()
-      .email()
-      .refine((val) => val.includes('ufabc.edu.br'), {
-        message: 'Invalid UFABC email',
-      }),
+    ra: z.any(),
+    email: z.string().email(),
   }),
   response: {
     200: {

@@ -33,6 +33,11 @@ export async function syncComponents({ app }: QueueContext<unknown>) {
   });
 
   await Promise.all(componentsJobsPromises);
+
+  app.log.info({
+    msg: 'ComponentsSync tasks dispatched',
+    totalEnrollments: componentsJobsPromises.length,
+  });
 }
 
 export async function processComponent({

@@ -17,6 +17,7 @@ const PUBLIC_ROUTES = [
   '/users/check-email',
   '/users/facebook',
   'help/forms',
+  '/users/recover',
 ];
 
 const isPublicRoute = (url: string): boolean => {

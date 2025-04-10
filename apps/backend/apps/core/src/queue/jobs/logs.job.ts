@@ -30,7 +30,6 @@ export async function uploadLogsToS3(ctx: QueueContext<unknown>) {
 
     for (const file of logFiles) {
       const filePath = join(LOGS_DIR, file);
-      ctx.app.log.info(`Processing file: ${filePath}`);
       const fileContent = await readFile(filePath);
       const command = new PutObjectCommand({
         Bucket: bucket,

@@ -32,6 +32,12 @@ docker compose up -d
 # Realize a copia das variaveis de ambiente para o arquivo .env
 cp -r apps/core/.env.example apps/core/.env.dev
 
+# Para utilizar o localstack e persistir os logs, instale
+https://github.com/localstack/awscli-local
+
+# E rode o seguinte comando
+awslocal s3api create-bucket --bucket ufabc-next
+
 # De `start` no projeto
 pnpm dev
 
@@ -56,3 +62,4 @@ Utilitários que o monorepo possui ja configurado
 - [Biome](https://biomejs.dev/) Lint & format
 - [Node.js](https://nodejs.org/api/test.html) para realização de testes unitários
 - [Renovate](https://docs.renovatebot.com/) para manter a saúde das dependências do projeto
+```

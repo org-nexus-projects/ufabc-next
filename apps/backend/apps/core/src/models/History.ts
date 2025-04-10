@@ -11,6 +11,7 @@ const POSSIBLE_SITUATIONS = [
   'Aproveitamento',
   'reprovado',
   'reprovado por faltas',
+  'reprovado por média e por faltas',
   'aprovado',
 ] as const;
 // can be '-' if the component was dropped (trancamento)

@@ -109,11 +109,14 @@ export async function processComponentEnrollment(
 
   const keys = ['ra', 'year', 'quad', 'disciplina'] as const;
 
+  // Normalize just for generating the identifier consistently
+  const normalizedDisciplina = component.disciplina.trim();
+
   const key = {
     ra: history.ra,
     year: component.ano,
     quad: Number(component.periodo),
-    disciplina: component.disciplina,
+    disciplina: normalizedDisciplina,
   };
 
   component.identifier = component.identifier || generateIdentifier(key, keys);
@@ -132,7 +135,7 @@ export async function processComponentEnrollment(
     ra: key.ra,
     year: key.year,
     quad: key.quad,
-    disciplina: key.disciplina,
+    disciplina: component.disciplina, // Keep the original disciplina
     conceito: component.conceito,
     creditos: component.creditos,
     cr_acumulado: coef?.cr_acumulado ?? null,
@@ -144,24 +147,47 @@ export async function processComponentEnrollment(
   const enrollmentWithSubject = mapSubjects(rawEnrollment, subjects);
 
   try {
-    const enrollment = await EnrollmentModel.findOneAndUpdate(
-      {
-        ra: history.ra,
-        year: component.ano,
-        quad: Number(component.periodo),
-        disciplina: component.disciplina,
-      },
-      {
-        $set: { ...enrollmentWithSubject[0], identifier: component.identifier },
-      },
-      { new: true, upsert: true },
+    // First, find all existing enrollments that might be duplicates
+    const existingEnrollments = await EnrollmentModel.find({
+      ra: history.ra,
+      year: component.ano,
+      quad: Number(component.periodo),
+    }).lean();
+
+    // Check if any existing enrollment matches our component (case-insensitive)
+    const matchingEnrollment = existingEnrollments.find(
+      (enrollment) =>
+        enrollment?.disciplina?.toLowerCase().trim() ===
+        normalizedDisciplina.toLowerCase(),
     );
+
+    // @ts-ignore
+    let enrollment;
+
+    if (matchingEnrollment) {
+      enrollment = await EnrollmentModel.findByIdAndUpdate(
+        matchingEnrollment._id,
+        {
+          $set: {
+            ...enrollmentWithSubject[0],
+            identifier: component.identifier,
+          },
+        },
+        { new: true },
+      );
+    } else {
+      // Create a new enrollment
+      enrollment = await EnrollmentModel.create({
+        ...enrollmentWithSubject[0],
+        identifier: component.identifier,
+      });
+    }
 
     ctx.app.log.debug({
       msg: 'Enrollment processed successfully',
-      enrollmentId: enrollment._id,
-      ra: enrollment.ra,
-      disciplina: enrollment.disciplina,
+      enrollmentId: enrollment?._id,
+      ra: enrollment?.ra,
+      disciplina: enrollment?.disciplina,
     });
   } catch (error) {
     ctx.app.log.error({
@@ -209,17 +235,22 @@ function mapSubjects(
   enrollment: Partial<Enrollment>,
   subjects: SubjectDocument[],
 ) {
-  const mapSubjects = subjects.map((subject) => subject.search?.toLowerCase());
+  // Create a mapping of lowercase subject names for case-insensitive lookup
+  const mapSubjects = subjects.map((subject) =>
+    subject.search?.toLowerCase().trim(),
+  );
   const enrollmentArray = Array.isArray(enrollment) ? enrollment : [enrollment];
 
   return enrollmentArray
     .reduce<Partial<Enrollment>[]>((acc, e: any) => {
-      if (!mapSubjects.includes(e.disciplina.toLowerCase())) {
+      const disciplinaLower = e.disciplina.toLowerCase().trim();
+
+      if (!mapSubjects.includes(disciplinaLower)) {
         acc.push(e);
       }
 
       const subject = subjects.find(
-        (s) => s.name?.toLowerCase() === e.disciplina.toLowerCase(),
+        (s) => s.name?.toLowerCase().trim() === disciplinaLower,
       );
       e.subject = subject?._id.toString() ?? null;
 
