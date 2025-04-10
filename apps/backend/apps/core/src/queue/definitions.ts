@@ -10,7 +10,6 @@ import {
 import type { WorkerOptions } from 'bullmq';
 import { processComponentsTeachers } from './jobs/components-teacher.job.js';
 import { uploadLogsToS3 } from './jobs/logs.job.js';
-import queue from '@/plugins/custom/queue.js';
 import { postInfoIntoNotionDB } from './jobs/notion-questions.job.js';
 
 const MONTH = 60 * 60 * 24 * 30;

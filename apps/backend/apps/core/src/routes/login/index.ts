@@ -200,32 +200,6 @@ async function getUserDetails(token: Token, logger: any) {
   };
 }
 
-async function getNotionUserDetails(token: Token) {
-  const headers = new Headers();
-  headers.append('Authorization', `Bearer ${token.access_token}`);
-  headers.append('Notion-Version', '2022-06-28');
-
-  const userData = await ofetch('https://api.notion.com/v1/users/me', {
-    headers,
-  });
-
-  if (!userData.bot || !userData.bot.owner) {
-    throw new Error('Missing Notion user data');
-  }
-
-  // Extract workspace info from bot owner
-  const workspace = userData.bot.owner;
-
-  return {
-    notionId: userData.id,
-    workspaceId: workspace.workspace_id || workspace.id,
-    workspaceName: workspace.name,
-    accessToken: token.access_token,
-    workspaceIcon: workspace.icon,
-    botId: userData.bot.id,
-  };
-}
-
 async function createOrLogin(
   oauthUser: User['oauth'],
   userId: string,

@@ -1,6 +1,5 @@
 import type { FastifySchema } from 'fastify';
 import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
-import { Types } from 'mongoose';
 import { z } from 'zod';
 import 'zod-openapi/extend';
 
