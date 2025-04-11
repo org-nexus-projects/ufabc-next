@@ -26,17 +26,11 @@ pnpm i
 # Rode o comando `build` para que o código tenha acesso as libs internas
 pnpm build
 
-# Suba o container docker
-docker compose up -d
-
 # Realize a copia das variaveis de ambiente para o arquivo .env
 cp -r apps/core/.env.example apps/core/.env.dev
 
 # Para utilizar o localstack e persistir os logs, instale
 https://github.com/localstack/awscli-local
-
-# E rode o seguinte comando
-awslocal s3api create-bucket --bucket ufabc-next
 
 # De `start` no projeto
 pnpm dev
