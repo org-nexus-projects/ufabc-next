@@ -32,6 +32,10 @@ cp -r apps/core/.env.example apps/core/.env.dev
 # Para utilizar o localstack e persistir os logs, instale
 https://github.com/localstack/awscli-local
 
+Atenção: O `awscli-local` é um wrapper para o AWS CLI.
+Certifique-se de que o AWS CLI original esteja instalado em seu sistema.
+(Ao instalar o awscli-local da maneira recomendada, o awscli normalmente já é instalado)
+
 # De `start` no projeto
 pnpm dev
 
