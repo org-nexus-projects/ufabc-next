@@ -86,6 +86,7 @@ const ufParserService = ofetch.create({
 	baseURL: import.meta.env.VITE_UFABC_PARSER_URL,
 });
 
+
 export async function getUFEnrolled() {
 	const enrolled =
 		await ufParserService<Record<string, Array<number>>>("/enrolled");
@@ -111,14 +112,18 @@ export async function getUFComponents() {
 }
 
 export async function getStudentGrades(student: Student, viewStateID: string, action: Action) {
-	const $grades = await ufParserService<{ data: CompleteStudent | null; error: string | null }>('/sig/grades', {
+  const sigHeaders = new Headers();
+  sigHeaders.set('Cookie', `sessionId=${student.sessionId};viewState=${viewStateID}`)
+  const $grades = await ufParserService<{ data: CompleteStudent | null; error: string | null }>('/sig/grades', {
     method: 'POST',
 		query: {
 			token: student.sessionId,
 			action,
       viewState: viewStateID
 		},
-    body: student
+    body: student,
+    headers: sigHeaders,
+    credentials: 'include'
 	});
 	return $grades;
 }
@@ -135,6 +140,8 @@ export async function getStudentSigHistory(sessionId: string, viewStateID: strin
 }
 
 export async function getStudentSig(student: SigStudent, action: Action) {
+  const sigHeaders = new Headers();
+  sigHeaders.set('Cookie', `sessionId=${student.sessionId}`)
 	const $student = await ufParserService<{ data: ShallowStudent | null; error: string | null }>('/sig/me', {
 		method: 'POST',
 		body: student,

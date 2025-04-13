@@ -38,81 +38,81 @@ export default defineContentScript({
           throw new Error('Erro ao buscar informações');
         }
 
-        const existingStudent = await storage.getItem<CompleteStudent>("local:student");
-        if (existingStudent?.ra === currentStudent.ra) {
-          // Check if this graduation already exists
-          const currentGraduation = currentStudent.graduations[0];
-          const graduationExists = existingStudent.graduations.some(
-            g => g.course === currentGraduation.course
-          );
+        // const existingStudent = await storage.getItem<CompleteStudent>("local:student");
+        // if (existingStudent?.ra === currentStudent.ra) {
+        //   // Check if this graduation already exists
+        //   const currentGraduation = currentStudent.graduations[0];
+        //   const graduationExists = existingStudent.graduations.some(
+        //     g => g.course === currentGraduation.course
+        //   );
 
-          if (!graduationExists) {
-            const mergedStudent = {
-              ...existingStudent,
-              graduations: [...existingStudent.graduations, currentGraduation],
-              lastUpdate: Date.now()
-            };
+        //   if (!graduationExists) {
+        //     const mergedStudent = {
+        //       ...existingStudent,
+        //       graduations: [...existingStudent.graduations, currentGraduation],
+        //       lastUpdate: Date.now()
+        //     };
 
-            // update with new course
-            await syncHistory({
-              ra: existingStudent.ra,
-              course: currentGraduation.course as string,
-              grade: currentGraduation.grade,
-              components: currentGraduation.components
-            })
+        //     // update with new course
+        //     await syncHistory({
+        //       ra: existingStudent.ra,
+        //       course: currentGraduation.course as string,
+        //       grade: currentGraduation.grade,
+        //       components: currentGraduation.components
+        //     })
 
-            await storage.setItem("local:student", mergedStudent);
-            const studentToCreateGraduations =  mergedStudent.graduations.map(g => ({
-              name: g.course as string,
-              courseId: g.UFCourseId,
-              turno: g.shift,
-              quads: calculateQuadrimestres({ entranceQuad: mergedStudent.startedAt }),
-            }))
-            await createStudent({
-              login: mergedStudent.login,
-              ra: mergedStudent.ra,
-              graduations: studentToCreateGraduations
-            })
-          }
-          const studentToCreateGraduations =  existingStudent.graduations.map(g => ({
-            name: g.course as string,
-            courseId: g.UFCourseId,
-            turno: g.shift,
-            quads: calculateQuadrimestres({ entranceQuad: existingStudent.startedAt }),
-          }))
-          // update regular student - not new and same course
-          await syncHistory({
-            ra: existingStudent.ra,
-            course: currentGraduation.course as string,
-            grade: currentGraduation.grade,
-            components: currentGraduation.components
-          })
-          await createStudent({
-            login: existingStudent.login,
-            ra: existingStudent.ra,
-            graduations: studentToCreateGraduations
-          })
-        } else {
-          await storage.setItem("local:student", currentStudent);
-          // Create student record with first graduation
-          await syncHistory({
-            ra: currentStudent.ra,
-            course: currentStudent?.graduations[0].course as string,
-            grade: currentStudent?.graduations[0].grade,
-            components: currentStudent?.graduations[0].components
-          })
-          const studentToCreateGraduations =  currentStudent.graduations.map(g => ({
-            name: g.course as string,
-            courseId: g.UFCourseId,
-            turno: g.shift,
-            quads: calculateQuadrimestres({ entranceQuad: currentStudent.startedAt }) ?? 0,
-          }))
-          await createStudent({
-            login: currentStudent.login,
-            ra: currentStudent.ra,
-            graduations: studentToCreateGraduations
-          })
-        }
+        //     await storage.setItem("local:student", mergedStudent);
+        //     const studentToCreateGraduations =  mergedStudent.graduations.map(g => ({
+        //       name: g.course as string,
+        //       courseId: g.UFCourseId,
+        //       turno: g.shift,
+        //       quads: calculateQuadrimestres({ entranceQuad: mergedStudent.startedAt }),
+        //     }))
+        //     await createStudent({
+        //       login: mergedStudent.login,
+        //       ra: mergedStudent.ra,
+        //       graduations: studentToCreateGraduations
+        //     })
+        //   }
+        //   const studentToCreateGraduations =  existingStudent.graduations.map(g => ({
+        //     name: g.course as string,
+        //     courseId: g.UFCourseId,
+        //     turno: g.shift,
+        //     quads: calculateQuadrimestres({ entranceQuad: existingStudent.startedAt }),
+        //   }))
+        //   // update regular student - not new and same course
+        //   await syncHistory({
+        //     ra: existingStudent.ra,
+        //     course: currentGraduation.course as string,
+        //     grade: currentGraduation.grade,
+        //     components: currentGraduation.components
+        //   })
+        //   await createStudent({
+        //     login: existingStudent.login,
+        //     ra: existingStudent.ra,
+        //     graduations: studentToCreateGraduations
+        //   })
+        // } else {
+        //   await storage.setItem("local:student", currentStudent);
+        //   // Create student record with first graduation
+        //   await syncHistory({
+        //     ra: currentStudent.ra,
+        //     course: currentStudent?.graduations[0].course as string,
+        //     grade: currentStudent?.graduations[0].grade,
+        //     components: currentStudent?.graduations[0].components
+        //   })
+        //   const studentToCreateGraduations =  currentStudent.graduations.map(g => ({
+        //     name: g.course as string,
+        //     courseId: g.UFCourseId,
+        //     turno: g.shift,
+        //     quads: calculateQuadrimestres({ entranceQuad: currentStudent.startedAt }) ?? 0,
+        //   }))
+        //   await createStudent({
+        //     login: currentStudent.login,
+        //     ra: currentStudent.ra,
+        //     graduations: studentToCreateGraduations
+        //   })
+        // }
 
         successToast.showToast();
       } catch (error) {
