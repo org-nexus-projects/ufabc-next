@@ -139,9 +139,11 @@ export async function getStudentSig(student: SigStudent, action: Action) {
 		method: 'POST',
 		body: student,
 		query: {
-			token: student.sessionId,
 			action,
-		}
+		},
+		headers: {
+			sessionId: student.sessionId,
+		},
 	});
 	return $student;
 }
