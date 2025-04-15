@@ -1,15 +1,7 @@
 import { normalizeDiacritics } from '@/utils/remove-diacritics';
-import { getStudentGrades, getStudentSig, type CompleteStudent } from '@/services/ufabc-parser';
+import { getStudentGrades, type CompleteStudent } from '@/services/ufabc-parser';
+import { getSigStudent } from '@/services/next'
 
-type SigStudent = {
-	matricula: string;
-	email: string;
-	/** @example 2022:2 */
-	entrada: string;
-	nivel: 'graduacao' | 'licenciatura';
-	status: string;
-	curso: string;
-};
 
 export async function retrieveStudent(
 	pageTrs: NodeListOf<HTMLTableRowElement>,
@@ -24,17 +16,14 @@ export async function retrieveStudent(
 		return cleaned;
 	});
 
-	const rawStudent: SigStudent = Object.fromEntries(kvStudent);
-	const student = await getStudentSig({
-		...rawStudent,
-		sessionId,
-	}, 'student');
+	const rawStudent = Object.fromEntries(kvStudent);
+	const student = await getSigStudent(rawStudent, sessionId);
 
-	if (student.error) {
+	if (!student) {
 		return null;
 	}
 
-	return student.data;
+	return student;
 }
 
 export async function scrapeMenu(

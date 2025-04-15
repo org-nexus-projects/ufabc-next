@@ -22,20 +22,10 @@ export type UFSeasonComponents = {
 
 type Action = 'history' | 'student-report' | 'student'
 
-type Student = ShallowStudent & {
+export type Student = ShallowStudent & {
   sessionId: string
 }
 
-type SigStudent = {
-	matricula: string;
-	email: string;
-	/** @example 2022:2 */
-	entrada: string;
-	nivel: 'graduacao' | 'licenciatura';
-	status: string;
-	curso: string;
-	sessionId: string;
-};
 
 export type ShallowStudent = {
 	name: string;
@@ -137,20 +127,4 @@ export async function getStudentSigHistory(sessionId: string, viewStateID: strin
 		}
 	});
 	return $history;
-}
-
-export async function getStudentSig(student: SigStudent, action: Action) {
-  const sigHeaders = new Headers();
-  sigHeaders.set('Cookie', `sessionId=${student.sessionId}`)
-	const $student = await ufParserService<{ data: ShallowStudent | null; error: string | null }>('/sig/me', {
-		method: 'POST',
-		body: student,
-		query: {
-			action,
-		},
-		headers: {
-			sessionId: student.sessionId,
-		},
-	});
-	return $student;
 }

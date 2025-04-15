@@ -1,4 +1,5 @@
 import { ofetch } from "ofetch";
+import type { Student } from "./ufabc-parser";
 
 export type StudentHistory = {
 	grade: string;
@@ -156,18 +157,8 @@ type CreateStudent = {
   studentId?: number | undefined;
 }
 
-function resolveEndpoint() {
-  if (import.meta.env.PROD) {
-    return "https://api.v2.ufabcnext.com";
-  }
-
-  return "https://api.v2.ufabcnext.com";
-}
-
-export const nextURL = resolveEndpoint()
-
 export const nextService = ofetch.create({
-  baseURL: nextURL,
+  baseURL: import.meta.env.VITE_UFABC_NEXT_URL,
 });
 
 export async function getStudentHistory(ra: number) {
@@ -234,4 +225,28 @@ export async function updateStudent(login: string, ra: string, studentId: number
     }
   })
   return updatedStudent
+}
+
+type SigStudent = {
+	matricula: string;
+	email: string;
+	/** @example 2022:2 */
+	entrada: string;
+	nivel: 'graduacao' | 'licenciatura';
+	status: string;
+	curso: string;
+};
+
+export async function getSigStudent(sigStudent: SigStudent, sessionId: string) {
+  const headers = new Headers();
+
+  headers.set('session-id', sessionId)
+
+  const student = await nextService<Student>('/entities/students/sig', {
+    method: 'POST',
+    body: sigStudent,
+    headers
+  })
+
+  return student;
 }
