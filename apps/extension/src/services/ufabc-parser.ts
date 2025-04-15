@@ -40,37 +40,8 @@ export type ShallowStudent = {
 	startedAt: string;
 };
 
-type SigComponent = {
-	UFCode: string;
-	name: string;
-	grade: 'A' | 'B' | 'C' | 'D' | 'O' | 'F' | 'E' | null;
-	status: string;
-	year: string;
-	period: '1' | '2' | '3';
-	credits: number;
-};
 
-type HydratedComponent = SigComponent & {
-	category: 'free' | 'mandatory' | 'limited';
-};
 
-export type CompleteStudent = {
-	name: string;
-	ra: string;
-	login: string;
-  studentId?: number | undefined
-	email: string | undefined;
-	graduations: Array<{
-		course: Course;
-		campus: string;
-		shift: string;
-		grade: string;
-    UFCourseId: number;
-		components: HydratedComponent[];
-	}>;
-	startedAt: string;
-	lastUpdate: number;
-};
 
 const ufParserService = ofetch.create({
 	baseURL: import.meta.env.VITE_UFABC_PARSER_URL,
@@ -99,23 +70,6 @@ export async function getUFEnrolled() {
 export async function getUFComponents() {
 	const ufComponents = await ufParserService<UFSeasonComponents[]>("/components");
 	return ufComponents
-}
-
-export async function getStudentGrades(student: Student, viewStateID: string, action: Action) {
-  const sigHeaders = new Headers();
-  sigHeaders.set('Cookie', `sessionId=${student.sessionId};viewState=${viewStateID}`)
-  const $grades = await ufParserService<{ data: CompleteStudent | null; error: string | null }>('/sig/grades', {
-    method: 'POST',
-		query: {
-			token: student.sessionId,
-			action,
-      viewState: viewStateID
-		},
-    body: student,
-    headers: sigHeaders,
-    credentials: 'include'
-	});
-	return $grades;
 }
 
 export async function getStudentSigHistory(sessionId: string, viewStateID: string, action: Action) {

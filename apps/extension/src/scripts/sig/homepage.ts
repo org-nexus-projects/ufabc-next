@@ -1,6 +1,5 @@
 import { normalizeDiacritics } from '@/utils/remove-diacritics';
-import { getStudentGrades, type CompleteStudent } from '@/services/ufabc-parser';
-import { getSigStudent } from '@/services/next'
+import { getSigStudent, getSigStudentGrades, type CompleteStudent } from '@/services/next'
 
 
 export async function retrieveStudent(
@@ -40,14 +39,16 @@ export async function scrapeMenu(
     };
 	}
 
-  const { data: student, error } = await getStudentGrades({
-    ...shallowStudent,
+  const student = await getSigStudentGrades(
+    shallowStudent,
     sessionId,
-  }, viewState, 'student-report');
+    viewState,
+    'student-report',
+  );
 
-  if (error) {
+  if (!student) {
     return {
-      error,
+      error: 'Could not scrape',
       data: null
     }
   }

@@ -250,3 +250,53 @@ export async function getSigStudent(sigStudent: SigStudent, sessionId: string) {
 
   return student;
 }
+
+type SigComponent = {
+	UFCode: string;
+	name: string;
+	grade: 'A' | 'B' | 'C' | 'D' | 'O' | 'F' | 'E' | null;
+	status: string;
+	year: string;
+	period: '1' | '2' | '3';
+	credits: number;
+};
+
+type HydratedComponent = SigComponent & {
+	category: 'free' | 'mandatory' | 'limited';
+};
+
+export type CompleteStudent = {
+	name: string;
+	ra: string;
+	login: string;
+  studentId?: number | undefined
+	email: string | undefined;
+	graduations: Array<{
+		course: Course;
+		campus: string;
+		shift: string;
+		grade: string;
+    UFCourseId: number;
+		components: HydratedComponent[];
+	}>;
+	startedAt: string;
+	lastUpdate: number;
+};
+
+export async function getSigStudentGrades(sigStudent: Student, sessionId: string, viewState: string, action: string) {
+  const headers = new Headers();
+
+  headers.set('session-id', sessionId)
+  headers.set('view-state', viewState)
+
+  const student = await nextService<CompleteStudent>('/entities/students/sig/grades', {
+    method: 'POST',
+    body: {
+      student: sigStudent,
+      action,
+    },
+    headers
+  })
+
+  return student;
+}
