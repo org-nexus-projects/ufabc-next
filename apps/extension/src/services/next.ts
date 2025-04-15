@@ -1,12 +1,6 @@
 import { ofetch } from "ofetch";
 import type { Student } from "./ufabc-parser";
 
-export type StudentHistory = {
-	grade: string;
-	ra: number;
-	curso: string;
-}
-
 export type SigHistory = {
   ra: string;
   grade: string;
@@ -160,12 +154,6 @@ type CreateStudent = {
 export const nextService = ofetch.create({
   baseURL: import.meta.env.VITE_UFABC_NEXT_URL,
 });
-
-export async function getStudentHistory(ra: number) {
-  const studentHistory = await nextService<StudentHistory>(`/histories/me?ra=${ra}`);
-
-  return studentHistory;
-}
 
 export async function createStudent(student: CreateStudent) {
   const createdStudent = await nextService("/entities/students", {
