@@ -55,10 +55,6 @@ export default fp(
       scope: ['basic'],
       callbackUri: (req) =>
         `${app.config.PROTOCOL}://${req.host}/login/notion/callback`,
-      generateStateFunction: (request) => {
-        // @ts-ignore
-        return request.query.userId;
-      },
       checkStateFunction: () => true,
     });
 
