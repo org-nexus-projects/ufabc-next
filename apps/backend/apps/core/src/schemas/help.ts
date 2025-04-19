@@ -1,7 +1,7 @@
 import { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 import { z } from 'zod';
 
-const helpFormBody = z.object({
+const helpFormBodySchema = z.object({
   email: z.string().email(),
   ra: z.string(),
   problemTitle: z
@@ -16,7 +16,7 @@ const helpFormBody = z.object({
 
 export const helpFormSchema = {
   tags: ['help'],
-  body: helpFormBody,
+  body: helpFormBodySchema,
 } satisfies FastifyZodOpenApiSchema;
 
-export type HelpForm = z.infer<typeof helpFormBody>;
+export type HelpForm = z.infer<typeof helpFormBodySchema>;

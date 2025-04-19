@@ -1,6 +1,6 @@
 import { notionClient } from '@/lib/notion.service.js';
 import type { QueueContext } from '../types.js';
-import { HelpForm } from '@/schemas/help.js';
+import type { HelpForm } from '@/schemas/help.js';
 
 export async function postInfoIntoNotionDB(ctx: QueueContext<HelpForm>) {
   const data = ctx.job.data;
