@@ -147,7 +147,7 @@ const routes: Array<RouteRecordRaw> = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(process.env.VUE_APP_BASE_URL),
+  history: createWebHistory(import.meta.env.VITE_APP_BASE_URL),
   routes,
 });
 
@@ -176,7 +176,7 @@ router.beforeEach(async (to, _from, next) => {
 
   const userConfirmed = user?.confirmed;
 
-  const isLocal = process.env.VUE_APP_MF_ENV === 'local';
+  const isLocal = import.meta.env.VITE_APP_MF_ENV === 'local';
 
   const notConfirmedRedirectPath = '/signup';
   const authenticatedRedirectPath = '/reviews';
