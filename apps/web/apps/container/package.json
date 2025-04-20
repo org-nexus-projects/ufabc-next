@@ -6,8 +6,9 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc -b && vite build",
-    "build:staging": "vue-tsc -b && vite build --mode staging",
+    "type-check": "vue-tsc --noEmit src/views/History/HistoryView.vue",
+    "build": "yarn type-check && vite build",
+    "build:staging": "yarn type-check && vite build --mode staging",
     "test": "vitest run --coverage",
     "test:watch": "vitest --coverage",
     "lint": "eslint .",
