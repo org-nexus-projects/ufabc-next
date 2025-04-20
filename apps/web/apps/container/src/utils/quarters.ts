@@ -1,8 +1,25 @@
-export const definedQuarters = [
+import { Quarter } from '@/views/Calengrade/types';
+
+export const definedQuarters: Quarter[] = [
   {
     title: 'Definir datas manualmente',
-    startDate: '2023-09-18',
-    endDate: '2023-12-20',
+    startDate: '2025-02-10',
+    endDate: '2025-05-17',
+  },
+  {
+    title: '3/2025',
+    startDate: '2025-09-15',
+    endDate: '2025-12-13',
+  },
+  {
+    title: '2/2025',
+    startDate: '2025-06-02',
+    endDate: '2025-08-29',
+  },
+  {
+    title: '1/2025',
+    startDate: '2025-02-10',
+    endDate: '2025-05-17',
   },
   {
     title: '3/2024',

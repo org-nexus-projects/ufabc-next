@@ -1,7 +1,7 @@
 module.exports = {
   root: true,
-  extends: ['custom/react'],
   parserOptions: {
+    ecmaVersion: 2015,
     sourceType: 'module',
     project: ['./tsconfig.json'],
     tsconfigRootDir: __dirname,

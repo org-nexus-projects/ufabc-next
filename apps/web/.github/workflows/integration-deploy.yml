@@ -56,9 +56,6 @@ jobs:
       - name: sync static with s3
         run: aws s3 sync apps/static s3://$AWS_S3_BUCKET_NAME
 
-      - name: sync react with s3
-        run: aws s3 sync apps/react/dist s3://$AWS_S3_BUCKET_NAME/react
-
       - name: sync container with s3
         run: aws s3 sync apps/container/dist s3://$AWS_S3_BUCKET_NAME/app
 
