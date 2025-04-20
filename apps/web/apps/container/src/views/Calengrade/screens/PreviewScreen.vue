@@ -97,7 +97,7 @@ watch(step, (newStep) => {
         const { quarter } = props.calengrade
 
         if (calendar.value && typeof calendar.value === 'string') {
-          const blob = new Blob([calendar.value], { type: 'text/calendar' })
+          const blob = new Blob([calendar.value], { type: 'text/calendar;charset=utf-8' })
           const downloadURL = URL.createObjectURL(blob)
           const downloadLink = document.createElement('a')
 
