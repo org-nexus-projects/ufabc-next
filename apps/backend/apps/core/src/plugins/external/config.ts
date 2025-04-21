@@ -38,6 +38,9 @@ const configSchema = z.object({
   AXIOM_TOKEN: z.string().optional(),
   AXIOM_DATASET: z.string().optional(),
   BOARD_PATH: z.string().optional(),
+  OAUTH_NOTION_SECRET: z.string(),
+  OAUTH_NOTION_CLIENT_ID: z.string(),
+  NOTION_DATABASE_ID: z.string().default('teste'),
 });
 
 const schema = zodToJsonSchema(configSchema);

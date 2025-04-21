@@ -1,5 +1,5 @@
 import type { FastifySchema } from 'fastify';
-import { Types } from 'mongoose';
+import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 import { z } from 'zod';
 import 'zod-openapi/extend';
 
@@ -70,8 +70,36 @@ export const loginSchema = {
   tags: ['Login'],
 } satisfies FastifySchema;
 
-export const jobsLoginSchema = {
+export const loginNotionSchema = {
   querystring: z.object({
-    userId: z.string().transform((val) => new Types.ObjectId(val)),
+    code: z.string(),
   }),
+  tags: ['Login'],
 } satisfies FastifySchema;
+
+export const createCardSchema = {
+  body: z.object({
+    accessToken: z.string(),
+    ra: z.coerce.number(),
+    email: z
+      .string()
+      .email()
+      .refine((val) => val.includes('ufabc.edu.br'), {
+        message: 'Invalid UFABC email',
+      }),
+    admissionYear: z.string(),
+    proofOfError: z.string(),
+  }),
+  response: {
+    200: {
+      content: {
+        'application/json': {
+          schema: z.object({
+            message: z.string(),
+            data: z.any(),
+          }),
+        },
+      },
+    },
+  },
+} satisfies FastifyZodOpenApiSchema;
