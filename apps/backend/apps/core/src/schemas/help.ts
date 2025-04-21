@@ -1,4 +1,4 @@
-import { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
+import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 import { z } from 'zod';
 
 const helpFormBodySchema = z.object({

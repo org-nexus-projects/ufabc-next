@@ -161,8 +161,7 @@ export async function processComponentEnrollment(
         normalizedDisciplina.toLowerCase(),
     );
 
-    // @ts-ignore
-    let enrollment;
+    let enrollment: Enrollment | null = null;
 
     if (matchingEnrollment) {
       enrollment = await EnrollmentModel.findByIdAndUpdate(
@@ -185,7 +184,7 @@ export async function processComponentEnrollment(
 
     ctx.app.log.debug({
       msg: 'Enrollment processed successfully',
-      enrollmentId: enrollment?._id,
+      enrollmentId: enrollment?.identifier,
       ra: enrollment?.ra,
       disciplina: enrollment?.disciplina,
     });

@@ -6,7 +6,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     {
       schema: helpFormSchema,
     },
-    async function(request, reply) {
+    async (request, reply) => {
       const formData = request.body;
 
       await app.job.dispatch('InsertNotionPage', formData);
