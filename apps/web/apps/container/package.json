@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "type-check": "vue-tsc --noEmit src/views/History/HistoryView.vue",
+    "type-check": "vue-tsc --noEmit --extendedDiagnostics --generateTrace ./ts-traces",
     "build": "yarn type-check && vite build",
     "build:staging": "yarn type-check && vite build --mode staging",
     "test": "vitest run --coverage",

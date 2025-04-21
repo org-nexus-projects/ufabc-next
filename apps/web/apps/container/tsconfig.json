@@ -5,7 +5,8 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["node", "@testing-library/jest-dom", "vitest/globals"],
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "sourceMap": false,
+    "types": ["node", "@testing-library/jest-dom", "vitest/globals"]
   }
 }
