@@ -55,7 +55,6 @@ export default fp(
       scope: ['basic'],
       callbackUri: (req) =>
         `${app.config.PROTOCOL}://${req.host}/login/notion/callback`,
-      checkStateFunction: () => true,
     });
 
     app.log.info('[PLUGIN] Oauth');
