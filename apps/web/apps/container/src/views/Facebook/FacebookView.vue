@@ -2,8 +2,8 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMutation } from '@tanstack/vue-query';
-import { z } from 'zod';
 import { toTypedSchema } from '@vee-validate/zod';
+import { facebookValidationSchema } from './facebookValidationSchema'
 import { useForm, useField } from 'vee-validate';
 import { ElMessage } from 'element-plus';
 
@@ -15,19 +15,7 @@ const facebookNotFound = ref(false);
 const { authenticate } = useAuth();
 const router = useRouter();
 
-const validationSchema = toTypedSchema(
-  z.object({
-    email: z
-      .string({
-        required_error: 'Este campo é obrigatório',
-        invalid_type_error: 'Digite um email válido',
-      })
-      .email({
-        message: 'Por favor, digite um email válido',
-      }),
-    ra: z.string({ required_error: 'Este campo é obrigatório' }),
-  }),
-);
+const validationSchema = toTypedSchema(facebookValidationSchema as any);
 const { handleSubmit } = useForm({
   validationSchema,
 });
