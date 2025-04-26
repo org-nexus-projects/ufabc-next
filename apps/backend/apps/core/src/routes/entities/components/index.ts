@@ -223,8 +223,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const components = await findTeachers(subject, season);
 
       return components.map((c) => ({
-        pratica: c.pratica?.name,
         teoria: c.teoria?.name,
+        pratica: c.pratica?.name,
       }));
     },
   );

@@ -101,12 +101,7 @@ export const listTeacherComponents = {
     200: {
       content: {
         'application/json': {
-          schema: z
-            .union([
-              z.object({ pratica: z.string().optional() }),
-              z.object({ teoria: z.string().optional() }),
-            ])
-            .array(),
+          schema: z.any(),
         },
       },
     },
