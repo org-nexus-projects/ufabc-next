@@ -3,6 +3,7 @@ import { type Component, ComponentModel } from '@/models/Component.js';
 import { StudentModel } from '@/models/Student.js';
 import {
   listKickedSchema,
+  listTeacherComponents,
   type NonPaginatedComponents,
 } from '@/schemas/entities/components.js';
 import type { preHandlerAsyncHookHandler } from 'fastify';
@@ -10,6 +11,7 @@ import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import type { SubjectDocument } from '@/models/Subject.js';
 import type { TeacherDocument } from '@/models/Teacher.js';
 import { currentQuad } from '@next/common';
+import { findTeachers } from './service.js';
 
 const validateStudent: preHandlerAsyncHookHandler = async (request, reply) => {
   const { studentId, season } = request.query as {
@@ -83,6 +85,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     return nonPaginatedComponents;
   });
+
   app.get(
     '/:componentId/kicks',
     { preHandler: [validateStudent], schema: listKickedSchema },
@@ -208,6 +211,21 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       );
 
       return uniqueStudents;
+    },
+  );
+
+  app.get(
+    '/teachers',
+    { schema: listTeacherComponents },
+    async (request, reply) => {
+      const { season, subject } = request.query;
+
+      const components = await findTeachers(subject, season);
+
+      return components.map((c) => ({
+        pratica: c.pratica?.name,
+        teoria: c.teoria?.name,
+      }));
     },
   );
 };

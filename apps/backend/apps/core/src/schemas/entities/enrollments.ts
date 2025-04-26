@@ -16,12 +16,14 @@ const enrollmentsListSchema = z.object({
   creditos: z.number().int().nullish(),
   identifier: z.string(),
   season: z.string().optional(),
-  subject: z.object({
-    _id: z.coerce.string(),
-    name: z.string(),
-    search: z.string(),
-    creditos: z.number().nullish(),
-  }).nullish(),
+  subject: z
+    .object({
+      _id: z.coerce.string(),
+      name: z.string(),
+      search: z.string(),
+      creditos: z.number().nullish(),
+    })
+    .nullish(),
   teoria: z
     .object({
       _id: z.coerce.string(),
