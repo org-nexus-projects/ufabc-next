@@ -41,8 +41,6 @@ export type ShallowStudent = {
 };
 
 
-
-
 const ufParserService = ofetch.create({
 	baseURL: import.meta.env.VITE_UFABC_PARSER_URL,
 });
@@ -73,12 +71,17 @@ export async function getUFComponents() {
 }
 
 export async function getStudentSigHistory(sessionId: string, viewStateID: string, action: Action) {
-	const $history = await ufParserService<{ data: string | null; error: string | null }>('/sig/history', {
-		query: {
-			token: sessionId,
+  const headers = new Headers();
+
+  headers.set('session-id', sessionId)
+  headers.set('view-state', viewStateID)
+
+  const $history = await ufParserService<{ data: string | null; error: string | null }>('/sig/history', {
+		method: 'POST',
+    query: {
 			action,
-      viewState: viewStateID
-		}
+		},
+    headers,
 	});
 	return $history;
 }
