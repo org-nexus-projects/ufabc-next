@@ -121,6 +121,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 function getMean(value: any[], key?: string): any {
   const count = value.reduce((sum, v) => sum + v.count, 0);
   const amount = value.reduce((sum, v) => sum + v.amount, 0);
+  const eadCount = value.reduce((sum, v) => sum + v.eadCount, 0)
   const simpleSum = value
     .filter((v) => v.cr_medio != null)
     .reduce((sum, v) => sum + v.amount * v.cr_medio, 0);
@@ -130,6 +131,7 @@ function getMean(value: any[], key?: string): any {
     cr_medio: simpleSum / amount,
     cr_professor: value.reduce((sum, v) => sum + v.numericWeight, 0) / amount,
     count,
+    eadCount,
     amount: amount,
     numeric: value.reduce((sum, v) => sum + v.numeric, 0),
     numericWeight: value.reduce((sum, v) => sum + v.numericWeight, 0),

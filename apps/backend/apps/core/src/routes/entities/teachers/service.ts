@@ -28,6 +28,21 @@ export async function rawReviews(teacherId: Types.ObjectId) {
         },
         cr_medio: { $avg: '$cr_acumulado' },
         count: { $sum: 1 },
+        eadCount: {
+          $sum: {
+            $cond: [
+              {
+                $in: ['$season', [
+                  '2020:1', '2020:2', '2020:3',
+                  '2021:1', '2021:2', '2021:3',
+                  '2022:1', '2022:2'
+                ]]
+              },
+              1,
+              0
+            ]
+          }
+        },
         crs: { $push: '$cr_acumulado' },
         weight: {
           $first: {
@@ -62,6 +77,7 @@ export async function rawReviews(teacherId: Types.ObjectId) {
         _id: 1,
         cr_medio: 1,
         count: 1,
+        eadCount: 1,
         weight: 1,
         crs: 1,
         amount: { $size: '$crs' },
@@ -75,6 +91,7 @@ export async function rawReviews(teacherId: Types.ObjectId) {
             conceito: '$_id.conceito',
             weight: '$weight',
             count: '$count',
+            eadCount: '$eadCount',
             cr_medio: '$cr_medio',
             numeric: { $multiply: ['$amount', '$cr_medio'] },
             numericWeight: { $multiply: ['$amount', '$weight'] },
@@ -94,6 +111,7 @@ export async function rawReviews(teacherId: Types.ObjectId) {
         numeric: 1,
         amount: 1,
         count: 1,
+        eadCount: 1,
         cr_professor: {
           $cond: [
             { $eq: ['$amount', 0] },
