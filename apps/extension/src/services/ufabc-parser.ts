@@ -69,19 +69,3 @@ export async function getUFComponents() {
 	const ufComponents = await ufParserService<UFSeasonComponents[]>("/components");
 	return ufComponents
 }
-
-export async function getStudentSigHistory(sessionId: string, viewStateID: string, action: Action) {
-  const headers = new Headers();
-
-  headers.set('session-id', sessionId)
-  headers.set('view-state', viewStateID)
-
-  const $history = await ufParserService<{ data: string | null; error: string | null }>('/sig/history', {
-		method: 'POST',
-    query: {
-			action,
-		},
-    headers,
-	});
-	return $history;
-}

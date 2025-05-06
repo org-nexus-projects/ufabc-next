@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { Student } from '@/scripts/sig/homepage';
 import { getStudent, getTeacherReviews, type TeacherReview, type Grade } from '@/services/next';
 import { type ChartProps, Chart } from 'highcharts-vue';
 import { sortBy } from 'lodash-es';
 import { useStorage } from '@/composables/useStorage'
 import { resolveColorForConcept } from '@/utils/grades-colors'
+import { Student } from '@/services/ufabc-parser';
 
 type ChartOptions = ChartProps['options']
 
