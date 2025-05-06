@@ -163,10 +163,15 @@ export async function createStudent(student: CreateStudent) {
   return createdStudent;
 }
 
-export async function syncHistory(student: SigHistory) {
-  const syncedStudent = await nextService("/histories", {
+export async function syncHistory(sessionId: string, viewState: string) {
+  const headers = new Headers();
+
+  headers.set('session-id', sessionId)
+  headers.set('view-state', viewState)
+
+  const syncedStudent = await nextService<{ msg: string }>("/histories", {
     method: "POST",
-    body: student,
+    headers
   });
   return syncedStudent;
 }
