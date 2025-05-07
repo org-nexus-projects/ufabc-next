@@ -1,44 +1,28 @@
 <script lang="ts" setup>
 import { Loader2 } from 'lucide-vue-next'
 import { useStorage } from '@/composables/useStorage'
-import { useDateFormat } from '@vueuse/core'
-import type { Student } from '@/scripts/sig/homepage'
-import { type MatriculaStudent, nextURL } from '@/services/next';
+import { useQuery } from '@tanstack/vue-query'
+import { getStudent, type MatriculaStudent } from '@/services/next'
 
-const { state: student, isLoading: loading, error } = useStorage<Student>('local:student');
+const { state: student, isLoading: loading, error } = useStorage<{ ra: string; login: string }>('local:student')
 
-const formattedDate = useDateFormat(student.value?.lastUpdate, 'DD/MM/YYYY HH:mm', { locales: 'pt-BR' })
+console.log(student.value)
 
-const studentCoefficients = ref<MatriculaStudent | null>(null)
-const isFetching = ref(false)
-const fetchError = ref<Error | null>(null)
-
-watchEffect(() => {
-  // Only fetch if student data exists
-  if (student.value?.ra && student.value?.login) {
-    isFetching.value = true
-    fetchStudentCoefficients()
-  }
-})
-
-async function fetchStudentCoefficients() {
-  try {
-    const response = await fetch(`${nextURL}/entities/students/student?ra=${student.value?.ra}&login=${student.value?.login}`)
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch student coefficients')
+const {
+  data: studentCoefficients,
+  isLoading: isFetching,
+  error: fetchError
+} = useQuery({
+  queryKey: ['studentCoefficients', student],
+  queryFn: async () => {
+    if (!student.value?.login) {
+      return {} as MatriculaStudent;
     }
-
-    studentCoefficients.value = await response.json()
-    fetchError.value = null
-  } catch (error) {
-    console.error('Error fetching student coefficients:', error)
-    fetchError.value = error instanceof Error ? error : new Error('An unknown error occurred')
-    studentCoefficients.value = null
-  } finally {
-    isFetching.value = false
-  }
-}
+    const dbStudent = await getStudent(student.value?.login)
+    return dbStudent
+  },
+  enabled: !!student.value?.ra && !!student.value?.login
+})
 </script>
 
 <template>
@@ -77,7 +61,7 @@ async function fetchStudentCoefficients() {
               </div>
             </div>
           </template>
-          <p class="flex-none text-sm">Última atualização: {{ formattedDate }}</p>
+          <p class="flex-none text-sm">Última atualização: {{ studentCoefficients?.updatedAt }}</p>
         </section>
 
         <div class="flex items-center justify-center mb-3">

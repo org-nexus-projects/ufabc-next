@@ -2,7 +2,7 @@ import { normalizeDiacritics } from '@/utils/remove-diacritics';
 import { getSigStudent, getSigStudentGrades, type CompleteStudent } from '@/services/next'
 
 
-export async function retrieveStudent(
+export function retrieveStudent(
 	pageTrs: NodeListOf<HTMLTableRowElement>,
 	sessionId: string,
 ) {
@@ -16,21 +16,23 @@ export async function retrieveStudent(
 	});
 
 	const rawStudent = Object.fromEntries(kvStudent);
-	const student = await getSigStudent(rawStudent, sessionId);
 
-	if (!student) {
+	if (!rawStudent) {
 		return null;
 	}
 
-	return student;
+	return {
+	  login: rawStudent.email.split('@')[0],
+		ra: rawStudent.matricula,
+	};
 }
 
-export async function scrapeMenu(
+export function scrapeMenu(
 	trs: NodeListOf<HTMLTableRowElement>,
 	sessionId: string,
   viewState: string
-): Promise<{ data: CompleteStudent | null, error: string | null }> {
-	const shallowStudent = await retrieveStudent(trs, sessionId);
+): { data: { login: string; ra: string } | null, error: string | null } {
+	const shallowStudent = retrieveStudent(trs, sessionId);
 
 	if (!shallowStudent) {
 		return {
@@ -39,14 +41,7 @@ export async function scrapeMenu(
     };
 	}
 
-  const student = await getSigStudentGrades(
-    shallowStudent,
-    sessionId,
-    viewState,
-    'student-report',
-  );
-
-  if (!student) {
+  if (!shallowStudent) {
     return {
       error: 'Could not scrape',
       data: null
@@ -55,6 +50,6 @@ export async function scrapeMenu(
 
   return {
     error: null,
-    data: student
+    data: shallowStudent
   }
 }

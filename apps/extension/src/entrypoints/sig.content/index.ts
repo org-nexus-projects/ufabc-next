@@ -23,6 +23,10 @@ export default defineContentScript({
     const $trs = document.querySelectorAll<HTMLTableRowElement>("#agenda-docente tbody tr");
     const shouldFormatItinerary = sigURL.pathname.includes("/portais/discente/discente.jsf") && itineraryTable;
     if (shouldFormatItinerary) {
+      const sigStudent = scrapeMenu($trs, sessionId, viewStateID.value)
+      if (sigStudent.data) {
+        storage.setItem('local:student', sigStudent.data)
+      }
       try {
         processingToast.showToast();
         await syncHistory(sessionId, viewStateID.value);

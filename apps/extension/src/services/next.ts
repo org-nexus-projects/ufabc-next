@@ -135,6 +135,7 @@ export type MatriculaStudent =  {
       cr: number;
       ca: number
   }[];
+  updatedAt: string;
 }
 
 type CreateStudent = {
@@ -197,12 +198,13 @@ export async function getKicksInfo(kickId: string, studentId?: number) {
 }
 
 
-export async function getStudent(login: string, ra: string) {
+export async function getStudent(login: string) {
+  const headers = new Headers();
+
+  headers.set('uf_login', login)
+
   const student = await nextService<MatriculaStudent>('/entities/students/student', {
-    query: {
-      login,
-      ra
-    }
+    headers
   })
 
   return student;
