@@ -102,6 +102,7 @@ export async function rawReviews(teacherId: Types.ObjectId) {
         numeric: { $sum: { $multiply: ['$amount', '$cr_medio'] } },
         amount: { $sum: '$amount' },
         count: { $sum: '$count' },
+        eadCount: { $sum: '$eadCount'}
       },
     },
     {
