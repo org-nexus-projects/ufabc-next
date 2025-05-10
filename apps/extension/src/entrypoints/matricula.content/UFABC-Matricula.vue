@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import SubjectReview from '@/components/SubjectReview.vue';
-
 import { useMutation } from '@tanstack/vue-query';
 import { toast, Toaster } from 'vue-sonner'
 import { useStorage } from '@/composables/useStorage'
@@ -8,14 +7,12 @@ import { getStudentCourseId, getStudentId } from '@/utils/ufabc-matricula-studen
 import { useFilters } from '@/composables/useFilters'
 import { useModals } from '@/composables/useModals'
 import { useComponentsBuilder } from '@/composables/useComponentsBuilder'
-import { updateStudent } from "@/services/next"
-import type { UFABCMatriculaStudent } from '.';
-import type { Student } from '@/scripts/sig/homepage';
+import { updateStudent, type UpdatedStudent } from "@/services/next"
 
 const matriculas = inject<typeof window.matriculas>('matriculas')
-const matriculaStudent = inject<UFABCMatriculaStudent>('student')
+const sessionId = inject<string>('sessionId')
 
-const { state: student } = useStorage<Student>('local:student');
+const { state: student } = useStorage<{ ra: string; login: string }>('local:student');
 const { campusFilters, shiftFilters, applyFilter } = useFilters()
 const { subjectReview, kicksModal, teacherReview } = useModals()
 const { teachers, buildComponents } = useComponentsBuilder()
@@ -23,42 +20,36 @@ const { teachers, buildComponents } = useComponentsBuilder()
 const selected = ref(false)
 const cursadas = ref(false)
 const showWarning = ref(false);
+const matriculaStudent = ref<UpdatedStudent | null>(null)
 
-const studentMutation = useMutation({
-  mutationFn: ({ login, ra, studentId }: {
-    login: string,
-    ra: string,
-    studentId: number | null
-  }) => updateStudent(login, ra, studentId),
-  onError: (error) => {
-    console.error('Failed to sync student:', error)
-    toast.error('Failed to sync student data')
-  }
-})
-
-const useStudentInit = () => {
-  const initializeStudent = async () => {
-    if (!student.value) {
+const sessionMutation = useMutation({
+  mutationFn: async () => {
+    if (!student.value || !sessionId) {
+      // snapshot page, mostly
       return;
     }
 
     const studentId = getStudentId();
     const graduationId = getStudentCourseId();
 
-    await storage.setItem(`sync:${student.value.ra}`, {
+    const result = await updateStudent(
+      student.value.login,
+      student.value.ra,
       studentId,
-      graduationId,
-    });
-
-    await studentMutation.mutateAsync({
-      login: student.value.login,
-      ra: student.value.ra,
-      studentId,
-    });
-  };
-
-  return { initializeStudent };
-};
+      Number(graduationId),
+      sessionId
+    )
+    matriculaStudent.value = result;
+    return result;
+  },
+  onError: (error) => {
+    console.error('Failed to sync session:', error)
+    toast.error('Failed to sync session data')
+  },
+  onSuccess: () => {
+    toast.success('Session synchronized successfully')
+  }
+})
 
 function openSubjectReview(subjectId: string) {
   subjectReview.value.isOpen = true;
@@ -102,12 +93,12 @@ function changeSelected() {
     return;
   }
 
-  if (!matriculaStudent) {
+  if (!matriculaStudent.value) {
     console.log('show some message to the user')
     return
   }
 
-  const enrollments = matriculas?.[matriculaStudent?.studentId] || []
+  const enrollments = matriculas?.[matriculaStudent.value.studentId] || []
   const tableRows = document.querySelectorAll('tr')
 
   for (const $row of tableRows) {
@@ -127,14 +118,14 @@ function changeCursadas() {
     }
     return;
   }
-  if (!student.value) {
+  if (!matriculaStudent.value) {
     toast.warning('Não encontramos suas disciplinas cursadas, por favor acesse o sigaa')
     return
   }
 
-  const passed = student.value?.graduations[0].components
-    .filter((c) => c.grade !== null && ['A', 'B', 'C', 'D', 'E'].includes(c.grade))
-    .map((c) => c.name);
+  const passed = matriculaStudent.value.graduations[0].components
+    .filter((c) => c.conceitos !== null && ['A', 'B', 'C', 'D', 'E'].includes(c.conceitos))
+    .map((c) => c.disciplina);
 
     const trData = document.querySelectorAll<HTMLTableSectionElement>('table tr td:nth-child(3)')
       for (const $el of trData) {
@@ -167,7 +158,7 @@ const target = event.target as HTMLElement;
     if (subjectId) {
       openSubjectReview(subjectId);
     }
-  } else if(target.matches('.ReviewTeacher')) {
+  } else if (target.matches('.ReviewTeacher')) {
     const teacherId = target.getAttribute('data')
     const teacherName = target.getAttribute('teacherName')
     if (teacherId && teacherName) {
@@ -176,12 +167,19 @@ const target = event.target as HTMLElement;
   }
 }
 
-watch(() => student.value, async (newStudent) => {
-  const { initializeStudent } = useStudentInit();
-  if (newStudent) {
-    await initializeStudent();
-  }
-}, { immediate: true });
+watch(
+  [() => sessionId, () => student.value],
+  async ([newSessionId, newStudent]) => {
+    if (newSessionId && newStudent) {
+      try {
+        await sessionMutation.mutateAsync();
+      } catch (error) {
+        console.error('Watch effect error:', error);
+      }
+    }
+  },
+  { immediate: true }
+);
 
 
 onMounted(async () => {

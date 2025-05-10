@@ -203,14 +203,49 @@ export async function getStudent(login: string, ra: string) {
   return student;
 }
 
-export async function updateStudent(login: string, ra: string, studentId: number | null) {
-  const updatedStudent = await nextService<{ msg: string }>('/entities/students', {
+type Components = {
+  periodo: '1' | '2' | '3'
+  codigo: string;
+  disciplina: string;
+  ano: number;
+  situacao: string;
+  creditos: number;
+  categoria: "Livre Escolha" | "Obrigatória" | "Opção Limitada" | "-"
+  conceitos: "A" | "B" | "C" | "D" | "O" | "F" | "-"
+  turma: string;
+  teachers: string[]
+  identifier: string;
+}
+
+export type UpdatedStudent = {
+  studentId: number;
+  ra: number;
+  graduations: Array<{
+    components: Array<Components>
+
+  }>
+}
+
+export async function updateStudent(
+  login: string,
+  ra: string,
+  studentId: number | null,
+  graduationId: number | null,
+  sessionId: string
+) {
+  const headers = new Headers();
+
+  headers.set('sessionId', sessionId)
+
+  const updatedStudent = await nextService<UpdatedStudent>('/entities/students', {
     method: 'PUT',
     body: {
       login,
       ra,
-      studentId
-    }
+      studentId,
+      graduationId
+    },
+    headers
   })
   return updatedStudent
 }
