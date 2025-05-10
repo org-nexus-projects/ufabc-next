@@ -126,6 +126,7 @@ export type Component = {
 
 export type MatriculaStudent =  {
   studentId: number;
+  login: string;
   graduations: {
       courseId: number;
       name: string;
@@ -138,41 +139,31 @@ export type MatriculaStudent =  {
   updatedAt: string;
 }
 
-type CreateStudent = {
-  ra: string;
-  login: string;
-  graduations: {
-      name: string;
-      courseId: number;
-      cp?: number | undefined;
-      cr?: number | undefined;
-      quads?: number | undefined;
-      turno: string;
-  }[];
-  studentId?: number | undefined;
-}
-
 export const nextService = ofetch.create({
   baseURL: import.meta.env.VITE_UFABC_NEXT_URL,
 });
 
-export async function createStudent(student: CreateStudent) {
-  const createdStudent = await nextService("/entities/students", {
-    method: "POST",
-    body: student,
-  });
-  return createdStudent;
+
+type SyncHistory = {
+  sessionId: string;
+  viewState: string;
+  login: string;
+  ra: string;
 }
 
-export async function syncHistory(sessionId: string, viewState: string) {
+export async function syncHistory(data: SyncHistory) {
   const headers = new Headers();
 
-  headers.set('session-id', sessionId)
-  headers.set('view-state', viewState)
+  headers.set('session-id', data.sessionId)
+  headers.set('view-state', data.viewState)
 
   const syncedStudent = await nextService<{ msg: string }>("/histories", {
     method: "POST",
-    headers
+    headers,
+    body: {
+      login: data.login,
+      ra: data.ra,
+    }
   });
   return syncedStudent;
 }
@@ -198,12 +189,14 @@ export async function getKicksInfo(kickId: string, studentId?: number) {
 }
 
 
-export async function getStudent(login: string) {
+export async function getStudent(login: string, ra: string) {
   const headers = new Headers();
 
   headers.set('uf_login', login)
+  headers.set('ra', ra)
+  console.log('fuck')
 
-  const student = await nextService<MatriculaStudent>('/entities/students/student', {
+  const student = await nextService<MatriculaStudent>('/entities/students', {
     headers
   })
 
@@ -240,56 +233,6 @@ export async function getSigStudent(sigStudent: SigStudent, sessionId: string) {
   const student = await nextService<Student>('/entities/students/sig', {
     method: 'POST',
     body: sigStudent,
-    headers
-  })
-
-  return student;
-}
-
-type SigComponent = {
-	UFCode: string;
-	name: string;
-	grade: 'A' | 'B' | 'C' | 'D' | 'O' | 'F' | 'E' | null;
-	status: string;
-	year: string;
-	period: '1' | '2' | '3';
-	credits: number;
-};
-
-type HydratedComponent = SigComponent & {
-	category: 'free' | 'mandatory' | 'limited';
-};
-
-export type CompleteStudent = {
-	name: string;
-	ra: string;
-	login: string;
-  studentId?: number | undefined
-	email: string | undefined;
-	graduations: Array<{
-		course: Course;
-		campus: string;
-		shift: string;
-		grade: string;
-    UFCourseId: number;
-		components: HydratedComponent[];
-	}>;
-	startedAt: string;
-	lastUpdate: number;
-};
-
-export async function getSigStudentGrades(sigStudent: Student, sessionId: string, viewState: string, action: string) {
-  const headers = new Headers();
-
-  headers.set('session-id', sessionId)
-  headers.set('view-state', viewState)
-
-  const student = await nextService<CompleteStudent>('/entities/students/sig/grades', {
-    method: 'POST',
-    body: {
-      student: sigStudent,
-      action,
-    },
     headers
   })
 
