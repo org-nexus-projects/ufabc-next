@@ -14,4 +14,18 @@ export default defineBackground(() => {
     })
     return cookie
   })
+
+  onMessage('getTokenMatricula', async ({ data }) => {
+    const url = new URL(data.pageURL)
+    const cookie = await browser.cookies.get({
+      url: url.origin,
+      name: '_matricula_sig_rails_session'
+    });
+
+    if (!cookie) {
+      throw new Error('Session cookie not found');
+    }
+
+    return cookie;
+  });
 });
