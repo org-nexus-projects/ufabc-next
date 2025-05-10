@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
-  base: import.meta.env.VITE_APP_BASE_URL,
+  base: process.env.VITE_APP_BASE_URL,
   server: {
     port: 3000,
     host: true,
