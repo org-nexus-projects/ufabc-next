@@ -17,7 +17,7 @@ import create from 'vue-zustand';
 import { ElMessage } from 'element-plus';
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools';
 
-const isLocal = import.meta.env.VITE_APP_MF_ENV === 'local';
+const isLocal = import.meta.env.VITE_APP_ENV === 'local';
 
 import { AppBar } from '@/layouts/AppBar';
 

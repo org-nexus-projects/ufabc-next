@@ -176,7 +176,7 @@ router.beforeEach(async (to, _from, next) => {
 
   const userConfirmed = user?.confirmed;
 
-  const isLocal = import.meta.env.VITE_APP_MF_ENV === 'local';
+  const isLocal = import.meta.env.VITE_APP_ENV === 'local';
 
   const notConfirmedRedirectPath = '/signup';
   const authenticatedRedirectPath = '/reviews';
