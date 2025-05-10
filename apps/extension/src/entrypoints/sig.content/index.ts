@@ -2,7 +2,7 @@ import 'toastify-js/src/toastify.css';
 import '@/assets/tailwind.css'
 import { storage } from 'wxt/storage';
 import { scrapeMenu } from '@/scripts/sig/homepage';
-import { createStudent, syncHistory } from '@/services/next';
+import { syncHistory } from '@/services/next';
 import { processingToast, errorToast, successToast } from '@/utils/toasts'
 import { sendMessage } from '@/messaging';
 
@@ -24,12 +24,20 @@ export default defineContentScript({
     const shouldFormatItinerary = sigURL.pathname.includes("/portais/discente/discente.jsf") && itineraryTable;
     if (shouldFormatItinerary) {
       const sigStudent = scrapeMenu($trs, sessionId, viewStateID.value)
-      if (sigStudent.data) {
-        storage.setItem('local:student', sigStudent.data)
+      if (!sigStudent.data) {
+
+        errorToast.showToast()
+        return;
       }
       try {
         processingToast.showToast();
-        await syncHistory(sessionId, viewStateID.value);
+        await storage.setItem('local:student', sigStudent.data)
+        await syncHistory({
+          login: sigStudent.data.login,
+          ra: sigStudent.data.ra,
+          sessionId,
+          viewState: viewStateID.value,
+        });
         successToast.showToast();
       } catch (error) {
         console.error('Student data processing failed:', error);

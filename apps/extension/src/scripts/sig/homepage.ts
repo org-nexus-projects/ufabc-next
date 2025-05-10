@@ -1,5 +1,4 @@
 import { normalizeDiacritics } from '@/utils/remove-diacritics';
-import { getSigStudent, getSigStudentGrades, type CompleteStudent } from '@/services/next'
 
 
 export function retrieveStudent(
