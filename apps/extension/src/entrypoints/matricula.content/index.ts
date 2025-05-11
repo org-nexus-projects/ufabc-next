@@ -17,24 +17,6 @@ export default defineContentScript({
 		const student = await storage.getItem<{ ra: string; login: string }>('local:student');
     const sessionId = await getToken();
 
-    if (!sessionId) {
-      const URLS_TO_CHECK = ['http://localhost:3003', 'https://ufabc-matricula-snapshot.vercel.app']
-      const origin = new URL(document.location.href).origin
-
-      if (URLS_TO_CHECK.includes(origin)) {
-        if (student) {
-          document.dispatchEvent(new CustomEvent('student-info', {
-            detail: {
-              ra: student.ra,
-              login: student.login,
-              hasStudent: !!student
-            },
-          }))
-        }
-      }
-      return;
-    }
-
 		const ui = await mountUFABCMatriculaFilters(ctx, sessionId);
 		ui.mount();
 
@@ -44,6 +26,21 @@ export default defineContentScript({
 		$mountedUi.style.position = 'sticky';
 		$mountedUi.style.top = '0px';
 		$mountedUi.style.zIndex = '9';
+
+    const URLS_TO_CHECK = ['http://localhost:3003', 'https://ufabc-matricula-snapshot.vercel.app']
+    const origin = new URL(document.location.href).origin
+    if (URLS_TO_CHECK.includes(origin)) {
+      if (student) {
+        document.dispatchEvent(new CustomEvent('student-info', {
+          detail: {
+            ra: student.ra,
+            login: student.login,
+            hasStudent: !!student
+          },
+        }))
+      }
+    }
+    return;
 	},
 	runAt: 'document_end',
 	cssInjectionMode: 'ui',
@@ -56,7 +53,7 @@ export default defineContentScript({
 
 async function mountUFABCMatriculaFilters(
 	ctx: ContentScriptContext,
-  sessionId: string
+  sessionId: string | null
 ) {
 	return createShadowRootUi(ctx, {
 		name: 'matriculas-filter',
