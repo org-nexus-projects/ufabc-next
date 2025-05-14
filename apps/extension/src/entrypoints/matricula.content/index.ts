@@ -5,6 +5,7 @@ import HighchartsVue from 'highcharts-vue';
 import { VueQueryPlugin } from '@tanstack/vue-query';
 import { sendMessage } from '@/messaging';
 import type { ContentScriptContext } from 'wxt/client';
+import { getStudent } from '@/services/next';
 
 
 export type UFABCMatriculaStudent = {
@@ -31,6 +32,8 @@ export default defineContentScript({
     const origin = new URL(document.location.href).origin
     if (URLS_TO_CHECK.includes(origin)) {
       if (student) {
+        const fullStudent = await getStudent(student.login, student.ra);
+        await storage.setItem('local:fullStudent', fullStudent)
         document.dispatchEvent(new CustomEvent('student-info', {
           detail: {
             ra: student.ra,

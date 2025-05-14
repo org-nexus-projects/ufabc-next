@@ -162,7 +162,7 @@ async function fetchStudent() {
   if (!sigStudent.value) {
     return;
   }
-  const student = await getStudent(sigStudent.value?.login, sigStudent.value?.ra)
+  const student = await getStudent(sigStudent.value.login, sigStudent.value?.ra)
   if (!student) {
     return
   }

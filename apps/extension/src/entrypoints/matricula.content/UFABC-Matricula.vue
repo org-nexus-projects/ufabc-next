@@ -35,7 +35,7 @@ const sessionMutation = useMutation({
     const result = await updateStudent(
       student.value.login,
       student.value.ra,
-      studentId,
+      557736,
       Number(graduationId),
       sessionId
     )
@@ -50,6 +50,8 @@ const sessionMutation = useMutation({
     toast.success('Session synchronized successfully')
   }
 })
+
+provide('matriculaStudent', matriculaStudent)
 
 function openSubjectReview(subjectId: string) {
   subjectReview.value.isOpen = true;

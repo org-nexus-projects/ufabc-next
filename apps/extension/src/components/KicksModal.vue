@@ -111,7 +111,7 @@
 
 <script setup lang="ts">
 import type { UFABCMatriculaStudent } from '@/entrypoints/matricula.content';
-import { getKicksInfo } from '@/services/next';
+import { getKicksInfo, MatriculaStudent, UpdatedStudent } from '@/services/next';
 import { getUFComponents, type UFSeasonComponents } from '@/services/ufabc-parser';
 import { findIdeais, findSeasonKey } from '@/utils/season';
 import { orderBy } from 'lodash-es';
@@ -169,8 +169,10 @@ const kicks = ref<{
     turno: 'Matutino' | 'Noturno'
   }[]>([])
 const headers = ref<Headers[]>([])
-const matriculaStudent = inject<UFABCMatriculaStudent>('student')
+
+const { state: matriculaStudent } = useStorage<MatriculaStudent>('local:fullStudent')
 const matriculas = inject<typeof window.matriculas>('matriculas')
+
 const component = ref({} as UFSeasonComponents)
 
 const { data: ufabcComponents } = useQuery({
@@ -181,9 +183,11 @@ const { data: ufabcComponents } = useQuery({
   enabled: computed(() => props.isOpen)
 });
 
-const { data: kicksData, isLoading, isError, error } = useQuery({
-  queryKey: ['kicks', props.corteId, matriculaStudent?.studentId],
-  queryFn: () => getKicksInfo(props.corteId!, matriculaStudent?.studentId),
+console.log(matriculaStudent?.value)
+
+const { data: kicksData, isError, error } = useQuery({
+  queryKey: ['kicks', props.corteId, matriculaStudent?.value?.studentId],
+  queryFn: () => getKicksInfo(props.corteId!, matriculaStudent?.value?.studentId),
   enabled: computed(() => Boolean(props.corteId && props.isOpen)),
 });
 
@@ -220,7 +224,7 @@ const transformed = computed(() => {
 
 
 const kicksForecast = computed(() => {
-  if (!props.corteId || !matriculas || !matriculaStudent?.studentId) {
+  if (!props.corteId || !matriculas || !matriculaStudent?.value?.studentId) {
     return;
   }
   const requests = Object.values(matriculas).reduce((count, current) =>
@@ -255,7 +259,7 @@ function removedFilter(value: string) {
 }
 
 function tableRowClassname({ row, rowIndex }: TableData) {
-  if (row.studentId === matriculaStudent?.studentId) {
+  if (row.studentId === matriculaStudent?.value?.studentId) {
     return 'aluno-row'
   }
 

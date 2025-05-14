@@ -184,7 +184,7 @@ export async function getComponents() {
 }
 
 export async function getKicksInfo(kickId: string, studentId?: number) {
-  const kicksData = await nextService(`/entities/components/${kickId}/kicks?studentId=${studentId}`)
+  const kicksData = await nextService(`/entities/components/${kickId}/kicks?studentId=${557736}`)
   return kicksData;
 }
 
@@ -192,9 +192,8 @@ export async function getKicksInfo(kickId: string, studentId?: number) {
 export async function getStudent(login: string, ra: string) {
   const headers = new Headers();
 
-  headers.set('uf_login', login)
+  headers.set('uf-login', login)
   headers.set('ra', ra)
-  console.log('fuck')
 
   const student = await nextService<MatriculaStudent>('/entities/students', {
     headers
