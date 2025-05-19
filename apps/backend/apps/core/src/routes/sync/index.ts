@@ -16,9 +16,7 @@ import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.post(
-    '/enrollments',  // TODO: avaliar enrollments, aqui faço o hydrate dos dados vindos do parser 
-    // pq a resposta do parser nao é uma lista? 
-
+    '/enrollments', 
     {
       schema: syncEnrollmentsSchema,
       preHandler: (request, reply) => request.isAdmin(reply),
@@ -27,14 +25,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       const { hash, season, kind } = request.body;
       const [tenantYear, tenantQuad] = season.split(':');
-
-      // const doesLinkExist = await ofetch(link, {
-      //   method: 'OPTIONS',
-      // });
-
-      // if (!doesLinkExist) {
-      //   return reply.badRequest('O link enviado deve existir');
-      // }
 
       const components = await ComponentModel.find({
         season,
@@ -74,10 +64,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           sample: enrollments.slice(0, 500),
         };
       }
-
-      //TODO não postar na fila para testar 
-      // Garantir que a variavel de ambiente está local 
-
 
       const enrollmentJobs = enrollments.map(async (enrollment) => {
         try {
