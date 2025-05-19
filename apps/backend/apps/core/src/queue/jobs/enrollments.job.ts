@@ -7,7 +7,7 @@ import type { QueueContext } from '../types.js';
 import type { Types } from 'mongoose';
 
 type HydratedComponent = {
-  disciplina_id: number | '-';
+  disciplinaId: number;
   codigo: string;
   disciplina: string;
   campus: 'sbc' | 'sa';
@@ -22,6 +22,8 @@ type HydratedComponent = {
   quad: number;
   subject: Types.ObjectId;
 };
+
+//TODO: preciso mapear a alteracao aqui acima
 
 type Enrollment = Omit<
   EnrollmentEntity,
@@ -74,6 +76,7 @@ export async function processSingleEnrollment(
         $set: {
           ...data,
           identifier: data.identifier,
+          disciplina_id: enrollment.disciplinaId,
         },
       },
       {

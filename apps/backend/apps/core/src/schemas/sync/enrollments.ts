@@ -4,7 +4,7 @@ import { z } from 'zod';
 export const syncEnrollmentsSchema = {
   body: z.object({
     season: z.string(),
-    link: z.string().url(),
+    kind: z.enum(['settlement', 'resettlement']),
     hash: z.string().optional(),
   }),
 } satisfies FastifyZodOpenApiSchema;

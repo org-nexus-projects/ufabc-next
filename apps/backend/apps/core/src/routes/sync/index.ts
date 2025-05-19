@@ -16,28 +16,31 @@ import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.post(
-    '/enrollments',
+    '/enrollments',  // TODO: avaliar enrollments, aqui faço o hydrate dos dados vindos do parser 
+    // pq a resposta do parser nao é uma lista? 
+
     {
       schema: syncEnrollmentsSchema,
       preHandler: (request, reply) => request.isAdmin(reply),
     },
     async (request, reply) => {
-      const { hash, season, link } = request.body;
+
+      const { hash, season, kind } = request.body;
       const [tenantYear, tenantQuad] = season.split(':');
 
-      const doesLinkExist = await ofetch(link, {
-        method: 'OPTIONS',
-      });
+      // const doesLinkExist = await ofetch(link, {
+      //   method: 'OPTIONS',
+      // });
 
-      if (!doesLinkExist) {
-        return reply.badRequest('O link enviado deve existir');
-      }
+      // if (!doesLinkExist) {
+      //   return reply.badRequest('O link enviado deve existir');
+      // }
 
       const components = await ComponentModel.find({
         season,
       }).lean();
 
-      const rawEnrollments = await getEnrollments(link);
+      const rawEnrollments = await getEnrollments(kind, season);
       const kvEnrollments = Object.entries(rawEnrollments);
       const tenantEnrollments = kvEnrollments.map(([ra, studentComponents]) => {
         const hydratedStudentComponents = hydrateComponent(
@@ -71,6 +74,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           sample: enrollments.slice(0, 500),
         };
       }
+
+      //TODO não postar na fila para testar 
+      // Garantir que a variavel de ambiente está local 
+
 
       const enrollmentJobs = enrollments.map(async (enrollment) => {
         try {
@@ -265,7 +272,7 @@ export function hydrateComponent(
   studentComponents: StudentComponent[],
   components: Component[],
   year: number,
-  quad: 1 | 2 | 3,
+  quad: 1 | 2 | 3
 ) {
   const result = [];
   const errors = [];
@@ -301,6 +308,7 @@ export function hydrateComponent(
     });
 
     result.push({
+      disciplinaId: component.disciplina_id, 
       ra: Number(ra),
       nome: `${component.disciplina} ${component.turma}-${component.turno} (${component.campus})`,
       campus: component.campus,
