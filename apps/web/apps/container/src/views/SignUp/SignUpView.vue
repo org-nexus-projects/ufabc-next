@@ -60,7 +60,7 @@
               prepend-inner-icon="mdi-school" :error-messages="ra.errorMessage.value" />
 
             <v-text-field v-model.trim="raConfirm.value.value" @update:focused="getUserEmail"
-              :disabled="isFetchEmailLoading" label="Confirme seu RA" variant="solo" class="w-100"
+              :disabled="isFetchEmailLoading" label="Confirme seu RA" variant="solo" class="mb-4 w-100"
               placeholder="11201911111" prepend-inner-icon="mdi-school-outline"
               :error-messages="raConfirm.errorMessage.value" />
 

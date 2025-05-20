@@ -46,7 +46,13 @@ export const handleSummary = (summary: string): Classes => {
   });
 
   // Split the classes by end of line
-  const splittedClasses = classes.map((c) => c.split(/\n+/gi));
+  const splittedClasses = classes.map((c) =>
+    c
+      .replace(/\s*<br\s*\/?>\s*/gi, '\n')
+      .split(/\n+/gi)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0),
+  );
 
   // Get the classes info
   const classesInfo = splittedClasses.map((c) =>

@@ -1,6 +1,7 @@
 <template>
   <FeedbackAlert v-if="isErrorEnrollments" />
   <FeedbackAlert v-if="isErrorUser" />
+  <!-- <UserNotifications text="O next está passando por atualizações em seus sistemas e você pode encontrar dados incompatíveis com seu histórico, não se preocupe, em breve estará normalizado!"/> -->
   <ReviewDialog v-if="showDialog" :enrollment="selectedEnrollment" :showDialog="showDialog" :tags="tags"
     @update:showDialog="showDialog = $event" />
   <PaperCard title="Ficha individual do aluno" class="text-next-grey">
@@ -203,6 +204,9 @@ import {
   formatSeason,
   studentRecordURL,
 } from 'utils';
+import { onMounted } from 'vue';
+import { ElNotification } from 'element-plus';
+
 
 const showDialog = ref(false);
 const selectedEnrollment = ref<Enrollment>();
@@ -308,4 +312,16 @@ const lastUpdate = computed(() => {
   const date = enrollments.value?.[0]?.updatedAt;
   return date && new Date(date);
 });
+
+
+onMounted(() => {
+  ElNotification({
+    message: "O next está passando por atualizações em seus sistemas e você pode encontrar dados incompatíveis com seu histórico, não se preocupe, em breve estará normalizado!",
+    title: 'Ufabc next informa',
+    type: 'warning',
+    duration: 0, 
+    showClose: true, 
+  });
+});
+
 </script>
