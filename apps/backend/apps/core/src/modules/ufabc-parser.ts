@@ -19,6 +19,50 @@ export type UfabcParserComponent = {
   hours: Record<string, { periodicity: string; classPeriod: string[] }>[];
 };
 
+type Weekdays =
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday';
+
+type ComponentHours = {
+  [key in Weekdays]?: {
+    periodicity: 'weekly' | 'biweekly';
+    classPeriod: string[];
+  };
+};
+
+export type UfabcParserComponentV2 = {
+  UFComponentId: number;
+  class: string;
+  shift: 'morning' | 'night';
+  vacancies: number;
+  campus: 'sa' | 'sbc';
+  hours: ComponentHours;
+  tpi: {
+    theory: number;
+    practice: number;
+    individual: number;
+  };
+  courses: Array<{
+    category: string;
+    UFCourseId: number;
+    name?: string;
+  }>;
+  UFComponentCode: string;
+  name: string;
+  credits: number;
+  teachers: {
+    professor?: string;
+    practice?: string;
+    secondaryPractice?: string;
+    secondaryProfessor?: string;
+  };
+  season: string;
+};
+
 type StudentRA = string;
 export type StudentComponent = {
   code: string;
@@ -96,4 +140,16 @@ export async function getComponentsFile(link: string) {
   );
 
   return componentsFile;
+}
+
+export async function getComponentsV2(season: string) {
+  const components = await ufabcParserService<UfabcParserComponentV2[]>(
+    '/v2/components',
+    {
+      query: {
+        season,
+      },
+    },
+  );
+  return components;
 }

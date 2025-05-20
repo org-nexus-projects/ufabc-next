@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { ofetch } from 'ofetch';
 import { generateIdentifier } from '@next/common';
 import {
-  getComponentsFile,
+  getComponentsV2,
   getEnrolledStudents,
   getEnrollments,
   type StudentComponent,
@@ -102,13 +102,13 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       preHandler: (request, reply) => request.isAdmin(reply),
     },
     async (request, reply) => {
-      const { season, hash, link, ignoreErrors } = request.body;
-      const componentsWithTeachers = await getComponentsFile(link);
+      const { season, hash, ignoreErrors } = request.body;
+      const componentsWithTeachers = await getComponentsV2(season);
 
       const teacherCache = new Map();
       const errors: string[] = [];
 
-      const findTeacher = async (name: string | null) => {
+      const findTeacher = async (name: string | undefined) => {
         if (!name) {
           return null;
         }
@@ -148,14 +148,16 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             findTeacher(component.teachers?.professor),
             findTeacher(component.teachers?.practice),
           ]);
+          const turno: 'diurno' | 'noturno' =
+            component.shift === 'morning' ? 'diurno' : 'noturno';
 
           return {
             disciplina_id: component.UFComponentId,
             codigo: component.UFComponentCode,
             disciplina: component.name,
             campus: component.campus,
-            turma: component.turma,
-            turno: component.turno,
+            turma: component.class,
+            turno,
             vagas: component.vacancies,
             teoria,
             pratica,
