@@ -8,6 +8,7 @@ export type SubjectSpecific = {
   numeric: number;
   amount: number;
   count: number;
+  eadCount: number;
   cr_professor: number;
   teacher: {
     alias: [];
@@ -34,6 +35,7 @@ export type SubjectInfo = {
     cr_medio: number;
     cr_professor: number;
     count: number;
+    eadCount: number;
     amount: number;
     numeric: number;
     numericWeight: number;
