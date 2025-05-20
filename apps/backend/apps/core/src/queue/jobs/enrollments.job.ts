@@ -23,8 +23,6 @@ type HydratedComponent = {
   subject: Types.ObjectId;
 };
 
-//TODO: preciso mapear a alteracao aqui acima
-
 type Enrollment = Omit<
   EnrollmentEntity,
   'createdAt' | 'updatedAt' | 'comments'
@@ -71,6 +69,7 @@ export async function processSingleEnrollment(
         year: enrollment.year,
         quad: enrollment.quad,
         disciplina: enrollment.disciplina,
+        disciplina_id: enrollment.disciplinaId,
       },
       {
         $set: {

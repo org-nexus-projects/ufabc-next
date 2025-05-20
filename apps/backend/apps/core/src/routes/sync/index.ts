@@ -1,5 +1,4 @@
 import { createHash } from 'node:crypto';
-import { ofetch } from 'ofetch';
 import { generateIdentifier } from '@next/common';
 import {
   getComponentsFile,

@@ -73,8 +73,8 @@ export async function getEnrollments(kind: string, season: string) {
     '/enrollments',
     {
      query: {
-        kind: kind, 
-        season:season,
+        kind, 
+        season ,
         granted: true,  
       },
 
