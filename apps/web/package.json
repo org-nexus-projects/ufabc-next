@@ -15,7 +15,7 @@
     "eslint": "^8.54.0",
     "eslint-config-custom": "*",
     "prettier": "^3.1.0",
-    "turbo": "^2.5.0"
+    "turbo": "^2.5.3"
   },
   "name": "ufabc-next-web",
   "packageManager": "yarn@1.22.22",
