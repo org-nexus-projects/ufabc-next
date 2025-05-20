@@ -1,55 +1,27 @@
 <template>
-  <FeedbackAlert
-    v-if="isTeacherDataError"
-    text="Erro ao carregar o(a) professor(a)"
-  />
-  <FeedbackAlert
-    v-if="isFetchingCommentsError"
-    text="Erro ao carregar comentários"
-  />
-  <v-select
-    variant="solo"
-    density="comfortable"
-    v-model="selectedSubject"
-    :items="subjects"
-    hide-details
-    menu-icon="mdi-menu-down"
-  >
-  </v-select>
+  <FeedbackAlert v-if="isTeacherDataError" text="Erro ao carregar o(a) professor(a)" />
+  <FeedbackAlert v-if="isFetchingCommentsError" text="Erro ao carregar comentários" />
+  <div class="d-lg-flex align-lg-center">
+    <v-select variant="solo" density="comfortable" v-model="selectedSubject" :items="subjects" hide-details
+      menu-icon="mdi-menu-down" class="mr-4"></v-select>
+
+    <v-switch v-model="eadFilter" label="Ocultar EAD" color="info" class="mt-lg-5"></v-switch>
+  </div>
+
   <CenteredLoading class="pt-4" v-if="isLoading" />
-  <div
-    v-else-if="!isLoading && commentsData?.total !== 0"
-    :style="`${!smAndDown && 'max-height:500px ; overflow-y:auto'}`"
-    class="pr-md-4 py-4"
-  >
-    <SingleComment
-      v-for="comment in commentsData?.data"
-      :key="comment._id"
-      :comment="comment"
-      date=""
-      class="mb-5"
-    />
-    <div
-      v-if="commentsData?.total !== commentsData?.data.length"
-      class="text-center px-4"
-    >
-      <v-btn
-        class="w-100 text-body-2"
-        @click="fetchMoreComments"
-        :disabled="!hasMoreComments"
-        :loading="isFetchingMoreComments"
-      >
+  <div v-else-if="!isLoading && filteredCommentsData?.total !== 0"
+    :style="`${!smAndDown && 'max-height:500px ; overflow-y:auto'}`" class="pr-md-4 py-4">
+    <SingleComment v-for="comment in filteredCommentsData?.data" :key="comment._id" :comment="comment" date=""
+      class="mb-5" />
+    <div v-if="hasMoreComments" class="text-center px-4">
+      <v-btn class="w-100 text-body-2" @click="fetchMoreComments" :loading="isFetchingMoreComments">
         Carregar mais
       </v-btn>
     </div>
   </div>
   <div v-else class="d-flex align-center flex-column mt-5">
-    <img
-      src="@/assets/comment_not_found.gif"
-      style="width: 100%; max-width: 128px"
-      class="mb-5"
-      alt="Nenhum comentário encontrado"
-    />
+    <img src="@/assets/comment_not_found.gif" style="width: 100%; max-width: 128px" class="mb-5"
+      alt="Nenhum comentário encontrado" />
     Infelizmente, nenhum comentário foi encontrado 😕
   </div>
 </template>
@@ -62,6 +34,7 @@ import { Reviews, Comments } from 'services';
 import { SingleComment } from '@/components/SingleComment';
 import { CenteredLoading } from '@/components/CenteredLoading';
 import { FeedbackAlert } from '@/components/FeedbackAlert';
+import { checkEAD } from 'utils';
 const { smAndDown } = useDisplay();
 
 const props = defineProps({
@@ -71,7 +44,7 @@ const props = defineProps({
 
 const teacherId = computed(() => props.teacherId);
 
-const emit = defineEmits(['update:selectedSubject']);
+const emit = defineEmits(['update:selectedSubject', 'update:eadFilter']);
 const selectedSubject = computed({
   get: () => props.selectedSubject,
   set: (value: string) => {
@@ -127,6 +100,28 @@ const commentsData = computed(() => {
   return {
     data: commentsDataPageable.value.pages.map((page) => page.data.data).flat(),
     total: commentsDataPageable.value.pages[0].data.total,
+  };
+});
+
+const eadFilter = ref(false);
+
+const filteredCommentsData = computed(() => {
+  emit('update:eadFilter', eadFilter.value);
+  if (!commentsData.value) return;
+
+  if (!eadFilter.value)
+    return {
+      data: commentsData.value.data,
+      total: commentsData.value.total,
+    };
+
+  const commentsList = commentsData.value.data.filter(
+    (comment) => !checkEAD(comment.enrollment.year, comment.enrollment.quad),
+  );
+
+  return {
+    data: commentsList,
+    total: commentsData.value.total,
   };
 });
 
