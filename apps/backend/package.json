@@ -17,8 +17,7 @@
   "devDependencies": {
     "@biomejs/biome": "^1.8.2",
     "tsx": "^4.15.7",
-    "turbo": "^2.5.0",
-    "typescript": "^5.3.3"
+    "turbo": "^2.5.0"
   },
   "engines": {
     "node": "^22",
