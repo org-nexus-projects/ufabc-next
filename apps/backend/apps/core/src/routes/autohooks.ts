@@ -18,6 +18,7 @@ const PUBLIC_ROUTES = [
   '/users/facebook',
   '/help/forms',
   '/users/recover',
+  '/users/validate'
 ];
 
 const isPublicRoute = (url: string): boolean => {

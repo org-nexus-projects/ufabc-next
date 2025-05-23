@@ -40,6 +40,22 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     return userInfo;
   });
+  app.get('/validate/:ra', async (request, reply) => {
+    const { ra } = request.params as { ra: string };
+    const raNumber = parseInt(ra)
+    const user = await UserModel.findOne({ra:raNumber});
+    if (!user) {
+      return reply.badRequest('User not found');
+    }
+
+    const userInfo = {
+      ra: user.ra,
+      active: user.active,
+      confirmed: user.confirmed,
+    };
+
+    return userInfo;
+  })
 
   app.post(
     '/facebook',
