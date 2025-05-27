@@ -1,7 +1,7 @@
 import { type InferSchemaType, type Model, Schema, model } from 'mongoose';
 
 const CONCEITOS = ['A', 'B', 'C', 'D', 'O', 'F', '-'] as const;
-const POSSIBLE_SITUATIONS = [
+export const POSSIBLE_SITUATIONS = [
   'Repr.Freq',
   'Aprovado',
   'Reprovado',
@@ -15,7 +15,7 @@ const POSSIBLE_SITUATIONS = [
   'aprovado',
 ] as const;
 // can be '-' if the component was dropped (trancamento)
-const CATEGORIES = [
+export const CATEGORIES = [
   'Livre Escolha',
   'Obrigatória',
   'Opção Limitada',
@@ -62,6 +62,19 @@ const historiesDisciplinasSchema = new Schema(
       enum: CONCEITOS,
       default: null,
     },
+    turma: {
+      type: String,
+      required: true,
+    },
+    teachers: {
+      type: [String],
+      required: false,
+    },
+    disciplina_id: {
+      type: Number,
+      required: false,
+    },
+    // this is the compositeKey for the component
     identifier: String,
   },
   { _id: false },
