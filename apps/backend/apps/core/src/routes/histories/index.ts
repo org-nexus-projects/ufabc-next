@@ -7,11 +7,7 @@ import {
 } from '@/models/History.js';
 import { GraduationModel } from '@/models/Graduation.js';
 import { StudentModel } from '@/models/Student.js';
-import {
-  sigHistorySchema,
-  studentHistorySchema,
-  type SigStatus,
-} from '@/schemas/history.js';
+import { sigHistorySchema, type SigStatus } from '@/schemas/history.js';
 import { getHistory } from '@/modules/ufabc-parser.js';
 import { currentQuad } from '@next/common';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
@@ -180,32 +176,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       };
     },
   );
-
-  app.get('/me', { schema: studentHistorySchema }, async (request, reply) => {
-    const { ra } = request.query;
-
-    const userHistory = await HistoryModel.findOne(
-      {
-        ra,
-      },
-      {
-        _id: 0,
-        grade: 1,
-        curso: 1,
-        ra: 1,
-      },
-    ).lean();
-
-    if (!userHistory) {
-      return null;
-    }
-
-    return {
-      curso: userHistory?.curso,
-      grade: userHistory?.grade,
-      ra: userHistory?.ra,
-    };
-  });
 
   app.get('/courses', async (request, reply) => {
     const season = currentQuad();

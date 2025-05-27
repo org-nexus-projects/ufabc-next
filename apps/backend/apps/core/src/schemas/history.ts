@@ -139,25 +139,3 @@ export const sigHistorySchema = {
     },
   },
 } satisfies FastifyZodOpenApiSchema;
-
-export const studentHistorySchema = {
-  tags: ['Sigaa'],
-  querystring: z.object({
-    ra: z.coerce.number(),
-  }),
-  response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: z
-            .object({
-              curso: z.string(),
-              grade: z.string().nullish(),
-              ra: z.coerce.number(),
-            })
-            .nullable(),
-        },
-      },
-    },
-  },
-} satisfies FastifyZodOpenApiSchema;

@@ -20,7 +20,6 @@ const PUBLIC_ROUTES = [
 const EXTENSION_ROUTES = [
   '/entities/students/sig',
   '/histories',
-  '/histories/me',
   '/entities/students',
 ];
 
