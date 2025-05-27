@@ -179,6 +179,8 @@ const parsedSigStudentSchema = z.object({
   startedAt: z.string(),
 });
 
+export type ParsedSigStudent = z.infer<typeof parsedSigStudentSchema>;
+
 export const sigStudentSchema = {
   body: rawSigStudentSchema,
   headers: z.object({
