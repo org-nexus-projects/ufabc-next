@@ -13,6 +13,7 @@ export const POSSIBLE_SITUATIONS = [
   'reprovado por faltas',
   'reprovado por média e por faltas',
   'aprovado',
+  null,
 ] as const;
 // can be '-' if the component was dropped (trancamento)
 export const CATEGORIES = [
