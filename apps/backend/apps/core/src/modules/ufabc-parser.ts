@@ -112,13 +112,16 @@ export async function getComponents() {
   return components;
 }
 
-export async function getEnrollments(link: string) {
+export async function getEnrollments(kind: string, season: string) {
   const enrollments = await ufabcParserService<UFProcessorEnrollment>(
     '/enrollments',
     {
-      query: {
-        link,
+     query: {
+        kind, 
+        season ,
+        granted: true,  
       },
+
     },
   );
   return enrollments;

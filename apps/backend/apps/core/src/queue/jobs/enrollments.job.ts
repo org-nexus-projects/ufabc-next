@@ -7,7 +7,7 @@ import type { QueueContext } from '../types.js';
 import type { Types } from 'mongoose';
 
 type HydratedComponent = {
-  disciplina_id: number | '-';
+  disciplinaId: number;
   codigo: string;
   disciplina: string;
   campus: 'sbc' | 'sa';
@@ -69,11 +69,13 @@ export async function processSingleEnrollment(
         year: enrollment.year,
         quad: enrollment.quad,
         disciplina: enrollment.disciplina,
+        disciplina_id: enrollment.disciplinaId,
       },
       {
         $set: {
           ...data,
           identifier: data.identifier,
+          disciplina_id: enrollment.disciplinaId,
         },
       },
       {

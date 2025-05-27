@@ -52,8 +52,11 @@ const enrollmentSchema = new Schema(
     cr_acumulado: Number,
     cp_acumulado: Number,
     season: String,
+    disciplina_id: Number, 
   },
   { timestamps: true },
+
+
 );
 
 function setTheoryAndPractice(update: { $set: Partial<Enrollment> }) {
