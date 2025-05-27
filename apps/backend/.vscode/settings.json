@@ -6,5 +6,6 @@
   "editor.formatOnSave": true,
   "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome"
-  }
+  },
+  "typescript.experimental.useTsgo": true
 }

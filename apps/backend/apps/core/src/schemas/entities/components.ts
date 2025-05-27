@@ -79,7 +79,7 @@ export const listKickedSchema = {
         return true;
       })
       .default(currentQuad()),
-    studentId: z.coerce.number(),
+    studentId: z.coerce.number().optional(),
   }),
   response: {
     200: {
