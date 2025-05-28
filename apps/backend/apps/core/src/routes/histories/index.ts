@@ -16,7 +16,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   const historyCache = app.cache<History>();
   app.post(
     '/',
-    { schema: sigHistorySchema },
+    // { schema: sigHistorySchema },
     async ({ sessionId, headers, body }, reply) => {
       const viewState = headers['view-state'] ?? headers['View-State'];
       const { login, ra } = body;
@@ -52,6 +52,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       const { student, components, graduations, coefficients } =
         parsedHistory.data;
+
+      return reply.send(parsedHistory.data);
 
       let history: HistoryDocument | null = await HistoryModel.findOne({
         ra: student.ra,

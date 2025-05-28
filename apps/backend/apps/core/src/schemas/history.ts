@@ -1,5 +1,6 @@
 import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 import { z } from 'zod';
+import 'zod-openapi/extend';
 
 const SIG_RESULTS = ['A', 'B', 'C', 'D', 'E', 'F', 'O', '-', '', '0'] as const;
 const SIG_CATEGORIES = ['mandatory', 'limited', 'free'] as const;
@@ -13,7 +14,7 @@ const SIG_COMPONENTS_STATUS = [
   'REP', // Reprovado por média
   'REPF', // Reprovado por falta
   'REPMF', // Reprovado por média e falta
-  'REPN', // Reprovado por nota mínima
+  'REPN', // Reprovado por nota mínimad
   'REPNF', // Reprovado por nota e falta
   'TRANC', // Trancado
   'TRANS', // Transferido
