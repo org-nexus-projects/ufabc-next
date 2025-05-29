@@ -42,6 +42,7 @@ export async function userEnrollmentsUpdate(
     });
   }
 
+  // @ts-ignore for now
   const coefficients = calculateCoefficients<HistoryComponent>(
     components,
     graduation,

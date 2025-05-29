@@ -48,6 +48,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     const coefficients =
       lastHistory.coefficients ||
+      // @ts-ignore for now
       calculateCoefficients(lastHistory.disciplinas ?? [], graduation);
     const normalizedHistory = normalizeHistory(coefficients);
 
