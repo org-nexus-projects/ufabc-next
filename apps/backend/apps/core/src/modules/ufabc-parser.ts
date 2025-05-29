@@ -73,7 +73,11 @@ type StudentRA = string;
 export type StudentComponent = {
   code: string;
   name: string | null;
-  errors: string[] | [];
+  shift: 'morning' | 'night';
+  class: string;
+  campus: 'sa' | 'sbc';
+  original: string;
+  errors: string[];
 };
 export type UFProcessorEnrollment = Record<StudentRA, StudentComponent[]>;
 

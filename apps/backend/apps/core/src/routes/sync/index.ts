@@ -12,44 +12,119 @@ import { TeacherModel } from '@/models/Teacher.js';
 import { ComponentModel, type Component } from '@/models/Component.js';
 import { syncEnrolledSchema } from '@/schemas/sync/enrolled.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+import { logger } from '@/utils/logger.js';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.post(
-    '/enrollments', 
+    '/enrollments',
     {
-      schema: syncEnrollmentsSchema,
-      preHandler: (request, reply) => request.isAdmin(reply),
+      // schema: syncEnrollmentsSchema,
+      // preHandler: (request, reply) => request.isAdmin(reply),
     },
     async (request, reply) => {
-
       const { hash, season, kind } = request.body;
       const [tenantYear, tenantQuad] = season.split(':');
-
-      const components = await ComponentModel.find({
+      const MANDATORY_FIELDS = ['shift', 'campus', 'class', 'code'];
+      const errors: Array<{
+        original: string;
+        parserError: string[];
+        metadata?: any;
+        type: 'MATCHING_FAILED' | 'MISSING_MANDATORY_FIELDS';
+      }> = [];
+      const componentsIterator = ComponentModel.find({
         season,
-      }).lean();
+      })
+        .lean()
+        .cursor();
+
+      const components = new Map();
+      for await (const component of componentsIterator) {
+        const key = `${component.codigo}:${component.campus}:${component.turno}:${component.turma}`;
+        components.set(key, component);
+      }
 
       const rawEnrollments = await getEnrollments(kind, season);
       const kvEnrollments = Object.entries(rawEnrollments);
-      const tenantEnrollments = kvEnrollments.map(([ra, studentComponents]) => {
-        const hydratedStudentComponents = hydrateComponent(
-          ra,
-          studentComponents,
-          components,
-          Number(tenantYear),
-          Number(tenantQuad) as 1 | 2 | 3,
-        );
 
-        return {
+      const tenantEnrollments = [];
+
+      for (const [ra, classes] of kvEnrollments) {
+        const studentEnrollments = [];
+
+        for (const studentClass of classes) {
+          const isMissingAllMandatory = Object.keys(studentClass).every(
+            (f) => !MANDATORY_FIELDS.includes(f),
+          );
+          const isErrorParsingName = studentClass.errors?.includes(
+            'Could not parse name:',
+          );
+
+          if (
+            isMissingAllMandatory &&
+            isErrorParsingName &&
+            !studentClass.name
+          ) {
+            app.log.warn(
+              { studentClass },
+              'Component missing mandatory fields or has parse errors',
+            );
+            errors.push({
+              original: studentClass.original,
+              parserError: studentClass.errors,
+              type: 'MISSING_MANDATORY_FIELDS',
+            });
+            continue;
+          }
+
+          const componentKey = `${studentClass.code}:${studentClass.campus}:${
+            studentClass.shift === 'night' ? 'noturno' : 'diurno'
+          }:${studentClass.class}`;
+          const component = components.get(componentKey);
+
+          if (!component) {
+            app.log.warn(
+              {
+                componentKey,
+              },
+              'could not find matching component via criteria',
+            );
+            // collect and move on
+            errors.push({
+              original: studentClass.original,
+              parserError: studentClass.errors,
+              metadata: {
+                componentKey,
+                data: studentClass.name,
+              },
+              type: 'MATCHING_FAILED',
+            });
+            continue;
+          }
+
+          studentEnrollments.push({
+            ra: Number(ra),
+            componentId: component.disciplina_id,
+            nome: `${component.disciplina} ${component.turma}-${component.turno} (${component.campus})`,
+            originalComponentCompositeKey: component.identifier,
+            year: Number(tenantYear),
+            quad: Number(tenantQuad),
+            season,
+            ...component,
+          });
+        }
+        const preInsertEnrollments = {
           ra,
           year: Number(tenantYear),
           quad: Number(tenantQuad),
           season,
-          components: hydratedStudentComponents,
+          enrollments: studentEnrollments,
         };
-      });
+
+        tenantEnrollments.push(preInsertEnrollments);
+      }
+
       const enrollments = tenantEnrollments.flatMap(
-        (enrollment) => enrollment.components,
+        (enrollment) => enrollment.enrollments,
       );
 
       const enrollmentsHash = createHash('md5')
@@ -59,30 +134,41 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       if (enrollmentsHash !== hash) {
         return {
           hash: enrollmentsHash,
+          errors,
           size: enrollments.length,
           sample: enrollments.slice(0, 500),
         };
       }
 
-      const enrollmentJobs = enrollments.map(async (enrollment) => {
-        try {
-          // @ts-ignore for now
-          await app.job.dispatch('EnrollmentSync', enrollment);
-        } catch (error) {
-          request.log.error({
-            error: error instanceof Error ? error.message : String(error),
-            enrollment,
-            msg: 'Failed to dispatch enrollment processing job',
-          });
-        }
-      });
+      const isAllComponentsMatched = errors.every(
+        (e) => e.type !== 'MATCHING_FAILED',
+      );
 
-      await Promise.all(enrollmentJobs);
+      if (isAllComponentsMatched) {
+        const enrollmentJobs = enrollments.map(async (enrollment) => {
+          try {
+            // @ts-ignore for now
+            await app.job.dispatch('EnrollmentSync', enrollment);
+          } catch (error) {
+            request.log.error({
+              error: error instanceof Error ? error.message : String(error),
+              enrollment,
+              msg: 'Failed to dispatch enrollment processing job',
+            });
+          }
+        });
+        await Promise.all(enrollmentJobs);
+        return reply.send({
+          published: true,
+          msg: 'Enrollments Synced',
+          totalEnrollments: enrollments.length,
+        });
+      }
 
       return reply.send({
-        published: true,
-        msg: 'Enrollments Synced',
-        totalEnrollments: enrollments.length,
+        message: 'Some unmatched components were found',
+        errors,
+        size: enrollments.length,
       });
     },
   );
@@ -253,67 +339,5 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     },
   );
 };
-
-export function hydrateComponent(
-  ra: string,
-  studentComponents: StudentComponent[],
-  components: Component[],
-  year: number,
-  quad: 1 | 2 | 3
-) {
-  const result = [];
-  const errors = [];
-  const componentsMap = new Map<string, Component>();
-
-  for (const component of components) {
-    componentsMap.set(component.disciplina.toLocaleLowerCase(), component);
-  }
-
-  for (const studentComponent of studentComponents) {
-    if (!studentComponent.name) {
-      continue;
-    }
-
-    const component = componentsMap.get(studentComponent.name);
-    if (!component) {
-      errors.push(component);
-      continue;
-    }
-
-    const identifier = generateIdentifier({
-      // @ts-expect-error
-      ra,
-      year,
-      quad,
-      disciplina: component.disciplina,
-    });
-
-    const disciplina_identifier = generateIdentifier({
-      year,
-      quad,
-      disciplina: component.disciplina,
-    });
-
-    result.push({
-      disciplinaId: component.disciplina_id, 
-      ra: Number(ra),
-      nome: `${component.disciplina} ${component.turma}-${component.turno} (${component.campus})`,
-      campus: component.campus,
-      turno: component.turno,
-      turma: component.turma,
-      disciplina: component.disciplina.toLocaleLowerCase(),
-      year,
-      quad,
-      identifier,
-      disciplina_identifier,
-      teoria: component.teoria,
-      pratica: component.pratica,
-      subject: component.subject,
-      season: component.season,
-    });
-  }
-
-  return result;
-}
 
 export default plugin;
