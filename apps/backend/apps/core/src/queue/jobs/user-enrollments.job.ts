@@ -191,19 +191,35 @@ export async function processComponentEnrollment(
   } else {
     // Fallback to subject search only if no component found
     ctx.app.log.info('using subject match for sync');
-    const nameRegex = new RegExp(`.*${component.disciplina}.*`);
+    const normalizedDisciplina = normalizeText(component.disciplina);
     const subjects = await SubjectModel.find({
       $or: [
-        { name: { $regex: nameRegex, $options: 'i' } },
-        { search: { $regex: nameRegex, $options: 'i' } },
+        // Exact match on normalized name
+        { search: normalizedDisciplina },
+        // Partial match on normalized name
+        { search: { $regex: normalizedDisciplina, $options: 'i' } },
+        // Match individual words
+        {
+          search: {
+            $regex: normalizedDisciplina
+              .split(/\s+/)
+              .map((word) => `(?=.*${word})`)
+              .join(''),
+            $options: 'i',
+          },
+        },
+        // Original name matching
+        { name: { $regex: component.disciplina, $options: 'i' } },
       ],
       creditos: component.creditos,
     }).lean<SubjectDocument[]>();
 
     if (!subjects.length) {
       ctx.app.log.warn({
-        msg: 'No matching component or subject found',
-        disciplina: component.disciplina,
+        msg: 'Subject matching failed',
+        original: component.disciplina,
+        normalized: normalizedDisciplina,
+        creditos: component.creditos,
         ra: history.ra,
       });
       return;
@@ -332,24 +348,45 @@ function parseComponentCode(classCode: string) {
 function mapSubjects(
   enrollment: Partial<Enrollment>,
   subjects: SubjectDocument[],
-) {
-  // Create a mapping of lowercase subject names for case-insensitive lookup
-  const mapSubjects = subjects.map((subject) => subject.search);
-  const enrollmentArray = Array.isArray(enrollment) ? enrollment : [enrollment];
+): Partial<Enrollment>[] {
+  const enrollmentArray = (
+    Array.isArray(enrollment) ? enrollment : [enrollment]
+  ) as Partial<Enrollment>[];
 
   return enrollmentArray
-    .reduce<Partial<Enrollment>[]>((acc, e: any) => {
-      if (!mapSubjects.includes(e.disciplina)) {
-        acc.push(e);
+    .map((e) => {
+      // Find matching subject using normalized comparison
+      const subject = subjects.find(
+        (s) => normalizeText(s.name) === normalizeText(e.disciplina ?? ''),
+      );
+
+      if (subject) {
+        return {
+          ...e,
+          subject: subject._id.toString(),
+        };
       }
 
-      const subject = subjects.find((s) => s.name === e.disciplina);
-      e.subject = subject?._id.toString() ?? null;
+      logger.warn({
+        msg: 'No subject match found after normalization',
+        disciplina: e.disciplina,
+        availableSubjects: subjects.map((s) => s.name),
+      });
 
-      return acc;
-    }, [])
+      return e;
+    })
     .filter(
       (e): e is Partial<Enrollment> =>
         e.disciplina !== '' && e.disciplina != null,
     );
+}
+
+// only needed for subject matching
+function normalizeText(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .trim();
 }
