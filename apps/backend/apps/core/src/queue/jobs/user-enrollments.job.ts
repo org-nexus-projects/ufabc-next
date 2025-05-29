@@ -13,6 +13,7 @@ import {
   type HistoryCoefficients,
   HistoryModel,
 } from '@/models/History.js';
+import { logger } from '@/utils/logger.js';
 import type { QueueContext } from '../types.js';
 
 type HistoryComponent = History['disciplinas'][number];
@@ -34,6 +35,7 @@ export async function userEnrollmentsUpdate(
 
   let graduation: GraduationDocument | null = null;
   if (curso && grade) {
+    ctx.app.log.info({ curso, grade }, 'Finding graduation');
     graduation = await GraduationModel.findOne({
       curso,
       grade,
@@ -159,6 +161,7 @@ export async function processComponentEnrollment(
   let enrollmentBuilder: Partial<Enrollment>;
 
   if (matchingClassComponent) {
+    ctx.app.log.info('using match class component');
     enrollmentBuilder = {
       ra: history.ra,
       year: compositeKeyHashValues.year,
@@ -187,12 +190,14 @@ export async function processComponentEnrollment(
     };
   } else {
     // Fallback to subject search only if no component found
+    ctx.app.log.info('using subject match for sync');
     const nameRegex = new RegExp(`.*${component.disciplina}.*`);
     const subjects = await SubjectModel.find({
       $or: [
         { name: { $regex: nameRegex, $options: 'i' } },
         { search: { $regex: nameRegex, $options: 'i' } },
       ],
+      creditos: component.creditos,
     }).lean<SubjectDocument[]>();
 
     if (!subjects.length) {
@@ -299,22 +304,26 @@ function getLastPeriod(
 }
 
 function parseComponentCode(classCode: string) {
-  const regexSingleHyphen =
-    /^([NDM])([A-Zaz]+\d{1,2})([A-Z]+\d{4})-(\d{2})([SA-B]{2})$/;
+  // Handles formats:
+  // - NA11BIS0005-15SA (BIS0005-15 stays together)
+  // - NB4BCS0001-15SA
+  // - DA1MCTA025-13SA
+  const regexPattern =
+    /^([NDM])([A-Z](?:\d{1,2})?)([A-Z0-9]+-\d{2})([SA-B]{2})$/;
 
-  const match = classCode.match(regexSingleHyphen);
+  const match = classCode.match(regexPattern);
 
   if (!match) {
-    throw new Error('Could not parse code');
+    logger.error({ classCode }, 'Coudnt parse code');
+    throw new Error('Could not parse code', { cause: classCode });
   }
 
-  const [_, shift, className, UFCode, year, campus] = match;
+  const [_, shift, className, UFCode, campus] = match;
 
   return {
     shift,
     className,
     UFCode,
-    year,
     campus,
     fullCode: classCode,
   };
@@ -325,22 +334,16 @@ function mapSubjects(
   subjects: SubjectDocument[],
 ) {
   // Create a mapping of lowercase subject names for case-insensitive lookup
-  const mapSubjects = subjects.map((subject) =>
-    subject.search?.toLowerCase().trim(),
-  );
+  const mapSubjects = subjects.map((subject) => subject.search);
   const enrollmentArray = Array.isArray(enrollment) ? enrollment : [enrollment];
 
   return enrollmentArray
     .reduce<Partial<Enrollment>[]>((acc, e: any) => {
-      const disciplinaLower = e.disciplina.toLowerCase().trim();
-
-      if (!mapSubjects.includes(disciplinaLower)) {
+      if (!mapSubjects.includes(e.disciplina)) {
         acc.push(e);
       }
 
-      const subject = subjects.find(
-        (s) => s.name?.toLowerCase().trim() === disciplinaLower,
-      );
+      const subject = subjects.find((s) => s.name === e.disciplina);
       e.subject = subject?._id.toString() ?? null;
 
       return acc;
