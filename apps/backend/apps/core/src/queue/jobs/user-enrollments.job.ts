@@ -136,14 +136,19 @@ export async function processComponentEnrollment(
     disciplina: component.disciplina,
   };
 
-  const { UFCode, className, shift } = parseComponentCode(component.turma);
+  const {
+    UFCode,
+    className,
+    shift,
+    campus: classCampus,
+  } = parseComponentCode(component.turma);
   const campus =
     component.turma.slice(-2).toLowerCase() === 'sb' ? 'sbc' : 'sa';
   const turno = shift.toLowerCase() === 'n' ? 'noturno' : 'diurno';
 
   const searchCriteria = {
     codigo: component.codigo ?? UFCode,
-    campus,
+    campus: campus ?? classCampus,
     turno,
     turma: className,
     season: `${compositeKeyHashValues.year}:${compositeKeyHashValues.quad}`,
@@ -324,13 +329,14 @@ function parseComponentCode(classCode: string) {
   // - NA11BIS0005-15SA (BIS0005-15 stays together)
   // - NB4BCS0001-15SA
   // - DA1MCTA025-13SA
+  // - NA3BCN0402- (edge case with trailing hyphen, no campus suffix)
   const regexPattern =
-    /^([NDM])([A-Z](?:\d{1,2})?)([A-Z0-9]+-\d{2})([SA-B]{2})$/;
+    /^([NDM])([A-Z](?:\d{1,2})?)([A-Z0-9]+-(?:\d{2})?)([SA-B]{2})?$/;
 
   const match = classCode.match(regexPattern);
 
   if (!match) {
-    logger.error({ classCode }, 'Coudnt parse code');
+    logger.error({ classCode }, "Couldn't parse code");
     throw new Error('Could not parse code', { cause: classCode });
   }
 
@@ -340,7 +346,7 @@ function parseComponentCode(classCode: string) {
     shift,
     className,
     UFCode,
-    campus,
+    campus: campus ?? null,
     fullCode: classCode,
   };
 }
