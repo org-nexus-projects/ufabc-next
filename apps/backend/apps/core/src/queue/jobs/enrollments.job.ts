@@ -13,7 +13,6 @@ export async function processSingleEnrollment(
     const result = await EnrollmentModel.findOneAndUpdate(
       {
         ra: enrollment.ra,
-
         $or: [
           { disciplina: normalizedDisciplina },
           { disciplina: { $regex: normalizedDisciplina, $options: 'i' } },

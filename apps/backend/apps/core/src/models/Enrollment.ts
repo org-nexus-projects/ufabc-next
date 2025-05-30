@@ -46,7 +46,14 @@ const enrollmentSchema = new Schema(
         enum: COMMENT_TYPE,
       },
     ],
-
+    syncedBy: {
+      type: String,
+      enum: ['extension', 'matricula'],
+    },
+    kind: {
+      type: String,
+      enum: ['ajuste', 'reajuste'],
+    },
     // vem do portal
     conceito: String,
     creditos: Number,
