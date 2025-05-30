@@ -1,10 +1,8 @@
 import { createHash } from 'node:crypto';
-import { generateIdentifier } from '@next/common';
 import {
   getComponentsV2,
   getEnrolledStudents,
   getEnrollments,
-  type StudentComponent,
 } from '@/modules/ufabc-parser.js';
 import { syncEnrollmentsSchema } from '@/schemas/sync/enrollments.js';
 import { syncComponentsSchema } from '@/schemas/sync/components.js';
@@ -12,14 +10,18 @@ import { TeacherModel } from '@/models/Teacher.js';
 import { ComponentModel, type Component } from '@/models/Component.js';
 import { syncEnrolledSchema } from '@/schemas/sync/enrolled.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import { logger } from '@/utils/logger.js';
+
+export type StudentEnrollment = Component & {
+  ra: number;
+  nome: string;
+};
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.post(
     '/enrollments',
     {
-      // schema: syncEnrollmentsSchema,
-      // preHandler: (request, reply) => request.isAdmin(reply),
+      schema: syncEnrollmentsSchema,
+      preHandler: (request, reply) => request.isAdmin(reply),
     },
     async (request, reply) => {
       const { hash, season, kind } = request.body;
@@ -37,7 +39,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         .lean()
         .cursor();
 
-      const components = new Map();
+      const components = new Map<string, Component>();
       for await (const component of componentsIterator) {
         const key = `${component.codigo}:${component.campus}:${component.turno}:${component.turma}`;
         components.set(key, component);
@@ -49,7 +51,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const tenantEnrollments = [];
 
       for (const [ra, classes] of kvEnrollments) {
-        const studentEnrollments = [];
+        const studentEnrollments: Array<StudentEnrollment> = [];
 
         for (const studentClass of classes) {
           const isMissingAllMandatory = Object.keys(studentClass).every(
@@ -103,12 +105,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
           studentEnrollments.push({
             ra: Number(ra),
-            componentId: component.disciplina_id,
             nome: `${component.disciplina} ${component.turma}-${component.turno} (${component.campus})`,
-            originalComponentCompositeKey: component.identifier,
-            year: Number(tenantYear),
-            quad: Number(tenantQuad),
-            season,
             ...component,
           });
         }
@@ -147,7 +144,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       if (isAllComponentsMatched) {
         const enrollmentJobs = enrollments.map(async (enrollment) => {
           try {
-            // @ts-ignore for now
             await app.job.dispatch('EnrollmentSync', enrollment);
           } catch (error) {
             request.log.error({

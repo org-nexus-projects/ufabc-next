@@ -1,81 +1,40 @@
-import { generateIdentifier } from '@next/common';
-import {
-  type Enrollment as EnrollmentEntity,
-  EnrollmentModel,
-} from '@/models/Enrollment.js';
+import { EnrollmentModel } from '@/models/Enrollment.js';
 import type { QueueContext } from '../types.js';
-import type { Types } from 'mongoose';
-
-type HydratedComponent = {
-  disciplinaId: number;
-  codigo: string;
-  disciplina: string;
-  campus: 'sbc' | 'sa';
-  turma: string;
-  turno: 'diurno' | 'noturno';
-  vagas: number;
-  teoria: Types.ObjectId;
-  pratica: Types.ObjectId;
-  season: string;
-  year: number;
-  ra: number;
-  quad: number;
-  subject: Types.ObjectId;
-};
-
-type Enrollment = Omit<
-  EnrollmentEntity,
-  'createdAt' | 'updatedAt' | 'comments'
-> & {
-  disciplina_identifier?: string;
-};
+import type { StudentEnrollment } from '@/routes/sync/index.js';
 
 export async function processSingleEnrollment(
-  ctx: QueueContext<HydratedComponent>,
+  ctx: QueueContext<StudentEnrollment>,
 ) {
   const enrollment = ctx.job.data;
 
   try {
-    const data: Enrollment = {
-      ra: enrollment.ra,
-      disciplina: enrollment.disciplina,
-      campus: enrollment.campus,
-      turno: enrollment.turno,
-      turma: enrollment.turma,
-      year: enrollment.year,
-      quad: enrollment.quad,
-      teoria: enrollment.teoria,
-      pratica: enrollment.pratica,
-      subject: enrollment.subject,
-      season: enrollment.season,
-    };
-
-    data.identifier = generateIdentifier({
-      ra: enrollment.ra,
-      year: enrollment.year,
-      quad: enrollment.quad,
-      disciplina: enrollment.disciplina,
-    });
-
-    data.disciplina_identifier = generateIdentifier({
-      year: enrollment.year,
-      quad: enrollment.quad,
-      disciplina: enrollment.disciplina,
-    });
+    const normalizedDisciplina = normalizeText(enrollment.disciplina);
 
     const result = await EnrollmentModel.findOneAndUpdate(
       {
         ra: enrollment.ra,
+
+        $or: [
+          { disciplina: normalizedDisciplina },
+          { disciplina: { $regex: normalizedDisciplina, $options: 'i' } },
+          {
+            disciplina: {
+              $regex: normalizedDisciplina
+                .split(/\s+/)
+                .map((word) => `(?=.*${word})`)
+                .join(''),
+              $options: 'i',
+            },
+          },
+          { disciplina: { $regex: enrollment.disciplina, $options: 'i' } },
+        ],
         year: enrollment.year,
         quad: enrollment.quad,
-        disciplina: enrollment.disciplina,
-        disciplina_id: enrollment.disciplinaId,
       },
       {
         $set: {
-          ...data,
-          identifier: data.identifier,
-          disciplina_id: enrollment.disciplinaId,
+          ...enrollment,
+          disciplina_id: enrollment.disciplina_id,
         },
       },
       {
@@ -98,4 +57,16 @@ export async function processSingleEnrollment(
     });
     throw error;
   }
+}
+
+function normalizeText(text: string): string {
+  return (
+    text
+      .toLowerCase()
+      .normalize('NFD')
+      // biome-ignore lint/suspicious/noMisleadingCharacterClass: not needed
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .trim()
+  );
 }
