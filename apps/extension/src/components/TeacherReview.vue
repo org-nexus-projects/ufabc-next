@@ -74,7 +74,7 @@ const possibleComponents = computed(() => {
       name: 'Todas as matérias'
     }
   }
-  const general = Object.assign(generalDefaults, teacherReviewData?.value?.general)
+  const general = Object.assign(generalDefaults, teacherReviewData.value?.general)
   components?.push(general)
   return components?.reverse()
 })
@@ -86,9 +86,9 @@ const conceptDistribution = computed(() => {
 
   let filter;
   if (filterSelected.value === 'all') {
-    filter = teacherReviewData?.value?.general
+    filter = teacherReviewData.value?.general
   } else {
-    filter = teacherReviewData?.value?.specific.find((specific) =>
+    filter = teacherReviewData.value?.specific.find((specific) =>
       specific._id._id === filterSelected.value
     );
   }
@@ -97,10 +97,10 @@ const conceptDistribution = computed(() => {
 })
 
 const hasAttendanceList = computed(() => {
-  if (!teacherReviewData?.value?.general.distribution?.length) {
+  if (!teacherReviewData.value?.general.distribution?.length) {
     return
   }
-  const hasList = teacherReviewData?.value?.general.distribution.find(f => f.conceito === 'O')
+  const hasList = teacherReviewData.value?.general.distribution.find(f => f.conceito === 'O')
   return hasList ? 'Provavelmente esse professor cobra presença 👎' : 'Provavelmente esse professor NÃO cobra presença 👍'
 })
 
@@ -143,10 +143,10 @@ async function setupTeacherReviewStats() {
     teacherReviewData.value = reviews
 
     // Only set initial filter if there are reviews
-    if (reviews.general.count && possibleComponents?.value?.length > 0) {
+    if (reviews.general.count && possibleComponents.value?.length) {
       // Use nextTick to avoid immediate recursive updates
       nextTick(() => {
-        filterSelected.value = possibleComponents?.value?.[0]?._id._id;
+        filterSelected.value = possibleComponents.value?.[0]?._id._id;
       })
     }
   } catch (err) {
@@ -178,9 +178,9 @@ function updateFilter() {
 
   let filter;
   if (filterSelected.value === 'all') {
-    filter = teacherReviewData?.value?.general;
+    filter = teacherReviewData.value?.general;
   } else {
-    filter = teacherReviewData?.value?.specific.find((specific) =>
+    filter = teacherReviewData.value?.specific.find((specific) =>
       specific._id._id === filterSelected.value
     );
   }

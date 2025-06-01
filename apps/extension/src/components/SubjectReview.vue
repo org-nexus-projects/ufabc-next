@@ -47,14 +47,14 @@ const chartOptions = ref<ChartOptions>({
 const subject = computed(() => subjectDistributionData.value?.subject.name ?? '')
 
 const possibleComponents = computed(() => {
-  const components = subjectDistributionData?.value?.specific;
+  const components = subjectDistributionData.value?.specific;
   const generalDefaults = {
     _id: {
       _id: 'all',
       name: 'Todas as matérias',
     },
   };
-  const general = Object.assign(generalDefaults, subjectDistributionData?.value?.general);
+  const general = Object.assign(generalDefaults, subjectDistributionData.value?.general);
   // @ts-ignore Nullable case
   components?.push(general);
 

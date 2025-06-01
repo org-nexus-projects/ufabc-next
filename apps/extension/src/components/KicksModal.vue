@@ -184,15 +184,15 @@ const { data: ufabcComponents } = useQuery({
 });
 
 const { data: kicksData, isError, error } = useQuery({
-  queryKey: ['kicks', props.corteId, matriculaStudent?.value?.studentId],
-  queryFn: () => getKicksInfo(props.corteId!, matriculaStudent?.value?.studentId),
+  queryKey: ['kicks', props.corteId, matriculaStudent.value?.studentId],
+  queryFn: () => getKicksInfo(props.corteId!, matriculaStudent.value?.studentId),
   enabled: computed(() => Boolean(props.corteId && props.isOpen)),
 });
 
 const criteriaContent = "Os critérios são definidos com base nos critérios abaixo e seu peso, você pode alterar o peso arrastando o critérios para que fiquem na ordem desejada."
 
 const defaultHeaders = computed(() => {
-  const isIdeal = findIdeais().includes(component?.value?.UFComponentId?.toString() ?? '')
+  const isIdeal = findIdeais().includes(component.value?.UFComponentId?.toString() ?? '')
   const base = [
     { text: 'Reserva', sortable: false, value: 'reserva' },
     { text: 'Turno', value: 'turno', sortable: false },
@@ -222,7 +222,7 @@ const transformed = computed(() => {
 
 
 const kicksForecast = computed(() => {
-  if (!props.corteId || !matriculas || !matriculaStudent?.value?.studentId) {
+  if (!props.corteId || !matriculas || !matriculaStudent.value?.studentId) {
     return;
   }
   const requests = Object.values(matriculas).reduce((count, current) =>
@@ -257,7 +257,7 @@ function removedFilter(value: string) {
 }
 
 function tableRowClassname({ row, rowIndex }: TableData) {
-  if (row.studentId === matriculaStudent?.value?.studentId) {
+  if (row.studentId === matriculaStudent.value?.studentId) {
     return 'aluno-row'
   }
 
@@ -293,7 +293,7 @@ watch(kicksData, (newData) => {
 
 watch(() => isError.value, () => {
   if (isError.value) {
-    if (error?.value?.message === 'Forbidden') {
+    if (error.value?.message === 'Forbidden') {
       ElNotification(NOTIFICATION_MESSAGES.forbidden);
       return;
     }
