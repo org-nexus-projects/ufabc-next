@@ -225,12 +225,19 @@ export type UpdatedStudent = {
   }>
 }
 
-export async function updateStudent(
+export async function updateStudent({
+  login,
+  ra,
+  studentId,
+  graduationId,
+  sessionId
+}: {
   login: string,
   ra: string,
   studentId: number | null,
   graduationId: number | null,
   sessionId: string
+}
 ) {
   const headers = new Headers();
 

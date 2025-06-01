@@ -32,13 +32,14 @@ const sessionMutation = useMutation({
     const studentId = getStudentId();
     const graduationId = getStudentCourseId();
 
-    const result = await updateStudent(
-      student.value.login,
-      student.value.ra,
-      557736,
-      Number(graduationId),
-      sessionId
-    )
+    const result = await updateStudent({
+      login: student.value.login,
+      ra: student.value.ra,
+      studentId,
+      graduationId: Number(graduationId),
+      sessionId,
+    })
+
     matriculaStudent.value = result;
     return result;
   },
