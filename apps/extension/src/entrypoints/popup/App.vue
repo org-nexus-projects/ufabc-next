@@ -18,7 +18,7 @@ const {
     if (!student.value?.login) {
       return {} as MatriculaStudent;
     }
-    const dbStudent = await getStudent(student.value?.login, student.value?.ra)
+    const dbStudent = await getStudent(student.value.login, student.value.ra)
     return dbStudent
   },
   enabled: !!student.value?.ra && !!student.value?.login
