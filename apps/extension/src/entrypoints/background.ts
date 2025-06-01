@@ -12,6 +12,11 @@ export default defineBackground(() => {
       url: url.href,
       name: 'JSESSIONID'
     })
+
+     if (!cookie) {
+      throw new Error('Session cookie not found');
+    }
+
     return cookie
   })
 
