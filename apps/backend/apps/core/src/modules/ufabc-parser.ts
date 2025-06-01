@@ -42,6 +42,7 @@ type ComponentHours = {
 
 export type UfabcParserComponentV2 = {
   UFComponentId: number;
+  UFClassroomCode: string;
   class: string;
   shift: 'morning' | 'night';
   vacancies: number;

@@ -188,27 +188,35 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         if (!name) {
           return null;
         }
-        const caseSafeName = name.toLowerCase();
 
-        if (teacherCache.has(caseSafeName)) {
-          return teacherCache.get(caseSafeName);
+        const normalizedName = name.toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '');
+        if (teacherCache.has(normalizedName)) {
+          return teacherCache.get(normalizedName);
         }
 
-        const teacher = await TeacherModel.findByFuzzName(caseSafeName);
-
+        const teacher = await TeacherModel.findByFuzzName(normalizedName);
         if (!teacher) {
-          errors.push(caseSafeName);
-          teacherCache.set(caseSafeName, null);
+          app.log.warn({
+            msg: 'Teacher not found',
+            originalName: name,
+            normalizedName,
+          })
+          errors.push(name);
+          teacherCache.set(normalizedName, null);
           return null;
         }
 
-        if (!teacher.alias.includes(caseSafeName)) {
+        if (!teacher.alias.includes(normalizedName)) {
           await TeacherModel.findByIdAndUpdate(teacher._id, {
-            $addToSet: { alias: caseSafeName },
+            $addToSet: { 
+              alias: [normalizedName, name.toLowerCase()]
+            },
           });
         }
 
-        teacherCache.set(caseSafeName, teacher._id);
+        teacherCache.set(normalizedName, teacher._id);
         return teacher._id;
       };
 
@@ -220,20 +228,19 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             );
           }
 
-          const [teoria, pratica] = await Promise.all([
+         const [teoria, pratica] = await Promise.all([
             findTeacher(component.teachers?.professor),
             findTeacher(component.teachers?.practice),
           ]);
-          const turno: 'diurno' | 'noturno' =
-            component.shift === 'morning' ? 'diurno' : 'noturno';
 
           return {
             disciplina_id: component.UFComponentId,
+            UFClassroomCode: component.UFClassroomCode,
             codigo: component.UFComponentCode,
             disciplina: component.name,
             campus: component.campus,
             turma: component.class,
-            turno,
+            turno: component.shift === 'morning' ? 'diurno' : 'noturno',
             vagas: component.vacancies,
             teoria,
             pratica,
@@ -244,6 +251,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       const components = await Promise.all(componentsWithTeachersPromises);
 
+      // Handle teacher errors if not ignored
       if (!ignoreErrors && errors.length > 0) {
         const errorsSet = [...new Set(errors)];
         return reply.status(403).send({
@@ -283,7 +291,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       return reply.send({
         published: true,
         msg: 'Dispatched Components Job',
-        totalEnrollments: components.length,
+        totalComponents: components.length,
       });
     },
   );

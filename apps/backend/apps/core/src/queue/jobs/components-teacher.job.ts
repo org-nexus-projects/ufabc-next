@@ -1,20 +1,19 @@
-import { generateIdentifier } from '@next/common';
 import { ComponentModel } from '@/models/Component.js';
 import type { QueueContext } from '../types.js';
 
-type ComponentTeacher = {
-  disciplina_id: number | '-';
-  codigo: string;
-  disciplina: string;
-  campus: 'sbc' | 'sa';
-  turma: string;
-  turno: 'diurno' | 'noturno';
-  vagas: number;
-  teoria: any;
-  pratica: any;
+type ComponentTeacher = { 
+  disciplina_id: number; 
+  codigo: string; 
+  disciplina: string; 
+  campus: "sa" | "sbc"; 
+  turma: string; 
+  turno: string; 
+  vagas: number; 
+  teoria: any; 
+  pratica: any; 
   season: string;
-  identifier?: string;
-};
+  UFClassroomCode: string;
+}
 
 export async function processComponentsTeachers(
   ctx: QueueContext<ComponentTeacher>,
@@ -22,21 +21,22 @@ export async function processComponentsTeachers(
   const { data: component } = ctx.job;
 
   try {
-    component.identifier = generateIdentifier(component);
     const result = await ComponentModel.findOneAndUpdate(
       {
         season: component.season,
-        identifier: component.identifier,
+        disciplina_id: component.disciplina_id,
       },
       {
         $set: {
           teoria: component.teoria,
           pratica: component.pratica,
+          // we will be using UFCompositeKey for better lookup
+          uf_cod_turma: component.UFClassroomCode
         },
       },
-      { new: true },
+      { new: true, upsert: true },
     );
-    ctx.app.log.debug({
+    ctx.app.log.info({
       msg: 'Component processed',
       disciplina: component.disciplina,
       UFCode: component.codigo,
