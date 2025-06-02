@@ -1,7 +1,14 @@
 import { type InferSchemaType, Schema, model } from 'mongoose';
 import stringSimilarity from 'string-similarity';
 
-const normalizeName = (str: string) => str.toLowerCase().replace(/[^a-z]/g, '');
+const normalizeName = (str: string) => {
+  return str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove accents
+    .replace(/\s+/g, ' ') // normalize spaces
+    .trim();
+};
 
 const teacherSchema = new Schema(
   {
@@ -12,49 +19,61 @@ const teacherSchema = new Schema(
     timestamps: true,
     statics: {
       findByFuzzName: async function (name: string) {
+        const normalizedName = normalizeName(name);
+
+        // First try exact match
         const exactMatch = await this.findOne({
           $or: [
-            {
-              name,
-            },
-            { alias: name },
-          ],
+            { name: normalizedName },
+            { alias: normalizedName }
+          ]
         });
 
         if (exactMatch) {
           return exactMatch;
         }
 
-        const normalizedSearchName = normalizeName(name);
-        const teachers = await this.find({});
+        // Then try text search with normalized name parts
+        const nameParts = normalizedName.split(' ').filter(Boolean);
+        const textSearchResults = await this.find(
+          { $text: { $search: nameParts.join(' ') } },
+          { score: { $meta: 'textScore' } }
+        )
+        .sort({ score: { $meta: 'textScore' } })
+        .limit(5); // Get top 5 matches
 
-        const bestMatch = teachers.reduce<any>(
-          (best, teacher) => {
-            const nameMatch = stringSimilarity.compareTwoStrings(
-              normalizedSearchName,
-              normalizeName(teacher.name),
+        if (textSearchResults.length === 0) {
+          return null;
+        }
+
+        // Compare normalized forms for best match
+        const bestMatch = textSearchResults.reduce<any>((best, teacher) => {
+          const teacherNormalizedName = normalizeName(teacher.name);
+          const similarity = stringSimilarity.compareTwoStrings(
+            normalizedName,
+            teacherNormalizedName
+          );
+
+          // Also check aliases
+          const aliasSimilarity = teacher.alias.reduce((max, alias) => {
+            const aliasSim = stringSimilarity.compareTwoStrings(
+              normalizedName,
+              normalizeName(alias)
             );
-            const aliasMatch = teacher.alias.reduce((maxSimilarity, alias) => {
-              const similarity = stringSimilarity.compareTwoStrings(
-                normalizedSearchName,
-                normalizeName(alias),
-              );
-              return Math.max(maxSimilarity, similarity);
-            }, 0);
-            const similarity = Math.max(nameMatch, aliasMatch);
-            return similarity > best.similarity
-              ? { teacher, similarity }
-              : best;
-          },
-          { teacher: null, similarity: 0 },
-        );
+            return Math.max(max, aliasSim);
+          }, 0);
 
-        if (bestMatch.similarity > 0.8) {
-          // You can adjust this threshold
+          const maxSimilarity = Math.max(similarity, aliasSimilarity);
+          return maxSimilarity > best.similarity ? { teacher, similarity: maxSimilarity } : best;
+        }, { teacher: null, similarity: 0 });
+
+        // Lower threshold since we're already filtering via text search
+        if (bestMatch.similarity > 0.6) {
           return bestMatch.teacher;
         }
+
         return null;
-      },
+      }
     },
   },
 );

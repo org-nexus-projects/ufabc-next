@@ -2,7 +2,9 @@ import { ComponentModel } from '@/models/Component.js';
 import { HistoryModel } from '@/models/History.js';
 import { StudentModel, type Student } from '@/models/Student.js';
 import { currentQuad } from '@next/common';
+import { logger } from '@/utils/logger.js';
 import type { FilterQuery } from 'mongoose';
+import type { UpdatedStudent } from '@/schemas/entities/students.js';
 
 export async function getComponentsStudentsStats(
   season: string,
@@ -73,7 +75,7 @@ export async function getAllCourses() {
 
 export async function getStudent(filter: FilterQuery<Student>) {
   const season = currentQuad();
-  const student = await StudentModel.findOne({
+  const student: Student | null = await StudentModel.findOne({
     ...filter,
     season,
   }).lean();
@@ -108,6 +110,7 @@ type UpdateStudent = {
   ra: number;
   login: string;
   studentId: number | null | undefined;
+  graduationId: number | null | undefined;
 };
 
 export async function createOrInsert({
@@ -130,25 +133,63 @@ export async function createOrInsert({
   return student;
 }
 
-export async function update({ ra, login, studentId }: UpdateStudent) {
+export async function update({
+  ra,
+  login,
+  studentId,
+  graduationId,
+}: UpdateStudent): Promise<UpdatedStudent | null> {
   const season = currentQuad();
+  logger.info({ ra, login, studentId, graduationId });
   const student = await StudentModel.findOne({
     ra,
     login,
     season,
   });
+  const historyComponents = await HistoryModel.findOne(
+    {
+      ra,
+    },
+    { disciplinas: 1, _id: 0 },
+  )
+    .sort({
+      updatedAt: -1,
+    })
+    .lean();
 
-  if (!student) {
+  if (!student || !historyComponents) {
     return null;
   }
 
   if (student.aluno_id) {
-    return student;
+    const studentObj = student.toJSON<Student>();
+    return {
+      ra: studentObj.ra,
+      studentId: studentObj.aluno_id,
+      graduations: studentObj.cursos.map((c) => ({
+        ...c,
+        components: historyComponents.disciplinas,
+      })),
+    } as unknown as UpdatedStudent;
   }
 
   student.aluno_id = studentId;
 
+  // THIS IS WRONG
+  for (const curso of student.cursos) {
+    curso.id_curso = graduationId;
+  }
+
   await student.save();
 
-  return student;
+  const studentObj = student.toJSON();
+
+  return {
+    ra: studentObj.ra,
+    studentId: studentObj.aluno_id,
+    graduations: studentObj.cursos.map((c) => ({
+      ...c,
+      components: historyComponents.disciplinas,
+    })),
+  } as unknown as UpdatedStudent;
 }

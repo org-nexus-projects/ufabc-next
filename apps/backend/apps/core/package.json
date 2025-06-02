@@ -23,6 +23,7 @@
     "@bull-board/api": "^6.3.3",
     "@bull-board/fastify": "^6.3.3",
     "@fastify/autoload": "^6.0.2",
+    "@fastify/cookie": "^11.0.2",
     "@fastify/cors": "^10.0.1",
     "@fastify/env": "^5.0.1",
     "@fastify/jwt": "^9.0.1",

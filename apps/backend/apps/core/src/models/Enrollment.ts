@@ -14,7 +14,10 @@ const enrollmentSchema = new Schema(
     },
     identifier: String,
     ra: Number,
-    disciplina: String,
+    disciplina: {
+      type: String,
+      required: true,
+    },
     subject: {
       type: Schema.Types.ObjectId,
       ref: 'subjects',
@@ -43,7 +46,14 @@ const enrollmentSchema = new Schema(
         enum: COMMENT_TYPE,
       },
     ],
-
+    syncedBy: {
+      type: String,
+      enum: ['extension', 'matricula'],
+    },
+    kind: {
+      type: String,
+      enum: ['ajuste', 'reajuste'],
+    },
     // vem do portal
     conceito: String,
     creditos: Number,
@@ -52,11 +62,9 @@ const enrollmentSchema = new Schema(
     cr_acumulado: Number,
     cp_acumulado: Number,
     season: String,
-    disciplina_id: Number, 
+    disciplina_id: Number,
   },
   { timestamps: true },
-
-
 );
 
 function setTheoryAndPractice(update: { $set: Partial<Enrollment> }) {

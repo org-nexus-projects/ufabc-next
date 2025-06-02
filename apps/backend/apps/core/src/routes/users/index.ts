@@ -42,7 +42,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   });
   app.get('/validate/:ra', async (request, reply) => {
     const { ra } = request.params as { ra: string };
-    const raNumber = parseInt(ra)
+    const raNumber = Number.parseInt(ra)
     const user = await UserModel.findOne({ra:raNumber});
     if (!user) {
       return reply.badRequest('User not found');

@@ -5,6 +5,22 @@ declare module 'fastify' {
   export interface FastifyRequest {
     verifyAccess: typeof verifyAccess;
     isAdmin: typeof isAdmin;
+    isStudent: typeof isStudent;
+    sessionId?: string;
+  }
+}
+
+async function isStudent(this: FastifyRequest, reply: FastifyReply) {
+  const sessionId =
+    this.headers['session-id'] ??
+    this.cookies.sessionId ??
+    this.headers['Session-Id'] ??
+    this.headers.sessionid;
+  const ufLogin = this.headers['uf-login'] ?? this.headers['Uf-login'];
+  if (!sessionId && !ufLogin) {
+    return reply
+      .status(403)
+      .send('You are not authorized to access this resource.');
   }
 }
 
@@ -28,6 +44,7 @@ export default fp(
   async (app) => {
     app.decorateRequest('verifyAccess', verifyAccess);
     app.decorateRequest('isAdmin', isAdmin);
+    app.decorateRequest('isStudent', isStudent);
   },
   // You should name your plugins if you want to avoid name collisions
   // and/or to perform dependency checks.
