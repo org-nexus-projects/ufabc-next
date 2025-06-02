@@ -13,5 +13,8 @@
 		"editor.codeActionsOnSave": {
 			"quickfix.biome": "explicit"
 		}
+	},
+	"[json]": {
+		"editor.defaultFormatter": "vscode.json-language-features"
 	}
 }

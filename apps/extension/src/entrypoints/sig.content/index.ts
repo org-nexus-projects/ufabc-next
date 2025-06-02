@@ -8,6 +8,11 @@ import { sendMessage } from '@/messaging';
 
 export default defineContentScript({
 	async main() {
+    const sigrootURL = new URL(document.location.href);
+    if (!sigrootURL.pathname.includes('/portais/discente/discente.jsf')) {
+      return;
+    }
+
     const viewStateID = document.querySelector<HTMLInputElement>(
       'input[name="javax.faces.ViewState"]'
     )
@@ -48,7 +53,10 @@ export default defineContentScript({
     }
 	},
 	runAt: "document_end",
-	matches: ["https://sig.ufabc.edu.br/sigaa/portais/discente/discente.jsf"],
+
+  matches: [
+    "https://sig.ufabc.edu.br/*",
+  ],
 });
 
 
