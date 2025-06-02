@@ -143,6 +143,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       if (isAllComponentsMatched) {
         const enrollmentJobs = enrollments.map(
+          // @ts-ignore mongoose does not set id
           async ({ _id, ...enrollment }) => {
             try {
               await app.job.dispatch('EnrollmentSync', enrollment);

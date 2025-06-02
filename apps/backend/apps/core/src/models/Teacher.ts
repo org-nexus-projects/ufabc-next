@@ -47,7 +47,7 @@ const teacherSchema = new Schema(
         }
 
         // Compare normalized forms for best match
-        const bestMatch = textSearchResults.reduce((best, teacher) => {
+        const bestMatch = textSearchResults.reduce<any>((best, teacher) => {
           const teacherNormalizedName = normalizeName(teacher.name);
           const similarity = stringSimilarity.compareTwoStrings(
             normalizedName,
