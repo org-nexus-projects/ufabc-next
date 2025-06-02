@@ -39,6 +39,7 @@
     "@tanstack/vue-query": "^5.66.0",
     "@vueuse/core": "^11.1.0",
     "@vueuse/integrations": "^11.1.0",
+    "@webext-core/messaging": "^2.2.0",
     "change-case": "^5.4.4",
     "dayjs": "^1.11.13",
     "element-plus": "^2.8.4",

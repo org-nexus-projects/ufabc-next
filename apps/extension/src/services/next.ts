@@ -1,10 +1,5 @@
 import { ofetch } from "ofetch";
-
-export type StudentHistory = {
-	grade: string;
-	ra: number;
-	curso: string;
-}
+import type { Student } from "./ufabc-parser";
 
 export type SigHistory = {
   ra: string;
@@ -37,6 +32,7 @@ export type Distribution = {
 
 type SubjectDetailedReview = {
   _id: {
+    _id: string;
     mainTeacher: string;
   }
   distribution: Array<Distribution>
@@ -51,6 +47,7 @@ type SubjectDetailedReview = {
     name: string;
     alias: string[] | null
   }
+  weight: number;
 }
 
 type TeacherDetailedReview = {
@@ -131,6 +128,7 @@ export type Component = {
 
 export type MatriculaStudent =  {
   studentId: number;
+  login: string;
   graduations: {
       courseId: number;
       name: string;
@@ -140,54 +138,34 @@ export type MatriculaStudent =  {
       cr: number;
       ca: number
   }[];
+  updatedAt: string;
 }
-
-type CreateStudent = {
-  ra: string;
-  login: string;
-  graduations: {
-      name: string;
-      courseId: number;
-      cp?: number | undefined;
-      cr?: number | undefined;
-      quads?: number | undefined;
-      turno: string;
-  }[];
-  studentId?: number | undefined;
-}
-
-function resolveEndpoint() {
-  if (import.meta.env.PROD) {
-    return "https://api.v2.ufabcnext.com";
-  }
-
-  return "http://localhost:5000";
-}
-
-export const nextURL = resolveEndpoint()
 
 export const nextService = ofetch.create({
-  baseURL: nextURL,
+  baseURL: import.meta.env.VITE_UFABC_NEXT_URL,
 });
 
-export async function getStudentHistory(ra: number) {
-  const studentHistory = await nextService<StudentHistory>(`/histories/me?ra=${ra}`);
 
-  return studentHistory;
+type SyncHistory = {
+  sessionId: string;
+  viewState: string;
+  login: string;
+  ra: string;
 }
 
-export async function createStudent(student: CreateStudent) {
-  const createdStudent = await nextService("/entities/students", {
-    method: "POST",
-    body: student,
-  });
-  return createdStudent;
-}
+export async function syncHistory(data: SyncHistory) {
+  const headers = new Headers();
 
-export async function syncHistory(student: SigHistory) {
-  const syncedStudent = await nextService("/histories", {
+  headers.set('session-id', data.sessionId)
+  headers.set('view-state', data.viewState)
+
+  const syncedStudent = await nextService<{ msg: string }>("/histories", {
     method: "POST",
-    body: student,
+    headers,
+    body: {
+      login: data.login,
+      ra: data.ra,
+    }
   });
   return syncedStudent;
 }
@@ -214,24 +192,92 @@ export async function getKicksInfo(kickId: string, studentId?: number) {
 
 
 export async function getStudent(login: string, ra: string) {
-  const student = await nextService<MatriculaStudent>('/entities/students/student', {
-    query: {
-      login,
-      ra
-    }
+  const headers = new Headers();
+
+  headers.set('uf-login', login)
+  headers.set('ra', ra)
+
+  const student = await nextService<MatriculaStudent>('/entities/students', {
+    headers
   })
 
   return student;
 }
 
-export async function updateStudent(login: string, ra: string, studentId: number | null) {
-  const updatedStudent = await nextService<{ msg: string }>('/entities/students', {
+type Components = {
+  periodo: '1' | '2' | '3'
+  codigo: string;
+  disciplina: string;
+  ano: number;
+  situacao: string;
+  creditos: number;
+  categoria: "Livre Escolha" | "Obrigatória" | "Opção Limitada" | "-"
+  conceitos: "A" | "B" | "C" | "D" | "O" | "F" | "-"
+  turma: string;
+  teachers: string[]
+  identifier: string;
+}
+
+export type UpdatedStudent = {
+  studentId: number;
+  ra: number;
+  graduations: Array<{
+    components: Array<Components>
+
+  }>
+}
+
+export async function updateStudent({
+  login,
+  ra,
+  studentId,
+  graduationId,
+  sessionId
+}: {
+  login: string,
+  ra: string,
+  studentId: number | null,
+  graduationId: number | null,
+  sessionId: string
+}
+) {
+  const headers = new Headers();
+
+  headers.set('session-id', sessionId)
+
+  const updatedStudent = await nextService<UpdatedStudent>('/entities/students', {
     method: 'PUT',
     body: {
       login,
       ra,
-      studentId
-    }
+      studentId,
+      graduationId
+    },
+    headers
   })
   return updatedStudent
+}
+
+type SigStudent = {
+	matricula: string;
+	email: string;
+	/** @example 2022:2 */
+	entrada: string;
+	nivel: 'graduacao' | 'licenciatura';
+	status: string;
+	curso: string;
+};
+
+export async function getSigStudent(sigStudent: SigStudent, sessionId: string) {
+  const headers = new Headers();
+
+  headers.set('session-id', sessionId)
+
+  const student = await nextService<Student>('/entities/students/sig', {
+    method: 'POST',
+    body: sigStudent,
+    headers
+  })
+
+  return student;
 }

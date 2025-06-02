@@ -94,7 +94,7 @@ const findGradeCountTotal = (distribution: Distribution[]) => {
 }
 
 const calculateGradePercentage = (distribution: Distribution[], concept: Grade) => {
-  return (100 * findGradeCount(distribution, concept)) / findGradeCountTotal(distribution)
+  return (100 * (findGradeCount(distribution, concept) ?? 0)) / findGradeCountTotal(distribution)
 }
 
 const onSortChange = () => {

@@ -38,25 +38,6 @@ export function findSeasonKey(date: dayjs.Dayjs = dayjs()): string {
   return `${year}:${quad}`;
 }
 
-export function calculateQuadrimestres({
-  entranceQuad,
-  trancamentos = []
-}: QuadrimestreCalculationParams) {
-  // Parse entrance quad
-  const [year, quad] = entranceQuad.split('.').map(Number);
-
-  // Get current season
-  const currentSeason = findSeason();
-  // Calculate total quadrimestres
-  const totalQuadrimestres = (currentSeason.year - year) * 3 + (currentSeason.quad - quad) + 1;
-
-  // Subtract trancamentos
-  const effectiveQuadrimestres = totalQuadrimestres - trancamentos.length;
-
-  // Ensure non-negative result
-  return Math.max(0, effectiveQuadrimestres);
-}
-
 export function findIdeais(date: dayjs.Dayjs = dayjs()): string[] {
   const quad = findQuadFromDate(date.month());
   const ideais: Record<number,string[]> = {

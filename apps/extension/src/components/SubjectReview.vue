@@ -15,7 +15,7 @@ const emit = defineEmits(['close'])
 const subjectDistributionData = ref<SubjectReview | null>(null)
 const loading = ref(false);
 const samplesCount = ref<number>(0);
-const filterSelected = ref(null)
+const filterSelected = ref<string | null>(null)
 const chartOptions = ref<ChartOptions>({
   chart: {
     type: "pie",
@@ -47,14 +47,14 @@ const chartOptions = ref<ChartOptions>({
 const subject = computed(() => subjectDistributionData.value?.subject.name ?? '')
 
 const possibleComponents = computed(() => {
-  const components = subjectDistributionData?.value?.specific;
+  const components = subjectDistributionData.value?.specific;
   const generalDefaults = {
     _id: {
       _id: 'all',
       name: 'Todas as matérias',
     },
   };
-  const general = Object.assign(generalDefaults, subjectDistributionData?.value?.general);
+  const general = Object.assign(generalDefaults, subjectDistributionData.value?.general);
   // @ts-ignore Nullable case
   components?.push(general);
 
@@ -114,7 +114,7 @@ function updateFilter() {
     );
   }
 
-  const gradesFiltered = filter?.distribution.map(grade => ({
+  const conceitosFiltered = filter?.distribution.map(grade => ({
     name: grade.conceito,
     y: grade.count,
     color: resolveColorForConcept(grade.conceito)
@@ -127,12 +127,12 @@ function updateFilter() {
     series: [
     {
       name: 'Conceito',
-      data: gradesFiltered,
+      data: conceitosFiltered,
     },
   ],
     plotOptions: {
       pie: {
-        colors: gradesFiltered?.map(grade => grade.color)
+        colors: conceitosFiltered?.map(grade => grade.color)
       }
     }
   }
