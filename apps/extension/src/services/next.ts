@@ -32,6 +32,7 @@ export type Distribution = {
 
 type SubjectDetailedReview = {
   _id: {
+    _id: string;
     mainTeacher: string;
   }
   distribution: Array<Distribution>
@@ -46,6 +47,7 @@ type SubjectDetailedReview = {
     name: string;
     alias: string[] | null
   }
+  weight: number;
 }
 
 type TeacherDetailedReview = {
@@ -184,7 +186,7 @@ export async function getComponents() {
 }
 
 export async function getKicksInfo(kickId: string, studentId?: number) {
-  const kicksData = await nextService(`/entities/components/${kickId}/kicks?studentId=${557736}`)
+  const kicksData = await nextService(`/entities/components/${kickId}/kicks?studentId=${studentId}`)
   return kicksData;
 }
 
@@ -241,7 +243,7 @@ export async function updateStudent({
 ) {
   const headers = new Headers();
 
-  headers.set('sessionId', sessionId)
+  headers.set('session-id', sessionId)
 
   const updatedStudent = await nextService<UpdatedStudent>('/entities/students', {
     method: 'PUT',
