@@ -46,33 +46,6 @@ export async function fetchGrades() {
   }
 }
 
-export async function getUFStudent(ra: string) {
-  const cachedNTIStudent = await storage.getItem<NTIStudent>(
-    `session:${CACHE_KEY}`
-  );
-
-  if (cachedNTIStudent) {
-    return cachedNTIStudent;
-  }
-
-  try {
-    const student = await ofetch<NTIStudent>(
-      `${import.meta.env.VITE_UFABC_SIG_NTI_URL}?funcao=2&valor=${ra}`
-    );
-    await storage.setItem(`session:${CACHE_KEY}`, student);
-    return student;
-  } catch (error) {
-    if (error instanceof FetchError) {
-      console.log({
-        msg: "A problem has ocurred when fetching, please try again",
-        error: error.message,
-      });
-      errorToast.showToast();
-    }
-    errorToast.showToast();
-    throw error;
-  }
-}
 
 export async function fetchClasses() {
   const sigURL = new URL(document.location.href);
