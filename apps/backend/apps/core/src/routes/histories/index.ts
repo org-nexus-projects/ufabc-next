@@ -168,6 +168,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       }
 
       if (history) {
+        historyCache.set(cacheKey, history);
         await app.job.dispatch('UserEnrollmentsUpdate', history);
       }
 
