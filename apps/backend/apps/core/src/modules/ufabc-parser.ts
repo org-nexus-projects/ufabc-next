@@ -238,12 +238,14 @@ export async function getEnrolledStudents() {
   return enrolled;
 }
 
-export async function getComponentsFile(link: string) {
+export async function getComponentsFile(season: string, kind: string) {
   const componentsFile = await ufabcParserService<UFProcessorComponentFile[]>(
-    '/componentsFile',
+    '/v2/matriculas/components/file',
     {
       query: {
-        link,
+        season,
+        granted: false,
+        kind,
       },
     },
   );
@@ -258,7 +260,7 @@ export async function getComponentsV2(season: string) {
       query: {
         season,
         granted: true,
-        kind:'settlement'
+        kind: 'settlement',
       },
     },
   );

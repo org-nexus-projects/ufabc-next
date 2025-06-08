@@ -26,6 +26,7 @@ async function isStudent(this: FastifyRequest, reply: FastifyReply) {
 
 function verifyAccess(this: FastifyRequest, reply: FastifyReply, role: string) {
   if (!this.user?.permissions.includes(role)) {
+    this.log.info({ user: this.user }, 'where for fuck sake');
     reply.status(403).send('You are not authorized to access this resource.');
   }
 }

@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import {
+  getComponentsFile,
   getComponentsV2,
   getEnrolledStudents,
   getEnrollments,
@@ -180,8 +181,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     },
     async (request, reply) => {
       const { season, hash, ignoreErrors } = request.body;
-      const componentsWithTeachers = await getComponentsV2(season);
-
+      const componentsWithTeachers = await getComponentsFile(
+        season,
+        'settlement',
+      );
       const teacherCache = new Map();
       const errors: string[] = [];
 
@@ -190,7 +193,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           return null;
         }
 
-        const normalizedName = name.toLowerCase()
+        const normalizedName = name
+          .toLowerCase()
           .normalize('NFD')
           .replace(/[\u0300-\u036f]/g, '');
         if (teacherCache.has(normalizedName)) {
@@ -203,7 +207,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             msg: 'Teacher not found',
             originalName: name,
             normalizedName,
-          })
+          });
           errors.push(name);
           teacherCache.set(normalizedName, null);
           return null;
@@ -211,8 +215,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
         if (!teacher.alias.includes(normalizedName)) {
           await TeacherModel.findByIdAndUpdate(teacher._id, {
-            $addToSet: { 
-              alias: [normalizedName, name.toLowerCase()]
+            $addToSet: {
+              alias: [normalizedName, name.toLowerCase()],
             },
           });
         }
@@ -229,7 +233,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             );
           }
 
-         const [teoria, pratica] = await Promise.all([
+          const [teoria, pratica] = await Promise.all([
             findTeacher(component.teachers?.professor),
             findTeacher(component.teachers?.practice),
           ]);
@@ -240,8 +244,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             codigo: component.UFComponentCode,
             disciplina: component.name,
             campus: component.campus,
-            turma: component.class,
-            turno: component.shift === 'morning' ? 'diurno' : 'noturno',
+            turma: component.turma,
+            turno: component.turno,
             vagas: component.vacancies,
             teoria,
             pratica,

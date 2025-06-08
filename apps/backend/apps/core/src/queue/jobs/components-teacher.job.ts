@@ -1,19 +1,19 @@
 import { ComponentModel } from '@/models/Component.js';
 import type { QueueContext } from '../types.js';
 
-type ComponentTeacher = { 
-  disciplina_id: number; 
-  codigo: string; 
-  disciplina: string; 
-  campus: "sa" | "sbc"; 
-  turma: string; 
-  turno: string; 
-  vagas: number; 
-  teoria: any; 
-  pratica: any; 
+type ComponentTeacher = {
+  disciplina_id: number | '-';
+  codigo: string;
+  disciplina: string;
+  campus: 'sa' | 'sbc';
+  turma: string;
+  turno: string;
+  vagas: number;
+  teoria: any;
+  pratica: any;
   season: string;
   UFClassroomCode: string;
-}
+};
 
 export async function processComponentsTeachers(
   ctx: QueueContext<ComponentTeacher>,
@@ -21,8 +21,7 @@ export async function processComponentsTeachers(
   const { data: component } = ctx.job;
 
   try {
-
-   const searchCriteria = {
+    const searchCriteria = {
       turma: component.turma,
       campus: component.campus,
       turno: component.turno,
@@ -30,10 +29,17 @@ export async function processComponentsTeachers(
     };
 
     // Se disciplina_id existir, busca por disciplina_id, senão busca pelo searchCriteria
-    //@ts-ignore
-    const query = component.disciplina_id != '-'
-      ? { season: component.season, disciplina_id: component.disciplina_id }
-      : { season: component.season, ...searchCriteria };
+    const query =
+      String(component.disciplina_id) !== '-'
+        ? { season: component.season, disciplina_id: component.disciplina_id }
+        : { season: component.season, ...searchCriteria };
+
+    ctx.app.log.info(
+      {
+        query,
+      },
+      'Searching for match with',
+    );
 
     const result = await ComponentModel.findOneAndUpdate(
       query,
