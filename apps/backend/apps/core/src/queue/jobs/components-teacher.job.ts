@@ -21,21 +21,32 @@ export async function processComponentsTeachers(
   const { data: component } = ctx.job;
 
   try {
+
+   const searchCriteria = {
+      turma: component.turma,
+      campus: component.campus,
+      turno: component.turno,
+      codigo: component.codigo,
+    };
+
+    // Se disciplina_id existir, busca por disciplina_id, senão busca pelo searchCriteria
+    //@ts-ignore
+    const query = component.disciplina_id != '-'
+      ? { season: component.season, disciplina_id: component.disciplina_id }
+      : { season: component.season, ...searchCriteria };
+
     const result = await ComponentModel.findOneAndUpdate(
-      {
-        season: component.season,
-        disciplina_id: component.disciplina_id,
-      },
+      query,
       {
         $set: {
           teoria: component.teoria,
           pratica: component.pratica,
-          // we will be using UFCompositeKey for better lookup
-          uf_cod_turma: component.UFClassroomCode
+          uf_cod_turma: component.UFClassroomCode,
         },
       },
       { new: true, upsert: true },
     );
+
     ctx.app.log.info({
       msg: 'Component processed',
       disciplina: component.disciplina,

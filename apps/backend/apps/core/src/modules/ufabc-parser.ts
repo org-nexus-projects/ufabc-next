@@ -253,10 +253,12 @@ export async function getComponentsFile(link: string) {
 
 export async function getComponentsV2(season: string) {
   const components = await ufabcParserService<UfabcParserComponentV2[]>(
-    '/v2/components',
+    '/v2/matriculas/components/file',
     {
       query: {
         season,
+        granted: true,
+        kind:'settlement'
       },
     },
   );
