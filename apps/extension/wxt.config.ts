@@ -26,6 +26,7 @@ export default defineConfig({
 			}),
 		],
 	}),
+  outDir: 'dist',
   dev: {
     server: {
       port: 3002,

@@ -27,3 +27,5 @@ web-ext.config.ts
 .env
 auto-imports.d.ts
 components.d.ts
+
+dist/**
