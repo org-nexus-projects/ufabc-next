@@ -21,7 +21,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     '/enrollments',
     {
       schema: syncEnrollmentsSchema,
-      // preHandler: (request, reply) => request.isAdmin(reply),
+      preHandler: (request, reply) => request.isAdmin(reply),
     },
     async (request, reply) => {
       const { hash, season, kind } = request.body;
@@ -190,7 +190,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           return null;
         }
 
-        const normalizedName = name.toLowerCase()
+        const normalizedName = name
+          .toLowerCase()
           .normalize('NFD')
           .replace(/[\u0300-\u036f]/g, '');
         if (teacherCache.has(normalizedName)) {
@@ -203,7 +204,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             msg: 'Teacher not found',
             originalName: name,
             normalizedName,
-          })
+          });
           errors.push(name);
           teacherCache.set(normalizedName, null);
           return null;
@@ -211,8 +212,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
         if (!teacher.alias.includes(normalizedName)) {
           await TeacherModel.findByIdAndUpdate(teacher._id, {
-            $addToSet: { 
-              alias: [normalizedName, name.toLowerCase()]
+            $addToSet: {
+              alias: [normalizedName, name.toLowerCase()],
             },
           });
         }
@@ -229,7 +230,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             );
           }
 
-         const [teoria, pratica] = await Promise.all([
+          const [teoria, pratica] = await Promise.all([
             findTeacher(component.teachers?.professor),
             findTeacher(component.teachers?.practice),
           ]);
