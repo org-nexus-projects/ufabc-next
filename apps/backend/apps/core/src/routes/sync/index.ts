@@ -17,6 +17,13 @@ export type StudentEnrollment = Component & {
   nome: string;
 };
 
+type SyncError = {
+  original: string;
+  parserError: string[];
+  metadata?: any;
+  type: 'MATCHING_FAILED' | 'MISSING_MANDATORY_FIELDS' | 'TEACHER_NOT_FOUND';
+};
+
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.post(
     '/enrollments',
@@ -28,12 +35,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const { hash, season, kind } = request.body;
       const [tenantYear, tenantQuad] = season.split(':');
       const MANDATORY_FIELDS = ['shift', 'campus', 'class', 'code'];
-      const errors: Array<{
-        original: string;
-        parserError: string[];
-        metadata?: any;
-        type: 'MATCHING_FAILED' | 'MISSING_MANDATORY_FIELDS';
-      }> = [];
+      const errors: Array<SyncError> = [];
       const componentsIterator = ComponentModel.find({
         season,
       })
@@ -177,7 +179,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     '/components',
     {
       schema: syncComponentsSchema,
-      preHandler: (request, reply) => request.isAdmin(reply),
+      // preHandler: (request, reply) => request.isAdmin(reply),
     },
     async (request, reply) => {
       const { season, hash, ignoreErrors } = request.body;
@@ -185,8 +187,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         season,
         'settlement',
       );
+
       const teacherCache = new Map();
-      const errors: string[] = [];
+      const errors: Array<SyncError> = [];
 
       const findTeacher = async (name: string | undefined) => {
         if (!name) {
@@ -208,7 +211,12 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             originalName: name,
             normalizedName,
           });
-          errors.push(name);
+          errors.push({
+            original: name,
+            parserError: ['Teacher not found in database'],
+            metadata: { normalizedName },
+            type: 'TEACHER_NOT_FOUND',
+          });
           teacherCache.set(normalizedName, null);
           return null;
         }
@@ -225,28 +233,50 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         return teacher._id;
       };
 
-      const componentsWithTeachersPromises = componentsWithTeachers.map(
-        async (component) => {
-          if (!component.name) {
-            errors.push(
-              `Missing required field for component: ${component.UFComponentCode || 'Unknown'}`,
-            );
-          }
+      const componentsIterator = ComponentModel.find({
+        season,
+      })
+        .lean()
+        .cursor();
 
+      const dbComponents = new Map<string, Component>();
+      for await (const component of componentsIterator) {
+        const constructedClassroomCode = `${component.turno.slice(0, 1).toUpperCase()}${component.turma}${component.codigo}${component.campus.slice(0, 2).toUpperCase()}`;
+        component.uf_cod_turma = constructedClassroomCode;
+        dbComponents.set(constructedClassroomCode, component);
+      }
+
+      const componentsWithTeachersPromises = componentsWithTeachers.map(
+        async (c) => {
           const [teoria, pratica] = await Promise.all([
-            findTeacher(component.teachers?.professor),
-            findTeacher(component.teachers?.practice),
+            findTeacher(c.teachers?.professor),
+            findTeacher(c.teachers?.practice),
           ]);
 
+          const dbComponent = dbComponents.get(c.UFClassroomCode);
+          if (!dbComponent) {
+            errors.push({
+              original: c.name,
+              parserError: ['Component not found in database'],
+              metadata: {
+                componentKey: c.UFClassroomCode,
+                componentId: c.UFComponentId,
+                debug: c,
+              },
+              type: 'MATCHING_FAILED',
+            });
+            return null;
+          }
+
           return {
-            disciplina_id: component.UFComponentId,
-            UFClassroomCode: component.UFClassroomCode,
-            codigo: component.UFComponentCode,
-            disciplina: component.name,
-            campus: component.campus,
-            turma: component.turma,
-            turno: component.turno,
-            vagas: component.vacancies,
+            disciplina_id: c.UFComponentId,
+            UFClassroomCode: c.UFClassroomCode,
+            codigo: c.UFComponentCode,
+            disciplina: c.name,
+            campus: c.campus,
+            turma: c.turma,
+            turno: c.turno,
+            vagas: c.vacancies,
             teoria,
             pratica,
             season,
@@ -254,15 +284,29 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         },
       );
 
-      const components = await Promise.all(componentsWithTeachersPromises);
+      const components = (
+        await Promise.all(componentsWithTeachersPromises)
+      ).filter(Boolean);
 
-      // Handle teacher errors if not ignored
       if (!ignoreErrors && errors.length > 0) {
-        const errorsSet = [...new Set(errors)];
+        const teacherErrors = errors.filter(
+          (e) => e.type === 'TEACHER_NOT_FOUND',
+        );
+        const matchingErrors = errors.filter(
+          (e) => e.type === 'MATCHING_FAILED',
+        );
+
         return reply.status(403).send({
-          msg: 'Missing professors while parsing',
-          names: errorsSet,
-          size: errorsSet.length,
+          msg: 'Errors found while verifying components',
+          errors: {
+            missingTeachers: [...new Set(teacherErrors.map((e) => e.original))],
+            unmatchedComponents: matchingErrors,
+          },
+          totalErrors: errors.length,
+          breakdown: {
+            teacherErrors: teacherErrors.length,
+            matchingErrors: matchingErrors.length,
+          },
         });
       }
 
@@ -273,29 +317,15 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       if (componentHash !== hash) {
         return {
           hash: componentHash,
-          errors: [...new Set(errors)],
+          errors,
           total: components.length,
           payload: components,
         };
       }
 
-      const componentsJobs = components.map(async (component) => {
-        try {
-          await app.job.dispatch('ComponentsTeachersSync', component);
-        } catch (error) {
-          request.log.error({
-            error: error instanceof Error ? error.message : String(error),
-            component,
-            msg: 'Failed to dispatch component processing job',
-          });
-        }
-      });
-
-      await Promise.all(componentsJobs);
-
       return reply.send({
-        published: true,
-        msg: 'Dispatched Components Job',
+        verified: true,
+        msg: 'All components verified successfully',
         totalComponents: components.length,
       });
     },
