@@ -117,26 +117,4 @@ export const sigHistorySchema = {
     login: z.string(),
     ra: z.coerce.number(),
   }),
-  response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: z.object({
-            msg: z.string(),
-          }),
-        },
-      },
-    },
-    400: {
-      content: {
-        'application/json': {
-          schema: z.object({
-            msg: z.string(),
-            fields: z.string().array(),
-            issues: z.string().array(),
-          }),
-        },
-      },
-    },
-  },
 } satisfies FastifyZodOpenApiSchema;

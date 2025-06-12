@@ -5,7 +5,7 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - ./scripts/docker/mongo/initdb.d:/docker-entrypoint-initdb.d:ro
+      # - ./scripts/docker/mongo/initdb.d:/docker-entrypoint-initdb.d:ro
       - next-db-data:/data/db/
 
   next-redis:

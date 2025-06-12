@@ -1,18 +1,30 @@
-import { ComponentModel } from '@/models/Component.js';
+import { ComponentModel, type Component } from '@/models/Component.js';
 import type { QueueContext } from '../types.js';
+import type { FilterQuery } from 'mongoose';
 
 type ComponentTeacher = {
-  disciplina_id: number | '-';
+  disciplina_id: string | number;
+  subject: any;
+  kind?: string;
+  type?: string;
   codigo: string;
+  uf_cod_turma: string;
   disciplina: string;
-  campus: 'sa' | 'sbc';
+  campus: 'sbc' | 'sa';
   turma: string;
-  turno: string;
+  turno: 'diurno' | 'noturno';
   vagas: number;
+  ideal_quad: boolean;
+  season: string;
   teoria: any;
   pratica: any;
-  season: string;
-  UFClassroomCode: string;
+  year: number;
+  quad: number;
+  obrigatorias: never[] | number[];
+  after_kick: never[];
+  before_kick: never[];
+  alunos_matriculados: never[];
+  identifier?: string;
 };
 
 export async function processComponentsTeachers(
@@ -29,14 +41,24 @@ export async function processComponentsTeachers(
     };
 
     // Se disciplina_id existir, busca por disciplina_id, senão busca pelo searchCriteria
-    const query =
-      String(component.disciplina_id) !== '-'
-        ? { season: component.season, disciplina_id: component.disciplina_id }
-        : { season: component.season, ...searchCriteria };
+    let query: FilterQuery<Component> = { season: component.season };
+
+    if (component.uf_cod_turma) {
+      query = { ...query, uf_cod_turma: component.uf_cod_turma };
+    } else if (String(component.disciplina_id) !== '-') {
+      query = { ...query, disciplina_id: component.disciplina_id };
+    } else {
+      query = { ...query, ...searchCriteria };
+    }
 
     ctx.app.log.info(
       {
         query,
+        strategy: component.UFClassroomCode
+          ? 'uf_cod_turma'
+          : String(component.disciplina_id) !== '-'
+            ? 'disciplina_id'
+            : 'searchCriteria',
       },
       'Searching for match with',
     );

@@ -53,6 +53,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const { student, components, graduations, coefficients } =
         parsedHistory.data;
 
+      return {
+        data: parsedHistory.data,
+      };
       let history: HistoryDocument | null = await HistoryModel.findOne({
         ra: student.ra,
       });
@@ -109,35 +112,35 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           grade: graduations.grade,
         });
       } else if (history) {
-  history = await HistoryModel.findOneAndUpdate(
-    {
-      $or: [
-        // Busca exata pelo curso normalizado
-        { curso: student.course },
-        // Busca parcial pelo curso (case insensitive)
-        { curso: { $regex: student.course, $options: 'i' } },
-        // Busca por palavras individuais do curso
-        {
-          curso: {
-            $regex: student.course
-              .split(/\s+/)
-              .map((word) => `(?=.*${word})`)
-              .join(''),
-            $options: 'i',
+        history = await HistoryModel.findOneAndUpdate(
+          {
+            $or: [
+              // Busca exata pelo curso normalizado
+              { curso: student.course },
+              // Busca parcial pelo curso (case insensitive)
+              { curso: { $regex: student.course, $options: 'i' } },
+              // Busca por palavras individuais do curso
+              {
+                curso: {
+                  $regex: student.course
+                    .split(/\s+/)
+                    .map((word) => `(?=.*${word})`)
+                    .join(''),
+                  $options: 'i',
+                },
+              },
+            ],
+            ra: student.ra,
           },
-        },
-      ],
-      ra: student.ra,
-    },
-    {
-      $set: {
-        disciplinas: componentsToInsert,
-        grade: graduations.grade,
-      },
-    },
-    { new: true },
-  );
-}
+          {
+            $set: {
+              disciplinas: componentsToInsert,
+              grade: graduations.grade,
+            },
+          },
+          { new: true },
+        );
+      }
 
       app.log.debug({
         student: student.ra,

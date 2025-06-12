@@ -10,7 +10,7 @@ const CAMPUS = ['sao bernardo', 'santo andre', 'sbc', 'sa'] as const;
 
 const componentSchema = new Schema(
   {
-    disciplina_id: { type: Number, required: true },
+    disciplina_id: { type: Number, required: false, default: null },
     disciplina: { type: String, required: true },
     turno: { type: String, required: true, enum: ['diurno', 'noturno'] },
     turma: { type: String, required: true },
@@ -19,10 +19,10 @@ const componentSchema = new Schema(
     codigo: { type: String, required: true },
     campus: { type: String, enum: CAMPUS, required: true },
     ideal_quad: { type: Boolean, default: false, required: true },
-    uf_cod_turma: { type: String, required: true },
+    uf_cod_turma: { type: String, required: true, default: null },
     identifier: {
       type: String,
-      required: true,
+      required: false,
     },
     // lista de alunos matriculados no momento
     alunos_matriculados: {
