@@ -7,6 +7,7 @@ export type ConceptData = {
   cr_medio: number;
   cr_professor?: number;
   count: number;
+  eadCount: number;
   amount: number;
   numeric: number;
   numericWeight: number;
@@ -27,6 +28,7 @@ export type TeacherReviewSubject = {
   numeric: number;
   amount: number;
   count: number;
+  eadCount: number;
   cr_professor: number;
   cr_medio: number;
 };
@@ -38,14 +40,17 @@ export type TeacherReview = {
     updatedAt: string;
     createdAt: string;
     __v: number;
+    alias?: string[];
   };
   general: {
     cr_medio: number;
     cr_professor: number;
     count: number;
+    eadCount: number;
     amount: number;
     numeric: number;
     numericWeight: number;
+    weight: number;
     distribution: ConceptData[];
   };
   specific: TeacherReviewSubject[];

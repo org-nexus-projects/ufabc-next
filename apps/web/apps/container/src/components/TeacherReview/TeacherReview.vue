@@ -27,7 +27,7 @@
             :style="`${xs && 'margin: 0 -24px'}`"
           >
             <ConceptsPieChart
-              :key="`chart-${selectedSubject}`"
+              :key="`chart-${selectedSubject}-${eadFilter}`"
               :grades="grades"
             ></ConceptsPieChart>
           </div>
@@ -43,6 +43,7 @@
             :teacherId="teacherId"
             :selectedSubject="selectedSubject"
             @update:selectedSubject="selectedSubject = $event"
+            @update:eadFilter="eadFilter = $event"
           />
         </v-col>
       </v-row>
@@ -77,6 +78,7 @@ import { ConceptsPieChart } from '@/components/ConceptsPieChart';
 import { CenteredLoading } from '@/components/CenteredLoading';
 import { PaperCard } from '@/components/PaperCard';
 import { CommentsList } from '@/components/CommentsList';
+import { TeacherReview, TeacherReviewSubject } from 'types';
 
 const props = defineProps({
   teacherId: { type: String, required: true },
@@ -87,6 +89,7 @@ const teacherId = computed(() => props.teacherId);
 const { xs } = useDisplay();
 
 const selectedSubject = ref<string>('Todas as matérias');
+const eadFilter = ref(false);
 
 const {
   data: teacherData,
@@ -99,6 +102,23 @@ const {
   enabled: !!teacherId.value,
 });
 
+function calculateGradeCount(
+  eadFilter: boolean,
+  generalSubjects: TeacherReview['general'],
+  isAllSubjects: boolean,
+  specificSubject?: TeacherReviewSubject,
+) {
+  if (eadFilter) {
+    const specificCount = specificSubject?.count ?? 0;
+    const specificEadCount = specificSubject?.eadCount ?? 0;
+    return isAllSubjects
+      ? generalSubjects.count - generalSubjects.eadCount
+      : specificCount - specificEadCount;
+  } else {
+    return isAllSubjects ? generalSubjects.count : specificSubject?.count;
+  }
+}
+
 const chips = computed(() => {
   if (!teacherData.value?.data) {
     return [];
@@ -110,6 +130,14 @@ const chips = computed(() => {
   );
   const toPlural = (value?: number) => (value == 1 ? '' : 's');
   const isAllSubjects = selectedSubject.value === 'Todas as matérias';
+
+  const gradeCount = calculateGradeCount(
+    eadFilter.value,
+    general,
+    isAllSubjects,
+    specificValidSelected,
+  );
+
   return [
     {
       value: specificValid.length,
@@ -117,7 +145,7 @@ const chips = computed(() => {
       icon: 'mdi-human-male-board',
     },
     {
-      value: isAllSubjects ? general.count : specificValidSelected?.count,
+      value: gradeCount,
       text: isAllSubjects
         ? `conceito${toPlural(general.count)}`
         : `conceito${toPlural(specificValidSelected?.count)}`,
@@ -131,12 +159,16 @@ const grades = computed(() => {
   if (selectedSubject.value === 'Todas as matérias') {
     return transformConceptDataToObject(
       teacherData.value.data.general.distribution,
+      eadFilter.value,
     );
   }
   const data = teacherData.value.data.specific
     .filter((subject) => subject._id)
     .find((subject) => subject._id.name === selectedSubject.value);
-  return transformConceptDataToObject(data?.distribution || []);
+  return transformConceptDataToObject(
+    data?.distribution || [],
+    eadFilter.value,
+  );
 });
 
 const demandsAttendance = computed(() => {

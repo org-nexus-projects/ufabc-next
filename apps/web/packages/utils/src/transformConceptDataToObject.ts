@@ -1,9 +1,16 @@
 import { ConceptData } from 'types';
 
-export const transformConceptDataToObject = (grades: ConceptData[]) => {
+export const transformConceptDataToObject = (
+  grades: ConceptData[],
+  eadFilter: boolean,
+) => {
   const result: Record<string, number> = {};
   grades.forEach((grade) => {
-    result[grade.conceito] = grade.count;
+    if (eadFilter) {
+      result[grade.conceito] = grade.count - grade.eadCount;
+    } else {
+      result[grade.conceito] = grade.count;
+    }
   });
   const ordered = Object.keys(result)
     .sort()
