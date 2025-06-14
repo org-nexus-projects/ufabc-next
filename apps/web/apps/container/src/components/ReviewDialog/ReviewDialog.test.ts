@@ -131,9 +131,36 @@ describe('<ReviewDialog />', () => {
         props: {
           enrollment: {
             ...enrollment,
-            _id: undefined,
-            teoria: {},
-            pratica: {},
+            _id: '31312312313',
+            teoria: {
+              _id: 'teoria-id',
+              name: 'Teoria',
+              updatedAt: new Date().toISOString(),
+              createdAt: new Date().toISOString(),
+              __v: 0,
+              comment: {
+                _id: 'comment-id',
+                comment: userCreateComment.comment,
+                createdAt: new Date().toISOString(),
+                enrollment: enrollment._id,
+                reactionsCount: { like: 0, recommendation: 0 },
+                subject: 'subject-id',
+                teacher: 'teacher-id',
+                updatedAt: new Date().toISOString(),
+                viewers: 20,
+                type: 'teoria',
+                ra: '123456789',
+                active: true,
+                __v: 0,
+              },
+            },
+            pratica: {
+              _id: 'pratica-id',
+              name: 'Prática',
+              updatedAt: new Date().toISOString(),
+              createdAt: new Date().toISOString(),
+              __v: 0,
+            },
             ...commentAvaliable.reduce(
               (acc, comment) => ({
                 ...acc,

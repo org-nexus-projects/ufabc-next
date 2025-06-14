@@ -18,7 +18,11 @@ describe('<SingleComment />', () => {
       props: {
         comment: {
           ...comments.data[0],
-          myReactions: {},
+          myReactions: {
+            like: false,
+            recommendation: false,
+            star: false,
+          },
           reactionsCount: {
             like: 50,
             recommendation: 150,
@@ -167,6 +171,7 @@ describe('<SingleComment />', () => {
           myReactions: {
             like: true,
             recommendation: true,
+            star: false,
           },
           reactionsCount: {
             like: 50,

@@ -34,12 +34,15 @@ const handleEmailError = computed(() => {
     return 'Um Erro inesperado ocorreu, tente novamente';
   }
 
-  if (fetchEmailError.value.response.status === 400) {
-    return fetchEmailError.value.response.data.message
+  // crime here
+  const error = fetchEmailError.value as any;
+
+  if (error.response?.status === 400) {
+    return error.response.data.message
   }
 
-  if (fetchEmailError.value.response.status === 403) {
-    return fetchEmailError.value.response.data.message
+  if (error.response?.status === 403) {
+    return error.response.data.message
   }
 
   return 'Um Erro inesperado ocorreu, tente novamente'
