@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { authStore } from 'stores';
-// import NextClassView from '@/views/Partners/NextClass/NextClassView.vue';
 const ReviewsView = () => import('@/views/Reviews/ReviewsView.vue');
 const PerformanceView = () => import('@/views/Performance/PerformanceView.vue');
 const PlanningView = () => import('@/views/Planning/PlanningView.vue');
@@ -12,8 +11,8 @@ const SignUpView = () => import('@/views/SignUp/SignUpView.vue');
 const ConfirmationView = () =>
   import('@/views/Confirmation/ConfirmationView.vue');
 const RecoveryView = () => import('@/views/Recovery/RecoveryView.vue');
-const CalengradeView = () => import('@/views/Calengrade/CalengradeView.vue');
 const FacebookView = () => import('@/views/Facebook/FacebookView.vue');
+const CalengradeView = () => import('@/views/Calengrade/CalengradeView.vue');
 
 const isJWT = (token: string) =>
   /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/=]*$/.test(token);
@@ -115,6 +114,7 @@ const routes: Array<RouteRecordRaw> = [
     component: CalengradeView,
     meta: {
       title: 'Calengrade',
+      auth: true,
     },
   },
   {
@@ -126,16 +126,6 @@ const routes: Array<RouteRecordRaw> = [
       auth: false,
     },
   },
-  // {
-  //   path: '/partners',
-  //   name: 'Next Class Noc',
-  //   component: NextClassView,
-  //   meta: {
-  //     title: 'Next Class Noc',
-  //     auth: false,
-  //     confirmed: true,
-  //   },
-  // },
   {
     path: '/:pathMatch(.*)*',
     redirect: (to) => {
@@ -157,7 +147,7 @@ const routes: Array<RouteRecordRaw> = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(process.env.VUE_APP_BASE_URL),
+  history: createWebHistory(import.meta.env.VITE_APP_BASE_URL),
   routes,
 });
 
@@ -197,7 +187,7 @@ router.beforeEach(async (to, _from, next) => {
 
   const userConfirmed = user?.confirmed;
 
-  const isLocal = process.env.VUE_APP_MF_ENV === 'local';
+  const isLocal = import.meta.env.VITE_APP_ENV === 'local';
 
   const notConfirmedRedirectPath = '/signup';
   const authenticatedRedirectPath = '/reviews';

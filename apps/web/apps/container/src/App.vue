@@ -2,12 +2,8 @@
   <VueQueryDevtools v-if="isLocal" />
   <AppBar>
     <v-main style="background-color: #f5f5f5">
-      <v-container
-        id="app-container"
-        :style="`min-height: calc(100vh${
-          confirmedUser ? '- 64px' : ''
-        }); min-height: calc(100svh${confirmedUser ? '- 64px' : ''})`"
-      >
+      <v-container id="app-container" :style="`min-height: calc(100vh${confirmedUser ? '- 64px' : ''
+        }); min-height: calc(100svh${confirmedUser ? '- 64px' : ''})`">
         <router-view />
       </v-container>
     </v-main>
@@ -21,7 +17,7 @@ import create from 'vue-zustand';
 import { ElMessage } from 'element-plus';
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools';
 
-const isLocal = process.env.VUE_APP_MF_ENV === 'local';
+const isLocal = import.meta.env.VITE_APP_ENV === 'local';
 
 import { AppBar } from '@/layouts/AppBar';
 
@@ -43,9 +39,11 @@ onMounted(async () => {
 * {
   font-family: Lato, sans-serif;
 }
+
 html {
   font-family: Lato, sans-serif;
 }
+
 #app {
   font-family: Lato, sans-serif;
 }

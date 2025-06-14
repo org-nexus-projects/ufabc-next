@@ -2,8 +2,7 @@
 import { ref, computed, watch } from 'vue';
 import { useMutation, useQuery } from '@tanstack/vue-query';
 import { Users } from 'services';
-import { z } from 'zod';
-
+import { recoverySchema } from './recoveryValidationSchema'
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm, useField } from 'vee-validate';
 import { useRouter } from 'vue-router';
@@ -13,45 +12,7 @@ const router = useRouter();
 
 const redirectToHome = () => (window.location.pathname = '/');
 
-const validationSchema = toTypedSchema(
-  z
-    .object({
-      email: z
-        .string({
-          required_error: 'Este campo é obrigatório',
-          invalid_type_error: 'Digite um email UFABC válido',
-        })
-        .refine((email) => /^\S+$/.test(email), 'Não digite espaços em branco'),
-      ra: z
-        .object({
-          ra: z
-            .string({
-              required_error: 'Este campo é obrigatório',
-              invalid_type_error: 'Digite um RA válido',
-            })
-            .regex(/^\d+$/, {
-              message: 'Insira apenas números',
-            })
-            .refine(
-              (ra) => ra.length >= 8,
-              'O campo RA deve conter pelo menos 8 dígitos.',
-            ),
-          confirm: z.string({
-            required_error: 'Este campo é obrigatório',
-            invalid_type_error: 'Digite um RA válido',
-          }),
-        })
-        .superRefine((val, ctx) => {
-          if (val.ra !== val.confirm) {
-            ctx.addIssue({
-              code: 'custom',
-              message: 'Os campos RA devem ser iguais',
-              path: ['confirm'],
-            });
-          }
-        }),
-    })
-);
+const validationSchema = toTypedSchema(recoverySchema as any);
 
 const { handleSubmit, meta } = useForm({
   validationSchema,
@@ -72,13 +33,16 @@ const handleEmailError = computed(() => {
   if (!fetchEmailError.value) {
     return 'Um Erro inesperado ocorreu, tente novamente';
   }
-  
-  if (fetchEmailError.value.response.status === 400) {
-    return fetchEmailError.value.response.data.message
+
+  // crime here
+  const error = fetchEmailError.value as any;
+
+  if (error.response?.status === 400) {
+    return error.response.data.message
   }
 
-  if (fetchEmailError.value.response.status === 403) {
-    return fetchEmailError.value.response.data.message
+  if (error.response?.status === 403) {
+    return error.response.data.message
   }
 
   return 'Um Erro inesperado ocorreu, tente novamente'
@@ -148,7 +112,8 @@ const onSubmit = handleSubmit(({ email }) =>
               prepend-inner-icon="mdi-email" :error-messages="email.errorMessage.value" readonly />
 
             <div class="d-flex">
-              <v-btn :disabled="isFetchEmailLoading || isPendingSubmit" class="mr-2" rounded size="large" @click="router.go(-1)">
+              <v-btn :disabled="isFetchEmailLoading || isPendingSubmit" class="mr-2" rounded size="large"
+                @click="router.go(-1)">
                 <v-icon class="mr-1">mdi-arrow-left</v-icon> Anterior
               </v-btn>
               <v-btn color="#4a90e2" type="submit" rounded size="large" :loading="isPendingSubmit"

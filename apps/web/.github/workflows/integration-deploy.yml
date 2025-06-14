@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
-          node-version: 20.8
+          node-version: 20.9
           cache: 'yarn'
 
       - name: install dependencies
@@ -44,7 +44,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v4
         with:
-          node-version: 20.8
+          node-version: 20.9
       - uses: shinyinc/action-aws-cli@v1.2
 
       - name: install dependencies
@@ -55,9 +55,6 @@ jobs:
 
       - name: sync static with s3
         run: aws s3 sync apps/static s3://$AWS_S3_BUCKET_NAME
-
-      - name: sync react with s3
-        run: aws s3 sync apps/react/dist s3://$AWS_S3_BUCKET_NAME/react
 
       - name: sync container with s3
         run: aws s3 sync apps/container/dist s3://$AWS_S3_BUCKET_NAME/app

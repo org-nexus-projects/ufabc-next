@@ -2,7 +2,7 @@ import { ConceptData } from 'types';
 
 export const transformConceptDataToObject = (
   grades: ConceptData[],
-  eadFilter: boolean,
+  eadFilter?: boolean,
 ) => {
   const result: Record<string, number> = {};
   grades.forEach((grade) => {

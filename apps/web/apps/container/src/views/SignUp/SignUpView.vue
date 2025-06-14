@@ -67,7 +67,7 @@
             <v-text-field v-model.trim="email.value.value" :loading="isFetchEmailLoading" :disabled="true"
               label="Email institucional" variant="solo" class="mb-4 w-100" placeholder="joao.silva"
               prepend-inner-icon="mdi-email" :error-messages="email.errorMessage.value" readonly />
-              
+
             <v-checkbox v-model="check.value.value" :error-messages="check.errorMessage.value" class="align-self-start">
               <template #label>
                 <span>
@@ -112,7 +112,7 @@
                     " :loading="isPendingResendEmail" aria-label="Reenviar email de confirmação">
                   <v-icon class="mr-2">{{
                     enableResendEmail ? 'mdi-email' : 'mdi-check-circle'
-                    }}</v-icon>
+                  }}</v-icon>
                   {{ enableResendEmail ? 'Reenviar email' : 'Email reenviado' }}
                 </v-btn>
               </v-col>
@@ -153,8 +153,8 @@
 import { ref, watch, computed } from 'vue';
 import { useMutation, useQuery } from '@tanstack/vue-query';
 import { Users } from 'services';
-import { z } from 'zod';
 import { toTypedSchema } from '@vee-validate/zod';
+import { SignUpSchema } from './signUpValidationSchema';
 import { useForm, useField } from 'vee-validate';
 import { AxiosError } from 'axios';
 import { RequestError } from 'types';
@@ -177,51 +177,7 @@ const handleAccountType = (type: string) => {
   step.value = 2;
 };
 
-const validationSchema = toTypedSchema(
-  z
-    .object({
-      email: z
-        .string({
-          required_error: 'Este campo é obrigatório',
-          invalid_type_error: 'Digite um email UFABC válido',
-        })
-        .refine((email) => /^\S+$/.test(email), 'Não digite espaços em branco'),
-      ra: z
-        .object({
-          ra: z
-            .string({
-              required_error: 'Este campo é obrigatório',
-              invalid_type_error: 'Digite um RA válido',
-            })
-            .regex(/^\d+$/, {
-              message: 'Insira apenas números',
-            })
-            .refine(
-              (ra) => ra.length >= 8,
-              'O campo RA deve conter pelo menos 8 dígitos.',
-            ),
-          confirm: z.string({
-            required_error: 'Este campo é obrigatório',
-            invalid_type_error: 'Digite um RA válido',
-          }),
-        })
-        .superRefine((val, ctx) => {
-          if (val.ra !== val.confirm) {
-            ctx.addIssue({
-              code: 'custom',
-              message: 'Os campos RA devem ser iguais',
-              path: ['confirm'],
-            });
-          }
-        }),
-      check: z.boolean(),
-    })
-    .superRefine((val, ctx) => {
-      if (!val.check) {
-        ctx.addIssue({ code: 'custom' });
-      }
-    }),
-);
+const validationSchema = toTypedSchema(SignUpSchema as any);
 
 const { handleSubmit, meta, setValues } = useForm({
   validationSchema,
@@ -261,12 +217,17 @@ const { refetch: fetchEmail, isLoading: isFetchEmailLoading, data: verifiedEmail
 });
 
 const handleEmailError = computed(() => {
-  if (fetchEmailError.value.response.status === 400) {
-    return fetchEmailError.value.response.data.message
+  const error = fetchEmailError.value as AxiosError<RequestError>;
+  if (!error?.response) {
+    return 'Um Erro inesperado ocorreu, tente novamente'
   }
 
-  if (fetchEmailError.value.response.status === 403) {
-    return fetchEmailError.value.response.data.message
+  if (error?.response.status === 400) {
+    return error.response.data.message
+  }
+
+  if (error?.status === 403) {
+    return error.response.data.message
   }
 
   return 'Um Erro inesperado ocorreu, tente novamente'

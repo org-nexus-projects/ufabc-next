@@ -7,7 +7,7 @@ describe('<PerformanceCard />', () => {
       props: {
         title: 'title',
         description: 'description',
-        subtitle: 'subtitle',
+        subTitle: 'subtitle',
         color: 'primary',
         icon: 'mdi-trophy-outline',
       },

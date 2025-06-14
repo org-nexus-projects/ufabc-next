@@ -9,7 +9,7 @@ const resolveEndpoint = (env?: string) =>
   })[env!] || 'http://localhost:5000';
 
 export const api = axios.create({
-  baseURL: resolveEndpoint(process.env.VUE_APP_MF_ENV),
+  baseURL: resolveEndpoint(import.meta.env.VITE_APP_ENV),
 });
 
 api.interceptors.request.use(async (config) => {

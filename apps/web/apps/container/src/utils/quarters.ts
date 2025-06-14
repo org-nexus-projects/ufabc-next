@@ -1,4 +1,6 @@
-export const definedQuarters = [
+import { Quarter } from '@/views/Calengrade/types';
+
+export const definedQuarters: Quarter[] = [
   {
     title: 'Definir datas manualmente',
     startDate: '2025-02-10',

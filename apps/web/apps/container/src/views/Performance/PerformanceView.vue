@@ -14,8 +14,9 @@
       <Chart :options="crHistoryOptions" />
     </PaperCard>
     <PaperCard class="w-100 mt-4">
-      <v-select :items="cpHistoryData" :item-title="(course) => course.curso" :item-value="(course) => course"
-        v-model="currentCpCourse" variant="outlined" class="course-select" />
+      <v-select :items="cpHistoryData" :item-title="(course: CourseInformation) => course.curso"
+        :item-value="(course: CourseInformation) => course" v-model="currentCpCourse" variant="outlined"
+        class="course-select" />
       <Chart :options="cpHistoryOptions" />
     </PaperCard>
     <PaperCard class="w-100 mt-4">

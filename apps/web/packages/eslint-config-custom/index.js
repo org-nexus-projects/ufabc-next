@@ -1,6 +1,7 @@
 module.exports = {
-  extends: ['turbo', 'prettier'],
+  extends: ['prettier'],
   parserOptions: {
+    ecmaVersion: 2015,
     sourceType: 'module',
   },
   env: {

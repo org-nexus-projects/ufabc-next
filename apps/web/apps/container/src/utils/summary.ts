@@ -1,4 +1,4 @@
-import { Classes } from '../context/CalengradeContext';
+import { Classes } from '../views/Calengrade/types';
 
 const CLASSES_CODES_REGES = /[A-Z0-9]{7}[-][0-9]{2}/gi;
 const TITLE_REGEX = /(?<=[\d-]\s-\s)(.+?)(?=\s\w{1,2}-|$)/gi;
