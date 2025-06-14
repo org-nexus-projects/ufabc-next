@@ -15,25 +15,43 @@ const PUBLIC_ROUTES = [
   '/help/forms',
   '/users/recover',
   '/users/validate',
-  '/sync',
 ];
 
 const EXTENSION_ROUTES = [
   '/entities/students/sig',
   '/histories',
+  '/histories/sigaa',
   '/entities/students',
 ];
 
-const isPublicRoute = (url: string): boolean => {
-  return PUBLIC_ROUTES.some((route) => url.startsWith(route));
+const getPathSegments = (url: string) => {
+  const path = new URL(url, 'http://dummy').pathname; // parsing robusto
+  return path.split('/').filter(Boolean);
 };
 
-const isExtensionRoute = (url: string) => {
-  return EXTENSION_ROUTES.some((route) => url.startsWith(route));
+const isExactRoute = (url: string, routeList: string[]): boolean => {
+  const urlSegments = getPathSegments(url);
+
+  return routeList.some((route) => {
+    const routeSegments = getPathSegments(route);
+    return (
+      urlSegments.length === routeSegments.length &&
+      routeSegments.every((seg, idx) => seg === urlSegments[idx])
+    );
+  });
+};
+
+const isPublicRoute = (url: string): boolean => {
+  return isExactRoute(url, PUBLIC_ROUTES);
+};
+
+const isExtensionRoute = (url: string): boolean => {
+  return isExactRoute(url, EXTENSION_ROUTES);
 };
 
 export default async function (app: FastifyInstance) {
   app.decorateRequest('sessionId');
+
   app.addHook('onRequest', async (request, reply) => {
     const isPublic = isPublicRoute(request.url);
     const isExtension = isExtensionRoute(request.url);
@@ -53,6 +71,7 @@ export default async function (app: FastifyInstance) {
       }
     }
 
+    // Rotas privadas exigem JWT
     try {
       await request.jwtVerify();
     } catch (error) {
