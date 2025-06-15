@@ -113,138 +113,6 @@ export async function processComponentEnrollment(
     });
     throw error;
   }
-
-  const campus =
-    component.turma.slice(-2).toUpperCase() === 'SA' ? 'SA' : 'SBC';
-  const turno =
-    component.turma.slice(0, 1).toUpperCase() === 'N' ? 'noturno' : 'diurno';
-
-  const matchingClassComponent = await ComponentModel.findOne({
-    uf_cod_turma: component.turma,
-  }).lean();
-
-  const coef = getLastPeriod(
-    history.coefficients,
-    component.ano,
-    Number.parseInt(component.periodo),
-  );
-
-  let enrollmentBuilder: Partial<Enrollment>;
-
-  if (matchingClassComponent) {
-    ctx.app.log.info('using match class component');
-    enrollmentBuilder = {
-      ra: history.ra,
-      year: component.ano,
-      quad: Number(component.periodo),
-
-      disciplina: component.disciplina,
-      disciplina_id: matchingClassComponent.disciplina_id,
-      conceito: component.conceito,
-      creditos: component.creditos,
-
-      cr_acumulado: coef?.cr_acumulado ?? null,
-      ca_acumulado: coef?.ca_acumulado ?? null,
-      cp_acumulado: coef?.cp_acumulado ?? null,
-
-      campus: matchingClassComponent.campus,
-      turma: matchingClassComponent.turma,
-      turno: matchingClassComponent.turno,
-      pratica: matchingClassComponent.pratica,
-      teoria: matchingClassComponent.teoria,
-      subject: matchingClassComponent.subject,
-      season: `${component.ano}:${component.periodo}`,
-    };
-  } else {
-    // Fallback to subject search only if no component found
-    ctx.app.log.info('using subject match for sync');
-    const normalizedDisciplina = normalizeText(component.disciplina);
-    const subjects = await SubjectModel.find({
-      $or: [
-        // Exact match on normalized name
-        { search: normalizedDisciplina },
-        // Partial match on normalized name
-        { search: { $regex: normalizedDisciplina, $options: 'i' } },
-        // Match individual words
-        {
-          search: {
-            $regex: normalizedDisciplina
-              .split(/\s+/)
-              .map((word) => `(?=.*${word})`)
-              .join(''),
-            $options: 'i',
-          },
-        },
-        // Original name matching
-        { name: { $regex: component.disciplina, $options: 'i' } },
-      ],
-      creditos: component.creditos,
-    }).lean<SubjectDocument[]>();
-
-    if (!subjects.length) {
-      ctx.app.log.warn({
-        msg: 'Subject matching failed',
-        original: component.disciplina,
-        normalized: normalizedDisciplina,
-        creditos: component.creditos,
-        ra: history.ra,
-      });
-      return;
-    }
-
-    const [mappedEnrollment] = mapSubjects(
-      {
-        ra: history.ra,
-        year: component.ano,
-        quad: Number(component.periodo),
-        disciplina: component.disciplina,
-        conceito: component.conceito,
-        creditos: component.creditos,
-        campus,
-        turma: component.turma,
-        turno,
-        cr_acumulado: coef?.cr_acumulado ?? null,
-        ca_acumulado: coef?.ca_acumulado ?? null,
-        cp_acumulado: coef?.cp_acumulado ?? null,
-        season: `${component.ano}:${component.periodo}`,
-      },
-      subjects,
-    );
-
-    if (!mappedEnrollment) {
-      ctx.app.log.warn(
-        { component, history },
-        'Very very bad could not match history',
-      );
-      return;
-    }
-    enrollmentBuilder = mappedEnrollment;
-  }
-
-  try {
-    const enrollment = await EnrollmentModel.findOneAndUpdate(
-      {
-        ra: history.ra,
-      },
-      { $set: enrollmentBuilder },
-      { new: true, upsert: true },
-    );
-
-    ctx.app.log.debug({
-      msg: 'Enrollment processed successfully',
-      enrollmentId: enrollment?.identifier,
-      ra: enrollment?.ra,
-      disciplina: enrollment?.disciplina,
-    });
-  } catch (error) {
-    ctx.app.log.error({
-      error: error instanceof Error ? error.message : String(error),
-      component: component.disciplina,
-      ra: history.ra,
-      msg: 'Failed to update enrollment',
-    });
-    throw error;
-  }
 }
 
 function getLastPeriod(
@@ -437,6 +305,7 @@ async function buildEnrollmentData(
   // Try to match with existing component first
   const matchingComponent = await ComponentModel.findOne({
     uf_cod_turma: component.turma,
+    season: baseEnrollmentData.season,
   }).lean();
 
   if (matchingComponent) {
@@ -452,7 +321,17 @@ async function buildEnrollmentData(
     };
   }
 
-  log.info('Using subject match for sync');
+  log.info(
+    {
+      msg: 'No matching class component found, using subject match',
+      disciplina: component.disciplina,
+      ra: history.ra,
+      turma: component.turma,
+      creditos: component.creditos,
+      season: baseEnrollmentData.season,
+    },
+    'Using subject match for sync',
+  );
   return buildEnrollmentFromSubject({ ...baseEnrollmentData }, component, log);
 }
 
@@ -511,8 +390,38 @@ async function upsertEnrollment(
   enrollmentData: Partial<Enrollment>,
   log: QueueContext['app']['log'],
 ): Promise<void> {
+  // @ts-ignore - for now, we assume enrollmentData is always valid
+  const normalizedDisciplina = normalizeText(enrollmentData.disciplina);
+
+  const query = {
+    ra: enrollmentData.ra,
+    season: enrollmentData.season,
+    $or: [
+      // old way to match by disciplina and turma
+      { disciplina: enrollmentData.disciplina },
+      // new way to match by uf_cod_turma
+      { uf_cod_turma: enrollmentData.uf_cod_turma },
+      // match by subject if available
+      { subject: enrollmentData.subject },
+      // match by disciplina_id if available
+      { disciplina_id: enrollmentData.disciplina_id },
+      // match by variations of disciplina
+      { disciplina: normalizedDisciplina },
+      { disciplina: { $regex: normalizedDisciplina, $options: 'i' } },
+      {
+        disciplina: {
+          $regex: normalizedDisciplina
+            .split(/\s+/)
+            .map((word) => `(?=.*${word})`)
+            .join(''),
+          $options: 'i',
+        },
+      },
+    ],
+  };
+
   const enrollment = await EnrollmentModel.findOneAndUpdate(
-    { ra: enrollmentData.ra },
+    query,
     { $set: enrollmentData },
     { new: true, upsert: true },
   );
@@ -531,7 +440,7 @@ function isValidHistory(history: History | undefined): history is History {
 }
 
 function getCampusFromTurma(turma: string): string {
-  return turma.slice(-2).toUpperCase() === 'SA' ? 'SA' : 'SBC';
+  return turma.slice(-2).toUpperCase() === 'SA' ? 'sa' : 'sbc';
 }
 
 function getTurnoFromTurma(turma: string): string {
