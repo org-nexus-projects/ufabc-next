@@ -11,7 +11,6 @@ import { TeacherModel } from '@/models/Teacher.js';
 import { ComponentModel, type Component } from '@/models/Component.js';
 import { syncEnrolledSchema } from '@/schemas/sync/enrolled.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import { SubjectModel } from '@/models/Subject.js';
 
 export type StudentEnrollment = Component & {
   ra: number;
@@ -21,6 +20,7 @@ export type StudentEnrollment = Component & {
 type SyncError = {
   original: string;
   parserError: string[];
+  // biome-ignore lint/suspicious/noExplicitAny: metadata can be any type
   metadata?: any;
   type: 'MATCHING_FAILED' | 'MISSING_MANDATORY_FIELDS' | 'TEACHER_NOT_FOUND';
 };
@@ -45,8 +45,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       const components = new Map<string, Component>();
       for await (const component of componentsIterator) {
-        const key = `${component.codigo}:${component.campus}:${component.turno}:${component.turma}`;
-        components.set(key, component);
+        components.set(component.uf_cod_turma, component);
       }
 
       const rawEnrollments = await getEnrollments(kind, season);
@@ -82,15 +81,12 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             continue;
           }
 
-          const componentKey = `${studentClass.code}:${studentClass.campus}:${
-            studentClass.shift === 'night' ? 'noturno' : 'diurno'
-          }:${studentClass.class}`;
-          const component = components.get(componentKey);
+          const component = components.get(studentClass.original);
 
           if (!component) {
             app.log.warn(
               {
-                componentKey,
+                search: studentClass.original,
               },
               'could not find matching component via criteria',
             );
@@ -99,7 +95,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
               original: studentClass.original,
               parserError: studentClass.errors,
               metadata: {
-                componentKey,
+                componentKey: studentClass.original,
                 data: studentClass.name,
               },
               type: 'MATCHING_FAILED',
@@ -200,6 +196,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         const normalizedName = name
           .toLowerCase()
           .normalize('NFD')
+          // biome-ignore lint/suspicious/noMisleadingCharacterClass:
           .replace(/[\u0300-\u036f]/g, '');
 
         if (teacherCache.has(normalizedName)) {
@@ -286,6 +283,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             obrigatorias: dbComponent?.obrigatorias || [],
             quad: Number(season.split(':')[1]),
             year: Number(season.split(':')[0]),
+            // not a problem
+            // @ts-ignore
             subject: dbComponent?.subject._id || null,
             groupURL: null,
           };
