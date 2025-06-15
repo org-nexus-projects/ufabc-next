@@ -2,30 +2,7 @@ import { ComponentModel, type Component } from '@/models/Component.js';
 import type { QueueContext } from '../types.js';
 import type { FilterQuery } from 'mongoose';
 
-type ComponentTeacher = {
-  disciplina_id: string | number;
-  subject: any;
-  kind?: string;
-  type?: string;
-  codigo: string;
-  uf_cod_turma: string;
-  disciplina: string;
-  campus: 'sbc' | 'sa';
-  turma: string;
-  turno: 'diurno' | 'noturno';
-  vagas: number;
-  ideal_quad: boolean;
-  season: string;
-  teoria: any;
-  pratica: any;
-  year: number;
-  quad: number;
-  obrigatorias: never[] | number[];
-  after_kick: never[];
-  before_kick: never[];
-  alunos_matriculados: never[];
-  identifier?: string;
-};
+type ComponentTeacher = {};
 
 export async function processComponentsTeachers(
   ctx: QueueContext<ComponentTeacher>,

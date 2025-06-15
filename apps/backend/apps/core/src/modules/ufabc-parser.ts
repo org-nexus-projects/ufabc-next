@@ -256,7 +256,7 @@ export async function getComponentsFile(season: string, kind: string) {
 
 export async function getComponentsV2(season: string) {
   const components = await ufabcParserService<UfabcParserComponentV2[]>(
-    '/v2/matriculas/components/file',
+    '/v2/components',
     {
       query: {
         season,
