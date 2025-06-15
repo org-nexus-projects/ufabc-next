@@ -428,6 +428,10 @@ async function buildEnrollmentData(
     ca_acumulado: coef?.ca_acumulado ?? null,
     cp_acumulado: coef?.cp_acumulado ?? null,
     season: `${component.ano}:${component.periodo}`,
+    kind: null,
+    syncedBy: 'extension',
+    campus,
+    turno,
   };
 
   // Try to match with existing component first
@@ -440,21 +444,16 @@ async function buildEnrollmentData(
     return {
       ...baseEnrollmentData,
       disciplina_id: matchingComponent.disciplina_id,
-      campus: matchingComponent.campus,
       turma: matchingComponent.turma,
-      turno: matchingComponent.turno,
       pratica: matchingComponent.pratica,
       teoria: matchingComponent.teoria,
       subject: matchingComponent.subject,
+      uf_cod_turma: matchingComponent.uf_cod_turma,
     };
   }
 
   log.info('Using subject match for sync');
-  return buildEnrollmentFromSubject(
-    { ...baseEnrollmentData, campus, turma: component.turma, turno },
-    component,
-    log,
-  );
+  return buildEnrollmentFromSubject({ ...baseEnrollmentData }, component, log);
 }
 
 async function buildEnrollmentFromSubject(
@@ -494,6 +493,11 @@ async function buildEnrollmentFromSubject(
   }
 
   const [mappedEnrollment] = mapSubjects(baseData, subjects);
+  // regex to retrieve the turma.
+  const turma = baseData.turma?.match(/^[A-Z0-9]+/i)?.[0] ?? '';
+  const UFClassroomCode = `${baseData.turno?.slice(0, 1).toUpperCase()}${turma.toUpperCase()}${component.codigo}${baseData.campus?.slice(0, 2)}`;
+
+  mappedEnrollment.uf_cod_turma = UFClassroomCode;
 
   if (!mappedEnrollment) {
     log.warn({ component, baseData }, 'Could not match history to subject');

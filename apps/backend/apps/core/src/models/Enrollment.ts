@@ -54,6 +54,11 @@ const enrollmentSchema = new Schema(
       type: String,
       enum: ['ajuste', 'reajuste'],
     },
+    uf_cod_turma: {
+      type: String,
+      required: false,
+      default: null,
+    },
     // vem do portal
     conceito: String,
     creditos: Number,
