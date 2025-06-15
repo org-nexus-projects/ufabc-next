@@ -1,5 +1,4 @@
-import type { FilterQuery } from 'mongoose';
-import { calculateCoefficients, generateIdentifier } from '@next/common';
+import { calculateCoefficients } from '@next/common';
 import {
   GraduationModel,
   type GraduationDocument,
@@ -7,7 +6,7 @@ import {
 import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
 import { SubjectModel, type SubjectDocument } from '@/models/Subject.js';
 import { EnrollmentModel, type Enrollment } from '@/models/Enrollment.js';
-import { ComponentModel, type Component } from '@/models/Component.js';
+import { ComponentModel } from '@/models/Component.js';
 import {
   type History,
   type HistoryCoefficients,
@@ -18,97 +17,56 @@ import type { QueueContext } from '../types.js';
 
 type HistoryComponent = History['disciplinas'][number];
 
+type ProcessComponentData = {
+  history: {
+    ra: number;
+    coefficients: HistoryCoefficients;
+  };
+  component: HistoryComponent;
+};
+
+// Main job handler for processing user enrollment history
 export async function userEnrollmentsUpdate(
   ctx: QueueContext<History | undefined>,
 ) {
   const history = ctx.job.data;
 
-  if (!history || !history.disciplinas) {
+  if (!isValidHistory(history)) {
+    const invalidHistoryError = new Error(
+      'Invalid history structure or missing required fields',
+      {
+        cause: history,
+      },
+    );
     ctx.app.log.warn({
-      msg: 'No history data found or no disciplines to process',
-      job_data_debug: ctx.job,
+      msg: 'Invalid history data provided',
+      job_data_debug: ctx.job.data,
     });
-    return;
+    // move to retry
+    throw invalidHistoryError;
   }
 
   const { disciplinas: components, ra, curso, grade } = history;
 
-  let graduation: GraduationDocument | null = null;
-  if (curso && grade) {
-    ctx.app.log.info({ curso, grade }, 'Finding graduation');
-    graduation = await GraduationModel.findOne({
-      curso,
-      grade,
-    });
-  }
-
-  // @ts-ignore for now
-  const coefficients = calculateCoefficients<HistoryComponent>(
-    components,
-    graduation,
-  ) as HistoryCoefficients;
-
   try {
-    await HistoryModel.findOneAndUpdate(
-      { ra, grade, curso },
-      {
-        $set: {
-          curso,
-          grade,
-          ra,
-          coefficients,
-          disciplinas: components,
-          graduation: graduation?._id ?? null,
-        },
-      },
-    );
-    await GraduationHistoryModel.findOneAndUpdate(
-      {
-        curso,
-        grade,
-        ra,
-      },
-      {
-        $set: {
-          curso,
-          grade,
-          ra,
-          coefficients,
-          disciplinas: components,
-          graduation: graduation?._id ?? null,
-        },
-      },
-      { upsert: true },
-    );
+    const graduation = await findGraduation(curso, grade, ctx.app.log);
+    const coefficients = calculateHistoryCoefficients(components, graduation);
 
-    const enrollmentJobs = components.map(async (component) => {
-      try {
-        await ctx.app.job.dispatch('ProcessComponentsEnrollments', {
-          history: {
-            ra,
-            coefficients,
-          },
-          component,
-        });
-      } catch (error) {
-        ctx.app.log.error({
-          error: error instanceof Error ? error.message : String(error),
-          component: component.disciplina,
-          ra: history.ra,
-          msg: 'Failed to dispatch enrollment processing job',
-        });
-        throw error;
-      }
+    await updateHistoryRecords(history, coefficients, graduation);
+    await dispatchEnrollmentJobs(components, { ra, coefficients }, ctx.app);
+
+    ctx.app.log.info({
+      msg: 'Student history processed successfully',
+      ra,
+      componentsCount: components.length,
     });
-
-    await Promise.all(enrollmentJobs);
   } catch (error) {
     ctx.app.log.error({
       error: error instanceof Error ? error.message : String(error),
       ra: history.ra,
       msg: 'Failed to process student history',
     });
-    throw error; // Let BullMQ handle the retry
+    throw error;
   }
 }
 
@@ -119,15 +77,43 @@ export async function userEnrollmentsUpdate(
 //          -> sync matriculas deferidas (double check)
 
 export async function processComponentEnrollment(
-  ctx: QueueContext<{
-    history: {
-      ra: number;
-      coefficients: HistoryCoefficients;
-    };
-    component: HistoryComponent;
-  }>,
+  ctx: QueueContext<ProcessComponentData>,
 ) {
   const { history, component } = ctx.job.data;
+
+  try {
+    const enrollmentData = await buildEnrollmentData(
+      history,
+      component,
+      ctx.app.log,
+    );
+
+    if (!enrollmentData) {
+      ctx.app.log.warn({
+        msg: 'Could not build enrollment data',
+        ra: history.ra,
+        disciplina: component.disciplina,
+      });
+      return;
+    }
+
+    await upsertEnrollment(enrollmentData, ctx.app.log);
+
+    ctx.app.log.debug({
+      msg: 'Component enrollment processed successfully',
+      ra: history.ra,
+      disciplina: component.disciplina,
+    });
+  } catch (error) {
+    ctx.app.log.error({
+      error: error instanceof Error ? error.message : String(error),
+      component: component.disciplina,
+      ra: history.ra,
+      msg: 'Failed to process component enrollment',
+    });
+    throw error;
+  }
+
   const campus =
     component.turma.slice(-2).toUpperCase() === 'SA' ? 'SA' : 'SBC';
   const turno =
@@ -270,53 +256,29 @@ function getLastPeriod(
   const firstYear = Object.keys(coefficients)[0];
   const firstMonth = Object.keys(coefficients[Number(firstYear)])[0];
 
-  begin = `${firstYear}.${firstMonth}`;
+  const beginValue = begin ?? `${firstYear}.${firstMonth}`;
 
-  if (quad === 1) {
-    quad = 3;
-    year -= 1;
-  } else if (quad === 2 || quad === 3) {
-    quad -= 1;
+  let localYear = year;
+  let localQuad = quad;
+
+  if (localQuad === 1) {
+    localQuad = 3;
+    localYear -= 1;
+  } else if (localQuad === 2 || localQuad === 3) {
+    localQuad -= 1;
   }
 
-  if (begin > `${year}.${quad}`) {
+  if (beginValue > `${localYear}.${localQuad}`) {
     return null;
   }
 
   // @ts-ignore for now
-  const resp = coefficients?.[year]?.[quad] ?? null;
+  const resp = coefficients?.[localYear]?.[localQuad] ?? null;
   if (resp == null) {
-    return getLastPeriod(coefficients, year, quad, begin);
+    return getLastPeriod(coefficients, localYear, localQuad, begin);
   }
 
   return resp;
-}
-
-function parseComponentCode(classCode: string) {
-  // Handles formats:
-  // - NA11BIS0005-15SA (BIS0005-15 stays together)
-  // - NB4BCS0001-15SA
-  // - DA1MCTA025-13SA
-  // - NA3BCN0402- (edge case with trailing hyphen, no campus suffix)
-  const regexPattern =
-    /^([NDM])([A-Z](?:\d{1,2})?)([A-Z0-9]+-(?:\d{2})?)([SA-B]{2})?$/;
-
-  const match = classCode.match(regexPattern);
-
-  if (!match) {
-    logger.error({ classCode }, "Couldn't parse code");
-    throw new Error('Could not parse code', { cause: classCode });
-  }
-
-  const [_, shift, className, UFCode, campus] = match;
-
-  return {
-    shift,
-    className,
-    UFCode,
-    campus: campus ?? null,
-    fullCode: classCode,
-  };
 }
 
 function mapSubjects(
@@ -366,4 +328,208 @@ function normalizeText(text: string): string {
       .replace(/[^a-z0-9\s]/g, ' ')
       .trim()
   );
+}
+
+async function findGraduation(
+  curso: string | undefined,
+  grade: string | undefined,
+  log: QueueContext['app']['log'],
+): Promise<GraduationDocument | null> {
+  if (!curso || !grade) {
+    return null;
+  }
+
+  log.info({ curso, grade }, 'Finding graduation');
+  return GraduationModel.findOne({ curso, grade });
+}
+
+function calculateHistoryCoefficients(
+  components: HistoryComponent[],
+  graduation: GraduationDocument | null,
+) {
+  // @ts-ignore for now - maintaining original behavior
+  return calculateCoefficients<HistoryComponent>(
+    components,
+    graduation,
+  ) as HistoryCoefficients;
+}
+
+async function updateHistoryRecords(
+  history: History,
+  coefficients: HistoryCoefficients,
+  graduation: GraduationDocument | null,
+): Promise<void> {
+  const { ra, curso, grade, disciplinas: components } = history;
+  const updateData = {
+    curso,
+    grade,
+    ra,
+    coefficients,
+    disciplinas: components,
+    graduation: graduation?._id ?? null,
+  };
+
+  await Promise.all([
+    HistoryModel.findOneAndUpdate({ ra, grade, curso }, { $set: updateData }),
+    GraduationHistoryModel.findOneAndUpdate(
+      { curso, grade, ra },
+      { $set: updateData },
+      { upsert: true },
+    ),
+  ]);
+}
+
+async function dispatchEnrollmentJobs(
+  components: HistoryComponent[],
+  historyData: { ra: number; coefficients: HistoryCoefficients },
+  app: QueueContext['app'],
+): Promise<void> {
+  const dispatchPromises = components.map(async (component) => {
+    try {
+      await app.job.dispatch('ProcessComponentsEnrollments', {
+        history: historyData,
+        component,
+      });
+    } catch (error) {
+      app.log.error({
+        error: error instanceof Error ? error.message : String(error),
+        component: component.disciplina,
+        ra: historyData.ra,
+        msg: 'Failed to dispatch enrollment processing job',
+      });
+      throw error;
+    }
+  });
+
+  await Promise.all(dispatchPromises);
+}
+
+async function buildEnrollmentData(
+  history: { ra: number; coefficients: HistoryCoefficients },
+  component: HistoryComponent,
+  log: QueueContext['app']['log'],
+) {
+  const campus = getCampusFromTurma(component.turma);
+  const turno = getTurnoFromTurma(component.turma);
+  const coef = getLastPeriod(
+    history.coefficients,
+    component.ano,
+    Number.parseInt(component.periodo),
+  );
+
+  const baseEnrollmentData: Partial<Enrollment> = {
+    ra: history.ra,
+    year: component.ano,
+    quad: Number(component.periodo),
+    disciplina: component.disciplina,
+    conceito: component.conceito,
+    creditos: component.creditos,
+    cr_acumulado: coef?.cr_acumulado,
+    ca_acumulado: coef?.ca_acumulado ?? null,
+    cp_acumulado: coef?.cp_acumulado ?? null,
+    season: `${component.ano}:${component.periodo}`,
+  };
+
+  // Try to match with existing component first
+  const matchingComponent = await ComponentModel.findOne({
+    uf_cod_turma: component.turma,
+  }).lean();
+
+  if (matchingComponent) {
+    log.info('Using matching class component');
+    return {
+      ...baseEnrollmentData,
+      disciplina_id: matchingComponent.disciplina_id,
+      campus: matchingComponent.campus,
+      turma: matchingComponent.turma,
+      turno: matchingComponent.turno,
+      pratica: matchingComponent.pratica,
+      teoria: matchingComponent.teoria,
+      subject: matchingComponent.subject,
+    };
+  }
+
+  log.info('Using subject match for sync');
+  return buildEnrollmentFromSubject(
+    { ...baseEnrollmentData, campus, turma: component.turma, turno },
+    component,
+    log,
+  );
+}
+
+async function buildEnrollmentFromSubject(
+  baseData: Partial<Enrollment>,
+  component: HistoryComponent,
+  log: QueueContext['app']['log'],
+): Promise<Partial<Enrollment> | null> {
+  const normalizedDisciplina = normalizeText(component.disciplina);
+
+  const subjects = await SubjectModel.find({
+    $or: [
+      { search: normalizedDisciplina },
+      { search: { $regex: normalizedDisciplina, $options: 'i' } },
+      {
+        search: {
+          $regex: normalizedDisciplina
+            .split(/\s+/)
+            .map((word) => `(?=.*${word})`)
+            .join(''),
+          $options: 'i',
+        },
+      },
+      { name: { $regex: component.disciplina, $options: 'i' } },
+    ],
+    creditos: component.creditos,
+  }).lean<SubjectDocument[]>();
+
+  if (!subjects.length) {
+    log.warn({
+      msg: 'Subject matching failed',
+      original: component.disciplina,
+      normalized: normalizedDisciplina,
+      creditos: component.creditos,
+      ra: baseData.ra,
+    });
+    return null;
+  }
+
+  const [mappedEnrollment] = mapSubjects(baseData, subjects);
+
+  if (!mappedEnrollment) {
+    log.warn({ component, baseData }, 'Could not match history to subject');
+    return null;
+  }
+
+  return mappedEnrollment;
+}
+
+async function upsertEnrollment(
+  enrollmentData: Partial<Enrollment>,
+  log: QueueContext['app']['log'],
+): Promise<void> {
+  const enrollment = await EnrollmentModel.findOneAndUpdate(
+    { ra: enrollmentData.ra },
+    { $set: enrollmentData },
+    { new: true, upsert: true },
+  );
+
+  log.debug({
+    msg: 'Enrollment upserted successfully',
+    enrollmentId: enrollment?.identifier,
+    ra: enrollment?.ra,
+    disciplina: enrollment?.disciplina,
+  });
+}
+
+// helpers functions
+function isValidHistory(history: History | undefined): history is History {
+  return !!(history?.disciplinas?.length && history.ra);
+}
+
+function getCampusFromTurma(turma: string): string {
+  return turma.slice(-2).toUpperCase() === 'SA' ? 'SA' : 'SBC';
+}
+
+function getTurnoFromTurma(turma: string): string {
+  return turma.slice(0, 1).toUpperCase() === 'N' ? 'noturno' : 'diurno';
 }
