@@ -265,12 +265,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
               },
               type: 'MATCHING_FAILED',
             });
-            return null;
           }
 
-          return {
-            disciplina_id: c.UFComponentId,
-            UFClassroomCode: c.UFClassroomCode,
+          const componentData: Component = {
+            disciplina_id: c.UFComponentId === '-' ? null : c.UFComponentId,
+            uf_cod_turma: c.UFClassroomCode.toUpperCase(),
             codigo: c.UFComponentCode,
             disciplina: c.name,
             campus: c.campus,
@@ -280,7 +279,18 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             teoria,
             pratica,
             season,
+            after_kick: dbComponent?.after_kick || [],
+            before_kick: dbComponent?.before_kick || [],
+            alunos_matriculados: dbComponent?.alunos_matriculados || c.enrolled,
+            ideal_quad: false,
+            obrigatorias: dbComponent?.obrigatorias || [],
+            quad: Number(season.split(':')[1]),
+            year: Number(season.split(':')[0]),
+            subject: dbComponent?.subject._id || null,
+            groupURL: null,
           };
+
+          return componentData;
         },
       );
 
@@ -323,10 +333,49 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         };
       }
 
+      // Dispatch all jobs, ignoring individual dispatch errors if ignoreErrors is true
+      const dispatchPromises = components.map(async (componentData) => {
+        try {
+          await app.job.dispatch('ComponentsTeachersSync', componentData);
+          return { success: true, component: componentData.disciplina };
+        } catch (error) {
+          const errorMsg = `Failed to dispatch component: ${componentData.disciplina}`;
+          if (ignoreErrors) {
+            request.log.warn({
+              error: error instanceof Error ? error.message : String(error),
+              component: componentData.disciplina,
+              msg: `${errorMsg} (ignored)`,
+            });
+            return {
+              success: false,
+              component: componentData.disciplina,
+              ignored: true,
+            };
+          }
+
+          request.log.error({
+            error: error instanceof Error ? error.message : String(error),
+            component: componentData.disciplina,
+            msg: errorMsg,
+          });
+          throw error;
+        }
+      });
+
+      const dispatchResults = await Promise.all(dispatchPromises);
+      const successfulDispatches = dispatchResults.filter(
+        (r) => r.success,
+      ).length;
+      const ignoredErrors = dispatchResults.filter(
+        (r) => !r.success && r.ignored,
+      ).length;
+
       return reply.send({
-        verified: true,
-        msg: 'All components verified successfully',
+        dispatched: true,
+        msg: 'Component teacher sync jobs dispatched',
         totalComponents: components.length,
+        successfulDispatches,
+        ignoredErrors: ignoreErrors ? ignoredErrors : 0,
       });
     },
   );
