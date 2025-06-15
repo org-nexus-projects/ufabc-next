@@ -128,35 +128,14 @@ export async function processComponentEnrollment(
   }>,
 ) {
   const { history, component } = ctx.job.data;
-
-  const compositeKeyHashKeys = ['ra', 'year', 'quad', 'disciplina'] as const;
-  const compositeKeyHashValues = {
-    ra: history.ra,
-    year: component.ano,
-    quad: Number(component.periodo),
-    disciplina: component.disciplina,
-  };
-
-  const {
-    UFCode,
-    className,
-    shift,
-    campus: classCampus,
-  } = parseComponentCode(component.turma);
   const campus =
-    component.turma.slice(-2).toLowerCase() === 'sb' ? 'sbc' : 'sa';
-  const turno = shift.toLowerCase() === 'n' ? 'noturno' : 'diurno';
+    component.turma.slice(-2).toUpperCase() === 'SA' ? 'SA' : 'SBC';
+  const turno =
+    component.turma.slice(0, 1).toUpperCase() === 'N' ? 'noturno' : 'diurno';
 
-  const searchCriteria = {
-    codigo: component.codigo ?? UFCode,
-    campus: campus ?? classCampus,
-    turno,
-    turma: className,
-    season: `${compositeKeyHashValues.year}:${compositeKeyHashValues.quad}`,
-  } satisfies FilterQuery<Component>;
-
-  const matchingClassComponent =
-    await ComponentModel.findOne(searchCriteria).lean();
+  const matchingClassComponent = await ComponentModel.findOne({
+    uf_cod_turma: component.turma,
+  }).lean();
 
   const coef = getLastPeriod(
     history.coefficients,
@@ -170,8 +149,8 @@ export async function processComponentEnrollment(
     ctx.app.log.info('using match class component');
     enrollmentBuilder = {
       ra: history.ra,
-      year: compositeKeyHashValues.year,
-      quad: compositeKeyHashValues.quad,
+      year: component.ano,
+      quad: Number(component.periodo),
 
       disciplina: component.disciplina,
       disciplina_id: matchingClassComponent.disciplina_id,
@@ -188,11 +167,7 @@ export async function processComponentEnrollment(
       pratica: matchingClassComponent.pratica,
       teoria: matchingClassComponent.teoria,
       subject: matchingClassComponent.subject,
-
-      identifier:
-        component.identifier ??
-        generateIdentifier(compositeKeyHashValues, compositeKeyHashKeys),
-      season: `${compositeKeyHashValues.year}:${compositeKeyHashValues.quad}`,
+      season: `${component.ano}:${component.periodo}`,
     };
   } else {
     // Fallback to subject search only if no component found
@@ -234,21 +209,18 @@ export async function processComponentEnrollment(
     const [mappedEnrollment] = mapSubjects(
       {
         ra: history.ra,
-        year: compositeKeyHashValues.year,
-        quad: compositeKeyHashValues.quad,
+        year: component.ano,
+        quad: Number(component.periodo),
         disciplina: component.disciplina,
         conceito: component.conceito,
         creditos: component.creditos,
         campus,
-        turma: className,
+        turma: component.turma,
         turno,
         cr_acumulado: coef?.cr_acumulado ?? null,
         ca_acumulado: coef?.ca_acumulado ?? null,
         cp_acumulado: coef?.cp_acumulado ?? null,
-        season: `${compositeKeyHashValues.year}:${compositeKeyHashValues.quad}`,
-        identifier:
-          component.identifier ||
-          generateIdentifier(compositeKeyHashValues, compositeKeyHashKeys),
+        season: `${component.ano}:${component.periodo}`,
       },
       subjects,
     );
@@ -264,14 +236,9 @@ export async function processComponentEnrollment(
   }
 
   try {
-    // First, find all existing enrollments that might be duplicates
     const enrollment = await EnrollmentModel.findOneAndUpdate(
       {
         ra: history.ra,
-        year: component.ano,
-        quad: Number(component.periodo),
-        conceito: component.conceito,
-        disciplina: component.disciplina,
       },
       { $set: enrollmentBuilder },
       { new: true, upsert: true },
