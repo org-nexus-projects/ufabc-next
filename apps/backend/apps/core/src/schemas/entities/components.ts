@@ -21,6 +21,13 @@ const NonPaginatedComponentsSchema = z.object({
   teoriaId: z.any(), // z.coerce.string().optional().openapi({ description: 'Id interno' }),
   season: z.string().openapi({ description: 'Chave do tenant' }),
   praticaId: z.any(),
+  groupURL: z.string().optional().openapi({
+    description: 'Link do grupo de WhatsApp',
+  }),
+  uf_cod_turma: z
+    .string()
+    .optional()
+    .openapi({ description: 'Código da turma na UFABC' }),
   subjectId: z.coerce
     .string()
     .optional()

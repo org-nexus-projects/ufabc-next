@@ -80,13 +80,6 @@ function setQuarter(component: UpdateQuery<Component> | null) {
 
 componentSchema.index({ identifier: 'asc' });
 
-componentSchema.pre('findOneAndUpdate', function () {
-  const updatedComponent: UpdateQuery<Component> | null = this.getUpdate();
-  if (!updatedComponent?.season) {
-    setQuarter(updatedComponent);
-  }
-});
-
 export type Component = InferSchemaType<typeof componentSchema>;
 export type ComponentDocument = ReturnType<(typeof ComponentModel)['hydrate']>;
 

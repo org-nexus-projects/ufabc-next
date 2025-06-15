@@ -53,9 +53,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const { student, components, graduations, coefficients } =
         parsedHistory.data;
 
-      return {
-        data: parsedHistory.data,
-      };
       let history: HistoryDocument | null = await HistoryModel.findOne({
         ra: student.ra,
       });
