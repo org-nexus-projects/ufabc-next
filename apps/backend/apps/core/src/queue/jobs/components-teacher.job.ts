@@ -2,7 +2,11 @@ import { ComponentModel, type Component } from '@/models/Component.js';
 import type { QueueContext } from '../types.js';
 import { SubjectModel } from '@/models/Subject.js';
 
-type JobData = Omit<Component, 'createdAt' | 'updatedAt'>;
+// Add flag and ignoreErrors to JobData
+type JobData = Omit<Component, 'createdAt' | 'updatedAt'> & {
+  flag?: string;
+  ignoreErrors?: boolean;
+};
 
 export async function processComponentsTeachers(ctx: QueueContext<JobData>) {
   const { data: component } = ctx.job;
@@ -14,6 +18,33 @@ export async function processComponentsTeachers(ctx: QueueContext<JobData>) {
         component,
       });
       throw new Error('Invalid component data');
+    }
+
+    // If flag is 'upsert', perform upsert regardless of existence
+    if (component.flag === 'upsert') {
+      try {
+        await ComponentModel.findOneAndUpdate(
+          { uf_cod_turma: component.uf_cod_turma },
+          { $set: { ...component } },
+          { upsert: true, new: true },
+        );
+        ctx.app.log.info({
+          msg: 'Component upserted (flag: upsert)',
+          action: 'upserted',
+          uf_cod_turma: component.uf_cod_turma,
+        });
+        return;
+      } catch (error) {
+        if (component.ignoreErrors) {
+          ctx.app.log.warn({
+            msg: 'Upsert failed but ignored due to ignoreErrors',
+            error: error instanceof Error ? error.message : String(error),
+            component,
+          });
+          return;
+        }
+        throw error;
+      }
     }
 
     const result = await ComponentModel.findOneAndUpdate(

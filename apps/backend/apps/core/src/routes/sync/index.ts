@@ -11,6 +11,7 @@ import { TeacherModel } from '@/models/Teacher.js';
 import { ComponentModel, type Component } from '@/models/Component.js';
 import { syncEnrolledSchema } from '@/schemas/sync/enrolled.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+import { SubjectModel } from '@/models/Subject.js';
 
 export type StudentEnrollment = Component & {
   ra: number;
@@ -189,20 +190,13 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const errors: Array<SyncError> = [];
 
       const findTeacher = async (name: string | null) => {
-        if (!name) {
-          return null;
-        }
-
+        if (!name) return null;
         const normalizedName = name
           .toLowerCase()
           .normalize('NFD')
-          // biome-ignore lint/suspicious/noMisleadingCharacterClass:
-          .replace(/[\u0300-\u036f]/g, '');
-
-        if (teacherCache.has(normalizedName)) {
+          .replace(/\u0300-\u036f/g, '');
+        if (teacherCache.has(normalizedName))
           return teacherCache.get(normalizedName);
-        }
-
         const teacher = await TeacherModel.findByFuzzName(normalizedName);
         if (!teacher && normalizedName !== '0') {
           app.log.warn({
@@ -219,83 +213,105 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           teacherCache.set(normalizedName, null);
           return null;
         }
-
-        if (!teacher.alias.includes(normalizedName)) {
+        if (teacher && !teacher.alias.includes(normalizedName)) {
           await TeacherModel.findByIdAndUpdate(teacher._id, {
-            $addToSet: {
-              alias: [normalizedName, name.toLowerCase()],
-            },
+            $addToSet: { alias: [normalizedName, name.toLowerCase()] },
           });
         }
-
-        teacherCache.set(normalizedName, teacher._id);
-        return teacher._id;
+        teacherCache.set(normalizedName, teacher?._id ?? null);
+        return teacher?._id ?? null;
       };
 
-      const componentsIterator = ComponentModel.find({
-        season,
-      })
-        .lean()
-        .cursor();
-
-      const dbComponents = new Map<string, Component>();
-      for await (const component of componentsIterator) {
-        dbComponents.set(component.uf_cod_turma, component);
-      }
-
-      const componentsWithTeachersPromises = componentsWithTeachers.map(
-        async (c) => {
+      const components = await Promise.all(
+        componentsWithTeachers.map(async (c) => {
           const [teoria, pratica] = await Promise.all([
             findTeacher(c.teachers?.professor),
             findTeacher(c.teachers?.practice),
           ]);
-
-          const dbComponent = dbComponents.get(c.UFClassroomCode);
+          const dbComponent = await ComponentModel.findOne({
+            season,
+            $or: [
+              { uf_cod_turma: c.UFClassroomCode.toUpperCase() },
+              { uf_cod_turma: c.UFClassroomCode },
+            ],
+          }).lean();
+          let subjectId = null;
           if (!dbComponent) {
+            app.log.warn({
+              msg: 'Component not found in database',
+              uf_cod_turma: c.UFClassroomCode,
+            });
             errors.push({
-              original: c.name,
+              original: c.UFClassroomCode,
               parserError: ['Component not found in database'],
-              metadata: {
-                componentKey: c.UFClassroomCode,
-                componentId: c.UFComponentId,
-                debug: c,
-              },
               type: 'MATCHING_FAILED',
             });
+            const subject = await SubjectModel.findOne({
+              $or: [
+                { search: c.name.toLowerCase() },
+                { search: { $regex: c.name, $options: 'i' } },
+                {
+                  search: {
+                    $regex: c.name
+                      .split(/\s+/)
+                      .map((word) => `(?=.*${word})`)
+                      .join(''),
+                    $options: 'i',
+                  },
+                },
+                { name: { $regex: c.name, $options: 'i' } },
+              ],
+            }).lean();
+            if (!subject) {
+              app.log.warn({
+                msg: 'Subject not found for unmatched component',
+                component: c,
+              });
+              errors.push({
+                original: c.name,
+                parserError: ['Subject not found for unmatched component'],
+                type: 'MATCHING_FAILED',
+              });
+            }
+            subjectId = subject?._id;
+            return {
+              disciplina_id: null,
+              campus: c.campus,
+              disciplina: c.name,
+              turno: c.turno,
+              turma: c.turma,
+              uf_cod_turma: c.UFClassroomCode,
+              year: Number(season.split(':')[0]),
+              quad: Number(season.split(':')[1]),
+              codigo: c.UFComponentCode,
+              season,
+              teoria,
+              pratica,
+              subject: subjectId,
+              after_kick: [],
+              before_kick: [], // added to fix type error
+              alunos_matriculados: [],
+              obrigatorias: [],
+              ideal_quad: false,
+              vagas: c.vacancies,
+              kind: 'file' as 'file' | 'api',
+              flag: 'upsert',
+              ignoreErrors,
+            };
           }
-
-          const componentData: Component = {
-            disciplina_id: c.UFComponentId === '-' ? null : c.UFComponentId,
-            uf_cod_turma: c.UFClassroomCode.toUpperCase(),
-            codigo: c.UFComponentCode,
-            disciplina: c.name,
+          return {
+            ...dbComponent,
             campus: c.campus,
-            turma: c.turma,
+            disciplina: c.name,
             turno: c.turno,
-            vagas: c.vacancies,
+            turma: c.turma,
+            uf_cod_turma: c.UFClassroomCode,
             teoria,
             pratica,
-            season,
-            after_kick: dbComponent?.after_kick || [],
-            before_kick: dbComponent?.before_kick || [],
-            alunos_matriculados: dbComponent?.alunos_matriculados || c.enrolled,
-            ideal_quad: false,
-            obrigatorias: dbComponent?.obrigatorias || [],
-            quad: Number(season.split(':')[1]),
-            year: Number(season.split(':')[0]),
-            // not a problem
-            // @ts-ignore
-            subject: dbComponent?.subject._id || null,
-            groupURL: null,
+            ignoreErrors,
           };
-
-          return componentData;
-        },
+        }),
       );
-
-      const components = (
-        await Promise.all(componentsWithTeachersPromises)
-      ).filter(Boolean);
 
       if (!ignoreErrors && errors.length > 0) {
         const teacherErrors = errors.filter(
@@ -304,7 +320,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         const matchingErrors = errors.filter(
           (e) => e.type === 'MATCHING_FAILED',
         );
-
         return reply.status(403).send({
           msg: 'Errors found while verifying components',
           errors: {
@@ -322,7 +337,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const componentHash = createHash('md5')
         .update(JSON.stringify(components))
         .digest('hex');
-
       if (componentHash !== hash) {
         return {
           hash: componentHash,
@@ -332,7 +346,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         };
       }
 
-      // Dispatch all jobs, ignoring individual dispatch errors if ignoreErrors is true
+      // Dispatch all jobs, always passing flag and ignoreErrors
       const dispatchPromises = components.map(async (componentData) => {
         try {
           await app.job.dispatch('ComponentsTeachersSync', componentData);
@@ -351,7 +365,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
               ignored: true,
             };
           }
-
           request.log.error({
             error: error instanceof Error ? error.message : String(error),
             component: componentData.disciplina,
@@ -360,7 +373,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           throw error;
         }
       });
-
       const dispatchResults = await Promise.all(dispatchPromises);
       const successfulDispatches = dispatchResults.filter(
         (r) => r.success,
@@ -368,7 +380,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const ignoredErrors = dispatchResults.filter(
         (r) => !r.success && r.ignored,
       ).length;
-
       return reply.send({
         dispatched: true,
         msg: 'Component teacher sync jobs dispatched',

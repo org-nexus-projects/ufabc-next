@@ -1,10 +1,4 @@
-import {
-  type InferSchemaType,
-  Schema,
-  type UpdateQuery,
-  model,
-} from 'mongoose';
-import { findQuarter } from '@next/common';
+import { type InferSchemaType, Schema, model } from 'mongoose';
 
 const CAMPUS = ['sao bernardo', 'santo andre', 'sbc', 'sa'] as const;
 
@@ -63,20 +57,17 @@ const componentSchema = new Schema(
       required: false,
       default: null,
     },
+    kind: {
+      type: String,
+      enum: ['api', 'file'],
+      default: 'api',
+      required: true,
+    },
   },
   {
     timestamps: true,
   },
 );
-
-function setQuarter(component: UpdateQuery<Component> | null) {
-  const { year, quad } = findQuarter();
-  if (!component) {
-    return;
-  }
-  component.year = year;
-  component.quad = quad;
-}
 
 componentSchema.index({ identifier: 'asc' });
 
