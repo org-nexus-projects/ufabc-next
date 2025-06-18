@@ -1,21 +1,21 @@
-import { calculateCoefficients } from "@next/common";
+import { calculateCoefficients } from '@next/common';
 import {
   GraduationModel,
   type GraduationDocument,
-} from "@/models/Graduation.js";
-import { GraduationHistoryModel } from "@/models/GraduationHistory.js";
-import { SubjectModel, type SubjectDocument } from "@/models/Subject.js";
-import { EnrollmentModel, type Enrollment } from "@/models/Enrollment.js";
-import { ComponentModel } from "@/models/Component.js";
+} from '@/models/Graduation.js';
+import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
+import { SubjectModel, type SubjectDocument } from '@/models/Subject.js';
+import { EnrollmentModel, type Enrollment } from '@/models/Enrollment.js';
+import { ComponentModel } from '@/models/Component.js';
 import {
   type History,
   type HistoryCoefficients,
   HistoryModel,
-} from "@/models/History.js";
-import { logger } from "@/utils/logger.js";
-import type { QueueContext } from "../types.js";
+} from '@/models/History.js';
+import { logger } from '@/utils/logger.js';
+import type { QueueContext } from '../types.js';
 
-type HistoryComponent = History["disciplinas"][number];
+type HistoryComponent = History['disciplinas'][number];
 
 type ProcessComponentData = {
   history: {
@@ -33,13 +33,13 @@ export async function userEnrollmentsUpdate(
 
   if (!isValidHistory(history)) {
     const invalidHistoryError = new Error(
-      "Invalid history structure or missing required fields",
+      'Invalid history structure or missing required fields',
       {
         cause: history,
       },
     );
     ctx.app.log.warn({
-      msg: "Invalid history data provided",
+      msg: 'Invalid history data provided',
       job_data_debug: ctx.job.data,
     });
     // move to retry
@@ -56,7 +56,7 @@ export async function userEnrollmentsUpdate(
     await dispatchEnrollmentJobs(components, { ra, coefficients }, ctx.app);
 
     ctx.app.log.info({
-      msg: "Student history processed successfully",
+      msg: 'Student history processed successfully',
       ra,
       componentsCount: components.length,
     });
@@ -64,7 +64,7 @@ export async function userEnrollmentsUpdate(
     ctx.app.log.error({
       error: error instanceof Error ? error.message : String(error),
       ra: history.ra,
-      msg: "Failed to process student history",
+      msg: 'Failed to process student history',
     });
     throw error;
   }
@@ -90,7 +90,7 @@ export async function processComponentEnrollment(
 
     if (!enrollmentData) {
       ctx.app.log.warn({
-        msg: "Could not build enrollment data",
+        msg: 'Could not build enrollment data',
         ra: history.ra,
         disciplina: component.disciplina,
       });
@@ -100,7 +100,7 @@ export async function processComponentEnrollment(
     await upsertEnrollment(enrollmentData, ctx.app.log);
 
     ctx.app.log.debug({
-      msg: "Component enrollment processed successfully",
+      msg: 'Component enrollment processed successfully',
       ra: history.ra,
       disciplina: component.disciplina,
     });
@@ -109,14 +109,14 @@ export async function processComponentEnrollment(
       error: error instanceof Error ? error.message : String(error),
       component: component.disciplina,
       ra: history.ra,
-      msg: "Failed to process component enrollment",
+      msg: 'Failed to process component enrollment',
     });
     throw error;
   }
 }
 
 function getLastPeriod(
-  coefficients: History["coefficients"],
+  coefficients: History['coefficients'],
   year: number,
   quad: number,
   begin?: string,
@@ -161,7 +161,7 @@ function mapSubjects(
     .map((e) => {
       // Find matching subject using normalized comparison
       const subject = subjects.find(
-        (s) => normalizeText(s.name) === normalizeText(e.disciplina ?? ""),
+        (s) => normalizeText(s.name) === normalizeText(e.disciplina ?? ''),
       );
 
       if (subject) {
@@ -172,7 +172,7 @@ function mapSubjects(
       }
 
       logger.warn({
-        msg: "No subject match found after normalization",
+        msg: 'No subject match found after normalization',
         disciplina: e.disciplina,
         availableSubjects: subjects.map((s) => s.name),
       });
@@ -181,7 +181,7 @@ function mapSubjects(
     })
     .filter(
       (e): e is Partial<Enrollment> =>
-        e.disciplina !== "" && e.disciplina != null,
+        e.disciplina !== '' && e.disciplina != null,
     );
 }
 
@@ -190,10 +190,10 @@ function normalizeText(text: string): string {
   return (
     text
       .toLowerCase()
-      .normalize("NFD")
+      .normalize('NFD')
       // biome-ignore lint/suspicious/noMisleadingCharacterClass: not needed
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9\s]/g, " ")
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s]/g, ' ')
       .trim()
   );
 }
@@ -201,13 +201,13 @@ function normalizeText(text: string): string {
 async function findGraduation(
   curso: string | undefined,
   grade: string | undefined,
-  log: QueueContext["app"]["log"],
+  log: QueueContext['app']['log'],
 ): Promise<GraduationDocument | null> {
   if (!curso || !grade) {
     return null;
   }
 
-  log.info({ curso, grade }, "Finding graduation");
+  log.info({ curso, grade }, 'Finding graduation');
   return GraduationModel.findOne({ curso, grade });
 }
 
@@ -250,11 +250,11 @@ async function updateHistoryRecords(
 async function dispatchEnrollmentJobs(
   components: HistoryComponent[],
   historyData: { ra: number; coefficients: HistoryCoefficients },
-  app: QueueContext["app"],
+  app: QueueContext['app'],
 ): Promise<void> {
   const dispatchPromises = components.map(async (component) => {
     try {
-      await app.job.dispatch("ProcessComponentsEnrollments", {
+      await app.job.dispatch('ProcessComponentsEnrollments', {
         history: historyData,
         component,
       });
@@ -263,7 +263,7 @@ async function dispatchEnrollmentJobs(
         error: error instanceof Error ? error.message : String(error),
         component: component.disciplina,
         ra: historyData.ra,
-        msg: "Failed to dispatch enrollment processing job",
+        msg: 'Failed to dispatch enrollment processing job',
       });
       throw error;
     }
@@ -275,7 +275,7 @@ async function dispatchEnrollmentJobs(
 async function buildEnrollmentData(
   history: { ra: number; coefficients: HistoryCoefficients },
   component: HistoryComponent,
-  log: QueueContext["app"]["log"],
+  log: QueueContext['app']['log'],
 ) {
   const campus = getCampusFromTurma(component.turma);
   const turno = getTurnoFromTurma(component.turma);
@@ -297,10 +297,9 @@ async function buildEnrollmentData(
     cp_acumulado: coef?.cp_acumulado ?? null,
     season: `${component.ano}:${component.periodo}`,
     kind: null,
-    syncedBy: "extension",
+    syncedBy: 'extension',
     campus,
     turno,
-    historyTeacher: component.teachers,
   };
 
   // Try to match with existing component first
@@ -310,7 +309,7 @@ async function buildEnrollmentData(
   }).lean();
 
   if (matchingComponent) {
-    log.info("Using matching class component");
+    log.info('Using matching class component');
 
     return {
       ...baseEnrollmentData,
@@ -325,14 +324,14 @@ async function buildEnrollmentData(
 
   log.info(
     {
-      msg: "No matching class component found, using subject match",
+      msg: 'No matching class component found, using subject match',
       disciplina: component.disciplina,
       ra: history.ra,
       turma: component.turma,
       creditos: component.creditos,
       season: baseEnrollmentData.season,
     },
-    "Using subject match for sync",
+    'Using subject match for sync',
   );
   return buildEnrollmentFromSubject({ ...baseEnrollmentData }, component, log);
 }
@@ -340,31 +339,31 @@ async function buildEnrollmentData(
 async function buildEnrollmentFromSubject(
   baseData: Partial<Enrollment>,
   component: HistoryComponent,
-  log: QueueContext["app"]["log"],
+  log: QueueContext['app']['log'],
 ): Promise<Partial<Enrollment> | null> {
   const normalizedDisciplina = normalizeText(component.disciplina);
 
   const subjects = await SubjectModel.find({
     $or: [
       { search: normalizedDisciplina },
-      { search: { $regex: normalizedDisciplina, $options: "i" } },
+      { search: { $regex: normalizedDisciplina, $options: 'i' } },
       {
         search: {
           $regex: normalizedDisciplina
             .split(/\s+/)
             .map((word) => `(?=.*${word})`)
-            .join(""),
-          $options: "i",
+            .join(''),
+          $options: 'i',
         },
       },
-      { name: { $regex: component.disciplina, $options: "i" } },
+      { name: { $regex: component.disciplina, $options: 'i' } },
     ],
     creditos: component.creditos,
   }).lean<SubjectDocument[]>();
 
   if (!subjects.length) {
     log.warn({
-      msg: "Subject matching failed",
+      msg: 'Subject matching failed',
       original: component.disciplina,
       normalized: normalizedDisciplina,
       creditos: component.creditos,
@@ -375,13 +374,13 @@ async function buildEnrollmentFromSubject(
 
   const [mappedEnrollment] = mapSubjects(baseData, subjects);
   // regex to retrieve the turma.
-  const turma = baseData.turma?.match(/^[A-Z0-9]+/i)?.[0] ?? "";
+  const turma = baseData.turma?.match(/^[A-Z0-9]+/i)?.[0] ?? '';
   const UFClassroomCode = `${baseData.turno?.slice(0, 1).toUpperCase()}${turma.toUpperCase()}${component.codigo}${baseData.campus?.slice(0, 2)}`;
 
   mappedEnrollment.uf_cod_turma = UFClassroomCode;
 
   if (!mappedEnrollment) {
-    log.warn({ component, baseData }, "Could not match history to subject");
+    log.warn({ component, baseData }, 'Could not match history to subject');
     return null;
   }
 
@@ -390,7 +389,7 @@ async function buildEnrollmentFromSubject(
 
 async function upsertEnrollment(
   enrollmentData: Partial<Enrollment>,
-  log: QueueContext["app"]["log"],
+  log: QueueContext['app']['log'],
 ): Promise<void> {
   // @ts-ignore - for now, we assume enrollmentData is always valid
   const normalizedDisciplina = normalizeText(enrollmentData.disciplina);
@@ -409,14 +408,14 @@ async function upsertEnrollment(
       { disciplina_id: enrollmentData.disciplina_id },
       // match by variations of disciplina
       { disciplina: normalizedDisciplina },
-      { disciplina: { $regex: normalizedDisciplina, $options: "i" } },
+      { disciplina: { $regex: normalizedDisciplina, $options: 'i' } },
       {
         disciplina: {
           $regex: normalizedDisciplina
             .split(/\s+/)
             .map((word) => `(?=.*${word})`)
-            .join(""),
-          $options: "i",
+            .join(''),
+          $options: 'i',
         },
       },
     ],
@@ -429,7 +428,7 @@ async function upsertEnrollment(
   );
 
   log.debug({
-    msg: "Enrollment upserted successfully",
+    msg: 'Enrollment upserted successfully',
     enrollmentId: enrollment?.identifier,
     ra: enrollment?.ra,
     disciplina: enrollment?.disciplina,
@@ -443,12 +442,12 @@ function isValidHistory(history: History | undefined): history is History {
 
 function getCampusFromTurma(turma: string): string {
   const campus = turma.slice(-2).toUpperCase();
-  if (campus !== "SA" && campus !== "SB") {
-    throw new Error("Invalid campus", { cause: campus });
+  if (campus !== 'SA' && campus !== 'SB') {
+    throw new Error('Invalid campus', { cause: campus });
   }
-  return campus === "SA" ? "sa" : "sbc";
+  return campus === 'SA' ? 'sa' : 'sbc';
 }
 
 function getTurnoFromTurma(turma: string): string {
-  return turma.slice(0, 1).toUpperCase() === "N" ? "noturno" : "diurno";
+  return turma.slice(0, 1).toUpperCase() === 'N' ? 'noturno' : 'diurno';
 }
