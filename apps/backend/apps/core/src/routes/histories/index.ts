@@ -35,14 +35,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       const parsedHistory = await getHistory(sessionId, viewState as string);
       app.log.error(parsedHistory, "error")
-      if (parsedHistory.error) {
-        return reply.status(400).send({
-          msg: 'Erro ao analisar histórico',
-          fields: parsedHistory.error.flatten().fieldErrors,
-          issues: parsedHistory.error.issues,
-        });
-      }
-
+      
       const { student, components, graduations, coefficients } =
         parsedHistory.data;
 
