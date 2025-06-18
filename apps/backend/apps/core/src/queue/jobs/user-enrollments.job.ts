@@ -285,7 +285,7 @@ async function buildEnrollmentData(
     Number.parseInt(component.periodo),
   );
 
-  const baseEnrollmentData = {
+  const baseEnrollmentData: Partial<Enrollment> = {
     ra: history.ra,
     year: component.ano,
     quad: Number(component.periodo),
@@ -310,7 +310,6 @@ async function buildEnrollmentData(
 
   if (matchingComponent) {
     log.info('Using matching class component');
-
     return {
       ...baseEnrollmentData,
       disciplina_id: matchingComponent.disciplina_id,
