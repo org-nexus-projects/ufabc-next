@@ -177,7 +177,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     '/components',
     {
       schema: syncComponentsSchema,
-      // preHandler: (request, reply) => request.isAdmin(reply),
+      preHandler: (request, reply) => request.isAdmin(reply),
     },
     async (request, reply) => {
       const { season, hash, ignoreErrors } = request.body;
@@ -349,6 +349,15 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       // Dispatch all jobs, always passing flag and ignoreErrors
       const dispatchPromises = components.map(async (componentData) => {
         try {
+          if (!componentData.subject) {
+            request.log.warn({
+              error: 'Component data is missing',
+              component: componentData.disciplina,
+              msg: 'Component data is missing',
+            });
+            throw new Error('Component data is missing');
+          }
+        
           await app.job.dispatch('ComponentsTeachersSync', componentData);
           return { success: true, component: componentData.disciplina };
         } catch (error) {
