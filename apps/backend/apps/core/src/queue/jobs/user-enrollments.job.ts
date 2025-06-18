@@ -7,7 +7,6 @@ import { GraduationHistoryModel } from "@/models/GraduationHistory.js";
 import { SubjectModel, type SubjectDocument } from "@/models/Subject.js";
 import { EnrollmentModel, type Enrollment } from "@/models/Enrollment.js";
 import { ComponentModel } from "@/models/Component.js";
-import { TeacherModel } from "@/models/Teacher.js";
 import {
   type History,
   type HistoryCoefficients,
@@ -313,9 +312,6 @@ async function buildEnrollmentData(
   if (matchingComponent) {
     log.info("Using matching class component");
 
-    // Check if component is missing teachers and insert them if needed
-    await insertMissingTeachers(matchingComponent, component, log);
-
     return {
       ...baseEnrollmentData,
       disciplina_id: matchingComponent.disciplina_id,
@@ -451,89 +447,4 @@ function getCampusFromTurma(turma: string): string {
 
 function getTurnoFromTurma(turma: string): string {
   return turma.slice(0, 1).toUpperCase() === "N" ? "noturno" : "diurno";
-}
-
-async function insertMissingTeachers(
-  matchingComponent: any,
-  historyComponent: HistoryComponent,
-  log: QueueContext["app"]["log"],
-): Promise<void> {
-  if (!historyComponent.teachers || historyComponent.teachers.length === 0) {
-    return;
-  }
-
-  try {
-    // Check if component is missing teoria or pratica teachers
-    const needsTeoria = !matchingComponent.teoria;
-    const needsPratica = !matchingComponent.pratica;
-
-    if (!needsTeoria && !needsPratica) {
-      log.debug({
-        msg: "Component already has teachers assigned",
-        componentId: matchingComponent._id,
-        disciplina: historyComponent.disciplina,
-      });
-      return;
-    }
-
-    log.info({
-      msg: "Component missing teachers, inserting from history",
-      componentId: matchingComponent._id,
-      disciplina: historyComponent.disciplina,
-      needsTeoria,
-      needsPratica,
-      historyTeachers: historyComponent.teachers,
-    });
-
-    const teacherUpdates: { teoria?: string; pratica?: string } = {};
-
-    // Process history teachers and assign to missing slots
-    for (let i = 0; i < Math.min(historyComponent.teachers.length, 2); i++) {
-      const teacherName = historyComponent.teachers[i].toLowerCase().trim();
-
-      // Try to find existing teacher by fuzzy matching
-      let teacher = await TeacherModel.findByFuzzName(teacherName);
-
-      if (!teacher) {
-        // Create new teacher if not found
-        teacher = await TeacherModel.create({ name: teacherName });
-        log.info({
-          msg: "Created new teacher",
-          teacherName,
-          teacherId: teacher._id,
-        });
-      }
-
-      // Assign to missing slots only
-      if (i === 0 && needsTeoria) {
-        teacherUpdates.teoria = teacher._id.toString();
-      } else if (i === 1 && needsPratica) {
-        teacherUpdates.pratica = teacher._id.toString();
-      } else if (i === 0 && needsPratica && !needsTeoria) {
-        // If only pratica is missing and this is the first teacher
-        teacherUpdates.pratica = teacher._id.toString();
-      }
-    }
-
-    // Update the component with new teacher references
-    if (Object.keys(teacherUpdates).length > 0) {
-      await ComponentModel.findByIdAndUpdate(matchingComponent._id, {
-        $set: teacherUpdates,
-      });
-
-      log.info({
-        msg: "Component teachers inserted successfully",
-        componentId: matchingComponent._id,
-        updates: teacherUpdates,
-      });
-    }
-  } catch (error) {
-    log.error({
-      error: error instanceof Error ? error.message : String(error),
-      componentId: matchingComponent._id,
-      disciplina: historyComponent.disciplina,
-      msg: "Failed to insert missing teachers",
-    });
-    // Don't throw error to avoid breaking the enrollment process
-  }
 }
