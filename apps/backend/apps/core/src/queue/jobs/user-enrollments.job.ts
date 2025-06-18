@@ -442,7 +442,11 @@ function isValidHistory(history: History | undefined): history is History {
 }
 
 function getCampusFromTurma(turma: string): string {
-  return turma.slice(-2).toUpperCase() === "SA" ? "sa" : "sbc";
+  const campus = turma.slice(-2).toUpperCase();
+  if (campus !== "SA" && campus !== "SB") {
+    throw new Error("Invalid campus", { cause: campus });
+  }
+  return campus === "SA" ? "sa" : "sbc";
 }
 
 function getTurnoFromTurma(turma: string): string {
