@@ -373,6 +373,7 @@ async function buildEnrollmentFromSubject(
   }
 
   const [mappedEnrollment] = mapSubjects(baseData, subjects);
+  logger.info(baseData, 'Mapped enrollment from subject');
   // regex to retrieve the turma.
   if (!baseData.turma) {
     log.warn({ component, baseData }, 'No turma provided');
