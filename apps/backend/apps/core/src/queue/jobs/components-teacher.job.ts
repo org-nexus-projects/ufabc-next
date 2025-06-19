@@ -24,7 +24,7 @@ export async function processComponentsTeachers(ctx: QueueContext<JobData>) {
     if (component.flag === 'upsert') {
       try {
         await ComponentModel.findOneAndUpdate(
-          { uf_cod_turma: component.uf_cod_turma },
+          { season: component.season, uf_cod_turma: component.uf_cod_turma },
           { $set: { ...component } },
           { upsert: true, new: true },
         );
@@ -49,6 +49,7 @@ export async function processComponentsTeachers(ctx: QueueContext<JobData>) {
 
     const result = await ComponentModel.findOneAndUpdate(
       {
+        season: component.season,
         uf_cod_turma: component.uf_cod_turma,
       },
       {

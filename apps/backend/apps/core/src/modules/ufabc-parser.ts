@@ -260,8 +260,6 @@ export async function getComponentsV2(season: string) {
     {
       query: {
         season,
-        granted: true,
-        kind: 'settlement',
       },
     },
   );
