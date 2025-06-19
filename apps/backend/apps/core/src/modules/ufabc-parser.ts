@@ -11,6 +11,7 @@ export type UfabcParserComponent = {
   UFComponentId: number;
   /** The code as we consume */
   UFComponentCode: string;
+  UFClassroomCode: string;
   campus: 'sbc' | 'sa';
   name: string;
   turma: string;
