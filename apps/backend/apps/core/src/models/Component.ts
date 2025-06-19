@@ -1,16 +1,10 @@
-import {
-  type InferSchemaType,
-  Schema,
-  type UpdateQuery,
-  model,
-} from 'mongoose';
-import { findQuarter } from '@next/common';
+import { type InferSchemaType, Schema, model } from 'mongoose';
 
 const CAMPUS = ['sao bernardo', 'santo andre', 'sbc', 'sa'] as const;
 
 const componentSchema = new Schema(
   {
-    disciplina_id: { type: Number, required: true },
+    disciplina_id: { type: Number, required: false, default: null },
     disciplina: { type: String, required: true },
     turno: { type: String, required: true, enum: ['diurno', 'noturno'] },
     turma: { type: String, required: true },
@@ -22,7 +16,7 @@ const componentSchema = new Schema(
     uf_cod_turma: { type: String, required: true },
     identifier: {
       type: String,
-      required: true,
+      required: false,
     },
     // lista de alunos matriculados no momento
     alunos_matriculados: {
@@ -63,29 +57,19 @@ const componentSchema = new Schema(
       required: false,
       default: null,
     },
+    kind: {
+      type: String,
+      enum: ['api', 'file'],
+      default: 'api',
+      required: true,
+    },
   },
   {
     timestamps: true,
   },
 );
 
-function setQuarter(component: UpdateQuery<Component> | null) {
-  const { year, quad } = findQuarter();
-  if (!component) {
-    return;
-  }
-  component.year = year;
-  component.quad = quad;
-}
-
 componentSchema.index({ identifier: 'asc' });
-
-componentSchema.pre('findOneAndUpdate', function () {
-  const updatedComponent: UpdateQuery<Component> | null = this.getUpdate();
-  if (!updatedComponent?.season) {
-    setQuarter(updatedComponent);
-  }
-});
 
 export type Component = InferSchemaType<typeof componentSchema>;
 export type ComponentDocument = ReturnType<(typeof ComponentModel)['hydrate']>;

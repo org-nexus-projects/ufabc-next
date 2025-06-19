@@ -15,7 +15,6 @@ const PUBLIC_ROUTES = [
   '/help/forms',
   '/users/recover',
   '/users/validate',
-  '/sync',
 ];
 
 const EXTENSION_ROUTES = [

@@ -1,41 +1,121 @@
-import { ComponentModel } from '@/models/Component.js';
+import { ComponentModel, type Component } from '@/models/Component.js';
 import type { QueueContext } from '../types.js';
+import { SubjectModel } from '@/models/Subject.js';
 
-type ComponentTeacher = { 
-  disciplina_id: number; 
-  codigo: string; 
-  disciplina: string; 
-  campus: "sa" | "sbc"; 
-  turma: string; 
-  turno: string; 
-  vagas: number; 
-  teoria: any; 
-  pratica: any; 
-  season: string;
-  UFClassroomCode: string;
-}
+// Add flag and ignoreErrors to JobData
+type JobData = Omit<Component, 'createdAt' | 'updatedAt'> & {
+  flag?: string;
+  ignoreErrors?: boolean;
+};
 
-export async function processComponentsTeachers(
-  ctx: QueueContext<ComponentTeacher>,
-) {
+export async function processComponentsTeachers(ctx: QueueContext<JobData>) {
   const { data: component } = ctx.job;
 
   try {
+    if (!component || !component.codigo || !component.uf_cod_turma) {
+      ctx.app.log.warn({
+        msg: 'Invalid component data',
+        component,
+      });
+      throw new Error('Invalid component data');
+    }
+
+    // If flag is 'upsert', perform upsert regardless of existence
+    if (component.flag === 'upsert') {
+      try {
+        await ComponentModel.findOneAndUpdate(
+          { season: component.season, uf_cod_turma: component.uf_cod_turma },
+          { $set: { ...component } },
+          { upsert: true, new: true },
+        );
+        ctx.app.log.info({
+          msg: 'Component upserted (flag: upsert)',
+          action: 'upserted',
+          uf_cod_turma: component.uf_cod_turma,
+        });
+        return;
+      } catch (error) {
+        if (component.ignoreErrors) {
+          ctx.app.log.warn({
+            msg: 'Upsert failed but ignored due to ignoreErrors',
+            error: error instanceof Error ? error.message : String(error),
+            component,
+          });
+          return;
+        }
+        throw error;
+      }
+    }
+
     const result = await ComponentModel.findOneAndUpdate(
       {
         season: component.season,
-        disciplina_id: component.disciplina_id,
+        uf_cod_turma: component.uf_cod_turma,
       },
       {
         $set: {
           teoria: component.teoria,
           pratica: component.pratica,
-          // we will be using UFCompositeKey for better lookup
-          uf_cod_turma: component.UFClassroomCode
         },
       },
-      { new: true, upsert: true },
+      { new: true },
     );
+
+    if (!result) {
+      ctx.app.log.warn({
+        msg: 'Component not found, inserting new one',
+        component,
+      });
+
+      // Normalize the disciplina name for search
+      const normalizedDisciplina = component.disciplina
+        .toLowerCase()
+        .normalize('NFD')
+        // biome-ignore lint/suspicious/noMisleadingCharacterClass: not needed
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .trim();
+
+      const subject = await SubjectModel.findOne({
+        $or: [
+          // Exact match on normalized name
+          { search: normalizedDisciplina },
+          // Partial match on normalized name
+          { search: { $regex: normalizedDisciplina, $options: 'i' } },
+          // Match individual words
+          {
+            search: {
+              $regex: normalizedDisciplina
+                .split(/\s+/)
+                .map((word) => `(?=.*${word})`)
+                .join(''),
+              $options: 'i',
+            },
+          },
+          // Original name matching
+          { name: { $regex: component.disciplina, $options: 'i' } },
+        ],
+      });
+
+      if (!subject) {
+        ctx.app.log.warn({
+          msg: 'Subject not found for component',
+          component,
+        });
+        throw new Error('Subject not found for component');
+      }
+      ctx.app.log.info({
+        msg: 'Subject found for component',
+        subjectId: subject._id,
+        subjectName: subject.name,
+        searchWith: normalizedDisciplina,
+      });
+      component.subject = subject._id;
+
+      await ComponentModel.create(component);
+    }
+
+    // Log the action
     ctx.app.log.info({
       msg: 'Component processed',
       disciplina: component.disciplina,

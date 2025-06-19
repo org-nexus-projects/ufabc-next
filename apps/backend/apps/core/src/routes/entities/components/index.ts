@@ -49,7 +49,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       },
       {
         _id: 0,
+        codigo: 1,
         alunos_matriculados: 1,
+        uf_cod_turma: 1,
         campus: 1,
         pratica: 1,
         teoria: 1,
@@ -73,13 +75,15 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     const nonPaginatedComponents = components.map((component) => ({
       ...component,
-      requisicoes: component.alunos_matriculados.length ?? [],
+      uf_cod_turma: component.uf_cod_turma,
+      requisicoes: component.alunos_matriculados?.length ?? 0,
       teoria: component.teoria?.name,
       pratica: component.pratica?.name,
       subject: component.subject?.name,
       subjectId: component.subject?._id.toString(),
       teoriaId: component.teoria?._id.toString(),
       praticaId: component.pratica?._id.toString(),
+      groupURL: component.groupURL ?? '',
     }));
 
     componentsListCache.set(cacheKey, nonPaginatedComponents);

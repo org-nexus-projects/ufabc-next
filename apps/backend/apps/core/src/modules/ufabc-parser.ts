@@ -11,6 +11,7 @@ export type UfabcParserComponent = {
   UFComponentId: number;
   /** The code as we consume */
   UFComponentCode: string;
+  UFClassroomCode: string;
   campus: 'sbc' | 'sa';
   name: string;
   turma: string;
@@ -91,6 +92,7 @@ export type UFProcessorComponentFile = {
   UFComponentId: '-' | number;
   /** The code as we consume */
   UFComponentCode: string;
+  UFClassroomCode: string;
   campus: 'sbc' | 'sa';
   name: string;
   turma: string;
@@ -238,12 +240,14 @@ export async function getEnrolledStudents() {
   return enrolled;
 }
 
-export async function getComponentsFile(link: string) {
+export async function getComponentsFile(season: string, kind: string) {
   const componentsFile = await ufabcParserService<UFProcessorComponentFile[]>(
-    '/componentsFile',
+    '/v2/matriculas/components/file',
     {
       query: {
-        link,
+        season,
+        granted: false,
+        kind,
       },
     },
   );

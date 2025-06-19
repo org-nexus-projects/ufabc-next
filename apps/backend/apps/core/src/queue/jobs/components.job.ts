@@ -1,7 +1,7 @@
 import { ComponentModel } from '@/models/Component.js';
 import { SubjectModel } from '@/models/Subject.js';
 import { getComponents } from '@/modules/ufabc-parser.js';
-import { currentQuad, generateIdentifier } from '@next/common';
+import { currentQuad } from '@next/common';
 import { camelCase, startCase } from 'lodash-es';
 import type { QueueContext } from '../types.js';
 
@@ -72,22 +72,14 @@ export async function processComponent({
       obrigatorias: component.courses
         .filter((c) => c.category === 'obrigatoria')
         .map((c) => c.UFCourseId),
-      identifier: '',
+      uf_cod_turma: component.UFClassroomCode,
     };
-
-    dbComponent.identifier = generateIdentifier(dbComponent, [
-      'disciplina',
-      'turno',
-      'campus',
-      'turma',
-    ]);
 
     app.log.debug(dbComponent, 'Generated component');
 
     const result = await ComponentModel.findOneAndUpdate(
       {
         season: tenant,
-        identifier: dbComponent.identifier,
         disciplina_id: component.UFComponentId,
       },
       {
@@ -108,7 +100,7 @@ export async function processComponent({
 
     app.log.debug({
       msg: 'Component processed successfully',
-      identifier: dbComponent.identifier,
+      identifier: dbComponent.uf_cod_turma,
       id: result._id,
       action: result.isNew ? 'inserted' : 'updated',
     });

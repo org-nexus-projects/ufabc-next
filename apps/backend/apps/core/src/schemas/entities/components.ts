@@ -5,10 +5,12 @@ import { z } from 'zod';
 import 'zod-openapi/extend';
 
 const NonPaginatedComponentsSchema = z.object({
-  identifier: z.string(),
+  identifier: z.string().optional().nullable(),
   disciplina_id: z
     .number()
     .int()
+    .optional()
+    .nullable()
     .openapi({ description: 'Id da disciplina para a UFABC' }),
   subject: z.string().openapi({ description: 'Nome da matéria ofertada' }),
   turma: z.string(),
@@ -21,6 +23,13 @@ const NonPaginatedComponentsSchema = z.object({
   teoriaId: z.any(), // z.coerce.string().optional().openapi({ description: 'Id interno' }),
   season: z.string().openapi({ description: 'Chave do tenant' }),
   praticaId: z.any(),
+  groupURL: z.string().optional().openapi({
+    description: 'Link do grupo de WhatsApp',
+  }),
+  uf_cod_turma: z
+    .string()
+    .optional()
+    .openapi({ description: 'Código da turma na UFABC' }),
   subjectId: z.coerce
     .string()
     .optional()
