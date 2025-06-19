@@ -93,7 +93,7 @@ const sigGraduations = z.object({
     description: 'Curso do aluno',
     example: 'bacharelado em ciencia e tecnologia',
   }),
-  grade: z.string(),
+  grade: z.string().optional(),
   shift: z.enum(['n', 'm']),
   extensionCredits: z.number().int(),
   totalCredits: z.number().int(),
