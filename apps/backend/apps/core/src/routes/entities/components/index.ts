@@ -76,7 +76,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     const nonPaginatedComponents = components.map((component) => ({
       ...component,
       uf_cod_turma: component.uf_cod_turma,
-      requisicoes: component.alunos_matriculados?.length ?? [],
+      requisicoes: component.alunos_matriculados?.length ?? 0,
       teoria: component.teoria?.name,
       pratica: component.pratica?.name,
       subject: component.subject?.name,
@@ -86,7 +86,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       groupURL: component.groupURL ?? '',
     }));
 
-    // componentsListCache.set(cacheKey, nonPaginatedComponents);
+    componentsListCache.set(cacheKey, nonPaginatedComponents);
 
     return nonPaginatedComponents;
   });

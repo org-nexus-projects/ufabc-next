@@ -13,7 +13,7 @@ const componentSchema = new Schema(
     codigo: { type: String, required: true },
     campus: { type: String, enum: CAMPUS, required: true },
     ideal_quad: { type: Boolean, default: false, required: true },
-    uf_cod_turma: { type: String, required: true, default: null },
+    uf_cod_turma: { type: String, required: true },
     identifier: {
       type: String,
       required: false,
