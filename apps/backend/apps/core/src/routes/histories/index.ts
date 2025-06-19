@@ -36,8 +36,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       // @ts-ignore
       const parsedHistory = await getHistory(sessionId, viewState as string);
-      app.log.error(parsedHistory, "error")
-      
+      if (parsedHistory.success === false) {
+        app.log.error(parsedHistory, 'error');
+      }
+
       // @ts-ignore
       const { student, components, graduations, coefficients } =
         parsedHistory.data;
