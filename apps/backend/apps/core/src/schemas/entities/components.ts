@@ -5,10 +5,12 @@ import { z } from 'zod';
 import 'zod-openapi/extend';
 
 const NonPaginatedComponentsSchema = z.object({
-  identifier: z.string(),
+  identifier: z.string().optional().nullable(),
   disciplina_id: z
     .number()
     .int()
+    .optional()
+    .nullable()
     .openapi({ description: 'Id da disciplina para a UFABC' }),
   subject: z.string().openapi({ description: 'Nome da matéria ofertada' }),
   turma: z.string(),
