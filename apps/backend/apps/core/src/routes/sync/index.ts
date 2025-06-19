@@ -1,7 +1,6 @@
 import { createHash } from 'node:crypto';
 import {
   getComponentsFile,
-  getComponentsV2,
   getEnrolledStudents,
   getEnrollments,
 } from '@/modules/ufabc-parser.js';
@@ -357,7 +356,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             });
             throw new Error('Component data is missing');
           }
-        
+
+          // fuck this
+          // @ts-expect-error
           await app.job.dispatch('ComponentsTeachersSync', componentData);
           return { success: true, component: componentData.disciplina };
         } catch (error) {
