@@ -374,12 +374,19 @@ async function buildEnrollmentFromSubject(
 
   const [mappedEnrollment] = mapSubjects(baseData, subjects);
   // regex to retrieve the turma.
-  const turma = baseData.turma?.match(/^[A-Z]([A-Z]\d)/)?.[1];
-
-  if (!turma) {
-    log.warn({ component, baseData }, 'Could not extract turma from data');
+  if (!baseData.turma) {
+    log.warn({ component, baseData }, 'No turma provided');
+    throw new Error('Missing turma');
+  }
+  const turmaMatch = baseData.turma.match(/^[A-Za-z]([A-Za-z]\d)/);
+  if (!turmaMatch) {
+    log.warn(
+      { turmaRaw: baseData.turma, component, baseData },
+      'Turma format did not match expected pattern',
+    );
     throw new Error('Invalid turma format', { cause: baseData.turma });
   }
+  const turma = turmaMatch[1];
 
   const UFClassroomCode = `${baseData.turno?.slice(0, 1).toUpperCase()}${turma.toUpperCase()}${component.codigo}${baseData.campus?.slice(0, 2)}`;
 
