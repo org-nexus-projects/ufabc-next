@@ -14,6 +14,7 @@ import {
 } from '@/models/History.js';
 import { logger } from '@/utils/logger.js';
 import type { QueueContext } from '../types.js';
+import type { FilterQuery } from 'mongoose';
 
 type HistoryComponent = History['disciplinas'][number];
 
@@ -390,48 +391,78 @@ async function upsertEnrollment(
   enrollmentData: Partial<Enrollment>,
   log: QueueContext['app']['log'],
 ): Promise<void> {
-  // @ts-ignore - for now, we assume enrollmentData is always valid
-  const normalizedDisciplina = normalizeText(enrollmentData.disciplina);
-
-  const query = {
+  // @ts-ignore - Mongoose FilterQuery type
+  const base: FilterQuery<Enrollment> = {
     ra: enrollmentData.ra,
     season: enrollmentData.season,
-    $or: [
-      // old way to match by disciplina and turma
-      { disciplina: enrollmentData.disciplina },
-      // new way to match by uf_cod_turma
-      { uf_cod_turma: enrollmentData.uf_cod_turma },
-      // match by subject if available
-      { subject: enrollmentData.subject },
-      // match by disciplina_id if available
-      { disciplina_id: enrollmentData.disciplina_id },
-      // match by variations of disciplina
-      { disciplina: normalizedDisciplina },
-      { disciplina: { $regex: normalizedDisciplina, $options: 'i' } },
-      {
-        disciplina: {
-          $regex: normalizedDisciplina
-            .split(/\s+/)
-            .map((word) => `(?=.*${word})`)
-            .join(''),
-          $options: 'i',
-        },
-      },
-    ],
   };
 
-  const enrollment = await EnrollmentModel.findOneAndUpdate(
+  // 1. Try strictest: uf_cod_turma
+  let query = { ...base, uf_cod_turma: enrollmentData.uf_cod_turma };
+  let enrollment = await EnrollmentModel.findOneAndUpdate(
     query,
     { $set: enrollmentData },
-    { new: true, upsert: true },
+    { new: true },
   );
 
-  log.debug({
-    msg: 'Enrollment upserted successfully',
-    enrollmentId: enrollment?.identifier,
-    ra: enrollment?.ra,
-    disciplina: enrollment?.disciplina,
-  });
+  // 2. Try disciplina_id if not found
+  if (!enrollment && enrollmentData.disciplina_id) {
+    // @ts-ignore - Mongoose FilterQuery type
+    query = { ...base, disciplina_id: enrollmentData.disciplina_id };
+    enrollment = await EnrollmentModel.findOneAndUpdate(
+      query,
+      { $set: enrollmentData },
+      { new: true },
+    );
+  }
+
+  // 3. Try subject if not found
+  if (!enrollment && enrollmentData.subject) {
+    // @ts-ignore - Mongoose FilterQuery type
+    query = { ...base, subject: enrollmentData.subject };
+    enrollment = await EnrollmentModel.findOneAndUpdate(
+      query,
+      { $set: enrollmentData },
+      { new: true },
+    );
+  }
+
+  // 4. Try normalized disciplina if not found
+  if (!enrollment && enrollmentData.disciplina) {
+    const normalizedDisciplina = normalizeText(enrollmentData.disciplina);
+    // @ts-ignore - Mongoose FilterQuery type
+    query = {
+      ...base,
+      disciplina: { $regex: normalizedDisciplina, $options: 'i' },
+    };
+    enrollment = await EnrollmentModel.findOneAndUpdate(
+      query,
+      { $set: enrollmentData },
+      { new: true },
+    );
+  }
+
+  // 5. If still not found, insert new
+  if (!enrollment) {
+    enrollment = await EnrollmentModel.create(enrollmentData);
+    log.debug({
+      msg: 'Enrollment created',
+      enrollmentId: enrollment?.identifier,
+      ra: enrollment?.ra,
+      disciplina: enrollment?.disciplina,
+      uf_cod_turma: enrollment?.uf_cod_turma,
+      season: enrollment?.season,
+    });
+  } else {
+    log.debug({
+      msg: 'Enrollment updated',
+      enrollmentId: enrollment?.identifier,
+      ra: enrollment?.ra,
+      disciplina: enrollment?.disciplina,
+      uf_cod_turma: enrollment?.uf_cod_turma,
+      season: enrollment?.season,
+    });
+  }
 }
 
 // helpers functions
