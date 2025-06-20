@@ -375,12 +375,15 @@ async function buildEnrollmentFromSubject(
 
   const [mappedEnrollment] = mapSubjects(baseData, subjects);
   logger.info(baseData, 'Mapped enrollment from subject');
-  // regex to retrieve the turma.
   if (!baseData.turma) {
     log.warn({ component, baseData }, 'No turma provided');
     throw new Error('Missing turma');
   }
-  const turmaMatch = baseData.turma.match(/^[A-Za-z]([A-Za-z]\d)/);
+
+  const turmaMatch = baseData.turma
+    .toUpperCase()
+    .match(/^[A-Z]([A-Z]{1,2})[A-Z]{3}\d{4}-\d{2}[A-Z]{2}$/i);
+
   if (!turmaMatch) {
     log.warn(
       { turmaRaw: baseData.turma, component, baseData },

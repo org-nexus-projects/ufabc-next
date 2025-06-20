@@ -45,10 +45,13 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         parsedHistory.data;
 
       if (!parsedHistory.data?.graduations.grade) {
-        app.log.warn({
-          ra: student.ra,
-          course: graduations.course,
-        }, "graduation.grade is invalid")
+        app.log.warn(
+          {
+            ra: student.ra,
+            course: graduations.course,
+          },
+          'graduation.grade is invalid',
+        );
       }
 
       let history: HistoryDocument | null = await HistoryModel.findOne({
