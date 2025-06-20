@@ -1,4 +1,4 @@
-import { type RedisOptions, Worker, type WorkerOptions } from 'bullmq';
+import { Worker, type WorkerOptions } from 'bullmq';
 import { JOBS, QUEUE_JOBS } from './definitions.js';
 import type { FastifyInstance } from 'fastify';
 import type {
@@ -11,16 +11,9 @@ import type {
 export class QueueWorker {
   private workers: Partial<Record<JobNames, TypeSafeWorker>> = {};
   private readonly app: FastifyInstance;
-  private readonly redisConfig: RedisOptions;
 
   constructor(app: FastifyInstance, redisURL: URL) {
     this.app = app;
-    this.redisConfig = {
-      username: redisURL.username,
-      password: redisURL.password,
-      host: redisURL.hostname,
-      port: Number(redisURL.port),
-    };
   }
 
   public setup() {
@@ -34,9 +27,6 @@ export class QueueWorker {
       WorkerOptions,
     ][]) {
       const workerOpts: WorkerOptions = {
-        connection: {
-          ...this.redisConfig,
-        },
         ...settings,
       };
       const worker = new Worker<unknown, unknown, JobNames>(
