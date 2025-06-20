@@ -382,7 +382,7 @@ async function buildEnrollmentFromSubject(
 
   const turmaMatch = baseData.turma
     .toUpperCase()
-    .match(/^[A-Z]([A-Z]{1,2})[A-Z]{3}\d{4}-\d{2}[A-Z]{2}$/i);
+    .match(/^[A-Z]([A-Z]\d{0,2})/i);
 
   if (!turmaMatch) {
     log.warn(
