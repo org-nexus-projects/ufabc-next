@@ -25,7 +25,9 @@ type JobNames =
 
 const MONTH = 60 * 60 * 24 * 30;
 
-const redisURL = new URL(process.env.REDIS_URL ?? 'redis://localhost:6379');
+const redisURL = new URL(
+  process.env.REDIS_CONNECTION_URL ?? 'redis://localhost:6379',
+);
 
 export const redisConnection: ConnectionOptions = {
   username: redisURL.username,
