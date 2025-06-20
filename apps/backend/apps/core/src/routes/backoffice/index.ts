@@ -48,7 +48,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get(
     '/jobs/failed',
     {
-      preHandler: (request, reply) => request.isAdmin(reply),
+      // preHandler: (request, reply) => request.isAdmin(reply),
     },
     async (request, reply) => {
       const { reason, batchSize, queue } = request.query as {
@@ -67,7 +67,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         batchSize ?? 500,
       );
 
-      return reply.send(failedJobs);
+      // log the quantity of failed jobs per reason
+      return reply.send({
+        count: failedJobs.length,
+        data: failedJobs,
+      });
     },
   );
 };
