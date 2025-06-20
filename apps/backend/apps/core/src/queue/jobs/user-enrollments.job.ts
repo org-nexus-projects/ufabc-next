@@ -299,6 +299,7 @@ async function buildEnrollmentData(
     season: `${component.ano}:${component.periodo}`,
     kind: null,
     syncedBy: 'extension',
+    turma: component.turma,
     campus,
     turno,
   };
