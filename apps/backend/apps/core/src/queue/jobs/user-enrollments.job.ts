@@ -380,18 +380,15 @@ async function buildEnrollmentFromSubject(
     throw new Error('Missing turma');
   }
 
-  const turmaMatch = baseData.turma
-    .toUpperCase()
-    .match(/^[A-Z]([A-Z]\d{0,2})/i);
+  const turma = extractTurma(baseData.turma);
 
-  if (!turmaMatch) {
+  if (!turma) {
     log.warn(
       { turmaRaw: baseData.turma, component, baseData },
       'Turma format did not match expected pattern',
     );
     throw new Error('Invalid turma format', { cause: baseData.turma });
   }
-  const turma = turmaMatch[1];
 
   const UFClassroomCode = `${baseData.turno?.slice(0, 1).toUpperCase()}${turma.toUpperCase()}${component.codigo}${baseData.campus?.slice(0, 2)}`;
 
@@ -498,4 +495,11 @@ function getCampusFromTurma(turma: string): string {
 
 function getTurnoFromTurma(turma: string): string {
   return turma.slice(0, 1).toUpperCase() === 'N' ? 'noturno' : 'diurno';
+}
+
+function extractTurma(turmaRaw: string): string | null {
+  // Remove leading 'F' if present (rare edge case)
+  const turmaStr = turmaRaw.startsWith('F') ? turmaRaw.slice(1) : turmaRaw;
+  const match = turmaStr.match(/^[A-Z]([A-Z]\d{0,2})/i);
+  return match ? match[1] : null;
 }
