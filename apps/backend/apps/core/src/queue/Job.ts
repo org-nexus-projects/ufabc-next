@@ -73,17 +73,22 @@ export class Jobs implements JobImpl {
     batchSize: number,
   ) {
     const queue = this.queues[queueName];
-    const failedJobs = await queue.getFailed(batchSize);
+    const totalFailed = await queue.getFailedCount();
+    const failedJobs = [];
 
-    const filteredJobs = failedJobs
-      .filter((job) => job.failedReason.includes(reason))
-      .map((j) => ({
-        id: j.id,
-        name: j.name,
-        data: j.data,
-      }));
+    for (let start = 0; start < totalFailed; start += batchSize) {
+      const jobs = await queue.getFailed(start, start + batchSize - 1);
+      const filtered = jobs
+        .filter((job) => job.failedReason?.includes(reason))
+        .map((j) => ({
+          id: j.id,
+          name: j.name,
+          data: j.data,
+        }));
 
-    return filteredJobs;
+      failedJobs.push(...filtered);
+    }
+    return failedJobs;
   }
 
   async setup() {
