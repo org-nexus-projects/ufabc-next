@@ -191,6 +191,7 @@ export class Jobs implements JobImpl {
 
   board() {
     const bullBoard = createBoard(Object.values(this.queues));
+    // @ts-expect-error Library types are not compatible with FastifyAdapter
     this.app.register(bullBoard.registerPlugin(), {
       prefix: boardUiPath,
       basePath: boardUiPath,

@@ -30,11 +30,11 @@ importers:
         specifier: ^1.3.1
         version: 1.3.1
       '@bull-board/api':
-        specifier: ^6.3.3
-        version: 6.3.3(@bull-board/ui@6.3.3)
+        specifier: ^6.10.1
+        version: 6.10.1(@bull-board/ui@6.10.1)
       '@bull-board/fastify':
-        specifier: ^6.3.3
-        version: 6.3.3
+        specifier: ^6.10.1
+        version: 6.10.1
       '@fastify/autoload':
         specifier: ^6.0.2
         version: 6.0.2
@@ -72,8 +72,8 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
       bullmq:
-        specifier: ^4.17.0
-        version: 4.17.0
+        specifier: ^5.54.3
+        version: 5.54.3
       close-with-grace:
         specifier: ^1.3.0
         version: 1.3.0
@@ -528,16 +528,16 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@bull-board/api@6.3.3':
-    resolution: {integrity: sha512-HtdFE53zC0o5QyYR7u0j+R06Iid6USZatai+s4scDlmanLh2/Ic+8zkzMcHGOM8urC2g49EasOMXB5eBXp9lnA==}
+  '@bull-board/api@6.10.1':
+    resolution: {integrity: sha512-VPkZa2XZI2Wk2MqK1XyiiS+tOhNan54mnm2fpv2KA0fdZ92mQqNjhKkOpsykhQv9XUEc8cCRlZqGxf67YCMJbQ==}
     peerDependencies:
-      '@bull-board/ui': 6.3.3
+      '@bull-board/ui': 6.10.1
 
-  '@bull-board/fastify@6.3.3':
-    resolution: {integrity: sha512-nYPD6mcO7FwuCDHmPXgxLPjUKBeQiJ+agrPbPgGcYGYVmqElOuxYRQ+DMMAUEESRkWFUFgLkLNMzEpD6PlBHCw==}
+  '@bull-board/fastify@6.10.1':
+    resolution: {integrity: sha512-l9+KjDxPTtyfSnS/lhzp48G24lZs3A+9lmh+zRi+SBY+jpMribDpAq6pvAK96Tkm9fmMgcewXB4i0t2rlhrZbw==}
 
-  '@bull-board/ui@6.3.3':
-    resolution: {integrity: sha512-5tEJUQyw0ezTKlG8Kko0S4kVQE0a1OfyUUy7VciiXlVW8D3mvPgm2r628iBB9x/aDJPf6QSu3xyAva49eoROZA==}
+  '@bull-board/ui@6.10.1':
+    resolution: {integrity: sha512-b6z6MBid/0DEShAMFPjPVZoPSoWqRBHCvTknyaxr/m8gL2/C+QP7jlCXut+L7uTFbCj9qs+CreAP0x/VdLI/Ig==}
 
   '@esbuild/aix-ppc64@0.21.5':
     resolution: {integrity: sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==}
@@ -864,11 +864,17 @@ packages:
   '@fastify/send@3.1.1':
     resolution: {integrity: sha512-LdiV2mle/2tH8vh6GwGl0ubfUAgvY+9yF9oGI1iiwVyNUVOQamvw5n+OFu6iCNNoyuCY80FFURBn4TZCbTe8LA==}
 
+  '@fastify/send@4.1.0':
+    resolution: {integrity: sha512-TMYeQLCBSy2TOFmV95hQWkiTYgC/SEx7vMdV+wnZVX4tt8VBLKzmH8vV9OzJehV0+XBfg+WxPMt5wp+JBUKsVw==}
+
   '@fastify/sensible@6.0.1':
     resolution: {integrity: sha512-D0rN0kMeZKP23f4w9MoCI9e4+n7vASFAsGoRNn9bondSbplLeIfR2HcjCbyElAM04jGrPRLi/edyThEPOyC9cQ==}
 
   '@fastify/static@8.0.2':
     resolution: {integrity: sha512-xJ+XaZVl4Y+lKztx8jGi+BE73aByhOmjMgaTx98E4XtVZxUpiaYQIMBlwACsJz+xohm0kvzV34BZoiZ+bsJtBQ==}
+
+  '@fastify/static@8.2.0':
+    resolution: {integrity: sha512-PejC/DtT7p1yo3p+W7LiUtLMsV8fEvxAK15sozHy9t8kwo5r0uLYmhV/inURmGz1SkHZFz/8CNtHLPyhKcx4SQ==}
 
   '@fastify/swagger-ui@5.1.0':
     resolution: {integrity: sha512-XWb+zWz0vlP4QIXbF2xo/n9XuOjNF5aRdQ+0AiBXY9nlIuoTYU1ZXCkXNStdnM/sOdnDy8Q1vsxZ2RsN7XivQA==}
@@ -876,8 +882,8 @@ packages:
   '@fastify/swagger@9.2.0':
     resolution: {integrity: sha512-tuy78fW3G4z8EhTdopAu6gXbllFrQBkcYduOmPiEVESZNaLnxR8N80YVu7F6WuMwk7sd9rYGnGo9bxDQChCFjg==}
 
-  '@fastify/view@10.0.1':
-    resolution: {integrity: sha512-rXtBN0oVDmoRZAS7lelrCIahf+qFtlMOOas8VPdA7JvrJ9ChcF7e36pIUPU0Vbs3KmHxESUb7XatavUZEe/k5Q==}
+  '@fastify/view@11.1.0':
+    resolution: {integrity: sha512-ab8LG5V8srCdnknYlufaSusrjkYLYf5TUWm3DTdPFr5m1C9tI7KNl78UCcP0BJiaGaZj1udsyzAC67JCf5Ol/g==}
 
   '@hapi/boom@10.0.1':
     resolution: {integrity: sha512-ERcCZaEjdH3OgSJlyjVk8pHIFeus91CjKP3v+MpgBNp5IvGzP2l/bRiD78nqYcKPaZdbKkK5vDBVPd2ohHBlsA==}
@@ -1600,8 +1606,8 @@ packages:
     resolution: {integrity: sha512-8f9ZJCUXyT1M35Jx7MkBgmBMo3oHTTBIPLiY9xyL0pl3T5RwcPEY8cUHr5LBNfu/fk6c2T4DJZuVM/8ZZT2D2A==}
     engines: {node: '>=10.0.0'}
 
-  bullmq@4.17.0:
-    resolution: {integrity: sha512-URnHgB01rlCP8RTpmW3kFnvv3vdd2aI1OcBMYQwnqODxGiJUlz9MibDVXE83mq7ee1eS1IvD9lMQqGszX6E5Pw==}
+  bullmq@5.54.3:
+    resolution: {integrity: sha512-MVK2pOkB3hvrIcubwI8dS4qWHJLNKakKPpgRBTw91sIpPZArmvZ4t2hvryyEaJXJbAS/JHd6pKYOUd+RGRkWQQ==}
 
   bundle-require@5.0.0:
     resolution: {integrity: sha512-GuziW3fSSmopcx4KRymQEJVbZUfqlCqcq7dvs6TYwKRZiegK/2buMxQTPs6MGlNv50wms1699qYO54R8XfRX4w==}
@@ -1991,9 +1997,6 @@ packages:
   fs-constants@1.0.0:
     resolution: {integrity: sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==}
 
-  fs.realpath@1.0.0:
-    resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
-
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -2043,11 +2046,6 @@ packages:
     resolution: {integrity: sha512-9UiX/Bl6J2yaBbxKoEBRm4Cipxgok8kQYcOPEhScPwebu2I0HoQOuYdIO6S3hLuWoZgpDpwQZMzTFxgpkyT76g==}
     engines: {node: 20 || >=22}
     hasBin: true
-
-  glob@8.1.0:
-    resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
-    engines: {node: '>=12'}
-    deprecated: Glob versions prior to v9 are no longer supported
 
   global-prefix@3.0.0:
     resolution: {integrity: sha512-awConJSVCHVGND6x3tmMaKcQvwXLhjdkmomy2W+Goaui8YPgYgXJZewhg3fWC+DlfqqQuWg8AwqjGTD2nAPVWg==}
@@ -2100,10 +2098,6 @@ packages:
   ignore@5.3.1:
     resolution: {integrity: sha512-5Fytz/IraMjqpwfd34ke28PTVMjZjJG2MPn5t7OE4eUCUNf8BAa7b5WUS9/Qvr6mwOQS7Mk6vdsMno5he+T8Xw==}
     engines: {node: '>= 4'}
-
-  inflight@1.0.6:
-    resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
-    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
@@ -2395,8 +2389,8 @@ packages:
     resolution: {integrity: sha512-SdzXp4kD/Qf8agZ9+iTu6eql0m3kWm1A2y1hkpTeVNENutaB0BwHlSvAIaMxwntmRUAUjon2V4L8Z/njd0Ct8A==}
     hasBin: true
 
-  msgpackr@1.10.2:
-    resolution: {integrity: sha512-L60rsPynBvNE+8BWipKKZ9jHcSGbtyJYIwjRq0VrIvQ08cRjntGXJYW/tmciZ2IHWIY8WEW32Qa2xbh5+SKBZA==}
+  msgpackr@1.11.4:
+    resolution: {integrity: sha512-uaff7RG9VIC4jacFW9xzL3jc0iM32DNHe4jYVycBcjUePT/Klnfj7pqtWJt9khvDFizmjN2TlYniYmSS2LIaZg==}
 
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
@@ -2885,9 +2879,6 @@ packages:
   ts-patch@3.2.1:
     resolution: {integrity: sha512-hlR43v+GUIUy8/ZGFP1DquEqPh7PFKQdDMTAmYt671kCCA6AkDQMoeFaFmZ7ObPLYOmpMgyKUqL1C+coFMf30w==}
     hasBin: true
-
-  tslib@2.6.2:
-    resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
 
   tslib@2.6.3:
     resolution: {integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==}
@@ -4004,22 +3995,22 @@ snapshots:
   '@biomejs/cli-win32-x64@1.8.3':
     optional: true
 
-  '@bull-board/api@6.3.3(@bull-board/ui@6.3.3)':
+  '@bull-board/api@6.10.1(@bull-board/ui@6.10.1)':
     dependencies:
-      '@bull-board/ui': 6.3.3
+      '@bull-board/ui': 6.10.1
       redis-info: 3.1.0
 
-  '@bull-board/fastify@6.3.3':
+  '@bull-board/fastify@6.10.1':
     dependencies:
-      '@bull-board/api': 6.3.3(@bull-board/ui@6.3.3)
-      '@bull-board/ui': 6.3.3
-      '@fastify/static': 8.0.2
-      '@fastify/view': 10.0.1
+      '@bull-board/api': 6.10.1(@bull-board/ui@6.10.1)
+      '@bull-board/ui': 6.10.1
+      '@fastify/static': 8.2.0
+      '@fastify/view': 11.1.0
       ejs: 3.1.10
 
-  '@bull-board/ui@6.3.3':
+  '@bull-board/ui@6.10.1':
     dependencies:
-      '@bull-board/api': 6.3.3(@bull-board/ui@6.3.3)
+      '@bull-board/api': 6.10.1(@bull-board/ui@6.10.1)
 
   '@esbuild/aix-ppc64@0.21.5':
     optional: true
@@ -4229,6 +4220,14 @@ snapshots:
       http-errors: 2.0.0
       mime: 3.0.0
 
+  '@fastify/send@4.1.0':
+    dependencies:
+      '@lukeed/ms': 2.0.2
+      escape-html: 1.0.3
+      fast-decode-uri-component: 1.0.1
+      http-errors: 2.0.0
+      mime: 3.0.0
+
   '@fastify/sensible@6.0.1':
     dependencies:
       '@lukeed/ms': 2.0.2
@@ -4243,6 +4242,15 @@ snapshots:
     dependencies:
       '@fastify/accept-negotiator': 2.0.0
       '@fastify/send': 3.1.1
+      content-disposition: 0.5.4
+      fastify-plugin: 5.0.1
+      fastq: 1.17.1
+      glob: 11.0.0
+
+  '@fastify/static@8.2.0':
+    dependencies:
+      '@fastify/accept-negotiator': 2.0.0
+      '@fastify/send': 4.1.0
       content-disposition: 0.5.4
       fastify-plugin: 5.0.1
       fastq: 1.17.1
@@ -4266,7 +4274,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@fastify/view@10.0.1':
+  '@fastify/view@11.1.0':
     dependencies:
       fastify-plugin: 5.0.1
       toad-cache: 3.7.0
@@ -5195,16 +5203,14 @@ snapshots:
   buildcheck@0.0.6:
     optional: true
 
-  bullmq@4.17.0:
+  bullmq@5.54.3:
     dependencies:
       cron-parser: 4.9.0
-      glob: 8.1.0
       ioredis: 5.4.1
-      lodash: 4.17.21
-      msgpackr: 1.10.2
+      msgpackr: 1.11.4
       node-abort-controller: 3.1.1
-      semver: 7.6.2
-      tslib: 2.6.2
+      semver: 7.6.3
+      tslib: 2.6.3
       uuid: 9.0.1
     transitivePeerDependencies:
       - supports-color
@@ -5651,8 +5657,6 @@ snapshots:
 
   fs-constants@1.0.0: {}
 
-  fs.realpath@1.0.0: {}
-
   fsevents@2.3.3:
     optional: true
 
@@ -5714,14 +5718,6 @@ snapshots:
       package-json-from-dist: 1.0.1
       path-scurry: 2.0.0
 
-  glob@8.1.0:
-    dependencies:
-      fs.realpath: 1.0.0
-      inflight: 1.0.6
-      inherits: 2.0.4
-      minimatch: 5.1.6
-      once: 1.4.0
-
   global-prefix@3.0.0:
     dependencies:
       ini: 1.3.8
@@ -5771,11 +5767,6 @@ snapshots:
 
   ignore@5.3.1: {}
 
-  inflight@1.0.6:
-    dependencies:
-      once: 1.4.0
-      wrappy: 1.0.2
-
   inherits@2.0.4: {}
 
   ini@1.3.8: {}
@@ -5784,7 +5775,7 @@ snapshots:
     dependencies:
       '@ioredis/commands': 1.2.0
       cluster-key-slot: 1.1.2
-      debug: 4.3.7
+      debug: 4.4.0
       denque: 2.1.0
       lodash.defaults: 4.2.0
       lodash.isarguments: 3.1.0
@@ -6040,7 +6031,7 @@ snapshots:
       '@msgpackr-extract/msgpackr-extract-win32-x64': 3.0.2
     optional: true
 
-  msgpackr@1.10.2:
+  msgpackr@1.11.4:
     optionalDependencies:
       msgpackr-extract: 3.0.2
 
@@ -6583,8 +6574,6 @@ snapshots:
       resolve: 1.22.8
       semver: 7.6.3
       strip-ansi: 6.0.1
-
-  tslib@2.6.2: {}
 
   tslib@2.6.3: {}
 
