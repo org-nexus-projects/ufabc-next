@@ -498,7 +498,7 @@ function getTurnoFromTurma(turma: string): string {
 }
 
 function extractTurma(turmaRaw: string): string | null {
-  // Remove leading 'F' if present (puta edge case)
+  // Remove leading 'F' if present (rare edge case)
   const turmaStr = turmaRaw.startsWith('F') ? turmaRaw.slice(1) : turmaRaw;
   const match = turmaStr.match(/^[A-Z]([A-Z]\d{0,2})/i);
   return match ? match[1] : null;
