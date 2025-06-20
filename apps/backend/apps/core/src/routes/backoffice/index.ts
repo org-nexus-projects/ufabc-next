@@ -1,4 +1,5 @@
 import { UserModel } from '@/models/User.js';
+import type { QueueNames } from '@/queue/types.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import { z } from 'zod';
 
@@ -48,14 +49,22 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get(
     '/jobs/failed',
     {
+      schema: {
+        querystring: z.object({
+          reason: z.string(),
+          batchSize: z.number().optional().default(500),
+          queue: z.custom<QueueNames>((val) => {
+            return (
+              typeof val === 'string' &&
+              Object.keys(app.job.queues).includes(val)
+            );
+          }),
+        }),
+      },
       // preHandler: (request, reply) => request.isAdmin(reply),
     },
     async (request, reply) => {
-      const { reason, batchSize, queue } = request.query as {
-        reason?: string;
-        batchSize?: number;
-        queue: string;
-      };
+      const { reason, batchSize, queue } = request.query;
 
       if (!reason) {
         return reply.badRequest('Missing reason');
@@ -64,7 +73,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const failedJobs = await app.job.getFailedByReason(
         queue,
         reason,
-        batchSize ?? 500,
+        batchSize,
       );
 
       // log the quantity of failed jobs per reason

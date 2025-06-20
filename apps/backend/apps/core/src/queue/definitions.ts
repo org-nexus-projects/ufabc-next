@@ -12,6 +12,17 @@ import { processComponentsTeachers } from './jobs/components-teacher.job.js';
 import { uploadLogsToS3 } from './jobs/logs.job.js';
 import { postInfoIntoNotionDB } from './jobs/notion-questions.job.js';
 
+type JobNames =
+  | 'send_email'
+  | 'enrollments_update'
+  | 'teacher_update_enrollments'
+  | 'sync_enrolled'
+  | 'sync_components'
+  | 'user_enrollments_update'
+  | 'sync_components_teachers'
+  | 'logs_upload'
+  | 'notion_insert';
+
 const MONTH = 60 * 60 * 24 * 30;
 
 const redisURL = new URL(process.env.REDIS_URL ?? 'redis://localhost:6379');
@@ -29,7 +40,7 @@ function withConnection(
   return { ...opts, connection: redisConnection };
 }
 
-export const QUEUE_JOBS: Record<any, WorkerOptions> = {
+export const QUEUE_JOBS: Record<JobNames, WorkerOptions> = {
   send_email: withConnection({
     removeOnComplete: { age: MONTH },
   }),
@@ -39,13 +50,13 @@ export const QUEUE_JOBS: Record<any, WorkerOptions> = {
     removeOnFail: { count: 500, age: 24 * 60 * 60 },
     limiter: { max: 50, duration: 1_000 },
   }),
-  teacher_updateEnrollments: withConnection({
+  teacher_update_enrollments: withConnection({
     concurrency: 5,
   }),
   sync_enrolled: withConnection({
     concurrency: 5,
   }),
-  userEnrollments_update: withConnection({
+  user_enrollments_update: withConnection({
     concurrency: 5,
     removeOnComplete: { count: 400, age: 0 },
   }),
@@ -61,6 +72,10 @@ export const QUEUE_JOBS: Record<any, WorkerOptions> = {
   }),
   logs_upload: withConnection({
     concurrency: 1,
+    removeOnComplete: { count: 100, age: 24 * 60 * 60 },
+  }),
+  notion_insert: withConnection({
+    concurrency: 5,
     removeOnComplete: { count: 100, age: 24 * 60 * 60 },
   }),
 } as const;
@@ -89,15 +104,15 @@ export const JOBS = {
     handler: processComponent,
   },
   UserEnrollmentsUpdate: {
-    queue: 'userEnrollments_update',
+    queue: 'user_enrollments_update',
     handler: userEnrollmentsUpdate,
   },
   ProcessComponentsEnrollments: {
-    queue: 'userEnrollments_update',
+    queue: 'user_enrollments_update',
     handler: processComponentEnrollment,
   },
   TeacherUpdate: {
-    queue: 'teacher_updateEnrollments',
+    queue: 'teacher_update_enrollments',
     handler: updateTeachers,
   },
   EnrollmentSync: {

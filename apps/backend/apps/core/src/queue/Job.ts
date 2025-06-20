@@ -25,7 +25,7 @@ export type QueueImpl = Record<
 >;
 
 export class Jobs implements JobImpl {
-  private readonly queues: Record<QueueNames, TypeSafeQueue> = {} as Record<
+  public readonly queues: Record<QueueNames, TypeSafeQueue> = {} as Record<
     QueueNames,
     TypeSafeQueue
   >;
@@ -67,7 +67,11 @@ export class Jobs implements JobImpl {
     return this.queues[JOBS[jobName].queue] as TypeSafeQueue<TData, TResult>;
   }
 
-  async getFailedByReason(queueName: string, reason: string, batchSize = 500) {
+  async getFailedByReason(
+    queueName: QueueNames,
+    reason: string,
+    batchSize: number,
+  ) {
     const queue = this.queues[queueName];
     const failedJobs = await queue.getFailed(batchSize);
 
