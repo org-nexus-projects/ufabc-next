@@ -67,6 +67,21 @@ export class Jobs implements JobImpl {
     return this.queues[JOBS[jobName].queue] as TypeSafeQueue<TData, TResult>;
   }
 
+  async getFailedByReason(queueName: string, reason: string, batchSize = 500) {
+    const queue = this.queues[queueName];
+    const failedJobs = await queue.getFailed(batchSize);
+
+    const filteredJobs = failedJobs
+      .filter((job) => job.failedReason.includes(reason))
+      .map((j) => ({
+        id: j.id,
+        name: j.name,
+        data: j.data,
+      }));
+
+    return filteredJobs;
+  }
+
   async setup() {
     const isTest = this.app.config.NODE_ENV === 'test';
     if (isTest) {
