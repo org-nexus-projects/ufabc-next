@@ -45,7 +45,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         parsedHistory.data;
 
       if (!parsedHistory.data?.graduations.grade) {
-        app.log.error(
+        app.log.warn(
           {
             ra: student.ra,
             course: graduations.course,
