@@ -229,9 +229,9 @@ const shortedSpecifics = computed(() => {
   } else if (selectedOrder.value === 'samplesDecres') {
     sorted.sort((a, b) => b.count - a.count);
   } else if (selectedOrder.value === 'mostApproved') {
-    sorted.sort((a, b) => approveRating(a) - approveRating(b));
-  } else if (selectedOrder.value === 'leastApproved') {
     sorted.sort((a, b) => approveRating(b) - approveRating(a));
+  } else if (selectedOrder.value === 'leastApproved') {
+    sorted.sort((a, b) => approveRating(a) - approveRating(b));
   }
 
   return sorted;
