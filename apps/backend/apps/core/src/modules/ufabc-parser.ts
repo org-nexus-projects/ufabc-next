@@ -12,6 +12,7 @@ export type UfabcParserComponent = {
   /** The code as we consume */
   UFComponentCode: string;
   UFClassroomCode: string;
+  rawTPI: [number, number, number];
   campus: 'sbc' | 'sa';
   name: string;
   turma: string;
