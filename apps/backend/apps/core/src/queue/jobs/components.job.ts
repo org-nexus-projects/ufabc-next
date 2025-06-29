@@ -73,6 +73,7 @@ export async function processComponent({
         .filter((c) => c.category === 'obrigatoria')
         .map((c) => c.UFCourseId),
       uf_cod_turma: component.UFClassroomCode,
+      tpi: component.rawTPI,
     };
 
     app.log.debug(dbComponent, 'Generated component');
