@@ -33,4 +33,13 @@ export default defineBackground(() => {
 
     return cookie;
   });
+
+  onMessage("getTokenMoodle", async ({ data }) => {
+    const url = new URL(data.pageURL);
+    const cookie = await browser.cookies.get({
+      url: url.origin,
+      name: "MoodleSession",
+    });
+    return cookie;
+  });
 });
