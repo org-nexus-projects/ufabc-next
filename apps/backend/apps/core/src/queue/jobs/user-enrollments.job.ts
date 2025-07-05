@@ -389,8 +389,8 @@ async function buildEnrollmentFromSubject(
   const [mappedEnrollment] = mappedEnrollments;
   logger.info(baseData, 'Mapped enrollment from subject');
 
-  // Handle case where turma is null - we can't generate UFClassroomCode without it
-  if (!baseData.turma) {
+  // Handle case where turma is null or invalid - we can't generate UFClassroomCode without it
+  if (!baseData.turma || baseData.turma === '--' || baseData.turma === '-') {
     log.warn(
       {
         component,
@@ -398,7 +398,7 @@ async function buildEnrollmentFromSubject(
         ra: baseData.ra,
         disciplina: baseData.disciplina,
       },
-      'No turma provided, cannot generate UFClassroomCode',
+      'No valid turma provided, cannot generate UFClassroomCode',
     );
 
     // Return enrollment without uf_cod_turma - it will be handled by the upsert logic
@@ -521,10 +521,11 @@ function isValidHistory(history: History | undefined): history is History {
 }
 
 function getCampusFromTurma(turma: string | null | undefined): string | null {
-  if (!turma) {
+  // Handle special cases that should be treated as null
+  if (!turma || turma === '--' || turma === '-') {
     logger.warn(
       { turma },
-      'Turma is null or undefined in getCampusFromTurma, skipping campus extraction.',
+      'Turma is null, undefined, or invalid in getCampusFromTurma, skipping campus extraction.',
     );
     return null;
   }
@@ -541,10 +542,11 @@ function getCampusFromTurma(turma: string | null | undefined): string | null {
 }
 
 function getTurnoFromTurma(turma: string | null | undefined): string | null {
-  if (!turma) {
+  // Handle special cases that should be treated as null
+  if (!turma || turma === '--' || turma === '-') {
     logger.warn(
       { turma },
-      'Turma is null or undefined in getTurnoFromTurma, skipping turno extraction.',
+      'Turma is null, undefined, or invalid in getTurnoFromTurma, skipping turno extraction.',
     );
     return null;
   }
