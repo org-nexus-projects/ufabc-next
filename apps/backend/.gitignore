@@ -48,3 +48,4 @@ tmp
 debug.js
 logs
 scripts/docker/localstack
+.cursor/

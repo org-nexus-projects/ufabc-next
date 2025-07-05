@@ -373,11 +373,36 @@ async function buildEnrollmentFromSubject(
     return null;
   }
 
-  const [mappedEnrollment] = mapSubjects(baseData, subjects);
+  const mappedEnrollments = mapSubjects(baseData, subjects);
+
+  if (!mappedEnrollments.length) {
+    log.warn({
+      msg: 'No mapped enrollments returned from mapSubjects',
+      component,
+      baseData,
+      ra: baseData.ra,
+      disciplina: baseData.disciplina,
+    });
+    return null;
+  }
+
+  const [mappedEnrollment] = mappedEnrollments;
   logger.info(baseData, 'Mapped enrollment from subject');
+
+  // Handle case where turma is null - we can't generate UFClassroomCode without it
   if (!baseData.turma) {
-    log.warn({ component, baseData }, 'No turma provided');
-    throw new Error('Missing turma');
+    log.warn(
+      {
+        component,
+        baseData,
+        ra: baseData.ra,
+        disciplina: baseData.disciplina,
+      },
+      'No turma provided, cannot generate UFClassroomCode',
+    );
+
+    // Return enrollment without uf_cod_turma - it will be handled by the upsert logic
+    return mappedEnrollment;
   }
 
   const turma = extractTurma(baseData.turma);
@@ -390,14 +415,24 @@ async function buildEnrollmentFromSubject(
     throw new Error('Invalid turma format', { cause: baseData.turma });
   }
 
-  const UFClassroomCode = `${baseData.turno?.slice(0, 1).toUpperCase()}${turma.toUpperCase()}${component.codigo}${baseData.campus?.slice(0, 2)}`;
+  // Generate UFClassroomCode only if we have all required data
+  if (!baseData.turno || !baseData.campus) {
+    log.warn({
+      msg: 'Missing turno or campus data, cannot generate UFClassroomCode',
+      turno: baseData.turno,
+      campus: baseData.campus,
+      ra: baseData.ra,
+      disciplina: baseData.disciplina,
+    });
+    // Return enrollment without uf_cod_turma - it will be handled by the upsert logic
+    return mappedEnrollment;
+  }
+
+  const turnoPrefix = baseData.turno.slice(0, 1).toUpperCase();
+  const campusSuffix = baseData.campus.slice(0, 2);
+  const UFClassroomCode = `${turnoPrefix}${turma.toUpperCase()}${component.codigo}${campusSuffix}`;
 
   mappedEnrollment.uf_cod_turma = UFClassroomCode;
-
-  if (!mappedEnrollment) {
-    log.warn({ component, baseData }, 'Could not match history to subject');
-    return null;
-  }
 
   return mappedEnrollment;
 }
@@ -485,15 +520,34 @@ function isValidHistory(history: History | undefined): history is History {
   return !!(history?.disciplinas?.length && history.ra);
 }
 
-function getCampusFromTurma(turma: string): string {
+function getCampusFromTurma(turma: string | null | undefined): string | null {
+  if (!turma) {
+    logger.warn(
+      { turma },
+      'Turma is null or undefined in getCampusFromTurma, skipping campus extraction.',
+    );
+    return null;
+  }
+
   const campus = turma.slice(-2).toUpperCase();
   if (campus !== 'SA' && campus !== 'SB') {
+    logger.warn(
+      { turma, campus },
+      'Invalid campus detected in getCampusFromTurma.',
+    );
     throw new Error('Invalid campus', { cause: campus });
   }
   return campus === 'SA' ? 'sa' : 'sbc';
 }
 
-function getTurnoFromTurma(turma: string): string {
+function getTurnoFromTurma(turma: string | null | undefined): string | null {
+  if (!turma) {
+    logger.warn(
+      { turma },
+      'Turma is null or undefined in getTurnoFromTurma, skipping turno extraction.',
+    );
+    return null;
+  }
   return turma.slice(0, 1).toUpperCase() === 'N' ? 'noturno' : 'diurno';
 }
 
