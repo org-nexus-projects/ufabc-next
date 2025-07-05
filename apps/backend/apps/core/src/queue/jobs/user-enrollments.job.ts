@@ -531,14 +531,14 @@ function getCampusFromTurma(turma: string | null | undefined): string | null {
   }
 
   const campus = turma.slice(-2).toUpperCase();
-  if (campus !== 'SA' && campus !== 'SB') {
+  if (campus !== 'SA' && campus !== 'SB' && campus !== 'AA') {
     logger.warn(
       { turma, campus },
       'Invalid campus detected in getCampusFromTurma.',
     );
     throw new Error('Invalid campus', { cause: campus });
   }
-  return campus === 'SA' ? 'sa' : 'sbc';
+  return campus === 'SA' || campus === 'AA' ? 'sa' : 'sbc';
 }
 
 function getTurnoFromTurma(turma: string | null | undefined): string | null {
