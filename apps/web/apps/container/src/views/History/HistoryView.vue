@@ -85,7 +85,7 @@
         </template>
         <template #body>
           <template v-for="date in enrollmentByDateKeysSorted" :key="date">
-            <tr class="bg-white">
+            <tr class="bg-white quad-header">
               <td style="position: sticky; left: 0" colspan="1" class="text-left">
                 {{ Number(date) % 10 }}
                 de
@@ -110,7 +110,7 @@
                   </v-btn>
                   <span class="text-truncate">{{
                     item.teoria?.name || '-'
-                    }}</span>
+                  }}</span>
                 </div>
               </td>
               <td rowspan="1" colspan="1" class="px-2" style="max-width: 200px">
@@ -122,7 +122,7 @@
                   </v-btn>
                   <span class="text-truncate">{{
                     item.pratica?.name || '-'
-                    }}</span>
+                  }}</span>
                 </div>
               </td>
               <td rowspan="1" colspan="1" class="font-weight-bold text-body-1"
@@ -150,6 +150,10 @@
 </template>
 
 <style scoped lang="scss">
+.quad-header {
+  pointer-events: none;
+}
+
 .chip-wrapper {
   display: flex;
   flex-wrap: wrap;
@@ -319,8 +323,8 @@ onMounted(() => {
     message: "O next está passando por atualizações em seus sistemas e você pode encontrar dados incompatíveis com seu histórico, não se preocupe, em breve estará normalizado!",
     title: 'Ufabc next informa',
     type: 'warning',
-    duration: 0, 
-    showClose: true, 
+    duration: 0,
+    showClose: true,
   });
 });
 
