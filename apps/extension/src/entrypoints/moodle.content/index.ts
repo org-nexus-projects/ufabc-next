@@ -1,5 +1,6 @@
 import { successToastMoodle, errorToastMoodle, processingToastMoodle } from '@/utils/toasts';
 import { storage } from 'wxt/storage';
+import { sendResults } from '@/services/next';
 import { sendMessage } from '@/messaging';
 
 async function processCourse(link: string) {
@@ -56,6 +57,9 @@ export default defineContentScript({
 
       await storage.setItem('local:results', results);
       await storage.setItem('local:inProgress', false);
+
+      // Envia os resultados para o backend
+      await sendResults(results);
 
       successToastMoodle.showToast();
     } catch (error) {
