@@ -16,7 +16,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
   app.get('/wpp', async ({ user }) => {
     const season = currentQuad();
-    const wppEnrollments = await listWithComponents(user.ra, season);
+    const wppEnrollments = await listWithComponents(user.ra, '2025:2');
     return wppEnrollments;
   });
 

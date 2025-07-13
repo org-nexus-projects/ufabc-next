@@ -43,53 +43,52 @@ export async function listWithComponents(
   ra: number,
   season: ReturnType<typeof currentQuad>,
 ) {
+  // Fetch enrollments for the given ra and season
   const enrollments = await EnrollmentModel.find({
     ra,
-    season: '2025:2',
+    season,
   })
     .populate<{
       pratica: TeacherDocument;
       teoria: TeacherDocument;
     }>(['pratica', 'teoria'])
     .lean();
-  const matchingComponents = await ComponentModel.find(
-    {
-      season: '2025:2',
-      uf_cod_turma: {
-        $in: enrollments.map((enrollment) => enrollment.uf_cod_turma),
-      },
-    },
-    { _id: 0, groupURL: 1, disciplina_id: 1, uf_cod_turma: 1 },
-  ).lean();
-  // final payload
-  /**
-   * season,
-   * groupURL,
-   * codigo,
-   * pratica/teoria,
-   * campus,
-   * turma,
-   * turno,
-   * disciplina,
-   */
 
+  // Gather all unique uf_cod_turma and disciplina_id from enrollments
+  const ufCodTurmas = enrollments.map((enrollment) => enrollment.uf_cod_turma);
+  const disciplinaIds = enrollments.map(
+    (enrollment) => enrollment.disciplina_id,
+  );
+
+  // Fetch components that match the season and either uf_cod_turma or disciplina_id
+  const matchingComponents = await ComponentModel.find({
+    season,
+    $or: [
+      { uf_cod_turma: { $in: ufCodTurmas } },
+      { disciplina_id: { $in: disciplinaIds } },
+    ],
+  }).lean();
+
+  // Build the payload by matching each enrollment to its component(s)
   const payload = enrollments.map((enrollment) => {
+    // Find a component that matches by uf_cod_turma or disciplina_id and season
     const component = matchingComponents.find(
       (component) =>
-        component.disciplina_id === enrollment.disciplina_id &&
-        component.uf_cod_turma === enrollment.uf_cod_turma,
+        component.season === season &&
+        (component.uf_cod_turma === enrollment.uf_cod_turma ||
+          component.disciplina_id === enrollment.disciplina_id),
     );
 
     return {
       season,
       groupURL: component?.groupURL,
-      codigo: enrollment.disciplina,
-      campus: enrollment.campus,
-      turma: enrollment.turma,
-      turno: enrollment.turno,
-      subject: enrollment.disciplina,
-      teoria: enrollment.pratica?.name ?? 'N/A',
-      pratica: enrollment.teoria?.name ?? 'N/A',
+      codigo: component?.codigo,
+      campus: enrollment.campus ?? component?.campus,
+      turma: enrollment.turma ?? component?.turma,
+      turno: enrollment.turno ?? component?.turno,
+      subject: enrollment.disciplina ?? component?.disciplina,
+      teoria: enrollment.teoria?.name ?? 'N/A',
+      pratica: enrollment.pratica?.name ?? 'N/A',
     };
   });
 
