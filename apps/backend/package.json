@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm run services:up && turbo run dev --parallel",
-    "services:up": "docker compose up -d && awslocal s3api create-bucket --bucket ufabc-next",
+    "services:up": "docker compose up -d && awslocal s3api create-bucket --bucket ufabc-next --region us-east-1",
     "build": "turbo run build",
     "tsc": "turbo run tsc --parallel",
     "start": "turbo run start",
@@ -22,5 +22,12 @@
   "engines": {
     "node": "^22",
     "pnpm": "^9"
+  },
+  "dependencies": {
+    "cheerio": "^1.1.0",
+    "fetch-cookie": "^3.1.0",
+    "jsdom": "^26.1.0",
+    "node-fetch": "^3.3.2",
+    "tough-cookie": "^5.1.2"
   }
 }
