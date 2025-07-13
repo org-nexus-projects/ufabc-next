@@ -46,19 +46,21 @@ export async function listWithComponents(
   const enrollments = await EnrollmentModel.find({
     ra,
     season: '2025:2',
-  }).lean();
-  const matchingComponents = await ComponentModel.find({
-    season: '2025:2',
-    uf_cod_turma: {
-      $in: enrollments.map((enrollment) => enrollment.uf_cod_turma),
-    },
   })
     .populate<{
-      teoria: TeacherDocument;
       pratica: TeacherDocument;
-    }>(['teoria', 'pratica'])
+      teoria: TeacherDocument;
+    }>(['pratica', 'teoria'])
     .lean();
-
+  const matchingComponents = await ComponentModel.find(
+    {
+      season: '2025:2',
+      uf_cod_turma: {
+        $in: enrollments.map((enrollment) => enrollment.uf_cod_turma),
+      },
+    },
+    { _id: 0, groupURL: 1, disciplina_id: 1, uf_cod_turma: 1 },
+  ).lean();
   // final payload
   /**
    * season,
@@ -81,13 +83,13 @@ export async function listWithComponents(
     return {
       season,
       groupURL: component?.groupURL,
-      codigo: enrollment.disciplina_id,
+      codigo: enrollment.disciplina,
       campus: enrollment.campus,
       turma: enrollment.turma,
       turno: enrollment.turno,
       subject: enrollment.disciplina,
-      teoria: component?.teoria?.name,
-      pratica: component?.pratica?.name,
+      teoria: enrollment.pratica?.name ?? 'N/A',
+      pratica: enrollment.teoria?.name ?? 'N/A',
     };
   });
 
