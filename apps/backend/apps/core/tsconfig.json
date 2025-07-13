@@ -1,4 +1,5 @@
 {
+  "sourceMap": true,
   "extends": [
     "fastify-tsconfig"
   ],
