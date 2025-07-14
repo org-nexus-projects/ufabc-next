@@ -50,7 +50,7 @@ const sigComponents = z.object({
 const CAMPUS_ENUM = z.enum(['sa', 'sbc']);
 
 const sigStudent = z.object({
-  campus: CAMPUS_ENUM,
+  campus: CAMPUS_ENUM.optional(),
   shift: z
     .enum(['n', 'm'])
     .transform((val) => (val === 'n' ? 'noturno' : 'matutino')),
