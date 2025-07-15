@@ -179,10 +179,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       preHandler: (request, reply) => request.isAdmin(reply),
     },
     async (request, reply) => {
-      const { season, hash, ignoreErrors } = request.body;
+      const { season, hash, ignoreErrors, kind} = request.body;
       const componentsWithTeachers = await getComponentsFile(
         season,
-        'settlement',
+        kind,
       );
 
       const teacherCache = new Map();
