@@ -245,21 +245,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
               parserError: ['Component not found in database'],
               type: 'MATCHING_FAILED',
             });
+            // Normalize the subject code (strip year, uppercase, etc.)
+            const codeMatch = c.UFComponentCode.match(/^(.*?)-\d{2}$/);
+            const normalizedCode = codeMatch ? codeMatch[1] : c.UFComponentCode;
             const subject = await SubjectModel.findOne({
-              $or: [
-                { search: c.name.toLowerCase() },
-                { search: { $regex: c.name, $options: 'i' } },
-                {
-                  search: {
-                    $regex: c.name
-                      .split(/\s+/)
-                      .map((word) => `(?=.*${word})`)
-                      .join(''),
-                    $options: 'i',
-                  },
-                },
-                { name: { $regex: c.name, $options: 'i' } },
-              ],
+              uf_subject_code: { $in: [normalizedCode] },
             }).lean();
             if (!subject) {
               app.log.warn({

@@ -160,24 +160,24 @@ function mapSubjects(
 
   return enrollmentArray
     .map((e) => {
-      // Find matching subject using normalized comparison
+      // Normalize the subject code (strip year, uppercase, etc.)
+      const codeMatch = (e.disciplina ?? '').match(/^(.*?)-\d{2}$/);
+      const normalizedCode = codeMatch ? codeMatch[1] : e.disciplina ?? '';
+      // Find matching subject using uf_subject_code
       const subject = subjects.find(
-        (s) => normalizeText(s.name) === normalizeText(e.disciplina ?? ''),
+        (s) => Array.isArray(s.uf_subject_code) && s.uf_subject_code.includes(normalizedCode),
       );
-
       if (subject) {
         return {
           ...e,
           subject: subject._id.toString(),
         };
       }
-
       logger.warn({
         msg: 'No subject match found after normalization',
         disciplina: e.disciplina,
-        availableSubjects: subjects.map((s) => s.name),
+        availableSubjects: subjects.map((s) => s.uf_subject_code),
       });
-
       return e;
     })
     .filter(
@@ -342,23 +342,12 @@ async function buildEnrollmentFromSubject(
   component: HistoryComponent,
   log: QueueContext['app']['log'],
 ): Promise<Partial<Enrollment> | null> {
-  const normalizedDisciplina = normalizeText(component.disciplina);
+  // Normalize the subject code (strip year, uppercase, etc.)
+  const codeMatch = component.disciplina.match(/^(.*?)-\d{2}$/);
+  const normalizedCode = codeMatch ? codeMatch[1] : component.disciplina;
 
   const subjects = await SubjectModel.find({
-    $or: [
-      { search: normalizedDisciplina },
-      { search: { $regex: normalizedDisciplina, $options: 'i' } },
-      {
-        search: {
-          $regex: normalizedDisciplina
-            .split(/\s+/)
-            .map((word) => `(?=.*${word})`)
-            .join(''),
-          $options: 'i',
-        },
-      },
-      { name: { $regex: component.disciplina, $options: 'i' } },
-    ],
+    uf_subject_code: { $in: [normalizedCode] },
     creditos: component.creditos,
   }).lean<SubjectDocument[]>();
 
@@ -366,7 +355,7 @@ async function buildEnrollmentFromSubject(
     log.warn({
       msg: 'Subject matching failed',
       original: component.disciplina,
-      normalized: normalizedDisciplina,
+      normalized: normalizedCode,
       creditos: component.creditos,
       ra: baseData.ra,
     });
@@ -400,7 +389,6 @@ async function buildEnrollmentFromSubject(
       },
       'No valid turma provided, cannot generate UFClassroomCode',
     );
-
     // Return enrollment without uf_cod_turma - it will be handled by the upsert logic
     return mappedEnrollment;
   }

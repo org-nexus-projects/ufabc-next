@@ -10,6 +10,12 @@ const subjectSchema = new Schema(
     search: {
       type: String,
       index: 'text',
+      required: true,
+    },
+    uf_subject_code: {
+      type: [String],
+      required: true,
+      unique: true,
     },
     creditos: {
       type: Number,
@@ -19,11 +25,11 @@ const subjectSchema = new Schema(
   { timestamps: true },
 );
 
-subjectSchema.index({ name: 1 }, { unique: true });
-
 subjectSchema.pre('save', function () {
   this.search = startCase(camelCase(this.name));
 });
+
+subjectSchema.index({ uf_subject_code: 1 }, { unique: true, sparse: true });
 
 export type Subject = InferSchemaType<typeof subjectSchema>;
 export type SubjectDocument = ReturnType<(typeof SubjectModel)['hydrate']>;

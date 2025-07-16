@@ -118,32 +118,33 @@ export async function processComponent({
 }
 
 async function processSubject(component: ParserComponent) {
-  const normalizedName = component.name.toLowerCase();
+  // Normalize the subject code (strip year, uppercase, etc.)
+  const codeMatch = component.UFComponentCode.match(/^(.*?)-\d{2}$/);
+  const normalizedCode = codeMatch ? codeMatch[1] : component.UFComponentCode;
 
   try {
-    const existingSubjects = await SubjectModel.find({});
-    const matchedSubject = existingSubjects.find(
-      (subject) => subject.name.toLowerCase() === normalizedName,
-    );
+    // Find subject by uf_subject_code
+    const matchedSubject = await SubjectModel.findOne({
+      uf_subject_code: { $in: [normalizedCode] },
+    });
     if (matchedSubject) {
       matchedSubject.creditos = component.credits;
-      matchedSubject.search = startCase(camelCase(normalizedName));
       await matchedSubject.save();
       return matchedSubject;
     }
-    // Use findOneAndUpdate instead of separate find and update operations
+    // Create new subject with uf_subject_code as array
     const newSubject = await SubjectModel.create({
-      name: normalizedName,
+      name: component.name,
       creditos: component.credits,
-      search: startCase(camelCase(normalizedName)),
+      search: startCase(camelCase(component.name)),
+      uf_subject_code: [normalizedCode],
     });
-
     return newSubject;
   } catch (error: any) {
     if (error.code === 11000) {
       // Handle potential race condition by retrying the find
       const existingSubject = await SubjectModel.findOne({
-        name: normalizedName,
+        uf_subject_code: { $in: [normalizedCode] },
       });
       if (existingSubject) {
         existingSubject.creditos = component.credits;
