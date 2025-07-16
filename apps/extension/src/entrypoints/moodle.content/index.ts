@@ -1,4 +1,3 @@
-import { storage } from 'wxt/storage';
 import { sendResults } from '@/services/next';
 import { sendMessage } from '@/messaging';
 
