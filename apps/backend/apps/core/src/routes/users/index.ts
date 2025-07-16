@@ -211,7 +211,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     // @ts-ignore
     async (request, reply) => {
       const { ra } = request.query;
-
+/
       const checkUser = await getStudentData(ra);
 
       if (!checkUser) {
@@ -233,7 +233,22 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         );
       }
 
-      return { email: checkUser.email[0] };
+      let email = '';
+
+      if (checkUser.email.length === 0) {
+        request.log.warn({
+          ra,
+          username: checkUser.username,
+          msg: 'No email found, using username as email',
+        });
+        email = checkUser.username.concat('@aluno.ufabc.edu.br');
+      }
+
+      if (checkUser.email.length > 0) {
+        email = checkUser.email[0];
+      }
+
+      return { email };
     },
   );
 
