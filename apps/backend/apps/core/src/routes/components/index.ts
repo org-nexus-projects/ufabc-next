@@ -3,10 +3,8 @@ import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import fetch from 'node-fetch';
 import fetchCookie from 'fetch-cookie';
 import tough from 'tough-cookie';
-import { JSDOM } from 'jsdom';
-import { setTimeout as sleep } from 'timers/promises';
+import * as cheerio from 'cheerio';
 
-// Validação do body
 const pdfSchema = z.array(
   z.object({
     link_pdf: z.string().url(),
@@ -23,87 +21,23 @@ export type PdfItem = {
   nome_pdf: string;
 };
 
-// Função com timeout integrado
-async function fetchWithTimeout(
-  url: string,
-  fetchFn: typeof fetch,
-  options: any = {},
-  timeoutMs = 15000
-) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const response = await fetchFn(url, {
-      ...options,
-      signal: controller.signal
-    });
-    clearTimeout(timeout);
-    return response;
-  } catch (error) {
-    clearTimeout(timeout);
-    throw error;
-  }
-}
-
-async function acessarMeusCursos(fetchWithCookies: typeof fetch) {
-  const urlMeusCursos = 'https://moodle.ufabc.edu.br/my/courses.php';
-  
-  try {
-    const response = await fetchWithTimeout(
-      urlMeusCursos,
-      fetchWithCookies,
-      {
-        method: 'GET',
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-      },
-      20000 // 20 segundos timeout
-    );
-
-    if (!response.ok) {
-      throw new Error(`Erro ao acessar Meus Cursos: ${response.status}`);
-    }
-
-    const html = await response.text();
-    await sleep(1000); // Espera adicional de 1s
-    return new JSDOM(html);
-  } catch (error) {
-    console.error('Erro ao acessar Meus Cursos:', error);
-    throw error;
-  }
-}
-
 async function processarCurso(link: string, fetchWithCookies: typeof fetch): Promise<PdfItem[]> {
   try {
-    const response = await fetchWithTimeout(
-      link,
-      fetchWithCookies,
-      {
-        method: 'GET',
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-      },
-      20000 // 20 segundos timeout
-    );
+    const response = await fetchWithCookies(link, {
+      method: 'GET',
+    });
 
     const html = await response.text();
-    await sleep(1000); // Espera adicional de 1s
-    
-    const dom = new JSDOM(html);
-    const document = dom.window.document;
+    const $ = cheerio.load(html);
+
     const pdfs: PdfItem[] = [];
 
-    const activityElements = document.querySelectorAll('div.activityname');
-    
-    activityElements.forEach((el: Element) => {
-      const linkElement = el.querySelector('a');
-      const spanElement = el.querySelector('span.instancename');
+    $('div.activityname').each((_, el) => {
+      const linkElement = $(el).find('a');
+      const spanElement = $(el).find('span.instancename');
 
-      const link_pdf = linkElement?.getAttribute('href') || '';
-      let nome_pdf = spanElement?.textContent?.trim() || '';
+      const link_pdf = linkElement.attr('href') || '';
+      let nome_pdf = spanElement.text() || '';
 
       nome_pdf = nome_pdf.replace(/Arquivo/i, '').trim();
 
@@ -116,6 +50,83 @@ async function processarCurso(link: string, fetchWithCookies: typeof fetch): Pro
   } catch (err) {
     console.error(`[Scraper] Erro ao processar curso: ${link}`, err);
     return [];
+  }
+}
+
+async function obterSesskey(fetchWithCookies: typeof fetch): Promise<string | null> {
+  try {
+    const response = await fetchWithCookies('https://moodle.ufabc.edu.br/my/courses.php', {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+      },
+    });
+
+    const html = await response.text();
+    const $ = cheerio.load(html);
+
+    const sesskey = $('input[name="sesskey"]').attr('value') || 
+                   $('[data-sesskey]').attr('data-sesskey') ||
+                   html.match(/"sesskey":"([^"]+)"/)?.[1] ||
+                   html.match(/sesskey=([^&"]+)/)?.[1];
+    
+    return sesskey || null;
+  } catch (error) {
+    console.error('Erro ao obter sesskey:', error);
+    return null;
+  }
+}
+
+async function obterCursosViaAPI(fetchWithCookies: typeof fetch, sesskey: string) {
+  const apiUrl = `https://moodle.ufabc.edu.br/lib/ajax/service.php?sesskey=${sesskey}&info=core_course_get_enrolled_courses_by_timeline_classification`;
+  
+  const body = [{
+    index: 0,
+    methodname: "core_course_get_enrolled_courses_by_timeline_classification",
+    args: {
+      offset: 0,
+      limit: 0,
+      classification: "all",
+      sort: "fullname",
+      customfieldname: "",
+      customfieldvalue: ""
+    }
+  }];
+
+  try {
+    const response = await fetchWithCookies(apiUrl, {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json, text/javascript, */*; q=0.01',
+        'accept-language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+        'content-type': 'application/json',
+        'sec-ch-ua': '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-origin',
+        'x-requested-with': 'XMLHttpRequest',
+        'Referer': 'https://moodle.ufabc.edu.br/my/courses.php',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json() as any[];
+    
+    if (data[0]?.error) {
+      throw new Error(`Moodle API error: ${data[0].error.message}`);
+    }
+
+    return data[0]?.data?.courses || [];
+  } catch (error) {
+    console.error('Erro ao obter cursos via API:', error);
+    throw error;
   }
 }
 
@@ -134,72 +145,90 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const fetchWithCookies = fetchCookie(fetch, cookieJar);
 
       cookieJar.setCookieSync(
-        `MoodleSession=${MoodleSession}; Domain=moodle.ufabc.edu.br; Path=/; Secure`,
+        `MoodleSession=${MoodleSession}`,
         'https://moodle.ufabc.edu.br'
       );
 
       try {
-        // Primeira requisição com timeout
-        const response = await fetchWithTimeout(
-          'https://moodle.ufabc.edu.br',
-          fetchWithCookies,
-          {
-            method: 'GET',
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
-            },
-            redirect: 'follow'
-          },
-          20000 // 20 segundos timeout
-        );
-
-        const html = await response.text();
+        console.log('[Scraper] Obtendo sesskey...');
+        const sesskey = await obterSesskey(fetchWithCookies);
         
-        // Verificação de autenticação
-        if (html.includes('Você não está logado') || html.includes('form id="login"')) {
+        if (!sesskey) {
           reply.status(401);
-          return { error: 'Sessão MoodleSession inválida ou expirada' };
+          return { error: 'Não foi possível obter sesskey - sessão pode estar inválida' };
         }
 
-        await sleep(1500); // Espera adicional de 1.5s
+        let courses: { link: string; title: string; id: number }[] = [];
         
-        const dom = new JSDOM(html);
-        const document = dom.window.document;
-        const courses: { link: string; title: string }[] = [];
+        try {
+          const cursosAPI = await obterCursosViaAPI(fetchWithCookies, sesskey);
+          
+          courses = cursosAPI.map((curso: any) => ({
+            id: curso.id,
+            title: curso.fullname || curso.shortname || curso.displayname,
+            link: `https://moodle.ufabc.edu.br/course/view.php?id=${curso.id}`
+          }));
+          
+        } catch (apiError) {
+          console.log('[Scraper] Erro na API, tentando fallback para scraping HTML...');
 
-        const courseElements = document.querySelectorAll('a.coursename');
-        courseElements.forEach((element: Element) => {
-          const link = element.getAttribute('href');
-          const title = element.textContent?.trim() || '';
-          if (link) courses.push({ link, title });
-        });
+          const response = await fetchWithCookies('https://moodle.ufabc.edu.br/my/courses.php', {
+            method: 'GET',
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+            },
+            redirect: 'manual'
+          });
+
+          if (response.status === 302 || response.headers.get('location')?.includes('login')) {
+            reply.status(401);
+            return { error: 'Sessão MoodleSession inválida ou expirada' };
+          }
+
+          if (!response.ok) {
+            reply.status(response.status);
+            return { error: `Erro na requisição: ${response.statusText}` };
+          }
+
+          const html = await response.text();
+
+          if (html.includes('Você não está logado') || html.includes('form id="login"')) {
+            reply.status(401);
+            return { error: 'Sessão MoodleSession inválida ou expirada' };
+          }
+
+          const $ = cheerio.load(html);
+          courses = [];
+
+          $('a.coursename').each((_, element) => {
+            const link = $(element).attr('href');
+            const title = $(element).text().trim();
+            const idMatch = link?.match(/id=(\d+)/);
+            const id = idMatch ? parseInt(idMatch[1]) : 0;
+
+            if (link) {
+              courses.push({ link, title, id });
+            }
+          });
+        }
 
         if (courses.length === 0) {
           return { error: 'Nenhum curso encontrado.' };
         }
 
-        // Processamento paralelo com tratamento individual de erros
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
         const resultados = await Promise.all(
           courses.map(async (curso) => {
-            try {
-              console.log(`Processando curso: ${curso.title}`);
-              const payload = await processarCurso(curso.link, fetchWithCookies);
-              return { 
-                curso: curso.title, 
-                url: curso.link, 
-                pdfs: payload 
-              };
-            } catch (error) {
-              console.error(`Erro no curso ${curso.title}:`, error);
-              return { 
-                curso: curso.title, 
-                url: curso.link, 
-                pdfs: [], 
-                error: 'Erro ao processar' 
-              };
-            }
-          })
+            console.log(`[Scraper] Processando curso: ${curso.title} (${curso.link})`);
+            const payload = await processarCurso(curso.link, fetchWithCookies);
+            return { 
+              curso: curso.title, 
+              url: curso.link, 
+              id: curso.id,
+              pdfs: payload 
+            };
+          }),
         );
 
         return { data: resultados };
@@ -212,7 +241,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           details: error instanceof Error ? error.message : String(error),
         };
       }
-    }
+    },
   );
 };
 
