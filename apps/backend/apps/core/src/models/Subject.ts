@@ -15,7 +15,6 @@ const subjectSchema = new Schema(
     uf_subject_code: {
       type: [String],
       required: true,
-      unique: true,
     },
     creditos: {
       type: Number,
