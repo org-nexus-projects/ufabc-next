@@ -36,6 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
+      VITE_MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: us-east-1
@@ -50,6 +51,11 @@ jobs:
 
       - name: install dependencies
         run: yarn --frozen-lockfile
+
+      - name: Debug environment variables
+        run: |
+          echo "VITE_MIXPANEL_TOKEN is set: ${{ env.VITE_MIXPANEL_TOKEN != '' }}"
+          echo "Environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}"
 
       - name: build projects
         run: yarn ${{ github.ref == 'refs/heads/main' && 'build' || 'build:staging'  }}
