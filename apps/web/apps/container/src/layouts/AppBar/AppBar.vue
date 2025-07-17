@@ -7,8 +7,8 @@
           <img class="logo-white" src="@/assets/logo_white.svg" height="44" alt="logo do UFABC Next" />
         </div>
         <v-divider />
-        <v-list-item v-for="item in internalNavigationItems" :key="item.title" :to="!item.locked ? item.route : null"
-          :class="{ 'locked-item': item.locked }">
+        <v-list-item v-for="item in internalNavigationItems" :key="item.title"
+          :to="!item.locked ? item.route : undefined" :class="{ 'locked-item': item.locked }">
           <v-layout class="d-flex">
             <v-icon :icon="item.icon" class="mr-3" />
             <p class="font-weight-medium text-caption">{{ item.title }}</p>
