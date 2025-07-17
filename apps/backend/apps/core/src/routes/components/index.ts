@@ -7,8 +7,8 @@ import * as cheerio from 'cheerio';
 
 const pdfSchema = z.array(
   z.object({
-    link_pdf: z.string().url(),
-    nome_pdf: z.string(),
+    linkPdf: z.string().url(),
+    nomePdf: z.string(),
   }),
 );
 
@@ -17,8 +17,8 @@ export const gradeSchema = {
 };
 
 export type PdfItem = {
-  link_pdf: string;
-  nome_pdf: string;
+  linkPdf: string;
+  nomePdf: string;
 };
 
 async function processarCurso(link: string, fetchWithCookies: typeof fetch): Promise<PdfItem[]> {
@@ -36,13 +36,13 @@ async function processarCurso(link: string, fetchWithCookies: typeof fetch): Pro
       const linkElement = $(el).find('a');
       const spanElement = $(el).find('span.instancename');
 
-      const link_pdf = linkElement.attr('href') || '';
-      let nome_pdf = spanElement.text() || '';
+      const linkPdf = linkElement.attr('href') || '';
+      let nomePdf = spanElement.text() || '';
 
-      nome_pdf = nome_pdf.replace(/Arquivo/i, '').trim();
+      nomePdf = nomePdf.replace(/Arquivo/i, '').trim();
 
-      if (link_pdf && nome_pdf) {
-        pdfs.push({ link_pdf, nome_pdf });
+      if (linkPdf && nomePdf) {
+        pdfs.push({ linkPdf, nomePdf });
       }
     });
 
