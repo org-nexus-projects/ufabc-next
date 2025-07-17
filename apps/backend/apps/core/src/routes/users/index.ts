@@ -42,8 +42,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   });
   app.get('/validate/:ra', async (request, reply) => {
     const { ra } = request.params as { ra: string };
-    const raNumber = Number.parseInt(ra)
-    const user = await UserModel.findOne({ra:raNumber});
+    const raNumber = Number.parseInt(ra);
+    const user = await UserModel.findOne({ ra: raNumber });
     if (!user) {
       return reply.badRequest('User not found');
     }
@@ -55,7 +55,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     };
 
     return userInfo;
-  })
+  });
 
   app.post(
     '/facebook',
@@ -211,7 +211,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     // @ts-ignore
     async (request, reply) => {
       const { ra } = request.query;
-/
+
       const checkUser = await getStudentData(ra);
 
       if (!checkUser) {
