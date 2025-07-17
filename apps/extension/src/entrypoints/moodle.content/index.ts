@@ -7,7 +7,7 @@ export default defineContentScript({
       const sessionToken = await getToken();
 
       const results = {
-        session_token: sessionToken,
+        sessionToken: sessionToken,
       };
 
       await sendResults(results);

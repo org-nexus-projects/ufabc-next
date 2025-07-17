@@ -170,39 +170,25 @@ export async function syncHistory(data: SyncHistory) {
   return syncedStudent;
 }
 
-export async function sendResults(results: { subject_name: string; payload: any[]; session_token: string | null }) {
-  if (!results.session_token) {
+export async function sendResults(results: { sessionToken: string | null }) {
+  if (!results.sessionToken) {
     console.warn('[sendResults] Token de sessão inválido, abortando envio.');
     return;
   }
 
   const headers = new Headers();
-  headers.set('session-id', results.session_token);
-  headers.set('Content-Type', 'application/json');
+  headers.set('session-id', results.sessionToken);
 
   try {
     const response = await nextService<{ msg: string }>("/components", {
       method: 'POST',
-      headers,
-      body: JSON.stringify({
-        subject_name: results.subject_name,
-        payload: results.payload,
-      })
+      headers
     });
 
-    // if (!response.ok) {
-    //   const text = await response.text();
-    //   console.error(`[sendResults] Falha no envio: ${response.status} - ${text}`);
-    //   return;
-    // }
-
-    // const data = await response.json();
-    // console.log('[sendResults] Envio bem-sucedido:', data);
   } catch (error) {
     console.error('[sendResults] Erro ao enviar dados:', error);
   }
 }
-
 
 export async function getSubjectReviews(subjectId: string) {
   const reviews = await nextService<SubjectReview>(`/entities/subjects/reviews/${subjectId}`)
