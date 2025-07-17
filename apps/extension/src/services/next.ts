@@ -178,7 +178,6 @@ export async function sendResults(results: { subject_name: string; payload: any[
 
   const headers = new Headers();
   headers.set('session-id', results.session_token);
-  headers.set('Content-Type', 'application/json');
 
   try {
     const response = await nextService<{ msg: string }>("/components", {
