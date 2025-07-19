@@ -220,7 +220,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         );
       }
 
-      let emailList = Array.isArray(checkUser?.email) ? checkUser.email : [];
+      const emailList = Array.isArray(checkUser?.email) ? checkUser.email : [];
       const employeePromises = emailList.map(
         async (email) => await getEmployeeData(email),
       );
