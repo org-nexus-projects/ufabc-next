@@ -1,27 +1,47 @@
 import { z } from 'zod';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import fetch from 'node-fetch';
-import fetchCookie from 'fetch-cookie';
-import tough from 'tough-cookie';
 import * as cheerio from 'cheerio';
 
-const pdfSchema = z.array(
-  z.object({
-    linkPdf: z.string().url(),
-    nomePdf: z.string(),
-  }),
-);
+function createFetchWithCookies(sessionId: string): (input: RequestInfo | URL, init?: RequestInit) => Promise<Response> {
+  const cookieStore: Record<string, string> = {
+    MoodleSession: sessionId,
+  };
 
-export const gradeSchema = {
-  body: pdfSchema,
-};
+  return async (url: RequestInfo | URL, init: RequestInit = {}) => {
+    const headers = new Headers(init.headers || {});
 
-export type PdfItem = {
-  linkPdf: string;
-  nomePdf: string;
-};
+    const cookieHeader = Object.entries(cookieStore)
+      .map(([key, value]) => `${key}=${value}`) 
+      .join('; ');
+    headers.set('cookie', cookieHeader);
 
-async function processarCurso(link: string, fetchWithCookies: typeof fetch): Promise<PdfItem[]> {
+    const response = await fetch(url, {
+      ...init,
+      headers,
+    });
+
+    const setCookie = response.headers.get('set-cookie');
+    if (setCookie) {
+      const cookiePairs = setCookie.split(',');
+      for (const pair of cookiePairs) {
+        const [cookie] = pair.split(';');
+        const [key, value] = cookie.trim().split('=');
+        if (key && value) cookieStore[key] = value;
+      }
+    }
+
+    return response;
+  };
+}
+
+export const pdfSchema = z.object({
+  pdfLink: z.string(),
+  pdfName: z.string(),
+});
+
+export type PdfItem = z.infer<typeof pdfSchema>;
+
+async function processCourse(link: string, fetchWithCookies: typeof fetch): Promise<PdfItem[]> {
   try {
     const response = await fetchWithCookies(link, {
       method: 'GET',
@@ -36,13 +56,13 @@ async function processarCurso(link: string, fetchWithCookies: typeof fetch): Pro
       const linkElement = $(el).find('a');
       const spanElement = $(el).find('span.instancename');
 
-      const linkPdf = linkElement.attr('href') || '';
-      let nomePdf = spanElement.text() || '';
+      const pdfLink = linkElement.attr('href') || '';
+      let pdfName = spanElement.text() || '';
 
-      nomePdf = nomePdf.replace(/Arquivo/i, '').trim();
+      pdfName = pdfName.replace(/Arquivo/i, '').trim();
 
-      if (linkPdf && nomePdf) {
-        pdfs.push({ linkPdf, nomePdf });
+      if (pdfLink && pdfName) {
+        pdfs.push({ pdfLink: pdfLink, pdfName: pdfName });
       }
     });
 
@@ -52,13 +72,10 @@ async function processarCurso(link: string, fetchWithCookies: typeof fetch): Pro
   }
 }
 
-async function obterSesskey(fetchWithCookies: typeof fetch): Promise<string | null> {
+async function getSessKey(fetchWithCookies: typeof fetch): Promise<string | null> {
   try {
     const response = await fetchWithCookies('https://moodle.ufabc.edu.br/my/courses.php', {
-      method: 'GET',
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
-      },
+      method: 'GET'
     });
 
     const html = await response.text();
@@ -75,7 +92,7 @@ async function obterSesskey(fetchWithCookies: typeof fetch): Promise<string | nu
   }
 }
 
-async function obterCursosViaAPI(fetchWithCookies: typeof fetch, sesskey: string) {
+async function getCourseThroughAPI(fetchWithCookies: typeof fetch, sesskey: string) {
   const apiUrl = `https://moodle.ufabc.edu.br/lib/ajax/service.php?sesskey=${sesskey}&info=core_course_get_enrolled_courses_by_timeline_classification`;
   
   const body = [{
@@ -94,18 +111,8 @@ async function obterCursosViaAPI(fetchWithCookies: typeof fetch, sesskey: string
   const response = await fetchWithCookies(apiUrl, {
     method: 'POST',
     headers: {
-      'accept': 'application/json, text/javascript, */*; q=0.01',
-      'accept-language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-      'content-type': 'application/json',
-      'sec-ch-ua': '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
-      'sec-ch-ua-mobile': '?0',
-      'sec-ch-ua-platform': '"Windows"',
-      'sec-fetch-dest': 'empty',
-      'sec-fetch-mode': 'cors',
-      'sec-fetch-site': 'same-origin',
-      'x-requested-with': 'XMLHttpRequest',
-      'Referer': 'https://moodle.ufabc.edu.br/my/courses.php',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+      'accept': 'application/json',
+      'content-type': 'application/json'
     },
     body: JSON.stringify(body),
   });
@@ -134,16 +141,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         return { error: 'Header session-id é obrigatório' };
       }
 
-      const cookieJar = new tough.CookieJar();
-      const fetchWithCookies = fetchCookie(fetch, cookieJar);
-
-      cookieJar.setCookieSync(
-        `MoodleSession=${MoodleSession}`,
-        'https://moodle.ufabc.edu.br'
-      );
+      const fetchWithCookies = createFetchWithCookies(String(MoodleSession));
 
       try {
-        const sesskey = await obterSesskey(fetchWithCookies);
+        const sesskey = await getSessKey(fetchWithCookies);
         
         if (!sesskey) {
           reply.status(401);
@@ -153,9 +154,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         let courses: { link: string; title: string; id: number }[] = [];
         
         try {
-          const cursosAPI = await obterCursosViaAPI(fetchWithCookies, sesskey);
+          const coursesAPI = await getCourseThroughAPI(fetchWithCookies, sesskey);
           
-          courses = cursosAPI.map((curso: any) => ({
+          courses = coursesAPI.map((curso: any) => ({
             id: curso.id,
             title: curso.fullname || curso.shortname || curso.displayname,
             link: `https://moodle.ufabc.edu.br/course/view.php?id=${curso.id}`
@@ -163,11 +164,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           
         } catch (apiError) {
           const response = await fetchWithCookies('https://moodle.ufabc.edu.br/my/courses.php', {
-            method: 'GET',
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
-            },
-            redirect: 'manual'
+            method: 'GET'
           });
 
           if (response.status === 302 || response.headers.get('location')?.includes('login')) {
@@ -208,17 +205,16 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        const resultados = await Promise.all(
-          courses.map(async (curso) => {
-            const payload = await processarCurso(curso.link, fetchWithCookies);
+        const results = await Promise.all(
+          courses.map(async (course) => {
+            const payload = await processCourse(course.link, fetchWithCookies);
             return { 
-              curso: curso.title, 
+              course: course.title, 
               pdfs: payload 
             };
           }),
         );
-
-        return { data: resultados };
+        return { data: results };
 
       } catch (error) {
         reply.status(500);
