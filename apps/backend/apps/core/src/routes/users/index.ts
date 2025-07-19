@@ -220,7 +220,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         );
       }
 
-      const employeePromises = checkUser.email.map(
+      let emailList = Array.isArray(checkUser?.email) ? checkUser.email : [];
+      const employeePromises = emailList.map(
         async (email) => await getEmployeeData(email),
       );
       const employees = await Promise.all(employeePromises);
@@ -235,7 +236,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       let email = '';
 
-      if (checkUser.email.length === 0) {
+      if (emailList.length === 0) {
         request.log.warn({
           ra,
           username: checkUser.username,
@@ -244,11 +245,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         email = checkUser.username.concat('@aluno.ufabc.edu.br');
       }
 
-      if (checkUser.email.length > 0) {
-        email = checkUser.email[0];
+      if (emailList.length > 0) {
+        email = emailList[0];
       }
 
-      return { email };
+      return reply.send({ email });
     },
   );
 
