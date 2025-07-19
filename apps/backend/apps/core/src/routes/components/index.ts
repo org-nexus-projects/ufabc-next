@@ -48,7 +48,6 @@ async function processarCurso(link: string, fetchWithCookies: typeof fetch): Pro
 
     return pdfs;
   } catch (err) {
-    console.error(`[Scraper] Erro ao processar curso: ${link}`, err);
     return [];
   }
 }
@@ -72,7 +71,6 @@ async function obterSesskey(fetchWithCookies: typeof fetch): Promise<string | nu
     
     return sesskey || null;
   } catch (error) {
-    console.error('Erro ao obter sesskey:', error);
     return null;
   }
 }
@@ -125,7 +123,6 @@ async function obterCursosViaAPI(fetchWithCookies: typeof fetch, sesskey: string
 
     return data[0]?.data?.courses || [];
   } catch (error) {
-    console.error('Erro ao obter cursos via API:', error);
     throw error;
   }
 }
@@ -150,7 +147,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       );
 
       try {
-        console.log('[Scraper] Obtendo sesskey...');
         const sesskey = await obterSesskey(fetchWithCookies);
         
         if (!sesskey) {
@@ -170,8 +166,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           }));
           
         } catch (apiError) {
-          console.log('[Scraper] Erro na API, tentando fallback para scraping HTML...');
-
           const response = await fetchWithCookies('https://moodle.ufabc.edu.br/my/courses.php', {
             method: 'GET',
             headers: {
@@ -220,12 +214,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
         const resultados = await Promise.all(
           courses.map(async (curso) => {
-            console.log(`[Scraper] Processando curso: ${curso.title} (${curso.link})`);
             const payload = await processarCurso(curso.link, fetchWithCookies);
             return { 
               curso: curso.title, 
-              url: curso.link, 
-              id: curso.id,
               pdfs: payload 
             };
           }),
@@ -234,7 +225,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         return { data: resultados };
 
       } catch (error) {
-        console.error('Erro completo:', error);
         reply.status(500);
         return {
           error: 'Erro ao fazer scraping',
