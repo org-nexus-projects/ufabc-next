@@ -15,20 +15,20 @@ export type UFABCMatriculaStudent = {
 
 export default defineContentScript({
 	async main(ctx) {
-		const student = await storage.getItem<{ ra: string; login: string }>('local:student');
+	const student = await storage.getItem<{ ra: string; login: string }>('local:student');
     const sessionId = await getToken();
 
-		const ui = await mountUFABCMatriculaFilters(ctx, sessionId);
-		ui.mount();
+	const ui = await mountUFABCMatriculaFilters(ctx, sessionId);
+	ui.mount();
 
-		const $meio = document.querySelector<HTMLDivElement>('#meio');
-		const $mountedUi = $meio?.firstChild as unknown as HTMLDivElement;
+	const $meio = document.querySelector<HTMLDivElement>('#meio');
+	const $mountedUi = $meio?.firstChild as unknown as HTMLDivElement;
 
-		$mountedUi.style.position = 'sticky';
-		$mountedUi.style.top = '0px';
-		$mountedUi.style.zIndex = '9';
+	$mountedUi.style.position = 'sticky';
+	$mountedUi.style.top = '0px';
+	$mountedUi.style.zIndex = '9';
 
-    const URLS_TO_CHECK = ['http://localhost:3003', 'https://ufabc-matricula-snapshot.vercel.app']
+    const URLS_TO_CHECK = ['http://localhost:3003', 'https://ufabc-matricula-snapshot.vercel.app', 'https://matricula.ufabc.edu.br']
     const origin = new URL(document.location.href).origin
     if (URLS_TO_CHECK.includes(origin)) {
       if (student) {
