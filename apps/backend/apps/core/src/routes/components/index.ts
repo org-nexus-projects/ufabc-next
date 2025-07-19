@@ -91,40 +91,36 @@ async function obterCursosViaAPI(fetchWithCookies: typeof fetch, sesskey: string
     }
   }];
 
-  try {
-    const response = await fetchWithCookies(apiUrl, {
-      method: 'POST',
-      headers: {
-        'accept': 'application/json, text/javascript, */*; q=0.01',
-        'accept-language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-        'content-type': 'application/json',
-        'sec-ch-ua': '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-origin',
-        'x-requested-with': 'XMLHttpRequest',
-        'Referer': 'https://moodle.ufabc.edu.br/my/courses.php',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
-      },
-      body: JSON.stringify(body),
-    });
+  const response = await fetchWithCookies(apiUrl, {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json, text/javascript, */*; q=0.01',
+      'accept-language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+      'content-type': 'application/json',
+      'sec-ch-ua': '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
+      'sec-ch-ua-mobile': '?0',
+      'sec-ch-ua-platform': '"Windows"',
+      'sec-fetch-dest': 'empty',
+      'sec-fetch-mode': 'cors',
+      'sec-fetch-site': 'same-origin',
+      'x-requested-with': 'XMLHttpRequest',
+      'Referer': 'https://moodle.ufabc.edu.br/my/courses.php',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+    },
+    body: JSON.stringify(body),
+  });
 
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json() as any[];
-    
-    if (data[0]?.error) {
-      throw new Error(`Moodle API error: ${data[0].error.message}`);
-    }
-
-    return data[0]?.data?.courses || [];
-  } catch (error) {
-    throw error;
+  if (!response.ok) {
+    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
   }
+
+  const data = await response.json() as any[];
+
+  if (data[0]?.error) {
+    throw new Error(`Moodle API error: ${data[0].error.message}`);
+  }
+
+  return data[0]?.data?.courses || [];
 }
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
