@@ -33,7 +33,7 @@ const isExtensionRoute = (url: string) => {
 };
 
 export default async function (app: FastifyInstance) {
-  app. decorateRequest('sessionId');
+  app.decorateRequest('sessionId');
   app.addHook('onRequest', async (request, reply) => {
     const isPublic = isPublicRoute(request.url);
     const isExtension = isExtensionRoute(request.url);
