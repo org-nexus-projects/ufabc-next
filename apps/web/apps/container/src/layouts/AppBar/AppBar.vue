@@ -116,6 +116,12 @@ const internalNavigationItems = [
     releaseDate: dayjs('11/25/2023'),
   },
   {
+    title: 'Integração Notion',
+    icon: 'mdi-note-plus',
+    route: '/notion',
+    releaseDate: dayjs(new Date()),
+  },
+  {
     title: 'Apoie o UFABC next',
     icon: 'mdi-bank',
     route: '/donate',
