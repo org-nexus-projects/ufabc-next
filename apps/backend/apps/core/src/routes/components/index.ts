@@ -1,18 +1,9 @@
 import { z } from 'zod';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+import { ofetch } from 'ofetch'
 import * as cheerio from 'cheerio';
 
-function createFetchWithCookies(sessionId: string) {
-  return async (url: RequestInfo | URL, init: RequestInit = {}) => {
-    return fetch(url, {
-      ...init,
-      headers: {
-        ...init.headers,
-        cookie: `MoodleSession=${sessionId}`
-      }
-    });
-  };
-}
+import type { $fetch } from 'ofetch';
 
 export const pdfSchema = z.object({
   pdfLink: z.string(),
@@ -21,13 +12,9 @@ export const pdfSchema = z.object({
 
 export type PdfItem = z.infer<typeof pdfSchema>;
 
-async function processCourse(link: string, fetchWithCookies: typeof fetch): Promise<PdfItem[]> {
+async function processCourse(link: string, fetchWithCookies: typeof $fetch): Promise<PdfItem[]> {
   try {
-    const response = await fetchWithCookies(link, {
-      method: 'GET',
-    });
-
-    const html = await response.text();
+    const html = await fetchWithCookies<string>(link, { method: 'GET' });
     const $ = cheerio.load(html);
 
     const pdfs: PdfItem[] = [];
@@ -52,13 +39,9 @@ async function processCourse(link: string, fetchWithCookies: typeof fetch): Prom
   }
 }
 
-async function getSessKey(fetchWithCookies: typeof fetch): Promise<string | null> {
+async function getSessKey(fetchWithCookies: typeof $fetch): Promise<string | null> {
   try {
-    const response = await fetchWithCookies('https://moodle.ufabc.edu.br/my/courses.php', {
-      method: 'GET'
-    });
-
-    const html = await response.text();
+    const html = await fetchWithCookies<string>('https://moodle.ufabc.edu.br/my/courses.php', { method: 'GET' });
     const $ = cheerio.load(html);
 
     const sesskey = $('input[name="sesskey"]').attr('value') || 
@@ -72,7 +55,7 @@ async function getSessKey(fetchWithCookies: typeof fetch): Promise<string | null
   }
 }
 
-async function getCourseThroughAPI(fetchWithCookies: typeof fetch, sesskey: string) {
+async function getCourseThroughAPI(fetchWithCookies: typeof $fetch, sesskey: string) {
   const apiUrl = `https://moodle.ufabc.edu.br/lib/ajax/service.php?sesskey=${sesskey}&info=core_course_get_enrolled_courses_by_timeline_classification`;
   
   const body = [{
@@ -88,7 +71,7 @@ async function getCourseThroughAPI(fetchWithCookies: typeof fetch, sesskey: stri
     }
   }];
 
-  const response = await fetchWithCookies(apiUrl, {
+  const data = await fetchWithCookies<any[]>(apiUrl, {
     method: 'POST',
     headers: {
       'accept': 'application/json',
@@ -96,12 +79,6 @@ async function getCourseThroughAPI(fetchWithCookies: typeof fetch, sesskey: stri
     },
     body: JSON.stringify(body),
   });
-
-  if (!response.ok) {
-    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-  }
-
-  const data = await response.json() as any[];
 
   if (data[0]?.error) {
     throw new Error(`Moodle API error: ${data[0].error.message}`);
@@ -121,7 +98,12 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         return { error: 'Header session-id é obrigatório' };
       }
 
-      const fetchWithCookies = createFetchWithCookies(String(MoodleSession));
+      const fetchWithCookies = ofetch.create({
+        headers: {
+          Cookie: `MoodleSession=${MoodleSession}`,
+        },
+        credentials: 'include'
+      });
 
       try {
         const sesskey = await getSessKey(fetchWithCookies);
