@@ -32,13 +32,9 @@ async function fetchWithSession(sessionId: string) {
 
 async function getSessKey(fetchFn: typeof ofetch): Promise<string | null> {
   const html = await fetchFn<string>('https://moodle.ufabc.edu.br/my/courses.php');
-  const $ = cheerio.load(html);
   
   const sesskey =
-    $('input[name="sesskey"]').attr('value') ||
-    $('[data-sesskey]').attr('data-sesskey') ||
-    html.match(/"sesskey":"([^"]+)"/)?.[1] ||
-    html.match(/sesskey=([^&"]+)/)?.[1];
+    html.match(/"sesskey":"([^"]+)"/)?.[1];
 
   return typeof sesskey === 'undefined' ? null : sesskey;
 }
