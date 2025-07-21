@@ -2,35 +2,15 @@ import { z } from 'zod';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import * as cheerio from 'cheerio';
 
-function createFetchWithCookies(sessionId: string): (input: RequestInfo | URL, init?: RequestInit) => Promise<Response> {
-  const cookieStore: Record<string, string> = {
-    MoodleSession: sessionId,
-  };
-
+function createFetchWithCookies(sessionId: string) {
   return async (url: RequestInfo | URL, init: RequestInit = {}) => {
-    const headers = new Headers(init.headers || {});
-
-    const cookieHeader = Object.entries(cookieStore)
-      .map(([key, value]) => `${key}=${value}`) 
-      .join('; ');
-    headers.set('cookie', cookieHeader);
-
-    const response = await fetch(url, {
+    return fetch(url, {
       ...init,
-      headers,
-    });
-
-    const setCookie = response.headers.get('set-cookie');
-    if (setCookie) {
-      const cookiePairs = setCookie.split(',');
-      for (const pair of cookiePairs) {
-        const [cookie] = pair.split(';');
-        const [key, value] = cookie.trim().split('=');
-        if (key && value) cookieStore[key] = value;
+      headers: {
+        ...init.headers,
+        cookie: `MoodleSession=${sessionId}`
       }
-    }
-
-    return response;
+    });
   };
 }
 
@@ -214,6 +194,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             };
           }),
         );
+        console.log(`Results[0]: ${JSON.stringify(results[0], null, 2)}`);
+
         return { data: results };
 
       } catch (error) {
