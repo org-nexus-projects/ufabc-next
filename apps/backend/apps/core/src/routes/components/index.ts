@@ -1,9 +1,7 @@
 import { z } from 'zod';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import { ofetch } from 'ofetch'
+import { ofetch } from 'ofetch';
 import * as cheerio from 'cheerio';
-
-import type { $fetch } from 'ofetch';
 
 export const pdfSchema = z.object({
   pdfLink: z.string(),
@@ -32,20 +30,17 @@ async function fetchWithSession(sessionId: string) {
   });
 }
 
-async function getSessKey(fetchWithCookies: typeof $fetch): Promise<string | null> {
-  try {
-    const html = await fetchWithCookies<string>('https://moodle.ufabc.edu.br/my/courses.php', { method: 'GET' });
+async function getSessKey(fetchFn: typeof ofetch): Promise<string | null> {
+  const html = await fetchFn<string>('https://moodle.ufabc.edu.br/my/courses.php');
     const $ = cheerio.load(html);
 
-    const sesskey = $('input[name="sesskey"]').attr('value') || 
+  const sesskey =
+    $('input[name="sesskey"]').attr('value') ||
                    $('[data-sesskey]').attr('data-sesskey') ||
                    html.match(/"sesskey":"([^"]+)"/)?.[1] ||
                    html.match(/sesskey=([^&"]+)/)?.[1];
     
-    return sesskey || null;
-  } catch (error) {
-    return null;
-  }
+  return typeof sesskey === 'undefined' ? null : sesskey;
 }
 
 async function getCoursesFromAPI(fetchFn: typeof ofetch, sesskey: string): Promise<Course[]> {
@@ -101,8 +96,9 @@ async function extractPDFs(fetchFn: typeof ofetch, courseLink: string): Promise<
     if (link && name) {
       pdfs.push({ pdfLink: link, pdfName: name });
   }
+  });
 
-  return data[0]?.data?.courses || [];
+  return pdfs;
 }
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
