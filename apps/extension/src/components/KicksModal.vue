@@ -110,8 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import type { UFABCMatriculaStudent } from '@/entrypoints/matricula.content';
-import { getKicksInfo, MatriculaStudent, UpdatedStudent } from '@/services/next';
+import { getKicksInfo, MatriculaStudent } from '@/services/next';
 import { getUFComponents, type UFSeasonComponents } from '@/services/ufabc-parser';
 import { findIdeais, findSeasonKey } from '@/utils/season';
 import { orderBy } from 'lodash-es';
