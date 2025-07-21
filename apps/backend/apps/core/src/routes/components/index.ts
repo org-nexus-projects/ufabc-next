@@ -12,31 +12,24 @@ export const pdfSchema = z.object({
 
 export type PdfItem = z.infer<typeof pdfSchema>;
 
-async function processCourse(link: string, fetchWithCookies: typeof $fetch): Promise<PdfItem[]> {
-  try {
-    const html = await fetchWithCookies<string>(link, { method: 'GET' });
-    const $ = cheerio.load(html);
+type Course = {
+  id: number;
+  fullname: string;
+  link?: string;
+};
 
-    const pdfs: PdfItem[] = [];
+type ApiResponse = {
+  error?: { message: string };
+  data?: {
+    courses: Course[];
+  };
+};
 
-    $('div.activityname').each((_, el) => {
-      const linkElement = $(el).find('a');
-      const spanElement = $(el).find('span.instancename');
-
-      const pdfLink = linkElement.attr('href') || '';
-      let pdfName = spanElement.text() || '';
-
-      pdfName = pdfName.replace(/Arquivo/i, '').trim();
-
-      if (pdfLink && pdfName) {
-        pdfs.push({ pdfLink: pdfLink, pdfName: pdfName });
-      }
-    });
-
-    return pdfs;
-  } catch (err) {
-    return [];
-  }
+async function fetchWithSession(sessionId: string) {
+  return ofetch.create({
+    headers: { Cookie: `MoodleSession=${sessionId}` },
+    credentials: 'include'
+  });
 }
 
 async function getSessKey(fetchWithCookies: typeof $fetch): Promise<string | null> {
