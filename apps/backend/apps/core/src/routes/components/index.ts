@@ -48,33 +48,58 @@ async function getSessKey(fetchWithCookies: typeof $fetch): Promise<string | nul
   }
 }
 
-async function getCourseThroughAPI(fetchWithCookies: typeof $fetch, sesskey: string) {
-  const apiUrl = `https://moodle.ufabc.edu.br/lib/ajax/service.php?sesskey=${sesskey}&info=core_course_get_enrolled_courses_by_timeline_classification`;
-  
-  const body = [{
+async function getCoursesFromAPI(fetchFn: typeof ofetch, sesskey: string): Promise<Course[]> {
+  const response = await fetchFn<ApiResponse[]>('https://moodle.ufabc.edu.br/lib/ajax/service.php', {
+    method: 'POST',
+    params: { sesskey },
+    body: [{
     index: 0,
     methodname: "core_course_get_enrolled_courses_by_timeline_classification",
-    args: {
-      offset: 0,
-      limit: 0,
-      classification: "all",
-      sort: "fullname",
-      customfieldname: "",
-      customfieldvalue: ""
-    }
-  }];
-
-  const data = await fetchWithCookies<any[]>(apiUrl, {
-    method: 'POST',
-    headers: {
-      'accept': 'application/json',
-      'content-type': 'application/json'
-    },
-    body: JSON.stringify(body),
+      args: { offset: 0, limit: 0, classification: "all" }
+    }]
   });
 
-  if (data[0]?.error) {
-    throw new Error(`Moodle API error: ${data[0].error.message}`);
+  if (response[0]?.error) {
+    throw new Error(`Moodle API error: ${response[0].error.message}`);
+  }
+
+  return response[0]?.data?.courses.map(course => ({
+    ...course,
+    link: `https://moodle.ufabc.edu.br/course/view.php?id=${course.id}`
+  })) || [];
+}
+
+async function getCoursesFromHTML(fetchFn: typeof ofetch): Promise<Course[]> {
+  const html = await fetchFn<string>('https://moodle.ufabc.edu.br/my/courses.php');
+  const $ = cheerio.load(html);
+  const courses: Course[] = [];
+
+  $('a.coursename').each((_, element) => {
+    const link = $(element).attr('href');
+    const idMatch = link?.match(/id=(\d+)/);
+    if (link && idMatch) {
+      courses.push({
+        id: parseInt(idMatch[1]),
+        fullname: $(element).text().trim(),
+        link
+      });
+    }
+  });
+
+  return courses;
+}
+
+async function extractPDFs(fetchFn: typeof ofetch, courseLink: string): Promise<PdfItem[]> {
+  const html = await fetchFn<string>(courseLink);
+  const $ = cheerio.load(html);
+  const pdfs: PdfItem[] = [];
+
+  $('div.activityname').each((_, el) => {
+    const link = $(el).find('a').attr('href');
+    const name = $(el).find('span.instancename').text().replace(/Arquivo/i, '').trim();
+    
+    if (link && name) {
+      pdfs.push({ pdfLink: link, pdfName: name });
   }
 
   return data[0]?.data?.courses || [];
