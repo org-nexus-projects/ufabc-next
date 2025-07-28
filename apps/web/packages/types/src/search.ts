@@ -16,3 +16,15 @@ export type SearchSubjectItem = {
   __v: number;
   creditos: number;
 };
+
+export type SearchComponentItem = {
+  season: string;
+  groupURL: string;
+  codigo: string;
+  campus?: 'sa' | 'sbc';
+  turma?: string;
+  turno?: string;
+  subject: string;
+  teoria: string;
+  pratica: string;
+};

@@ -24,6 +24,7 @@ import annotationsInit from 'highcharts/modules/annotations';
 import accessibility from 'highcharts/modules/accessibility';
 import { QueryClient } from '@tanstack/query-core';
 import { theme } from './theme';
+import { eventTracker } from './helpers/EventTracker';
 
 accessibility(Highcharts);
 annotationsInit(Highcharts);
@@ -59,6 +60,8 @@ declare global {
     queryClient: QueryClient;
   }
 }
+
+eventTracker.init();
 
 createApp(App)
   .use(router)
