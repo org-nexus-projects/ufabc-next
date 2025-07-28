@@ -31,8 +31,6 @@
     "ics": "^3.5.0",
     "lodash.debounce": "4.0.8",
     "mixpanel-browser": "^2.65.0",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
     "services": "*",
     "stores": "*",
     "utils": "*",
@@ -49,15 +47,14 @@
     "@testing-library/vue": "8.1.0",
     "@types/lodash.debounce": "4.0.9",
     "@types/mixpanel-browser": "^2.60.0",
-    "@types/node": "^22.15.21",
+    "@types/node": "^24.1.0",
     "@typescript-eslint/eslint-plugin": "6.21.0",
     "@typescript-eslint/parser": "6.21.0",
     "@vitejs/plugin-vue": "^5.2.4",
     "@vitest/coverage-v8": "0.34.6",
     "eslint-plugin-vue": "9.33.0",
-    "husky": "8.0.3",
+    "husky": "9.1.7",
     "jsdom": "23.2.0",
-    "lint-staged": "15.5.2",
     "msw": "^2.8.4",
     "sass": "1.89.2",
     "sass-loader": "16.0.5",
@@ -73,8 +70,5 @@
   "engines": {
     "node": ">=v18.4.0",
     "npm": ">=8.12.0"
-  },
-  "lint-staged": {
-    "*.{js,jsx,vue,ts,tsx}": "vue-cli-service lint"
   }
 }

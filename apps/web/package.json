@@ -10,8 +10,8 @@
     "tsc": "turbo run tsc --parallel"
   },
   "devDependencies": {
-    "@commitlint/cli": "18.6.1",
-    "@commitlint/config-conventional": "18.6.3",
+    "@commitlint/cli": "19.8.1",
+    "@commitlint/config-conventional": "19.8.1",
     "eslint": "^8.54.0",
     "eslint-config-custom": "*",
     "prettier": "^3.1.0",
