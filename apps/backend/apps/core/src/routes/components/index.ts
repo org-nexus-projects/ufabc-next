@@ -85,8 +85,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         return { error: 'Não foi possível obter sesskey - sessão pode estar inválida' };
       }
 
-      let courses: Course[];
-      courses = await getCoursesFromAPI(fetchWithCookies, sessKey as string);
+      const courses: Course[] = await getCoursesFromAPI(fetchWithCookies, sessKey as string);
 
       if (courses.length === 0) {
         return { error: 'Nenhum curso encontrado.' };
