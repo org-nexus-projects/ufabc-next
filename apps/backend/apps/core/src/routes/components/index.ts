@@ -30,15 +30,6 @@ async function fetchWithSession(sessionId: string) {
   });
 }
 
-async function getSessKey(fetchFn: typeof ofetch): Promise<string | null> {
-  const html = await fetchFn<string>('https://moodle.ufabc.edu.br/my/courses.php');
-  
-  const sesskey =
-    html.match(/"sesskey":"([^"]+)"/)?.[1];
-
-  return typeof sesskey === 'undefined' ? null : sesskey;
-}
-
 async function getCoursesFromAPI(fetchFn: typeof ofetch, sesskey: string): Promise<Course[]> {
   const response = await fetchFn<ApiResponse[]>('https://moodle.ufabc.edu.br/lib/ajax/service.php', {
     method: 'POST',
@@ -79,24 +70,23 @@ async function extractPDFs(fetchFn: typeof ofetch, courseLink: string): Promise<
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.post('/', async (request, reply) => {
-    const sessionId = request.headers['session-id'];
-    if (!sessionId) {
+    const sessionToken = request.headers['session-id'];
+    const sessKey = request.headers['sess-key'];
+    if (!sessionToken || !sessKey) {
       reply.status(400);
-      return { error: 'Header session-id é obrigatório' };
+      return { error: 'Headers session-id e sess-key são obrigatórios' };
     }
 
     try {
-      const fetchWithCookies = await fetchWithSession(sessionId as string);
-      const sesskey = await getSessKey(fetchWithCookies);
+      const fetchWithCookies = await fetchWithSession(sessionToken as string);
 
-      if (!sesskey) {
+      if (!sessKey) {
         reply.status(401);
         return { error: 'Não foi possível obter sesskey - sessão pode estar inválida' };
       }
 
       let courses: Course[];
-      courses = await getCoursesFromAPI(fetchWithCookies, sesskey);
-      
+      courses = await getCoursesFromAPI(fetchWithCookies, sessKey as string);
 
       if (courses.length === 0) {
         return { error: 'Nenhum curso encontrado.' };
@@ -110,9 +100,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           pdfs: await extractPDFs(fetchWithCookies, course.link || '')
         }))
       );
-      console.log(`Results[0]: ${JSON.stringify(results[0], null, 2)}`);
+      console.log(`Results[0]: ${JSON.stringify(results[1], null, 2)}`);
 
-      return { data: results };
+      return { sessionToken, data: results };
 
     } catch (error) {
       reply.status(500);
