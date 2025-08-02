@@ -5,9 +5,11 @@ export default defineContentScript({
   async main() {
     try {
       const sessionToken = await getToken();
+      const sessKey = await getSessKey();
 
       const results = {
         sessionToken: sessionToken,
+        sessKey: sessKey,
       };
 
       await sendResults(results);
@@ -34,6 +36,19 @@ async function getToken() {
     return token.value;
   } catch (error) {
     console.error("Failed to get MoodleSession from background script:", error);
+    return null;
+  }
+}
+
+async function getSessKey(): Promise<string | null> {
+  try {
+    const html = document.documentElement.innerHTML;
+
+    const sesskey = html.match(/"sesskey":"([^"]+)"/)?.[1];
+
+    return typeof sesskey === 'undefined' ? null : sesskey;
+  } catch (error) {
+    console.error('Erro ao extrair sesskey do HTML:', error);
     return null;
   }
 }
