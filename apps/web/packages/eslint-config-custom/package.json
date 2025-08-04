@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
-    "@tanstack/eslint-plugin-query": "5.81.2",
+    "@tanstack/eslint-plugin-query": "5.83.1",
     "@typescript-eslint/eslint-plugin": "6.21.0",
     "@typescript-eslint/parser": "6.21.0",
     "eslint-config-prettier": "9.1.2",
@@ -15,7 +15,7 @@
     "eslint-plugin-prettier": "5.5.3",
     "eslint-plugin-simple-import-sort": "10.0.0",
     "eslint-plugin-unused-imports": "3.2.0",
-    "typescript": "5.8.3"
+    "typescript": "5.9.2"
   },
   "publishConfig": {
     "access": "public"

@@ -18,14 +18,14 @@
   "dependencies": {
     "@amcharts/amcharts5": "5.13.4",
     "@mdi/font": "7.4.47",
-    "@tanstack/query-core": "5.83.0",
-    "@tanstack/vue-query": "5.83.0",
-    "@tanstack/vue-query-devtools": "5.83.0",
+    "@tanstack/query-core": "5.83.1",
+    "@tanstack/vue-query": "5.83.1",
+    "@tanstack/vue-query-devtools": "5.84.0",
     "@vee-validate/zod": "4.15.1",
     "axios": "1.11.0",
     "core-js": "3.44.0",
     "dayjs": "1.11.13",
-    "element-plus": "2.10.4",
+    "element-plus": "2.10.5",
     "highcharts": "11.4.8",
     "highcharts-vue": "1.4.3",
     "ics": "^3.5.0",
@@ -40,7 +40,7 @@
     "vue": "3.5.18",
     "vue-router": "4.5.1",
     "vue-zustand": "0.6.0",
-    "vuetify": "3.9.2",
+    "vuetify": "3.9.3",
     "zod": "3.25.76"
   },
   "devDependencies": {
@@ -62,7 +62,7 @@
     "sass": "1.89.2",
     "sass-loader": "16.0.5",
     "types": "*",
-    "typescript": "5.8.3",
+    "typescript": "5.9.2",
     "vite": "^6.3.5",
     "vitest": "0.34.6",
     "vue-tsc": "^2.2.10"
