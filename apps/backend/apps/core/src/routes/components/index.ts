@@ -23,17 +23,14 @@ type ApiResponse = {
   };
 };
 
-async function fetchWithSession(sessionId: string) {
-  return ofetch.create({
-    headers: { Cookie: `MoodleSession=${sessionId}` },
-    credentials: 'include'
-  });
-}
-
-async function getCoursesFromAPI(fetchFn: typeof ofetch, sesskey: string): Promise<Course[]> {
-  const response = await fetchFn<ApiResponse[]>('https://moodle.ufabc.edu.br/lib/ajax/service.php', {
+async function getCoursesFromAPI(sessionId: string, sesskey: string): Promise<Course[]> {
+  
+  const urlMoodle = 'https://moodle.ufabc.edu.br';
+  const [response] = await ofetch<ApiResponse[]>(`${urlMoodle}/lib/ajax/service.php`, {
     method: 'POST',
     params: { sesskey },
+    headers: { Cookie: `MoodleSession=${sessionId}` },
+    credentials: 'include',
     body: [{
       index: 0,
       methodname: "core_course_get_enrolled_courses_by_timeline_classification",
@@ -41,18 +38,24 @@ async function getCoursesFromAPI(fetchFn: typeof ofetch, sesskey: string): Promi
     }]
   });
 
-  if (response[0]?.error) {
-    throw new Error(`Moodle API error: ${response[0].error.message}`);
+  if (response.error || !response.data) {
+    throw new Error(`Moodle API error: ${response.error?.message}`);
   }
 
-  return response[0]?.data?.courses.map(course => ({
+  return response.data.courses.map(course => ({
     ...course,
-    link: `https://moodle.ufabc.edu.br/course/view.php?id=${course.id}`
+    link: `${urlMoodle}/course/view.php?id=${course.id}`
   })) || [];
 }
 
-async function extractPDFs(fetchFn: typeof ofetch, courseLink: string): Promise<PdfItem[]> {
-  const html = await fetchFn<string>(courseLink);
+async function extractPDFs(sessionId: string, courseLink: string): Promise<PdfItem[]> {
+  if (!courseLink) {
+    throw new Error('Link do curso não encontrado');
+  }
+  const html = await ofetch<string>(courseLink, {
+    headers: { Cookie: `MoodleSession=${sessionId}` },
+    credentials: 'include'
+  });
   const $ = cheerio.load(html);
   const pdfs: PdfItem[] = [];
 
@@ -78,30 +81,31 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     }
 
     try {
-      const fetchWithCookies = await fetchWithSession(sessionToken as string);
-
       if (!sessKey) {
         reply.status(401);
         return { error: 'Não foi possível obter sesskey - sessão pode estar inválida' };
       }
 
-      const courses: Course[] = await getCoursesFromAPI(fetchWithCookies, sessKey as string);
+      const courses: Course[] = await getCoursesFromAPI(sessionToken as string, sessKey as string);
 
       if (courses.length === 0) {
         return { error: 'Nenhum curso encontrado.' };
       }
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const [results] = await Promise.all(
+        courses.map(async (course) => {
+          if (!course.link) {
+            return;
+          } 
+          return {
+            course: course.fullname,
+            pdfs: await extractPDFs(sessionToken as string, course.link)
+          }
+        }
+      ));
+      app.log.info(results, 'PDFs extraídos');
 
-      const results = await Promise.all(
-        courses.map(async (course) => ({
-          course: course.fullname,
-          pdfs: await extractPDFs(fetchWithCookies, course.link || '')
-        }))
-      );
-      console.log(`Results[0]: ${JSON.stringify(results[1], null, 2)}`);
-
-      return { sessionToken, data: results };
+      return { data: results };
 
     } catch (error) {
       reply.status(500);
