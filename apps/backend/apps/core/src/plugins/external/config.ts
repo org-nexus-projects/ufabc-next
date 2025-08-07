@@ -14,7 +14,7 @@ const JWT_SECRET = 'LWp9YJMiUtfQxoepoTL7RkWJi6W5C6ED';
 const configSchema = z.object({
   PROTOCOL: z.enum(['http', 'https']).default('http'),
   NODE_ENV: z.enum(['dev', 'test', 'prod']).default('dev'),
-  PORT: z.coerce.number().default(5000),
+  PORT: z.coerce.number().default(5050),
   HOST: z.string().min(4).default('0.0.0.0'),
   JWT_SECRET: z.string().default(JWT_SECRET),
   RATE_LIMIT_MAX: z.coerce.number().default(100),
@@ -40,7 +40,7 @@ const configSchema = z.object({
   BOARD_PATH: z.string().optional(),
   OAUTH_NOTION_SECRET: z.string().default('notion_secret'),
   OAUTH_NOTION_CLIENT_ID: z.string().default('notion_client_id'),
-  NOTION_DATABASE_ID: z.string().default('teste'),
+  NOTION_DATABASE_ID: z.string().default('notion_database_id'),
 });
 
 const schema = zodToJsonSchema(configSchema);
