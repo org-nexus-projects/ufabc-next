@@ -73,7 +73,7 @@ export async function postInfoIntoNotionDB(
     });
 
     ctx.app.log.debug({
-      msg: 'Notion page created successfully',
+      msg: 'Message sent successfully',
       id: response.id,
       url: (response as any).url,
     });
@@ -84,7 +84,7 @@ export async function postInfoIntoNotionDB(
     };
   } catch (error) {
     ctx.app.log.error({
-      msg: 'Error creating a page in the notion database',
+      msg: 'Error creating a message in the database',
       error: error instanceof Error ? error.message : String(error),
       data,
     });
