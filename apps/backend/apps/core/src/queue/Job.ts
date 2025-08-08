@@ -1,4 +1,4 @@
-import { type JobsOptions, Queue, type RedisOptions } from 'bullmq';
+import { type JobsOptions, Queue, type RedisOptions, QueueEvents } from 'bullmq';
 import ms from 'ms';
 import { JOBS, QUEUE_JOBS, type QueueNames } from './definitions.js';
 import { FastifyAdapter } from '@bull-board/fastify';
@@ -135,6 +135,25 @@ export class Jobs implements JobImpl {
     } satisfies JobsOptions;
 
     return this.getQueue(jobName).add(jobName, jobParameters, jobOptions);
+  }
+
+  async dispatchAndWait<T extends JobNames>(
+    jobName: T,
+    jobParameters: Omit<JobDataType<T>, 'app'>,
+  ) {
+    const job = await this.dispatch(jobName, jobParameters);
+    const queueName = JOBS[jobName].queue as QueueNames;
+    const queueEvents = new QueueEvents(queueName, {
+      connection: {
+        ...this.redisConfig,
+      },
+    });
+    try {
+      const completed = await job.waitUntilFinished(queueEvents);
+      return completed as JobResultType<T>;
+    } finally {
+      await queueEvents.close();
+    }
   }
 
   schedule<T extends JobNames>(

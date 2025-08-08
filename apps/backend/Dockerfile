@@ -84,7 +84,7 @@ RUN git secret reveal -p ${GIT_SECRET_PASSWORD}
 # Remove the secret key file after decryption
 RUN rm -f ./private-container-file-key
 
-EXPOSE 5050
+EXPOSE 5000
 
 # start the app
 CMD pnpm run start

@@ -14,7 +14,7 @@ const JWT_SECRET = 'LWp9YJMiUtfQxoepoTL7RkWJi6W5C6ED';
 const configSchema = z.object({
   PROTOCOL: z.enum(['http', 'https']).default('http'),
   NODE_ENV: z.enum(['dev', 'test', 'prod']).default('dev'),
-  PORT: z.coerce.number().default(5050),
+  PORT: z.coerce.number().default(5000),
   HOST: z.string().min(4).default('0.0.0.0'),
   JWT_SECRET: z.string().default(JWT_SECRET),
   RATE_LIMIT_MAX: z.coerce.number().default(100),
