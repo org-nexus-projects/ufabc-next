@@ -9,12 +9,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     async (request, reply) => {
       const formData = request.body;
       try {
-        const result = await app.job.dispatchAndWait('InsertNotionPage', formData as any);
-        return reply.code(201).send({
-          success: true,
-          id: (result as any).id,
-          url: (result as any).url,
-        });
+        await app.job.dispatch('InsertNotionPage', formData);
+        return reply.code(201).send();
       } catch (error) {
         request.log.error({
           msg: 'Failed to create Notion page from help form',
