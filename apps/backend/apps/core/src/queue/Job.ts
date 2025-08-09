@@ -1,4 +1,4 @@
-import { type JobsOptions, Queue, type RedisOptions, QueueEvents } from 'bullmq';
+import { type JobsOptions, Queue, type RedisOptions } from 'bullmq';
 import ms from 'ms';
 import { JOBS, QUEUE_JOBS, type QueueNames } from './definitions.js';
 import { FastifyAdapter } from '@bull-board/fastify';
