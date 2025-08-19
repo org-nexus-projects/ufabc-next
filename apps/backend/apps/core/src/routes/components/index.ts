@@ -39,7 +39,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       ));
       app.log.info(results, 'PDFs extraídos');
 
-      return { data: results };
+      return { data: results, sessionToken };
 
     } catch (error) {
       reply.status(500);
