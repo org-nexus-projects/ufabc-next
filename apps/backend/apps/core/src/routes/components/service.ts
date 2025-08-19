@@ -5,6 +5,8 @@ import {
   apiResponseSchema,
   SubjectMoodleLink,
 } from '@/schemas/subjectLinks.js';
+import fs from 'fs/promises';
+import path from 'path';
 
 export async function getCoursesFromAPI(sessionId: string, sesskey: string): Promise<SubjectMoodleLink[]> {
   const urlMoodle = 'https://moodle.ufabc.edu.br';
@@ -64,4 +66,25 @@ export async function extractPDFs(sessionId: string, courseLink: string): Promis
   });
 
   return pdfs;
+}
+
+export async function savePDF(pdfLink: string, pdfName: string, sessionId: string): Promise<void> {
+  const response = await ofetch(pdfLink, {
+    method: 'GET',
+    headers: { Cookie: `MoodleSession=${sessionId}` },
+    responseType: 'arrayBuffer',
+  });
+
+  const pdfData = Buffer.from(response);
+
+  const folderPath = path.resolve('test_pdfs');
+
+  await fs.mkdir(folderPath, { recursive: true });
+
+  const fileName = pdfName.endsWith('.pdf') ? pdfName : `${pdfName}.pdf`;
+
+  const filePath = path.join(folderPath, fileName);
+
+  await fs.writeFile(filePath, pdfData);
+  
 }
