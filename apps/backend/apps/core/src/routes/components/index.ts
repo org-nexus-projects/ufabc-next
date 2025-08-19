@@ -1,7 +1,8 @@
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import {
   getCoursesFromAPI,
-  extractPDFs
+  extractPDFs,
+  savePDF
 } from './service.js';
 import { SubjectMoodleLink } from '@/schemas/subjectLinks.js';
 
@@ -49,6 +50,33 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       };
     }
   });
-};
+  app.post('/save', async (request, reply) => {
+    const sessionToken = request.headers['session-id'];
+    const { course, pdfs } = request.body as {
+      course: string;
+      pdfs: { pdfLink: string; pdfName: string }[];
+    }
+
+    if (!course || !Array.isArray(pdfs)) {
+      reply.status(400);
+      return { error: 'Payload inválido' };
+    }
+
+    try {
+      await Promise.all(
+        pdfs.map(async (pdf) => {
+          await savePDF(pdf.pdfLink, pdf.pdfName, sessionToken as string);
+        })
+      );
+      return { success: true };
+    } catch (error) {
+      reply.status(500);
+      return {
+        error: 'Erro ao salvar PDFs',
+        details: error instanceof Error ? error.message : String(error),
+      };
+    }
+  });
+}
 
 export default plugin;
