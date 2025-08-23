@@ -11,7 +11,7 @@
     "dev": "tsx watch --env-file=.env.dev src/server.ts",
     "build": "rimraf dist && tspc",
     "tsc": "tsc",
-    "start": "node --env-file=.env.prod dist/server.js",
+    "start": "pnpm build && node --env-file=.env.prod dist/server.js",
     "test": "node --import=tsx runTests.ts",
     "test:watch": "node --import=tsx runTests.ts watch",
     "lint": "biome lint --write --unsafe --diagnostic-level=error ."
