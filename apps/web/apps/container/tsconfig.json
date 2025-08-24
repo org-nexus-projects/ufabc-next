@@ -1,13 +1,11 @@
 {
   "extends": "tsconfig/vue.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    },
-    "skipLibCheck": true,
-    "sourceMap": false,
-    "types": ["node", "@testing-library/jest-dom", "vitest/globals"]
+    "moduleResolution": "bundler",
+    "types": ["element-plus/global", "vite/client", "node", "@testing-library/jest-dom", "vitest/globals"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "allowSyntheticDefaultImports": true,
+    "noEmit": true
   },
-  "exclude": ["node_modules", "dist"]
+    "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
 }

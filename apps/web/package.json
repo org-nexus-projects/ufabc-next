@@ -12,7 +12,7 @@
   "devDependencies": {
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
-    "eslint": "^8.54.0",
+    "eslint": "^9.33.0",
     "eslint-config-custom": "*",
     "prettier": "^3.1.0",
     "turbo": "^2.5.3"
@@ -22,5 +22,9 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "@vitest/coverage-v8": "^3.2.4",
+    "vitest": "^3.2.4"
+  }
 }

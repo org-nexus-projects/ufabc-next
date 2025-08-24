@@ -60,7 +60,7 @@
       >
         <p>{{ total }} resultados encontrados</p>
         <el-checkbox-group
-          v-model="filterByPeriod"
+          v-model="periodCheckboxes"
           style="min-width: 200px"
           class="my-2 my-md-0"
         >
@@ -175,7 +175,14 @@ const orderBy = ref<OrderBy>('deficit');
 
 const tab = ref<Tab>('classes');
 
-const filterByPeriod = ref<StatsParams['turno'][]>(['diurno', 'noturno']);
+const periodCheckboxes = ref<string[]>(['diurno', 'noturno']);
+
+const filterByPeriod = computed(
+  () =>
+    periodCheckboxes.value.filter(
+      (item) => item !== undefined,
+    ) as StatsParams['turno'][],
+);
 
 const changeOrderBy = (item: OrderBy) => {
   orderBy.value = item;
@@ -309,12 +316,10 @@ const total = computed(
   () => queriesData.value[tab.value]?.data?.value?.[0].total,
 );
 
-const disciplinas = computed(
-  () =>
-    queriesData.value[tab.value]?.data?.value?.flatMap(
-      (page) =>
-        page.data as readonly (StatsSubject | StatsClass | StatsCourse)[],
-    ),
+const disciplinas = computed(() =>
+  queriesData.value[tab.value]?.data?.value?.flatMap(
+    (page) => page.data as readonly (StatsSubject | StatsClass | StatsCourse)[],
+  ),
 );
 
 const hasMoreItems = computed(

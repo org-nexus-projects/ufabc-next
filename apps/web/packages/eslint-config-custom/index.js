@@ -1,11 +1,2 @@
-module.exports = {
-  extends: ['prettier'],
-  parserOptions: {
-    ecmaVersion: 2015,
-    sourceType: 'module',
-  },
-  env: {
-    es6: true,
-  },
-  rules: {},
-};
+export { default as base } from './base.js';
+export { default as vue } from './vue.js';
