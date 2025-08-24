@@ -5,23 +5,38 @@ import { PaperCard } from '@/components/PaperCard';
 
 <template>
   <section class="mb-4">
-    <a class="clean" href="https://linktr.ee/auloes.next" target="_blank">
-      <img src="@/assets/auloes-next-banner.png" alt="banner auloes next" style="width: 100%">
+    <a
+      class="clean"
+      href="https://linktr.ee/auloes.next"
+      target="_blank"
+    >
+      <img
+        src="@/assets/auloes-next-banner.png"
+        alt="banner auloes next"
+        style="width: 100%"
+      >
     </a>
   </section>
 
   <section>
     <v-layout>
       <v-row>
-        <v-col cols="12" sm="12" md="8">
+        <v-col
+          cols="12"
+          sm="12"
+          md="8"
+        >
           <PaperCard>
             <h2 class="text-primary font-weight-bold mb-4">
               Os <strong>Aulões Next</strong> para as P2 estão chegando!
             </h2>
             <div>
               <p class="mb-4">
-                Em parceria com a <a href="https://www.instagram.com/p/C9dvkVWuPEG/" class="font-weight-bold"
-                  target="_blank">NOC Educação</a>,
+                Em parceria com a <a
+                  href="https://www.instagram.com/p/C9dvkVWuPEG/"
+                  class="font-weight-bold"
+                  target="_blank"
+                >NOC Educação</a>,
                 estamos inaugurando os Aulões Next! Agora você poderá
                 participar de um
                 aulão preparatório para as suas provas (P1 e P2) com o
@@ -40,13 +55,23 @@ import { PaperCard } from '@/components/PaperCard';
                 <li><strong>Bases Matemáticas</strong> - 14/09 das 9h ás 13h</li>
               </ul>
               <br>
-              <p><strong>Clique <a href="https://linktr.ee/auloes.next" target="_blank">aqui</a> ou
+              <p>
+                <strong>Clique <a
+                  href="https://linktr.ee/auloes.next"
+                  target="_blank"
+                >aqui</a> ou
                   escaneie o QR
                   code para fazer sua inscrição!</strong>
               </p>
-              <p class="mb-4">Dúvidas? Mande uma mensagem para <a href="https://www.instagram.com/auloes.next/"
-                  target="_blank">@auloes.next</a></p>
-              <p class="mb-4">Não perca essa oportunidade, te esperamos lá! 😉🎓</p>
+              <p class="mb-4">
+                Dúvidas? Mande uma mensagem para <a
+                  href="https://www.instagram.com/auloes.next/"
+                  target="_blank"
+                >@auloes.next</a>
+              </p>
+              <p class="mb-4">
+                Não perca essa oportunidade, te esperamos lá! 😉🎓
+              </p>
               <p class="mb-4">
                 E não se esqueçam:
                 <br>
@@ -55,10 +80,17 @@ import { PaperCard } from '@/components/PaperCard';
             </div>
           </PaperCard>
         </v-col>
-        <v-col cols="12" sm="12" md="4" class="grid-cta">
+        <v-col
+          cols="12"
+          sm="12"
+          md="4"
+          class="grid-cta"
+        >
           <PaperCard class="p-4">
             <div class="card-informations">
-              <h2 style="margin-bottom: 10px;">Por apenas R$ 40,00</h2>
+              <h2 style="margin-bottom: 10px;">
+                Por apenas R$ 40,00
+              </h2>
               <ul class="mb-4 bullet-list">
                 <li><strong>Aula presencial</strong></li>
                 <li>Revisão teórica</li>
@@ -68,18 +100,37 @@ import { PaperCard } from '@/components/PaperCard';
                 <li>Material extra de apoio</li>
                 <li>Impacto real no seu conhecimento</li>
               </ul>
-              <a href="https://linktr.ee/auloes.next" target="_blank">
-                <v-btn color="#2e7eed" class="w-100">
+              <a
+                href="https://linktr.ee/auloes.next"
+                target="_blank"
+              >
+                <v-btn
+                  color="#2e7eed"
+                  class="w-100"
+                >
                   Acesse aqui
                 </v-btn>
               </a>
             </div>
           </PaperCard>
           <PaperCard class="p-4 mb-4">
-            <h2 style="margin-bottom: 10px; text-align: center;">Escaneie o QrCode</h2>
-            <div class="img-style" style="display: flex; justify-content: center;">
-              <a href="https://linktr.ee/auloes.next" target="_blank">
-                <img src="@/assets/qr-code-auloes.png" alt="auloes next" height="250" width="250"></a>
+            <h2 style="margin-bottom: 10px; text-align: center;">
+              Escaneie o QrCode
+            </h2>
+            <div
+              class="img-style"
+              style="display: flex; justify-content: center;"
+            >
+              <a
+                href="https://linktr.ee/auloes.next"
+                target="_blank"
+              >
+                <img
+                  src="@/assets/qr-code-auloes.png"
+                  alt="auloes next"
+                  height="250"
+                  width="250"
+                ></a>
             </div>
           </PaperCard>
         </v-col>

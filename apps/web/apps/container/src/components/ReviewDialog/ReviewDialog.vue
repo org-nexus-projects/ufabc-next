@@ -3,19 +3,29 @@
     v-if="isFetchingTeacherEnrollmentError || teacherIdError"
     text="Erro ao carregar as informações do professor desta disciplina"
   />
-  <v-dialog v-model="showDialog" maxWidth="1200">
+  <v-dialog
+    v-model="showDialog"
+    max-width="1200"
+  >
     <PaperCard>
       <div class="w-100 d-flex justify-end">
         <v-btn
-          @click="showDialog = false"
           variant="tonal"
           icon="mdi-window-close"
           aria-label="Fechar"
+          @click="showDialog = false"
         />
       </div>
-      <v-container class="pa-0 my-2" style="max-width: none">
+      <v-container
+        class="pa-0 my-2"
+        style="max-width: none"
+      >
         <v-row class="ma-0">
-          <v-col class="pa-0 pb-5 pa-sm-3" cols="12" md="5">
+          <v-col
+            class="pa-0 pb-5 pa-sm-3"
+            cols="12"
+            md="5"
+          >
             <p class="text-h4 font-weight-bold text-primary mb-2">
               {{ teacherName }}
             </p>
@@ -29,14 +39,14 @@
                 class="text-white d-flex align-center justify-center rounded ml-1"
                 :style="
                   enrollment?.conceito &&
-                  `background-color:${
-                    conceptsColor[enrollment.conceito]
-                  }; width: 20px; height: 20px;`
+                    `background-color:${
+                      conceptsColor[enrollment.conceito]
+                    }; width: 20px; height: 20px;`
                 "
               >
                 {{ enrollment?.conceito }}
               </div>
-              <span class="font-weight-bold ml-1"></span>
+              <span class="font-weight-bold ml-1" />
             </div>
             <v-chip
               v-for="tag in tags"
@@ -47,7 +57,9 @@
             >
               {{ tag }}
             </v-chip>
-            <p class="text-subtitle-1 pt-3">Seu comentário:</p>
+            <p class="text-subtitle-1 pt-3">
+              Seu comentário:
+            </p>
             <v-textarea
               v-model="userCommentMessage"
               variant="solo"
@@ -60,20 +72,25 @@
             />
             <div class="w-100 d-flex justify-end">
               <v-btn
-                @click="submit"
                 color="primary"
                 :disabled="disableMutateComment"
                 :loading="isCreatingComment || isUpdatingComment"
+                @click="submit"
               >
                 {{ hasUserComment ? 'Atualizar comentário' : 'Enviar' }}
               </v-btn>
             </div>
           </v-col>
-          <v-col v-if="teacherId" class="pa-0 pa-sm-3" cols="12" md="7">
+          <v-col
+            v-if="teacherId"
+            class="pa-0 pa-sm-3"
+            cols="12"
+            md="7"
+          >
             <CommentsList
-              :teacherId="teacherId"
-              :selectedSubject="selectedSubject"
-              @update:selectedSubject="selectedSubject = $event"
+              :teacher-id="teacherId"
+              :selected-subject="selectedSubject"
+              @update:selected-subject="selectedSubject = $event"
             />
           </v-col>
         </v-row>
@@ -83,17 +100,17 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, computed, ref } from 'vue';
-import { Comments, Enrollments } from 'services';
-
-import { PaperCard } from '@/components/PaperCard';
-import { conceptsColor } from 'utils';
-import { CommentsList } from '@/components/CommentsList';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
 import { ElMessage } from 'element-plus';
-import { FeedbackAlert } from '@/components/FeedbackAlert';
-import { watch } from 'vue';
+import { Comments, Enrollments } from 'services';
 import type { Enrollment } from 'types';
+import { conceptsColor } from 'utils';
+import { computed, PropType, ref , watch } from 'vue';
+
+import { CommentsList } from '@/components/CommentsList';
+import { FeedbackAlert } from '@/components/FeedbackAlert';
+import { PaperCard } from '@/components/PaperCard';
+
 const selectedSubject = ref<string>('Todas as matérias');
 
 const props = defineProps({

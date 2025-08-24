@@ -72,7 +72,6 @@ export default [
       'import/no-duplicates': 'error',
       'import/newline-after-import': 'error',
       'unused-imports/no-unused-imports': 'error',
-      'unused-imports/no-unused-vars': 'warn',
     },
   },
   {

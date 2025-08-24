@@ -1,10 +1,20 @@
 <template>
   <div class="whatsapp-groups-view">
-    <div v-if="userType === 'logged-no-history'" class="not-synced__container">
+    <div
+      v-if="userType === 'logged-no-history'"
+      class="not-synced__container"
+    >
       <div class="not-synced__icon">
-        <v-icon size="60" color="primary">mdi-sync</v-icon>
+        <v-icon
+          size="60"
+          color="primary"
+        >
+          mdi-sync
+        </v-icon>
       </div>
-      <h1 class="not-synced__title">Desbloqueie todo o potencial! 🚀</h1>
+      <h1 class="not-synced__title">
+        Desbloqueie todo o potencial! 🚀
+      </h1>
       <p class="not-synced__subtitle">
         Sincronize seu histórico e tenha acesso aos grupos de Whatsapp das suas disciplinas específicas.
       </p>
@@ -21,13 +31,23 @@
         </div>
       </div>
       <div class="not-synced__actions">
-        <button class="not-synced__button" @click="handleExtension">
-          <v-icon size="20">mdi-link-variant</v-icon>
+        <button
+          class="not-synced__button"
+          @click="handleExtension"
+        >
+          <v-icon size="20">
+            mdi-link-variant
+          </v-icon>
           Baixar extensão
         </button>
         <span style="color: #808080;">OU</span>
-        <button class="not-synced__button" @click="handleSyncHistory">
-          <v-icon size="20">mdi-sync</v-icon>
+        <button
+          class="not-synced__button"
+          @click="handleSyncHistory"
+        >
+          <v-icon size="20">
+            mdi-sync
+          </v-icon>
           Sincronizar agora!
         </button>
       </div>
@@ -39,17 +59,32 @@
         <p>
           Acesse os grupos de WhatsApp das matérias que você está cursando e fique por dentro de tudo com a sua turma.
         </p>
-
       </div>
       <div class="search-section">
         <div class="search-container">
           <div class="search-input-wrapper">
-            <v-text-field v-model="searchQuery" :placeholder="getSearchPlaceholder()" variant="outlined" size="large"
-              prepend-inner-icon="mdi-magnify" clearable :disabled="true" class="main-search">
-              <template #append-inner v-if="isSearchBlocked">
+            <v-text-field
+              v-model="searchQuery"
+              :placeholder="getSearchPlaceholder()"
+              variant="outlined"
+              size="large"
+              prepend-inner-icon="mdi-magnify"
+              clearable
+              :disabled="true"
+              class="main-search"
+            >
+              <template
+                v-if="isSearchBlocked"
+                #append-inner
+              >
                 <v-tooltip text="Sincronize para desbloquear">
                   <template #activator="{ props }">
-                    <v-icon v-bind="props" color="warning">mdi-lock</v-icon>
+                    <v-icon
+                      v-bind="props"
+                      color="warning"
+                    >
+                      mdi-lock
+                    </v-icon>
                   </template>
                 </v-tooltip>
               </template>
@@ -59,18 +94,36 @@
           <!-- Search Options -->
           <div class="search-options">
             <div class="option-chips">
-              <v-chip :color="selectedSearchType === 'ra' ? 'primary' : 'default'"
-                :variant="selectedSearchType === 'ra' ? 'elevated' : 'tonal'" size="large" class="search-chip">
-                <v-icon start>mdi-account</v-icon>
+              <v-chip
+                :color="selectedSearchType === 'ra' ? 'primary' : 'default'"
+                :variant="selectedSearchType === 'ra' ? 'elevated' : 'tonal'"
+                size="large"
+                class="search-chip"
+              >
+                <v-icon start>
+                  mdi-account
+                </v-icon>
                 Buscar por RA
               </v-chip>
 
-              <v-chip :color="selectedSearchType === 'subject' ? 'secondary' : 'default'"
-                :variant="selectedSearchType === 'subject' ? 'elevated' : 'tonal'" :disabled="!canSearchBySubject"
-                size="large" class="search-chip">
-                <v-icon start>mdi-book</v-icon>
+              <v-chip
+                :color="selectedSearchType === 'subject' ? 'secondary' : 'default'"
+                :variant="selectedSearchType === 'subject' ? 'elevated' : 'tonal'"
+                :disabled="!canSearchBySubject"
+                size="large"
+                class="search-chip"
+              >
+                <v-icon start>
+                  mdi-book
+                </v-icon>
                 Buscar por Disciplina
-                <v-icon v-if="!canSearchBySubject" end size="16">mdi-lock</v-icon>
+                <v-icon
+                  v-if="!canSearchBySubject"
+                  end
+                  size="16"
+                >
+                  mdi-lock
+                </v-icon>
               </v-chip>
             </div>
           </div>
@@ -80,12 +133,26 @@
 
 
     <!-- Results Section -->
-    <div v-if="userType !== 'logged-no-history'" class="results-section">
+    <div
+      v-if="userType !== 'logged-no-history'"
+      class="results-section"
+    >
       <div class="results-grid">
-        <WhatsappGroupCard v-for="(group, index) in mockGroups" :key="index" :season="group.season"
-          :campus="group.campus" :codigo="group.codigo" :group-url="group.groupURL" :teoria="group.teoria"
-          :pratica="group.pratica" :turno="group.turno" :subject="group.subject" :turma="group.turma"
-          class="preview-card" :style="{ animationDelay: `${index * 150}ms` }" />
+        <WhatsappGroupCard
+          v-for="(group, index) in mockGroups"
+          :key="index"
+          :season="group.season"
+          :campus="group.campus"
+          :codigo="group.codigo"
+          :group-url="group.groupURL"
+          :teoria="group.teoria"
+          :pratica="group.pratica"
+          :turno="group.turno"
+          :subject="group.subject"
+          :turma="group.turma"
+          class="preview-card"
+          :style="{ animationDelay: `${index * 150}ms` }"
+        />
       </div>
 
       <!-- Coming Soon Overlay -->
@@ -99,15 +166,30 @@
           </p>
           <div class="coming-soon-features">
             <div class="feature-item">
-              <v-icon color="primary" size="20">mdi-check-circle</v-icon>
+              <v-icon
+                color="primary"
+                size="20"
+              >
+                mdi-check-circle
+              </v-icon>
               <span>Busca inteligente por disciplina</span>
             </div>
             <div class="feature-item">
-              <v-icon color="primary" size="20">mdi-check-circle</v-icon>
+              <v-icon
+                color="primary"
+                size="20"
+              >
+                mdi-check-circle
+              </v-icon>
               <span>Grupos organizados por turma</span>
             </div>
             <div class="feature-item">
-              <v-icon color="primary" size="20">mdi-check-circle</v-icon>
+              <v-icon
+                color="primary"
+                size="20"
+              >
+                mdi-check-circle
+              </v-icon>
               <span>Acesso direto pelo Next</span>
             </div>
           </div>
@@ -118,14 +200,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
-import { useAuth } from '@/stores/useAuth'
 import { Whatsapp } from 'services';
-import { studentRecordURL, extensionURL } from 'utils';
-import WhatsappGroupCard from '@/components/WhatsappGroupCard/WhatsappGroupCard.vue';
 import { SearchComponentItem } from 'types';
+import { extensionURL,studentRecordURL } from 'utils';
+import { computed, onMounted,ref } from 'vue'
+
+import WhatsappGroupCard from '@/components/WhatsappGroupCard/WhatsappGroupCard.vue';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
+import { useAuth } from '@/stores/useAuth'
 
 type UserType = 'not-logged' | 'logged-no-history' | 'logged-with-history';
 

@@ -1,36 +1,65 @@
 <template>
-  <div @click="() => handleClick()" class="whatsapp-group-card">
+  <div
+    class="whatsapp-group-card"
+    @click="() => handleClick()"
+  >
     <div class="whatsapp-group-card__header">
       <div class="header__icon-container">
-        <v-icon color="white">mdi-book-open-page-variant</v-icon>
+        <v-icon color="white">
+          mdi-book-open-page-variant
+        </v-icon>
       </div>
       <div class="header__info">
-        <h3 class="info__name">{{ props.subject }}</h3>
+        <h3 class="info__name">
+          {{ props.subject }}
+        </h3>
         <div style="display: flex; gap: 16px;">
-          <p class="info__description">{{ props.codigo }}</p>
+          <p class="info__description">
+            {{ props.codigo }}
+          </p>
         </div>
       </div>
     </div>
 
     <div class="professor-info">
-      <p class="professor-name">Prof. Teoria: {{ props.teoria }}</p>
-      <p class="professor-name">Prof. Prática: {{ props.pratica }}</p>
-      <p class="season">{{ props.season }}</p>
+      <p class="professor-name">
+        Prof. Teoria: {{ props.teoria }}
+      </p>
+      <p class="professor-name">
+        Prof. Prática: {{ props.pratica }}
+      </p>
+      <p class="season">
+        {{ props.season }}
+      </p>
     </div>
 
     <div class="subject__data">
-      <div v-if="props.campus" class="metric">
+      <div
+        v-if="props.campus"
+        class="metric"
+      >
         <v-icon>mdi-town-hall</v-icon>
         <span>{{ campusName }}</span>
       </div>
-      <div v-if="props.turno && props.turma" class="metric">
-        <p class="info__description">{{ props.turno }} - {{ props.turma }}</p>
+      <div
+        v-if="props.turno && props.turma"
+        class="metric"
+      >
+        <p class="info__description">
+          {{ props.turno }} - {{ props.turma }}
+        </p>
       </div>
     </div>
 
     <div class="activity-indicator">
-      <v-btn color="black" prepend-icon="mdi-whatsapp" text="Entrar no Grupo" size="default" variant="text"
-        width="100%"></v-btn>
+      <v-btn
+        color="black"
+        prepend-icon="mdi-whatsapp"
+        text="Entrar no Grupo"
+        size="default"
+        variant="text"
+        width="100%"
+      />
     </div>
   </div>
 </template>

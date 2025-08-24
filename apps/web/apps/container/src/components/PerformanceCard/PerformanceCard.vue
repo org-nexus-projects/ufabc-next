@@ -2,7 +2,10 @@
   <v-card
     class="performance-card pa-5 rounded-lg w-100 h-100 d-flex flex-column justify-space-between"
   >
-    <v-icon class="mb-1 mdi" :class="[props.icon, `text-${props.color}`]" />
+    <v-icon
+      class="mb-1 mdi"
+      :class="[props.icon, `text-${props.color}`]"
+    />
     <span class="text-h5 font-weight-bold">
       {{ props.title }}
       <span class="text-body-1 font-weight-light">
@@ -15,9 +18,21 @@
     >
       <p>
         {{ description }}
-        <v-btn v-if="tooltip" density="compact" icon="mdi-information-outline" variant="text" class="pa-0 h-auto w-auto">
-          <v-icon/>
-          <v-tooltip open-on-click activator="parent" location="top" >{{tooltip}}</v-tooltip>
+        <v-btn
+          v-if="tooltip"
+          density="compact"
+          icon="mdi-information-outline"
+          variant="text"
+          class="pa-0 h-auto w-auto"
+        >
+          <v-icon />
+          <v-tooltip
+            open-on-click
+            activator="parent"
+            location="top"
+          >
+            {{ tooltip }}
+          </v-tooltip>
         </v-btn>
       </p>
       <v-progress-linear

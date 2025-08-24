@@ -1,9 +1,10 @@
-import vue from '@vitejs/plugin-vue';
-import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
 
+import vue from '@vitejs/plugin-vue';
+import { defineConfig } from 'vite';
+
 export default defineConfig({
-  base: process.env.NODE_ENV === 'production' ? '/app' : '/',
+  base: import.meta.env.VITE_APP_ENV === 'production' ? '/app' : '/',
   server: {
     port: 3000,
     host: true,

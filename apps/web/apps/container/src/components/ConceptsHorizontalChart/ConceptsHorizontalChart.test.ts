@@ -1,7 +1,9 @@
-import { render, screen } from '@/test-utils';
-import { ConceptsHorizontalChart } from '.';
-import { subjectInfo } from '@/mocks/reviews';
 import { SubjectSpecific } from 'types';
+
+import { subjectInfo } from '@/mocks/reviews';
+import { render, screen } from '@/test-utils';
+
+import { ConceptsHorizontalChart } from '.';
 
 describe('<ConceptsHorizontalChart />', () => {
   test('render Concepts Horizontal Chart with regular found teacher', async () => {

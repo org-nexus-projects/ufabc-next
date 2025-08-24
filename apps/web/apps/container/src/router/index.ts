@@ -1,5 +1,6 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { authStore } from 'stores';
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+
 const ReviewsView = () => import('@/views/Reviews/ReviewsView.vue');
 const PerformanceView = () => import('@/views/Performance/PerformanceView.vue');
 const PlanningView = () => import('@/views/Planning/PlanningView.vue');

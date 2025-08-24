@@ -1,22 +1,48 @@
 <template>
-  <CenteredLoading class="mt-10" v-if="
-    isPendingCrHistory || isPendingCpHistory || isPendingCrDistributionData
-  " />
-  <v-layout class="flex-column align-center justify-center" v-else>
-    <v-row align="stretch" no-gutters class="w-100">
-      <v-col v-for="card in cards" :key="card.title" cols="12" sm="3" class="mb-2 mb-sm-0">
-        <PerformanceCard :title="card.title" :subTitle="card.subtitle" :description="card.content" :color="card.color"
-          :icon="card.icon" :tooltip="card?.tooltip">
-        </PerformanceCard>
+  <CenteredLoading
+    v-if="
+      isPendingCrHistory || isPendingCpHistory || isPendingCrDistributionData
+    "
+    class="mt-10"
+  />
+  <v-layout
+    v-else
+    class="flex-column align-center justify-center"
+  >
+    <v-row
+      align="stretch"
+      no-gutters
+      class="w-100"
+    >
+      <v-col
+        v-for="card in cards"
+        :key="card.title"
+        cols="12"
+        sm="3"
+        class="mb-2 mb-sm-0"
+      >
+        <PerformanceCard
+          :title="card.title"
+          :sub-title="card.subtitle"
+          :description="card.content"
+          :color="card.color"
+          :icon="card.icon"
+          :tooltip="card?.tooltip"
+        />
       </v-col>
     </v-row>
     <PaperCard class="w-100 mt-4">
       <Chart :options="crHistoryOptions" />
     </PaperCard>
     <PaperCard class="w-100 mt-4">
-      <v-select :items="cpHistoryData" :item-title="(course: CourseInformation) => course.curso"
-        :item-value="(course: CourseInformation) => course" v-model="currentCpCourse" variant="outlined"
-        class="course-select" />
+      <v-select
+        v-model="currentCpCourse"
+        :items="cpHistoryData"
+        :item-title="(course: CourseInformation) => course.curso"
+        :item-value="(course: CourseInformation) => course"
+        variant="outlined"
+        class="course-select"
+      />
       <Chart :options="cpHistoryOptions" />
     </PaperCard>
     <PaperCard class="w-100 mt-4">
@@ -26,15 +52,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { Chart } from 'highcharts-vue';
 import { useQuery } from '@tanstack/vue-query';
-import { PerformanceCard } from '@/components/PerformanceCard';
-import { Performance, type CourseInformation } from 'services';
-import { PaperCard } from '@/components/PaperCard';
-import { theme } from '@/theme';
-import { CenteredLoading } from '@/components/CenteredLoading';
+import { Chart } from 'highcharts-vue';
+import { type CourseInformation,Performance } from 'services';
 import { formatSeason } from 'utils';
+import { computed,ref } from 'vue';
+
+import { CenteredLoading } from '@/components/CenteredLoading';
+import { PaperCard } from '@/components/PaperCard';
+import { PerformanceCard } from '@/components/PerformanceCard';
+import { theme } from '@/theme';
 
 const areaGraphOptions = {
   accessibility: {

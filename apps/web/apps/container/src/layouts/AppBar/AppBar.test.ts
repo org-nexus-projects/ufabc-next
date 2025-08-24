@@ -1,7 +1,8 @@
-import { render, screen, userEvent, waitFor } from '@/test-utils';
-import { AppBar } from '.';
 import { user as mockedUser } from '@/mocks/users';
 import { useAuth } from '@/stores/useAuth';
+import { render, screen, userEvent, waitFor } from '@/test-utils';
+
+import { AppBar } from '.';
 
 describe('<AppBar />', () => {
   const originalUseAuthValue = useAuth.getState();

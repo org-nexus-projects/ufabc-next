@@ -1,11 +1,18 @@
 <template>
   <div id="table-component">
-    <v-table hover density="comfortable" class="rounded-lg">
+    <v-table
+      hover
+      density="comfortable"
+      class="rounded-lg"
+    >
       <thead class="table-head bg-ufabcnext-green">
-        <slot name="head"></slot>
+        <slot name="head" />
       </thead>
       <tbody class="table-body bg-secondary">
-        <slot name="body" style=""></slot>
+        <slot
+          name="body"
+          style=""
+        />
       </tbody>
     </v-table>
   </div>

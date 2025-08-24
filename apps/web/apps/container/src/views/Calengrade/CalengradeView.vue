@@ -1,19 +1,39 @@
 <template>
   <div class="calengrade-page">
     <div class="calengrade-page__container">
-      <img src="../../assets/calengrade/calengrade-logo.svg" alt="logo do Calengrade" class="calengrade-logo" />
+      <img
+        src="../../assets/calengrade/calengrade-logo.svg"
+        alt="logo do Calengrade"
+        class="calengrade-logo"
+      >
 
       <div class="calengrade-page__content">
-        <WelcomeScreen v-if="currentStepName === CalengradeSteps.Welcome" @next-step="onNextStep" />
+        <WelcomeScreen
+          v-if="currentStepName === CalengradeSteps.Welcome"
+          @next-step="onNextStep"
+        />
 
-        <SummaryScreen v-else-if="currentStepName === CalengradeSteps.Summary" :selected-quarter="calengrade.quarter"
-          @next-step="onNextStep" @update-classes="onUpdateClasses" @update-summary="onUpdateSummary" />
+        <SummaryScreen
+          v-else-if="currentStepName === CalengradeSteps.Summary"
+          :selected-quarter="calengrade.quarter"
+          @next-step="onNextStep"
+          @update-classes="onUpdateClasses"
+          @update-summary="onUpdateSummary"
+        />
 
-        <ChangeQuarterScreen v-else-if="currentStepName === CalengradeSteps.ChangeQuarter"
-          :selected-quarter="calengrade.quarter" @change-quarter="onChangeQuarter" @next-step="onNextStep" />
+        <ChangeQuarterScreen
+          v-else-if="currentStepName === CalengradeSteps.ChangeQuarter"
+          :selected-quarter="calengrade.quarter"
+          @change-quarter="onChangeQuarter"
+          @next-step="onNextStep"
+        />
 
-        <PreviewScreen v-else-if="currentStepName === CalengradeSteps.Preview" @next-step="onNextStep"
-          @reset-calengrade="resetCalengrade" :calengrade="calengrade" />
+        <PreviewScreen
+          v-else-if="currentStepName === CalengradeSteps.Preview"
+          :calengrade="calengrade"
+          @next-step="onNextStep"
+          @reset-calengrade="resetCalengrade"
+        />
       </div>
 
       <h3 class="calengrade-page__footer-credits">
@@ -29,12 +49,13 @@
 <script lang="ts" setup>
 import { onMounted, reactive, ref, watch } from 'vue';
 
-import WelcomeScreen from './screens/WelcomeScreen.vue';
-import SummaryScreen from './screens/SummaryScreen.vue';
-import PreviewScreen from './screens/PreviewScreen.vue';
-import ChangeQuarterScreen from './screens/ChangeQuarterScreen.vue';
-import { CalengradeInfo, CalengradeSteps, Classes } from './types';
 import { definedQuarters } from '@/utils/quarters';
+
+import ChangeQuarterScreen from './screens/ChangeQuarterScreen.vue';
+import PreviewScreen from './screens/PreviewScreen.vue';
+import SummaryScreen from './screens/SummaryScreen.vue';
+import WelcomeScreen from './screens/WelcomeScreen.vue';
+import { CalengradeInfo, CalengradeSteps, Classes } from './types';
 
 const currentStepName = ref<CalengradeSteps>(CalengradeSteps.Welcome);
 

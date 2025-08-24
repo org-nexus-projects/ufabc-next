@@ -1,38 +1,72 @@
 <template>
   <div>
     <div>
-      <h1 class="change-quarter__title">Selecione um quadrimestre</h1>
+      <h1 class="change-quarter__title">
+        Selecione um quadrimestre
+      </h1>
       <h2 class="change-quarter__title-subtitle">
         Datas disponíveis no
-        <a class="hint" rel="noopener noreferrer" target="_blank" href="https://prograd.ufabc.edu.br/calendarios">
+        <a
+          class="hint"
+          rel="noopener noreferrer"
+          target="_blank"
+          href="https://prograd.ufabc.edu.br/calendarios"
+        >
           Calendário acadêmico
         </a>
       </h2>
-      <div style="
+      <div
+        style="
           margin: 32px 0;
-        ">
+        "
+      >
         <label for="quarter">Quadrimestre</label>
-        <select id="quarter" :value="newQuarter"
-          @change="event => handleQuarterChange(Number((event.target as HTMLSelectElement).value))">
-          <option v-for="(q, i) in definedQuarters" :key="i" :value="i">
+        <select
+          id="quarter"
+          :value="newQuarter"
+          @change="event => handleQuarterChange(Number((event.target as HTMLSelectElement).value))"
+        >
+          <option
+            v-for="(q, i) in definedQuarters"
+            :key="i"
+            :value="i"
+          >
             {{ q.title }}
           </option>
         </select>
 
         <label for="startDate">Início</label>
-        <input inputmode="numeric" id="startDate" type="date" :value="startDate" :disabled="newQuarter !== 0" />
+        <input
+          id="startDate"
+          inputmode="numeric"
+          type="date"
+          :value="startDate"
+          :disabled="newQuarter !== 0"
+        >
 
         <label for="endDate">Fim</label>
-        <input inputmode="numeric" id="endDate" type="date" :value="endDate" :disabled="newQuarter !== 0" />
+        <input
+          id="endDate"
+          inputmode="numeric"
+          type="date"
+          :value="endDate"
+          :disabled="newQuarter !== 0"
+        >
       </div>
     </div>
 
-    <button class="calengrade-button" @click="goToSummaryScreen">Voltar</button>
+    <button
+      class="calengrade-button"
+      @click="goToSummaryScreen"
+    >
+      Voltar
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { onMounted,ref } from 'vue';
+
 import { definedQuarters } from '../../../utils/quarters';
 import { CalengradeSteps, Quarter } from '../types';
 

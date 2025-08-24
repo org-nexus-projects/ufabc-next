@@ -1,6 +1,7 @@
-import { render, screen } from '@/test-utils';
-import { PendingReviewEnrollment } from '.';
 import { enrollments } from '@/mocks/enrollments';
+import { render, screen } from '@/test-utils';
+
+import { PendingReviewEnrollment } from '.';
 
 describe('<PendingReviewEnrollment />', () => {
   test('render the Pending Review Enrollment with a theorical only subject', async () => {

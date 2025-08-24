@@ -1,30 +1,27 @@
-import { createApp } from 'vue';
-import App from './App.vue';
-import router from './router';
+import 'vuetify/styles';
+import 'element-plus/dist/index.css';
+import '@mdi/font/css/materialdesignicons.css';
 
+import { QueryClient } from '@tanstack/query-core';
 import {
-  VueQueryPlugin,
   QueryClient as QueryClientVue,
+  VueQueryPlugin,
 } from '@tanstack/vue-query';
-import client from './queryClient';
-
+import elementPlus, { ElMessage } from 'element-plus';
+import Highcharts from 'highcharts';
+import accessibility from 'highcharts/modules/accessibility';
+import annotationsInit from 'highcharts/modules/annotations';
+import HighchartsVue from 'highcharts-vue';
+import { createApp } from 'vue';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
-import 'vuetify/styles';
 
-import elementPlus, { ElMessage } from 'element-plus';
-import 'element-plus/dist/index.css';
-
-import '@mdi/font/css/materialdesignicons.css';
-
-import HighchartsVue from 'highcharts-vue';
-import Highcharts from 'highcharts';
-import annotationsInit from 'highcharts/modules/annotations';
-import accessibility from 'highcharts/modules/accessibility';
-import { QueryClient } from '@tanstack/query-core';
-import { theme } from './theme';
+import App from './App.vue';
 import { eventTracker } from './helpers/EventTracker';
+import client from './queryClient';
+import router from './router';
+import { theme } from './theme';
 
 accessibility(Highcharts);
 annotationsInit(Highcharts);

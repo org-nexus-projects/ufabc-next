@@ -5,7 +5,18 @@
     "types": ["element-plus/global", "vite/client", "node", "@testing-library/jest-dom", "vitest/globals"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "allowSyntheticDefaultImports": true,
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
-    "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
+  "include": [
+    "src/**/*.ts", 
+    "src/**/*.tsx", 
+    "src/**/*.vue",
+    "setup-tests.ts",
+    "vitest.config.ts",
+    "vite.config.ts"
+  ]
 }

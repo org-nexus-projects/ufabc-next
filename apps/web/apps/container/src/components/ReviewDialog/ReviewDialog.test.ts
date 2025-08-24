@@ -1,17 +1,19 @@
+import { ElMessage } from 'element-plus';
+import { http,HttpResponse } from 'msw';
+import { formatSeason } from 'utils';
+
+import { enrollment } from '@/mocks/enrollments';
+import { userCreateComment, userUpdateComment } from '@/mocks/reviews';
+import { server } from '@/mocks/server';
 import {
+  expectToasterToHaveText,
   render,
   screen,
   userEvent,
   waitFor,
-  expectToasterToHaveText,
 } from '@/test-utils';
+
 import { ReviewDialog } from '.';
-import { userCreateComment, userUpdateComment } from '@/mocks/reviews';
-import { enrollment } from '@/mocks/enrollments';
-import { formatSeason } from 'utils';
-import { server } from '@/mocks/server';
-import { HttpResponse, http } from 'msw';
-import { ElMessage } from 'element-plus';
 
 const commentAreaPlaceholder =
   'Faça aqui um comentário em relação ao docente e sua disciplina.';

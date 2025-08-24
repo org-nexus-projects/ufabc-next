@@ -1,10 +1,16 @@
 <template>
   <div class="calengrade-summary">
     <div class="calengrade-summary__container">
-      <h1 class="calengrade-summary__title">Cole aqui o seu resumo de disciplinas disponível no</h1>
+      <h1 class="calengrade-summary__title">
+        Cole aqui o seu resumo de disciplinas disponível no
+      </h1>
       <h2 class="calengrade-summary__title-link">
-        <a class="hint" rel="noopener noreferrer" target="_blank"
-          href="https://matricula.ufabc.edu.br/matricula/resumo">
+        <a
+          class="hint"
+          rel="noopener noreferrer"
+          target="_blank"
+          href="https://matricula.ufabc.edu.br/matricula/resumo"
+        >
           Portal de Matrículas
         </a>
       </h2>
@@ -18,18 +24,34 @@
         </div>
       </h3>
 
-      <textarea ref="textareaRef" id="summary" placeholder="Exemplo: 
+      <textarea
+        id="summary"
+        ref="textareaRef"
+        v-model="summaryText"
+        placeholder="Exemplo: 
         BIR0603-15 - Ciência, Tecnologia e Sociedade A1-Noturno (Santo André) - TPI (3 - 0 - 4) - Campus Santo André
         Terça-feira das 21:00 às 23:00 - quinzenal (I)
         Quinta-feira das 19:00 às 21:00 - semanal
-        NHT1057-15 - Genética II A-Noturno ..." v-model="summaryText" @input="handleChange(summaryText)"
-        style="min-height: 400px; margin: 24px 0 16px" />
-      <p :class="message[1] || ''">{{ message[0] || '. . .' }}</p>
+        NHT1057-15 - Genética II A-Noturno ..."
+        style="min-height: 400px; margin: 24px 0 16px"
+        @input="handleChange(summaryText)"
+      />
+      <p :class="message[1] || ''">
+        {{ message[0] || '. . .' }}
+      </p>
     </div>
-    <button v-if="!summaryText" @click="handlePaste" class="calengrade-button">
+    <button
+      v-if="!summaryText"
+      class="calengrade-button"
+      @click="handlePaste"
+    >
       Colar
     </button>
-    <button v-else @click="handleClick" class="calengrade-button">
+    <button
+      v-else
+      class="calengrade-button"
+      @click="handleClick"
+    >
       Gerar Calengrade!
     </button>
   </div>
@@ -37,6 +59,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+
 import { handleSummary } from '../../../utils/summary';
 import { CalengradeSteps, Classes, Quarter } from '../types';
 

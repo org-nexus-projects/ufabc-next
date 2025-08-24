@@ -1,14 +1,14 @@
 <template>
   <div class="chartWrapper">
-    <Chart :options="chartOptions"></Chart>
+    <Chart :options="chartOptions" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { conceptsColor } from 'utils';
 import { Chart } from 'highcharts-vue';
-import { computed, PropType } from 'vue';
 import { Concept } from 'types';
+import { conceptsColor } from 'utils';
+import { computed, PropType } from 'vue';
 
 type Grades = Record<string, number>
 const props = defineProps({

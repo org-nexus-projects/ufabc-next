@@ -2,14 +2,14 @@
   <div class="grading">
     <el-tooltip
       v-for="grade in orderedDistribution"
-      placement="top"
       :key="grade.conceito"
+      placement="top"
       :hide-after="0"
       :content="`
         ${grade.conceito}: ${(
           (100 * grades[grade.conceito]) /
           gradeData.count
-        ).toFixed(1)}% (${grade.count} notas)`"
+      ).toFixed(1)}% (${grade.count} notas)`"
     >
       <span
         class="grading-segment"
@@ -18,21 +18,19 @@
           background: conceptsColor[grade.conceito],
           width: `${grades[grade.conceito]}%`,
         }"
-      >
-      </span>
+      />
     </el-tooltip>
 
     <span
       v-if="gradeData.count < untrustableThreshold"
       class="low-samples text-body-2"
-      >Dados sem muitas amostras</span
-    >
+    >Dados sem muitas amostras</span>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ConceptData, SubjectSpecific } from 'types';
-import { transformConceptDataToObject, conceptsColor } from 'utils';
+import { conceptsColor,transformConceptDataToObject } from 'utils';
 import { computed, PropType } from 'vue';
 
 const props = defineProps({

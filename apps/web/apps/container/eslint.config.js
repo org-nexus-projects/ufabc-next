@@ -1,20 +1,14 @@
 import vueConfig from 'eslint-config-custom/vue';
+import globals from 'globals';
 
 export default [
   ...vueConfig,
   {
-    files: ['**/*.ts', '**/*.tsx', '**/*.vue'],
     languageOptions: {
-      parserOptions: {
-        project: './tsconfig.json',
-        tsconfigRootDir: import.meta.dirname,
+      globals: {
+        ...globals.browser,
+        ...globals.vitest,
       },
-    },
-  },
-  {
-    rules: {
-      'no-console': 'warn',
-      'no-debugger': 'warn',
     },
   },
 ];

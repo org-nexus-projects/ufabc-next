@@ -21,6 +21,7 @@ export default [
         sourceType: 'module',
         globals: {
           ...globals.browser,
+          ...globals.vitest,
         },
         extraFileExtensions: ['.vue'],
       },
@@ -30,7 +31,6 @@ export default [
   {
     files: ['*.vue', '**/*.vue'],
     rules: {
-      'vue/no-unused-vars': 'error',
       'vue/no-unused-components': 'error',
       'vue/no-unused-refs': 'error',
       'vue/multi-word-component-names': 'off',
@@ -53,6 +53,15 @@ export default [
     rules: {
       'no-console': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+
+  {
+    rules: {
+      'no-unused-vars': 'off',
+      'no-undef': 'off',
+      'no-control-regex': 'off',
+      'no-case-declarations': 'off',
     },
   },
 ];

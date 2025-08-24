@@ -1,10 +1,12 @@
-import { render, screen, userEvent, waitFor } from '@/test-utils';
-import { SignUpView } from '.';
-import { user as mockedUser } from '@/mocks/users';
+import { http,HttpResponse } from 'msw';
 import * as vuetify from 'vuetify';
+
 import { server } from '@/mocks/server';
-import { HttpResponse, http } from 'msw';
+import { user as mockedUser } from '@/mocks/users';
 import { useAuth } from '@/stores/useAuth';
+import { render, screen, userEvent, waitFor } from '@/test-utils';
+
+import { SignUpView } from '.';
 
 describe('<SignUpView />', () => {
   const originalUseAuthValue = useAuth.getState();
