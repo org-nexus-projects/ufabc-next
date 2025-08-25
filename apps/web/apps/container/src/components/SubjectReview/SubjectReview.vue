@@ -79,7 +79,8 @@
                 <th
                   v-for="(item, index) in tableHead"
                   :key="item"
-                  :class="`text-white text-caption text-uppercase text-center ${!index && 'title-first-column'
+                  :class="`text-white text-caption text-uppercase text-center ${
+                    !index && 'title-first-column'
                   }`"
                 >
                   {{ item }}
@@ -176,10 +177,10 @@
 
 <script lang="ts" setup>
 import { useQuery } from '@tanstack/vue-query';
+import { Reviews } from '@ufabc-next/services';
+import { Concept, SubjectSpecific } from '@ufabc-next/types';
+import { transformConceptDataToObject } from '@ufabc-next/utils';
 import { ElMessage } from 'element-plus';
-import { Reviews } from 'services';
-import { Concept, SubjectSpecific } from 'types';
-import { transformConceptDataToObject } from 'utils';
 import { computed, ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 
@@ -302,9 +303,13 @@ const shortedSpecifics = computed(() => {
   );
 
   if (selectedOrder.value === 'teacherCres') {
-    sorted.sort((a, b) => ((a.teacher?.name ?? '') > (b.teacher?.name ?? '') ? 1 : -1));
+    sorted.sort((a, b) =>
+      (a.teacher?.name ?? '') > (b.teacher?.name ?? '') ? 1 : -1,
+    );
   } else if (selectedOrder.value === 'teacherDecres') {
-    sorted.sort((a, b) => ((a.teacher?.name ?? '') > (b.teacher?.name ?? '') ? -1 : 1));
+    sorted.sort((a, b) =>
+      (a.teacher?.name ?? '') > (b.teacher?.name ?? '') ? -1 : 1,
+    );
   } else if (selectedOrder.value === 'samplesCres') {
     sorted.sort((a, b) => a.count - b.count);
   } else if (selectedOrder.value === 'samplesDecres') {

@@ -1,4 +1,4 @@
-import { Enrollment } from 'types';
+import { Enrollment } from '@ufabc-next/types';
 
 import { api } from './api';
 

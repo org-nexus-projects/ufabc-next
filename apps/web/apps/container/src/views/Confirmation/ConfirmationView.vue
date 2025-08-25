@@ -55,10 +55,10 @@
 
 <script setup lang="ts">
 import { useMutation } from '@tanstack/vue-query';
+import { Users } from '@ufabc-next/services';
+import { RequestError } from '@ufabc-next/types';
 import { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';
-import { Users } from 'services';
-import { RequestError } from 'types';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 

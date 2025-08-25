@@ -4,8 +4,9 @@
     <v-main style="background-color: #f5f5f5">
       <v-container
         id="app-container"
-        :style="`min-height: calc(100vh${(confirmedUser || layout === 'include-sidebar') ? '- 64px' : ''
-        }); min-height: calc(100svh${(confirmedUser || layout === 'include-sidebar') ? '- 64px' : ''})`"
+        :style="`min-height: calc(100vh${
+          confirmedUser || layout === 'include-sidebar' ? '- 64px' : ''
+        }); min-height: calc(100svh${confirmedUser || layout === 'include-sidebar' ? '- 64px' : ''})`"
       >
         <router-view />
       </v-container>
@@ -15,8 +16,8 @@
 
 <script setup lang="ts">
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools';
+import { authStore } from '@ufabc-next/stores';
 import { ElMessage } from 'element-plus';
-import { authStore } from 'stores';
 import { computed, onMounted } from 'vue';
 import create from 'vue-zustand';
 
@@ -31,11 +32,9 @@ import { eventTracker } from './helpers/EventTracker';
 const useAuth = create(authStore);
 const { user, isLoggedIn } = useAuth();
 
-const router = useRouter()
+const router = useRouter();
 
-const layout = computed(
-  () => router.currentRoute.value.meta.layout ?? null
-)
+const layout = computed(() => router.currentRoute.value.meta.layout ?? null);
 
 const confirmedUser = computed(() => !!user.value?.confirmed);
 

@@ -1,4 +1,4 @@
-import { SearchComponentItem } from 'types';
+import { SearchComponentItem } from '@ufabc-next/types';
 
 import { api } from './api';
 

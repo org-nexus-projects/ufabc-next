@@ -1,6 +1,6 @@
 {
-  "name": "eslint-config-custom",
-  "version": "0.0.0",
+  "name": "@ufabc-next/eslint-config",
+  "version": "1.0.0",
   "type": "module",
   "private": true,
   "main": "index.js",

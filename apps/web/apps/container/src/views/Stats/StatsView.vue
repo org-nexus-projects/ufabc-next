@@ -115,9 +115,7 @@
               @click="changeOrderBy(item)"
             >
               <v-list-item-title>
-                {{
-                  orderByOptionsLabel[index]
-                }}
+                {{ orderByOptionsLabel[index] }}
               </v-list-item-title>
             </v-list-item>
           </v-list>
@@ -182,15 +180,19 @@
 
 <script setup lang="ts">
 import { useInfiniteQuery, useQuery } from '@tanstack/vue-query';
-import { type StatsParams,StatsSubjects } from 'services';
+import { type StatsParams, StatsSubjects } from '@ufabc-next/services';
 import type {
   PageableReturn,
   StatsClass,
   StatsCourse,
   StatsSubject,
-} from 'types';
-import { getElapsedSeasons, getSeason, prettifySeason } from 'utils';
-import { computed,ref } from 'vue';
+} from '@ufabc-next/types';
+import {
+  getElapsedSeasons,
+  getSeason,
+  prettifySeason,
+} from '@ufabc-next/utils';
+import { computed, ref } from 'vue';
 
 import { CenteredLoading } from '@/components/CenteredLoading';
 import { PaperCard } from '@/components/PaperCard';

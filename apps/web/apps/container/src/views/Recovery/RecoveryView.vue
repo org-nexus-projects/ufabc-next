@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { useMutation, useQuery } from '@tanstack/vue-query';
+import { Users } from '@ufabc-next/services';
 import { toTypedSchema } from '@vee-validate/zod';
-import { Users } from 'services';
-import { useField,useForm } from 'vee-validate';
+import { useField, useForm } from 'vee-validate';
 import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { FeedbackAlert } from '@/components/FeedbackAlert';
 
-import { recoverySchema } from './recoveryValidationSchema'
+import { recoverySchema } from './recoveryValidationSchema';
 
 const router = useRouter();
 
@@ -24,8 +24,15 @@ const email = useField('email');
 const ra = useField<string>('ra.ra');
 const raConfirm = useField('ra.confirm');
 
-const isFetchEmailEnabled = computed(() => raConfirm.value.value === ra.value.value);
-const { refetch: fetchEmail, isLoading: isFetchEmailLoading, data: verifiedEmail, error: fetchEmailError } = useQuery({
+const isFetchEmailEnabled = computed(
+  () => raConfirm.value.value === ra.value.value,
+);
+const {
+  refetch: fetchEmail,
+  isLoading: isFetchEmailLoading,
+  data: verifiedEmail,
+  error: fetchEmailError,
+} = useQuery({
   queryKey: ['email'],
   queryFn: () => Users.getEmail(ra.value.value),
   enabled: false,
@@ -40,15 +47,15 @@ const handleEmailError = computed(() => {
   const error = fetchEmailError.value as any;
 
   if (error.response?.status === 400) {
-    return error.response.data.message
+    return error.response.data.message;
   }
 
   if (error.response?.status === 403) {
-    return error.response.data.message
+    return error.response.data.message;
   }
 
-  return 'Um Erro inesperado ocorreu, tente novamente'
-})
+  return 'Um Erro inesperado ocorreu, tente novamente';
+});
 
 const getUserEmail = (fieldState: boolean) => {
   if (fieldState || !ra.value.value || !isFetchEmailEnabled.value) {
@@ -58,11 +65,14 @@ const getUserEmail = (fieldState: boolean) => {
   fetchEmail();
 };
 
-watch(() => verifiedEmail.value, (newEmail) => {
-  if (newEmail) {
-    email.value.value = newEmail.data.email
-  }
-})
+watch(
+  () => verifiedEmail.value,
+  (newEmail) => {
+    if (newEmail) {
+      email.value.value = newEmail.data.email;
+    }
+  },
+);
 
 const recoveryStep = ref(0);
 
@@ -217,8 +227,7 @@ const onSubmit = handleSubmit(({ email }) =>
               <a
                 href="https://github.com/ufabc-next/ufabc-next-web"
                 target="_blank"
-              >GitHub</a>, sua ajuda será
-              bem-vinda!
+              >GitHub</a>, sua ajuda será bem-vinda!
             </p>
           </div>
         </section>

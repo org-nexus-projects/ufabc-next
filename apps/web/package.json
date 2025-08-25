@@ -13,7 +13,7 @@
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
     "eslint": "^9.33.0",
-    "eslint-config-custom": "*",
+    "@ufabc-next/eslint-config": "*",
     "prettier": "^3.1.0",
     "turbo": "^2.5.3"
   },

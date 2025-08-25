@@ -1,6 +1,6 @@
+import { formatSeason } from '@ufabc-next/utils';
 import { ElMessage } from 'element-plus';
-import { http,HttpResponse } from 'msw';
-import { formatSeason } from 'utils';
+import { http, HttpResponse } from 'msw';
 
 import { enrollment } from '@/mocks/enrollments';
 import { userCreateComment, userUpdateComment } from '@/mocks/reviews';

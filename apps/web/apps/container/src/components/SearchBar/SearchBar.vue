@@ -50,9 +50,9 @@
 
 <script lang="ts" setup>
 import { useQuery } from '@tanstack/vue-query';
+import { Reviews } from '@ufabc-next/services';
+import type { SearchSubjectItem, SearchTeacherItem } from '@ufabc-next/types';
 import debounce from 'lodash.debounce';
-import { Reviews } from 'services';
-import type { SearchSubjectItem,SearchTeacherItem } from 'types';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 

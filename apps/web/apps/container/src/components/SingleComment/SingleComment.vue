@@ -81,7 +81,8 @@
             {{ likeCount }}
           </v-btn>
           <v-btn
-            :aria-label="(recommendation ? 'Remover' : 'Deixar') + ' recomendação'
+            :aria-label="
+              (recommendation ? 'Remover' : 'Deixar') + ' recomendação'
             "
             :loading="isPendingRecommendation || isPendingRemoveRecommendation"
             class="ml-1 icon-button text-subtitle-2"
@@ -109,11 +110,16 @@
 
 <script lang="ts" setup>
 import { useMutation } from '@tanstack/vue-query';
+import { Comments } from '@ufabc-next/services';
+import { Comment, RequestError } from '@ufabc-next/types';
+import {
+  checkEAD,
+  conceptsColor,
+  dateToTimeAgo,
+  formatSeason,
+} from '@ufabc-next/utils';
 import { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';
-import { Comments } from 'services';
-import { Comment, RequestError } from 'types';
-import { checkEAD, conceptsColor, dateToTimeAgo, formatSeason } from 'utils';
 import { computed, onMounted, PropType, ref } from 'vue';
 import { useDisplay } from 'vuetify';
 
@@ -216,8 +222,8 @@ const season = computed(() => {
 
   return formatSeason(
     (year ?? props.comment.enrollment.year) +
-    ':' +
-    (quad ?? props.comment.enrollment.quad),
+      ':' +
+      (quad ?? props.comment.enrollment.quad),
   );
 });
 

@@ -101,11 +101,11 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
+import { Comments, Enrollments } from '@ufabc-next/services';
+import type { Enrollment } from '@ufabc-next/types';
+import { conceptsColor } from '@ufabc-next/utils';
 import { ElMessage } from 'element-plus';
-import { Comments, Enrollments } from 'services';
-import type { Enrollment } from 'types';
-import { conceptsColor } from 'utils';
-import { computed, PropType, ref , watch } from 'vue';
+import { computed, PropType, ref, watch } from 'vue';
 
 import { CommentsList } from '@/components/CommentsList';
 import { FeedbackAlert } from '@/components/FeedbackAlert';
@@ -191,7 +191,7 @@ const userCommentMessage = computed({
   get: () => {
     const currentComment =
       teacherEnrollmentComment.value[subjectType.value as 'teoria' | 'prática'];
-    return comment.value ? comment.value : currentComment ?? '';
+    return comment.value ? comment.value : (currentComment ?? '');
   },
   set: (value: string) => {
     comment.value = value;

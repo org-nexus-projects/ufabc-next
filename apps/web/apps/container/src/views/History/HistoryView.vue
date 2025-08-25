@@ -15,13 +15,12 @@
   >
     <p class="mt-4">
       Esta ficha individual é uma réplica do que você podia encontrar no site do
-      <a href="https://aluno.ufabc.edu.br/">Portal do Aluno</a>, hoje são informações do <a
-        :href="studentRecordURL"
-      >Sigaa</a>
+      <a href="https://aluno.ufabc.edu.br/">Portal do Aluno</a>, hoje são
+      informações do <a :href="studentRecordURL">Sigaa</a>
     </p>
     <p class="mt-4">
-      Caso o seu histórico esteja desatualizado, basta acessar o Sigaa
-      novamente utilizando a
+      Caso o seu histórico esteja desatualizado, basta acessar o Sigaa novamente
+      utilizando a
       <a
         class="text-decoration-none"
         :href="extensionURL"
@@ -101,8 +100,7 @@
             offset="1"
             location="bottom center"
           >
-            Atualizar o
-            histórico
+            Atualizar o histórico
           </v-tooltip>
           <v-icon size="x-large" />
         </v-btn>
@@ -131,7 +129,8 @@
             <th
               v-for="item in tableHead"
               :key="item"
-              :class="`text-white text-caption ${item !== 'Disciplina' ? 'text-center' : ''
+              :class="`text-white text-caption ${
+                item !== 'Disciplina' ? 'text-center' : ''
               } text-uppercase`"
             >
               {{ item }}
@@ -162,7 +161,8 @@
               <td
                 rowspan="1"
                 colspan="1"
-                :class="`bg-secondary text-left text-next-${subjectConceptClass[item.conceito]
+                :class="`bg-secondary text-left text-next-${
+                  subjectConceptClass[item.conceito]
                 }`"
                 style="position: sticky; left: 0; z-index: 1"
               >
@@ -175,7 +175,8 @@
                 style="max-width: 200px"
               >
                 <div
-                  :class="`text-next-light-gray text-caption d-flex align-center ${item.teoria?.name ? 'justify-left' : 'justify-center'
+                  :class="`text-next-light-gray text-caption d-flex align-center ${
+                    item.teoria?.name ? 'justify-left' : 'justify-center'
                   }`"
                 >
                   <v-btn
@@ -188,9 +189,10 @@
                     @click="handleOpenDialog(item, 'teoria')"
                   >
                     <v-icon
-                      :color="item.comments?.includes('teoria')
-                        ? 'ufabcnext-green'
-                        : ''
+                      :color="
+                        item.comments?.includes('teoria')
+                          ? 'ufabcnext-green'
+                          : ''
                       "
                     />
                   </v-btn>
@@ -206,7 +208,8 @@
                 style="max-width: 200px"
               >
                 <div
-                  :class="`text-next-light-gray text-truncate text-caption d-flex align-center ${item.pratica?.name ? 'justify-left' : 'justify-center'
+                  :class="`text-next-light-gray text-truncate text-caption d-flex align-center ${
+                    item.pratica?.name ? 'justify-left' : 'justify-center'
                   }`"
                 >
                   <v-btn
@@ -218,7 +221,9 @@
                     size="x-small"
                     @click="handleOpenDialog(item, 'pratica')"
                   >
-                    <v-icon :color="hasCommented(item) ? 'ufabcnext-green' : ''" />
+                    <v-icon
+                      :color="hasCommented(item) ? 'ufabcnext-green' : ''"
+                    />
                   </v-btn>
                   <span class="text-truncate">{{
                     item.pratica?.name || '-'
@@ -271,24 +276,23 @@
 
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
-import { ElNotification } from 'element-plus';
-import { Enrollments, Users } from 'services';
-import type { Concept, Enrollment } from 'types';
+import { Enrollments, Users } from '@ufabc-next/services';
+import type { Concept, Enrollment } from '@ufabc-next/types';
 import {
   checkEAD,
   conceptsColor,
   extensionURL,
   formatSeason,
   studentRecordURL,
-} from 'utils';
-import { computed, onMounted,ref  } from 'vue';
+} from '@ufabc-next/utils';
+import { ElNotification } from 'element-plus';
+import { computed, onMounted, ref } from 'vue';
 
 import { CenteredLoading } from '@/components/CenteredLoading';
 import { FeedbackAlert } from '@/components/FeedbackAlert';
 import { PaperCard } from '@/components/PaperCard';
 import { ReviewDialog } from '@/components/ReviewDialog';
 import { TableComponent } from '@/components/TableComponent';
-
 
 const showDialog = ref(false);
 const selectedEnrollment = ref<Enrollment>();
@@ -395,17 +399,16 @@ const lastUpdate = computed(() => {
   return date && new Date(date);
 });
 
-
 onMounted(() => {
   ElNotification({
-    message: "O next está passando por atualizações em seus sistemas e você pode encontrar dados incompatíveis com seu histórico, não se preocupe, em breve estará normalizado!",
+    message:
+      'O next está passando por atualizações em seus sistemas e você pode encontrar dados incompatíveis com seu histórico, não se preocupe, em breve estará normalizado!',
     title: 'Ufabc next informa',
     type: 'warning',
     duration: 0,
     showClose: true,
   });
 });
-
 </script>
 <style scoped lang="scss">
 .quad-header {

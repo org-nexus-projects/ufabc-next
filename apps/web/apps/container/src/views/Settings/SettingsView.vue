@@ -154,9 +154,9 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery } from '@tanstack/vue-query';
+import { api, Users } from '@ufabc-next/services';
 import { ElMessage } from 'element-plus';
-import { api,Users } from 'services';
-import { computed,ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import { CenteredLoading } from '@/components/CenteredLoading';
 import { PaperCard } from '@/components/PaperCard';
@@ -177,11 +177,9 @@ const userLogin = computed(() => {
   return user.value?.email?.replace('@aluno.ufabc.edu.br', '');
 });
 
-
 const addGoogleAccount = computed(() => {
   return `${api.defaults.baseURL}/login/google?userId=${user.value?._id}`;
 });
-
 
 const createdAt = computed(() => {
   if (user.value?.createdAt) {

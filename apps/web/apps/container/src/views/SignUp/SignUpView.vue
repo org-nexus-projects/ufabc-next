@@ -60,7 +60,9 @@
             class="d-flex flex-column align-center align-md-start justify-md-center"
           >
             <div class="mb-6">
-              <h1 class="text-h6 text-md-h5 text-center text-md-start font-weight-bold pb-4">
+              <h1
+                class="text-h6 text-md-h5 text-center text-md-start font-weight-bold pb-4"
+              >
                 O que você faz na UFABC?
               </h1>
               <p class="text-body-2 font-weight-light">
@@ -115,7 +117,9 @@
             v-if="step === 2 && accountType === 'student'"
             class="d-flex flex-column align-center align-md-start justify-md-center"
           >
-            <h1 class="text-h6 text-md-h5 text-center text-md-start font-weight-bold mb-4">
+            <h1
+              class="text-h6 text-md-h5 text-center text-md-start font-weight-bold mb-4"
+            >
               Falta pouco para completar o seu cadastro
             </h1>
             <v-text-field
@@ -172,7 +176,9 @@
             v-if="step === 2 && accountType === 'teacher'"
             class="d-flex flex-column align-center align-md-start justify-md-center"
           >
-            <h1 class="text-h6 text-md-h5 text-center text-md-start font-weight-bold pb-4">
+            <h1
+              class="text-h6 text-md-h5 text-center text-md-start font-weight-bold pb-4"
+            >
               Estamos trabalhando nisso!
             </h1>
             <p class="text-body-2 font-weight-light mb-6">
@@ -188,10 +194,14 @@
             v-if="step === 3"
             class="d-flex flex-column align-center align-md-start justify-md-center"
           >
-            <h1 class="text-h6 text-md-h5 text-center text-md-start font-weight-bold">
+            <h1
+              class="text-h6 text-md-h5 text-center text-md-start font-weight-bold"
+            >
               Enviamos um email de confirmação para
             </h1>
-            <span class="text-h6 text-md-h5 text-center text-md-start font-weight-bold text-primary text-break pb-4">
+            <span
+              class="text-h6 text-md-h5 text-center text-md-start font-weight-bold text-primary text-break pb-4"
+            >
               {{ email.value.value }}
             </span>
 
@@ -225,16 +235,15 @@
                   class="flex-grow-1"
                   rounded="lg"
                   size="x-large"
-                  :color="enableResendEmail ? 'ufabcnext-yellow' : 'next-light-gray'
+                  :color="
+                    enableResendEmail ? 'ufabcnext-yellow' : 'next-light-gray'
                   "
                   :loading="isPendingResendEmail"
                   aria-label="Reenviar email de confirmação"
                   @click="mutateResendEmail"
                 >
                   <v-icon class="mr-2">
-                    {{
-                      enableResendEmail ? 'mdi-email' : 'mdi-check-circle'
-                    }}
+                    {{ enableResendEmail ? 'mdi-email' : 'mdi-check-circle' }}
                   </v-icon>
                   {{ enableResendEmail ? 'Reenviar email' : 'Email reenviado' }}
                 </v-btn>
@@ -307,13 +316,13 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery } from '@tanstack/vue-query';
+import { Users } from '@ufabc-next/services';
+import { RequestError } from '@ufabc-next/types';
 import { toTypedSchema } from '@vee-validate/zod';
 import { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';
-import { Users } from 'services';
-import { RequestError } from 'types';
-import { useField,useForm } from 'vee-validate';
-import { computed,ref, watch } from 'vue';
+import { useField, useForm } from 'vee-validate';
+import { computed, ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 
 import { FeedbackAlert } from '@/components/FeedbackAlert';
@@ -368,8 +377,15 @@ const onSubmit = handleSubmit(({ email, ra }) =>
   }),
 );
 
-const isFetchEmailEnabled = computed(() => raConfirm.value.value === ra.value.value);
-const { refetch: fetchEmail, isLoading: isFetchEmailLoading, data: verifiedEmail, error: fetchEmailError } = useQuery({
+const isFetchEmailEnabled = computed(
+  () => raConfirm.value.value === ra.value.value,
+);
+const {
+  refetch: fetchEmail,
+  isLoading: isFetchEmailLoading,
+  data: verifiedEmail,
+  error: fetchEmailError,
+} = useQuery({
   queryKey: ['email'],
   queryFn: () => Users.getEmail(ra.value.value),
   enabled: false,
@@ -378,20 +394,19 @@ const { refetch: fetchEmail, isLoading: isFetchEmailLoading, data: verifiedEmail
 const handleEmailError = computed(() => {
   const error = fetchEmailError.value as AxiosError<RequestError>;
   if (!error?.response) {
-    return 'Um Erro inesperado ocorreu, tente novamente'
+    return 'Um Erro inesperado ocorreu, tente novamente';
   }
 
   if (error?.response.status === 400) {
-    return error.response.data.message
+    return error.response.data.message;
   }
 
   if (error?.status === 403) {
-    return error.response.data.message
+    return error.response.data.message;
   }
 
-  return 'Um Erro inesperado ocorreu, tente novamente'
-})
-
+  return 'Um Erro inesperado ocorreu, tente novamente';
+});
 
 const getUserEmail = (fieldState: boolean) => {
   if (fieldState || !ra.value.value || !isFetchEmailEnabled.value) {
@@ -401,11 +416,14 @@ const getUserEmail = (fieldState: boolean) => {
   fetchEmail();
 };
 
-watch(() => verifiedEmail.value, (newEmail) => {
-  if (newEmail) {
-    email.value.value = newEmail.data.email
-  }
-})
+watch(
+  () => verifiedEmail.value,
+  (newEmail) => {
+    if (newEmail) {
+      email.value.value = newEmail.data.email;
+    }
+  },
+);
 
 const { mutate: mutateResendEmail, isPending: isPendingResendEmail } =
   useMutation({

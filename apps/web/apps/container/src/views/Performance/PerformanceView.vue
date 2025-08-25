@@ -53,10 +53,10 @@
 
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
+import { type CourseInformation, Performance } from '@ufabc-next/services';
+import { formatSeason } from '@ufabc-next/utils';
 import { Chart } from 'highcharts-vue';
-import { type CourseInformation,Performance } from 'services';
-import { formatSeason } from 'utils';
-import { computed,ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import { CenteredLoading } from '@/components/CenteredLoading';
 import { PaperCard } from '@/components/PaperCard';
@@ -263,13 +263,12 @@ const userMaxCr = computed(() => {
   return 'undefined';
 });
 
-const maxCreditsQuad = computed(
-  () =>
-    crHistoryData.value?.reduce((previousQuad, currentQuad) => {
-      return previousQuad.period_credits > currentQuad.period_credits
-        ? previousQuad
-        : currentQuad;
-    }),
+const maxCreditsQuad = computed(() =>
+  crHistoryData.value?.reduce((previousQuad, currentQuad) => {
+    return previousQuad.period_credits > currentQuad.period_credits
+      ? previousQuad
+      : currentQuad;
+  }),
 );
 
 const bestQuad = computed(() => {

@@ -1,4 +1,4 @@
-import vueConfig from 'eslint-config-custom/vue';
+import vueConfig from '@ufabc-next/eslint-config/vue';
 import globals from 'globals';
 
 export default [

@@ -69,8 +69,8 @@
 </template>
 
 <script setup lang="ts">
-import { Enrollment } from 'types';
-import { checkEAD, conceptsColor, formatSeason } from 'utils';
+import { Enrollment } from '@ufabc-next/types';
+import { checkEAD, conceptsColor, formatSeason } from '@ufabc-next/utils';
 import { computed, PropType, ref } from 'vue';
 
 import { ReviewDialog } from '@/components/ReviewDialog';

@@ -90,9 +90,9 @@
 
 <script lang="ts" setup>
 import { useQuery } from '@tanstack/vue-query';
-import { Reviews } from 'services';
-import { TeacherReview, TeacherReviewSubject } from 'types';
-import { transformConceptDataToObject } from 'utils';
+import { Reviews } from '@ufabc-next/services';
+import { TeacherReview, TeacherReviewSubject } from '@ufabc-next/types';
+import { transformConceptDataToObject } from '@ufabc-next/utils';
 import { computed, ref } from 'vue';
 import { useDisplay } from 'vuetify';
 

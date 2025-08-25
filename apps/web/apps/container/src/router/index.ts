@@ -1,4 +1,4 @@
-import { authStore } from 'stores';
+import { authStore } from '@ufabc-next/stores';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 const ReviewsView = () => import('@/views/Reviews/ReviewsView.vue');

@@ -5,12 +5,12 @@
 </template>
 
 <script setup lang="ts">
+import { Concept } from '@ufabc-next/types';
+import { conceptsColor } from '@ufabc-next/utils';
 import { Chart } from 'highcharts-vue';
-import { Concept } from 'types';
-import { conceptsColor } from 'utils';
 import { computed, PropType } from 'vue';
 
-type Grades = Record<string, number>
+type Grades = Record<string, number>;
 const props = defineProps({
   grades: { type: Object as PropType<Grades>, required: true },
 });

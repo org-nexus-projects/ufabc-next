@@ -1,4 +1,4 @@
-import { getSeason, prettifySeason } from 'utils';
+import { getSeason, prettifySeason } from '@ufabc-next/utils';
 
 import {
   classes,

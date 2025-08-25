@@ -66,10 +66,12 @@
       <div v-if="!user?.confirmed">
         <v-divider />
         <div style="height: 64px" />
-        <div class="mb-4 pa-3 rounded-md bg-blue-darken-3 border border-blue-darken-2 text-blue-50 text-subtitle-2">
+        <div
+          class="mb-4 pa-3 rounded-md bg-blue-darken-3 border border-blue-darken-2 text-blue-50 text-subtitle-2"
+        >
           <div class="d-flex align-center gap-2">
             <v-icon
-              class="bg-blue-darken-2 pa-1 rounded-circle "
+              class="bg-blue-darken-2 pa-1 rounded-circle"
               size="20"
             >
               mdi-lock-outline
@@ -168,19 +170,17 @@
   </v-app>
 </template>
 <script setup lang="ts">
+import { api } from '@ufabc-next/services';
 import dayjs from 'dayjs';
-import { api } from 'services';
-import { computed, onMounted,ref } from 'vue';
-import { useRouter } from 'vue-router'
+import { computed, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { useAuth } from '@/stores/useAuth';
 import { useAliasInitials } from '@/utils/composables/aliasInitials';
 
-const router = useRouter()
+const router = useRouter();
 
-const layout = computed(
-  () => router.currentRoute.value.meta.layout ?? null
-)
+const layout = computed(() => router.currentRoute.value.meta.layout ?? null);
 
 const { logOut, user } = useAuth();
 const handleLogout = () => {
@@ -188,16 +188,16 @@ const handleLogout = () => {
 };
 
 const createAccount = () => {
-  router.push('/')
-}
+  router.push('/');
+};
 
 const drawer = ref(false);
 onMounted(() => {
   drawer.value = window.innerWidth >= 1024;
 });
 
-const userLogin = computed(
-  () => user.value?.email?.replace('@aluno.ufabc.edu.br', ''),
+const userLogin = computed(() =>
+  user.value?.email?.replace('@aluno.ufabc.edu.br', ''),
 );
 const userInitials = useAliasInitials();
 
@@ -206,55 +206,55 @@ const internalNavigationItems = [
     title: 'Reviews',
     icon: 'mdi-message-draw',
     route: '/reviews',
-    locked: !user.value?.confirmed
+    locked: !user.value?.confirmed,
   },
   {
     title: 'Meu histórico',
     icon: 'mdi-history',
     route: '/history',
-    locked: !user.value?.confirmed
+    locked: !user.value?.confirmed,
   },
   {
     title: 'Performance',
     icon: 'mdi-google-analytics',
     route: '/performance',
-    locked: !user.value?.confirmed
+    locked: !user.value?.confirmed,
   },
   {
     title: 'Dados da Matrícula',
     icon: 'mdi-book-multiple',
     route: '/stats',
-    locked: !user.value?.confirmed
+    locked: !user.value?.confirmed,
   },
   {
     title: 'Grupos no WhatsApp',
     icon: 'mdi-whatsapp',
     route: '/grupos-whatsapp',
     releaseDate: dayjs('06/01/2025'),
-    locked: false
+    locked: false,
   },
   {
     title: 'Calengrade',
     icon: 'mdi-calendar',
     route: '/calengrade',
     releaseDate: dayjs('11/25/2023'),
-    locked: false
+    locked: false,
   },
   {
     title: 'Apoie o UFABC next',
     icon: 'mdi-bank',
     route: '/donate',
-    locked: false
+    locked: false,
   },
   {
     title: 'Configurações',
     icon: 'mdi-cog',
     route: '/settings',
-    locked: !user.value?.confirmed
+    locked: !user.value?.confirmed,
   },
 ];
 
-const apiURL = api.defaults.baseURL ?? 'https://api.v2.ufabcnext.com'
+const apiURL = api.defaults.baseURL ?? 'https://api.v2.ufabcnext.com';
 
 const externalNavigationItems = [
   {
@@ -267,11 +267,15 @@ const externalNavigationItems = [
     icon: 'mdi-download',
     url: 'https://chrome.google.com/webstore/detail/ufabc-next/gphjopenfpnlnffmhhhhdiecgdcopmhk',
   },
-  ...(user.value?.permissions?.includes('admin') ? [{
-    title: 'Monitoramento de Jobs',
-    icon: 'mdi-open-in-new',
-    url: `${apiURL}/login/jobs-monitoring?userId=${user.value?._id}`
-  }] : [])
+  ...(user.value?.permissions?.includes('admin')
+    ? [
+        {
+          title: 'Monitoramento de Jobs',
+          icon: 'mdi-open-in-new',
+          url: `${apiURL}/login/jobs-monitoring?userId=${user.value?._id}`,
+        },
+      ]
+    : []),
 ];
 </script>
 <style scoped lang="scss">
@@ -304,7 +308,7 @@ const externalNavigationItems = [
 }
 
 .locked-item:hover {
-  background-color: rgba(50, 94, 158, 255)
+  background-color: rgba(50, 94, 158, 255);
 }
 
 .locked-icon {

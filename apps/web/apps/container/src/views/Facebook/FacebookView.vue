@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { useMutation } from '@tanstack/vue-query';
+import { Users } from '@ufabc-next/services';
 import { toTypedSchema } from '@vee-validate/zod';
 import { ElMessage } from 'element-plus';
-import { Users } from 'services';
-import { useField,useForm } from 'vee-validate';
+import { useField, useForm } from 'vee-validate';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useAuth } from '@/stores/useAuth';
 
-import { facebookValidationSchema } from './facebookValidationSchema'
+import { facebookValidationSchema } from './facebookValidationSchema';
 
 const facebookNotFound = ref(false);
 
