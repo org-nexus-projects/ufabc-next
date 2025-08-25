@@ -13,6 +13,68 @@ export async function postInfoIntoNotionDB(
     const dd = String(requestDay.getUTCDate()).padStart(2, '0');
     const dateOnlyIso = `${yyyy}-${mm}-${dd}`;
 
+    let fileUploadId: string | undefined;
+
+    // Upload image to Notion
+    if (data.imageBuffer && data.imageFilename && data.imageMimeType) {
+      // Convert base64 back to Buffer
+      const imageBuffer = Buffer.from(data.imageBuffer, 'base64');
+      try {
+        //Create file upload object in Notion
+        const fileUpload = await notionClient.request({
+          method: 'post',
+          path: 'file_uploads',
+          body: {
+            mode: 'single_part',
+            filename: data.imageFilename,
+          },
+        }) as { id: string; upload_url: string; status: string };
+
+        ctx.app.log.debug('File upload object created', { 
+          fileUploadId: fileUpload.id, 
+          status: fileUpload.status,
+          hasUploadUrl: !!fileUpload.upload_url,
+          fullResponse: fileUpload 
+        });
+
+        // Upload file to the provided upload_url
+        const formData = new FormData();
+        const blob = new Blob([imageBuffer], { type: data.imageMimeType });
+        formData.append('file', blob, data.imageFilename);
+
+        const uploadResponse = await fetch(fileUpload.upload_url, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.NOTION_INTEGRATION_SECRET}`,
+            'Notion-Version': '2022-06-28',
+          },
+          body: formData,
+        });
+
+        const uploadResult = await uploadResponse.json();
+
+        if (uploadResponse.ok) {
+          fileUploadId = fileUpload.id;
+          ctx.app.log.debug('File uploaded to Notion successfully', { 
+            fileUploadId,
+            uploadResult 
+          });
+        } else {
+          const errorText = await uploadResponse.text();
+          ctx.app.log.error('Failed to upload file to Notion', { 
+            status: uploadResponse.status,
+            statusText: uploadResponse.statusText,
+            error: errorText
+          });
+        }
+      } catch (uploadError : any) {
+        ctx.app.log.error('Error uploading file to Notion', { 
+          error: uploadError.message,
+          stack: uploadError.stack
+        });
+      }
+    }
+
     const response = await notionClient.pages.create({
       parent: {
         database_id: ctx.app.config.NOTION_DATABASE_ID,
@@ -43,14 +105,12 @@ export async function postInfoIntoNotionDB(
         RA: {
           type: 'rich_text',
           rich_text: [
-              {
-                
-                  type: 'text',
-                  text: {
-                    content: data.ra,
+            {
+              type: 'text',
+              text: {
+                content: data.ra,
               },
             },
-            
           ],
         },
         Email: {
@@ -69,6 +129,20 @@ export async function postInfoIntoNotionDB(
             start: dateOnlyIso,
           },
         },
+        ...(fileUploadId && {
+          Imagem: {
+            type: 'files',
+            files: [
+              {
+                type: 'file_upload',
+                name: data.imageFilename || 'Imagem do problema',
+                file_upload: {
+                  id: fileUploadId,
+                },
+              },
+            ],
+          } as any,
+        }),
       },
     });
 
