@@ -92,11 +92,7 @@ export async function buildApp(
     if (error) {
       app.log.error(
         {
-          error: {
-            name: error.name,
-            message: error.message,
-            stack: error.stack,
-          },
+          error,
           request: {
             method: request.method,
             url: request.url,

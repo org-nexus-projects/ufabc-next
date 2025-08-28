@@ -34,6 +34,9 @@ const axiomOptions = {
 const loggerSetup = {
   dev: {
     timestamp: pino.stdTimeFunctions.isoTime,
+    serializers: {
+      error: pino.stdSerializers.err,
+    },
     transport: {
       targets: [
         {
