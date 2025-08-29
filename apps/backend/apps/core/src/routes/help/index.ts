@@ -14,7 +14,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       try {
         // Get all parts from the request
         const parts = request.parts();
-        const formData: Partial<HelpForm> = {};
+        const formData = {} as HelpForm;
 
         for await (const part of parts) {
           // Handle fields
@@ -30,17 +30,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           }
         }
 
-        const helpFormData: HelpForm = {
-          email: formData.email!,
-          ra: formData.ra!,
-          problemTitle: formData.problemTitle!,
-          problemDescription: formData.problemDescription!,
-          imageBuffer: formData.imageBuffer,
-          imageFilename: formData.imageFilename,
-          imageMimeType: formData.imageMimeType,
-        };
-
-        await app.job.dispatch("InsertNotionPage", helpFormData);
+        await app.job.dispatch("InsertNotionPage", formData);
         return reply.code(201).send({ success: true });
       } catch (error) {
         request.log.error({

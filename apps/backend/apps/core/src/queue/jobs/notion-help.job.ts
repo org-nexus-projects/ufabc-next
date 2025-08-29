@@ -61,17 +61,20 @@ export async function postInfoIntoNotionDB(
           });
         } else {
           const errorText = await uploadResponse.text();
+          const uploadError = new Error(`Failed to upload file to Notion: ${uploadResponse.status} ${uploadResponse.statusText}`);
           ctx.app.log.error('Failed to upload file to Notion', { 
             status: uploadResponse.status,
             statusText: uploadResponse.statusText,
             error: errorText
           });
+          throw uploadError;
         }
-      } catch (uploadError : any) {
+      } catch (uploadError) {
         ctx.app.log.error('Error uploading file to Notion', { 
-          error: uploadError.message,
-          stack: uploadError.stack
+          error: uploadError instanceof Error ? uploadError.message : String(uploadError),
+          stack: uploadError instanceof Error ? uploadError.stack : undefined
         });
+        throw uploadError;
       }
     }
 
