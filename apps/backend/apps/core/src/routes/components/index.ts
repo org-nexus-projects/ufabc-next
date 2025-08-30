@@ -38,40 +38,34 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       app.log.info(results, 'PDFs extraídos');
 
-      // chamar a lambda passando os resultados
+      /*
       const lambdaResp = await app.lambda.invoke('your-lambda-function-name', {
         payload: JSON.stringify(results)
       });
 
-      // normalizar payload e tentar parsear JSON
       const rawPayload =
         (lambdaResp as any)?.payload ??
         (lambdaResp as any)?.Payload ??
         null;
 
       const pdfsFiltered = rawPayload ? JSON.parse(rawPayload) : [];
+      */
 
-      // validar resposta da Lambda
-      if (!Array.isArray(pdfsFiltered)) {
-        app.log.error(pdfsFiltered, 'Erro ao filtrar PDFs');
-        reply.status(500);
-        return {
-          error: 'Erro ao processar resposta da Lambda',
-          details: pdfsFiltered instanceof Error ? pdfsFiltered.message : String(pdfsFiltered),
-        };
-      }
+      const pdfsFiltered = [
+        { pdfLink: 'https://moodle.ufabc.edu.br/mod/resource/view.php?id=49857', pdfName: 'file1.pdf', pdfContent: 'Plano de Ensino Atualizado' }
+      ];
 
       // baixar e salvar PDFs
       for (const pdf of pdfsFiltered) {
         if (typeof pdf === 'object' && pdf !== null && 'pdfLink' in pdf && 'pdfName' in pdf) {
-          app.log.info(pdf, 'PDF a ser baixado');
-          await savePDF((pdf as { pdfLink: string; pdfName: string }).pdfLink, (pdf as { pdfLink: string; pdfName: string }).pdfName, sessionToken as string);
+          app.log.info(pdf, 'PDF mock a ser baixado');
+          await savePDF(pdf.pdfLink, pdf.pdfName, sessionToken as string);
         } else {
           app.log.error(pdf, 'PDF inválido encontrado');
         }
       }
 
-      // subir os PDFs para o S3
+      /*
       await Promise.all(
         pdfsFiltered.map(async (pdf: any) => {
           return app.s3.upload({
@@ -81,8 +75,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           }).promise?.() ?? null;
         })
       );
+      */
 
-      return { success: true, processed: pdfsFiltered.length };
+      return { success: true, processed: pdfsFiltered.length, mock: true, data: pdfsFiltered };
     } catch (error) {
       reply.status(500);
       return {
