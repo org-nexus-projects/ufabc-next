@@ -40,39 +40,42 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       ));
       app.log.info(results, 'PDFs extraídos');
 
-      return { data: results, sessionToken };
+      // chamar a lambda passando os resultados
+      const pdfsFiltered = await app.lambda.invoke('your-lambda-function-name', {
+        payload: results
+      });
 
+      app.log.info(pdfsFiltered, 'Resposta da Lambda');
+
+      // processar a resposta da lambda
+      if (!Array.isArray(pdfsFiltered)) {
+        app.log.error(pdfsFiltered, 'Erro ao filtrar PDFs');
+        reply.status(500);
+        return {
+          error: 'Erro ao processar resposta da Lambda',
+          details: pdfsFiltered instanceof Error ? pdfsFiltered.message : String(pdfsFiltered),
+        };
+      }
+
+      // download PDFs
+      pdfsFiltered.forEach(pdf => {
+        app.log.info(pdf, 'PDF a ser baixado');
+        // salvar o PDF
+        await savePDF(pdf.pdfLink, pdf.pdfName, sessionToken as string);
+      });
+
+      // subir os PDFs para s3
+      await Promise.all(pdfsFiltered.map(async (pdf) => {
+        await app.s3.upload({
+          Bucket: 'your-s3-bucket',
+          Key: `pdfs/${pdf.pdfName}`,
+          Body: pdf.pdfContent
+        });
+      }));
     } catch (error) {
       reply.status(500);
       return {
         error: 'Erro ao processar requisição',
-        details: error instanceof Error ? error.message : String(error),
-      };
-    }
-  });
-  app.post('/save', async (request, reply) => {
-    const sessionToken = request.headers['session-id'];
-    const { course, pdfs } = request.body as {
-      course: string;
-      pdfs: { pdfLink: string; pdfName: string }[];
-    }
-
-    if (!course || !Array.isArray(pdfs)) {
-      reply.status(400);
-      return { error: 'Payload inválido' };
-    }
-
-    try {
-      await Promise.all(
-        pdfs.map(async (pdf) => {
-          await savePDF(pdf.pdfLink, pdf.pdfName, sessionToken as string);
-        })
-      );
-      return { success: true };
-    } catch (error) {
-      reply.status(500);
-      return {
-        error: 'Erro ao salvar PDFs',
         details: error instanceof Error ? error.message : String(error),
       };
     }
