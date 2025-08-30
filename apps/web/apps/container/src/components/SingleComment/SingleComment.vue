@@ -1,6 +1,9 @@
 <template>
   <v-container>
-    <v-row align="start" justify="start">
+    <v-row
+      align="start"
+      justify="start"
+    >
       <v-col
         sm=""
         order="1"
@@ -12,7 +15,10 @@
         >
           {{ comment?.enrollment.conceito }}
         </div>
-        <p class="text-primary" style="white-space: nowrap">
+        <p
+          class="text-primary"
+          style="white-space: nowrap"
+        >
           {{ season }}
         </p>
       </v-col>
@@ -68,7 +74,10 @@
             :color="like ? 'primary' : ''"
             @click="like ? mutateRemoveLike() : mutateLike()"
           >
-            <v-icon size="small" class="mr-1" />
+            <v-icon
+              size="small"
+              class="mr-1"
+            />
             {{ likeCount }}
           </v-btn>
           <v-btn
@@ -86,7 +95,10 @@
                 : mutateRecommendation()
             "
           >
-            <v-icon size="small" class="mr-1" />
+            <v-icon
+              size="small"
+              class="mr-1"
+            />
             {{ recommendationCount }}
           </v-btn>
         </div>

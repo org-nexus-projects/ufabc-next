@@ -23,7 +23,6 @@
     "@tanstack/vue-query-devtools": "5.85.5",
     "@ufabc-next/services": "*",
     "@ufabc-next/stores": "*",
-    "@ufabc-next/utils": "*",
     "@vee-validate/zod": "4.15.1",
     "axios": "1.11.0",
     "dayjs": "1.11.13",

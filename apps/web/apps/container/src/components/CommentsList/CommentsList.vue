@@ -26,7 +26,10 @@
     />
   </div>
 
-  <CenteredLoading v-if="isLoading" class="pt-4" />
+  <CenteredLoading
+    v-if="isLoading"
+    class="pt-4"
+  />
   <div
     v-else-if="!isLoading && filteredCommentsData?.total !== 0"
     :style="`${!smAndDown && 'max-height:500px ; overflow-y:auto'}`"
@@ -39,7 +42,10 @@
       date=""
       class="mb-5"
     />
-    <div v-if="hasMoreComments" class="text-center px-4">
+    <div
+      v-if="hasMoreComments"
+      class="text-center px-4"
+    >
       <v-btn
         class="w-100 text-body-2"
         :loading="isFetchingMoreComments"
@@ -49,13 +55,16 @@
       </v-btn>
     </div>
   </div>
-  <div v-else class="d-flex align-center flex-column mt-5">
+  <div
+    v-else
+    class="d-flex align-center flex-column mt-5"
+  >
     <img
       src="@/assets/comment_not_found.gif"
       style="width: 100%; max-width: 128px"
       class="mb-5"
       alt="Nenhum comentário encontrado"
-    />
+    >
     Infelizmente, nenhum comentário foi encontrado 😕
   </div>
 </template>

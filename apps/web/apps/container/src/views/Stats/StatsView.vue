@@ -8,9 +8,15 @@
       <v-menu transition="slide-y-transition">
         <template #activator="{ props }">
           <div class="w-100 d-flex align-center justify-center">
-            <button v-bind="props" class="text-h6 text-sm-h4 font-weight-bold">
+            <button
+              v-bind="props"
+              class="text-h6 text-sm-h4 font-weight-bold"
+            >
               {{ prettifySeason(selectedSeason) }}
-              <v-icon size="x-small" class="text-ufabcnext-green">
+              <v-icon
+                size="x-small"
+                class="text-ufabcnext-green"
+              >
                 mdi-menu-down
               </v-icon>
             </button>
@@ -27,7 +33,11 @@
         </v-list>
       </v-menu>
     </PaperCard>
-    <v-row align="stretch" no-gutters class="w-100 mt-4">
+    <v-row
+      align="stretch"
+      no-gutters
+      class="w-100 mt-4"
+    >
       <v-col
         v-for="card in cards"
         :key="card.title"
@@ -49,9 +59,18 @@
     </v-row>
     <PaperCard class="mt-4">
       <el-tabs v-model="tab">
-        <el-tab-pane label="Turmas" name="classes" />
-        <el-tab-pane label="Cursos" name="courses" />
-        <el-tab-pane label="Disciplinas" name="subjects" />
+        <el-tab-pane
+          label="Turmas"
+          name="classes"
+        />
+        <el-tab-pane
+          label="Cursos"
+          name="courses"
+        />
+        <el-tab-pane
+          label="Disciplinas"
+          name="subjects"
+        />
       </el-tabs>
 
       <div
@@ -63,20 +82,29 @@
           style="min-width: 200px"
           class="my-2 my-md-0"
         >
-          <el-checkbox label="diurno"> Matutino </el-checkbox>
-          <el-checkbox label="noturno"> Noturno </el-checkbox>
+          <el-checkbox label="diurno">
+            Matutino
+          </el-checkbox>
+          <el-checkbox label="noturno">
+            Noturno
+          </el-checkbox>
         </el-checkbox-group>
         <v-menu transition="slide-y-transition">
           <template #activator="{ props }">
             <div>
-              <button v-bind="props" class="text-body-2 order-button mr-2">
+              <button
+                v-bind="props"
+                class="text-body-2 order-button mr-2"
+              >
                 <span class="font-weight-bold text-black"> Ordenar por: </span>
                 {{
                   orderByOptionsLabel[
                     orderByOptions.findIndex((o) => o === orderBy)
                   ]
                 }}
-                <v-icon class="text-ufabcnext-green"> mdi-menu-down </v-icon>
+                <v-icon class="text-ufabcnext-green">
+                  mdi-menu-down
+                </v-icon>
               </button>
             </div>
           </template>
@@ -101,7 +129,11 @@
         :data="disciplinas"
         style="width: 100%"
       >
-        <el-table-column fixed="left" min-width="200" label="Nome">
+        <el-table-column
+          fixed="left"
+          min-width="200"
+          label="Nome"
+        >
           <template #default="scope">
             {{ matriculaNameLabel(scope.row) }}
           </template>

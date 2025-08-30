@@ -3,11 +3,23 @@
     v-if="isFetchingTeacherError"
     text="Erro ao carregar dados do(a) professor(a)"
   />
-  <CenteredLoading v-if="isFetchingTeacher" class="mt-10" />
-  <PaperCard v-else class="w-100">
+  <CenteredLoading
+    v-if="isFetchingTeacher"
+    class="mt-10"
+  />
+  <PaperCard
+    v-else
+    class="w-100"
+  >
     <v-container style="max-width: none">
-      <v-row v-if="Number(teacherData?.data.general.count) > 0" class="pa-0">
-        <v-col cols="12" md="5">
+      <v-row
+        v-if="Number(teacherData?.data.general.count) > 0"
+        class="pa-0"
+      >
+        <v-col
+          cols="12"
+          md="5"
+        >
           <p class="text-h4 font-weight-bold text-primary mb-2">
             {{ teacherData?.data.teacher.name }}
           </p>
@@ -38,7 +50,10 @@
             }}
           </p>
         </v-col>
-        <v-col cols="12" md="7">
+        <v-col
+          cols="12"
+          md="7"
+        >
           <CommentsList
             :teacher-id="teacherId"
             :selected-subject="selectedSubject"
@@ -47,18 +62,25 @@
           />
         </v-col>
       </v-row>
-      <div v-else class="d-flex align-center flex-column">
+      <div
+        v-else
+        class="d-flex align-center flex-column"
+      >
         <img
           src="@/assets/comment_not_found.gif"
           style="width: 100%; max-width: 275px"
           class="mb-5"
           alt="Nenhum comentário encontrado"
-        />
+        >
         <p>Nenhum dado encontrado 😕</p>
         <p>
           Você já fez matéria com esse professor? Se sim, atualize seu histórico
         </p>
-        <v-btn href="/history" color="primary" class="text-body-1 mt-5">
+        <v-btn
+          href="/history"
+          color="primary"
+          class="text-body-1 mt-5"
+        >
           Atualizar
         </v-btn>
       </div>
