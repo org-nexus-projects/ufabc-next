@@ -1,5 +1,3 @@
-import { getSeason, prettifySeason } from '@ufabc-next/utils';
-
 import {
   classes,
   classesPage1,
@@ -10,6 +8,7 @@ import {
   usage,
 } from '@/mocks/stats';
 import { render, screen, userEvent } from '@/test-utils';
+import { getSeason, prettifySeason } from '@/utils/season';
 
 import { StatsView } from '.';
 

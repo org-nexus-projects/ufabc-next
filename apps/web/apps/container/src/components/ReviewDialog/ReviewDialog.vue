@@ -3,10 +3,7 @@
     v-if="isFetchingTeacherEnrollmentError || teacherIdError"
     text="Erro ao carregar as informações do professor desta disciplina"
   />
-  <v-dialog
-    v-model="showDialog"
-    max-width="1200"
-  >
+  <v-dialog v-model="showDialog" max-width="1200">
     <PaperCard>
       <div class="w-100 d-flex justify-end">
         <v-btn
@@ -16,16 +13,9 @@
           @click="showDialog = false"
         />
       </div>
-      <v-container
-        class="pa-0 my-2"
-        style="max-width: none"
-      >
+      <v-container class="pa-0 my-2" style="max-width: none">
         <v-row class="ma-0">
-          <v-col
-            class="pa-0 pb-5 pa-sm-3"
-            cols="12"
-            md="5"
-          >
+          <v-col class="pa-0 pb-5 pa-sm-3" cols="12" md="5">
             <p class="text-h4 font-weight-bold text-primary mb-2">
               {{ teacherName }}
             </p>
@@ -39,9 +29,9 @@
                 class="text-white d-flex align-center justify-center rounded ml-1"
                 :style="
                   enrollment?.conceito &&
-                    `background-color:${
-                      conceptsColor[enrollment.conceito]
-                    }; width: 20px; height: 20px;`
+                  `background-color:${
+                    conceptsColor[enrollment.conceito]
+                  }; width: 20px; height: 20px;`
                 "
               >
                 {{ enrollment?.conceito }}
@@ -57,9 +47,7 @@
             >
               {{ tag }}
             </v-chip>
-            <p class="text-subtitle-1 pt-3">
-              Seu comentário:
-            </p>
+            <p class="text-subtitle-1 pt-3">Seu comentário:</p>
             <v-textarea
               v-model="userCommentMessage"
               variant="solo"
@@ -81,12 +69,7 @@
               </v-btn>
             </div>
           </v-col>
-          <v-col
-            v-if="teacherId"
-            class="pa-0 pa-sm-3"
-            cols="12"
-            md="7"
-          >
+          <v-col v-if="teacherId" class="pa-0 pa-sm-3" cols="12" md="7">
             <CommentsList
               :teacher-id="teacherId"
               :selected-subject="selectedSubject"
@@ -103,13 +86,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
 import { Comments, Enrollments } from '@ufabc-next/services';
 import type { Enrollment } from '@ufabc-next/types';
-import { conceptsColor } from '@ufabc-next/utils';
 import { ElMessage } from 'element-plus';
 import { computed, PropType, ref, watch } from 'vue';
 
 import { CommentsList } from '@/components/CommentsList';
 import { FeedbackAlert } from '@/components/FeedbackAlert';
 import { PaperCard } from '@/components/PaperCard';
+import { conceptsColor } from '@/utils/consts';
 
 const selectedSubject = ref<string>('Todas as matérias');
 

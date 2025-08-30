@@ -1,18 +1,9 @@
 <template>
-  <CenteredLoading
-    v-if="isFetchingSubject"
-    class="mt-10"
-  />
-  <PaperCard
-    v-else
-    class="w-100"
-  >
+  <CenteredLoading v-if="isFetchingSubject" class="mt-10" />
+  <PaperCard v-else class="w-100">
     <v-container style="max-width: none">
       <v-row v-if="Number(subjectData?.data.general.count) > 0">
-        <v-col
-          cols="12"
-          md="5"
-        >
+        <v-col cols="12" md="5">
           <p class="text-h4 font-weight-bold text-primary mb-2">
             {{ subjectData?.data.subject.name }}
           </p>
@@ -37,22 +28,13 @@
             />
           </div>
         </v-col>
-        <v-col
-          cols="12"
-          md="7"
-          class="px-0 d-flex flex-column align-end"
-        >
+        <v-col cols="12" md="7" class="px-0 d-flex flex-column align-end">
           <v-menu transition="slide-y-transition">
             <template #activator="{ props }">
-              <button
-                v-bind="props"
-                class="text-body-2 order-button mb-4 mr-2"
-              >
+              <button v-bind="props" class="text-body-2 order-button mb-4 mr-2">
                 <span class="font-weight-bold text-black"> Ordenar por: </span>
                 {{ orders.find((o) => o.value === selectedOrder)?.title }}
-                <v-icon class="text-ufabcnext-green">
-                  mdi-menu-down
-                </v-icon>
+                <v-icon class="text-ufabcnext-green"> mdi-menu-down </v-icon>
               </button>
             </template>
             <v-list>
@@ -71,10 +53,7 @@
             class="rounded-lg w-100 pr-sm-4"
             :style="`${!smAndDown && 'max-height:500px ; overflow-y:auto'}`"
           >
-            <thead
-              v-if="!xs"
-              class="table-head bg-ufabcnext-green"
-            >
+            <thead v-if="!xs" class="table-head bg-ufabcnext-green">
               <tr>
                 <th
                   v-for="(item, index) in tableHead"
@@ -87,10 +66,7 @@
                 </th>
               </tr>
             </thead>
-            <tbody
-              v-if="!xs"
-              class="table-body bg-secondary"
-            >
+            <tbody v-if="!xs" class="table-body bg-secondary">
               <tr
                 v-for="teacher in shortedSpecifics"
                 :key="teacher._id.mainTeacher + 'row'"
@@ -103,10 +79,7 @@
                   >
                     {{ teacher.teacher?.name }}
                   </router-link>
-                  <p
-                    v-else
-                    class="text-next-light-grey"
-                  >
+                  <p v-else class="text-next-light-grey">
                     Professor não encontrado
                   </p>
                 </td>
@@ -118,10 +91,7 @@
                 </td>
               </tr>
             </tbody>
-            <tbody
-              v-else
-              class="table-body bg-secondary"
-            >
+            <tbody v-else class="table-body bg-secondary">
               <tr
                 v-for="teacher in shortedSpecifics"
                 :key="teacher._id.mainTeacher + 'row'"
@@ -134,13 +104,8 @@
                   >
                     {{ teacher.teacher?.name }}
                   </router-link>
-                  <p v-else>
-                    Professor não encontrado
-                  </p>
-                  <ConceptsHorizontalChart
-                    :grade-data="teacher"
-                    class="my-1"
-                  />
+                  <p v-else>Professor não encontrado</p>
+                  <ConceptsHorizontalChart :grade-data="teacher" class="my-1" />
                   Amostras: {{ teacher.count }}
                 </td>
               </tr>
@@ -148,26 +113,19 @@
           </v-table>
         </v-col>
       </v-row>
-      <div
-        v-else
-        class="d-flex align-center flex-column"
-      >
+      <div v-else class="d-flex align-center flex-column">
         <img
           src="@/assets/comment_not_found.gif"
           style="width: 100%; max-width: 275px"
           class="mb-5"
           alt="Nenhum comentário encontrado"
-        >
+        />
         <p>Nenhum dado encontrado 😕</p>
         <p>
           Você já fez matéria com algum professor? Se sim, atualize seu
           histórico
         </p>
-        <v-btn
-          href="/history"
-          color="primary"
-          class="text-body-1 mt-5"
-        >
+        <v-btn href="/history" color="primary" class="text-body-1 mt-5">
           Atualizar
         </v-btn>
       </div>
@@ -179,7 +137,6 @@
 import { useQuery } from '@tanstack/vue-query';
 import { Reviews } from '@ufabc-next/services';
 import { Concept, SubjectSpecific } from '@ufabc-next/types';
-import { transformConceptDataToObject } from '@ufabc-next/utils';
 import { ElMessage } from 'element-plus';
 import { computed, ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
@@ -188,6 +145,7 @@ import { CenteredLoading } from '@/components/CenteredLoading';
 import { ConceptsHorizontalChart } from '@/components/ConceptsHorizontalChart';
 import { ConceptsPieChart } from '@/components/ConceptsPieChart';
 import { PaperCard } from '@/components/PaperCard';
+import { transformConceptDataToObject } from '@/utils/transformConceptDataToObject';
 
 const props = defineProps({
   subjectId: { type: String, required: true },

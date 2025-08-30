@@ -30,16 +30,10 @@
         </div>
       </v-col>
       <v-col class="pa-0 d-flex flex-column justify-center">
-        <p
-          v-if="enrollment.teoria"
-          class="line-clamp"
-        >
+        <p v-if="enrollment.teoria" class="line-clamp">
           {{ enrollment.teoria?.name }}
         </p>
-        <p
-          v-if="!enrollment.teoria"
-          class="line-clamp"
-        >
+        <p v-if="!enrollment.teoria" class="line-clamp">
           {{ enrollment.pratica?.name }}
         </p>
         <div>
@@ -54,15 +48,9 @@
           </v-chip>
         </div>
       </v-col>
-      <v-col
-        cols="12"
-        sm="auto"
-        class="d-flex justify-end align-end pa-0"
-      >
+      <v-col cols="12" sm="auto" class="d-flex justify-end align-end pa-0">
         AVALIAR
-        <v-icon class="ml-1">
-          mdi-plus-circle-outline
-        </v-icon>
+        <v-icon class="ml-1"> mdi-plus-circle-outline </v-icon>
       </v-col>
     </v-row>
   </v-container>
@@ -70,10 +58,11 @@
 
 <script setup lang="ts">
 import { Enrollment } from '@ufabc-next/types';
-import { checkEAD, conceptsColor, formatSeason } from '@ufabc-next/utils';
 import { computed, PropType, ref } from 'vue';
 
 import { ReviewDialog } from '@/components/ReviewDialog';
+import { conceptsColor } from '@/utils/consts';
+import { checkEAD, formatSeason } from '@/utils/season';
 
 const showDialog = ref(false);
 

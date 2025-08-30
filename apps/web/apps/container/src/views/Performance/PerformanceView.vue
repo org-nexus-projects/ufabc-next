@@ -5,15 +5,8 @@
     "
     class="mt-10"
   />
-  <v-layout
-    v-else
-    class="flex-column align-center justify-center"
-  >
-    <v-row
-      align="stretch"
-      no-gutters
-      class="w-100"
-    >
+  <v-layout v-else class="flex-column align-center justify-center">
+    <v-row align="stretch" no-gutters class="w-100">
       <v-col
         v-for="card in cards"
         :key="card.title"
@@ -54,7 +47,6 @@
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
 import { type CourseInformation, Performance } from '@ufabc-next/services';
-import { formatSeason } from '@ufabc-next/utils';
 import { Chart } from 'highcharts-vue';
 import { computed, ref } from 'vue';
 
@@ -62,6 +54,7 @@ import { CenteredLoading } from '@/components/CenteredLoading';
 import { PaperCard } from '@/components/PaperCard';
 import { PerformanceCard } from '@/components/PerformanceCard';
 import { theme } from '@/theme';
+import { formatSeason } from '@/utils/season';
 
 const areaGraphOptions = {
   accessibility: {

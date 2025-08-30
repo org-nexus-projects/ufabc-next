@@ -1,9 +1,6 @@
 <template>
   <v-container>
-    <v-row
-      align="start"
-      justify="start"
-    >
+    <v-row align="start" justify="start">
       <v-col
         sm=""
         order="1"
@@ -15,10 +12,7 @@
         >
           {{ comment?.enrollment.conceito }}
         </div>
-        <p
-          class="text-primary"
-          style="white-space: nowrap"
-        >
+        <p class="text-primary" style="white-space: nowrap">
           {{ season }}
         </p>
       </v-col>
@@ -74,10 +68,7 @@
             :color="like ? 'primary' : ''"
             @click="like ? mutateRemoveLike() : mutateLike()"
           >
-            <v-icon
-              size="small"
-              class="mr-1"
-            />
+            <v-icon size="small" class="mr-1" />
             {{ likeCount }}
           </v-btn>
           <v-btn
@@ -95,10 +86,7 @@
                 : mutateRecommendation()
             "
           >
-            <v-icon
-              size="small"
-              class="mr-1"
-            />
+            <v-icon size="small" class="mr-1" />
             {{ recommendationCount }}
           </v-btn>
         </div>
@@ -112,16 +100,14 @@
 import { useMutation } from '@tanstack/vue-query';
 import { Comments } from '@ufabc-next/services';
 import { Comment, RequestError } from '@ufabc-next/types';
-import {
-  checkEAD,
-  conceptsColor,
-  dateToTimeAgo,
-  formatSeason,
-} from '@ufabc-next/utils';
 import { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';
 import { computed, onMounted, PropType, ref } from 'vue';
 import { useDisplay } from 'vuetify';
+
+import { conceptsColor } from '@/utils/consts';
+import { dateToTimeAgo } from '@/utils/dateToTimeAgo';
+import { checkEAD, formatSeason } from '@/utils/season';
 
 const { smAndDown } = useDisplay();
 const props = defineProps({

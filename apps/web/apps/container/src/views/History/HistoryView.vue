@@ -9,10 +9,7 @@
     :tags="tags"
     @update:show-dialog="showDialog = $event"
   />
-  <PaperCard
-    title="Ficha individual do aluno"
-    class="text-next-grey"
-  >
+  <PaperCard title="Ficha individual do aluno" class="text-next-grey">
     <p class="mt-4">
       Esta ficha individual é uma réplica do que você podia encontrar no site do
       <a href="https://aluno.ufabc.edu.br/">Portal do Aluno</a>, hoje são
@@ -21,20 +18,16 @@
     <p class="mt-4">
       Caso o seu histórico esteja desatualizado, basta acessar o Sigaa novamente
       utilizando a
-      <a
-        class="text-decoration-none"
-        :href="extensionURL"
-      >extensão do UFABC next</a>
+      <a class="text-decoration-none" :href="extensionURL"
+        >extensão do UFABC next</a
+      >
       e as informações serão atualizadas.
     </p>
     <p class="mt-4">
       Se o nome de algum professor estiver errado, você pode corrigir clicando
       no botão "Fazer comentário" ao lado do nome do professor.
     </p>
-    <div
-      v-if="!!enrollments && !!user"
-      class="chip-wrapper mt-4"
-    >
+    <div v-if="!!enrollments && !!user" class="chip-wrapper mt-4">
       <div class="chip">
         <span class="font-weight-bold">RA</span> {{ user.ra }}
       </div>
@@ -56,20 +49,14 @@
           aria-labelledby="extension-dialog"
           @click="handleOpenExtensionDialog"
         >
-          <v-dialog
-            v-model="extensionDialog"
-            width="360"
-          >
+          <v-dialog v-model="extensionDialog" width="360">
             <v-card class="pa-4">
               <v-card-title class="text-h6 px-2">
                 Atualizar histórico
               </v-card-title>
               <v-card-text class="text-subtitle-2 px-2">
                 Para atualizar o seu histórico no UFABC next, é preciso ter a
-                <a
-                  :href="extensionURL"
-                  target="_blank"
-                >extensão</a>
+                <a :href="extensionURL" target="_blank">extensão</a>
                 instalada.
               </v-card-text>
               <v-card-actions class="justify-end">
@@ -138,10 +125,7 @@
           </tr>
         </template>
         <template #body>
-          <template
-            v-for="date in enrollmentByDateKeysSorted"
-            :key="date"
-          >
+          <template v-for="date in enrollmentByDateKeysSorted" :key="date">
             <tr class="bg-white quad-header">
               <td
                 style="position: sticky; left: 0"
@@ -154,10 +138,7 @@
               </td>
               <td :colspan="tableHead.length - 1" />
             </tr>
-            <tr
-              v-for="item in enrollmentByDate?.[date]"
-              :key="item._id"
-            >
+            <tr v-for="item in enrollmentByDate?.[date]" :key="item._id">
               <td
                 rowspan="1"
                 colspan="1"
@@ -168,12 +149,7 @@
               >
                 {{ item.disciplina }}
               </td>
-              <td
-                rowspan="1"
-                colspan="1"
-                class="px-2"
-                style="max-width: 200px"
-              >
+              <td rowspan="1" colspan="1" class="px-2" style="max-width: 200px">
                 <div
                   :class="`text-next-light-gray text-caption d-flex align-center ${
                     item.teoria?.name ? 'justify-left' : 'justify-center'
@@ -201,12 +177,7 @@
                   }}</span>
                 </div>
               </td>
-              <td
-                rowspan="1"
-                colspan="1"
-                class="px-2"
-                style="max-width: 200px"
-              >
+              <td rowspan="1" colspan="1" class="px-2" style="max-width: 200px">
                 <div
                   :class="`text-next-light-gray text-truncate text-caption d-flex align-center ${
                     item.pratica?.name ? 'justify-left' : 'justify-center'
@@ -249,26 +220,22 @@
       class="mt-5 d-flex justify-center align-center flex-column"
     >
       <h2 class="mb-4">
-        Parece que não encontramos os dados do seu histórico :( <br>
+        Parece que não encontramos os dados do seu histórico :( <br />
         É necessário instalar a
-        <a
-          :href="extensionURL"
-          target="_blank"
-          class="text-decoration-none"
-        >extensão</a>
+        <a :href="extensionURL" target="_blank" class="text-decoration-none"
+          >extensão</a
+        >
         e acessar a tela de Consultar Minhas Notas no
-        <a
-          :href="studentRecordURL"
-          target="_blank"
-          class="text-decoration-none"
-        >Sigaa.</a>
+        <a :href="studentRecordURL" target="_blank" class="text-decoration-none"
+          >Sigaa.</a
+        >
       </h2>
       <img
         src="@/assets/missing_history.svg"
         width="500"
         height="400"
         alt="Histórico não encontrado"
-      >
+      />
     </div>
     <CenteredLoading v-if="isPendingEnrollments" />
   </PaperCard>
@@ -278,13 +245,6 @@
 import { useQuery } from '@tanstack/vue-query';
 import { Enrollments, Users } from '@ufabc-next/services';
 import type { Concept, Enrollment } from '@ufabc-next/types';
-import {
-  checkEAD,
-  conceptsColor,
-  extensionURL,
-  formatSeason,
-  studentRecordURL,
-} from '@ufabc-next/utils';
 import { ElNotification } from 'element-plus';
 import { computed, onMounted, ref } from 'vue';
 
@@ -293,6 +253,8 @@ import { FeedbackAlert } from '@/components/FeedbackAlert';
 import { PaperCard } from '@/components/PaperCard';
 import { ReviewDialog } from '@/components/ReviewDialog';
 import { TableComponent } from '@/components/TableComponent';
+import { conceptsColor, extensionURL, studentRecordURL } from '@/utils/consts';
+import { checkEAD, formatSeason } from '@/utils/season';
 
 const showDialog = ref(false);
 const selectedEnrollment = ref<Enrollment>();

@@ -1,4 +1,3 @@
-import { formatSeason } from '@ufabc-next/utils';
 import { ElMessage } from 'element-plus';
 import { http, HttpResponse } from 'msw';
 
@@ -12,6 +11,7 @@ import {
   userEvent,
   waitFor,
 } from '@/test-utils';
+import { formatSeason } from '@/utils/season';
 
 import { ReviewDialog } from '.';
 
