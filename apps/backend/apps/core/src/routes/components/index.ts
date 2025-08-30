@@ -63,8 +63,12 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       // baixar e salvar PDFs
       for (const pdf of pdfsFiltered) {
-        app.log.info(pdf, 'PDF a ser baixado');
-        await savePDF(pdf.pdfLink, pdf.pdfName, sessionToken as string);
+        if (typeof pdf === 'object' && pdf !== null && 'pdfLink' in pdf && 'pdfName' in pdf) {
+          app.log.info(pdf, 'PDF a ser baixado');
+          await savePDF((pdf as { pdfLink: string; pdfName: string }).pdfLink, (pdf as { pdfLink: string; pdfName: string }).pdfName, sessionToken as string);
+        } else {
+          app.log.error(pdf, 'PDF inválido encontrado');
+        }
       }
 
       // subir os PDFs para o S3
