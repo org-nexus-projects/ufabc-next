@@ -2,11 +2,7 @@
 // This script updates each subject in 'subjects' with an array of unique 'uf_subject_code' values based on normalized codes from 'disciplinas'.
 // If a subject is associated with multiple codes, it logs a warning for manual review.
 
-function normalizeCodigo(codigo) {
-  if (!codigo) return null;
-  var match = codigo.match(/^(.*?)-\d{2}$/);
-  return match ? match[1] : codigo;
-}
+const normalizeCodigo = (codigo) => codigo?.replace(/-\d{2}$/, '') ?? null;
 
 print('Aggregating normalized codes from disciplinas...');
 const mapping = db.disciplinas.aggregate([
