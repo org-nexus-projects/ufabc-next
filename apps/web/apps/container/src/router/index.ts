@@ -133,15 +133,6 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
   {
-    path: '/notion',
-    name: 'notion',
-    component: NotionView,
-    meta: {
-      title: 'Notion',
-      confirmed: true,
-    },
-  },
-  {
     path: '/autenticar-facebook',
     name: 'Autenticar Facebook',
     component: FacebookView,

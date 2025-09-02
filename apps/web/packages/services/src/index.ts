@@ -1,6 +1,7 @@
 export * from './api';
 export * from './comments';
 export * from './enrollments';
+export * from './help';
 export * from './performance';
 export * from './reviews';
 export * from './stats';
