@@ -121,11 +121,11 @@ const internalNavigationItems = [
     route: '/notion',
     releaseDate: dayjs(new Date()),
   },
-  {
-    title: 'Apoie o UFABC next',
-    icon: 'mdi-bank',
-    route: '/donate',
-  },
+  //{
+  //title: 'Apoie o UFABC next',
+  //icon: 'mdi-bank',
+  //route: '/donate',
+  //},
   {
     title: 'Configurações',
     icon: 'mdi-cog',
