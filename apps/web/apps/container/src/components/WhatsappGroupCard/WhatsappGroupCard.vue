@@ -1,19 +1,14 @@
 <template>
-  <div
-    class="whatsapp-group-card"
-    @click="() => handleClick()"
-  >
+  <div class="whatsapp-group-card" @click="() => handleClick()">
     <div class="whatsapp-group-card__header">
       <div class="header__icon-container">
-        <v-icon color="white">
-          mdi-book-open-page-variant
-        </v-icon>
+        <v-icon color="white"> mdi-book-open-page-variant </v-icon>
       </div>
       <div class="header__info">
         <h3 class="info__name">
           {{ props.subject }}
         </h3>
-        <div style="display: flex; gap: 16px;">
+        <div style="display: flex; gap: 16px">
           <p class="info__description">
             {{ props.codigo }}
           </p>
@@ -22,32 +17,20 @@
     </div>
 
     <div class="professor-info">
-      <p class="professor-name">
-        Prof. Teoria: {{ props.teoria }}
-      </p>
-      <p class="professor-name">
-        Prof. Prática: {{ props.pratica }}
-      </p>
+      <p class="professor-name">Prof. Teoria: {{ props.teoria }}</p>
+      <p class="professor-name">Prof. Prática: {{ props.pratica }}</p>
       <p class="season">
         {{ props.season }}
       </p>
     </div>
 
     <div class="subject__data">
-      <div
-        v-if="props.campus"
-        class="metric"
-      >
+      <div v-if="props.campus" class="metric">
         <v-icon>mdi-town-hall</v-icon>
         <span>{{ campusName }}</span>
       </div>
-      <div
-        v-if="props.turno && props.turma"
-        class="metric"
-      >
-        <p class="info__description">
-          {{ props.turno }} - {{ props.turma }}
-        </p>
+      <div v-if="props.turno && props.turma" class="metric">
+        <p class="info__description">{{ props.turno }} - {{ props.turma }}</p>
       </div>
     </div>
 
@@ -67,7 +50,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-
 type WhatsappGroupCardProps = {
   season: string;
   groupUrl: string;
@@ -80,11 +62,11 @@ type WhatsappGroupCardProps = {
   pratica: string;
 };
 
-const props = defineProps<WhatsappGroupCardProps>()
+const props = defineProps<WhatsappGroupCardProps>();
 const campusName = computed(() => {
   if (!props.campus) return null;
   return props.campus === 'sa' ? 'Santo André' : 'São Bernardo';
-})
+});
 
 const emit = defineEmits<{
   (e: 'click'): void;
@@ -154,7 +136,7 @@ const handleClick = () => {
 }
 
 .whatsapp-group-card:hover .info__name {
-  color: rgb(var(--v-theme-primary))
+  color: rgb(var(--v-theme-primary));
 }
 
 .info__description {
@@ -228,7 +210,6 @@ const handleClick = () => {
 }
 
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 1;
