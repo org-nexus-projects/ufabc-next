@@ -2,11 +2,12 @@
   <div class="whatsapp-groups-view">
     <div v-if="userType === 'logged-no-history'" class="not-synced__container">
       <div class="not-synced__icon">
-        <v-icon size="60" color="primary">mdi-sync</v-icon>
+        <v-icon size="60" color="primary"> mdi-sync </v-icon>
       </div>
       <h1 class="not-synced__title">Desbloqueie todo o potencial! 🚀</h1>
       <p class="not-synced__subtitle">
-        Sincronize seu histórico e tenha acesso aos grupos de Whatsapp das suas disciplinas específicas.
+        Sincronize seu histórico e tenha acesso aos grupos de Whatsapp das suas
+        disciplinas específicas.
       </p>
       <div class="not-synced__upgrade-benefits">
         <h4>O que você ganha sincronizando:</h4>
@@ -22,12 +23,12 @@
       </div>
       <div class="not-synced__actions">
         <button class="not-synced__button" @click="handleExtension">
-          <v-icon size="20">mdi-link-variant</v-icon>
+          <v-icon size="20"> mdi-link-variant </v-icon>
           Baixar extensão
         </button>
-        <span style="color: #808080;">OU</span>
+        <span style="color: #808080">OU</span>
         <button class="not-synced__button" @click="handleSyncHistory">
-          <v-icon size="20">mdi-sync</v-icon>
+          <v-icon size="20"> mdi-sync </v-icon>
           Sincronizar agora!
         </button>
       </div>
@@ -35,21 +36,29 @@
 
     <div v-if="userType !== 'logged-no-history'">
       <div class="hero-section">
-        <h1>Encontre seus grupos do <br>Whatsapp</h1>
+        <h1>Encontre seus grupos do <br />Whatsapp</h1>
         <p>
-          Acesse os grupos de WhatsApp das matérias que você está cursando e fique por dentro de tudo com a sua turma.
+          Acesse os grupos de WhatsApp das matérias que você está cursando e
+          fique por dentro de tudo com a sua turma.
         </p>
-
       </div>
       <div class="search-section">
         <div class="search-container">
           <div class="search-input-wrapper">
-            <v-text-field v-model="searchQuery" :placeholder="getSearchPlaceholder()" variant="outlined" size="large"
-              prepend-inner-icon="mdi-magnify" clearable :disabled="true" class="main-search">
-              <template #append-inner v-if="isSearchBlocked">
+            <v-text-field
+              v-model="searchQuery"
+              :placeholder="getSearchPlaceholder()"
+              variant="outlined"
+              size="large"
+              prepend-inner-icon="mdi-magnify"
+              clearable
+              :disabled="true"
+              class="main-search"
+            >
+              <template v-if="isSearchBlocked" #append-inner>
                 <v-tooltip text="Sincronize para desbloquear">
                   <template #activator="{ props }">
-                    <v-icon v-bind="props" color="warning">mdi-lock</v-icon>
+                    <v-icon v-bind="props" color="warning"> mdi-lock </v-icon>
                   </template>
                 </v-tooltip>
               </template>
@@ -59,18 +68,32 @@
           <!-- Search Options -->
           <div class="search-options">
             <div class="option-chips">
-              <v-chip :color="selectedSearchType === 'ra' ? 'primary' : 'default'"
-                :variant="selectedSearchType === 'ra' ? 'elevated' : 'tonal'" size="large" class="search-chip">
-                <v-icon start>mdi-account</v-icon>
+              <v-chip
+                :color="selectedSearchType === 'ra' ? 'primary' : 'default'"
+                :variant="selectedSearchType === 'ra' ? 'elevated' : 'tonal'"
+                size="large"
+                class="search-chip"
+              >
+                <v-icon start> mdi-account </v-icon>
                 Buscar por RA
               </v-chip>
 
-              <v-chip :color="selectedSearchType === 'subject' ? 'secondary' : 'default'"
-                :variant="selectedSearchType === 'subject' ? 'elevated' : 'tonal'" :disabled="!canSearchBySubject"
-                size="large" class="search-chip">
-                <v-icon start>mdi-book</v-icon>
+              <v-chip
+                :color="
+                  selectedSearchType === 'subject' ? 'secondary' : 'default'
+                "
+                :variant="
+                  selectedSearchType === 'subject' ? 'elevated' : 'tonal'
+                "
+                :disabled="!canSearchBySubject"
+                size="large"
+                class="search-chip"
+              >
+                <v-icon start> mdi-book </v-icon>
                 Buscar por Disciplina
-                <v-icon v-if="!canSearchBySubject" end size="16">mdi-lock</v-icon>
+                <v-icon v-if="!canSearchBySubject" end size="16">
+                  mdi-lock
+                </v-icon>
               </v-chip>
             </div>
           </div>
@@ -78,14 +101,24 @@
       </div>
     </div>
 
-
     <!-- Results Section -->
     <div v-if="userType !== 'logged-no-history'" class="results-section">
       <div class="results-grid">
-        <WhatsappGroupCard v-for="(group, index) in mockGroups" :key="index" :season="group.season"
-          :campus="group.campus" :codigo="group.codigo" :group-url="group.groupURL" :teoria="group.teoria"
-          :pratica="group.pratica" :turno="group.turno" :subject="group.subject" :turma="group.turma"
-          class="preview-card" :style="{ animationDelay: `${index * 150}ms` }" />
+        <WhatsappGroupCard
+          v-for="(group, index) in mockGroups"
+          :key="index"
+          :season="group.season"
+          :campus="group.campus"
+          :codigo="group.codigo"
+          :group-url="group.groupURL"
+          :teoria="group.teoria"
+          :pratica="group.pratica"
+          :turno="group.turno"
+          :subject="group.subject"
+          :turma="group.turma"
+          class="preview-card"
+          :style="{ animationDelay: `${index * 150}ms` }"
+        />
       </div>
 
       <!-- Coming Soon Overlay -->
@@ -93,21 +126,21 @@
         <div class="coming-soon-content">
           <h2>Em breve! 🚀</h2>
           <p>
-            Estamos preparando algo incrível para você! Em poucos dias, você poderá acessar todos os grupos de WhatsApp
-            das
-            suas disciplinas de forma super fácil.
+            Estamos preparando algo incrível para você! Em poucos dias, você
+            poderá acessar todos os grupos de WhatsApp das suas disciplinas de
+            forma super fácil.
           </p>
           <div class="coming-soon-features">
             <div class="feature-item">
-              <v-icon color="primary" size="20">mdi-check-circle</v-icon>
+              <v-icon color="primary" size="20"> mdi-check-circle </v-icon>
               <span>Busca inteligente por disciplina</span>
             </div>
             <div class="feature-item">
-              <v-icon color="primary" size="20">mdi-check-circle</v-icon>
+              <v-icon color="primary" size="20"> mdi-check-circle </v-icon>
               <span>Grupos organizados por turma</span>
             </div>
             <div class="feature-item">
-              <v-icon color="primary" size="20">mdi-check-circle</v-icon>
+              <v-icon color="primary" size="20"> mdi-check-circle </v-icon>
               <span>Acesso direto pelo Next</span>
             </div>
           </div>
@@ -118,14 +151,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
-import { useAuth } from '@/stores/useAuth'
-import { Whatsapp } from 'services';
-import { studentRecordURL, extensionURL } from 'utils';
+import { Whatsapp } from '@ufabc-next/services';
+import { SearchComponentItem } from '@ufabc-next/types';
+import { computed, onMounted, ref } from 'vue';
+
 import WhatsappGroupCard from '@/components/WhatsappGroupCard/WhatsappGroupCard.vue';
-import { SearchComponentItem } from 'types';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
+import { useAuth } from '@/stores/useAuth';
+import { extensionURL, studentRecordURL } from '@/utils/consts';
 
 type UserType = 'not-logged' | 'logged-no-history' | 'logged-with-history';
 
@@ -140,71 +174,71 @@ const isEmptyQuery = ref(false);
 // Mock data for preview
 const mockGroups = ref([
   {
-    season: "2025:2",
-    groupURL: "https://chat.whatsapp.com/GBQropAUsuEGZGXhWYSHrL",
-    codigo: "BCJ0205-15",
-    campus: "sa" as const,
-    turma: "B1",
-    turno: "noturno",
-    subject: "Fenômenos Térmicos",
-    teoria: "Eduardo De Moraes Gregores",
-    pratica: "Marcos De Abreu Avila"
+    season: '2025:2',
+    groupURL: 'https://chat.whatsapp.com/GBQropAUsuEGZGXhWYSHrL',
+    codigo: 'BCJ0205-15',
+    campus: 'sa' as const,
+    turma: 'B1',
+    turno: 'noturno',
+    subject: 'Fenômenos Térmicos',
+    teoria: 'Eduardo De Moraes Gregores',
+    pratica: 'Marcos De Abreu Avila',
   },
   {
-    season: "2025:2",
-    groupURL: "https://chat.whatsapp.com/example2",
-    codigo: "BCM0506-15",
-    campus: "sa" as const,
-    turma: "A2",
-    turno: "matutino",
-    subject: "Comunicação e Redes",
-    teoria: "Maria Silva Santos",
-    pratica: "João Pedro Oliveira"
+    season: '2025:2',
+    groupURL: 'https://chat.whatsapp.com/example2',
+    codigo: 'BCM0506-15',
+    campus: 'sa' as const,
+    turma: 'A2',
+    turno: 'matutino',
+    subject: 'Comunicação e Redes',
+    teoria: 'Maria Silva Santos',
+    pratica: 'João Pedro Oliveira',
   },
   {
-    season: "2025:2",
-    groupURL: "https://chat.whatsapp.com/example3",
-    codigo: "BCN0404-15",
-    campus: "sa" as const,
-    turma: "C1",
-    turno: "matutino",
-    subject: "Geometria Analítica",
-    teoria: "Ana Carolina Lima",
-    pratica: "Roberto Carlos Souza"
+    season: '2025:2',
+    groupURL: 'https://chat.whatsapp.com/example3',
+    codigo: 'BCN0404-15',
+    campus: 'sa' as const,
+    turma: 'C1',
+    turno: 'matutino',
+    subject: 'Geometria Analítica',
+    teoria: 'Ana Carolina Lima',
+    pratica: 'Roberto Carlos Souza',
   },
   {
-    season: "2025:2",
-    groupURL: "https://chat.whatsapp.com/example4",
-    codigo: "BCS0001-15",
-    campus: "sbc" as const,
-    turma: "B3",
-    turno: "noturno",
-    subject: "Base Experimental das Ciências Naturais",
-    teoria: "Pedro Henrique Costa",
-    pratica: "Fernanda Rodrigues"
+    season: '2025:2',
+    groupURL: 'https://chat.whatsapp.com/example4',
+    codigo: 'BCS0001-15',
+    campus: 'sbc' as const,
+    turma: 'B3',
+    turno: 'noturno',
+    subject: 'Base Experimental das Ciências Naturais',
+    teoria: 'Pedro Henrique Costa',
+    pratica: 'Fernanda Rodrigues',
   },
   {
-    season: "2025:2",
-    groupURL: "https://chat.whatsapp.com/example5",
-    codigo: "MCM0001-15",
-    campus: "sa" as const,
-    turma: "A1",
-    turno: "matutino",
-    subject: "Cálculo Diferencial e Integral I",
-    teoria: "Carlos Eduardo Mendes",
-    pratica: "Juliana Aparecida Silva"
+    season: '2025:2',
+    groupURL: 'https://chat.whatsapp.com/example5',
+    codigo: 'MCM0001-15',
+    campus: 'sa' as const,
+    turma: 'A1',
+    turno: 'matutino',
+    subject: 'Cálculo Diferencial e Integral I',
+    teoria: 'Carlos Eduardo Mendes',
+    pratica: 'Juliana Aparecida Silva',
   },
   {
-    season: "2025:2",
-    groupURL: "https://chat.whatsapp.com/example6",
-    codigo: "BIR0004-15",
-    campus: "sa" as const,
-    turma: "D2",
-    turno: "noturno",
-    subject: "Probabilidade e Estatística",
-    teoria: "Amanda Cristina Alves",
-    pratica: "Ricardo Monteiro Peixoto"
-  }
+    season: '2025:2',
+    groupURL: 'https://chat.whatsapp.com/example6',
+    codigo: 'BIR0004-15',
+    campus: 'sa' as const,
+    turma: 'D2',
+    turno: 'noturno',
+    subject: 'Probabilidade e Estatística',
+    teoria: 'Amanda Cristina Alves',
+    pratica: 'Ricardo Monteiro Peixoto',
+  },
 ]);
 
 // Computed properties
@@ -218,12 +252,16 @@ const canSearchBySubject = computed(() => {
 });
 
 const isSearchBlocked = computed(() => {
-  return userType.value === 'logged-no-history' && selectedSearchType.value === 'subject';
+  return (
+    userType.value === 'logged-no-history' &&
+    selectedSearchType.value === 'subject'
+  );
 });
 
-const getSearchPlaceholder = () => selectedSearchType.value === 'ra'
-  ? 'Digite seu RA (ex: 11202012345)'
-  : 'Digite o nome da disciplina (ex: Algoritmos)'
+const getSearchPlaceholder = () =>
+  selectedSearchType.value === 'ra'
+    ? 'Digite seu RA (ex: 11202012345)'
+    : 'Digite o nome da disciplina (ex: Algoritmos)';
 
 // todo: refactor this
 const selectSearchType = (type: string) => {
@@ -253,7 +291,7 @@ const handleSearch = async () => {
 
 const handleExtension = () => {
   window.open(extensionURL, '_blank');
-}
+};
 
 const handleSyncHistory = () => {
   window.open(studentRecordURL, '_blank');
@@ -270,8 +308,8 @@ onMounted(async () => {
     searchQuery.value = String(user.value.ra);
   }
 
-  eventTracker.track(WebEvent.WHATSAPP_GROUP_ACCESS_PREVIEW)
-})
+  eventTracker.track(WebEvent.WHATSAPP_GROUP_ACCESS_PREVIEW);
+});
 </script>
 
 <style scoped>
@@ -508,11 +546,13 @@ onMounted(async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.8) 30%,
-      rgba(255, 255, 255, 0.95) 60%,
-      rgba(255, 255, 255, 1) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.8) 30%,
+    rgba(255, 255, 255, 0.95) 60%,
+    rgba(255, 255, 255, 1) 100%
+  );
   backdrop-filter: blur(2px);
   border-radius: 0 0 20px 20px;
   display: flex;

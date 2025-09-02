@@ -3,7 +3,7 @@ import {
   SearchTeacher,
   SubjectInfo,
   TeacherReview,
-} from 'types';
+} from '@ufabc-next/types';
 
 import { api } from './api';
 

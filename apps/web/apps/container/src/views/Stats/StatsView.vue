@@ -1,16 +1,22 @@
 <template>
   <CenteredLoading
-    class="mt-10"
     v-if="isPendingUsage || isPendingDeficit || subjects.isLoading.value"
+    class="mt-10"
   />
   <div v-else>
     <PaperCard>
       <v-menu transition="slide-y-transition">
-        <template v-slot:activator="{ props }">
+        <template #activator="{ props }">
           <div class="w-100 d-flex align-center justify-center">
-            <button v-bind="props" class="text-h6 text-sm-h4 font-weight-bold">
+            <button
+              v-bind="props"
+              class="text-h6 text-sm-h4 font-weight-bold"
+            >
               {{ prettifySeason(selectedSeason) }}
-              <v-icon size="x-small" class="text-ufabcnext-green">
+              <v-icon
+                size="x-small"
+                class="text-ufabcnext-green"
+              >
                 mdi-menu-down
               </v-icon>
             </button>
@@ -27,7 +33,11 @@
         </v-list>
       </v-menu>
     </PaperCard>
-    <v-row align="stretch" no-gutters class="w-100 mt-4">
+    <v-row
+      align="stretch"
+      no-gutters
+      class="w-100 mt-4"
+    >
       <v-col
         v-for="card in cards"
         :key="card.title"
@@ -37,22 +47,30 @@
       >
         <PerformanceCard
           :title="card.title"
-          :subTitle="card.subtitle"
+          :sub-title="card.subtitle"
           :description="card.content"
           :color="card.color"
           :icon="card.icon"
-          :progressBarValue="card.progressBarValue"
-          :progressBarMaxValue="card.progressBarMaxValue"
+          :progress-bar-value="card.progressBarValue"
+          :progress-bar-max-value="card.progressBarMaxValue"
           :tooltip="card.tooltip"
-        >
-        </PerformanceCard>
+        />
       </v-col>
     </v-row>
     <PaperCard class="mt-4">
       <el-tabs v-model="tab">
-        <el-tab-pane label="Turmas" name="classes"></el-tab-pane>
-        <el-tab-pane label="Cursos" name="courses"></el-tab-pane>
-        <el-tab-pane label="Disciplinas" name="subjects"></el-tab-pane>
+        <el-tab-pane
+          label="Turmas"
+          name="classes"
+        />
+        <el-tab-pane
+          label="Cursos"
+          name="courses"
+        />
+        <el-tab-pane
+          label="Disciplinas"
+          name="subjects"
+        />
       </el-tabs>
 
       <div
@@ -60,69 +78,84 @@
       >
         <p>{{ total }} resultados encontrados</p>
         <el-checkbox-group
-          v-model="filterByPeriod"
+          v-model="periodCheckboxes"
           style="min-width: 200px"
           class="my-2 my-md-0"
         >
-          <el-checkbox label="diurno">Matutino</el-checkbox>
-          <el-checkbox label="noturno">Noturno</el-checkbox>
+          <el-checkbox label="diurno">
+            Matutino
+          </el-checkbox>
+          <el-checkbox label="noturno">
+            Noturno
+          </el-checkbox>
         </el-checkbox-group>
         <v-menu transition="slide-y-transition">
-          <template v-slot:activator="{ props }">
+          <template #activator="{ props }">
             <div>
-              <button v-bind="props" class="text-body-2 order-button mr-2">
+              <button
+                v-bind="props"
+                class="text-body-2 order-button mr-2"
+              >
                 <span class="font-weight-bold text-black"> Ordenar por: </span>
                 {{
                   orderByOptionsLabel[
                     orderByOptions.findIndex((o) => o === orderBy)
                   ]
                 }}
-                <v-icon class="text-ufabcnext-green"> mdi-menu-down </v-icon>
+                <v-icon class="text-ufabcnext-green">
+                  mdi-menu-down
+                </v-icon>
               </button>
             </div>
           </template>
           <v-list>
             <v-list-item
               v-for="(item, index) in orderByOptions"
-              @click="changeOrderBy(item)"
               :key="item"
+              @click="changeOrderBy(item)"
             >
-              <v-list-item-title>{{
-                orderByOptionsLabel[index]
-              }}</v-list-item-title>
+              <v-list-item-title>
+                {{ orderByOptionsLabel[index] }}
+              </v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
       </div>
 
       <el-table
-        empty-text="Nenhum dado encontrado"
         ref="disciplinas"
         v-loading="isLoadingCurrentInfo"
+        empty-text="Nenhum dado encontrado"
         :data="disciplinas"
         style="width: 100%"
       >
-        <el-table-column fixed="left" min-width="200" label="Nome">
+        <el-table-column
+          fixed="left"
+          min-width="200"
+          label="Nome"
+        >
           <template #default="scope">
             {{ matriculaNameLabel(scope.row) }}
           </template>
         </el-table-column>
-        <el-table-column prop="vagas" label="Vagas" align="center" width="150">
-        </el-table-column>
+        <el-table-column
+          prop="vagas"
+          label="Vagas"
+          align="center"
+          width="150"
+        />
         <el-table-column
           prop="requisicoes"
           label="Requisições"
           align="center"
           width="150"
-        >
-        </el-table-column>
+        />
         <el-table-column
           prop="deficit"
           label="Deficit"
           align="center"
           width="150"
-        >
-        </el-table-column>
+        />
         <el-table-column
           prop="ratio"
           label="Pessoas por vaga"
@@ -136,29 +169,30 @@
       </el-table>
       <el-button
         v-if="hasMoreItems"
-        @click="fetchMoreItems()"
         class="w-100 mt-2"
+        @click="fetchMoreItems()"
       >
-        Carregar mais <i class="el-icon-arrow-down el-icon-right"></i>
+        Carregar mais <i class="el-icon-arrow-down el-icon-right" />
       </el-button>
     </PaperCard>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { StatsSubjects, type StatsParams } from 'services';
-import type {
-  StatsClass,
-  StatsSubject,
-  StatsCourse,
-  PageableReturn,
-} from 'types';
 import { useInfiniteQuery, useQuery } from '@tanstack/vue-query';
-import { getElapsedSeasons, getSeason, prettifySeason } from 'utils';
-import { PaperCard } from '@/components/PaperCard';
+import { type StatsParams, StatsSubjects } from '@ufabc-next/services';
+import type {
+  PageableReturn,
+  StatsClass,
+  StatsCourse,
+  StatsSubject,
+} from '@ufabc-next/types';
+import { computed, ref } from 'vue';
+
 import { CenteredLoading } from '@/components/CenteredLoading';
+import { PaperCard } from '@/components/PaperCard';
 import { PerformanceCard } from '@/components/PerformanceCard';
+import { getElapsedSeasons, getSeason, prettifySeason } from '@/utils/season';
 
 type Tab = 'classes' | 'courses' | 'subjects';
 type OrderBy = 'deficit' | 'ratio' | 'vagas' | 'requisicoes';
@@ -175,7 +209,14 @@ const orderBy = ref<OrderBy>('deficit');
 
 const tab = ref<Tab>('classes');
 
-const filterByPeriod = ref<StatsParams['turno'][]>(['diurno', 'noturno']);
+const periodCheckboxes = ref<string[]>(['diurno', 'noturno']);
+
+const filterByPeriod = computed(
+  () =>
+    periodCheckboxes.value.filter(
+      (item) => item !== undefined,
+    ) as StatsParams['turno'][],
+);
 
 const changeOrderBy = (item: OrderBy) => {
   orderBy.value = item;
@@ -309,12 +350,10 @@ const total = computed(
   () => queriesData.value[tab.value]?.data?.value?.[0].total,
 );
 
-const disciplinas = computed(
-  () =>
-    queriesData.value[tab.value]?.data?.value?.flatMap(
-      (page) =>
-        page.data as readonly (StatsSubject | StatsClass | StatsCourse)[],
-    ),
+const disciplinas = computed(() =>
+  queriesData.value[tab.value]?.data?.value?.flatMap(
+    (page) => page.data as readonly (StatsSubject | StatsClass | StatsCourse)[],
+  ),
 );
 
 const hasMoreItems = computed(

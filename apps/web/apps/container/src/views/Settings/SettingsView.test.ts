@@ -1,9 +1,11 @@
-import { render, screen, userEvent, waitFor } from '@/test-utils';
-import { SettingsView } from '.';
-import { user as mockedUser } from '@/mocks/users';
+import { http,HttpResponse } from 'msw';
+
 import { server } from '@/mocks/server';
-import { HttpResponse, http } from 'msw';
+import { user as mockedUser } from '@/mocks/users';
 import { useAuth } from '@/stores/useAuth';
+import { render, screen, userEvent, waitFor } from '@/test-utils';
+
+import { SettingsView } from '.';
 
 describe('<SettingsView />', () => {
   const originalUseAuthValue = useAuth.getState();

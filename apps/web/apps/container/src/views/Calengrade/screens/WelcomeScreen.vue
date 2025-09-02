@@ -9,9 +9,16 @@
       </h2>
     </section>
 
-    <img src="../../../assets/calengrade/calendar.svg" alt="Calendário acadêmico" class="calendar-image" />
+    <img
+      src="../../../assets/calengrade/calendar.svg"
+      alt="Calendário acadêmico"
+      class="calendar-image"
+    >
 
-    <button @click="nextStep(CalengradeSteps.Summary)" class="calengrade-button">
+    <button
+      class="calengrade-button"
+      @click="nextStep(CalengradeSteps.Summary)"
+    >
       Começar
     </button>
   </div>

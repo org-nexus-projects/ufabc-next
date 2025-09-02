@@ -1,10 +1,15 @@
 <template>
-  <FeedbackAlert v-if="isErrorTeachers" text="Erro ao buscar professores" />
-  <FeedbackAlert v-if="isErrorSubjects" text="Erro ao buscar disciplinas" />
+  <FeedbackAlert
+    v-if="isErrorTeachers"
+    text="Erro ao buscar professores"
+  />
+  <FeedbackAlert
+    v-if="isErrorSubjects"
+    text="Erro ao buscar disciplinas"
+  />
   <div class="wrapper w-100 mb-5">
     <v-text-field
       v-model="query"
-      @input="onChangeQuery"
       variant="solo"
       placeholder="Digite o nome do professor ou disciplina"
       class="mb-1"
@@ -15,9 +20,9 @@
           : 'mdi-magnify'
       "
       clearable
+      @input="onChangeQuery"
       @click:clear="clear"
-    >
-    </v-text-field>
+    />
     <v-list
       v-if="processedResults.length && router.currentRoute.value.query.q"
       class="results"
@@ -27,10 +32,10 @@
         v-for="item in processedResults"
         :key="item.id"
         variant="plain"
-        @click="enterSearch(item.id, item.type, item.name)"
         class="item"
         role="button"
         :name="item.name"
+        @click="enterSearch(item.id, item.type, item.name)"
       >
         <v-icon
           v-if="item.type"
@@ -43,35 +48,15 @@
   </div>
 </template>
 
-<style scoped lang="scss">
-.wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.wrapper:focus-within .results {
-  display: block;
-}
-
-.results {
-  position: absolute;
-  width: 100%;
-  max-height: 320px;
-  overflow-y: auto;
-  border-radius: 4px;
-  display: none;
-  z-index: 9999;
-}
-</style>
-
 <script lang="ts" setup>
 import { useQuery } from '@tanstack/vue-query';
+import { Reviews } from '@ufabc-next/services';
+import type { SearchSubjectItem, SearchTeacherItem } from '@ufabc-next/types';
 import debounce from 'lodash.debounce';
-import { Reviews } from 'services';
 import { computed, onMounted, ref } from 'vue';
-import { FeedbackAlert } from '@/components/FeedbackAlert';
-import type { SearchTeacherItem, SearchSubjectItem } from 'types';
 import { useRouter } from 'vue-router';
+
+import { FeedbackAlert } from '@/components/FeedbackAlert';
 
 const router = useRouter();
 const query = computed({
@@ -156,3 +141,24 @@ const processedResults = computed(() => [
   ...mapSearchResults('subject', searchResultsSubjects.value?.data.data),
 ]);
 </script>
+
+<style scoped lang="scss">
+.wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.wrapper:focus-within .results {
+  display: block;
+}
+
+.results {
+  position: absolute;
+  width: 100%;
+  max-height: 320px;
+  overflow-y: auto;
+  border-radius: 4px;
+  display: none;
+  z-index: 9999;
+}
+</style>

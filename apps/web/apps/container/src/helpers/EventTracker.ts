@@ -1,5 +1,6 @@
+import { User } from '@ufabc-next/types';
 import mixpanel from 'mixpanel-browser';
-import { User } from 'types';
+
 import { WebEvent } from './WebEvent';
 
 // todo: improve error handling

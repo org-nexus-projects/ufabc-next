@@ -1,9 +1,13 @@
 <template>
   <VueQueryDevtools v-if="isLocal" />
-  <AppBar>
+  <AppBar :key="user?.ra">
     <v-main style="background-color: #f5f5f5">
-      <v-container id="app-container" :style="`min-height: calc(100vh${confirmedUser ? '- 64px' : ''
-        }); min-height: calc(100svh${confirmedUser ? '- 64px' : ''})`">
+      <v-container
+        id="app-container"
+        :style="`min-height: calc(100vh${
+          confirmedUser || layout === 'include-sidebar' ? '- 64px' : ''
+        }); min-height: calc(100svh${confirmedUser || layout === 'include-sidebar' ? '- 64px' : ''})`"
+      >
         <router-view />
       </v-container>
     </v-main>
@@ -11,23 +15,35 @@
 </template>
 
 <script setup lang="ts">
-import { authStore } from 'stores';
+import { VueQueryDevtools } from '@tanstack/vue-query-devtools';
+import { authStore } from '@ufabc-next/stores';
+import { ElMessage } from 'element-plus';
 import { computed, onMounted } from 'vue';
 import create from 'vue-zustand';
-import { ElMessage } from 'element-plus';
-import { VueQueryDevtools } from '@tanstack/vue-query-devtools';
 
 const isLocal = import.meta.env.VITE_APP_ENV === 'local';
 
+import { useRouter } from 'vue-router';
+
 import { AppBar } from '@/layouts/AppBar';
 
+import { eventTracker } from './helpers/EventTracker';
+
 const useAuth = create(authStore);
-const { user } = useAuth();
+const { user, isLoggedIn } = useAuth();
+
+const router = useRouter();
+
+const layout = computed(() => router.currentRoute.value.meta.layout ?? null);
 
 const confirmedUser = computed(() => !!user.value?.confirmed);
 
 onMounted(async () => {
   window.Toaster = ElMessage;
+
+  if (isLoggedIn.value() && user.value) {
+    eventTracker.setUserProperties(user.value);
+  }
 });
 </script>
 

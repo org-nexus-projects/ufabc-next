@@ -1,7 +1,9 @@
-import { render, screen } from '@/test-utils';
-import { ReviewsView } from '.';
 import { useRouter } from 'vue-router';
+
 import { subjectSearch } from '@/mocks/reviews';
+import { render, screen } from '@/test-utils';
+
+import { ReviewsView } from '.';
 
 vi.mock('vue-router', async () => ({
   useRouter: vi.fn(),

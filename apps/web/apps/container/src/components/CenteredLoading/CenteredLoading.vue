@@ -5,7 +5,7 @@
       indeterminate
       model-value="20"
       aria-label="Carregando"
-    ></v-progress-circular>
+    />
   </div>
 </template>
 

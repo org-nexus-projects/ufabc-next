@@ -3,11 +3,23 @@
     v-if="isFetchingTeacherError"
     text="Erro ao carregar dados do(a) professor(a)"
   />
-  <CenteredLoading v-if="isFetchingTeacher" class="mt-10" />
-  <PaperCard v-else class="w-100">
+  <CenteredLoading
+    v-if="isFetchingTeacher"
+    class="mt-10"
+  />
+  <PaperCard
+    v-else
+    class="w-100"
+  >
     <v-container style="max-width: none">
-      <v-row class="pa-0" v-if="Number(teacherData?.data.general.count) > 0">
-        <v-col cols="12" md="5">
+      <v-row
+        v-if="Number(teacherData?.data.general.count) > 0"
+        class="pa-0"
+      >
+        <v-col
+          cols="12"
+          md="5"
+        >
           <p class="text-h4 font-weight-bold text-primary mb-2">
             {{ teacherData?.data.teacher.name }}
           </p>
@@ -18,7 +30,7 @@
             color="primary"
             :class="`${index < chips.length && 'mr-2'} mb-2`"
           >
-            <v-icon :icon="chip.icon"></v-icon>
+            <v-icon :icon="chip.icon" />
             {{ chip.value }}
             {{ chip.text }}
           </v-chip>
@@ -29,7 +41,7 @@
             <ConceptsPieChart
               :key="`chart-${selectedSubject}-${eadFilter}`"
               :grades="grades"
-            ></ConceptsPieChart>
+            />
           </div>
           <p class="text-body-2 text-center font-weight-bold mt-6">
             * Provavelmente esse professor
@@ -38,27 +50,37 @@
             }}
           </p>
         </v-col>
-        <v-col cols="12" md="7">
+        <v-col
+          cols="12"
+          md="7"
+        >
           <CommentsList
-            :teacherId="teacherId"
-            :selectedSubject="selectedSubject"
-            @update:selectedSubject="selectedSubject = $event"
-            @update:eadFilter="eadFilter = $event"
+            :teacher-id="teacherId"
+            :selected-subject="selectedSubject"
+            @update:selected-subject="selectedSubject = $event"
+            @update:ead-filter="eadFilter = $event"
           />
         </v-col>
       </v-row>
-      <div v-else class="d-flex align-center flex-column">
+      <div
+        v-else
+        class="d-flex align-center flex-column"
+      >
         <img
           src="@/assets/comment_not_found.gif"
           style="width: 100%; max-width: 275px"
           class="mb-5"
           alt="Nenhum comentário encontrado"
-        />
+        >
         <p>Nenhum dado encontrado 😕</p>
         <p>
           Você já fez matéria com esse professor? Se sim, atualize seu histórico
         </p>
-        <v-btn href="/history" color="primary" class="text-body-1 mt-5">
+        <v-btn
+          href="/history"
+          color="primary"
+          class="text-body-1 mt-5"
+        >
           Atualizar
         </v-btn>
       </div>
@@ -68,17 +90,17 @@
 
 <script lang="ts" setup>
 import { useQuery } from '@tanstack/vue-query';
-import { Reviews } from 'services';
-import { transformConceptDataToObject } from 'utils';
+import { Reviews } from '@ufabc-next/services';
+import { TeacherReview, TeacherReviewSubject } from '@ufabc-next/types';
 import { computed, ref } from 'vue';
 import { useDisplay } from 'vuetify';
-import { FeedbackAlert } from '@/components/FeedbackAlert';
-import { ConceptsPieChart } from '@/components/ConceptsPieChart';
 
 import { CenteredLoading } from '@/components/CenteredLoading';
-import { PaperCard } from '@/components/PaperCard';
 import { CommentsList } from '@/components/CommentsList';
-import { TeacherReview, TeacherReviewSubject } from 'types';
+import { ConceptsPieChart } from '@/components/ConceptsPieChart';
+import { FeedbackAlert } from '@/components/FeedbackAlert';
+import { PaperCard } from '@/components/PaperCard';
+import { transformConceptDataToObject } from '@/utils/transformConceptDataToObject';
 
 const props = defineProps({
   teacherId: { type: String, required: true },

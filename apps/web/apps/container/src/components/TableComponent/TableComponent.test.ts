@@ -1,4 +1,5 @@
 import { render, screen } from '@/test-utils';
+
 import { TableComponent } from '.';
 
 describe('<TableComponent />', () => {

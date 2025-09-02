@@ -3,50 +3,99 @@
     <v-container>
       <PaperCard v-if="!user">
         <v-row>
-          <CenteredLoading v-if="isLoadingUser"></CenteredLoading>
-          <div class="text-center" v-if="isErrorUser">
+          <CenteredLoading v-if="isLoadingUser" />
+          <div
+            v-if="isErrorUser"
+            class="text-center"
+          >
             <p class="text-box-settings">
               Ocorreu um problema ao carregar as informações do seu perfil
             </p>
             <p class="text-box-settings">
               Tente novamente
-              <span @click="reloadPage" class="text-decoration-underline">clicando aqui</span>
+              <span
+                class="text-decoration-underline"
+                @click="reloadPage"
+              >clicando aqui</span>
             </p>
           </div>
         </v-row>
       </PaperCard>
-      <PaperCard title="Configurações da conta" v-else class="text-md-left text-center">
+      <PaperCard
+        v-else
+        title="Configurações da conta"
+        class="text-md-left text-center"
+      >
         <v-row class="mt-4">
-          <v-col cols="12" md="2" class="mb-3 d-flex justify-center d align-center">
-            <v-avatar :size="80" color="primary" class="white--text" style="font-size: 32px; text-transform: uppercase">
+          <v-col
+            cols="12"
+            md="2"
+            class="mb-3 d-flex justify-center d align-center"
+          >
+            <v-avatar
+              :size="80"
+              color="primary"
+              class="white--text"
+              style="font-size: 32px; text-transform: uppercase"
+            >
               {{ userInitials }}
             </v-avatar>
           </v-col>
           <v-col class="mb-3">
             <section class="mb-3">
-              <div class="username-settings">{{ userLogin }}</div>
-              <div class="email-settings">{{ user?.email }}</div>
+              <div class="username-settings">
+                {{ userLogin }}
+              </div>
+              <div class="email-settings">
+                {{ user?.email }}
+              </div>
               <div class="createdAt-settings mb-3">
                 Usuário desde {{ createdAt }}
               </div>
               <div style="display: flex; flex-direction: column; gap: 10px">
-                <a href="#" class="links-settings" v-if="user?.oauth?.facebook">
+                <a
+                  v-if="user?.oauth?.facebook"
+                  href="#"
+                  class="links-settings"
+                >
                   <v-icon color="ufabcnext-green">mdi-check</v-icon>
                   Conta do Facebook associada
                 </a>
-                <a href="#" class="links-settings" v-if="user?.oauth?.google">
+                <a
+                  v-if="user?.oauth?.google"
+                  href="#"
+                  class="links-settings"
+                >
                   <v-icon color="ufabcnext-green">mdi-check</v-icon>
                   Conta do Google associada
                 </a>
-                <a :href="addGoogleAccount" target="_blank" class="links-settings add-account" v-else-if="user">
-                  <v-icon color="ufabcnext-blue" class="mr-2">mdi-plus-circle-outline</v-icon>
+                <a
+                  v-else-if="user"
+                  :href="addGoogleAccount"
+                  target="_blank"
+                  class="links-settings add-account"
+                >
+                  <v-icon
+                    color="ufabcnext-blue"
+                    class="mr-2"
+                  >mdi-plus-circle-outline</v-icon>
                   Associar à uma conta do Google
                 </a>
               </div>
             </section>
           </v-col>
-          <v-col cols="12" md="3" class="d-flex justify-center justify-md-end align-center">
-            <v-btn class="settings-button error--text" outlined variant="outlined" color="error" @click="dialog = true">
+          <v-col
+            cols="12"
+            md="3"
+            class="d-flex justify-center justify-md-end align-center"
+          >
+            <v-btn
+              class="settings-button error--text"
+              outlined
+              variant="outlined"
+              color="error"
+              @click="dialog = true"
+            >
               Desativar Conta
             </v-btn>
           </v-col>
@@ -69,17 +118,32 @@
       </PaperCard>
     </v-container>
 
-    <v-dialog v-model="dialog" width="450px">
+    <v-dialog
+      v-model="dialog"
+      width="450px"
+    >
       <v-card>
-        <v-card-title class="text-h5">Excluir conta</v-card-title>
-        <v-card-text>Tem certeza que deseja excluir seu usuário? <br /><br />Caso deseje
-          voltar, tudo estará aqui 😀</v-card-text>
+        <v-card-title class="text-h5">
+          Excluir conta
+        </v-card-title>
+        <v-card-text>
+          Tem certeza que deseja excluir seu usuário? <br><br>Caso deseje
+          voltar, tudo estará aqui 😀
+        </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="green-darken-1" variant="text" @click="dialog = false">
+          <v-spacer />
+          <v-btn
+            color="green-darken-1"
+            variant="text"
+            @click="dialog = false"
+          >
             Agora não
           </v-btn>
-          <v-btn color="error" variant="text" @click="removeAccount()">
+          <v-btn
+            color="error"
+            variant="text"
+            @click="removeAccount()"
+          >
             Excluir conta
           </v-btn>
         </v-card-actions>
@@ -89,15 +153,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { useMutation, useQuery } from '@tanstack/vue-query';
+import { api, Users } from '@ufabc-next/services';
 import { ElMessage } from 'element-plus';
+import { computed, ref } from 'vue';
+
 import { CenteredLoading } from '@/components/CenteredLoading';
+import { PaperCard } from '@/components/PaperCard';
 import { useAuth } from '@/stores/useAuth';
 import { useAliasInitials } from '@/utils/composables/aliasInitials';
-import { Users, api } from 'services';
-import { PaperCard } from '@/components/PaperCard';
-
-import { useMutation, useQuery } from '@tanstack/vue-query';
 
 const {
   data: user,
@@ -113,11 +177,9 @@ const userLogin = computed(() => {
   return user.value?.email?.replace('@aluno.ufabc.edu.br', '');
 });
 
-
 const addGoogleAccount = computed(() => {
   return `${api.defaults.baseURL}/login/google?userId=${user.value?._id}`;
 });
-
 
 const createdAt = computed(() => {
   if (user.value?.createdAt) {

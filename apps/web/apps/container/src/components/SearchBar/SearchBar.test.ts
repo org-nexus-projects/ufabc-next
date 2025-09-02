@@ -1,9 +1,11 @@
-import { render, screen, userEvent } from '@/test-utils';
-import { SearchBar } from '.';
+import { http,HttpResponse } from 'msw';
 import { useRouter } from 'vue-router';
+
 import { subjectSearch, teacherSearch } from '@/mocks/reviews';
 import { server } from '@/mocks/server';
-import { HttpResponse, http } from 'msw';
+import { render, screen, userEvent } from '@/test-utils';
+
+import { SearchBar } from '.';
 
 vi.mock('vue-router', async () => ({
   useRouter: vi.fn(),

@@ -1,13 +1,17 @@
 <template>
-  <div @click="() => handleClick()" class="whatsapp-group-card">
+  <div class="whatsapp-group-card" @click="() => handleClick()">
     <div class="whatsapp-group-card__header">
       <div class="header__icon-container">
-        <v-icon color="white">mdi-book-open-page-variant</v-icon>
+        <v-icon color="white"> mdi-book-open-page-variant </v-icon>
       </div>
       <div class="header__info">
-        <h3 class="info__name">{{ props.subject }}</h3>
-        <div style="display: flex; gap: 16px;">
-          <p class="info__description">{{ props.codigo }}</p>
+        <h3 class="info__name">
+          {{ props.subject }}
+        </h3>
+        <div style="display: flex; gap: 16px">
+          <p class="info__description">
+            {{ props.codigo }}
+          </p>
         </div>
       </div>
     </div>
@@ -15,7 +19,9 @@
     <div class="professor-info">
       <p class="professor-name">Prof. Teoria: {{ props.teoria }}</p>
       <p class="professor-name">Prof. Prática: {{ props.pratica }}</p>
-      <p class="season">{{ props.season }}</p>
+      <p class="season">
+        {{ props.season }}
+      </p>
     </div>
 
     <div class="subject__data">
@@ -29,15 +35,20 @@
     </div>
 
     <div class="activity-indicator">
-      <v-btn color="black" prepend-icon="mdi-whatsapp" text="Entrar no Grupo" size="default" variant="text"
-        width="100%"></v-btn>
+      <v-btn
+        color="black"
+        prepend-icon="mdi-whatsapp"
+        text="Entrar no Grupo"
+        size="default"
+        variant="text"
+        width="100%"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-
 
 type WhatsappGroupCardProps = {
   season: string;
@@ -51,11 +62,11 @@ type WhatsappGroupCardProps = {
   pratica: string;
 };
 
-const props = defineProps<WhatsappGroupCardProps>()
+const props = defineProps<WhatsappGroupCardProps>();
 const campusName = computed(() => {
   if (!props.campus) return null;
   return props.campus === 'sa' ? 'Santo André' : 'São Bernardo';
-})
+});
 
 const emit = defineEmits<{
   (e: 'click'): void;
@@ -125,7 +136,7 @@ const handleClick = () => {
 }
 
 .whatsapp-group-card:hover .info__name {
-  color: rgb(var(--v-theme-primary))
+  color: rgb(var(--v-theme-primary));
 }
 
 .info__description {
@@ -199,7 +210,6 @@ const handleClick = () => {
 }
 
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 1;

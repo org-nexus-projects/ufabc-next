@@ -1,6 +1,6 @@
 {
-  "name": "services",
-  "version": "0.0.0",
+  "name": "@ufabc-next/services",
+  "version": "1.0.0",
   "main": "./index.ts",
   "license": "MIT",
   "type": "module",
@@ -10,14 +10,12 @@
     "tsc": "tsc --noEmit"
   },
   "devDependencies": {
-    "@types/express": "^5.0.3",
-    "eslint-config-custom": "*",
+    "@ufabc-next/eslint-config": "*",
     "tsconfig": "*",
-    "typescript": "^5.2.2"
+    "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@notionhq/client": "^4.0.1",
-    "stores": "*",
-    "types": "*"
+    "@ufabc-next/stores": "*",
+    "@ufabc-next/types": "*"
   }
 }

@@ -1,8 +1,10 @@
-import { render, screen } from '@/test-utils';
-import { CommentsList } from '.';
+import { http,HttpResponse } from 'msw';
+
 import { comments } from '@/mocks/reviews';
 import { server } from '@/mocks/server';
-import { HttpResponse, http } from 'msw';
+import { render, screen } from '@/test-utils';
+
+import { CommentsList } from '.';
 
 describe('<CommentsList />', () => {
   test('render Comments List', async () => {

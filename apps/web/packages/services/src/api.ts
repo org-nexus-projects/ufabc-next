@@ -1,5 +1,5 @@
+import { authStore } from '@ufabc-next/stores';
 import axios from 'axios';
-import { authStore } from 'stores';
 
 const resolveEndpoint = (env?: string) =>
   ({

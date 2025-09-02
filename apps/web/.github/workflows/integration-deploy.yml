@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
-          node-version: 20.9
+          node-version: 20.19
           cache: 'yarn'
 
       - name: install dependencies
@@ -35,6 +35,8 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     env:
+      MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
+      VITE_MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: us-east-1
@@ -44,11 +46,16 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v4
         with:
-          node-version: 20.9
+          node-version: 20.19
       - uses: shinyinc/action-aws-cli@v1.2
 
       - name: install dependencies
         run: yarn --frozen-lockfile
+
+      - name: Debug environment variables
+        run: |
+          echo "VITE_MIXPANEL_TOKEN is set: ${{ env.VITE_MIXPANEL_TOKEN != '' }}"
+          echo "Environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}"
 
       - name: build projects
         run: yarn ${{ github.ref == 'refs/heads/main' && 'build' || 'build:staging'  }}

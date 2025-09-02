@@ -1,15 +1,16 @@
-import { render, screen, userEvent } from '@/test-utils';
-import { StatsView } from '.';
 import {
+  classes,
+  classesPage1,
   courseNames,
   courses,
   overview,
-  classes,
-  classesPage1,
-  usage,
   subjects,
+  usage,
 } from '@/mocks/stats';
-import { getSeason, prettifySeason } from 'utils';
+import { render, screen, userEvent } from '@/test-utils';
+import { getSeason, prettifySeason } from '@/utils/season';
+
+import { StatsView } from '.';
 
 describe('<StatsView />', () => {
   test('render loading', () => {

@@ -1,4 +1,4 @@
-import { ConceptData } from 'types';
+import { ConceptData } from '@ufabc-next/types';
 
 export const transformConceptDataToObject = (
   grades: ConceptData[],

@@ -1,4 +1,5 @@
 import { render, screen } from '@/test-utils';
+
 import { AdminView } from '.';
 
 describe('<AdminView />', () => {

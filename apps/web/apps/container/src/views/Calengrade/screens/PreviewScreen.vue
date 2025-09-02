@@ -1,27 +1,45 @@
 <template>
-  <div v-if="step < 2" class="calengrade-preview-screen">
+  <div
+    v-if="step < 2"
+    class="calengrade-preview-screen"
+  >
     <div>
-      <h1 class="preview-screen__title">{{ generatingCalendarMessage }}</h1>
+      <h1 class="preview-screen__title">
+        {{ generatingCalendarMessage }}
+      </h1>
     </div>
 
     <div class="flex-fill d-flex align-center justify-center">
-      <img src="../../../assets/calengrade/loading.svg" alt="Calendário acadêmico" class="calengrade-image" />
+      <img
+        src="../../../assets/calengrade/loading.svg"
+        alt="Calendário acadêmico"
+        class="calengrade-image"
+      >
     </div>
   </div>
   <div v-else>
     <div>
-      <h1 class="preview-screen__title">Seu Calengrade está pronto!</h1>
+      <h1 class="preview-screen__title">
+        Seu Calengrade está pronto!
+      </h1>
       <h2 class="preview-screen__title-subtitle">
         Abra o arquivo com seu aplicativo de calendário favorito e aproveite
         :)
       </h2>
     </div>
     <div class="flex-fill d-flex align-center justify-center">
-      <img src="../../../assets/calengrade/calendar_done.svg" alt="Calendário" class="calengrade-image"
-        style="margin: 32px 0;" />
+      <img
+        src="../../../assets/calengrade/calendar_done.svg"
+        alt="Calendário"
+        class="calengrade-image"
+        style="margin: 32px 0;"
+      >
     </div>
     <div>
-      <button class="calengrade-button" @click="resetCalengrade">
+      <button
+        class="calengrade-button"
+        @click="resetCalengrade"
+      >
         Fazer novo Calengrade
       </button>
     </div>
@@ -29,7 +47,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
+
 import { handleCalendar } from '../../../utils/calendar'
 import { CalengradeInfo, CalengradeSteps } from '../types';
 

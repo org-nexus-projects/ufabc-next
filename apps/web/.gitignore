@@ -11,8 +11,14 @@ coverage
 # misc
 .DS_Store
 dist
+build
+out
+output
 coverage
 *.pem
+
+# IDE and Editor files
+.vscode
 
 # debug
 npm-debug.log*

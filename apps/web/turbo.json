@@ -4,12 +4,12 @@
   "globalDependencies": ["**/.env.*local", ".env"],
   "tasks": {
     "build": {
-      "env": ["VITE_APP_ENV", "VITE_APP_BASE_URL"],
+      "env": ["VITE_APP_ENV", "VITE_APP_BASE_URL", "VITE_MIXPANEL_TOKEN"],
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
     "build:staging": {
-      "env": ["VITE_APP_ENV", "VITE_APP_BASE_URL"],
+      "env": ["VITE_APP_ENV", "VITE_APP_BASE_URL", "VITE_MIXPANEL_TOKEN"],
       "dependsOn": ["^build:staging"],
       "outputs": ["dist/**"]
     },
@@ -21,6 +21,7 @@
       "cache": false
     },
     "dev": {
+      "env": ["VUE_APP_MF_ENV", "VUE_APP_BASE_URL", "VITE_MIXPANEL_TOKEN"],
       "cache": false,
       "persistent": true
     }

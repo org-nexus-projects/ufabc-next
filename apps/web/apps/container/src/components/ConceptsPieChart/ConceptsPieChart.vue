@@ -1,16 +1,17 @@
 <template>
   <div class="chartWrapper">
-    <Chart :options="chartOptions"></Chart>
+    <Chart :options="chartOptions" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { conceptsColor } from 'utils';
+import { Concept } from '@ufabc-next/types';
 import { Chart } from 'highcharts-vue';
 import { computed, PropType } from 'vue';
-import { Concept } from 'types';
 
-type Grades = Record<string, number>
+import { conceptsColor } from '@/utils/consts';
+
+type Grades = Record<string, number>;
 const props = defineProps({
   grades: { type: Object as PropType<Grades>, required: true },
 });
