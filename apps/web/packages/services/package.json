@@ -15,7 +15,6 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@ufabc-next/stores": "*",
     "@ufabc-next/types": "*"
   }
 }

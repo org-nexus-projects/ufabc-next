@@ -1,24 +1,26 @@
-import { http,HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw';
+import { createPinia, setActivePinia } from 'pinia';
 import * as vuetify from 'vuetify';
 
 import { server } from '@/mocks/server';
 import { user as mockedUser } from '@/mocks/users';
-import { useAuth } from '@/stores/useAuth';
+import { useAuthStore } from '@/stores/auth';
 import { render, screen, userEvent, waitFor } from '@/test-utils';
 
 import { SignUpView } from '.';
 
 describe('<SignUpView />', () => {
-  const originalUseAuthValue = useAuth.getState();
+  let authStore: ReturnType<typeof useAuthStore>;
+
   beforeEach(() => {
-    useAuth.setState({
-      ...originalUseAuthValue,
-      token: 'token',
-      user: mockedUser,
-    });
+    setActivePinia(createPinia());
+    authStore = useAuthStore();
+    authStore.authenticate('token');
+    authStore.user = mockedUser;
   });
+
   afterEach(() => {
-    useAuth.setState(originalUseAuthValue);
+    authStore.logOut();
   });
   test('render sign up page', () => {
     render(SignUpView, {
@@ -41,12 +43,12 @@ describe('<SignUpView />', () => {
         stubs: ['router-link'],
       },
     });
-    expect(useAuth.getState().token).not.toBeNull();
-    expect(useAuth.getState().user).not.toBeNull();
+    expect(authStore.token).not.toBeNull();
+    expect(authStore.user).not.toBeNull();
     await user.click(screen.getByText(/Usar outra conta do google\/facebook/i));
     await waitFor(() => {
-      expect(useAuth.getState().token).toBeNull();
-      expect(useAuth.getState().user).toBeNull();
+      expect(authStore.token).toBeNull();
+      expect(authStore.user).toBeNull();
     });
   });
   test('render sm and down screen', async () => {

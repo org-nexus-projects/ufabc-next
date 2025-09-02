@@ -158,12 +158,12 @@ import { computed, onMounted, ref } from 'vue';
 import WhatsappGroupCard from '@/components/WhatsappGroupCard/WhatsappGroupCard.vue';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
-import { useAuth } from '@/stores/useAuth';
+import { useAuthStore } from '@/stores/auth';
 import { extensionURL, studentRecordURL } from '@/utils/consts';
 
 type UserType = 'not-logged' | 'logged-no-history' | 'logged-with-history';
 
-const { user, isLoggedIn } = useAuth();
+const authStore = useAuthStore();
 
 const searchQuery = ref('');
 const selectedSearchType = ref('ra');
@@ -243,7 +243,7 @@ const mockGroups = ref([
 
 // Computed properties
 const userType = computed((): UserType => {
-  if (!isLoggedIn.value()) return 'not-logged';
+  if (!authStore.isLoggedIn) return 'not-logged';
   return 'logged-with-history';
 });
 
@@ -304,8 +304,8 @@ const clearSearch = () => {
 };
 
 onMounted(async () => {
-  if (user.value?.ra) {
-    searchQuery.value = String(user.value.ra);
+  if (authStore.user?.ra) {
+    searchQuery.value = String(authStore.user.ra);
   }
 
   eventTracker.track(WebEvent.WHATSAPP_GROUP_ACCESS_PREVIEW);

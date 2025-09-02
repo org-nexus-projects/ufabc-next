@@ -1,14 +1,8 @@
 <template>
   <v-container class="container pt-md-10">
     <v-row class="d-flex mb-5 flex-grow-0">
-      <v-col
-        xs="12"
-        class="d-flex align-center justify-space-between"
-      >
-        <img
-          height="32"
-          src="@/assets/logo.svg"
-        >
+      <v-col xs="12" class="d-flex align-center justify-space-between">
+        <img height="32" src="@/assets/logo.svg" />
       </v-col>
     </v-row>
     <v-row class="h-100">
@@ -23,17 +17,12 @@
           <CenteredLoading />
         </div>
 
-        <div
-          v-else
-          class="text-center"
-        >
+        <div v-else class="text-center">
           <img
             src="@/assets/error-token.svg"
             style="max-width: 260px; width: 100%"
-          >
-          <h1 class="text-h5 mb-4">
-            Erro ao confirmar sua conta
-          </h1>
+          />
+          <h1 class="text-h5 mb-4">Erro ao confirmar sua conta</h1>
           <p class="text-left text-body-1 mb-2">
             A URL que você entrou para confirmar sua conta não é válida. Siga
             esses passos:
@@ -63,9 +52,9 @@ import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { CenteredLoading } from '@/components/CenteredLoading';
-import { useAuth } from '@/stores/useAuth';
+import { useAuthStore } from '@/stores/auth';
 
-const { authenticate } = useAuth();
+const authStore = useAuthStore();
 
 const router = useRouter();
 
@@ -78,7 +67,7 @@ const { mutate: mutateConfirmToken, isPending: isPendingConfirmToken } =
         type: 'success',
         showClose: true,
       });
-      authenticate.value(data.data.token);
+      authStore.authenticate(data.data.token);
       router.push('/');
     },
     onError: (error: AxiosError<RequestError>) => {
