@@ -12,6 +12,8 @@ import Highcharts from 'highcharts';
 import accessibility from 'highcharts/modules/accessibility';
 import annotationsInit from 'highcharts/modules/annotations';
 import HighchartsVue from 'highcharts-vue';
+import { createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 import { createApp } from 'vue';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
@@ -22,6 +24,9 @@ import { eventTracker } from './helpers/EventTracker';
 import client from './queryClient';
 import router from './router';
 import { theme } from './theme';
+
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
 
 accessibility(Highcharts);
 annotationsInit(Highcharts);
@@ -61,6 +66,7 @@ declare global {
 eventTracker.init();
 
 createApp(App)
+  .use(pinia)
   .use(router)
   .use(vuetify)
   .use(elementPlus)
