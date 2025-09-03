@@ -343,8 +343,12 @@ const { mutate: mutateSignUp, isPending: isPendingSubmit } = useMutation({
     step.value = 3;
   },
   onError: (error: AxiosError<RequestError>) => {
+    const message =
+      error.status === 500
+        ? 'Você já possui uma conta no UFABC Next. Faça login com a sua conta Google cadastrada'
+        : error.response?.data.message;
     ElMessage({
-      message: error.response?.data.error,
+      message,
       type: 'error',
       showClose: true,
     });
