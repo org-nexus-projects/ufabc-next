@@ -1,8 +1,13 @@
 <template>
-  <div class="whatsapp-group-card" @click="() => handleClick()">
+  <div
+    class="whatsapp-group-card"
+    @click="() => handleClick()"
+  >
     <div class="whatsapp-group-card__header">
       <div class="header__icon-container">
-        <v-icon color="white"> mdi-book-open-page-variant </v-icon>
+        <v-icon color="white">
+          mdi-book-open-page-variant
+        </v-icon>
       </div>
       <div class="header__info">
         <h3 class="info__name">
@@ -17,20 +22,32 @@
     </div>
 
     <div class="professor-info">
-      <p class="professor-name">Prof. Teoria: {{ props.teoria }}</p>
-      <p class="professor-name">Prof. Prática: {{ props.pratica }}</p>
+      <p class="professor-name">
+        Prof. Teoria: {{ props.teoria }}
+      </p>
+      <p class="professor-name">
+        Prof. Prática: {{ props.pratica }}
+      </p>
       <p class="season">
         {{ props.season }}
       </p>
     </div>
 
     <div class="subject__data">
-      <div v-if="props.campus" class="metric">
+      <div
+        v-if="props.campus"
+        class="metric"
+      >
         <v-icon>mdi-town-hall</v-icon>
         <span>{{ campusName }}</span>
       </div>
-      <div v-if="props.turno && props.turma" class="metric">
-        <p class="info__description">{{ props.turno }} - {{ props.turma }}</p>
+      <div
+        v-if="props.turno && props.turma"
+        class="metric"
+      >
+        <p class="info__description">
+          {{ props.turno }} - {{ props.turma }}
+        </p>
       </div>
     </div>
 

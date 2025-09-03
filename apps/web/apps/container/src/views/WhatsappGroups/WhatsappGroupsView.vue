@@ -1,10 +1,20 @@
 <template>
   <div class="whatsapp-groups-view">
-    <div v-if="userType === 'logged-no-history'" class="not-synced__container">
+    <div
+      v-if="userType === 'logged-no-history'"
+      class="not-synced__container"
+    >
       <div class="not-synced__icon">
-        <v-icon size="60" color="primary"> mdi-sync </v-icon>
+        <v-icon
+          size="60"
+          color="primary"
+        >
+          mdi-sync
+        </v-icon>
       </div>
-      <h1 class="not-synced__title">Desbloqueie todo o potencial! 🚀</h1>
+      <h1 class="not-synced__title">
+        Desbloqueie todo o potencial! 🚀
+      </h1>
       <p class="not-synced__subtitle">
         Sincronize seu histórico e tenha acesso aos grupos de Whatsapp das suas
         disciplinas específicas.
@@ -22,13 +32,23 @@
         </div>
       </div>
       <div class="not-synced__actions">
-        <button class="not-synced__button" @click="handleExtension">
-          <v-icon size="20"> mdi-link-variant </v-icon>
+        <button
+          class="not-synced__button"
+          @click="handleExtension"
+        >
+          <v-icon size="20">
+            mdi-link-variant
+          </v-icon>
           Baixar extensão
         </button>
         <span style="color: #808080">OU</span>
-        <button class="not-synced__button" @click="handleSyncHistory">
-          <v-icon size="20"> mdi-sync </v-icon>
+        <button
+          class="not-synced__button"
+          @click="handleSyncHistory"
+        >
+          <v-icon size="20">
+            mdi-sync
+          </v-icon>
           Sincronizar agora!
         </button>
       </div>
@@ -36,7 +56,7 @@
 
     <div v-if="userType !== 'logged-no-history'">
       <div class="hero-section">
-        <h1>Encontre seus grupos do <br />Whatsapp</h1>
+        <h1>Encontre seus grupos do <br>Whatsapp</h1>
         <p>
           Acesse os grupos de WhatsApp das matérias que você está cursando e
           fique por dentro de tudo com a sua turma.
@@ -55,10 +75,18 @@
               :disabled="true"
               class="main-search"
             >
-              <template v-if="isSearchBlocked" #append-inner>
+              <template
+                v-if="isSearchBlocked"
+                #append-inner
+              >
                 <v-tooltip text="Sincronize para desbloquear">
                   <template #activator="{ props }">
-                    <v-icon v-bind="props" color="warning"> mdi-lock </v-icon>
+                    <v-icon
+                      v-bind="props"
+                      color="warning"
+                    >
+                      mdi-lock
+                    </v-icon>
                   </template>
                 </v-tooltip>
               </template>
@@ -74,7 +102,9 @@
                 size="large"
                 class="search-chip"
               >
-                <v-icon start> mdi-account </v-icon>
+                <v-icon start>
+                  mdi-account
+                </v-icon>
                 Buscar por RA
               </v-chip>
 
@@ -89,9 +119,15 @@
                 size="large"
                 class="search-chip"
               >
-                <v-icon start> mdi-book </v-icon>
+                <v-icon start>
+                  mdi-book
+                </v-icon>
                 Buscar por Disciplina
-                <v-icon v-if="!canSearchBySubject" end size="16">
+                <v-icon
+                  v-if="!canSearchBySubject"
+                  end
+                  size="16"
+                >
                   mdi-lock
                 </v-icon>
               </v-chip>
@@ -102,7 +138,10 @@
     </div>
 
     <!-- Results Section -->
-    <div v-if="userType !== 'logged-no-history'" class="results-section">
+    <div
+      v-if="userType !== 'logged-no-history'"
+      class="results-section"
+    >
       <div class="results-grid">
         <WhatsappGroupCard
           v-for="(group, index) in mockGroups"
@@ -132,15 +171,30 @@
           </p>
           <div class="coming-soon-features">
             <div class="feature-item">
-              <v-icon color="primary" size="20"> mdi-check-circle </v-icon>
+              <v-icon
+                color="primary"
+                size="20"
+              >
+                mdi-check-circle
+              </v-icon>
               <span>Busca inteligente por disciplina</span>
             </div>
             <div class="feature-item">
-              <v-icon color="primary" size="20"> mdi-check-circle </v-icon>
+              <v-icon
+                color="primary"
+                size="20"
+              >
+                mdi-check-circle
+              </v-icon>
               <span>Grupos organizados por turma</span>
             </div>
             <div class="feature-item">
-              <v-icon color="primary" size="20"> mdi-check-circle </v-icon>
+              <v-icon
+                color="primary"
+                size="20"
+              >
+                mdi-check-circle
+              </v-icon>
               <span>Acesso direto pelo Next</span>
             </div>
           </div>
@@ -158,12 +212,12 @@ import { computed, onMounted, ref } from 'vue';
 import WhatsappGroupCard from '@/components/WhatsappGroupCard/WhatsappGroupCard.vue';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
-import { useAuth } from '@/stores/useAuth';
+import { useAuthStore } from '@/stores/auth';
 import { extensionURL, studentRecordURL } from '@/utils/consts';
 
 type UserType = 'not-logged' | 'logged-no-history' | 'logged-with-history';
 
-const { user, isLoggedIn } = useAuth();
+const authStore = useAuthStore();
 
 const searchQuery = ref('');
 const selectedSearchType = ref('ra');
@@ -243,7 +297,7 @@ const mockGroups = ref([
 
 // Computed properties
 const userType = computed((): UserType => {
-  if (!isLoggedIn.value()) return 'not-logged';
+  if (!authStore.isLoggedIn) return 'not-logged';
   return 'logged-with-history';
 });
 
@@ -304,8 +358,8 @@ const clearSearch = () => {
 };
 
 onMounted(async () => {
-  if (user.value?.ra) {
-    searchQuery.value = String(user.value.ra);
+  if (authStore.user?.ra) {
+    searchQuery.value = String(authStore.user.ra);
   }
 
   eventTracker.track(WebEvent.WHATSAPP_GROUP_ACCESS_PREVIEW);

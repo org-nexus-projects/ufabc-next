@@ -160,8 +160,10 @@ import { computed, ref } from 'vue';
 
 import { CenteredLoading } from '@/components/CenteredLoading';
 import { PaperCard } from '@/components/PaperCard';
-import { useAuth } from '@/stores/useAuth';
+import { useAuthStore } from '@/stores/auth';
 import { useAliasInitials } from '@/utils/composables/aliasInitials';
+
+const authStore = useAuthStore();
 
 const {
   data: user,
@@ -195,9 +197,8 @@ const userInitials = useAliasInitials();
 
 const dialog = ref(false);
 
-const { logOut } = useAuth();
 const handleLogout = () => {
-  logOut.value();
+  authStore.logOut();
 };
 
 const { mutate: removeUser } = useMutation({

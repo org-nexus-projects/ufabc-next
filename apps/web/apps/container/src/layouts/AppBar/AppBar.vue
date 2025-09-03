@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-navigation-drawer
-      v-if="user?.confirmed || layout === 'include-sidebar'"
+      v-if="authStore.user?.confirmed || layout === 'include-sidebar'"
       v-model="drawer"
       color="navigation"
       width="240"
@@ -13,7 +13,7 @@
             src="@/assets/logo_white.svg"
             height="44"
             alt="logo do UFABC Next"
-          />
+          >
         </div>
         <v-divider />
         <v-list-item
@@ -23,15 +23,17 @@
           :class="{ 'locked-item': item.locked }"
         >
           <v-layout class="d-flex">
-            <v-icon :icon="item.icon" class="mr-3" />
+            <v-icon
+              :icon="item.icon"
+              class="mr-3"
+            />
             <p class="font-weight-medium text-caption">
               {{ item.title }}
             </p>
             <span
               v-if="item.releaseDate?.add(3, 'month').isAfter(dayjs())"
               class="featured-chip font-weight-black"
-              >Novo</span
-            >
+            >Novo</span>
             <v-icon
               v-if="item.locked"
               icon="mdi mdi-lock-outline"
@@ -51,21 +53,27 @@
           :rel="item.url && 'noopener noreferrer'"
         >
           <v-layout>
-            <v-icon :icon="item.icon" class="mr-3" />
+            <v-icon
+              :icon="item.icon"
+              class="mr-3"
+            />
             <p class="font-weight-medium text-caption">
               {{ item.title }}
             </p>
           </v-layout>
         </v-list-item>
       </v-list>
-      <div v-if="!user?.confirmed">
+      <div v-if="!authStore.user?.confirmed">
         <v-divider />
         <div style="height: 64px" />
         <div
           class="mb-4 pa-3 rounded-md bg-blue-darken-3 border border-blue-darken-2 text-blue-50 text-subtitle-2"
         >
           <div class="d-flex align-center gap-2">
-            <v-icon class="bg-blue-darken-2 pa-1 rounded-circle" size="20">
+            <v-icon
+              class="bg-blue-darken-2 pa-1 rounded-circle"
+              size="20"
+            >
               mdi-lock-outline
             </v-icon>
             <strong>Conta não confirmada</strong>
@@ -88,7 +96,7 @@
     </v-navigation-drawer>
 
     <v-app-bar
-      v-if="user?.confirmed || layout === 'include-sidebar'"
+      v-if="authStore.user?.confirmed || layout === 'include-sidebar'"
       app
       height="min-content"
       class="py-2 header"
@@ -108,10 +116,10 @@
         src="@/assets/logo.svg"
         height="32"
         alt="logo do UFABC Next"
-      />
+      >
 
       <v-spacer />
-      <div v-if="user?.confirmed">
+      <div v-if="authStore.user?.confirmed">
         <v-btn
           color="primary"
           icon="mdi-dots-vertical"
@@ -122,16 +130,19 @@
             <v-list class="px-2">
               <v-list-item>
                 <v-layout>
-                  <v-avatar :size="38" color="primary">
+                  <v-avatar
+                    :size="38"
+                    color="primary"
+                  >
                     {{ userInitials.toLocaleUpperCase() }}
                   </v-avatar>
                   <v-layout class="flex-column ml-4">
                     <p>{{ userLogin }}</p>
                     <p
-                      v-if="user?.ra"
+                      v-if="authStore.user?.ra"
                       class="text-caption text-medium-emphasis"
                     >
-                      RA: {{ user.ra }}
+                      RA: {{ authStore.user.ra }}
                     </p>
                   </v-layout>
                 </v-layout>
@@ -152,7 +163,7 @@
       </div>
     </v-app-bar>
     <div
-      v-if="user?.confirmed || layout === 'include-sidebar'"
+      v-if="authStore.user?.confirmed || layout === 'include-sidebar'"
       style="height: 64px"
     />
     <slot />
@@ -164,16 +175,16 @@ import dayjs from 'dayjs';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { useAuth } from '@/stores/useAuth';
+import { useAuthStore } from '@/stores/auth';
 import { useAliasInitials } from '@/utils/composables/aliasInitials';
 
 const router = useRouter();
+const authStore = useAuthStore();
 
 const layout = computed(() => router.currentRoute.value.meta.layout ?? null);
 
-const { logOut, user } = useAuth();
 const handleLogout = () => {
-  logOut.value();
+  authStore.logOut();
 };
 
 const createAccount = () => {
@@ -186,7 +197,7 @@ onMounted(() => {
 });
 
 const userLogin = computed(() =>
-  user.value?.email?.replace('@aluno.ufabc.edu.br', ''),
+  authStore.user?.email?.replace('@aluno.ufabc.edu.br', ''),
 );
 const userInitials = useAliasInitials();
 
@@ -195,25 +206,25 @@ const internalNavigationItems = [
     title: 'Reviews',
     icon: 'mdi-message-draw',
     route: '/reviews',
-    locked: !user.value?.confirmed,
+    locked: !authStore.user?.confirmed,
   },
   {
     title: 'Meu histórico',
     icon: 'mdi-history',
     route: '/history',
-    locked: !user.value?.confirmed,
+    locked: !authStore.user?.confirmed,
   },
   {
     title: 'Performance',
     icon: 'mdi-google-analytics',
     route: '/performance',
-    locked: !user.value?.confirmed,
+    locked: !authStore.user?.confirmed,
   },
   {
     title: 'Dados da Matrícula',
     icon: 'mdi-book-multiple',
     route: '/stats',
-    locked: !user.value?.confirmed,
+    locked: !authStore.user?.confirmed,
   },
   {
     title: 'Grupos no WhatsApp',
@@ -239,7 +250,7 @@ const internalNavigationItems = [
     title: 'Configurações',
     icon: 'mdi-cog',
     route: '/settings',
-    locked: !user.value?.confirmed,
+    locked: !authStore.user?.confirmed,
   },
 ];
 
@@ -256,12 +267,12 @@ const externalNavigationItems = [
     icon: 'mdi-download',
     url: 'https://chrome.google.com/webstore/detail/ufabc-next/gphjopenfpnlnffmhhhhdiecgdcopmhk',
   },
-  ...(user.value?.permissions?.includes('admin')
+  ...(authStore.user?.permissions?.includes('admin')
     ? [
         {
           title: 'Monitoramento de Jobs',
           icon: 'mdi-open-in-new',
-          url: `${apiURL}/login/jobs-monitoring?userId=${user.value?._id}`,
+          url: `${apiURL}/login/jobs-monitoring?userId=${authStore.user?._id}`,
         },
       ]
     : []),

@@ -1,7 +1,10 @@
 <template>
   <section>
     <v-container>
-      <PaperCard title="Ajuda" class="text-md-left text-center">
+      <PaperCard
+        title="Ajuda"
+        class="text-md-left text-center"
+      >
         <v-form @submit.prevent="onSubmit">
           <v-row class="mt-4">
             <v-col cols="12">
@@ -60,7 +63,10 @@
           </v-row>
 
           <v-row>
-            <v-col cols="12" class="text-center">
+            <v-col
+              cols="12"
+              class="text-center"
+            >
               <v-btn
                 type="submit"
                 color="primary"
@@ -89,10 +95,11 @@ import { useField, useForm } from 'vee-validate';
 import { nextTick, ref } from 'vue';
 
 import { PaperCard } from '@/components/PaperCard';
-import { useAuth } from '@/stores/useAuth';
+import { useAuthStore } from '@/stores/auth';
 
 import { helpFormSchema } from './helpValidationSchema';
 
+const authStore = useAuthStore();
 const successMessage = ref<string>('');
 const fileUploadKey = ref<number>(0);
 
@@ -110,8 +117,6 @@ const { handleSubmit, meta, resetForm } = useForm({
 const problemTitleField = useField('problemTitle');
 const problemDescriptionField = useField('problemDescription');
 const imageField = useField<File>('image');
-
-const { user } = useAuth();
 
 const { mutate: mutateSendForm, isPending: isPendingSubmit } = useMutation({
   mutationFn: sendHelpForm,
@@ -140,8 +145,8 @@ const { mutate: mutateSendForm, isPending: isPendingSubmit } = useMutation({
 
 const onSubmit = handleSubmit((values) => {
   successMessage.value = '';
-  const email = user.value?.email ?? user.value?.oauth?.email ?? '';
-  const ra = String(user.value?.ra ?? '');
+  const email = authStore.user?.email ?? authStore.user?.oauth?.email ?? '';
+  const ra = String(authStore.user?.ra ?? '');
 
   mutateSendForm({
     email,

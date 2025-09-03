@@ -63,9 +63,9 @@ import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { CenteredLoading } from '@/components/CenteredLoading';
-import { useAuth } from '@/stores/useAuth';
+import { useAuthStore } from '@/stores/auth';
 
-const { authenticate } = useAuth();
+const authStore = useAuthStore();
 
 const router = useRouter();
 
@@ -78,7 +78,7 @@ const { mutate: mutateConfirmToken, isPending: isPendingConfirmToken } =
         type: 'success',
         showClose: true,
       });
-      authenticate.value(data.data.token);
+      authStore.authenticate(data.data.token);
       router.push('/');
     },
     onError: (error: AxiosError<RequestError>) => {

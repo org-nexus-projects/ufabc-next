@@ -7,13 +7,13 @@ import { useField, useForm } from 'vee-validate';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { useAuth } from '@/stores/useAuth';
+import { useAuthStore } from '@/stores/auth';
 
 import { facebookValidationSchema } from './facebookValidationSchema';
 
 const facebookNotFound = ref(false);
 
-const { authenticate } = useAuth();
+const authStore = useAuthStore();
 const router = useRouter();
 
 const validationSchema = toTypedSchema(facebookValidationSchema as any);
@@ -33,7 +33,7 @@ const { mutate: mutateFacebook, isPending: isPendingSubmit } = useMutation({
       showClose: true,
       duration: 5_000,
     });
-    authenticate.value(data.token);
+    authStore.authenticate(data.token);
     router.push('/partners');
   },
   onError() {
