@@ -2,7 +2,7 @@
   <div class="whatsapp-groups-view">
     <div v-if="userType === 'logged-no-history'" class="not-synced__container">
       <div class="not-synced__icon">
-        <v-icon size="60" color="primary"> mdi-sync </v-icon>
+        <v-icon size="60" color="primary">mdi-sync</v-icon>
       </div>
       <h1 class="not-synced__title">Desbloqueie todo o potencial! 🚀</h1>
       <p class="not-synced__subtitle">
