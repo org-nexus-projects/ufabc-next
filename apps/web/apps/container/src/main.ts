@@ -7,6 +7,7 @@ import {
   QueryClient as QueryClientVue,
   VueQueryPlugin,
 } from '@tanstack/vue-query';
+import { setTokenGetter } from '@ufabc-next/services';
 import elementPlus, { ElMessage } from 'element-plus';
 import Highcharts from 'highcharts';
 import accessibility from 'highcharts/modules/accessibility';
@@ -23,10 +24,30 @@ import App from './App.vue';
 import { eventTracker } from './helpers/EventTracker';
 import client from './queryClient';
 import router from './router';
+import { useAuthStore } from './stores/auth';
 import { theme } from './theme';
+
+interface Device {
+  cordova: string;
+  model: string;
+  platform: string;
+  uuid: string;
+  version: string;
+}
+
+declare global {
+  interface Window {
+    Toaster: typeof ElMessage;
+    device: Device;
+    queryClient: QueryClient;
+  }
+}
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
+
+const authStore = useAuthStore(pinia);
+setTokenGetter(() => authStore.token);
 
 accessibility(Highcharts);
 annotationsInit(Highcharts);
@@ -46,22 +67,6 @@ const queryClient = new QueryClientVue({
   queryCache: client.getQueryCache(),
   defaultOptions: client.getDefaultOptions(),
 });
-
-interface Device {
-  cordova: string;
-  model: string;
-  platform: string;
-  uuid: string;
-  version: string;
-}
-
-declare global {
-  interface Window {
-    Toaster: typeof ElMessage;
-    device: Device;
-    queryClient: QueryClient;
-  }
-}
 
 eventTracker.init();
 
