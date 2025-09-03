@@ -1,7 +1,10 @@
 <template>
   <section>
     <v-container>
-      <PaperCard title="Ajuda" class="text-md-left text-center">
+      <PaperCard
+        title="Ajuda"
+        class="text-md-left text-center"
+      >
         <v-form @submit.prevent="onSubmit">
           <v-row class="mt-4">
             <v-col cols="12">
@@ -60,7 +63,10 @@
           </v-row>
 
           <v-row>
-            <v-col cols="12" class="text-center">
+            <v-col
+              cols="12"
+              class="text-center"
+            >
               <v-btn
                 type="submit"
                 color="primary"

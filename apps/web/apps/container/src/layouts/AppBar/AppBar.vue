@@ -13,7 +13,7 @@
             src="@/assets/logo_white.svg"
             height="44"
             alt="logo do UFABC Next"
-          />
+          >
         </div>
         <v-divider />
         <v-list-item
@@ -23,15 +23,17 @@
           :class="{ 'locked-item': item.locked }"
         >
           <v-layout class="d-flex">
-            <v-icon :icon="item.icon" class="mr-3" />
+            <v-icon
+              :icon="item.icon"
+              class="mr-3"
+            />
             <p class="font-weight-medium text-caption">
               {{ item.title }}
             </p>
             <span
               v-if="item.releaseDate?.add(3, 'month').isAfter(dayjs())"
               class="featured-chip font-weight-black"
-              >Novo</span
-            >
+            >Novo</span>
             <v-icon
               v-if="item.locked"
               icon="mdi mdi-lock-outline"
@@ -51,7 +53,10 @@
           :rel="item.url && 'noopener noreferrer'"
         >
           <v-layout>
-            <v-icon :icon="item.icon" class="mr-3" />
+            <v-icon
+              :icon="item.icon"
+              class="mr-3"
+            />
             <p class="font-weight-medium text-caption">
               {{ item.title }}
             </p>
@@ -65,7 +70,10 @@
           class="mb-4 pa-3 rounded-md bg-blue-darken-3 border border-blue-darken-2 text-blue-50 text-subtitle-2"
         >
           <div class="d-flex align-center gap-2">
-            <v-icon class="bg-blue-darken-2 pa-1 rounded-circle" size="20">
+            <v-icon
+              class="bg-blue-darken-2 pa-1 rounded-circle"
+              size="20"
+            >
               mdi-lock-outline
             </v-icon>
             <strong>Conta não confirmada</strong>
@@ -108,7 +116,7 @@
         src="@/assets/logo.svg"
         height="32"
         alt="logo do UFABC Next"
-      />
+      >
 
       <v-spacer />
       <div v-if="authStore.user?.confirmed">
@@ -122,7 +130,10 @@
             <v-list class="px-2">
               <v-list-item>
                 <v-layout>
-                  <v-avatar :size="38" color="primary">
+                  <v-avatar
+                    :size="38"
+                    color="primary"
+                  >
                     {{ userInitials.toLocaleUpperCase() }}
                   </v-avatar>
                   <v-layout class="flex-column ml-4">

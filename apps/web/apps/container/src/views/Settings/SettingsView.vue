@@ -4,15 +4,19 @@
       <PaperCard v-if="!user">
         <v-row>
           <CenteredLoading v-if="isLoadingUser" />
-          <div v-if="isErrorUser" class="text-center">
+          <div
+            v-if="isErrorUser"
+            class="text-center"
+          >
             <p class="text-box-settings">
               Ocorreu um problema ao carregar as informações do seu perfil
             </p>
             <p class="text-box-settings">
               Tente novamente
-              <span class="text-decoration-underline" @click="reloadPage"
-                >clicando aqui</span
-              >
+              <span
+                class="text-decoration-underline"
+                @click="reloadPage"
+              >clicando aqui</span>
             </p>
           </div>
         </v-row>
@@ -49,11 +53,19 @@
                 Usuário desde {{ createdAt }}
               </div>
               <div style="display: flex; flex-direction: column; gap: 10px">
-                <a v-if="user?.oauth?.facebook" href="#" class="links-settings">
+                <a
+                  v-if="user?.oauth?.facebook"
+                  href="#"
+                  class="links-settings"
+                >
                   <v-icon color="ufabcnext-green">mdi-check</v-icon>
                   Conta do Facebook associada
                 </a>
-                <a v-if="user?.oauth?.google" href="#" class="links-settings">
+                <a
+                  v-if="user?.oauth?.google"
+                  href="#"
+                  class="links-settings"
+                >
                   <v-icon color="ufabcnext-green">mdi-check</v-icon>
                   Conta do Google associada
                 </a>
@@ -63,9 +75,10 @@
                   target="_blank"
                   class="links-settings add-account"
                 >
-                  <v-icon color="ufabcnext-blue" class="mr-2"
-                    >mdi-plus-circle-outline</v-icon
-                  >
+                  <v-icon
+                    color="ufabcnext-blue"
+                    class="mr-2"
+                  >mdi-plus-circle-outline</v-icon>
                   Associar à uma conta do Google
                 </a>
               </div>
@@ -105,19 +118,32 @@
       </PaperCard>
     </v-container>
 
-    <v-dialog v-model="dialog" width="450px">
+    <v-dialog
+      v-model="dialog"
+      width="450px"
+    >
       <v-card>
-        <v-card-title class="text-h5"> Excluir conta </v-card-title>
+        <v-card-title class="text-h5">
+          Excluir conta
+        </v-card-title>
         <v-card-text>
-          Tem certeza que deseja excluir seu usuário? <br /><br />Caso deseje
+          Tem certeza que deseja excluir seu usuário? <br><br>Caso deseje
           voltar, tudo estará aqui 😀
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="green-darken-1" variant="text" @click="dialog = false">
+          <v-btn
+            color="green-darken-1"
+            variant="text"
+            @click="dialog = false"
+          >
             Agora não
           </v-btn>
-          <v-btn color="error" variant="text" @click="removeAccount()">
+          <v-btn
+            color="error"
+            variant="text"
+            @click="removeAccount()"
+          >
             Excluir conta
           </v-btn>
         </v-card-actions>
