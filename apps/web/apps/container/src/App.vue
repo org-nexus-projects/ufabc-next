@@ -16,6 +16,7 @@
 
 <script setup lang="ts">
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools';
+import { setTokenGetter } from '@ufabc-next/services';
 import { ElMessage } from 'element-plus';
 import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
@@ -38,6 +39,8 @@ onMounted(async () => {
   if (authStore.isLoggedIn && authStore.user) {
     eventTracker.setUserProperties(authStore.user);
   }
+
+  setTokenGetter(() => authStore.token);
 });
 </script>
 
