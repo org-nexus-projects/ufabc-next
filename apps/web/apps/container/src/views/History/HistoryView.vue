@@ -1,7 +1,6 @@
 <template>
   <FeedbackAlert v-if="isErrorEnrollments" />
   <FeedbackAlert v-if="isErrorUser" />
-  <!-- <UserNotifications text="O next está passando por atualizações em seus sistemas e você pode encontrar dados incompatíveis com seu histórico, não se preocupe, em breve estará normalizado!"/> -->
   <ReviewDialog
     v-if="showDialog"
     :enrollment="selectedEnrollment"
@@ -245,8 +244,7 @@
 import { useQuery } from '@tanstack/vue-query';
 import { Enrollments, Users } from '@ufabc-next/services';
 import type { Concept, Enrollment } from '@ufabc-next/types';
-import { ElNotification } from 'element-plus';
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import { CenteredLoading } from '@/components/CenteredLoading';
 import { FeedbackAlert } from '@/components/FeedbackAlert';
@@ -359,17 +357,6 @@ const enrollmentByDateKeysSorted = computed(() =>
 const lastUpdate = computed(() => {
   const date = enrollments.value?.[0]?.updatedAt;
   return date && new Date(date);
-});
-
-onMounted(() => {
-  ElNotification({
-    message:
-      'O next está passando por atualizações em seus sistemas e você pode encontrar dados incompatíveis com seu histórico, não se preocupe, em breve estará normalizado!',
-    title: 'Ufabc next informa',
-    type: 'warning',
-    duration: 0,
-    showClose: true,
-  });
 });
 </script>
 <style scoped lang="scss">
