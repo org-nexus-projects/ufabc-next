@@ -7,7 +7,6 @@ import {
   QueryClient as QueryClientVue,
   VueQueryPlugin,
 } from '@tanstack/vue-query';
-import { setTokenGetter } from '@ufabc-next/services';
 import elementPlus, { ElMessage } from 'element-plus';
 import Highcharts from 'highcharts';
 import accessibility from 'highcharts/modules/accessibility';
@@ -19,12 +18,12 @@ import { createApp } from 'vue';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
+import { VFileUpload } from 'vuetify/labs/VFileUpload';
 
 import App from './App.vue';
 import { eventTracker } from './helpers/EventTracker';
 import client from './queryClient';
 import router from './router';
-import { useAuthStore } from './stores/auth';
 import { theme } from './theme';
 
 interface Device {
@@ -46,14 +45,14 @@ declare global {
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 
-const authStore = useAuthStore(pinia);
-setTokenGetter(() => authStore.token);
-
 accessibility(Highcharts);
 annotationsInit(Highcharts);
 
 const vuetify = createVuetify({
-  components,
+  components: {
+    ...components,
+    VFileUpload,
+  },
   directives,
   theme: {
     defaultTheme: 'theme',

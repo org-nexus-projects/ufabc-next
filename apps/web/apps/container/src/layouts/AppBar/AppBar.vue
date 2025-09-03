@@ -229,17 +229,23 @@ const internalNavigationItems = [
     releaseDate: dayjs('11/25/2023'),
     locked: false,
   },
-  //{
-  //title: 'Apoie o UFABC next',
-  //icon: 'mdi-bank',
-  //route: '/donate',
-  // locked: false,
-  //},
+  {
+    title: 'Apoie o UFABC next',
+    icon: 'mdi-bank',
+    route: '/donate',
+    locked: false,
+  },
   {
     title: 'Configurações',
     icon: 'mdi-cog',
     route: '/settings',
     locked: !authStore.user?.confirmed,
+  },
+  {
+    title: 'Ajuda',
+    icon: 'mdi-help-circle',
+    route: '/help',
+    locked: false,
   },
 ];
 

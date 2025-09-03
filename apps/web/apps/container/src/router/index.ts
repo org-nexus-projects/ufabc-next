@@ -17,6 +17,7 @@ const FacebookView = () => import('@/views/Facebook/FacebookView.vue');
 const CalengradeView = () => import('@/views/Calengrade/CalengradeView.vue');
 const WhatsappGroupsView = () =>
   import('@/views/WhatsappGroups/WhatsappGroupsView.vue');
+const HelpView = () => import('@/views/Help/HelpView.vue');
 
 const isJWT = (token: string) =>
   /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/=]*$/.test(token);
@@ -140,6 +141,15 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       title: 'Autenticar Facebook',
       auth: false,
+    },
+  },
+  {
+    path: '/help',
+    name: 'help',
+    component: HelpView,
+    meta: {
+      title: 'Ajuda',
+      confirmed: true,
     },
   },
   {
