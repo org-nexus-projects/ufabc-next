@@ -5,8 +5,6 @@ import { AdminView } from '.';
 describe('<AdminView />', () => {
   test('render admin view', () => {
     render(AdminView);
-    expect(
-      screen.getByRole('heading', { name: 'Admin' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Admin' })).toBeInTheDocument();
   });
 });

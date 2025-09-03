@@ -52,29 +52,18 @@ const onSubmit = handleSubmit(({ email, ra }) =>
 <template>
   <v-container class="container">
     <v-row class="d-flex mb-5 flex-grow-0">
-      <v-col
-        xs="12"
-        class="d-flex align-center justify-space-between"
-      >
-        <img
-          height="32"
-          src="@/assets/logo.svg"
-          alt="logo do UFABC Next"
-        >
+      <v-col xs="12" class="d-flex align-center justify-space-between">
+        <img height="32" src="@/assets/logo.svg" alt="logo do UFABC Next" />
       </v-col>
     </v-row>
     <v-row class="w-100 h-100 justify-center justify-md-start">
-      <v-col
-        cols="12"
-        md="6"
-        class="d-flex align-center justify-center"
-      >
+      <v-col cols="12" md="6" class="d-flex align-center justify-center">
         <img
           src="@/assets/signup.svg"
           class="w-100"
           style="max-width: 400px"
           alt="Pessoa meditando na frente do computador"
-        >
+        />
       </v-col>
 
       <v-col
@@ -88,7 +77,7 @@ const onSubmit = handleSubmit(({ email, ra }) =>
             style="width: 50px; height: 50px"
             src="https://upload.wikimedia.org/wikipedia/en/0/04/Facebook_f_logo_%282021%29.svg"
             alt="Logo do Facebook"
-          >
+          />
           <h1 class="text-center">
             Houve um problema com seu login através do Facebook
           </h1>
@@ -117,10 +106,7 @@ const onSubmit = handleSubmit(({ email, ra }) =>
             prepend-inner-icon="mdi-school"
             :error-messages="raErrorMessage"
           />
-          <v-col
-            md="6"
-            class="d-flex justify-center px-0 px-md-2"
-          >
+          <v-col md="6" class="d-flex justify-center px-0 px-md-2">
             <v-btn
               color="primary"
               type="submit"
@@ -135,24 +121,19 @@ const onSubmit = handleSubmit(({ email, ra }) =>
         </v-form>
       </v-col>
 
-      <v-col
-        v-else
-        cols="12"
-        md="6"
-        class="mt-6 d-flex flex-column ga-4"
-      >
+      <v-col v-else cols="12" md="6" class="mt-6 d-flex flex-column ga-4">
         <div class="d-flex align-center w-100 flex-column">
           <img
             style="width: 50px; height: 50px"
             src="https://upload.wikimedia.org/wikipedia/en/0/04/Facebook_f_logo_%282021%29.svg"
             alt="Logo do Facebook"
-          >
+          />
           <h1 class="text-center mb-4">
             Sua conta do UFABC Next não foi encontrada
           </h1>
           <p class="step-subtitle text-center mb-5">
             Identificamos que você não tem um cadastro no UFABC Next através do
-            Facebook. <br>
+            Facebook. <br />
             Para continuar, volte para a página inicial e
             <strong>crie uma conta</strong> utilizando o
             <strong>Google</strong>.

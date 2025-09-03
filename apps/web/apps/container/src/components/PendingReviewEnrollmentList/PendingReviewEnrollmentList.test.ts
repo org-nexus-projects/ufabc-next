@@ -1,4 +1,4 @@
-import { http,HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw';
 
 import { enrollments } from '@/mocks/enrollments';
 import { server } from '@/mocks/server';

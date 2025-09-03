@@ -2,7 +2,13 @@ import { http, HttpResponse } from 'msw';
 
 import { enrollment, enrollments } from './enrollments';
 import { historiesGraduations } from './performance';
-import { comments, subject, subjectSearch, teacher, teacherSearch } from './reviews';
+import {
+  comments,
+  subject,
+  subjectSearch,
+  teacher,
+  teacherSearch,
+} from './reviews';
 import {
   classes,
   classesPage1,

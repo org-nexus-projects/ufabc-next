@@ -23,16 +23,14 @@
         </div>
 
         <div class="d-flex align-center ga-3 mt-4 mt-sm-0">
-          <v-icon size="65">
-            mdi-whatsapp
-          </v-icon>
+          <v-icon size="65"> mdi-whatsapp </v-icon>
           <span class="text-h5 font-weight-bold">+</span>
           <img
             src="@/assets/simple_logo_white.svg"
             alt="Logo do UFABC Next"
             width="65"
             height="65"
-          >
+          />
         </div>
       </div>
     </v-banner>

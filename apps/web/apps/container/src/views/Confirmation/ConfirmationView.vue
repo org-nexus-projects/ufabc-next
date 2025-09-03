@@ -1,14 +1,8 @@
 <template>
   <v-container class="container pt-md-10">
     <v-row class="d-flex mb-5 flex-grow-0">
-      <v-col
-        xs="12"
-        class="d-flex align-center justify-space-between"
-      >
-        <img
-          height="32"
-          src="@/assets/logo.svg"
-        >
+      <v-col xs="12" class="d-flex align-center justify-space-between">
+        <img height="32" src="@/assets/logo.svg" />
       </v-col>
     </v-row>
     <v-row class="h-100">
@@ -23,17 +17,12 @@
           <CenteredLoading />
         </div>
 
-        <div
-          v-else
-          class="text-center"
-        >
+        <div v-else class="text-center">
           <img
             src="@/assets/error-token.svg"
             style="max-width: 260px; width: 100%"
-          >
-          <h1 class="text-h5 mb-4">
-            Erro ao confirmar sua conta
-          </h1>
+          />
+          <h1 class="text-h5 mb-4">Erro ao confirmar sua conta</h1>
           <p class="text-left text-body-1 mb-2">
             A URL que você entrou para confirmar sua conta não é válida. Siga
             esses passos:

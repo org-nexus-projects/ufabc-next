@@ -1,9 +1,7 @@
 <template>
   <div>
     <div>
-      <h1 class="change-quarter__title">
-        Selecione um quadrimestre
-      </h1>
+      <h1 class="change-quarter__title">Selecione um quadrimestre</h1>
       <h2 class="change-quarter__title-subtitle">
         Datas disponíveis no
         <a
@@ -15,22 +13,19 @@
           Calendário acadêmico
         </a>
       </h2>
-      <div
-        style="
-          margin: 32px 0;
-        "
-      >
+      <div style="margin: 32px 0">
         <label for="quarter">Quadrimestre</label>
         <select
           id="quarter"
           :value="newQuarter"
-          @change="event => handleQuarterChange(Number((event.target as HTMLSelectElement).value))"
+          @change="
+            (event) =>
+              handleQuarterChange(
+                Number((event.target as HTMLSelectElement).value),
+              )
+          "
         >
-          <option
-            v-for="(q, i) in definedQuarters"
-            :key="i"
-            :value="i"
-          >
+          <option v-for="(q, i) in definedQuarters" :key="i" :value="i">
             {{ q.title }}
           </option>
         </select>
@@ -42,7 +37,7 @@
           type="date"
           :value="startDate"
           :disabled="newQuarter !== 0"
-        >
+        />
 
         <label for="endDate">Fim</label>
         <input
@@ -51,21 +46,16 @@
           type="date"
           :value="endDate"
           :disabled="newQuarter !== 0"
-        >
+        />
       </div>
     </div>
 
-    <button
-      class="calengrade-button"
-      @click="goToSummaryScreen"
-    >
-      Voltar
-    </button>
+    <button class="calengrade-button" @click="goToSummaryScreen">Voltar</button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted,ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 import { definedQuarters } from '../../../utils/quarters';
 import { CalengradeSteps, Quarter } from '../types';
@@ -75,14 +65,16 @@ const props = defineProps<{
 }>();
 
 const findSelectedQuarterIndex = () => {
-  return definedQuarters.findIndex(q => props.selectedQuarter.title === q.title);
+  return definedQuarters.findIndex(
+    (q) => props.selectedQuarter.title === q.title,
+  );
 };
 
 const newQuarter = ref<number>(findSelectedQuarterIndex());
 
 const emit = defineEmits<{
-  (e: 'nextStep', step: CalengradeSteps): boolean
-  (e: 'changeQuarter', quarter: number): boolean
+  (e: 'nextStep', step: CalengradeSteps): boolean;
+  (e: 'changeQuarter', quarter: number): boolean;
 }>();
 
 const startDate = ref('');
@@ -105,7 +97,7 @@ const goToSummaryScreen = () => {
   if (newQuarter.value !== findSelectedQuarterIndex()) {
     emit('changeQuarter', newQuarter.value);
   }
-  emit('nextStep', CalengradeSteps.Summary)
+  emit('nextStep', CalengradeSteps.Summary);
 };
 </script>
 

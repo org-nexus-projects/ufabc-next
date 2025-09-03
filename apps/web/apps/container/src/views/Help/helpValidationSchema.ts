@@ -19,18 +19,12 @@ export const helpFormSchema = z.object({
   image: z
     .instanceof(File)
     .optional()
-    .refine(
-      (file) => {
-        if (!file) return true; // Optional field
-        return file.size <= MAX_FILE_SIZE;
-      },
-      'A imagem deve ter no máximo 5MB'
-    )
-    .refine(
-      (file) => {
-        if (!file) return true; // Optional field
-        return ACCEPTED_IMAGE_TYPES.includes(file.type);
-      },
-      'Apenas imagens nos formatos JPEG, JPG ou PNG são permitidas'
-    ),
+    .refine((file) => {
+      if (!file) return true; // Optional field
+      return file.size <= MAX_FILE_SIZE;
+    }, 'A imagem deve ter no máximo 5MB')
+    .refine((file) => {
+      if (!file) return true; // Optional field
+      return ACCEPTED_IMAGE_TYPES.includes(file.type);
+    }, 'Apenas imagens nos formatos JPEG, JPG ou PNG são permitidas'),
 });
