@@ -1,4 +1,4 @@
-import { UserModel, type User } from '@/models/User.js';
+import { type UserDocument, UserModel, type User } from '@/models/User.js';
 import {
   createCardSchema,
   loginNotionSchema,
@@ -6,16 +6,18 @@ import {
 } from '@/schemas/login.js';
 import type { Token } from '@fastify/oauth2';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import { Types } from 'mongoose';
+import { Types, type FilterQuery } from 'mongoose';
 import { ofetch } from 'ofetch';
 
 export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
-  app.get('/google', async function(request, reply) {
+  app.get('/google', async function (request, reply) {
     const validatedURI = await this.google.generateAuthorizationUri(
       request,
       reply,
     );
     const redirectURL = new URL(validatedURI);
+    redirectURL.searchParams.append('prompt', 'select_account');
+
     app.log.warn(
       {
         url: redirectURL.hostname,
@@ -24,10 +26,10 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       },
       '[OAUTH] start',
     );
-    return reply.redirect(validatedURI);
+    return reply.redirect(redirectURL.href);
   });
 
-  app.get('/google/callback', async function(request, reply) {
+  app.get('/google/callback', async function (request, reply) {
     try {
       // @ts-ignore
       const userId = request.query.state;
@@ -75,7 +77,7 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     }
   });
 
-  app.get('/notion', async function(request, reply) {
+  app.get('/notion', async function (request, reply) {
     const validatedURI = await this.notion.generateAuthorizationUri(
       request,
       reply,
@@ -100,7 +102,7 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get(
     '/notion/callback',
     { schema: loginNotionSchema },
-    async function(request, reply) {
+    async function (request, reply) {
       const { token } =
         await this.notion.getAccessTokenFromAuthorizationCodeFlow(
           request,
@@ -206,7 +208,11 @@ async function createOrLogin(
   logger: any,
 ) {
   try {
-    const findUserQuery: Record<string, unknown>[] = [];
+    const findUserQuery: FilterQuery<UserDocument>[] = [];
+
+    if (oauthUser?.email) {
+      findUserQuery.push({ email: oauthUser.email });
+    }
 
     if (oauthUser?.google) {
       findUserQuery.push({ 'oauth.google': oauthUser.google });
@@ -263,7 +269,7 @@ async function createOrLogin(
     // Return user data
     return user.toJSON();
   } catch (error) {
-    logger.error('Error in createOrLogin', { error, oauthUser });
+    logger.error({ error, oauthUser }, 'Error in createOrLogin');
     throw error;
   }
 }
