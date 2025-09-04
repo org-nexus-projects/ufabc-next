@@ -11,6 +11,7 @@ const MAX_RECIPIENTS_PER_MESSAGE = 50; // Limite emails do SES por chamada (Revi
 // Também é possível enviar em paralelo em batches (concorrência) seguindo o limite do SES (Checar a quantidade se fizer isso)
 // Assim, as chamadas seriam feitas em paralelo, e o tempo seria menor.
 
+// Função para agrupar os destinatários em lotes a partir do valor do tamanho
 function chunk<T>(arr: T[], size: number): T[][] {
   const out: T[][] = [];
   for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
@@ -27,7 +28,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           html: z.string().min(1),
           recipients: z.array(z.string().email()).min(1),
           from: z.string().email().optional(),
-          replyTo: z.array(z.string().email()).optional(),
           batchSize: z.number().int().min(1).max(MAX_RECIPIENTS_PER_MESSAGE).optional(),
         }),
       },
@@ -38,7 +38,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         html,
         recipients,
         from,
-        replyTo,
         batchSize = MAX_RECIPIENTS_PER_MESSAGE,
       } = request.body;
 
@@ -67,7 +66,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             // Usando BCC para manter os emails privados entre destinatários
             BccAddresses: bcc,
           },
-          ReplyToAddresses: replyTo,
           Message: {
             Subject: { Data: subject, Charset: 'UTF-8' },
             Body: {
