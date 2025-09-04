@@ -5,19 +5,11 @@ import type { Auth } from '@/schemas/auth.js';
 declare module 'fastify' {
   interface FastifyInstance {
     google: OAuth2Namespace;
-    notion: OAuth2Namespace;
   }
   interface Session {
     user: Auth;
   }
 }
-
-const NOTION_CONFIGURATION = {
-  authorizeHost: 'https://api.notion.com',
-  authorizePath: '/v1/oauth/authorize',
-  tokenHost: 'https://api.notion.com',
-  tokenPath: '/v1/oauth/token',
-};
 
 export default fp(
   async (app) => {
@@ -39,22 +31,6 @@ export default fp(
         return request.query.userId;
       },
       checkStateFunction: () => true,
-    });
-
-    await app.register(fastifyOauth2, {
-      name: 'notion',
-      userAgent: 'UFABC next (2.0.0)',
-      credentials: {
-        client: {
-          id: app.config.OAUTH_NOTION_CLIENT_ID,
-          secret: app.config.OAUTH_NOTION_SECRET,
-        },
-        auth: NOTION_CONFIGURATION,
-      },
-      // Notion requires these scopes
-      scope: ['basic'],
-      callbackUri: (req) =>
-        `${app.config.PROTOCOL}://${req.host}/login/notion/callback`,
     });
 
     app.log.info('[PLUGIN] Oauth');
