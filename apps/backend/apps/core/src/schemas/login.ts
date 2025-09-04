@@ -1,6 +1,3 @@
-import type { FastifySchema } from 'fastify';
-import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
-import { z } from 'zod';
 import 'zod-openapi/extend';
 
 const SOURCE_TYPE = {
@@ -54,52 +51,3 @@ export type LegacyGoogleUser = {
   kind: string;
   etag: string;
 };
-
-export const loginSchema = {
-  querystring: z.object({
-    inApp: z.coerce.boolean().default(false).openapi({
-      description:
-        'Váriavel legada que informava, se o acesso estava acontecendo pelo aplicativo',
-      example: false,
-    }),
-    state: z.string(),
-    code: z.string(),
-    authuser: z.string(),
-    prompt: z.string(),
-  }),
-  tags: ['Login'],
-} satisfies FastifySchema;
-
-export const loginNotionSchema = {
-  querystring: z.object({
-    code: z.string(),
-  }),
-  tags: ['Login'],
-} satisfies FastifySchema;
-
-export const createCardSchema = {
-  body: z.object({
-    accessToken: z.string(),
-    ra: z.coerce.number(),
-    email: z
-      .string()
-      .email()
-      .refine((val) => val.includes('ufabc.edu.br'), {
-        message: 'Invalid UFABC email',
-      }),
-    admissionYear: z.string(),
-    proofOfError: z.string(),
-  }),
-  response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: z.object({
-            message: z.string(),
-            data: z.any(),
-          }),
-        },
-      },
-    },
-  },
-} satisfies FastifyZodOpenApiSchema;
