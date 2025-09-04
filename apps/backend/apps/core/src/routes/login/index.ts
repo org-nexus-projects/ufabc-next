@@ -1,5 +1,5 @@
 import { type UserDocument, UserModel, type User } from '@/models/User.js';
-import { type LegacyGoogleUser } from '@/schemas/login.js';
+import type { LegacyGoogleUser } from '@/schemas/login.js';
 import type { Token } from '@fastify/oauth2';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import { Types, type FilterQuery } from 'mongoose';
@@ -72,36 +72,37 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       );
     }
   });
-  
-  async function getUserDetails(token: Token, logger: any) {
-    const headers = new Headers();
-    headers.append('Authorization', `Bearer ${token.access_token}`);
+};
 
-    const user = await ofetch<LegacyGoogleUser>(
-      'https://www.googleapis.com/plus/v1/people/me',
-      {
-        headers,
-      },
-    );
-    logger.info(user, {
-      msg: 'Google User',
-    });
+async function getUserDetails(token: Token, logger: any) {
+  const headers = new Headers();
+  headers.append('Authorization', `Bearer ${token.access_token}`);
 
-    const email = user.emails[0].value;
+  const user = await ofetch<LegacyGoogleUser>(
+    'https://www.googleapis.com/plus/v1/people/me',
+    {
+      headers,
+    },
+  );
+  logger.info(user, {
+    msg: 'Google User',
+  });
 
-    if (!user.id) {
-      throw new Error('Missing GoogleId');
-    }
+  const email = user.emails[0].value;
 
-    return {
-      email,
-      emailGoogle: email,
-      google: user.id,
-      emailFacebook: null,
-      facebook: null,
-      picture: null,
-    };
+  if (!user.id) {
+    throw new Error('Missing GoogleId');
   }
+
+  return {
+    email,
+    emailGoogle: email,
+    google: user.id,
+    emailFacebook: null,
+    facebook: null,
+    picture: null,
+  };
+}
 
 async function createOrLogin(
   oauthUser: User['oauth'],
@@ -119,58 +120,57 @@ async function createOrLogin(
       findUserQuery.push({ 'oauth.google': oauthUser.google });
     }
 
-      if (oauthUser?.google) {
-        findUserQuery.push({ 'oauth.google': oauthUser.google });
+    if (oauthUser?.google) {
+      findUserQuery.push({ 'oauth.google': oauthUser.google });
+    }
+
+    // Add user ID if provided and valid
+    if (userId && userId !== 'undefined') {
+      try {
+        findUserQuery.push({ _id: new Types.ObjectId(userId) });
+      } catch (error) {
+        logger.warn('Invalid user ID provided', { userId });
       }
+    }
 
-      // Add user ID if provided and valid
-      if (userId && userId !== 'undefined') {
-        try {
-          findUserQuery.push({ _id: new Types.ObjectId(userId) });
-        } catch (error) {
-          logger.warn('Invalid user ID provided', { userId });
-        }
-      }
+    // Find existing user or create a new one
+    let user =
+      findUserQuery.length > 0
+        ? await UserModel.findOne({ $or: findUserQuery })
+        : null;
 
-      // Find existing user or create a new one
-      let user =
-        findUserQuery.length > 0
-          ? await UserModel.findOne({ $or: findUserQuery })
-          : null;
+    // If no user found, create a new one
+    if (!user) {
+      user = new UserModel({
+        active: true,
+        oauth: {
+          google: oauthUser?.google,
+          emailGoogle: oauthUser?.emailGoogle,
+          email: oauthUser?.email,
+          facebook: oauthUser?.facebook,
+          emailFacebook: oauthUser?.emailFacebook,
+        },
+      });
+    } else {
+      // Update existing user's OAuth information
+      user.set({
+        active: true,
+        oauth: {
+          ...user.oauth,
+          google: user.oauth?.google || oauthUser?.google,
+          emailGoogle: user.oauth?.emailGoogle || oauthUser?.emailGoogle,
+          email: user.oauth?.email || oauthUser?.email,
+          facebook: user.oauth?.facebook || oauthUser?.facebook,
+          emailFacebook: user.oauth?.emailFacebook || oauthUser?.emailFacebook,
+        },
+      });
+    }
 
-      // If no user found, create a new one
-      if (!user) {
-        user = new UserModel({
-          active: true,
-          oauth: {
-            google: oauthUser?.google,
-            emailGoogle: oauthUser?.emailGoogle,
-            email: oauthUser?.email,
-            facebook: oauthUser?.facebook,
-            emailFacebook: oauthUser?.emailFacebook,
-          },
-        });
-      } else {
-        // Update existing user's OAuth information
-        user.set({
-          active: true,
-          oauth: {
-            ...user.oauth,
-            google: user.oauth?.google || oauthUser?.google,
-            emailGoogle: user.oauth?.emailGoogle || oauthUser?.emailGoogle,
-            email: user.oauth?.email || oauthUser?.email,
-            facebook: user.oauth?.facebook || oauthUser?.facebook,
-            emailFacebook:
-              user.oauth?.emailFacebook || oauthUser?.emailFacebook,
-          },
-        });
-      }
+    // Log user information
+    logger.info({ user: user.toJSON(), msg: 'User before save' });
 
-      // Log user information
-      logger.info({ user: user.toJSON(), msg: 'User before save' });
-
-      // Save the user
-      await user.save();
+    // Save the user
+    await user.save();
 
     // Return user data
     return user.toJSON();
@@ -178,4 +178,6 @@ async function createOrLogin(
     logger.error({ error, oauthUser }, 'Error in createOrLogin');
     throw error;
   }
-};
+}
+
+export default plugin;
