@@ -53,7 +53,6 @@ export type LegacyGoogleUser = {
   kind: string;
   etag: string;
 };
-
 export const loginSchema = {
   querystring: z.object({
     inApp: z.coerce.boolean().default(false).openapi({

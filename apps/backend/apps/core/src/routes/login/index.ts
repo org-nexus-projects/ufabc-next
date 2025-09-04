@@ -1,18 +1,20 @@
-import { UserModel, type User } from '@/models/User.js';
+import { type UserDocument, UserModel, type User } from '@/models/User.js';
 import { type LegacyGoogleUser } from '@/schemas/login.js';
 import type { Token } from '@fastify/oauth2';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import { Types } from 'mongoose';
+import { Types, type FilterQuery } from 'mongoose';
 import { ofetch } from 'ofetch';
 
 export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
-  app.get('/google', async function(request, reply) {
+  app.get('/google', async function (request, reply) {
     const validatedURI = await this.google.generateAuthorizationUri(
       request,
       reply,
     );
     const redirectURL = new URL(validatedURI);
-    app.log.warn(
+    redirectURL.searchParams.append('prompt', 'select_account');
+
+    app.log.debug(
       {
         url: redirectURL.hostname,
         query: redirectURL.search.split('&'),
@@ -20,10 +22,10 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       },
       '[OAUTH] start',
     );
-    return reply.redirect(validatedURI);
+    return reply.redirect(redirectURL.href);
   });
 
-  app.get('/google/callback', async function(request, reply) {
+  app.get('/google/callback', async function (request, reply) {
     try {
       // @ts-ignore
       const userId = request.query.state;
@@ -70,43 +72,37 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       );
     }
   });
+  
+  async function getUserDetails(token: Token, logger: any) {
+    const headers = new Headers();
+    headers.append('Authorization', `Bearer ${token.access_token}`);
 
 
+    const user = await ofetch<LegacyGoogleUser>(
+      'https://www.googleapis.com/plus/v1/people/me',
+      {
+        headers,
+      },
+    );
+    logger.info(user, {
+      msg: 'Google User',
+    });
 
-};
+    const email = user.emails[0].value;
 
-export default plugin;
+    if (!user.id) {
+      throw new Error('Missing GoogleId');
+    }
 
-async function getUserDetails(token: Token, logger: any) {
-  const headers = new Headers();
-  headers.append('Authorization', `Bearer ${token.access_token}`);
-
-  const user = await ofetch<LegacyGoogleUser>(
-    'https://www.googleapis.com/plus/v1/people/me',
-    {
-      headers,
-    },
-  );
-
-  logger.info(user, {
-    msg: 'Google User',
-  });
-
-  const email = user.emails[0].value;
-
-  if (!user.id) {
-    throw new Error('Missing GoogleId');
+    return {
+      email,
+      emailGoogle: email,
+      google: user.id,
+      emailFacebook: null,
+      facebook: null,
+      picture: null,
+    };
   }
-
-  return {
-    email,
-    emailGoogle: email,
-    google: user.id,
-    emailFacebook: null,
-    facebook: null,
-    picture: null,
-  };
-}
 
 async function createOrLogin(
   oauthUser: User['oauth'],
@@ -114,64 +110,73 @@ async function createOrLogin(
   logger: any,
 ) {
   try {
-    const findUserQuery: Record<string, unknown>[] = [];
+    const findUserQuery: FilterQuery<UserDocument>[] = [];
+
+    if (oauthUser?.email) {
+      findUserQuery.push({ email: oauthUser.email });
+    }
 
     if (oauthUser?.google) {
       findUserQuery.push({ 'oauth.google': oauthUser.google });
     }
 
-    // Add user ID if provided and valid
-    if (userId && userId !== 'undefined') {
-      try {
-        findUserQuery.push({ _id: new Types.ObjectId(userId) });
-      } catch (error) {
-        logger.warn('Invalid user ID provided', { userId });
+      if (oauthUser?.google) {
+        findUserQuery.push({ 'oauth.google': oauthUser.google });
       }
-    }
 
-    // Find existing user or create a new one
-    let user =
-      findUserQuery.length > 0
-        ? await UserModel.findOne({ $or: findUserQuery })
-        : null;
+      // Add user ID if provided and valid
+      if (userId && userId !== 'undefined') {
+        try {
+          findUserQuery.push({ _id: new Types.ObjectId(userId) });
+        } catch (error) {
+          logger.warn('Invalid user ID provided', { userId });
+        }
+      }
 
-    // If no user found, create a new one
-    if (!user) {
-      user = new UserModel({
-        active: true,
-        oauth: {
-          google: oauthUser?.google,
-          emailGoogle: oauthUser?.emailGoogle,
-          email: oauthUser?.email,
-          facebook: oauthUser?.facebook,
-          emailFacebook: oauthUser?.emailFacebook,
-        },
-      });
-    } else {
-      // Update existing user's OAuth information
-      user.set({
-        active: true,
-        oauth: {
-          ...user.oauth,
-          google: user.oauth?.google || oauthUser?.google,
-          emailGoogle: user.oauth?.emailGoogle || oauthUser?.emailGoogle,
-          email: user.oauth?.email || oauthUser?.email,
-          facebook: user.oauth?.facebook || oauthUser?.facebook,
-          emailFacebook: user.oauth?.emailFacebook || oauthUser?.emailFacebook,
-        },
-      });
-    }
+      // Find existing user or create a new one
+      let user =
+        findUserQuery.length > 0
+          ? await UserModel.findOne({ $or: findUserQuery })
+          : null;
 
-    // Log user information
-    logger.info({ user: user.toJSON(), msg: 'User before save' });
+      // If no user found, create a new one
+      if (!user) {
+        user = new UserModel({
+          active: true,
+          oauth: {
+            google: oauthUser?.google,
+            emailGoogle: oauthUser?.emailGoogle,
+            email: oauthUser?.email,
+            facebook: oauthUser?.facebook,
+            emailFacebook: oauthUser?.emailFacebook,
+          },
+        });
+      } else {
+        // Update existing user's OAuth information
+        user.set({
+          active: true,
+          oauth: {
+            ...user.oauth,
+            google: user.oauth?.google || oauthUser?.google,
+            emailGoogle: user.oauth?.emailGoogle || oauthUser?.emailGoogle,
+            email: user.oauth?.email || oauthUser?.email,
+            facebook: user.oauth?.facebook || oauthUser?.facebook,
+            emailFacebook:
+              user.oauth?.emailFacebook || oauthUser?.emailFacebook,
+          },
+        });
+      }
 
-    // Save the user
-    await user.save();
+      // Log user information
+      logger.info({ user: user.toJSON(), msg: 'User before save' });
+
+      // Save the user
+      await user.save();
 
     // Return user data
     return user.toJSON();
   } catch (error) {
-    logger.error('Error in createOrLogin', { error, oauthUser });
+    logger.error({ error, oauthUser }, 'Error in createOrLogin');
     throw error;
   }
-}
+};
