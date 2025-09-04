@@ -18,7 +18,7 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     const redirectURL = new URL(validatedURI);
     redirectURL.searchParams.append('prompt', 'select_account');
 
-    app.log.warn(
+    app.log.debug(
       {
         url: redirectURL.hostname,
         query: redirectURL.search.split('&'),
