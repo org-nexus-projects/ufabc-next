@@ -72,7 +72,7 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       );
     }
   });
-  
+  };
   async function getUserDetails(token: Token, logger: any) {
     const headers = new Headers();
     headers.append('Authorization', `Bearer ${token.access_token}`);
