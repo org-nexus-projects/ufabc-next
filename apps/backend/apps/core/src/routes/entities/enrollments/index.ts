@@ -6,7 +6,7 @@ import {
   listWithComponents,
 } from './service.js';
 import { listUserEnrollments } from '@/schemas/entities/enrollments.js';
-import { currentQuad } from '@next/common';
+import type { currentQuad } from '@next/common';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get('/', { schema: listUserEnrollments }, async ({ user }) => {
@@ -14,13 +14,12 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return userEnrollments;
   });
 
-  app.get('/wpp', async ({ user }) => {
-    const season = currentQuad();
-    const wppEnrollments = await listWithComponents(
-      user.ra,
-      // @ts-ignore
-      '2025:2' ?? season,
-    );
+  app.get('/wpp', async ({ user, query }, reply) => {
+    const { season } = query as {
+      season: ReturnType<typeof currentQuad>;
+    };
+
+    const wppEnrollments = await listWithComponents(user.ra, season);
     return wppEnrollments;
   });
 
