@@ -138,7 +138,7 @@ const { handleSubmit, meta, resetForm } = useForm({
   validationSchema,
   initialValues: {
     email: userEmail.value,
-    ra: String(userRa.value), // todo: string here:
+    ra: String(userRa.value),
     problemTitle: '',
     problemDescription: '',
     image: undefined,
