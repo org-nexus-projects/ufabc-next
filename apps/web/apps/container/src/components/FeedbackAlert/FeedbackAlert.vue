@@ -1,7 +1,7 @@
 <template>{{}}</template>
 <script setup lang="ts">
 import { ElMessage } from 'element-plus';
-import { onMounted,PropType  } from 'vue';
+import { onMounted, PropType } from 'vue';
 
 const props = defineProps({
   type: {

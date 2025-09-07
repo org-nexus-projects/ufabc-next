@@ -1,20 +1,10 @@
 <template>
-  <FeedbackAlert
-    v-if="fetchEmailError"
-    :text="handleEmailError"
-  />
+  <FeedbackAlert v-if="fetchEmailError" :text="handleEmailError" />
   <v-form @submit.prevent="onSubmit">
     <v-container class="container pt-md-10">
       <v-row class="d-flex mb-5 flex-grow-0">
-        <v-col
-          xs="12"
-          class="d-flex align-center justify-space-between"
-        >
-          <img
-            height="32"
-            src="@/assets/logo.svg"
-            alt="logo do UFABC Next"
-          >
+        <v-col xs="12" class="d-flex align-center justify-space-between">
+          <img height="32" src="@/assets/logo.svg" alt="logo do UFABC Next" />
           <v-btn
             v-if="!smAndDown"
             prepend-icon="mdi-exit-to-app"
@@ -27,17 +17,13 @@
         </v-col>
       </v-row>
       <v-row class="w-100 h-100 justify-center justify-md-start">
-        <v-col
-          cols="12"
-          md="6"
-          class="d-flex align-center justify-center"
-        >
+        <v-col cols="12" md="6" class="d-flex align-center justify-center">
           <img
             src="@/assets/signup.svg"
             class="w-100"
             style="max-width: 400px"
             alt="Pessoa meditando na frente do computador"
-          >
+          />
         </v-col>
         <v-col
           cols="12"
@@ -81,9 +67,7 @@
                   size="x-large"
                   @click="handleAccountType('student')"
                 >
-                  <v-icon class="mr-2">
-                    mdi-school
-                  </v-icon>
+                  <v-icon class="mr-2"> mdi-school </v-icon>
                   Aluno
                 </v-btn>
               </v-col>
@@ -98,9 +82,7 @@
                   size="x-large"
                   @click="handleAccountType('teacher')"
                 >
-                  <v-icon class="mr-2">
-                    mdi-account
-                  </v-icon>
+                  <v-icon class="mr-2"> mdi-account </v-icon>
                   Professor
                 </v-btn>
               </v-col>
@@ -187,7 +169,8 @@
               notas por disciplinas
               <a
                 href="https://docs.google.com/forms/d/e/1FAIpQLSfbwaJCw-t4SlHJ4akwQNCMNAEBREDcdfrqHs7ROhkuUUwDRQ/viewform"
-              >aqui</a>
+                >aqui</a
+              >
             </p>
           </div>
           <div
@@ -218,9 +201,7 @@
                   size="x-large"
                   @click="step = 2"
                 >
-                  <v-icon class="mr-2">
-                    mdi-pencil
-                  </v-icon>
+                  <v-icon class="mr-2"> mdi-pencil </v-icon>
                   Alterar email
                 </v-btn>
               </v-col>
@@ -362,8 +343,12 @@ const { mutate: mutateSignUp, isPending: isPendingSubmit } = useMutation({
     step.value = 3;
   },
   onError: (error: AxiosError<RequestError>) => {
+    const message =
+      error.status === 500
+        ? 'Você já possui uma conta no UFABC Next. Faça login com a sua conta Google cadastrada'
+        : error.response?.data.message;
     ElMessage({
-      message: error.response?.data.error,
+      message,
       type: 'error',
       showClose: true,
     });

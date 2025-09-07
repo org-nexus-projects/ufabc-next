@@ -40,18 +40,10 @@
         {{ message[0] || '. . .' }}
       </p>
     </div>
-    <button
-      v-if="!summaryText"
-      class="calengrade-button"
-      @click="handlePaste"
-    >
+    <button v-if="!summaryText" class="calengrade-button" @click="handlePaste">
       Colar
     </button>
-    <button
-      v-else
-      class="calengrade-button"
-      @click="handleClick"
-    >
+    <button v-else class="calengrade-button" @click="handleClick">
       Gerar Calengrade!
     </button>
   </div>
@@ -68,10 +60,10 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'nextStep', step: CalengradeSteps): boolean
-  (e: 'updateClasses', value: Classes): boolean
-  (e: 'updateSummary', value: string): boolean
-}>()
+  (e: 'nextStep', step: CalengradeSteps): boolean;
+  (e: 'updateClasses', value: Classes): boolean;
+  (e: 'updateSummary', value: string): boolean;
+}>();
 
 const classes = ref<Classes | null>();
 const summaryText = ref<string>('');
@@ -100,9 +92,10 @@ const handleChange = (value: string) => {
     const classesCount = newClasses.length;
     if (classesCount > 0) {
       message.value = [
-        `${classesCount} ${classesCount === 1
-          ? 'disciplina identificada'
-          : 'disciplinas identificadas'
+        `${classesCount} ${
+          classesCount === 1
+            ? 'disciplina identificada'
+            : 'disciplinas identificadas'
         }`,
         'info',
       ];
@@ -144,7 +137,6 @@ const handleClick = () => {
 const goToStep = (step: CalengradeSteps) => {
   emit('nextStep', step);
 };
-
 </script>
 
 <style scoped>

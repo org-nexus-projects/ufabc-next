@@ -5,15 +5,8 @@
     "
     class="mt-10"
   />
-  <v-layout
-    v-else
-    class="flex-column align-center justify-center"
-  >
-    <v-row
-      align="stretch"
-      no-gutters
-      class="w-100"
-    >
+  <v-layout v-else class="flex-column align-center justify-center">
+    <v-row align="stretch" no-gutters class="w-100">
       <v-col
         v-for="card in cards"
         :key="card.title"

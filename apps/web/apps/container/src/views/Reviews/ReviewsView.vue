@@ -11,10 +11,7 @@
       :key="router.currentRoute.value.query.subjectId.toString()"
       :subject-id="router.currentRoute.value.query.subjectId.toString()"
     />
-    <div
-      v-else
-      class="w-100 d-flex flex-column align-center"
-    >
+    <div v-else class="w-100 d-flex flex-column align-center">
       <WelcomeMessage />
       <PendingReviewEnrollmentList />
     </div>

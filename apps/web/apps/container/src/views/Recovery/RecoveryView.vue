@@ -93,41 +93,29 @@ const onSubmit = handleSubmit(({ email }) =>
 
 <template>
   <v-container>
-    <FeedbackAlert
-      v-if="fetchEmailError"
-      :text="handleEmailError"
-    />
+    <FeedbackAlert v-if="fetchEmailError" :text="handleEmailError" />
 
     <v-row>
       <img
         style="max-width: 200px; height: auto"
         src="@/assets/logo.svg"
         alt="logo do UFABC Next"
-      >
+      />
     </v-row>
 
     <v-row>
-      <v-col
-        cols="12"
-        md="6"
-      >
+      <v-col cols="12" md="6">
         <img
           class="pa-6"
           src="@/assets/recovery.svg"
           style="width: 100%"
           alt="Imagem minimalista de dois estudantes"
-        >
+        />
       </v-col>
 
-      <v-col
-        cols="12"
-        md="6"
-      >
+      <v-col cols="12" md="6">
         <section v-if="recoveryStep === 0">
-          <h1
-            style="font-size: 26px; font-weight: 700"
-            class="mb-6"
-          >
+          <h1 style="font-size: 26px; font-weight: 700" class="mb-6">
             Criou uma conta no Next e não consegue acessar?
           </h1>
           <v-form @submit.prevent="onSubmit">
@@ -176,9 +164,7 @@ const onSubmit = handleSubmit(({ email }) =>
                 size="large"
                 @click="router.go(-1)"
               >
-                <v-icon class="mr-1">
-                  mdi-arrow-left
-                </v-icon> Anterior
+                <v-icon class="mr-1"> mdi-arrow-left </v-icon> Anterior
               </v-btn>
               <v-btn
                 color="#4a90e2"
@@ -188,24 +174,17 @@ const onSubmit = handleSubmit(({ email }) =>
                 :loading="isPendingSubmit"
                 :disabled="!meta.valid"
               >
-                Próximo <v-icon class="ml-1">
-                  mdi-arrow-right
-                </v-icon>
+                Próximo <v-icon class="ml-1"> mdi-arrow-right </v-icon>
               </v-btn>
             </div>
           </v-form>
         </section>
 
         <section v-else-if="recoveryStep === 1">
-          <h1
-            style="font-size: 26px; font-weight: 700"
-            class="mb-4"
-          >
+          <h1 style="font-size: 26px; font-weight: 700" class="mb-4">
             Não foi possível recuperar sua conta 😔
           </h1>
-          <p class="mb-4">
-            Mas calma, nem tudo está perdido!
-          </p>
+          <p class="mb-4">Mas calma, nem tudo está perdido!</p>
           <div class="alert-wrapper">
             <p class="mb-4">
               O time do UFABC Next está trabalhando para resolver seu problema e
@@ -216,7 +195,8 @@ const onSubmit = handleSubmit(({ email }) =>
               <a
                 href="https://www.instagram.com/ufabc_next/?hl=pt-br"
                 target="_blank"
-              >Instagram</a>
+                >Instagram</a
+              >
               e te atenderemos!
             </p>
             <p class="mb-4">
@@ -227,24 +207,21 @@ const onSubmit = handleSubmit(({ email }) =>
               <a
                 href="https://github.com/ufabc-next/ufabc-next-web"
                 target="_blank"
-              >GitHub</a>, sua ajuda será bem-vinda!
+                >GitHub</a
+              >, sua ajuda será bem-vinda!
             </p>
           </div>
         </section>
 
         <section v-else-if="recoveryStep === 2">
-          <h1
-            style="font-size: 26px; font-weight: 700"
-            class="mb-4"
-          >
+          <h1 style="font-size: 26px; font-weight: 700" class="mb-4">
             Sua conta será recuperada! 🎉
           </h1>
           <p class="mb-4">
             Você recebeu um email para recuperar sua conta,
-            <a
-              href="https://www.outlook.com/aluno.ufabc.edu.br"
-              target="_blank"
-            >clique aqui</a>
+            <a href="https://www.outlook.com/aluno.ufabc.edu.br" target="_blank"
+              >clique aqui</a
+            >
             para acessar seu email institucional.
           </p>
 
@@ -255,7 +232,8 @@ const onSubmit = handleSubmit(({ email }) =>
               <a
                 href="https://www.instagram.com/ufabc_next/?hl=pt-br"
                 target="_blank"
-              >Instagram</a>
+                >Instagram</a
+              >
               e te atenderemos!
             </p>
             <p class="mb-4">
