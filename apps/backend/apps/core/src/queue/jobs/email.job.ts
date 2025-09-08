@@ -3,6 +3,7 @@ import type { QueueContext } from '../types.js';
 import {
   SendTemplatedEmailCommand,
   type SendTemplatedEmailCommandInput,
+  SendEmailCommand,
 } from '@aws-sdk/client-ses';
 import { sesClient } from '@/lib/aws.service.js';
 
@@ -119,4 +120,82 @@ export async function sesSendEmail(
   } finally {
     sesClient.destroy();
   }
+}
+
+type BulkEmailJob = {
+  subject: string;
+  html: string;
+  recipients: string[];
+  from?: string;
+  batchSize?: number;
+};
+
+export async function sendBulkEmail(ctx: QueueContext<BulkEmailJob>) {
+  const { subject, html, recipients, from, batchSize = 50 } = ctx.job.data;
+  
+  ctx.app.log.info({ totalRecipients: recipients.length }, 'Iniciando envio de email em massa');
+  
+  const MAX_RECIPIENTS_PER_MESSAGE = 50;
+  const uniqueRecipients = Array.from(new Set(recipients));
+  const fromIdentity = from ?? 'contato@ufabcnext.com';
+  
+  // Função para agrupar destinatários em lotes
+  const chunk = <T>(arr: T[], size: number): T[][] => {
+    const out: T[][] = [];
+    for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+    return out;
+  };
+  
+  const batches = chunk(uniqueRecipients, Math.min(batchSize, MAX_RECIPIENTS_PER_MESSAGE));
+  
+  let sentBatches = 0;
+  let failedBatches = 0;
+  const failures: any[] = [];
+  
+  for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+    const bcc = batches[batchIndex];
+    
+    const input = {
+      Source: `UFABCnext <${fromIdentity}>`,
+      Destination: { BccAddresses: bcc },
+      Message: {
+        Subject: { Data: subject, Charset: 'UTF-8' },
+        Body: { Html: { Data: html, Charset: 'UTF-8' } },
+      },
+    };
+    
+    try {
+      const cmd = new SendEmailCommand(input);
+      const res = await sesClient.send(cmd);
+      sentBatches++;
+      
+      ctx.app.log.info({
+        batch: batchIndex,
+        recipients: bcc.length,
+        messageId: res.MessageId,
+      }, 'Lote enviado');
+      
+    } catch (err: any) {
+      failedBatches++;
+      const failure = { batch: batchIndex, error: err?.message ?? 'unknown', recipients: bcc.length };
+      failures.push(failure);
+      
+      ctx.app.log.error({ 
+        batch: batchIndex, 
+        error: err?.message,
+      }, 'Falha no envio do lote');
+    }
+  }
+  
+  const result = {
+    totalRecipients: uniqueRecipients.length,
+    batches: batches.length,
+    sentBatches,
+    failedBatches,
+    failures,
+  };
+  
+  ctx.app.log.info(result, 'Envio concluído');
+  
+  return result;
 }
