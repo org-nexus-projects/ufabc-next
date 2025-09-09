@@ -148,7 +148,6 @@ const routes: Array<RouteRecordRaw> = [
     component: HelpView,
     meta: {
       title: 'Ajuda',
-      confirmed: true,
     },
   },
   {

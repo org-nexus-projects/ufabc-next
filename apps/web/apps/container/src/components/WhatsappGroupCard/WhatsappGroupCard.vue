@@ -38,6 +38,7 @@
 
     <div class="activity-indicator">
       <v-btn
+        v-if="isGroupAvailable"
         color="black"
         prepend-icon="mdi-whatsapp"
         text="Entrar no Grupo"
@@ -46,6 +47,13 @@
         width="100%"
         @click="handleClick"
       />
+      <div v-else class="unavailable-group">
+        <v-icon color="grey-darken-1" size="20">mdi-whatsapp</v-icon>
+        <span class="unavailable-text">Grupo não disponível</span>
+        <v-tooltip activator="parent" location="top">
+          <span>Este grupo ainda não foi criado ou não está disponível no momento</span>
+        </v-tooltip>
+      </div>
     </div>
   </div>
 </template>
@@ -65,11 +73,22 @@ const campusName = computed(() => {
   return props.component.campus === 'sa' ? 'Santo André' : 'São Bernardo';
 });
 
+const isGroupAvailable = computed(() => {
+  return props.component.groupURL !== null 
+  && props.component.groupURL !== ''
+  && props.component.groupURL !== undefined;
+
+});
+
 const emit = defineEmits<{
   (e: 'openGroup', value: string): void;
 }>();
 
 const handleClick = () => {
+  if (!isGroupAvailable.value) {
+    return;
+  }
+  console.log(props.component.groupURL)
   emit('openGroup', props.component.groupURL);
 };
 </script>
@@ -89,6 +108,16 @@ const handleClick = () => {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-color: #93c5fd;
   transform: translateY(-4px);
+}
+
+.whatsapp-group-card:has(.unavailable-group) {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.whatsapp-group-card:has(.unavailable-group):hover {
+  transform: none;
+  border-color: #e5e7eb;
 }
 
 .whatsapp-group-card__header {
@@ -191,6 +220,24 @@ const handleClick = () => {
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+.unavailable-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 6px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.unavailable-text {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
 }
 
 .activity-dot {
