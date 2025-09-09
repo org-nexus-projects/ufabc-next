@@ -23,7 +23,7 @@
                 size="large"
                 prepend-inner-icon="mdi-magnify"
                 clearable
-                :disabled="isGroupsLoading || isUserLoggedIn"
+                :disabled="currentLoading || isUserLoggedIn"
                 class="main-search"
                 control-variant="hidden"
                 @blur.prevent="getWhatsappGroupsByRa(searchRaQuery)"
@@ -38,8 +38,9 @@
                 size="large"
                 prepend-inner-icon="mdi-magnify"
                 clearable
-                :disabled="isGroupsLoading"
+                :disabled="currentLoading"
                 class="main-search"
+                @input="handleComponentSearch"
               >
               </v-text-field>
             </Transition>
@@ -79,7 +80,7 @@
 
     <!-- Results Section -->
     <section>
-      <div v-if="isGroupsLoading" class="results-grid">
+      <div v-if="currentLoading" class="results-grid">
         <v-skeleton-loader
           v-for="(i, index) in Array.from({ length: 6 })"
           :key="index"
@@ -88,32 +89,98 @@
         ></v-skeleton-loader>
       </div>
 
-      <div v-else-if="isGroupsSuccess" class="results-section">
+      <div v-else-if="currentSuccess" class="results-section">
         <!-- todo: handle this state -->
         <!-- todo: error state -->
-        <div v-if="!groups?.length">
+        <div v-if="!currentGroups?.length">
           <div class="empty-state">
             <div class="empty-visual">
-              <v-icon size="64" color="primary" class="floating-icons">
+              <v-icon size="64" color="grey-darken-1">
                 mdi-whatsapp
               </v-icon>
             </div>
-            <h3>Oops! Nenhum grupo encontrado</h3>
-            <p>
-              Não encontramos nenhum grupo de WhatsApp associado ao seu RA. Que
-              tal procurar novamente pela disciplina?
-            </p>
-            <div class="floating-icons">
-              <v-icon color="primary"> mdi-whatsapp </v-icon>
-              <v-icon color="primary"> mdi-message-text </v-icon>
-              <v-icon color="primary"> mdi-account-group </v-icon>
+            <h3>Nenhum grupo encontrado</h3>
+            
+            <!-- For logged users - suggest syncing history -->
+            <div v-if="isUserLoggedIn" class="empty-suggestions">
+              <p class="empty-description">
+                Não encontramos grupos para o seu RA. Isso pode acontecer se seu histórico acadêmico não estiver sincronizado.
+              </p>
+              
+              <div class="suggestion-cards">
+                <div class="suggestion-card primary-suggestion">
+                  <div class="suggestion-icon">
+                    <v-icon color="primary" size="24">mdi-sync</v-icon>
+                  </div>
+                  <div class="suggestion-content">
+                    <h4>Sincronize seu histórico</h4>
+                    <p>Use a extensão do UFABC next para sincronizar suas matérias automaticamente</p>
+                    <v-btn 
+                      color="primary" 
+                      variant="elevated" 
+                      size="small"
+                      prepend-icon="mdi-download"
+                      @click="openExtensionUrl"
+                    >
+                      Baixar Extensão
+                    </v-btn>
+                  </div>
+                </div>
+                
+                <div class="suggestion-card secondary-suggestion">
+                  <div class="suggestion-icon">
+                    <v-icon color="secondary" size="24">mdi-book-search</v-icon>
+                  </div>
+                  <div class="suggestion-content">
+                    <h4>Busque por disciplina</h4>
+                    <p>Procure grupos específicos pelo nome da matéria</p>
+                    <v-btn 
+                      color="secondary" 
+                      variant="elevated" 
+                      size="small"
+                      prepend-icon="mdi-book"
+                      @click="() => { selectSearchType('component'); shouldFetchComponents = true; }"
+                    >
+                      Buscar por Disciplina
+                    </v-btn>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- For non-logged users - suggest trying by discipline -->
+            <div v-else class="empty-suggestions">
+              <p class="empty-description">
+                Que tal procurar pelos grupos das disciplinas que você está cursando?
+              </p>
+              
+              <div class="suggestion-cards">
+                <div class="suggestion-card primary-suggestion">
+                  <div class="suggestion-icon">
+                    <v-icon color="secondary" size="24">mdi-book-search</v-icon>
+                  </div>
+                  <div class="suggestion-content">
+                    <h4>Busque por disciplina</h4>
+                    <p>Digite o nome da matéria para encontrar o grupo do WhatsApp</p>
+                    <v-btn 
+                      color="secondary" 
+                      variant="flat"
+                      size="small"
+                      prepend-icon="mdi-book"
+                      @click="() => { selectSearchType('component'); shouldFetchComponents = true; }"
+                    >
+                      Buscar por Disciplina
+                    </v-btn>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         <div v-else class="results-grid">
           <WhatsappGroupCard
-            v-for="(component, index) in groups"
+            v-for="(component, index) in currentGroups"
             :key="index"
             :component="component"
             class="preview-card"
@@ -129,6 +196,7 @@
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
 import { Whatsapp } from '@ufabc-next/services';
+import { useDebounceFn } from '@vueuse/core';
 import { computed, onMounted, ref } from 'vue';
 
 import WhatsappGroupCard from '@/components/WhatsappGroupCard/WhatsappGroupCard.vue';
@@ -154,8 +222,26 @@ const userState = computed<UserState>(() => {
 const searchRaQuery = ref<number | null>(null);
 const searchComponentQuery = ref('');
 const selectedSearchType = ref<SearchType>('ra');
-const needSearchByComponent = ref(false);
 const shouldFetchGroupsByRa = ref(false);
+const shouldFetchComponents = ref(false);
+
+// Utility function to normalize text for search
+const normalizeText = (text: string): string => {
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+};
+
+// Debounced component search function
+const debouncedComponentSearch = useDebounceFn((query: string) => {
+  if (query.trim().length >= 2) {
+    shouldFetchComponents.value = true;
+  } else {
+    shouldFetchComponents.value = false;
+  }
+}, 300);
 
 const selectSearchType = (type: SearchType) => {
   if (!isUserLoggedIn.value) {
@@ -165,6 +251,13 @@ const selectSearchType = (type: SearchType) => {
   searchComponentQuery.value = '';
   selectedSearchType.value = type;
   shouldFetchGroupsByRa.value = false;
+  shouldFetchComponents.value = false;
+};
+
+const handleComponentSearch = () => {
+  if (selectedSearchType.value === 'component') {
+    debouncedComponentSearch(searchComponentQuery.value);
+  }
 };
 
 function getWhatsappGroupsByRa(ra: number | null) {
@@ -177,16 +270,67 @@ function getWhatsappGroupsByRa(ra: number | null) {
 }
 
 const {
-  data: groups,
-  isError: isGroupsError,
-  isLoading: isGroupsLoading,
-  isSuccess: isGroupsSuccess,
+  data: groupsByRa,
+  isLoading: isGroupsByRaLoading,
+  isSuccess: isGroupsByRaSuccess,
 } = useQuery({
-  queryKey: ['whatsappGroups'],
+  queryKey: ['whatsappGroups', 'byRa', searchRaQuery],
   queryFn: () => Whatsapp.getComponentsByUser(Number(searchRaQuery.value)),
-  select: (response) => response.data,
   enabled: shouldFetchGroupsByRa,
 });
+
+const {
+  data: allComponents,
+  isLoading: isComponentsLoading,
+  isSuccess: isComponentsSuccess,
+} = useQuery({
+  queryKey: ['whatsappGroups', 'components'],
+  queryFn: () => Whatsapp.searchComponents(''),
+  enabled: shouldFetchComponents,
+});
+
+const filteredComponents = computed(() => {
+  if (!allComponents.value?.data || !searchComponentQuery.value?.trim()) {
+    return [];
+  }
+
+  const normalizedQuery = normalizeText(searchComponentQuery.value);
+  
+  return allComponents.value.data.filter((component) => {
+    const normalizedSubject = normalizeText(component.subject || '');
+    const normalizedCodigo = normalizeText(component.codigo || '');
+    
+    return (
+      normalizedSubject.includes(normalizedQuery) ||
+      normalizedCodigo.includes(normalizedQuery)
+    );
+  });
+});
+
+const groupsFromRa = computed(() => groupsByRa.value?.data || []);
+const groupsFromComponents = computed(() => filteredComponents.value || []);
+
+const currentGroups = computed(() => {
+  if (selectedSearchType.value === 'ra') {
+    return groupsFromRa.value;
+  }
+  return groupsFromComponents.value;
+});
+
+const currentLoading = computed(() => {
+  if (selectedSearchType.value === 'ra') {
+    return isGroupsByRaLoading.value;
+  }
+  return isComponentsLoading.value;
+});
+
+const currentSuccess = computed(() => {
+  if (selectedSearchType.value === 'ra') {
+    return isGroupsByRaSuccess.value;
+  }
+  return isComponentsSuccess.value;
+});
+
 
 const openExtensionUrl = () => {
   window.open(extensionURL, '_blank');
@@ -202,8 +346,8 @@ const openWhatsappGroup = (url: string) => {
 
 onMounted(() => {
   if (authStore.user?.ra) {
-    searchRaQuery.value = authStore.user.ra;
-    getWhatsappGroupsByRa(authStore.user.ra);
+    searchRaQuery.value = 22222222;
+    getWhatsappGroupsByRa(22222222);
   }
 });
 </script>
@@ -386,6 +530,100 @@ onMounted(() => {
   padding: 48px 16px;
 }
 
+.empty-suggestions {
+  margin-top: 24px;
+}
+
+.empty-description {
+  color: rgb(var(--v-theme-on-surface-variant));
+  margin-bottom: 32px;
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.suggestion-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.suggestion-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.suggestion-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.primary-suggestion {
+  border-color: rgba(var(--v-theme-primary), 0.2);
+}
+
+.primary-suggestion:hover {
+  border-color: rgba(var(--v-theme-primary), 0.4);
+}
+
+.secondary-suggestion {
+  border-color: rgba(var(--v-theme-secondary), 0.2);
+}
+
+.secondary-suggestion:hover {
+  border-color: rgba(var(--v-theme-secondary), 0.4);
+}
+
+.suggestion-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.suggestion-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.primary-suggestion .suggestion-icon {
+  background: rgba(var(--v-theme-primary), 0.1);
+}
+
+.secondary-suggestion .suggestion-icon {
+  background: rgba(var(--v-theme-secondary), 0.1);
+}
+
+.suggestion-content {
+  flex: 1;
+}
+
+.suggestion-content h4 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.suggestion-content p {
+  margin: 0 0 16px 0;
+  color: rgb(var(--v-theme-on-surface-variant));
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
 .loading-animation,
 .empty-visual,
 .welcome-visual {
@@ -462,6 +700,23 @@ onMounted(() => {
   .feature-item {
     font-size: 1rem;
     padding: 10px 16px;
+  }
+
+  .suggestion-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .suggestion-card {
+    padding: 20px;
+  }
+
+  .suggestion-content h4 {
+    font-size: 1rem;
+  }
+
+  .suggestion-content p {
+    font-size: 0.9rem;
   }
 }
 
