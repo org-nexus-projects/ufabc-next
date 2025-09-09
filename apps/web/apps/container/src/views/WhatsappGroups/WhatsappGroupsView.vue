@@ -1,40 +1,7 @@
 <template>
+  <!-- todo: add animation -->
   <div class="whatsapp-groups-view">
-    <div v-if="userType === 'logged-no-history'" class="not-synced__container">
-      <div class="not-synced__icon">
-        <v-icon size="60" color="primary">mdi-sync</v-icon>
-      </div>
-      <h1 class="not-synced__title">Desbloqueie todo o potencial! 🚀</h1>
-      <p class="not-synced__subtitle">
-        Sincronize seu histórico e tenha acesso aos grupos de Whatsapp das suas
-        disciplinas específicas.
-      </p>
-      <div class="not-synced__upgrade-benefits">
-        <h4>O que você ganha sincronizando:</h4>
-        <div class="benefit-item">
-          <span>✅ Busca por disciplinas específicas</span>
-        </div>
-        <div class="benefit-item">
-          <span>✅ Grupos recomendados baseados no seu curso</span>
-        </div>
-        <div class="benefit-item">
-          <span>✅ Mantém o seu Next funcionando :&#41;</span>
-        </div>
-      </div>
-      <div class="not-synced__actions">
-        <button class="not-synced__button" @click="handleExtension">
-          <v-icon size="20"> mdi-link-variant </v-icon>
-          Baixar extensão
-        </button>
-        <span style="color: #808080">OU</span>
-        <button class="not-synced__button" @click="handleSyncHistory">
-          <v-icon size="20"> mdi-sync </v-icon>
-          Sincronizar agora!
-        </button>
-      </div>
-    </div>
-
-    <div v-if="userType !== 'logged-no-history'">
+    <section>
       <div class="hero-section">
         <h1>Encontre seus grupos do <br />Whatsapp</h1>
         <p>
@@ -45,276 +12,205 @@
       <div class="search-section">
         <div class="search-container">
           <div class="search-input-wrapper">
-            <v-text-field
-              v-model="searchQuery"
-              :placeholder="getSearchPlaceholder()"
-              variant="outlined"
-              size="large"
-              prepend-inner-icon="mdi-magnify"
-              clearable
-              :disabled="true"
-              class="main-search"
-            >
-              <template v-if="isSearchBlocked" #append-inner>
-                <v-tooltip text="Sincronize para desbloquear">
-                  <template #activator="{ props }">
-                    <v-icon v-bind="props" color="warning"> mdi-lock </v-icon>
-                  </template>
-                </v-tooltip>
-              </template>
-            </v-text-field>
+            <!-- todo: maybe refactor to use different fields for RA and Component -->
+
+            <Transition name="slide-up" mode="out-in">
+              <v-number-input
+                v-if="selectedSearchType === 'ra'"
+                v-model="searchRaQuery"
+                placeholder="Digite seu RA (ex: 11202012345)"
+                variant="outlined"
+                size="large"
+                prepend-inner-icon="mdi-magnify"
+                clearable
+                :disabled="isGroupsLoading || isUserLoggedIn"
+                class="main-search"
+                control-variant="hidden"
+                @blur.prevent="getWhatsappGroupsByRa(searchRaQuery)"
+              >
+              </v-number-input>
+
+              <v-text-field
+                v-else
+                v-model="searchComponentQuery"
+                placeholder="Digite o nome da disciplina (ex: Função de várias variáveis)"
+                variant="outlined"
+                size="large"
+                prepend-inner-icon="mdi-magnify"
+                clearable
+                :disabled="isGroupsLoading"
+                class="main-search"
+              >
+              </v-text-field>
+            </Transition>
           </div>
 
           <!-- Search Options -->
-          <div class="search-options">
-            <div class="option-chips">
-              <v-chip
-                :color="selectedSearchType === 'ra' ? 'primary' : 'default'"
-                :variant="selectedSearchType === 'ra' ? 'elevated' : 'tonal'"
-                size="large"
-                class="search-chip"
-              >
-                <v-icon start> mdi-account </v-icon>
-                Buscar por RA
-              </v-chip>
+          <div class="option-chips">
+            <v-chip
+              :color="selectedSearchType === 'ra' ? 'primary' : 'default'"
+              :variant="selectedSearchType === 'ra' ? 'elevated' : 'tonal'"
+              size="large"
+              class="search-chip"
+              @click="selectSearchType('ra')"
+            >
+              <v-icon start> mdi-account </v-icon>
+              Buscar por RA
+            </v-chip>
 
-              <v-chip
-                :color="
-                  selectedSearchType === 'subject' ? 'secondary' : 'default'
-                "
-                :variant="
-                  selectedSearchType === 'subject' ? 'elevated' : 'tonal'
-                "
-                :disabled="!canSearchBySubject"
-                size="large"
-                class="search-chip"
-              >
-                <v-icon start> mdi-book </v-icon>
-                Buscar por Disciplina
-                <v-icon v-if="!canSearchBySubject" end size="16">
-                  mdi-lock
-                </v-icon>
-              </v-chip>
-            </div>
+            <v-chip
+              :color="
+                selectedSearchType === 'component' ? 'secondary' : 'default'
+              "
+              :variant="
+                selectedSearchType === 'component' ? 'elevated' : 'tonal'
+              "
+              size="large"
+              class="search-chip"
+              @click="selectSearchType('component')"
+            >
+              <v-icon start> mdi-book </v-icon>
+              Buscar por Disciplina
+            </v-chip>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- Results Section -->
-    <div v-if="userType !== 'logged-no-history'" class="results-section">
-      <div class="results-grid">
-        <WhatsappGroupCard
-          v-for="(group, index) in mockGroups"
+    <section>
+      <div v-if="isGroupsLoading" class="results-grid">
+        <v-skeleton-loader
+          v-for="(i, index) in Array.from({ length: 6 })"
           :key="index"
-          :season="group.season"
-          :campus="group.campus"
-          :codigo="group.codigo"
-          :group-url="group.groupURL"
-          :teoria="group.teoria"
-          :pratica="group.pratica"
-          :turno="group.turno"
-          :subject="group.subject"
-          :turma="group.turma"
-          class="preview-card"
-          :style="{ animationDelay: `${index * 150}ms` }"
-        />
+          color="secondary"
+          type="card"
+        ></v-skeleton-loader>
       </div>
 
-      <!-- Coming Soon Overlay -->
-      <div class="coming-soon-overlay">
-        <div class="coming-soon-content">
-          <h2>Em breve! 🚀</h2>
-          <p>
-            Estamos preparando algo incrível para você! Em poucos dias, você
-            poderá acessar todos os grupos de WhatsApp das suas disciplinas de
-            forma super fácil.
-          </p>
-          <div class="coming-soon-features">
-            <div class="feature-item">
-              <v-icon color="primary" size="20"> mdi-check-circle </v-icon>
-              <span>Busca inteligente por disciplina</span>
+      <div v-else-if="isGroupsSuccess" class="results-section">
+        <!-- todo: handle this state -->
+        <!-- todo: error state -->
+        <div v-if="!groups?.length">
+          <div class="empty-state">
+            <div class="empty-visual">
+              <v-icon size="64" color="primary" class="floating-icons">
+                mdi-whatsapp
+              </v-icon>
             </div>
-            <div class="feature-item">
-              <v-icon color="primary" size="20"> mdi-check-circle </v-icon>
-              <span>Grupos organizados por turma</span>
-            </div>
-            <div class="feature-item">
-              <v-icon color="primary" size="20"> mdi-check-circle </v-icon>
-              <span>Acesso direto pelo Next</span>
+            <h3>Oops! Nenhum grupo encontrado</h3>
+            <p>
+              Não encontramos nenhum grupo de WhatsApp associado ao seu RA. Que
+              tal procurar novamente pela disciplina?
+            </p>
+            <div class="floating-icons">
+              <v-icon color="primary"> mdi-whatsapp </v-icon>
+              <v-icon color="primary"> mdi-message-text </v-icon>
+              <v-icon color="primary"> mdi-account-group </v-icon>
             </div>
           </div>
         </div>
+
+        <div v-else class="results-grid">
+          <WhatsappGroupCard
+            v-for="(component, index) in groups"
+            :key="index"
+            :component="component"
+            class="preview-card"
+            :style="{ animationDelay: `${index * 150}ms` }"
+            @open-group="openWhatsappGroup"
+          />
+        </div>
       </div>
-    </div>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useQuery } from '@tanstack/vue-query';
 import { Whatsapp } from '@ufabc-next/services';
-import { SearchComponentItem } from '@ufabc-next/types';
 import { computed, onMounted, ref } from 'vue';
 
 import WhatsappGroupCard from '@/components/WhatsappGroupCard/WhatsappGroupCard.vue';
-import { eventTracker } from '@/helpers/EventTracker';
-import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
 import { extensionURL, studentRecordURL } from '@/utils/consts';
 
-type UserType = 'not-logged' | 'logged-no-history' | 'logged-with-history';
+// import { mockedWhatsappGroups } from '@/utils/mockedWhatsappGroups';
+// todo: add eventTracker
+// todo: add logged-no-history state (paywall)
+type UserState = 'not-logged' | 'logged-no-history' | 'logged-with-history';
+
+type SearchType = 'ra' | 'component';
 
 const authStore = useAuthStore();
-
-const searchQuery = ref('');
-const selectedSearchType = ref('ra');
-const groups = ref<SearchComponentItem[]>([]);
-const isLoading = ref(false);
-const isEmptyQuery = ref(false);
-
-// Mock data for preview
-const mockGroups = ref([
-  {
-    season: '2025:2',
-    groupURL: 'https://chat.whatsapp.com/GBQropAUsuEGZGXhWYSHrL',
-    codigo: 'BCJ0205-15',
-    campus: 'sa' as const,
-    turma: 'B1',
-    turno: 'noturno',
-    subject: 'Fenômenos Térmicos',
-    teoria: 'Eduardo De Moraes Gregores',
-    pratica: 'Marcos De Abreu Avila',
-  },
-  {
-    season: '2025:2',
-    groupURL: 'https://chat.whatsapp.com/example2',
-    codigo: 'BCM0506-15',
-    campus: 'sa' as const,
-    turma: 'A2',
-    turno: 'matutino',
-    subject: 'Comunicação e Redes',
-    teoria: 'Maria Silva Santos',
-    pratica: 'João Pedro Oliveira',
-  },
-  {
-    season: '2025:2',
-    groupURL: 'https://chat.whatsapp.com/example3',
-    codigo: 'BCN0404-15',
-    campus: 'sa' as const,
-    turma: 'C1',
-    turno: 'matutino',
-    subject: 'Geometria Analítica',
-    teoria: 'Ana Carolina Lima',
-    pratica: 'Roberto Carlos Souza',
-  },
-  {
-    season: '2025:2',
-    groupURL: 'https://chat.whatsapp.com/example4',
-    codigo: 'BCS0001-15',
-    campus: 'sbc' as const,
-    turma: 'B3',
-    turno: 'noturno',
-    subject: 'Base Experimental das Ciências Naturais',
-    teoria: 'Pedro Henrique Costa',
-    pratica: 'Fernanda Rodrigues',
-  },
-  {
-    season: '2025:2',
-    groupURL: 'https://chat.whatsapp.com/example5',
-    codigo: 'MCM0001-15',
-    campus: 'sa' as const,
-    turma: 'A1',
-    turno: 'matutino',
-    subject: 'Cálculo Diferencial e Integral I',
-    teoria: 'Carlos Eduardo Mendes',
-    pratica: 'Juliana Aparecida Silva',
-  },
-  {
-    season: '2025:2',
-    groupURL: 'https://chat.whatsapp.com/example6',
-    codigo: 'BIR0004-15',
-    campus: 'sa' as const,
-    turma: 'D2',
-    turno: 'noturno',
-    subject: 'Probabilidade e Estatística',
-    teoria: 'Amanda Cristina Alves',
-    pratica: 'Ricardo Monteiro Peixoto',
-  },
-]);
-
-// Computed properties
-const userType = computed((): UserType => {
+const isUserLoggedIn = computed(() => authStore.isLoggedIn);
+const userState = computed<UserState>(() => {
   if (!authStore.isLoggedIn) return 'not-logged';
   return 'logged-with-history';
 });
 
-const canSearchBySubject = computed(() => {
-  return userType.value === 'logged-with-history';
-});
+const searchRaQuery = ref<number | null>(null);
+const searchComponentQuery = ref('');
+const selectedSearchType = ref<SearchType>('ra');
+const needSearchByComponent = ref(false);
+const shouldFetchGroupsByRa = ref(false);
 
-const isSearchBlocked = computed(() => {
-  return (
-    userType.value === 'logged-no-history' &&
-    selectedSearchType.value === 'subject'
-  );
-});
-
-const getSearchPlaceholder = () =>
-  selectedSearchType.value === 'ra'
-    ? 'Digite seu RA (ex: 11202012345)'
-    : 'Digite o nome da disciplina (ex: Algoritmos)';
-
-// todo: refactor this
-const selectSearchType = (type: string) => {
-  if (type === 'subject' && !canSearchBySubject.value) return;
-  selectedSearchType.value = type;
-  searchQuery.value = '';
-};
-
-// todo: refactor the digit request approach
-const handleSearch = async () => {
-  if (!searchQuery.value?.trim() || isSearchBlocked.value) return;
-
-  isLoading.value = true;
-  isEmptyQuery.value = true;
-
-  try {
-    const result = await Whatsapp.getComponentsByUser();
-    groups.value = result.data || [];
-    console.log('Search results:', result);
-  } catch (error) {
-    //todo: notify error
-    groups.value = [];
-  } finally {
-    isLoading.value = false;
+const selectSearchType = (type: SearchType) => {
+  if (!isUserLoggedIn.value) {
+    searchRaQuery.value = null;
   }
+
+  searchComponentQuery.value = '';
+  selectedSearchType.value = type;
+  shouldFetchGroupsByRa.value = false;
 };
 
-const handleExtension = () => {
+function getWhatsappGroupsByRa(ra: number | null) {
+  if (!ra || String(ra).length < 8) {
+    shouldFetchGroupsByRa.value = false;
+
+    return;
+  }
+  shouldFetchGroupsByRa.value = true;
+}
+
+const {
+  data: groups,
+  isError: isGroupsError,
+  isLoading: isGroupsLoading,
+  isSuccess: isGroupsSuccess,
+} = useQuery({
+  queryKey: ['whatsappGroups'],
+  queryFn: () => Whatsapp.getComponentsByUser(Number(searchRaQuery.value)),
+  select: (response) => response.data,
+  enabled: shouldFetchGroupsByRa,
+});
+
+const openExtensionUrl = () => {
   window.open(extensionURL, '_blank');
 };
 
-const handleSyncHistory = () => {
+const openSyncHistory = () => {
   window.open(studentRecordURL, '_blank');
 };
 
-const clearSearch = () => {
-  searchQuery.value = '';
-  groups.value = [];
-  isEmptyQuery.value = false;
+const openWhatsappGroup = (url: string) => {
+  window.open(url, '_blank');
 };
 
-onMounted(async () => {
+onMounted(() => {
   if (authStore.user?.ra) {
-    searchQuery.value = String(authStore.user.ra);
+    searchRaQuery.value = authStore.user.ra;
   }
-
-  eventTracker.track(WebEvent.WHATSAPP_GROUP_ACCESS_PREVIEW);
 });
 </script>
 
 <style scoped>
 .whatsapp-groups-view {
-  min-height: 100vh;
+  min-height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .not-synced__container {
@@ -442,7 +338,7 @@ onMounted(async () => {
   gap: 12px;
 }
 
-.subject-card {
+.component-card {
   background: rgba(255, 255, 255, 0.2);
   padding: 12px 16px;
   border-radius: 8px;
@@ -536,83 +432,6 @@ onMounted(async () => {
 
 .preview-card {
   animation: fadeInUp 0.8s ease-out forwards;
-  filter: blur(1px);
-  pointer-events: none;
-}
-
-.coming-soon-overlay {
-  position: absolute;
-  top: 40%;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.8) 30%,
-    rgba(255, 255, 255, 0.95) 60%,
-    rgba(255, 255, 255, 1) 100%
-  );
-  backdrop-filter: blur(2px);
-  border-radius: 0 0 20px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-}
-
-.coming-soon-content {
-  text-align: center;
-  color: #2e7eed;
-  max-width: 500px;
-  padding: 40px 20px;
-}
-
-.coming-soon-icon {
-  margin-bottom: 24px;
-}
-
-.coming-soon-content h2 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 16px;
-  color: #2e7eed;
-  text-shadow: none;
-}
-
-.coming-soon-content p {
-  font-size: 1.2rem;
-  margin-bottom: 32px;
-  line-height: 1.6;
-  color: #2d2d2d;
-  opacity: 1;
-}
-
-.coming-soon-features {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 1.1rem;
-  background: rgba(46, 126, 237, 0.15);
-  padding: 12px 20px;
-  border-radius: 12px;
-  color: #2e7eed;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(46, 126, 237, 0.2);
-}
-
-.coming-soon-cta {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #2e7eed;
-  text-shadow: none;
 }
 
 @keyframes fadeInUp {
@@ -622,7 +441,7 @@ onMounted(async () => {
   }
 
   to {
-    opacity: 0.7;
+    opacity: 1;
     transform: translateY(0);
   }
 }
@@ -659,5 +478,21 @@ onMounted(async () => {
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.2s ease;
+}
+
+/* vue transition */
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.25s ease-out;
+}
+
+.slide-up-enter-from {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
 }
 </style>

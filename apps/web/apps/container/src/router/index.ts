@@ -121,7 +121,6 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       title: 'Grupos do Whatsapp',
       layout: 'include-sidebar',
-      auth: true,
     },
   },
   {
