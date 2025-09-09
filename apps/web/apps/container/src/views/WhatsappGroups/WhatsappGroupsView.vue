@@ -135,7 +135,6 @@ import WhatsappGroupCard from '@/components/WhatsappGroupCard/WhatsappGroupCard.
 import { useAuthStore } from '@/stores/auth';
 import { extensionURL, studentRecordURL } from '@/utils/consts';
 
-// import { mockedWhatsappGroups } from '@/utils/mockedWhatsappGroups';
 // todo: add eventTracker
 // todo: add logged-no-history state (paywall)
 type UserState = 'not-logged' | 'logged-no-history' | 'logged-with-history';
@@ -145,7 +144,10 @@ type SearchType = 'ra' | 'component';
 const authStore = useAuthStore();
 const isUserLoggedIn = computed(() => authStore.isLoggedIn);
 const userState = computed<UserState>(() => {
-  if (!authStore.isLoggedIn) return 'not-logged';
+  if (!authStore.isLoggedIn) {
+    return 'not-logged';
+  }
+
   return 'logged-with-history';
 });
 
@@ -201,11 +203,12 @@ const openWhatsappGroup = (url: string) => {
 onMounted(() => {
   if (authStore.user?.ra) {
     searchRaQuery.value = authStore.user.ra;
+    getWhatsappGroupsByRa(authStore.user.ra);
   }
 });
 </script>
 
-<style scoped>
+<style scoped lang="css">
 .whatsapp-groups-view {
   min-height: calc(100vh - 100px);
   display: flex;
