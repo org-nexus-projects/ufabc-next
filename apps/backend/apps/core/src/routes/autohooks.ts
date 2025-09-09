@@ -15,6 +15,7 @@ const PUBLIC_ROUTES = [
   '/help/form',
   '/users/recover',
   '/users/validate',
+  '/entities/enrollments/wpp',
 ];
 
 const EXTENSION_ROUTES = [
