@@ -88,7 +88,6 @@ const handleClick = () => {
   if (!isGroupAvailable.value) {
     return;
   }
-  console.log(props.component.groupURL)
   emit('openGroup', props.component.groupURL);
 };
 </script>
