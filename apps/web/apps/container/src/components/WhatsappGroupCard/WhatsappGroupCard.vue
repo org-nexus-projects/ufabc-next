@@ -1,79 +1,94 @@
 <template>
-  <div class="whatsapp-group-card" @click="() => handleClick()">
+  <div class="whatsapp-group-card">
     <div class="whatsapp-group-card__header">
       <div class="header__icon-container">
         <v-icon color="white"> mdi-book-open-page-variant </v-icon>
       </div>
       <div class="header__info">
         <h3 class="info__name">
-          {{ props.subject }}
+          {{ component.subject }}
         </h3>
         <div style="display: flex; gap: 16px">
           <p class="info__description">
-            {{ props.codigo }}
+            {{ component.codigo }}
           </p>
         </div>
       </div>
     </div>
 
     <div class="professor-info">
-      <p class="professor-name">Prof. Teoria: {{ props.teoria }}</p>
-      <p class="professor-name">Prof. Prática: {{ props.pratica }}</p>
+      <p class="professor-name">Prof. Teoria: {{ component.teoria }}</p>
+      <p class="professor-name">Prof. Prática: {{ component.pratica }}</p>
       <p class="season">
-        {{ props.season }}
+        {{ component.season }}
       </p>
     </div>
 
-    <div class="subject__data">
-      <div v-if="props.campus" class="metric">
+    <div class="component__data">
+      <div v-if="component.campus" class="metric">
         <v-icon>mdi-town-hall</v-icon>
         <span>{{ campusName }}</span>
       </div>
-      <div v-if="props.turno && props.turma" class="metric">
-        <p class="info__description">{{ props.turno }} - {{ props.turma }}</p>
+      <div v-if="component.turno && component.turma" class="metric">
+        <p class="info__description">
+          {{ component.turno }} - {{ component.turma }}
+        </p>
       </div>
     </div>
 
     <div class="activity-indicator">
       <v-btn
+        v-if="isGroupAvailable"
         color="black"
         prepend-icon="mdi-whatsapp"
         text="Entrar no Grupo"
         size="default"
         variant="text"
         width="100%"
+        @click="handleClick"
       />
+      <div v-else class="unavailable-group">
+        <v-icon color="grey-darken-1" size="20">mdi-whatsapp</v-icon>
+        <span class="unavailable-text">Grupo não disponível</span>
+        <v-tooltip activator="parent" location="top">
+          <span>Este grupo ainda não foi criado ou não está disponível no momento</span>
+        </v-tooltip>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { SearchComponentItem } from '@ufabc-next/types';
 import { computed } from 'vue';
 
 type WhatsappGroupCardProps = {
-  season: string;
-  groupUrl: string;
-  codigo: string;
-  campus?: 'sa' | 'sbc';
-  turma?: string;
-  turno?: string;
-  subject: string;
-  teoria: string;
-  pratica: string;
+  component: SearchComponentItem;
 };
 
 const props = defineProps<WhatsappGroupCardProps>();
+
 const campusName = computed(() => {
-  if (!props.campus) return null;
-  return props.campus === 'sa' ? 'Santo André' : 'São Bernardo';
+  if (!props.component.campus) return null;
+  return props.component.campus === 'sa' ? 'Santo André' : 'São Bernardo';
+});
+
+const isGroupAvailable = computed(() => {
+  return props.component.groupURL !== null 
+  && props.component.groupURL !== ''
+  && props.component.groupURL !== undefined;
+
 });
 
 const emit = defineEmits<{
-  (e: 'click'): void;
+  (e: 'openGroup', value: string): void;
 }>();
 
 const handleClick = () => {
-  emit('click');
+  if (!isGroupAvailable.value) {
+    return;
+  }
+  emit('openGroup', props.component.groupURL);
 };
 </script>
 
@@ -83,7 +98,7 @@ const handleClick = () => {
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
-  padding: 24px;
+  padding: 20px;
   cursor: pointer;
   transition: all 200ms ease;
 }
@@ -92,6 +107,16 @@ const handleClick = () => {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-color: #93c5fd;
   transform: translateY(-4px);
+}
+
+.whatsapp-group-card:has(.unavailable-group) {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.whatsapp-group-card:has(.unavailable-group):hover {
+  transform: none;
+  border-color: #e5e7eb;
 }
 
 .whatsapp-group-card__header {
@@ -165,7 +190,7 @@ const handleClick = () => {
   margin: 0;
 }
 
-.subject__data {
+.component__data {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -194,6 +219,24 @@ const handleClick = () => {
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+.unavailable-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 6px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.unavailable-text {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
 }
 
 .activity-dot {
