@@ -8,7 +8,7 @@
     "composite": true,
     "noEmit": false,
     "allowSyntheticDefaultImports": true,
-     "types": ["vite/client"]
+    "types": ["vite/client"]
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*"]
 }

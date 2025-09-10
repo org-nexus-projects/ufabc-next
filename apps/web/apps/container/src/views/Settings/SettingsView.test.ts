@@ -1,23 +1,25 @@
-import { http,HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw';
+import { createPinia, setActivePinia } from 'pinia';
 
 import { server } from '@/mocks/server';
 import { user as mockedUser } from '@/mocks/users';
-import { useAuth } from '@/stores/useAuth';
+import { useAuthStore } from '@/stores/auth';
 import { render, screen, userEvent, waitFor } from '@/test-utils';
 
 import { SettingsView } from '.';
 
 describe('<SettingsView />', () => {
-  const originalUseAuthValue = useAuth.getState();
+  let authStore: ReturnType<typeof useAuthStore>;
+
   beforeEach(() => {
-    useAuth.setState({
-      ...originalUseAuthValue,
-      token: 'token',
-      user: mockedUser,
-    });
+    setActivePinia(createPinia());
+    authStore = useAuthStore();
+    authStore.authenticate('token');
+    authStore.user = mockedUser;
   });
+
   afterEach(() => {
-    useAuth.setState(originalUseAuthValue);
+    authStore.logOut();
   });
   test('render settings loading when user info not loaded', () => {
     render(SettingsView);
@@ -67,12 +69,12 @@ describe('<SettingsView />', () => {
     user.click(await screen.findByText('Desativar Conta'));
     expect(await screen.findAllByText('Excluir conta')).toHaveLength(2);
 
-    expect(useAuth.getState().token).not.toBeNull();
-    expect(useAuth.getState().user).not.toBeNull();
+    expect(authStore.token).not.toBeNull();
+    expect(authStore.user).not.toBeNull();
     user.click(screen.getByRole('button', { name: 'Excluir conta' }));
     await waitFor(() => {
-      expect(useAuth.getState().token).toBeNull();
-      expect(useAuth.getState().user).toBeNull();
+      expect(authStore.token).toBeNull();
+      expect(authStore.user).toBeNull();
     });
   });
   test('show toast if error when deactivate user', async () => {
@@ -83,8 +85,8 @@ describe('<SettingsView />', () => {
     user.click(await screen.findByText('Desativar Conta'));
     expect(await screen.findAllByText('Excluir conta')).toHaveLength(2);
 
-    expect(useAuth.getState().token).not.toBeNull();
-    expect(useAuth.getState().user).not.toBeNull();
+    expect(authStore.token).not.toBeNull();
+    expect(authStore.user).not.toBeNull();
     user.click(screen.getByRole('button', { name: 'Excluir conta' }));
   });
   test('show toast if error when deactivate user', async () => {

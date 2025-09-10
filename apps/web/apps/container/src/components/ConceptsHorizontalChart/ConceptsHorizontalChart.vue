@@ -9,7 +9,7 @@
         ${grade.conceito}: ${(
           (100 * grades[grade.conceito]) /
           gradeData.count
-      ).toFixed(1)}% (${grade.count} notas)`"
+        ).toFixed(1)}% (${grade.count} notas)`"
     >
       <span
         class="grading-segment"
@@ -24,7 +24,8 @@
     <span
       v-if="gradeData.count < untrustableThreshold"
       class="low-samples text-body-2"
-    >Dados sem muitas amostras</span>
+      >Dados sem muitas amostras</span
+    >
   </div>
 </template>
 

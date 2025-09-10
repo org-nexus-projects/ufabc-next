@@ -1,4 +1,4 @@
-import { http,HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { useRouter } from 'vue-router';
 
 import { server } from '@/mocks/server';

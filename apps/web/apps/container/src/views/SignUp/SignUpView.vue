@@ -307,14 +307,14 @@ import { computed, ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 
 import { FeedbackAlert } from '@/components/FeedbackAlert';
-import { useAuth } from '@/stores/useAuth';
+import { useAuthStore } from '@/stores/auth';
 
 import { SignUpSchema } from './signUpValidationSchema';
 
-const { logOut } = useAuth();
+const authStore = useAuthStore();
 
 const handleLogout = () => {
-  logOut.value();
+  authStore.logOut();
 };
 
 const { smAndDown } = useDisplay();

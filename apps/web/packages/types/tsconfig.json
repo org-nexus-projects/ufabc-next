@@ -9,5 +9,5 @@
     "noEmit": false,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*"]
 }

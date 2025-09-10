@@ -5,7 +5,8 @@
         Adicione sua grade de matérias da UFABC ao seu calendário
       </h1>
       <h2 class="calengrade-welcome-screen__subtitle">
-        Gratuito e compatível com os principais aplicativos de celular e computador
+        Gratuito e compatível com os principais aplicativos de celular e
+        computador
       </h2>
     </section>
 
@@ -13,7 +14,7 @@
       src="../../../assets/calengrade/calendar.svg"
       alt="Calendário acadêmico"
       class="calendar-image"
-    >
+    />
 
     <button
       class="calengrade-button"
@@ -28,11 +29,11 @@
 import { CalengradeSteps } from '../types';
 
 const emit = defineEmits<{
-  (e: 'nextStep', step: CalengradeSteps): boolean
-}>()
+  (e: 'nextStep', step: CalengradeSteps): boolean;
+}>();
 
 const nextStep = (step: CalengradeSteps) => {
-  emit('nextStep', step)
+  emit('nextStep', step);
 };
 </script>
 
@@ -49,7 +50,6 @@ const nextStep = (step: CalengradeSteps) => {
 
   padding: 32px;
   justify-content: space-between;
-
 }
 
 .calengrade-welcome-screen__title {

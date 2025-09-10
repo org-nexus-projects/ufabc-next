@@ -1,4 +1,4 @@
-import { http,HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { useRouter } from 'vue-router';
 
 import { server } from '@/mocks/server';
@@ -26,8 +26,12 @@ describe('<RecoveryView />', () => {
   test('render recovery', () => {
     render(RecoveryView);
     expect(screen.getByAltText(/logo do UFABC Next/i)).toBeInTheDocument();
-    expect(screen.getByAltText(/Imagem minimalista de dois estudantes/i)).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /Insira seu email institucional/i })).toBeInTheDocument();
+    expect(
+      screen.getByAltText(/Imagem minimalista de dois estudantes/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('textbox', { name: /Insira seu email institucional/i }),
+    ).toBeInTheDocument();
   });
   test('click go back button', async () => {
     const user = await userEvent.setup();

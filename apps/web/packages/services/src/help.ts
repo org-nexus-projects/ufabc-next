@@ -19,18 +19,18 @@ export const sendHelpForm = async (
 ): Promise<HelpFormResult> => {
   const formData = new FormData();
 
-  formData.append("email", data.email);
-  formData.append("ra", data.ra);
-  formData.append("problemTitle", data.problemTitle);
-  formData.append("problemDescription", data.problemDescription);
+  formData.append('email', data.email);
+  formData.append('ra', data.ra);
+  formData.append('problemTitle', data.problemTitle);
+  formData.append('problemDescription', data.problemDescription);
 
   if (data.image) {
-    formData.append("image", data.image);
+    formData.append('image', data.image);
   }
 
-  const response = await api.post("/help/form", formData, {
+  const response = await api.post('/help/form', formData, {
     headers: {
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   });
 
@@ -38,5 +38,5 @@ export const sendHelpForm = async (
     return { success: true };
   }
 
-  throw new Error("Falha ao enviar o formulário");
+  throw new Error('Falha ao enviar o formulário');
 };

@@ -1,20 +1,23 @@
+import { createPinia, setActivePinia } from 'pinia';
+
 import { user as mockedUser } from '@/mocks/users';
-import { useAuth } from '@/stores/useAuth';
+import { useAuthStore } from '@/stores/auth';
 import { render, screen, userEvent, waitFor } from '@/test-utils';
 
 import { AppBar } from '.';
 
 describe('<AppBar />', () => {
-  const originalUseAuthValue = useAuth.getState();
+  let authStore: ReturnType<typeof useAuthStore>;
+
   beforeEach(() => {
-    useAuth.setState({
-      ...originalUseAuthValue,
-      token: 'token',
-      user: mockedUser,
-    });
+    setActivePinia(createPinia());
+    authStore = useAuthStore();
+    authStore.authenticate('mock-token');
+    authStore.user = mockedUser;
   });
+
   afterEach(() => {
-    useAuth.setState(originalUseAuthValue);
+    authStore.logOut();
   });
 
   test('render app bar', () => {
@@ -46,12 +49,10 @@ describe('<AppBar />', () => {
     ).toBeInTheDocument();
   });
   test('render user initials if user email has two names', async () => {
-    useAuth.setState({
-      user: {
-        ...mockedUser,
-        email: 'firstName.lastName@aluno.ufabc.edu.br',
-      },
-    });
+    authStore.user = {
+      ...mockedUser,
+      email: 'firstName.lastName@aluno.ufabc.edu.br',
+    };
     const user = userEvent.setup();
 
     render(AppBar);
@@ -69,12 +70,12 @@ describe('<AppBar />', () => {
     user.click(
       screen.getByRole('button', { name: 'Expandir menu de usuário' }),
     );
-    expect(useAuth.getState().token).not.toBeNull();
-    expect(useAuth.getState().user).not.toBeNull();
+    expect(authStore.token).not.toBeNull();
+    expect(authStore.user).not.toBeNull();
     user.click(await screen.findByText(/sair/i));
     await waitFor(() => {
-      expect(useAuth.getState().token).toBeNull();
-      expect(useAuth.getState().user).toBeNull();
+      expect(authStore.token).toBeNull();
+      expect(authStore.user).toBeNull();
     });
   });
 });

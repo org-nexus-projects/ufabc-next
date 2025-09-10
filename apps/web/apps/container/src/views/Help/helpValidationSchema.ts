@@ -4,6 +4,18 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
 
 export const helpFormSchema = z.object({
+  email: z
+    .string({
+      required_error: 'O email é obrigatório',
+    })
+    .email('Digite um email válido')
+    .min(1, 'O email é obrigatório'),
+  ra: z
+    .string({
+      required_error: 'O RA é obrigatório',
+    })
+    .min(1, 'O RA é obrigatório')
+    .regex(/^\d+$/, 'O RA deve conter apenas números'),
   problemTitle: z
     .string({
       required_error: 'O título é obrigatório',
@@ -19,18 +31,12 @@ export const helpFormSchema = z.object({
   image: z
     .instanceof(File)
     .optional()
-    .refine(
-      (file) => {
-        if (!file) return true; // Optional field
-        return file.size <= MAX_FILE_SIZE;
-      },
-      'A imagem deve ter no máximo 5MB'
-    )
-    .refine(
-      (file) => {
-        if (!file) return true; // Optional field
-        return ACCEPTED_IMAGE_TYPES.includes(file.type);
-      },
-      'Apenas imagens nos formatos JPEG, JPG ou PNG são permitidas'
-    ),
+    .refine((file) => {
+      if (!file) return true; // Optional field
+      return file.size <= MAX_FILE_SIZE;
+    }, 'A imagem deve ter no máximo 5MB')
+    .refine((file) => {
+      if (!file) return true; // Optional field
+      return ACCEPTED_IMAGE_TYPES.includes(file.type);
+    }, 'Apenas imagens nos formatos JPEG, JPG ou PNG são permitidas'),
 });

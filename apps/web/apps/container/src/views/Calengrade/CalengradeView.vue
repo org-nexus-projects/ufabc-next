@@ -5,7 +5,7 @@
         src="../../assets/calengrade/calengrade-logo.svg"
         alt="logo do Calengrade"
         class="calengrade-logo"
-      >
+      />
 
       <div class="calengrade-page__content">
         <WelcomeScreen
@@ -39,8 +39,8 @@
       <h3 class="calengrade-page__footer-credits">
         O Calengrade foi desenvolvido em 2020 por
         <a href="https://link.cariri.tech/calengrade-linkedin">
-          Marcelo Farias
-        </a>, um ex aluno da UFABC.
+          Marcelo Farias </a
+        >, um ex aluno da UFABC.
       </h3>
     </div>
   </div>
@@ -83,7 +83,7 @@ function getQuarterFromCurrentDate() {
 
 onMounted(() => {
   const quarter = getQuarterFromCurrentDate();
-  currentQuarter.value = quarter
+  currentQuarter.value = quarter;
 });
 
 const calengrade = reactive<CalengradeInfo>({

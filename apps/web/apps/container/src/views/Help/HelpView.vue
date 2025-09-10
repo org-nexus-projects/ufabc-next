@@ -13,6 +13,33 @@
           </v-row>
 
           <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="emailField.value.value"
+                :error-messages="emailField.errorMessage.value"
+                label="Email"
+                placeholder="Digite seu email"
+                outlined
+                dense
+                :disabled="isPendingSubmit || isDataFromStore"
+                :readonly="isDataFromStore"
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="raField.value.value"
+                :error-messages="raField.errorMessage.value"
+                label="RA"
+                placeholder="Digite seu RA"
+                outlined
+                dense
+                :disabled="isPendingSubmit || isDataFromStore"
+                :readonly="isDataFromStore"
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
             <v-col cols="12">
               <v-text-field
                 v-model="problemTitleField.value.value"
@@ -86,32 +113,43 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';
 import { useField, useForm } from 'vee-validate';
-import { nextTick, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 
 import { PaperCard } from '@/components/PaperCard';
-import { useAuth } from '@/stores/useAuth';
+import { useAuthStore } from '@/stores/auth';
 
 import { helpFormSchema } from './helpValidationSchema';
 
+const authStore = useAuthStore();
 const successMessage = ref<string>('');
 const fileUploadKey = ref<number>(0);
+
+const userEmail = computed(
+  () => authStore.user?.email ?? authStore.user?.oauth?.email ?? '',
+);
+const userRa = computed(() => authStore.user?.ra ?? '');
+const isDataFromStore = computed(() =>
+  Boolean(userEmail.value && userRa.value),
+);
 
 const validationSchema = toTypedSchema(helpFormSchema);
 
 const { handleSubmit, meta, resetForm } = useForm({
   validationSchema,
   initialValues: {
+    email: userEmail.value,
+    ra: String(userRa.value),
     problemTitle: '',
     problemDescription: '',
     image: undefined,
   },
 });
 
+const emailField = useField('email');
+const raField = useField('ra');
 const problemTitleField = useField('problemTitle');
 const problemDescriptionField = useField('problemDescription');
 const imageField = useField<File>('image');
-
-const { user } = useAuth();
 
 const { mutate: mutateSendForm, isPending: isPendingSubmit } = useMutation({
   mutationFn: sendHelpForm,
@@ -140,12 +178,10 @@ const { mutate: mutateSendForm, isPending: isPendingSubmit } = useMutation({
 
 const onSubmit = handleSubmit((values) => {
   successMessage.value = '';
-  const email = user.value?.email ?? user.value?.oauth?.email ?? '';
-  const ra = String(user.value?.ra ?? '');
 
   mutateSendForm({
-    email,
-    ra,
+    email: values.email,
+    ra: values.ra,
     problemTitle: values.problemTitle,
     problemDescription: values.problemDescription,
     image: values.image,

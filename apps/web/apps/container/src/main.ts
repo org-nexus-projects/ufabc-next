@@ -12,35 +12,19 @@ import Highcharts from 'highcharts';
 import accessibility from 'highcharts/modules/accessibility';
 import annotationsInit from 'highcharts/modules/annotations';
 import HighchartsVue from 'highcharts-vue';
+import { createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 import { createApp } from 'vue';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
+import { VFileUpload } from 'vuetify/labs/VFileUpload';
 
 import App from './App.vue';
 import { eventTracker } from './helpers/EventTracker';
 import client from './queryClient';
 import router from './router';
 import { theme } from './theme';
-
-accessibility(Highcharts);
-annotationsInit(Highcharts);
-
-const vuetify = createVuetify({
-  components,
-  directives,
-  theme: {
-    defaultTheme: 'theme',
-    themes: {
-      theme,
-    },
-  },
-});
-
-const queryClient = new QueryClientVue({
-  queryCache: client.getQueryCache(),
-  defaultOptions: client.getDefaultOptions(),
-});
 
 interface Device {
   cordova: string;
@@ -58,9 +42,35 @@ declare global {
   }
 }
 
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
+
+accessibility(Highcharts);
+annotationsInit(Highcharts);
+
+const vuetify = createVuetify({
+  components: {
+    ...components,
+    VFileUpload,
+  },
+  directives,
+  theme: {
+    defaultTheme: 'theme',
+    themes: {
+      theme,
+    },
+  },
+});
+
+const queryClient = new QueryClientVue({
+  queryCache: client.getQueryCache(),
+  defaultOptions: client.getDefaultOptions(),
+});
+
 eventTracker.init();
 
 createApp(App)
+  .use(pinia)
   .use(router)
   .use(vuetify)
   .use(elementPlus)

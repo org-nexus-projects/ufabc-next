@@ -1,12 +1,6 @@
 <template>
-  <FeedbackAlert
-    v-if="isErrorTeachers"
-    text="Erro ao buscar professores"
-  />
-  <FeedbackAlert
-    v-if="isErrorSubjects"
-    text="Erro ao buscar disciplinas"
-  />
+  <FeedbackAlert v-if="isErrorTeachers" text="Erro ao buscar professores" />
+  <FeedbackAlert v-if="isErrorSubjects" text="Erro ao buscar disciplinas" />
   <div class="wrapper w-100 mb-5">
     <v-text-field
       v-model="query"

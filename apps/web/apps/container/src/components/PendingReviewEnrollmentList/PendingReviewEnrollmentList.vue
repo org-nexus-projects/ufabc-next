@@ -3,17 +3,9 @@
     v-if="isErrorEnrollment"
     text="Erro ao buscar suas disciplinas cursadas"
   />
-  <PaperCard
-    v-if="filteredAndSeparatedEnrollments.length"
-    class="mt-10 w-100"
-  >
-    <p class="title">
-      Seus professores para avaliar:
-    </p>
-    <v-container
-      style="max-width: none"
-      class="pa-3"
-    >
+  <PaperCard v-if="filteredAndSeparatedEnrollments.length" class="mt-10 w-100">
+    <p class="title">Seus professores para avaliar:</p>
+    <v-container style="max-width: none" class="pa-3">
       <v-row>
         <v-col
           v-for="(enrollment, index) in filteredAndSeparatedEnrollments"

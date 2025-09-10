@@ -1,5 +1,6 @@
-import { authStore } from '@ufabc-next/stores';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+
+import { useAuthStore } from '@/stores/auth';
 
 const ReviewsView = () => import('@/views/Reviews/ReviewsView.vue');
 const PerformanceView = () => import('@/views/Performance/PerformanceView.vue');
@@ -16,6 +17,7 @@ const FacebookView = () => import('@/views/Facebook/FacebookView.vue');
 const CalengradeView = () => import('@/views/Calengrade/CalengradeView.vue');
 const WhatsappGroupsView = () =>
   import('@/views/WhatsappGroups/WhatsappGroupsView.vue');
+const HelpView = () => import('@/views/Help/HelpView.vue');
 
 const isJWT = (token: string) =>
   /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/=]*$/.test(token);
@@ -119,7 +121,6 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       title: 'Grupos do Whatsapp',
       layout: 'include-sidebar',
-      auth: true,
     },
   },
   {
@@ -139,6 +140,14 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       title: 'Autenticar Facebook',
       auth: false,
+    },
+  },
+  {
+    path: '/help',
+    name: 'help',
+    component: HelpView,
+    meta: {
+      title: 'Ajuda',
     },
   },
   {
@@ -167,14 +176,13 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, _from, next) => {
+  const authStore = useAuthStore();
   document.title = (to.meta.title as string) || 'UFABC Next';
 
   const tokenParam = to.query.token;
 
-  const { authenticate } = authStore.getState();
-
   if (isJWT(tokenParam as string)) {
-    authenticate(tokenParam as string);
+    authStore.authenticate(tokenParam as string);
     return next({ query: { token: undefined } });
   }
 
@@ -187,20 +195,18 @@ router.beforeEach(async (to, _from, next) => {
     (record) => record.meta.confirmed === false,
   );
 
-  const { isLoggedIn, user, logOut } = authStore.getState();
-
-  if (isLoggedIn() && user) {
+  if (authStore.isLoggedIn && authStore.user) {
     const expirationPeriod = 1 * 24 * 60 * 60; // 1 day
     const currentTime = Math.floor(Date.now() / 1000);
-    const expirationTime = user.iat + expirationPeriod;
+    const expirationTime = authStore.user.iat + expirationPeriod;
 
     if (expirationTime < currentTime) {
-      logOut();
+      authStore.logOut();
       return next('/');
     }
   }
 
-  const userConfirmed = user?.confirmed;
+  const userConfirmed = authStore.user?.confirmed;
 
   const isLocal = import.meta.env.DEV;
 
@@ -210,18 +216,18 @@ router.beforeEach(async (to, _from, next) => {
     isLocal ? next(notConfirmedRedirectPath) : (window.location.pathname = '/');
 
   if (requireAuth) {
-    if (isLoggedIn()) return next();
+    if (authStore.isLoggedIn) return next();
     return notAuthenticatedRedirect();
   }
   if (requireConfirmed) {
-    if (isLoggedIn()) {
+    if (authStore.isLoggedIn) {
       if (userConfirmed) return next();
       return next(notConfirmedRedirectPath);
     }
     return notAuthenticatedRedirect();
   }
   if (notAllowAuth) {
-    if (isLoggedIn()) return next(authenticatedRedirectPath);
+    if (authStore.isLoggedIn) return next(authenticatedRedirectPath);
     return next();
   }
   if (notAllowConfirmed) {

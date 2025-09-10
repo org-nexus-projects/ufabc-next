@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-navigation-drawer
-      v-if="user?.confirmed || layout === 'include-sidebar'"
+      v-if="authStore.user?.confirmed || layout === 'include-sidebar'"
       v-model="drawer"
       color="navigation"
       width="240"
@@ -58,7 +58,7 @@
           </v-layout>
         </v-list-item>
       </v-list>
-      <div v-if="!user?.confirmed">
+      <div v-if="!authStore.user?.confirmed">
         <v-divider />
         <div style="height: 64px" />
         <div
@@ -88,7 +88,7 @@
     </v-navigation-drawer>
 
     <v-app-bar
-      v-if="user?.confirmed || layout === 'include-sidebar'"
+      v-if="authStore.user?.confirmed || layout === 'include-sidebar'"
       app
       height="min-content"
       class="py-2 header"
@@ -111,7 +111,7 @@
       />
 
       <v-spacer />
-      <div v-if="user?.confirmed">
+      <div v-if="authStore.user?.confirmed">
         <v-btn
           color="primary"
           icon="mdi-dots-vertical"
@@ -128,10 +128,10 @@
                   <v-layout class="flex-column ml-4">
                     <p>{{ userLogin }}</p>
                     <p
-                      v-if="user?.ra"
+                      v-if="authStore.user?.ra"
                       class="text-caption text-medium-emphasis"
                     >
-                      RA: {{ user.ra }}
+                      RA: {{ authStore.user.ra }}
                     </p>
                   </v-layout>
                 </v-layout>
@@ -152,7 +152,7 @@
       </div>
     </v-app-bar>
     <div
-      v-if="user?.confirmed || layout === 'include-sidebar'"
+      v-if="authStore.user?.confirmed || layout === 'include-sidebar'"
       style="height: 64px"
     />
     <slot />
@@ -164,16 +164,16 @@ import dayjs from 'dayjs';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { useAuth } from '@/stores/useAuth';
+import { useAuthStore } from '@/stores/auth';
 import { useAliasInitials } from '@/utils/composables/aliasInitials';
 
 const router = useRouter();
+const authStore = useAuthStore();
 
 const layout = computed(() => router.currentRoute.value.meta.layout ?? null);
 
-const { logOut, user } = useAuth();
 const handleLogout = () => {
-  logOut.value();
+  authStore.logOut();
 };
 
 const createAccount = () => {
@@ -186,7 +186,7 @@ onMounted(() => {
 });
 
 const userLogin = computed(() =>
-  user.value?.email?.replace('@aluno.ufabc.edu.br', ''),
+  authStore.user?.email?.replace('@aluno.ufabc.edu.br', ''),
 );
 const userInitials = useAliasInitials();
 
@@ -195,25 +195,25 @@ const internalNavigationItems = [
     title: 'Reviews',
     icon: 'mdi-message-draw',
     route: '/reviews',
-    locked: !user.value?.confirmed,
+    locked: !authStore.user?.confirmed,
   },
   {
     title: 'Meu histórico',
     icon: 'mdi-history',
     route: '/history',
-    locked: !user.value?.confirmed,
+    locked: !authStore.user?.confirmed,
   },
   {
     title: 'Performance',
     icon: 'mdi-google-analytics',
     route: '/performance',
-    locked: !user.value?.confirmed,
+    locked: !authStore.user?.confirmed,
   },
   {
     title: 'Dados da Matrícula',
     icon: 'mdi-book-multiple',
     route: '/stats',
-    locked: !user.value?.confirmed,
+    locked: !authStore.user?.confirmed,
   },
   {
     title: 'Grupos no WhatsApp',
@@ -229,17 +229,23 @@ const internalNavigationItems = [
     releaseDate: dayjs('11/25/2023'),
     locked: false,
   },
-  //{
-  //title: 'Apoie o UFABC next',
-  //icon: 'mdi-bank',
-  //route: '/donate',
-  // locked: false,
-  //},
+  {
+    title: 'Apoie o UFABC next',
+    icon: 'mdi-bank',
+    route: '/donate',
+    locked: false,
+  },
   {
     title: 'Configurações',
     icon: 'mdi-cog',
     route: '/settings',
-    locked: !user.value?.confirmed,
+    locked: !authStore.user?.confirmed,
+  },
+  {
+    title: 'Ajuda',
+    icon: 'mdi-help-circle',
+    route: '/help',
+    locked: false,
   },
 ];
 
@@ -256,12 +262,12 @@ const externalNavigationItems = [
     icon: 'mdi-download',
     url: 'https://chrome.google.com/webstore/detail/ufabc-next/gphjopenfpnlnffmhhhhdiecgdcopmhk',
   },
-  ...(user.value?.permissions?.includes('admin')
+  ...(authStore.user?.permissions?.includes('admin')
     ? [
         {
           title: 'Monitoramento de Jobs',
           icon: 'mdi-open-in-new',
-          url: `${apiURL}/login/jobs-monitoring?userId=${user.value?._id}`,
+          url: `${apiURL}/login/jobs-monitoring?userId=${authStore.user?._id}`,
         },
       ]
     : []),
