@@ -215,13 +215,13 @@ const internalNavigationItems = [
     route: '/stats',
     locked: !authStore.user?.confirmed,
   },
-  {
-    title: 'Grupos no WhatsApp',
-    icon: 'mdi-whatsapp',
-    route: '/grupos-whatsapp',
-    releaseDate: dayjs('06/01/2025'),
-    locked: false,
-  },
+  // {
+  //   title: 'Grupos no WhatsApp',
+  //   icon: 'mdi-whatsapp',
+  //   route: '/grupos-whatsapp',
+  //   releaseDate: dayjs('07/10/2025'),
+  //   locked: false,
+  // },
   {
     title: 'Calengrade',
     icon: 'mdi-calendar',
