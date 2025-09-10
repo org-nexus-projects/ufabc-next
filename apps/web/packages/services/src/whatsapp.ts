@@ -7,6 +7,6 @@ export const Whatsapp = {
     api.get<SearchComponentItem[]>('entities/components'),
   getComponentsByUser: async (ra: number) =>
     api.get<SearchComponentItem[]>('entities/enrollments/wpp', {
-      params: { ra, season: '2025:2' },
+      params: { ra, season: '2025:3' },
     }),
 };
