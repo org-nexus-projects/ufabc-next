@@ -165,15 +165,16 @@
 import { useQuery } from '@tanstack/vue-query';
 import { Enrollments, Whatsapp } from '@ufabc-next/services';
 import { useDebounceFn } from '@vueuse/core';
+import dayjs from 'dayjs';
 import { computed, onMounted, ref } from 'vue';
 
 import WhatsappGroupCard from '@/components/WhatsappGroupCard/WhatsappGroupCard.vue';
+import { eventTracker } from '@/helpers/EventTracker';
+import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
 import { extensionURL, studentRecordURL } from '@/utils/consts';
 import { mockedWhatsappGroups } from '@/utils/mockedWhatsappGroups';
 import { normalizeText } from '@/utils/normalizeTextSearch';
-
-// todo: add eventTracker
 
 type SearchType = 'ra' | 'component';
 
@@ -228,9 +229,15 @@ const getWhatsappGroupsByComponent = () => {
 function getWhatsappGroupsByRa() {
   if (!isRaValid.value) {
     shouldFetchGroupsByRa.value = false;
-
     return;
   }
+
+  eventTracker.track(WebEvent.WHATSAPP_GROUP_SEARCH, {
+    search_type: 'ra',
+    search_query: searchRaQuery.value,
+    user_logged_in: isUserLoggedIn.value,
+    user_synced: isUserSynced.value,
+  });
 
   shouldFetchGroupsByRa.value = true;
 }
@@ -265,10 +272,14 @@ const filteredComponents = computed(() => {
   return allComponents.value.data.filter((component) => {
     const normalizedSubject = normalizeText(component.subject || '');
     const normalizedCodigo = normalizeText(component.codigo || '');
+    const normalizedTeoria = normalizeText(component.teoria || '');
+    const normalizedPratica = normalizeText(component.pratica || '');
 
     return (
       normalizedSubject.includes(normalizedQuery) ||
-      normalizedCodigo.includes(normalizedQuery)
+      normalizedCodigo.includes(normalizedQuery) ||
+      normalizedTeoria.includes(normalizedQuery) ||
+      normalizedPratica.includes(normalizedQuery)
     );
   });
 });
@@ -300,14 +311,42 @@ const currentSuccess = computed(() => {
 });
 
 const openExtensionUrl = () => {
+  eventTracker.track(WebEvent.WHATSAPP_GROUP_OPEN_EXTENSION, {
+    user_ra: authStore.user?.ra || null,
+    user_logged_in: isUserLoggedIn.value,
+    user_synced: isUserSynced.value,
+    from_paywall: needToShowPaywall.value,
+  });
+
   window.open(extensionURL, '_blank');
 };
 
 const openSyncHistory = () => {
+  eventTracker.track(WebEvent.WHATSAPP_GROUP_OPEN_SYNC, {
+    user_ra: authStore.user?.ra || null,
+    user_logged_in: isUserLoggedIn.value,
+    user_synced: isUserSynced.value,
+    from_paywall: needToShowPaywall.value,
+  });
+
   window.open(studentRecordURL, '_blank');
 };
 
 const openWhatsappGroup = (url: string) => {
+  const component = currentGroups.value.find((group) => group.groupURL === url);
+
+  eventTracker.track(WebEvent.WHATSAPP_GROUP_JOINED, {
+    whatsapp_url: url,
+    component: component,
+    search_type: selectedSearchType.value,
+    search_query:
+      selectedSearchType.value === 'ra'
+        ? searchRaQuery.value
+        : searchComponentQuery.value,
+    user_logged_in: isUserLoggedIn.value,
+    user_synced: isUserSynced.value,
+  });
+
   window.open(url, '_blank');
 };
 
@@ -315,7 +354,16 @@ async function getUserSyncStatus() {
   try {
     const response = await Enrollments.list();
     const date = response.data[0].updatedAt;
-    isUserSynced.value = Boolean(date && new Date(date));
+
+    if (!date) {
+      isUserSynced.value = false;
+      return;
+    }
+
+    const lastUpdateDate = dayjs(date);
+    const oneMonthAgo = dayjs().subtract(1, 'month');
+
+    isUserSynced.value = lastUpdateDate.isAfter(oneMonthAgo);
   } catch (error) {
     isUserSynced.value = false;
   }
@@ -325,10 +373,19 @@ onMounted(async () => {
   isUserSyncLoading.value = true;
   await getUserSyncStatus();
 
+  eventTracker.track(WebEvent.WHATSAPP_GROUP_VIEWED, {
+    event_type: 'page_view',
+    user_logged_in: isUserLoggedIn.value,
+    user_synced: isUserSynced.value,
+    needs_paywall: needToShowPaywall.value,
+    user_ra: authStore.user?.ra || null,
+  });
+
   if (authStore.user?.ra && isUserSynced.value) {
     searchRaQuery.value = authStore.user.ra;
     getWhatsappGroupsByRa();
   }
+
   isUserSyncLoading.value = false;
 });
 </script>

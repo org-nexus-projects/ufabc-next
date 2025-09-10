@@ -4,4 +4,5 @@ export enum WebEvent {
   WHATSAPP_GROUP_NOT_FOUND = 'whatsapp_groups_not_found',
   WHATSAPP_GROUP_OPEN_EXTENSION = 'whatsapp_groups_open_extension',
   WHATSAPP_GROUP_OPEN_SYNC = 'whatsapp_groups_open_sync',
+  WHATSAPP_GROUP_VIEWED = 'whatsapp_groups_viewed',
 }
