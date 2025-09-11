@@ -130,7 +130,6 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       title: 'Calengrade',
       layout: 'include-sidebar',
-      auth: true,
     },
   },
   {
@@ -148,6 +147,7 @@ const routes: Array<RouteRecordRaw> = [
     component: HelpView,
     meta: {
       title: 'Ajuda',
+      layout: 'include-sidebar',
     },
   },
   {

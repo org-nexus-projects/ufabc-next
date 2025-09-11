@@ -61,23 +61,19 @@
       <div v-if="!authStore.user?.confirmed">
         <v-divider />
         <div style="height: 64px" />
-        <div
-          class="mb-4 pa-3 rounded-md bg-blue-darken-3 border border-blue-darken-2 text-blue-50 text-subtitle-2"
-        >
-          <div class="d-flex align-center gap-2">
-            <v-icon class="bg-blue-darken-2 pa-1 rounded-circle" size="20">
-              mdi-lock-outline
-            </v-icon>
+        <div class="mb-4 pa-4 bg-blue-darken-3 border create-account-box">
+          <div class="d-flex align-center gap-3">
+            <v-icon class="pa-1" size="20"> mdi-lock-outline </v-icon>
             <strong>Conta não confirmada</strong>
           </div>
           <div class="mt-2 text-caption">
             Crie sua conta no next para acessar todas as funcionalidades.
           </div>
           <v-btn
-            variant="outlined"
+            variant="tonal"
             size="small"
             block
-            class="mt-2 bg-blue-darken-2 text-white text-caption"
+            class="mt-4 bg-blue-darken-2 text-white text-caption pa-2"
             style="border-color: #1e40af"
             @click="createAccount"
           >
@@ -215,13 +211,13 @@ const internalNavigationItems = [
     route: '/stats',
     locked: !authStore.user?.confirmed,
   },
-  // {
-  //   title: 'Grupos no WhatsApp',
-  //   icon: 'mdi-whatsapp',
-  //   route: '/grupos-whatsapp',
-  //   releaseDate: dayjs('07/10/2025'),
-  //   locked: false,
-  // },
+  {
+    title: 'Grupos no WhatsApp',
+    icon: 'mdi-whatsapp',
+    route: '/grupos-whatsapp',
+    releaseDate: dayjs('07/10/2025'),
+    locked: false,
+  },
   {
     title: 'Calengrade',
     icon: 'mdi-calendar',
@@ -310,5 +306,10 @@ const externalNavigationItems = [
   margin-left: auto;
   border-radius: 50%;
   border: 12px solid rgb(45, 78, 128);
+}
+
+.create-account-box {
+  border-radius: 16px;
+  margin: 10px;
 }
 </style>

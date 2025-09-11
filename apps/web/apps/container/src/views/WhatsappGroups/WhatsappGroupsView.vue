@@ -19,12 +19,12 @@
                 placeholder="Digite seu RA (ex: 11202012345)"
                 variant="outlined"
                 size="large"
+                :loading="isUserSyncLoading"
+                :disabled="isUserLoggedIn && isUserSynced"
                 prepend-inner-icon="mdi-magnify"
                 clearable
-                :disabled="currentLoading || isUserLoggedIn"
                 class="main-search"
                 control-variant="hidden"
-                @blur.prevent="getWhatsappGroupsByRa"
               >
               </v-number-input>
 
@@ -34,6 +34,7 @@
                 placeholder="Digite o nome da disciplina (ex: Função de várias variáveis)"
                 variant="outlined"
                 size="large"
+                :loading="isUserSyncLoading"
                 prepend-inner-icon="mdi-magnify"
                 clearable
                 class="main-search"
@@ -166,7 +167,8 @@ import { useQuery } from '@tanstack/vue-query';
 import { Enrollments, Whatsapp } from '@ufabc-next/services';
 import { useDebounceFn } from '@vueuse/core';
 import dayjs from 'dayjs';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, toValue, watch } from 'vue';
+import { useRoute } from 'vue-router';
 
 import WhatsappGroupCard from '@/components/WhatsappGroupCard/WhatsappGroupCard.vue';
 import { eventTracker } from '@/helpers/EventTracker';
@@ -178,9 +180,13 @@ import { normalizeText } from '@/utils/normalizeTextSearch';
 
 type SearchType = 'ra' | 'component';
 
+const route = useRoute();
 const authStore = useAuthStore();
+const userRa = computed(
+  () => authStore.user?.ra || (route.query.ra ? Number(route.query.ra) : null),
+);
 const isUserLoggedIn = computed(() => authStore.isLoggedIn);
-const isUserSynced = ref(false);
+const isUserSynced = ref(true);
 const needToShowPaywall = computed(
   () => isUserLoggedIn.value && !isUserSynced.value,
 );
@@ -196,6 +202,21 @@ const shouldFetchGroupsByRa = ref(false);
 const shouldFetchComponents = ref(false);
 const selectedSearchType = ref<SearchType>('ra');
 
+const debouncedRaSearch = useDebounceFn((raValue: number) => {
+  if (raValue && String(raValue).length >= 8) {
+    eventTracker.track(WebEvent.WHATSAPP_GROUP_SEARCH, {
+      search_type: 'ra',
+      search_query: raValue,
+      user_logged_in: isUserLoggedIn.value,
+      user_synced: isUserSynced.value,
+    });
+
+    shouldFetchGroupsByRa.value = true;
+  } else {
+    shouldFetchGroupsByRa.value = false;
+  }
+}, 500);
+
 const selectSearchType = (type: SearchType) => {
   if (!isUserLoggedIn.value) {
     searchRaQuery.value = null;
@@ -206,12 +227,11 @@ const selectSearchType = (type: SearchType) => {
   shouldFetchGroupsByRa.value = false;
   shouldFetchComponents.value = false;
 
-  if (type === 'ra' && isRaValid.value) {
-    getWhatsappGroupsByRa();
+  if (type === 'ra' && isRaValid.value && searchRaQuery.value) {
+    debouncedRaSearch(searchRaQuery.value);
   }
 };
 
-// Debounced component search function
 const debouncedComponentSearch = useDebounceFn((query: string) => {
   if (query.trim().length >= 2) {
     shouldFetchComponents.value = true;
@@ -220,27 +240,19 @@ const debouncedComponentSearch = useDebounceFn((query: string) => {
   }
 }, 300);
 
+watch(searchRaQuery, (newRa) => {
+  if (selectedSearchType.value === 'ra' && newRa !== null) {
+    debouncedRaSearch(newRa);
+  } else if (selectedSearchType.value === 'ra') {
+    shouldFetchGroupsByRa.value = false;
+  }
+});
+
 const getWhatsappGroupsByComponent = () => {
   if (selectedSearchType.value === 'component') {
     debouncedComponentSearch(searchComponentQuery.value);
   }
 };
-
-function getWhatsappGroupsByRa() {
-  if (!isRaValid.value) {
-    shouldFetchGroupsByRa.value = false;
-    return;
-  }
-
-  eventTracker.track(WebEvent.WHATSAPP_GROUP_SEARCH, {
-    search_type: 'ra',
-    search_query: searchRaQuery.value,
-    user_logged_in: isUserLoggedIn.value,
-    user_synced: isUserSynced.value,
-  });
-
-  shouldFetchGroupsByRa.value = true;
-}
 
 const {
   data: groupsByRa,
@@ -295,10 +307,6 @@ const currentGroups = computed(() => {
 
 const isUserSyncLoading = ref(true);
 const currentLoading = computed(() => {
-  if (isUserSyncLoading.value) {
-    return true;
-  }
-
   return selectedSearchType.value === 'ra'
     ? isGroupsByRaLoading.value
     : isComponentsLoading.value;
@@ -312,7 +320,7 @@ const currentSuccess = computed(() => {
 
 const openExtensionUrl = () => {
   eventTracker.track(WebEvent.WHATSAPP_GROUP_OPEN_EXTENSION, {
-    user_ra: authStore.user?.ra || null,
+    user_ra: userRa.value || null,
     user_logged_in: isUserLoggedIn.value,
     user_synced: isUserSynced.value,
     from_paywall: needToShowPaywall.value,
@@ -323,7 +331,7 @@ const openExtensionUrl = () => {
 
 const openSyncHistory = () => {
   eventTracker.track(WebEvent.WHATSAPP_GROUP_OPEN_SYNC, {
-    user_ra: authStore.user?.ra || null,
+    user_ra: userRa.value || null,
     user_logged_in: isUserLoggedIn.value,
     user_synced: isUserSynced.value,
     from_paywall: needToShowPaywall.value,
@@ -378,12 +386,14 @@ onMounted(async () => {
     user_logged_in: isUserLoggedIn.value,
     user_synced: isUserSynced.value,
     needs_paywall: needToShowPaywall.value,
-    user_ra: authStore.user?.ra || null,
+    user_ra: userRa.value || null,
   });
 
-  if (authStore.user?.ra && isUserSynced.value) {
-    searchRaQuery.value = authStore.user.ra;
-    getWhatsappGroupsByRa();
+  if ((isUserLoggedIn.value && isUserSynced.value) || route.query.ra) {
+    searchRaQuery.value = toValue(userRa);
+    if (searchRaQuery.value !== null) {
+      debouncedRaSearch(searchRaQuery.value);
+    }
   }
 
   isUserSyncLoading.value = false;

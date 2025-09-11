@@ -6,7 +6,7 @@
         id="app-container"
         :style="`min-height: calc(100vh${
           confirmedUser || layout === 'include-sidebar' ? '- 64px' : ''
-        }); min-height: calc(100svh${confirmedUser || layout === 'include-sidebar' ? '- 64px' : ''})`"
+        }); min-height: calc(100svh- 64px})`"
       >
         <router-view />
       </v-container>
