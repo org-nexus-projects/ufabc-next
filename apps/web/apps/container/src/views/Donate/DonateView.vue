@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 import { PaperCard } from '@/components/PaperCard';
+import { eventTracker } from '@/helpers/EventTracker';
+import { WebEvent } from '@/helpers/WebEvent';
 
 const dialog = ref(false);
 
@@ -11,6 +13,14 @@ const handleCloseDialog = () => {
 
 const handleOpenDialog = () => {
   dialog.value = true;
+
+  eventTracker.track(WebEvent.DONATE_DIALOG_OPENED, {
+    event_type: 'dialog_open',
+  });
+};
+
+const handlePixLinkClick = () => {
+  eventTracker.track(WebEvent.DONATE_PIX_LINK_CLICKED);
 };
 
 const tableData = [
@@ -33,6 +43,12 @@ const tableData = [
     amount: 'US$ 100,00/ano',
   },
 ];
+
+onMounted(() => {
+  eventTracker.track(WebEvent.DONATE_VIEW_ENTERED, {
+    event_type: 'page_view',
+  });
+});
 </script>
 
 <template>
@@ -167,6 +183,7 @@ const tableData = [
               href="https://nubank.com.br/pagar/cs8ck/sVTkIdy1Yx"
               target="_blank"
               rel="noopener noreferrer"
+              @click="handlePixLinkClick"
               ><p>Clique e contribua!</p></a
             >
           </div>

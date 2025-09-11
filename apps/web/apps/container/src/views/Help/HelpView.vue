@@ -113,9 +113,11 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';
 import { useField, useForm } from 'vee-validate';
-import { computed, nextTick, ref } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 
 import { PaperCard } from '@/components/PaperCard';
+import { eventTracker } from '@/helpers/EventTracker';
+import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
 
 import { helpFormSchema } from './helpValidationSchema';
@@ -164,6 +166,12 @@ const { mutate: mutateSendForm, isPending: isPendingSubmit } = useMutation({
       type: 'success',
       showClose: true,
     });
+
+    eventTracker.track(WebEvent.HELP_FORM_SUBMITTED, {
+      event_type: 'form_submit_success',
+      has_image: Boolean(imageField.value.value),
+      user_logged_in: isDataFromStore.value,
+    });
   },
   onError: (error: AxiosError<RequestError>) => {
     ElMessage({
@@ -185,6 +193,15 @@ const onSubmit = handleSubmit((values) => {
     problemTitle: values.problemTitle,
     problemDescription: values.problemDescription,
     image: values.image,
+  });
+});
+
+onMounted(() => {
+  eventTracker.track(WebEvent.HELP_ACCESS, {
+    event_type: 'page_view',
+    user_logged_in: isDataFromStore.value,
+    user_email: Boolean(userEmail.value),
+    user_ra: Boolean(userRa.value),
   });
 });
 </script>

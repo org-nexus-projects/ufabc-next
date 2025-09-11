@@ -49,6 +49,8 @@
 <script lang="ts" setup>
 import { onMounted, reactive, ref, watch } from 'vue';
 
+import { eventTracker } from '@/helpers/EventTracker';
+import { WebEvent } from '@/helpers/WebEvent';
 import { definedQuarters } from '@/utils/quarters';
 
 import ChangeQuarterScreen from './screens/ChangeQuarterScreen.vue';
@@ -84,6 +86,10 @@ function getQuarterFromCurrentDate() {
 onMounted(() => {
   const quarter = getQuarterFromCurrentDate();
   currentQuarter.value = quarter;
+
+  eventTracker.track(WebEvent.CALENGRADE_ACCESS, {
+    event_type: 'page_view',
+  });
 });
 
 const calengrade = reactive<CalengradeInfo>({
@@ -111,6 +117,13 @@ const onUpdateSummary = (value: string) => {
 
 const onNextStep = (step: CalengradeSteps) => {
   currentStepName.value = step;
+
+  if (step === CalengradeSteps.Preview) {
+    eventTracker.track(WebEvent.CALENGRADE_PREVIEW_GENERATED, {
+      event_type: 'preview_generated',
+      quarter_title: calengrade.quarter?.title || 'unknown',
+    });
+  }
 };
 
 const resetCalengrade = () => {

@@ -160,6 +160,8 @@ import dayjs from 'dayjs';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
+import { eventTracker } from '@/helpers/EventTracker';
+import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
 import { useAliasInitials } from '@/utils/composables/aliasInitials';
 
@@ -173,7 +175,11 @@ const handleLogout = () => {
 };
 
 const createAccount = () => {
-  router.push('/');
+  eventTracker.track(WebEvent.CREATE_ACCOUNT_CLICKED, {
+    source: 'app_bar_sidebar',
+  });
+
+  router.push('/signup');
 };
 
 const drawer = ref(false);
