@@ -17,6 +17,7 @@ export const user = {
   email: 'email@aluno.ufabc.edu.br',
   permissions: [],
   iat: 9999999,
+  isSynced: true,
 } satisfies User;
 
 export const userGrades = [
