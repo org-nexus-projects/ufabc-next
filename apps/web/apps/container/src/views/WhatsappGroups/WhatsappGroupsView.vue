@@ -196,7 +196,7 @@ const {
   enabled: isUserLoggedIn,
 });
 
-const isUserSynced = computed(() => userInfo.value?.isSynced ?? false);
+const isUserSynced = computed(() => userInfo.value?.isSynced ?? true);
 const needToShowPaywall = computed(
   () => isUserLoggedIn.value && !isUserSynced.value,
 );
