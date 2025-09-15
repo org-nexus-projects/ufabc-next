@@ -164,9 +164,8 @@
 
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
-import { Enrollments, Whatsapp } from '@ufabc-next/services';
+import { Users, Whatsapp } from '@ufabc-next/services';
 import { useDebounceFn } from '@vueuse/core';
-import dayjs from 'dayjs';
 import { computed, onMounted, ref, toValue, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
@@ -186,7 +185,18 @@ const userRa = computed(
   () => authStore.user?.ra || (route.query.ra ? Number(route.query.ra) : null),
 );
 const isUserLoggedIn = computed(() => authStore.isLoggedIn);
-const isUserSynced = ref(true);
+
+const {
+  data: userInfo,
+  isLoading: isUserSyncLoading,
+} = useQuery({
+  queryKey: ['users', 'info'],
+  queryFn: Users.info,
+  select: (response) => response.data,
+  enabled: isUserLoggedIn,
+});
+
+const isUserSynced = computed(() => userInfo.value?.isSynced ?? true);
 const needToShowPaywall = computed(
   () => isUserLoggedIn.value && !isUserSynced.value,
 );
@@ -305,7 +315,6 @@ const currentGroups = computed(() => {
     : groupsFromComponents.value;
 });
 
-const isUserSyncLoading = ref(true);
 const currentLoading = computed(() => {
   return selectedSearchType.value === 'ra'
     ? isGroupsByRaLoading.value
@@ -358,29 +367,7 @@ const openWhatsappGroup = (url: string) => {
   window.open(url, '_blank');
 };
 
-async function getUserSyncStatus() {
-  try {
-    const response = await Enrollments.list();
-    const date = response.data[0].updatedAt;
-
-    if (!date) {
-      isUserSynced.value = false;
-      return;
-    }
-
-    const lastUpdateDate = dayjs(date);
-    const oneMonthAgo = dayjs().subtract(1, 'month');
-
-    isUserSynced.value = lastUpdateDate.isAfter(oneMonthAgo);
-  } catch (error) {
-    isUserSynced.value = false;
-  }
-}
-
-onMounted(async () => {
-  isUserSyncLoading.value = true;
-  await getUserSyncStatus();
-
+onMounted(() => {
   eventTracker.track(WebEvent.WHATSAPP_GROUP_VIEWED, {
     event_type: 'page_view',
     user_logged_in: isUserLoggedIn.value,
@@ -395,8 +382,6 @@ onMounted(async () => {
       debouncedRaSearch(searchRaQuery.value);
     }
   }
-
-  isUserSyncLoading.value = false;
 });
 </script>
 
