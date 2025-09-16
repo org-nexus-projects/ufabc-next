@@ -2,7 +2,7 @@ import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 import { z } from 'zod';
 import 'zod-openapi/extend';
 
-const SIG_RESULTS = ['A', 'B', 'C', 'D', 'E', 'F', 'O', '-', '', '0'] as const;
+const SIG_RESULTS = ['A', 'B', 'C', 'D', 'E', 'F', 'O', '-', '', '0', '--'] as const;
 const SIG_CATEGORIES = ['mandatory', 'limited', 'free'] as const;
 const SIG_COMPONENTS_STATUS = [
   'APR', // Aprovado por média
