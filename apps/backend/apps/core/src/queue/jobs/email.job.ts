@@ -3,7 +3,7 @@ import type { QueueContext } from '../types.js';
 import {
   SendTemplatedEmailCommand,
   type SendTemplatedEmailCommandInput,
-  SendEmailCommand,
+  SendBulkTemplatedEmailCommand,
 } from '@aws-sdk/client-ses';
 import { sesClient } from '@/lib/aws.service.js';
 
@@ -123,17 +123,19 @@ export async function sesSendEmail(
 }
 
 type BulkEmailJob = {
-  subject: string;
-  html: string;
+  templateName: string;
   recipients: string[];
   from?: string;
   batchSize?: number;
 };
 
 export async function sendBulkEmail(ctx: QueueContext<BulkEmailJob>) {
-  const { subject, html, recipients, from, batchSize = 50 } = ctx.job.data;
+  const { templateName, recipients, from, batchSize = 50 } = ctx.job.data;
   
-  ctx.app.log.info({ totalRecipients: recipients.length }, 'Iniciando envio de email em massa');
+  ctx.app.log.info({ 
+    totalRecipients: recipients.length,
+    templateName 
+  }, 'Iniciando envio de email em massa');
   
   const MAX_RECIPIENTS_PER_MESSAGE = 50;
   const uniqueRecipients = Array.from(new Set(recipients));
@@ -157,22 +159,22 @@ export async function sendBulkEmail(ctx: QueueContext<BulkEmailJob>) {
     
     const input = {
       Source: `UFABCnext <${fromIdentity}>`,
-      Destination: { BccAddresses: bcc },
-      Message: {
-        Subject: { Data: subject, Charset: 'UTF-8' },
-        Body: { Html: { Data: html, Charset: 'UTF-8' } },
-      },
+      Destinations: bcc.map(email => ({
+        Destination: { ToAddresses: [email] },
+        ReplacementTemplateData: JSON.stringify({}),
+      })),
+      Template: templateName,
+      DefaultTemplateData: JSON.stringify({}),
     };
     
     try {
-      const cmd = new SendEmailCommand(input);
-      const res = await sesClient.send(cmd);
+      const cmd = new SendBulkTemplatedEmailCommand(input);
+      await sesClient.send(cmd);
       sentBatches++;
       
       ctx.app.log.info({
         batch: batchIndex,
         recipients: bcc.length,
-        messageId: res.MessageId,
       }, 'Lote enviado');
       
     } catch (err: any) {

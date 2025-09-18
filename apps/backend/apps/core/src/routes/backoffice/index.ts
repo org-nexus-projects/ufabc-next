@@ -89,8 +89,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     {
       schema: {
         body: z.object({
-          subject: z.string().min(1),
-          html: z.string().min(1),
+          templateName: z.string().min(1),
           recipients: z.array(z.string().email()).min(1),
           from: z.string().email().optional(),
           batchSize: z.number().int().min(1).max(50).optional(),
@@ -98,7 +97,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       },
     },
     async (request, reply) => {
-      const { subject, html, recipients, from, batchSize } = request.body;
+      const { templateName, recipients, from, batchSize } = request.body;
 
       if (recipients.length === 0) {
         return reply.badRequest('Lista de destinatários vazia');
@@ -106,8 +105,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       try {
         const job = await app.job.dispatch('SendBulkEmail', {
-          subject,
-          html,
+          templateName,
           recipients,
           from,
           batchSize,
