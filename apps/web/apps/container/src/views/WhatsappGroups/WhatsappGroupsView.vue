@@ -1,12 +1,23 @@
 <template>
   <!-- todo: add animation -->
   <div class="whatsapp-groups-view">
+    <UserNotifications
+      title="Acesso aos Grupos de WhatsApp"
+      text="Limitamos o acesso aos grupos apenas para pessoas com conta no UFABC Next. Clique e saiba mais"
+      @click="whatsappRestrictionDialog = true"
+    />
     <section>
       <div class="hero-section">
         <h1>Encontre seus grupos do <br />Whatsapp</h1>
-        <p>
+        <p style="margin-bottom: 16px">
           Acesse os grupos de WhatsApp das matérias que você está cursando e
           fique por dentro de tudo com a sua turma.
+        </p>
+        <p style="font-size: 14px">
+          Limitamos o acesso aos grupos por pessoas sem conta no UFABC Next.
+          <span class="link-style" @click="whatsappRestrictionDialog = true"
+            >Saiba mais</span
+          >
         </p>
       </div>
       <div v-if="!needToShowPaywall" class="search-section">
@@ -159,6 +170,99 @@
         </div>
       </div>
     </section>
+
+    <v-dialog
+      v-model="whatsappRestrictionDialog"
+      width="auto"
+      max-width="600"
+      scrollable
+      :fullscreen="$vuetify.display.xs"
+    >
+      <v-card class="restriction-dialog">
+        <div class="dialog-header">
+          <v-card-title class="dialog-title">
+            <v-icon color="primary" size="28" class="me-3">
+              mdi-shield-check
+            </v-icon>
+            Acesso Restrito aos Grupos
+          </v-card-title>
+          <v-card-actions class="dialog-close-btn">
+            <v-btn
+              variant="tonal"
+              icon="mdi-window-close"
+              aria-label="Fechar"
+              @click="whatsappRestrictionDialog = false"
+            />
+          </v-card-actions>
+        </div>
+
+        <v-card-text class="dialog-content">
+          <div class="main-message">
+            <p>
+              Por questões de segurança, limitamos o acesso aos grupos de
+              WhatsApp
+              <strong>apenas para usuários cadastrados</strong> na plataforma.
+            </p>
+          </div>
+
+          <div class="info-section">
+            <h4>🤖 O que aconteceu?</h4>
+            <p>
+              Alguns bots causaram transtornos em diversos grupos acadêmicos nas
+              últimas semanas, prejudicando a experiência de todos.
+            </p>
+          </div>
+
+          <div class="recommendation-section">
+            <h4>💡 Nossa recomendação:</h4>
+            <p>
+              Recomendamos fortemente que você
+              <span class="link-style" @click="createAccount"
+                >crie uma conta</span
+              >
+              e utilize a plataforma ao longo da sua jornada acadêmica. Caso
+              tenha algum problema na sincronização do histórico,
+              <a
+                href="https://www.instagram.com/ufabc_next/?hl=pt-br"
+                target="_blank"
+              >
+                entre em contato conosco </a
+              >.
+            </p>
+          </div>
+
+          <div class="recommendations-section">
+            <h4>🛡️ Dicas de segurança:</h4>
+            <ul class="safety-tips">
+              <li>Não clique em links suspeitos ou de números desconhecidos</li>
+              <li>Denuncie perfis duvidosos para o WhatsApp</li>
+              <li>Nunca responda mensagens de golpistas</li>
+            </ul>
+          </div>
+
+          <div class="community-message">
+            <p>
+              O UFABC Next é desenvolvido
+              <strong>de alunos para alunos</strong> 🤝. <br />
+              A faculdade não é fácil, precisamos nos ajudar. Juntos somos mais
+              fortes.
+            </p>
+          </div>
+        </v-card-text>
+
+        <v-card-actions class="dialog-actions">
+          <v-btn
+            class="confirm-btn bg-primary"
+            variant="elevated"
+            size="large"
+            rounded
+            @click="whatsappRestrictionDialog = false"
+          >
+            Entendi
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -167,8 +271,9 @@ import { useQuery } from '@tanstack/vue-query';
 import { Users, Whatsapp } from '@ufabc-next/services';
 import { useDebounceFn } from '@vueuse/core';
 import { computed, onMounted, ref, toValue, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
+import UserNotifications from '@/components/UserNotifications.vue';
 import WhatsappGroupCard from '@/components/WhatsappGroupCard/WhatsappGroupCard.vue';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
@@ -179,6 +284,7 @@ import { normalizeText } from '@/utils/normalizeTextSearch';
 
 type SearchType = 'ra' | 'component';
 
+const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const userRa = computed(
@@ -186,10 +292,9 @@ const userRa = computed(
 );
 const isUserLoggedIn = computed(() => authStore.isLoggedIn);
 
-const {
-  data: userInfo,
-  isLoading: isUserSyncLoading,
-} = useQuery({
+const whatsappRestrictionDialog = ref(false);
+
+const { data: userInfo, isLoading: isUserSyncLoading } = useQuery({
   queryKey: ['users', 'info'],
   queryFn: Users.info,
   select: (response) => response.data,
@@ -365,6 +470,14 @@ const openWhatsappGroup = (url: string) => {
   });
 
   window.open(url, '_blank');
+};
+
+const createAccount = () => {
+  eventTracker.track(WebEvent.CREATE_ACCOUNT_CLICKED, {
+    source: 'whatsapp_groups_dialog',
+  });
+
+  router.push('/signup');
 };
 
 onMounted(() => {
@@ -607,6 +720,12 @@ onMounted(() => {
   transform: translateY(-30px);
 }
 
+.link-style {
+  text-decoration: none;
+  color: #37bba3;
+  cursor: pointer;
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -632,5 +751,239 @@ onMounted(() => {
     font-size: 1rem;
     padding: 10px 16px;
   }
+}
+
+/* Dialog Styles - Inspired by DonateView */
+.restriction-dialog {
+  border-radius: 16px !important;
+  padding: 20px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 1;
+  padding-bottom: 8px;
+}
+
+.dialog-title {
+  font-weight: 500;
+  font-size: 1.5rem;
+  color: rgb(var(--v-theme-primary));
+  padding: 0;
+  font-family: 'Lato', 'Roboto';
+  line-height: 1.2;
+  flex: 1;
+  margin-right: 16px;
+}
+
+.dialog-close-btn {
+  padding: 0;
+  min-height: auto;
+  flex-shrink: 0;
+}
+
+.dialog-content {
+  padding: 0 0 24px 0;
+  line-height: 1.6;
+}
+
+.main-message {
+  margin-bottom: 24px;
+}
+
+.main-message p {
+  font-size: 1.1rem;
+  color: rgb(var(--v-theme-on-surface));
+  margin: 0;
+}
+
+.info-section,
+.recommendation-section,
+.recommendations-section {
+  background: rgba(var(--v-theme-primary), 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-left: 4px solid rgb(var(--v-theme-primary));
+}
+
+.info-section h4,
+.recommendation-section h4,
+.recommendations-section h4 {
+  color: rgb(var(--v-theme-primary));
+  font-weight: 600;
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+}
+
+.info-section p,
+.recommendation-section p,
+span {
+  margin: 0;
+  color: rgb(var(--v-theme-on-surface));
+  font-size: 1rem;
+}
+
+.safety-tips {
+  margin: 0;
+  padding-left: 20px;
+  color: rgb(var(--v-theme-on-surface));
+  font-size: 1rem;
+}
+
+.safety-tips li {
+  margin-bottom: 8px;
+}
+
+.community-message {
+  background: linear-gradient(
+    135deg,
+    rgba(var(--v-theme-primary), 0.1) 0%,
+    rgba(var(--v-theme-primary), 0.05) 100%
+  );
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+.community-message p {
+  margin: 0;
+  font-size: 1rem;
+  color: rgb(var(--v-theme-primary));
+  line-height: 1.5;
+}
+
+.dialog-actions {
+  padding: 0;
+  justify-content: center;
+}
+
+.confirm-btn {
+  font-family: 'Roboto';
+  color: white !important;
+  width: 100%;
+  height: 48px;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .restriction-dialog {
+    margin: 0;
+    padding: 16px;
+    border-radius: 0 !important;
+    max-height: 100vh;
+    height: 100vh;
+  }
+
+  .dialog-header {
+    margin-bottom: 16px;
+    padding: 0 0 12px 0;
+    border-bottom: 1px solid rgba(var(--v-theme-primary), 0.1);
+  }
+
+  .dialog-title {
+    font-size: 1.2rem;
+    line-height: 1.3;
+    margin-right: 12px;
+  }
+
+  .dialog-content {
+    padding: 0 0 20px 0;
+  }
+
+  .main-message {
+    margin-bottom: 20px;
+  }
+
+  .main-message p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .info-section,
+  .recommendation-section,
+  .recommendations-section {
+    padding: 14px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+  }
+
+  .info-section h4,
+  .recommendation-section h4,
+  .recommendations-section h4 {
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+
+  .info-section p,
+  .recommendation-section p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .safety-tips {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    padding-left: 16px;
+  }
+
+  .safety-tips li {
+    margin-bottom: 6px;
+  }
+
+  .community-message {
+    padding: 14px;
+    border-radius: 8px;
+  }
+
+  .community-message p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .dialog-actions {
+    padding: 16px 0 0 0;
+    position: sticky;
+    bottom: 0;
+    background: white;
+    border-top: 1px solid rgba(var(--v-theme-primary), 0.1);
+  }
+
+  .confirm-btn {
+    height: 44px;
+    font-size: 1rem;
+  }
+}
+
+/* Adicionar scroll suave para o dialog */
+.restriction-dialog {
+  scroll-behavior: smooth;
+}
+
+.restriction-dialog::-webkit-scrollbar {
+  width: 4px;
+}
+
+.restriction-dialog::-webkit-scrollbar-track {
+  background: rgba(var(--v-theme-primary), 0.1);
+  border-radius: 2px;
+}
+
+.restriction-dialog::-webkit-scrollbar-thumb {
+  background: rgba(var(--v-theme-primary), 0.3);
+  border-radius: 2px;
+}
+
+.restriction-dialog::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--v-theme-primary), 0.5);
 }
 </style>
