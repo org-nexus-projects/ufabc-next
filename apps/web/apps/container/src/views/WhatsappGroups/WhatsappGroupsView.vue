@@ -222,11 +222,8 @@
               >
               e utilize a plataforma ao longo da sua jornada acadêmica. Caso
               tenha algum problema na sincronização do histórico,
-              <a
-                href="https://www.instagram.com/ufabc_next/?hl=pt-br"
-                target="_blank"
-              >
-                entre em contato conosco </a
+              <span class="link-style" @click="openSupport">
+                entre em contato conosco </span
               >.
             </p>
           </div>
@@ -478,6 +475,16 @@ const createAccount = () => {
   });
 
   router.push('/signup');
+};
+
+const openSupport = () => {
+  eventTracker.track(WebEvent.OPEN_SUPPORT, {
+    user_ra: userRa.value || null,
+    user_logged_in: isUserLoggedIn.value,
+    user_synced: isUserSynced.value,
+    source: 'whatsapp_groups_dialog',
+  });
+  window.open('https://www.instagram.com/ufabc_next/?hl=pt-br', '_blank');
 };
 
 onMounted(() => {
