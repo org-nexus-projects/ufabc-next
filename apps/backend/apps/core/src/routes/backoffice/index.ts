@@ -98,25 +98,18 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const { templateName, recipients } = request.body;
 
       if (recipients.length === 0) {
-        return reply.badRequest('Lista de destinatários vazia');
+        return reply.badRequest('Empty recipients list');
       }
+      const job = await app.job.dispatch('SendBulkEmail', {
+        templateName,
+        recipients,
+      });
 
-      try {
-        const job = await app.job.dispatch('SendBulkEmail', {
-          templateName,
-          recipients,
-        });
-
-
-        return reply.send({
-          success: true,
-          jobId: job.id,
-          recipients: recipients.length,
-        });
-      } catch (error: any) {
-        app.log.error({ error }, 'Erro ao enviar para fila');
-        return reply.internalServerError('Erro ao processar envio');
-      }
+      return reply.send({
+        success: true,
+        jobId: job.id,
+        recipients: recipients.length,
+      });
     },
   );
 };
