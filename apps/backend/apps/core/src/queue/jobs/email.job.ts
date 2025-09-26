@@ -131,13 +131,7 @@ export async function sendBulkEmail(ctx: QueueContext<BulkEmailJob>) {
   const uniqueRecipients = Array.from(new Set(recipients));
   const fromIdentity = 'contato@ufabcnext.com';
   
-  let sentEmails = 0;
-  let failedEmails = 0;
-  const failures: any[] = [];
-  
-  for (let i = 0; i < uniqueRecipients.length; i++) {
-    const recipient = uniqueRecipients[i];
-    
+  const results = await Promise.allSettled(uniqueRecipients.map(recipient => {
     const input = {
       Source: `UFABCnext <${fromIdentity}>`,
       Destination: { 
@@ -145,33 +139,23 @@ export async function sendBulkEmail(ctx: QueueContext<BulkEmailJob>) {
       },
       Template: templateName,
       TemplateData: JSON.stringify({}),
-    };
-    
-    try {
-      const cmd = new SendTemplatedEmailCommand(input);
-      await sesClient.send(cmd);
-      sentEmails++;
-    } catch (err: any) {
-      failedEmails++;
-      const failure = { 
+   };
+   const cmd = new SendTemplatedEmailCommand(input);
+   return sesClient.send(cmd).catch((error) => {
+     ctx.app.log.error({ 
         recipient, 
-        error: err?.message ?? 'unknown', 
-        i 
-      };
-      failures.push(failure);
-      
-      ctx.app.log.error({ 
-        recipient, 
-        error: err?.message,
-        progress: `${i + 1}/${uniqueRecipients.length}`,
-      }, 'Failed to send email');
-    }
-  }
+        error: error?.message,
+      }, 'Failed to send email')
+     throw error; 
+   })
+  }))
+  
+  const failures = results.filter(result => result.status === "rejected")
   
   const result = {
     totalRecipients: uniqueRecipients.length,
-    sentEmails,
-    failedEmails,
+    sentEmails: results.length - failures.length,
+    failedEmails: failures.length,
     failures,
   };
   
