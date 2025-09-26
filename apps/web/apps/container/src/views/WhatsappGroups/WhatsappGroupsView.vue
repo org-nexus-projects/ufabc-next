@@ -20,7 +20,7 @@
           >
         </p>
       </div>
-      <div v-if="!needToShowPaywall" class="search-section">
+      <div class="search-section">
         <div>
           <div class="search-input-wrapper">
             <Transition name="slide-up" mode="out-in">
@@ -30,8 +30,8 @@
                 placeholder="Digite seu RA (ex: 11202012345)"
                 variant="outlined"
                 size="large"
-                :loading="isUserSyncLoading"
-                :disabled="isUserLoggedIn && isUserSynced"
+                :loading="currentLoading"
+                :disabled="isUserLoggedIn"
                 prepend-inner-icon="mdi-magnify"
                 clearable
                 class="main-search"
@@ -45,7 +45,7 @@
                 placeholder="Digite o nome da disciplina (ex: Função de várias variáveis)"
                 variant="outlined"
                 size="large"
-                :loading="isUserSyncLoading"
+                :loading="currentLoading"
                 prepend-inner-icon="mdi-magnify"
                 clearable
                 class="main-search"
@@ -121,52 +121,6 @@
             class="preview-card"
             @open-group="openWhatsappGroup"
           />
-        </div>
-      </div>
-
-      <div v-else-if="needToShowPaywall" class="results-section">
-        <div class="results-grid">
-          <WhatsappGroupCard
-            v-for="(component, index) in mockedWhatsappGroups"
-            :key="index"
-            :component="component"
-            class="preview-card"
-          />
-        </div>
-
-        <!-- Coming Soon Overlay -->
-        <div class="coming-soon-overlay">
-          <div class="coming-soon-content">
-            <h2>Desbloqueie todo o potencial! 🚀</h2>
-            <p>
-              Sincronize seu histórico e tenha acesso aos grupos de Whatsapp das
-              suas disciplinas específicas.
-            </p>
-            <div class="coming-soon-features">
-              <div class="feature-item">
-                <span>✅ Busca por disciplinas específicas</span>
-              </div>
-              <div class="feature-item">
-                <span>✅ Grupos recomendados baseados no seu curso</span>
-              </div>
-              <div class="feature-item">
-                <span>✅ Mantém o seu Next funcionando :&#41;</span>
-              </div>
-            </div>
-            <div class="not-synced__actions">
-              <button
-                class="not-synced__button secondary"
-                @click="openExtensionUrl"
-              >
-                <v-icon size="20"> mdi-link-variant </v-icon>
-                Baixar extensão
-              </button>
-              <button class="not-synced__button" @click="openSyncHistory">
-                <v-icon size="20"> mdi-sync </v-icon>
-                Sincronizar agora!
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -265,7 +219,7 @@
 
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
-import { Users, Whatsapp } from '@ufabc-next/services';
+import { Whatsapp } from '@ufabc-next/services';
 import { useDebounceFn } from '@vueuse/core';
 import { computed, onMounted, ref, toValue, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -275,8 +229,6 @@ import WhatsappGroupCard from '@/components/WhatsappGroupCard/WhatsappGroupCard.
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
-import { extensionURL, studentRecordURL } from '@/utils/consts';
-import { mockedWhatsappGroups } from '@/utils/mockedWhatsappGroups';
 import { normalizeText } from '@/utils/normalizeTextSearch';
 
 type SearchType = 'ra' | 'component';
@@ -290,19 +242,6 @@ const userRa = computed(
 const isUserLoggedIn = computed(() => authStore.isLoggedIn);
 
 const whatsappRestrictionDialog = ref(false);
-
-const { data: userInfo, isLoading: isUserSyncLoading } = useQuery({
-  queryKey: ['users', 'info'],
-  queryFn: Users.info,
-  select: (response) => response.data,
-  enabled: isUserLoggedIn,
-});
-
-const isUserSynced = computed(() => userInfo.value?.isSynced ?? true);
-const needToShowPaywall = computed(
-  () => isUserLoggedIn.value && !isUserSynced.value,
-);
-
 const searchRaQuery = ref<number | null>(null);
 const isRaValid = computed(() => {
   return (
@@ -320,7 +259,6 @@ const debouncedRaSearch = useDebounceFn((raValue: number) => {
       search_type: 'ra',
       search_query: raValue,
       user_logged_in: isUserLoggedIn.value,
-      user_synced: isUserSynced.value,
     });
 
     shouldFetchGroupsByRa.value = true;
@@ -429,27 +367,23 @@ const currentSuccess = computed(() => {
     : isComponentsSuccess.value && shouldFetchComponents.value;
 });
 
-const openExtensionUrl = () => {
-  eventTracker.track(WebEvent.WHATSAPP_GROUP_OPEN_EXTENSION, {
-    user_ra: userRa.value || null,
-    user_logged_in: isUserLoggedIn.value,
-    user_synced: isUserSynced.value,
-    from_paywall: needToShowPaywall.value,
-  });
+// const openExtensionUrl = () => {
+//   eventTracker.track(WebEvent.WHATSAPP_GROUP_OPEN_EXTENSION, {
+//     user_ra: userRa.value || null,
+//     user_logged_in: isUserLoggedIn.value,
+//   });
 
-  window.open(extensionURL, '_blank');
-};
+//   window.open(extensionURL, '_blank');
+// };
 
-const openSyncHistory = () => {
-  eventTracker.track(WebEvent.WHATSAPP_GROUP_OPEN_SYNC, {
-    user_ra: userRa.value || null,
-    user_logged_in: isUserLoggedIn.value,
-    user_synced: isUserSynced.value,
-    from_paywall: needToShowPaywall.value,
-  });
+// const openSyncHistory = () => {
+//   eventTracker.track(WebEvent.WHATSAPP_GROUP_OPEN_SYNC, {
+//     user_ra: userRa.value || null,
+//     user_logged_in: isUserLoggedIn.value,
+//   });
 
-  window.open(studentRecordURL, '_blank');
-};
+//   window.open(studentRecordURL, '_blank');
+// };
 
 const openWhatsappGroup = (url: string) => {
   const component = currentGroups.value.find((group) => group.groupURL === url);
@@ -463,7 +397,6 @@ const openWhatsappGroup = (url: string) => {
         ? searchRaQuery.value
         : searchComponentQuery.value,
     user_logged_in: isUserLoggedIn.value,
-    user_synced: isUserSynced.value,
   });
 
   window.open(url, '_blank');
@@ -481,7 +414,6 @@ const openSupport = () => {
   eventTracker.track(WebEvent.OPEN_SUPPORT, {
     user_ra: userRa.value || null,
     user_logged_in: isUserLoggedIn.value,
-    user_synced: isUserSynced.value,
     source: 'whatsapp_groups_dialog',
   });
   window.open('https://www.instagram.com/ufabc_next/?hl=pt-br', '_blank');
@@ -491,12 +423,10 @@ onMounted(() => {
   eventTracker.track(WebEvent.WHATSAPP_GROUP_VIEWED, {
     event_type: 'page_view',
     user_logged_in: isUserLoggedIn.value,
-    user_synced: isUserSynced.value,
-    needs_paywall: needToShowPaywall.value,
     user_ra: userRa.value || null,
   });
 
-  if ((isUserLoggedIn.value && isUserSynced.value) || route.query.ra) {
+  if (isUserLoggedIn.value || route.query.ra) {
     searchRaQuery.value = toValue(userRa);
     if (searchRaQuery.value !== null) {
       debouncedRaSearch(searchRaQuery.value);
