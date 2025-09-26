@@ -91,13 +91,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         body: z.object({
           templateName: z.string().min(1),
           recipients: z.array(z.string().email()).min(1),
-          from: z.string().email().optional(),
-          batchSize: z.number().int().min(1).max(50).optional(),
         }),
       },
     },
     async (request, reply) => {
-      const { templateName, recipients, from, batchSize } = request.body;
+      const { templateName, recipients } = request.body;
 
       if (recipients.length === 0) {
         return reply.badRequest('Lista de destinatários vazia');
@@ -107,18 +105,13 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         const job = await app.job.dispatch('SendBulkEmail', {
           templateName,
           recipients,
-          from,
-          batchSize,
         });
 
 
         return reply.send({
           success: true,
           jobId: job.id,
-          message: 'Email(s) enviado(s) para processamento',
-          status: 'queued',
           recipients: recipients.length,
-          estimatedBatches: Math.ceil(recipients.length / (batchSize || 50)),
         });
       } catch (error: any) {
         app.log.error({ error }, 'Erro ao enviar para fila');

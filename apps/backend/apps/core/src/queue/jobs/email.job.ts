@@ -3,7 +3,6 @@ import type { QueueContext } from '../types.js';
 import {
   SendTemplatedEmailCommand,
   type SendTemplatedEmailCommandInput,
-  SendBulkTemplatedEmailCommand,
 } from '@aws-sdk/client-ses';
 import { sesClient } from '@/lib/aws.service.js';
 
@@ -125,79 +124,58 @@ export async function sesSendEmail(
 type BulkEmailJob = {
   templateName: string;
   recipients: string[];
-  from?: string;
-  batchSize?: number;
 };
 
 export async function sendBulkEmail(ctx: QueueContext<BulkEmailJob>) {
-  const { templateName, recipients, from, batchSize = 50 } = ctx.job.data;
-  
-  ctx.app.log.info({ 
-    totalRecipients: recipients.length,
-    templateName 
-  }, 'Iniciando envio de email em massa');
-  
-  const MAX_RECIPIENTS_PER_MESSAGE = 50;
+  const { templateName, recipients } = ctx.job.data;
   const uniqueRecipients = Array.from(new Set(recipients));
-  const fromIdentity = from ?? 'contato@ufabcnext.com';
+  const fromIdentity = 'contato@ufabcnext.com';
   
-  // Função para agrupar destinatários em lotes
-  const chunk = <T>(arr: T[], size: number): T[][] => {
-    const out: T[][] = [];
-    for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
-    return out;
-  };
-  
-  const batches = chunk(uniqueRecipients, Math.min(batchSize, MAX_RECIPIENTS_PER_MESSAGE));
-  
-  let sentBatches = 0;
-  let failedBatches = 0;
+  let sentEmails = 0;
+  let failedEmails = 0;
   const failures: any[] = [];
   
-  for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
-    const bcc = batches[batchIndex];
+  for (let i = 0; i < uniqueRecipients.length; i++) {
+    const recipient = uniqueRecipients[i];
     
     const input = {
       Source: `UFABCnext <${fromIdentity}>`,
-      Destinations: bcc.map(email => ({
-        Destination: { ToAddresses: [email] },
-        ReplacementTemplateData: JSON.stringify({}),
-      })),
+      Destination: { 
+        ToAddresses: [recipient]
+      },
       Template: templateName,
-      DefaultTemplateData: JSON.stringify({}),
+      TemplateData: JSON.stringify({}),
     };
     
     try {
-      const cmd = new SendBulkTemplatedEmailCommand(input);
+      const cmd = new SendTemplatedEmailCommand(input);
       await sesClient.send(cmd);
-      sentBatches++;
-      
-      ctx.app.log.info({
-        batch: batchIndex,
-        recipients: bcc.length,
-      }, 'Lote enviado');
-      
+      sentEmails++;
     } catch (err: any) {
-      failedBatches++;
-      const failure = { batch: batchIndex, error: err?.message ?? 'unknown', recipients: bcc.length };
+      failedEmails++;
+      const failure = { 
+        recipient, 
+        error: err?.message ?? 'unknown', 
+        i 
+      };
       failures.push(failure);
       
       ctx.app.log.error({ 
-        batch: batchIndex, 
+        recipient, 
         error: err?.message,
-      }, 'Falha no envio do lote');
+        progress: `${i + 1}/${uniqueRecipients.length}`,
+      }, 'Failed to send email');
     }
   }
   
   const result = {
     totalRecipients: uniqueRecipients.length,
-    batches: batches.length,
-    sentBatches,
-    failedBatches,
+    sentEmails,
+    failedEmails,
     failures,
   };
   
-  ctx.app.log.info(result, 'Envio concluído');
+  ctx.app.log.info(result, 'Sending emails completed');
   
   return result;
 }
