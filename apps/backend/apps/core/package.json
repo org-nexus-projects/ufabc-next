@@ -12,6 +12,7 @@
     "build": "rimraf dist && tspc",
     "tsc": "tsc",
     "start": "node --env-file=.env.prod dist/server.js",
+    "start:local": "pnpm build && node --env-file=.env.prod dist/server.js",
     "test": "node --import=tsx runTests.ts",
     "test:watch": "node --import=tsx runTests.ts watch",
     "lint": "biome lint --write --unsafe --diagnostic-level=error ."
@@ -27,6 +28,7 @@
     "@fastify/cors": "^10.0.1",
     "@fastify/env": "^5.0.1",
     "@fastify/jwt": "^9.0.1",
+    "@fastify/multipart": "^9.0.3",
     "@fastify/oauth2": "^8.1.0",
     "@fastify/rate-limit": "^10.1.1",
     "@fastify/sensible": "^6.0.1",

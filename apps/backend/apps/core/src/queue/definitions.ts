@@ -10,7 +10,7 @@ import {
 import type { ConnectionOptions, WorkerOptions } from 'bullmq';
 import { processComponentsTeachers } from './jobs/components-teacher.job.js';
 import { uploadLogsToS3 } from './jobs/logs.job.js';
-import { postInfoIntoNotionDB } from './jobs/notion-questions.job.js';
+import { postInfoIntoNotionDB } from './jobs/notion-help.job.js';
 
 type JobNames =
   | 'send_email'

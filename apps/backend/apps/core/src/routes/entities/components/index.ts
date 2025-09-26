@@ -86,7 +86,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       groupURL: component.groupURL ?? '',
     }));
 
-    componentsListCache.set(cacheKey, nonPaginatedComponents);
+    // componentsListCache.set(cacheKey, nonPaginatedComponents);
 
     return nonPaginatedComponents;
   });

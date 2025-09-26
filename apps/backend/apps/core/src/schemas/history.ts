@@ -2,7 +2,7 @@ import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 import { z } from 'zod';
 import 'zod-openapi/extend';
 
-const SIG_RESULTS = ['A', 'B', 'C', 'D', 'E', 'F', 'O', '-', '', '0'] as const;
+const SIG_RESULTS = ['A', 'B', 'C', 'D', 'E', 'F', 'O', '-', '', '0', '--'] as const;
 const SIG_CATEGORIES = ['mandatory', 'limited', 'free'] as const;
 const SIG_COMPONENTS_STATUS = [
   'APR', // Aprovado por média
@@ -40,7 +40,6 @@ const sigComponents = z.object({
   teachers: z
     .string()
     .array()
-    .min(1)
     .openapi({
       description: 'Professores responsáveis pela componente curricular',
       example: ['João Silva', 'Maria Santos'],
@@ -97,11 +96,11 @@ const sigGraduations = z.object({
   }),
   grade: z.string().optional(),
   shift: z.enum(['n', 'm']),
-  extensionCredits: z.number().int(),
-  totalCredits: z.number().int(),
-  freeCredits: z.number().int(),
-  mandatoryCredits: z.number().int(),
-  limitedCredits: z.number().int(),
+  extensionCredits: z.number().transform((val) => Math.round(val)),
+  totalCredits: z.number().transform((val) => Math.round(val)),
+  freeCredits: z.number().transform((val) => Math.round(val)),
+  mandatoryCredits: z.number().transform((val) => Math.round(val)),
+  limitedCredits: z.number().transform((val) => Math.round(val)),
 });
 
 export const sigHistory = z.object({

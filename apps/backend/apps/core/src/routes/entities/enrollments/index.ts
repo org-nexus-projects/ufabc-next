@@ -14,12 +14,17 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return userEnrollments;
   });
 
-  app.get('/wpp', async ({ user }) => {
-    const season = currentQuad();
+  app.get('/wpp', async ({ user, query }, reply) => {
+    const { season, ra } = query as {
+      season: ReturnType<typeof currentQuad>;
+      ra: string;
+    };
+
+    const actualSeason = season ?? currentQuad();
+
     const wppEnrollments = await listWithComponents(
-      user.ra,
-      // @ts-ignore
-      '2025:2' ?? season,
+      user?.ra ?? ra,
+      actualSeason,
     );
     return wppEnrollments;
   });

@@ -1,3 +1,4 @@
+import { StudentModel } from '@/models/Student.js';
 import { UserModel, type User } from '@/models/User.js';
 import { getEmployeeData, getStudentData } from '@/modules/email-validator.js';
 import { completeUserSchema, type Auth } from '@/schemas/auth.js';
@@ -9,6 +10,7 @@ import {
   sendRecoveryEmailSchema,
   validateUserEmailSchema,
 } from '@/schemas/user.js';
+import { currentQuad } from '@next/common';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
@@ -24,6 +26,12 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       return reply.badRequest('User not found');
     }
 
+    const season = currentQuad();
+    const isUserSynced = await StudentModel.exists({
+      ra: user.ra,
+      season,
+    });
+
     const userInfo = {
       _id: user._id.toString(),
       ra: user.ra,
@@ -33,9 +41,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       oauth: user.oauth,
       email: user.email,
       permissions: user.permissions,
+      isSynced: !!isUserSynced,
     };
 
-    request.log.info(userInfo, 'setting user to cache');
     usersCache.set(`user:info:${request.user._id}`, userInfo);
 
     return userInfo;
