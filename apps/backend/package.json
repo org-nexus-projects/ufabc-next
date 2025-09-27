@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm run services:up && turbo run dev --parallel",
-    "services:up": "docker compose up -d && awslocal s3api create-bucket --bucket ufabc-next --region us-east-1",
+    "services:up": "docker compose up -d",
     "build": "turbo run build",
     "tsc": "turbo run tsc --parallel",
     "start": "turbo run start",
