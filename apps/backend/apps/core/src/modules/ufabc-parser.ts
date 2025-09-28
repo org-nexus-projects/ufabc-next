@@ -200,7 +200,7 @@ export async function getHistory(sessionId: string, viewState: string) {
   const rawHistory = await ufabcParserService<{
     data: SigHistory | null;
     error: string | null;
-  }>('/sig/history', {
+  }>('/v1/sig/history', {
     method: 'POST',
     headers: {
       sessionId,
@@ -217,8 +217,9 @@ export async function getHistory(sessionId: string, viewState: string) {
 }
 
 export async function getComponents() {
-  const components =
-    await ufabcParserService<UfabcParserComponent[]>('/components');
+  const components = await ufabcParserService<UfabcParserComponent[]>(
+    '/v1/matriculas/ufabc/components/raw',
+  );
   return components;
 }
 
@@ -237,7 +238,9 @@ export async function getEnrollments(kind: string, season: string) {
 }
 
 export async function getEnrolledStudents() {
-  const enrolled = await ufabcParserService<UFProcessorEnrolled>('/enrolled');
+  const enrolled = await ufabcParserService<UFProcessorEnrolled>(
+    '/v1/matriculas/ufabc/enrolled',
+  );
   return enrolled;
 }
 
