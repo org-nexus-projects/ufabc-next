@@ -76,25 +76,12 @@ export async function processComponentsTeachers(ctx: QueueContext<JobData>) {
         .replace(/[^a-z0-9\s]/g, ' ')
         .trim();
 
+      // Normalize the subject code (strip year, uppercase, etc.)
+      const codeMatch = component.codigo.match(/^(.*?)-\d{2}$/);
+      const normalizedCode = codeMatch ? codeMatch[1] : component.codigo;
+
       const subject = await SubjectModel.findOne({
-        $or: [
-          // Exact match on normalized name
-          { search: normalizedDisciplina },
-          // Partial match on normalized name
-          { search: { $regex: normalizedDisciplina, $options: 'i' } },
-          // Match individual words
-          {
-            search: {
-              $regex: normalizedDisciplina
-                .split(/\s+/)
-                .map((word) => `(?=.*${word})`)
-                .join(''),
-              $options: 'i',
-            },
-          },
-          // Original name matching
-          { name: { $regex: component.disciplina, $options: 'i' } },
-        ],
+        uf_subject_code: { $in: [normalizedCode] },
       });
 
       if (!subject) {
