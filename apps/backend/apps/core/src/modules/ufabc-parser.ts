@@ -1,7 +1,3 @@
-import type {
-  ParsedSigStudent,
-  SigStudent,
-} from '@/schemas/entities/students.js';
 import { ofetch } from 'ofetch';
 import { logger } from '@/utils/logger.js';
 import { sigHistory, type SigHistory } from '@/schemas/history.js';
@@ -149,53 +145,6 @@ export const ufabcParserService = ofetch.create({
   },
 });
 
-export async function getSigUser(sigStudent: SigStudent, sessionId: string) {
-  const student = await ufabcParserService<{
-    data: ParsedSigStudent | null;
-    error: string | null;
-  }>('/sig/me', {
-    method: 'POST',
-    headers: {
-      sessionId,
-    },
-    query: {
-      action: 'default',
-    },
-    body: sigStudent,
-  });
-  return student;
-}
-
-type FullStudentRequest = {
-  student: ParsedSigStudent & { grade: string };
-  action: string;
-  viewState: string;
-  sessionId: string;
-};
-
-export async function getFullStudent({
-  student,
-  action,
-  viewState,
-  sessionId,
-}: FullStudentRequest) {
-  const fullStudent = await ufabcParserService<{
-    data: ParsedSigStudent | null;
-    error: string | null;
-  }>('/sig/grades', {
-    method: 'POST',
-    headers: {
-      sessionId,
-      viewState,
-    },
-    body: {
-      student,
-      action,
-    },
-  });
-  return fullStudent;
-}
-
 export async function getHistory(sessionId: string, viewState: string) {
   const rawHistory = await ufabcParserService<{
     data: SigHistory | null;
@@ -257,16 +206,4 @@ export async function getComponentsFile(season: string, kind: string) {
   );
 
   return componentsFile;
-}
-
-export async function getComponentsV2(season: string) {
-  const components = await ufabcParserService<UfabcParserComponentV2[]>(
-    '/v2/components',
-    {
-      query: {
-        season,
-      },
-    },
-  );
-  return components;
 }
