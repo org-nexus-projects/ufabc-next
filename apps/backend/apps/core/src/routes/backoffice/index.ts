@@ -83,6 +83,35 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       });
     },
   );
+
+  app.post(
+    '/send-email',
+    {
+      schema: {
+        body: z.object({
+          templateName: z.string().min(1),
+          recipients: z.array(z.string().email()).min(1),
+        }),
+      },
+    },
+    async (request, reply) => {
+      const { templateName, recipients } = request.body;
+
+      if (recipients.length === 0) {
+        return reply.badRequest('Empty recipients list');
+      }
+      const job = await app.job.dispatch('SendBulkEmail', {
+        templateName,
+        recipients,
+      });
+
+      return reply.send({
+        success: true,
+        jobId: job.id,
+        recipients: recipients.length,
+      });
+    },
+  );
 };
 
 export default plugin;

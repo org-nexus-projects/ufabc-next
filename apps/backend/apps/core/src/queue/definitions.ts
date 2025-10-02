@@ -1,4 +1,4 @@
-import { sendConfirmationEmail } from './jobs/email.job.js';
+import { sendConfirmationEmail, sendBulkEmail } from './jobs/email.job.js';
 import { processSingleEnrollment } from './jobs/enrollments.job.js';
 import { processSingleEnrolled, syncEnrolled } from './jobs/enrolled.job.js';
 import { updateTeachers } from './jobs/teacher-update.job.js';
@@ -10,7 +10,7 @@ import {
 import type { ConnectionOptions, WorkerOptions } from 'bullmq';
 import { processComponentsTeachers } from './jobs/components-teacher.job.js';
 import { uploadLogsToS3 } from './jobs/logs.job.js';
-import { postInfoIntoNotionDB } from './jobs/notion-questions.job.js';
+import { postInfoIntoNotionDB } from './jobs/notion-help.job.js';
 
 type JobNames =
   | 'send_email'
@@ -86,6 +86,10 @@ export const JOBS = {
   SendEmail: {
     queue: 'send_email',
     handler: sendConfirmationEmail,
+  },
+  SendBulkEmail: {
+    queue: 'send_email',
+    handler: sendBulkEmail,
   },
   EnrolledSync: {
     queue: 'sync_enrolled',

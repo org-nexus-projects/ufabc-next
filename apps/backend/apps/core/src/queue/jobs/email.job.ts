@@ -120,3 +120,46 @@ export async function sesSendEmail(
     sesClient.destroy();
   }
 }
+
+type BulkEmailJob = {
+  templateName: string;
+  recipients: string[];
+};
+
+export async function sendBulkEmail(ctx: QueueContext<BulkEmailJob>) {
+  const { templateName, recipients } = ctx.job.data;
+  const uniqueRecipients = Array.from(new Set(recipients));
+  const fromIdentity = 'contato@ufabcnext.com';
+  
+  const results = await Promise.allSettled(uniqueRecipients.map(recipient => {
+    const input = {
+      Source: `UFABCnext <${fromIdentity}>`,
+      Destination: { 
+        ToAddresses: [recipient]
+      },
+      Template: templateName,
+      TemplateData: JSON.stringify({}),
+   };
+   const cmd = new SendTemplatedEmailCommand(input);
+   return sesClient.send(cmd).catch((error) => {
+     ctx.app.log.error({ 
+        recipient, 
+        error: error?.message,
+      }, 'Failed to send email')
+     throw error; 
+   })
+  }))
+  
+  const failures = results.filter(result => result.status === "rejected")
+  
+  const result = {
+    totalRecipients: uniqueRecipients.length,
+    sentEmails: results.length - failures.length,
+    failedEmails: failures.length,
+    failures,
+  };
+  
+  ctx.app.log.info(result, 'Sending emails completed');
+  
+  return result;
+}

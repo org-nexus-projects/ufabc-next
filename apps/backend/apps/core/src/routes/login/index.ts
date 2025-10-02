@@ -1,22 +1,20 @@
-import { UserModel, type User } from '@/models/User.js';
-import {
-  createCardSchema,
-  loginNotionSchema,
-  type LegacyGoogleUser,
-} from '@/schemas/login.js';
+import { type UserDocument, UserModel, type User } from '@/models/User.js';
+import type { LegacyGoogleUser } from '@/schemas/login.js';
 import type { Token } from '@fastify/oauth2';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import { Types } from 'mongoose';
+import { Types, type FilterQuery } from 'mongoose';
 import { ofetch } from 'ofetch';
 
 export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
-  app.get('/google', async function(request, reply) {
+  app.get('/google', async function (request, reply) {
     const validatedURI = await this.google.generateAuthorizationUri(
       request,
       reply,
     );
     const redirectURL = new URL(validatedURI);
-    app.log.warn(
+    redirectURL.searchParams.append('prompt', 'select_account');
+
+    app.log.debug(
       {
         url: redirectURL.hostname,
         query: redirectURL.search.split('&'),
@@ -24,10 +22,10 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       },
       '[OAUTH] start',
     );
-    return reply.redirect(validatedURI);
+    return reply.redirect(redirectURL.href);
   });
 
-  app.get('/google/callback', async function(request, reply) {
+  app.get('/google/callback', async function (request, reply) {
     try {
       // @ts-ignore
       const userId = request.query.state;
@@ -74,100 +72,7 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       );
     }
   });
-
-  app.get('/notion', async function(request, reply) {
-    const validatedURI = await this.notion.generateAuthorizationUri(
-      request,
-      reply,
-    );
-    app.log.info(validatedURI, 'generated notion URL');
-    // Use URL constructor for better URL handling
-    const redirectURL = new URL(validatedURI);
-    if (!redirectURL) {
-      return reply.internalServerError('Could not generate URL');
-    }
-    app.log.warn(
-      {
-        url: redirectURL.hostname,
-        query: redirectURL.search.split('&'),
-        port: request.hostname,
-      },
-      '[OAUTH] notion start',
-    );
-    return reply.redirect(validatedURI);
-  });
-
-  app.get(
-    '/notion/callback',
-    { schema: loginNotionSchema },
-    async function(request, reply) {
-      const { token } =
-        await this.notion.getAccessTokenFromAuthorizationCodeFlow(
-          request,
-          reply,
-        );
-
-      return token;
-    },
-  );
-
-  app.post(
-    '/create-card',
-    { schema: createCardSchema },
-    async (request, reply) => {
-      const { accessToken, email, ra, admissionYear, proofOfError } =
-        request.body;
-
-      if (!accessToken || !email || !ra || !admissionYear || !proofOfError) {
-        return reply.badRequest('All fields are required.');
-      }
-
-      const notionPayload = {
-        parent: { database_id: app.config.NOTION_DATABASE_ID },
-        properties: {
-          Email: { title: [{ text: { content: email } }] },
-          RA: { number: ra },
-          'Ano de Ingresso': { number: admissionYear },
-          'Evidência do Erro': { url: proofOfError },
-        },
-      };
-
-      const notionUrl = 'https://api.notion.com/v1';
-      const notionPageUrl = new URL('/pages', notionUrl);
-
-      const notionResponse = await postCardToNotion(
-        notionPageUrl.href,
-        notionPayload,
-        accessToken,
-      );
-
-      return reply.send({
-        message: 'Card created!',
-        data: notionResponse,
-      });
-    },
-  );
 };
-
-export default plugin;
-
-async function postCardToNotion(
-  notionUrl: string,
-  notionPayload: object,
-  token: string,
-) {
-  const headers = new Headers();
-  headers.append('Authorization', `Bearer ${token}`);
-  headers.append('Notion-Version', '2022-06-28');
-
-  const notionResponse = await ofetch(notionUrl, {
-    method: 'POST',
-    body: notionPayload,
-    headers,
-  });
-
-  return notionResponse;
-}
 
 async function getUserDetails(token: Token, logger: any) {
   const headers = new Headers();
@@ -179,7 +84,6 @@ async function getUserDetails(token: Token, logger: any) {
       headers,
     },
   );
-
   logger.info(user, {
     msg: 'Google User',
   });
@@ -206,7 +110,11 @@ async function createOrLogin(
   logger: any,
 ) {
   try {
-    const findUserQuery: Record<string, unknown>[] = [];
+    const findUserQuery: FilterQuery<UserDocument>[] = [];
+
+    if (oauthUser?.email) {
+      findUserQuery.push({ email: oauthUser.email });
+    }
 
     if (oauthUser?.google) {
       findUserQuery.push({ 'oauth.google': oauthUser.google });
@@ -263,7 +171,9 @@ async function createOrLogin(
     // Return user data
     return user.toJSON();
   } catch (error) {
-    logger.error('Error in createOrLogin', { error, oauthUser });
+    logger.error({ error, oauthUser }, 'Error in createOrLogin');
     throw error;
   }
 }
+
+export default plugin;

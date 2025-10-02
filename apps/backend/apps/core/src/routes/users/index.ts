@@ -1,3 +1,4 @@
+import { StudentModel } from '@/models/Student.js';
 import { UserModel, type User } from '@/models/User.js';
 import { getEmployeeData, getStudentData } from '@/modules/email-validator.js';
 import { completeUserSchema, type Auth } from '@/schemas/auth.js';
@@ -9,6 +10,7 @@ import {
   sendRecoveryEmailSchema,
   validateUserEmailSchema,
 } from '@/schemas/user.js';
+import { currentQuad } from '@next/common';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
@@ -24,6 +26,12 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       return reply.badRequest('User not found');
     }
 
+    const season = currentQuad();
+    const isUserSynced = await StudentModel.exists({
+      ra: user.ra,
+      season,
+    });
+
     const userInfo = {
       _id: user._id.toString(),
       ra: user.ra,
@@ -33,17 +41,17 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       oauth: user.oauth,
       email: user.email,
       permissions: user.permissions,
+      isSynced: !!isUserSynced,
     };
 
-    request.log.info(userInfo, 'setting user to cache');
     usersCache.set(`user:info:${request.user._id}`, userInfo);
 
     return userInfo;
   });
   app.get('/validate/:ra', async (request, reply) => {
     const { ra } = request.params as { ra: string };
-    const raNumber = Number.parseInt(ra)
-    const user = await UserModel.findOne({ra:raNumber});
+    const raNumber = Number.parseInt(ra);
+    const user = await UserModel.findOne({ ra: raNumber });
     if (!user) {
       return reply.badRequest('User not found');
     }
@@ -55,7 +63,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     };
 
     return userInfo;
-  })
+  });
 
   app.post(
     '/facebook',
@@ -220,7 +228,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         );
       }
 
-      const employeePromises = checkUser.email.map(
+      const emailList = Array.isArray(checkUser?.email) ? checkUser.email : [];
+      const employeePromises = emailList.map(
         async (email) => await getEmployeeData(email),
       );
       const employees = await Promise.all(employeePromises);
@@ -233,7 +242,22 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         );
       }
 
-      return { email: checkUser.email[0] };
+      let email = '';
+
+      if (emailList.length === 0) {
+        request.log.warn({
+          ra,
+          username: checkUser.username,
+          msg: 'No email found, using username as email',
+        });
+        email = checkUser.username.concat('@aluno.ufabc.edu.br');
+      }
+
+      if (emailList.length > 0) {
+        email = emailList[0];
+      }
+
+      return reply.send({ email });
     },
   );
 
