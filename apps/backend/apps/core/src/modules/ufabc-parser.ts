@@ -111,6 +111,43 @@ export type UFProcessorComponentFile = {
   hours: Record<string, { periodicity: string; classPeriod: string[] }>[];
 };
 
+type Schedule = Record<
+  'theory' | 'practice',
+  [
+    {
+      day: 'segunda' | 'terca' | 'quarta' | 'quinta' | 'sexta' | 'sabado';
+      room: string;
+      endTime: string;
+      startTime: string;
+      unparsed: string;
+      frequency: 'semanal' | 'quinzenal I' | 'quinzenal II';
+    },
+  ]
+>;
+
+export type UfabcParserEnrollment = {
+  id: number;
+  name: string;
+  class: string;
+  shift: 'morning' | 'night';
+  campus: 'sa' | 'sbc';
+  hours: ComponentHours;
+  schedules: Schedule;
+  credits: number;
+  enrollmentCode: string;
+  teachers: Array<{
+    name: string;
+    email: string;
+    role: 'professor' | 'practice' | 'secondaryPractice' | 'secondaryProfessor';
+    isSecondary: boolean;
+  }>;
+};
+
+type UserClasses = {
+  total: number;
+  data: Array<UfabcParserEnrollment>;
+};
+
 export const ufabcParserService = ofetch.create({
   baseURL: process.env.UFABC_PARSER_URL,
   timeout: 45 * 1000, // 45 seconds,
@@ -184,6 +221,19 @@ export async function getEnrollments(kind: string, season: string) {
     },
   );
   return enrollments;
+}
+
+export async function getClasses(season: string, login: string) {
+  const classes = await ufabcParserService<UserClasses>(
+    '/v1/matriculas/ufabc/classes',
+    {
+      query: {
+        season,
+        login,
+      },
+    },
+  );
+  return classes;
 }
 
 export async function getEnrolledStudents() {

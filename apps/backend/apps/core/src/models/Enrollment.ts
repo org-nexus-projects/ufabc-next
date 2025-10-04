@@ -13,7 +13,10 @@ const enrollmentSchema = new Schema(
       required: true,
     },
     identifier: String,
-    ra: Number,
+    ra: {
+      type: Number,
+      required: true,
+    },
     disciplina: {
       type: String,
       required: true,
@@ -48,11 +51,11 @@ const enrollmentSchema = new Schema(
     ],
     syncedBy: {
       type: String,
-      enum: ['extension', 'matricula'],
+      enum: ['extension', 'matricula', 'ufabc-parser'],
     },
     kind: {
       type: String,
-      enum: ['ajuste', 'reajuste'],
+      enum: ['ajuste', 'reajuste', 'auto'],
     },
     uf_cod_turma: {
       type: String,
@@ -66,7 +69,10 @@ const enrollmentSchema = new Schema(
     ca_acumulado: Number,
     cr_acumulado: Number,
     cp_acumulado: Number,
-    season: String,
+    season: {
+      type: String,
+      required: false,
+    },
     disciplina_id: Number,
   },
   { timestamps: true },

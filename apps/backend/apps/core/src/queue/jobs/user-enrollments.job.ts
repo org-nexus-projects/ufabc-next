@@ -165,7 +165,9 @@ function mapSubjects(
       const normalizedCode = codeMatch ? codeMatch[1] : e.disciplina ?? '';
       // Find matching subject using uf_subject_code
       const subject = subjects.find(
-        (s) => Array.isArray(s.uf_subject_code) && s.uf_subject_code.includes(normalizedCode),
+        (s) =>
+          Array.isArray(s.uf_subject_code) &&
+          s.uf_subject_code.includes(normalizedCode),
       );
       if (subject) {
         return {
