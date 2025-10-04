@@ -57,7 +57,6 @@ export const errorToast = toast({
   },
 });
 
-
 export const scrappingErrorToast = (msg: string) => toast({
   text: `
     <div style="width: 228px; display: flex; align-items: end; margin-right: 12px;">

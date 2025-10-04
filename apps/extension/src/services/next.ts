@@ -170,6 +170,27 @@ export async function syncHistory(data: SyncHistory) {
   return syncedStudent;
 }
 
+export async function sendResults(results: { sessionToken: string | null, sessKey: string | null }) {
+  if (!results.sessionToken || !results.sessKey) {
+    console.warn('[sendResults] Token de sessão ou sessKey inválido(s), abortando envio.');
+    return;
+  }
+
+  const headers = new Headers();
+  headers.set('session-id', results.sessionToken);
+  headers.set('sess-key', results.sessKey);
+
+  try {
+    const response = await nextService<{ msg: string }>("/components", {
+      method: 'POST',
+      headers
+    });
+
+  } catch (error) {
+    console.error('[sendResults] Erro ao enviar dados:', error);
+  }
+}
+
 export async function getSubjectReviews(subjectId: string) {
   const reviews = await nextService<SubjectReview>(`/entities/subjects/reviews/${subjectId}`)
   return reviews;
