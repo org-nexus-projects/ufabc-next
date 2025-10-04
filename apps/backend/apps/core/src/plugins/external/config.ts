@@ -25,6 +25,7 @@ const configSchema = z.object({
   UFABC_PARSER_URL: z.string(),
   AWS_REGION: z.string(),
   AWS_ACCESS_KEY_ID: z.string(),
+  AWS_LAMBDA_URL: z.string(),
   AWS_SECRET_ACCESS_KEY: z.string(),
   USE_LOCALSTACK: z.coerce.boolean().default(true),
   AWS_LOGS_BUCKET: z.string().optional(),
