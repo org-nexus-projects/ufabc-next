@@ -16,7 +16,7 @@
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
-    "@amcharts/amcharts5": "5.13.6",
+    "@amcharts/amcharts5": "5.14.2",
     "@mdi/font": "7.4.47",
     "@tanstack/query-core": "5.90.2",
     "@tanstack/vue-query": "5.90.2",
@@ -38,11 +38,11 @@
     "vue": "3.5.22",
     "vue-router": "4.5.1",
     "vue-zustand": "0.6.0",
-    "vuetify": "3.10.3",
+    "vuetify": "3.10.4",
     "zod": "3.25.76"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "6.8.0",
+    "@testing-library/jest-dom": "6.9.1",
     "@testing-library/user-event": "14.6.1",
     "@testing-library/vue": "8.1.0",
     "@types/lodash.debounce": "4.0.9",
@@ -57,7 +57,7 @@
     "msw": "^2.8.4",
     "sass": "1.93.2",
     "sass-loader": "16.0.5",
-    "typescript": "5.9.2",
+    "typescript": "5.9.3",
     "vite": "^6.3.5",
     "vitest": "0.34.6",
     "vue-tsc": "^3.0.6"
