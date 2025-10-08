@@ -142,14 +142,31 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           return reply.badRequest('Malformed token');
         }
 
+        if (user.oauth?.email === user.email) {
+          user.confirmed = true;
+          const confirmedUser = await user.save();
+
+          const jwtToken = app.jwt.sign({
+            _id: confirmedUser._id,
+            ra: confirmedUser.ra,
+            confirmed: confirmedUser.confirmed,
+            email: confirmedUser.email,
+            permissions: confirmedUser.permissions,
+          });
+
+          return {
+            token: jwtToken,
+          };
+        }
+
         app.job.dispatch('SendEmail', {
           kind: 'Confirmation',
           user: user.toJSON() as unknown as User & { _id: string },
         });
 
         return {
-          ra: user?.ra,
-          email: user?.email,
+          ra: user.ra,
+          email: user.email,
         };
       } catch (error) {
         request.log.error({ msg: 'error completing user', error });
