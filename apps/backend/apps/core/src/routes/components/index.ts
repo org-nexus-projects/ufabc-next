@@ -30,52 +30,41 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             if (!course.link) return undefined;
             return {
               course: course.fullname,
-              pdfs: await extractPDFs(sessionToken as string, course.link)
+              promptData: await extractPDFs(sessionToken as string, course.link)
             };
           })
         )
-      ).filter(Boolean) as Array<{ course: string; pdfs: Array<{ pdfLink: string; pdfName: string }> }>;
+      ).filter(Boolean) as Array<{ course: string; promptData: Array<{ pdfLink: string; pdfName: string }> }>;
 
-      app.log.info(results, 'PDFs extraídos');
+      app.log.debug({
+        results
+      }, 'PDFs extraídos');
+      
 
-      /*
-      const lambdaResp = await app.lambda.invoke('your-lambda-function-name', {
-        payload: JSON.stringify(results)
+      const resp = await fetch(app.config.AWS_LAMBDA_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-service-id': 'core'
+        },
+        body: JSON.stringify(results[0])
       });
 
-      const rawPayload =
-        (lambdaResp as any)?.payload ??
-        (lambdaResp as any)?.Payload ??
-        null;
-
-      const pdfsFiltered = rawPayload ? JSON.parse(rawPayload) : [];
-      */
-
-      const pdfsFiltered = [
-        { pdfLink: 'https://moodle.ufabc.edu.br/mod/resource/view.php?id=49857', pdfName: 'file1.pdf', pdfContent: 'Plano de Ensino Atualizado' }
-      ];
-
-      // baixar e salvar PDFs
+      const pdfsFilteredRaw = await resp.json();
+      const pdfsFiltered = Array.isArray(pdfsFilteredRaw) ? pdfsFilteredRaw : [];
+      console.log(pdfsFiltered);
       for (const pdf of pdfsFiltered) {
         if (typeof pdf === 'object' && pdf !== null && 'pdfLink' in pdf && 'pdfName' in pdf) {
           app.log.info(pdf, 'PDF mock a ser baixado');
-          await savePDF(pdf.pdfLink, pdf.pdfName, sessionToken as string);
+          await savePDF(
+            typeof pdf.pdfLink === 'string' ? pdf.pdfLink : String(pdf.pdfLink),
+            typeof pdf.pdfName === 'string' ? pdf.pdfName : String(pdf.pdfName),
+            sessionToken as string
+          );
         } else {
           app.log.error(pdf, 'PDF inválido encontrado');
         }
       }
-
-      /*
-      await Promise.all(
-        pdfsFiltered.map(async (pdf: any) => {
-          return app.s3.upload({
-            Bucket: 'your-s3-bucket',
-            Key: `pdfs/${pdf.pdfName}`,
-            Body: pdf.pdfContent
-          }).promise?.() ?? null;
-        })
-      );
-      */
 
       return { success: true, processed: pdfsFiltered.length, mock: true, data: pdfsFiltered };
     } catch (error) {
