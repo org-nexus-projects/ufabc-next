@@ -11,16 +11,21 @@ export type UfabcParserComponent = {
   rawTPI: [number, number, number];
   campus: 'sbc' | 'sa';
   name: string;
-  turma: string;
-  turno: 'diurno' | 'noturno';
+  class: string;
+  shift: 'morning' | 'night';
   credits: number;
   courses: Array<{
     name: string | '-';
     UFCourseId: number;
-    category: 'limitada' | 'obrigatoria';
+    category: 'limited' | 'mandatory';
   }>;
   vacancies: number;
   hours: Record<string, { periodicity: string; classPeriod: string[] }>[];
+  tpi: {
+    theory: number;
+    practice: number;
+    individual: number;
+  } | null;
 };
 
 type Weekdays =
@@ -36,36 +41,6 @@ type ComponentHours = {
     periodicity: 'weekly' | 'biweekly';
     classPeriod: string[];
   };
-};
-
-export type UfabcParserComponentV2 = {
-  UFComponentId: number;
-  UFClassroomCode: string;
-  class: string;
-  shift: 'morning' | 'night';
-  vacancies: number;
-  campus: 'sa' | 'sbc';
-  hours: ComponentHours;
-  tpi: {
-    theory: number;
-    practice: number;
-    individual: number;
-  };
-  courses: Array<{
-    category: string;
-    UFCourseId: number;
-    name?: string;
-  }>;
-  UFComponentCode: string;
-  name: string;
-  credits: number;
-  teachers: {
-    professor?: string;
-    practice?: string;
-    secondaryPractice?: string;
-    secondaryProfessor?: string;
-  };
-  season: string;
 };
 
 type StudentRA = string;
@@ -204,7 +179,7 @@ export async function getHistory(sessionId: string, viewState: string) {
 
 export async function getComponents() {
   const components = await ufabcParserService<UfabcParserComponent[]>(
-    '/v1/matriculas/ufabc/components/raw',
+    '/v1/matriculas/ufabc',
   );
   return components;
 }
@@ -225,11 +200,10 @@ export async function getEnrollments(kind: string, season: string) {
 
 export async function getClasses(season: string, login: string) {
   const classes = await ufabcParserService<UserClasses>(
-    '/v1/matriculas/ufabc/classes',
+    `/v1/matriculas/ufabc/classes/${login}`,
     {
       query: {
         season,
-        login,
       },
     },
   );

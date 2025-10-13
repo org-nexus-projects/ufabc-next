@@ -1,9 +1,13 @@
 import { ComponentModel } from '@/models/Component.js';
 import { SubjectModel } from '@/models/Subject.js';
-import { getComponents } from '@/modules/ufabc-parser.js';
+import {
+  getComponents,
+  type UfabcParserComponent,
+} from '@/modules/ufabc-parser.js';
 import { currentQuad } from '@next/common';
 import { camelCase, startCase } from 'lodash-es';
 import type { QueueContext } from '../types.js';
+import { logger } from '@/utils/logger.js';
 
 type ParserComponent = Awaited<ReturnType<typeof getComponents>>[number];
 
@@ -54,6 +58,8 @@ export async function processComponent({
   const { component, tenant } = job.data;
   const [year, quad] = tenant.split(':').map(Number);
 
+  const tpi = buildTPI(component.tpi);
+
   try {
     const subject = await processSubject(component);
     const dbComponent = {
@@ -62,18 +68,18 @@ export async function processComponent({
       campus: component.campus,
       disciplina: component.name,
       season: tenant,
-      turma: component.turma,
-      turno: component.turno,
+      turma: component.class,
+      turno: component.shift === 'morning' ? 'diurno' : 'noturno',
       vagas: component.vacancies,
       ideal_quad: false,
       quad,
       year,
       subject: subject._id,
       obrigatorias: component.courses
-        .filter((c) => c.category === 'obrigatoria')
+        .filter((c) => c.category === 'mandatory')
         .map((c) => c.UFCourseId),
       uf_cod_turma: component.UFClassroomCode,
-      tpi: component.rawTPI,
+      tpi,
     };
 
     app.log.debug(dbComponent, 'Generated component');
@@ -118,33 +124,37 @@ export async function processComponent({
 }
 
 async function processSubject(component: ParserComponent) {
-  // Normalize the subject code (strip year, uppercase, etc.)
-  const codeMatch = component.UFComponentCode.match(/^(.*?)-\d{2}$/);
-  const normalizedCode = codeMatch ? codeMatch[1] : component.UFComponentCode;
+  const codeMatch = component.UFComponentCode.split('-')[0];
+  if (!codeMatch) {
+    logger.error({
+      msg: 'Invalid component code',
+      component: component.name,
+    });
+    throw new Error('Invalid component code');
+  }
 
   try {
-    // Find subject by uf_subject_code
     const matchedSubject = await SubjectModel.findOne({
-      uf_subject_code: { $in: [normalizedCode] },
+      uf_subject_code: { $in: [codeMatch] },
     });
     if (matchedSubject) {
       matchedSubject.creditos = component.credits;
       await matchedSubject.save();
       return matchedSubject;
     }
-    // Create new subject with uf_subject_code as array
+
     const newSubject = await SubjectModel.create({
       name: component.name,
       creditos: component.credits,
       search: startCase(camelCase(component.name)),
-      uf_subject_code: [normalizedCode],
+      uf_subject_code: [codeMatch],
     });
     return newSubject;
   } catch (error: any) {
     if (error.code === 11000) {
       // Handle potential race condition by retrying the find
       const existingSubject = await SubjectModel.findOne({
-        uf_subject_code: { $in: [normalizedCode] },
+        uf_subject_code: { $in: [codeMatch] },
       });
       if (existingSubject) {
         existingSubject.creditos = component.credits;
@@ -155,3 +165,10 @@ async function processSubject(component: ParserComponent) {
     throw error;
   }
 }
+
+const buildTPI = (tpi: UfabcParserComponent['tpi']) => {
+  if (!tpi) {
+    return [0, 0, 0];
+  }
+  return [tpi.theory, tpi.practice, tpi.individual];
+};
