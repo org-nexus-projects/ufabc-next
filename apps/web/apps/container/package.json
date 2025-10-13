@@ -38,7 +38,7 @@
     "vue": "3.5.22",
     "vue-router": "4.5.1",
     "vue-zustand": "0.6.0",
-    "vuetify": "3.10.4",
+    "vuetify": "3.10.5",
     "zod": "3.25.76"
   },
   "devDependencies": {
