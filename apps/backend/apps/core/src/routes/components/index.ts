@@ -36,37 +36,69 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         )
       ).filter(Boolean) as Array<{ course: string; promptData: Array<{ pdfLink: string; pdfName: string }> }>;
 
-      app.log.debug({
-        results
-      }, 'PDFs extraídos');
-      
+      app.log.debug({ results }, 'PDFs extraídos');
 
-      const resp = await fetch(app.config.AWS_LAMBDA_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-service-id': 'core'
-        },
-        body: JSON.stringify(results[0])
-      });
+      const lambdaResponses = await Promise.allSettled(
+        results.map(async (payload) => {
+          const resp = await fetch(app.config.AWS_LAMBDA_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-service-id': 'core'
+            },
+            body: JSON.stringify(payload)
+          });
 
-      const pdfsFilteredRaw = await resp.json();
-      const pdfsFiltered = Array.isArray(pdfsFilteredRaw) ? pdfsFilteredRaw : [];
-      console.log(pdfsFiltered);
-      for (const pdf of pdfsFiltered) {
-        if (typeof pdf === 'object' && pdf !== null && 'pdfLink' in pdf && 'pdfName' in pdf) {
-          app.log.info(pdf, 'PDF mock a ser baixado');
-          await savePDF(
-            typeof pdf.pdfLink === 'string' ? pdf.pdfLink : String(pdf.pdfLink),
-            typeof pdf.pdfName === 'string' ? pdf.pdfName : String(pdf.pdfName),
-            sessionToken as string
-          );
-        } else {
-          app.log.error(pdf, 'PDF inválido encontrado');
+          let json: unknown;
+          try {
+            json = await resp.json();
+          } catch (e) {
+            app.log.error({ e }, 'Falha ao fazer parse do JSON da Lambda');
+            json = [];
+          }
+
+          const pdfsFiltered = Array.isArray(json) ? json : [];
+          app.log.info({ course: payload.course, count: pdfsFiltered.length }, 'Resposta da Lambda');
+
+          for (const pdf of pdfsFiltered) {
+            if (typeof pdf === 'object' && pdf !== null && 'pdfLink' in pdf && 'pdfName' in pdf) {
+              app.log.info(pdf, 'PDF a ser baixado');
+              await savePDF(
+                typeof (pdf as any).pdfLink === 'string' ? (pdf as any).pdfLink : String((pdf as any).pdfLink),
+                typeof (pdf as any).pdfName === 'string' ? (pdf as any).pdfName : String((pdf as any).pdfName),
+                sessionToken as string
+              );
+            } else {
+              app.log.error(pdf, 'PDF inválido encontrado');
+            }
+          }
+
+          return {
+            course: payload.course,
+            processed: pdfsFiltered.length,
+            data: pdfsFiltered
+          };
+        })
+      );
+
+      const aggregated = lambdaResponses.map((r, i) => {
+        const courseName = results[i]?.course ?? `curso_${i}`;
+        if (r.status === 'fulfilled') {
+          const { course, ...rest } = r.value ?? {};
+          return { course: courseName, ...rest, status: 'ok' as const };
         }
-      }
+        app.log.error({ err: r.reason, course: courseName }, 'Falha na chamada da Lambda');
+        return { course: courseName, processed: 0, data: [], status: 'error' as const, error: String(r.reason) };
+        });
 
-      return { success: true, processed: pdfsFiltered.length, mock: true, data: pdfsFiltered };
+      const totalProcessed = aggregated.reduce((acc, cur) => acc + (cur.processed ?? 0), 0);
+
+      return {
+        success: true,
+        mock: true,
+        totalProcessed,
+        results: aggregated
+      };
     } catch (error) {
       reply.status(500);
       return {
