@@ -132,9 +132,12 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     async (request, reply) => {
       const { email, ra } = request.body;
       try {
+        const ttlHours = 1;
+        const expiresAt = new Date(Date.now() + ttlHours * 60 * 60 * 1000);
+
         const user = await UserModel.findByIdAndUpdate(
           request.user._id,
-          { email, ra },
+          { email, ra, expiresAt },
           { new: true },
         );
 
@@ -144,6 +147,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
         if (user.oauth?.email === user.email) {
           user.confirmed = true;
+          user.expiresAt = null;
+
           const confirmedUser = await user.save();
 
           const jwtToken = app.jwt.sign({
@@ -194,6 +199,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       }
 
       user.confirmed = true;
+      user.expiresAt = null;
 
       const confirmedUser = await user.save();
 
