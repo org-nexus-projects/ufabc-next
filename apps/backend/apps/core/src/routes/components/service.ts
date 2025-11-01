@@ -68,6 +68,22 @@ export async function extractPDFs(sessionId: string, courseLink: string): Promis
   return pdfs;
 }
 
+export const normalizeUrl = (raw: string): string => {
+  if (!raw) return '';
+  const trimmed = raw.trim();
+  try {
+    const u = new URL(trimmed);
+    const protocol = u.protocol.toLowerCase();
+    const host = u.host.toLowerCase();
+    const pathname = u.pathname.replace(/\/$/, '');
+
+    return `${protocol}//${host}${pathname}`;
+  } catch {
+
+    return trimmed.replace(/\/$/, '').toLowerCase();
+  }
+};
+
 function configFileName(input: string, fallback = 'arquivo.pdf'): string {
   const normalized = (input ?? '').normalize('NFKC').trim();
 
