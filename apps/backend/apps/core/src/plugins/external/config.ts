@@ -18,7 +18,9 @@ const configSchema = z.object({
   HOST: z.string().min(4).default('0.0.0.0'),
   JWT_SECRET: z.string().default(JWT_SECRET),
   RATE_LIMIT_MAX: z.coerce.number().default(100),
-  MONGODB_CONNECTION_URL: z.string().default('mongodb://127.0.0.1:27017/local'),
+  MONGODB_CONNECTION_URL: z
+    .string()
+    .default('mongodb://127.0.0.1:27017/ufabc-matricula'),
   REDIS_CONNECTION_URL: z.string().default('redis://localhost:6379'),
   WEB_URL: z.string().default(NEXT_WEB_LOCAL),
   ALLOWED_ORIGINS: z.string().transform((origins) => origins.split(',')),
@@ -39,9 +41,8 @@ const configSchema = z.object({
   AXIOM_TOKEN: z.string().optional(),
   AXIOM_DATASET: z.string().optional(),
   BOARD_PATH: z.string().optional(),
-  OAUTH_NOTION_SECRET: z.string().default('notion_secret'),
-  OAUTH_NOTION_CLIENT_ID: z.string().default('notion_client_id'),
-  NOTION_DATABASE_ID: z.string().default('teste'),
+  NOTION_INTEGRATION_SECRET: z.string().default('notion_integration_secret'),
+  NOTION_DATABASE_ID: z.string().default('notion_database_id'),
 });
 
 const schema = zodToJsonSchema(configSchema);

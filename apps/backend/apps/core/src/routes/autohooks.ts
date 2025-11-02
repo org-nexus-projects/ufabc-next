@@ -12,9 +12,10 @@ const PUBLIC_ROUTES = [
   '/public/stats/components',
   '/users/check-email',
   '/users/facebook',
-  '/help/forms',
+  '/help/form',
   '/users/recover',
   '/users/validate',
+  '/entities/enrollments/wpp',
 ];
 
 const EXTENSION_ROUTES = [

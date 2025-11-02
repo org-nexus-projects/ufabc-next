@@ -14,6 +14,15 @@ const componentSchema = new Schema(
     campus: { type: String, enum: CAMPUS, required: true },
     ideal_quad: { type: Boolean, default: false, required: true },
     uf_cod_turma: { type: String, required: true },
+    tpi: {
+      type: [Number],
+      required: true,
+      default: [0, 0, 0], // tpi[0] = teoria, tpi[1] = pratica, tpi[2] = individual
+      validate: {
+        validator: (v: number[]) => v.length === 3,
+        message: 'TPI must be an array of 3 numbers',
+      },
+    },
     identifier: {
       type: String,
       required: false,

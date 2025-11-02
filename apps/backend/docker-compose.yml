@@ -31,6 +31,7 @@ services:
       DEBUG: "1"
     volumes:
       - "./scripts/docker/localstack:/var/lib/localstack"
+      - "./scripts/init-localstack.sh:/etc/localstack/init/ready.d/init.sh"
 
 volumes:
   next-db-data:

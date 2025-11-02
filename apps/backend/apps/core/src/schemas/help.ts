@@ -12,6 +12,9 @@ const helpFormBodySchema = z.object({
     .string()
     .max(5000)
     .openapi({ description: 'descrição do problema' }),
+  imageBuffer: z.string().optional(),
+  imageFilename: z.string().optional(),
+  imageMimeType: z.string().optional(),
 });
 
 export const helpFormSchema = {

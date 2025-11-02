@@ -179,10 +179,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       preHandler: (request, reply) => request.isAdmin(reply),
     },
     async (request, reply) => {
-      const { season, hash, ignoreErrors } = request.body;
+      const { season, hash, ignoreErrors, kind} = request.body;
       const componentsWithTeachers = await getComponentsFile(
         season,
-        'settlement',
+        kind,
       );
 
       const teacherCache = new Map();
@@ -245,21 +245,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
               parserError: ['Component not found in database'],
               type: 'MATCHING_FAILED',
             });
+            // Normalize the subject code (strip year, uppercase, etc.)
+            const codeMatch = c.UFComponentCode.match(/^(.*?)-\d{2}$/);
+            const normalizedCode = codeMatch ? codeMatch[1] : c.UFComponentCode;
             const subject = await SubjectModel.findOne({
-              $or: [
-                { search: c.name.toLowerCase() },
-                { search: { $regex: c.name, $options: 'i' } },
-                {
-                  search: {
-                    $regex: c.name
-                      .split(/\s+/)
-                      .map((word) => `(?=.*${word})`)
-                      .join(''),
-                    $options: 'i',
-                  },
-                },
-                { name: { $regex: c.name, $options: 'i' } },
-              ],
+              uf_subject_code: { $in: [normalizedCode] },
             }).lean();
             if (!subject) {
               app.log.warn({

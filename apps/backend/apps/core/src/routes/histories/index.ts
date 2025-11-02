@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
   HistoryModel,
   type Categories,
@@ -34,13 +33,23 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         };
       }
 
-      // @ts-ignore
       const parsedHistory = await getHistory(sessionId, viewState as string);
-      if (parsedHistory.success === false) {
-        app.log.error(parsedHistory, 'error');
+      if (parsedHistory.error) {
+        app.log.error(
+          {
+            ra,
+            error: parsedHistory.error.issues.map((issue) => ({
+              reason: issue.message,
+              path: issue.path,
+              code: issue.code,
+            })),
+            cause: parsedHistory.error.cause,
+          },
+          'error parsing history from parser',
+        );
+        return reply.internalServerError('Failed to fetch history from UFABC');
       }
 
-      // @ts-ignore
       const { student, components, graduations, coefficients } =
         parsedHistory.data;
 

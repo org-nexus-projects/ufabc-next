@@ -1,11 +1,32 @@
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import { findComment, findOne, listByRa } from './service.js';
+import {
+  findComment,
+  findOne,
+  listByRa,
+  listWithComponents,
+} from './service.js';
 import { listUserEnrollments } from '@/schemas/entities/enrollments.js';
+import { currentQuad } from '@next/common';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get('/', { schema: listUserEnrollments }, async ({ user }) => {
     const userEnrollments = await listByRa(user.ra);
     return userEnrollments;
+  });
+
+  app.get('/wpp', async ({ user, query }, reply) => {
+    const { season, ra } = query as {
+      season: ReturnType<typeof currentQuad>;
+      ra: string;
+    };
+
+    const actualSeason = season ?? currentQuad();
+
+    const wppEnrollments = await listWithComponents(
+      user?.ra ?? ra,
+      actualSeason,
+    );
+    return wppEnrollments;
   });
 
   app.get('/:enrollmentId', async (request, reply) => {

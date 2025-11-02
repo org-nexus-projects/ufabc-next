@@ -53,6 +53,7 @@ export async function getReactions({
 }: GetReactionQuery) {
   const filter: FilterQuery<AnyObject> = {
     teacher: teacherId,
+    active: true
   };
 
   if (subjectId) {

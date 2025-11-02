@@ -2,7 +2,7 @@ import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 import { z } from 'zod';
 import 'zod-openapi/extend';
 
-const SIG_RESULTS = ['A', 'B', 'C', 'D', 'E', 'F', 'O', '-', '', '0'] as const;
+const SIG_RESULTS = ['A', 'B', 'C', 'D', 'E', 'F', 'O', '-', '', '0', '--'] as const;
 const SIG_CATEGORIES = ['mandatory', 'limited', 'free'] as const;
 const SIG_COMPONENTS_STATUS = [
   'APR', // Aprovado por média
@@ -28,7 +28,9 @@ export type SigStatus = (typeof SIG_COMPONENTS_STATUS)[number];
 const sigComponents = z.object({
   UFCode: z.string(),
   category: z.enum(SIG_CATEGORIES),
-  class: z.string(),
+  class: z
+    .string()
+    .transform((val) => (val === '--' || val === '-' ? null : val)),
   credits: z.number().int(),
   grade: z.enum(SIG_RESULTS),
   name: z.string().toLowerCase(),
@@ -38,7 +40,6 @@ const sigComponents = z.object({
   teachers: z
     .string()
     .array()
-    .min(1)
     .openapi({
       description: 'Professores responsáveis pela componente curricular',
       example: ['João Silva', 'Maria Santos'],
@@ -48,7 +49,7 @@ const sigComponents = z.object({
 const CAMPUS_ENUM = z.enum(['sa', 'sbc']);
 
 const sigStudent = z.object({
-  campus: CAMPUS_ENUM,
+  campus: CAMPUS_ENUM.optional(),
   shift: z
     .enum(['n', 'm'])
     .transform((val) => (val === 'n' ? 'noturno' : 'matutino')),
@@ -88,18 +89,18 @@ const sigCoefficients = z.object({
 });
 
 const sigGraduations = z.object({
-  campus: CAMPUS_ENUM,
+  campus: CAMPUS_ENUM.optional(),
   course: z.string().toLowerCase().openapi({
     description: 'Curso do aluno',
     example: 'bacharelado em ciencia e tecnologia',
   }),
   grade: z.string().optional(),
   shift: z.enum(['n', 'm']),
-  extensionCredits: z.number().int(),
-  totalCredits: z.number().int(),
-  freeCredits: z.number().int(),
-  mandatoryCredits: z.number().int(),
-  limitedCredits: z.number().int(),
+  extensionCredits: z.number().transform((val) => Math.round(val)),
+  totalCredits: z.number().transform((val) => Math.round(val)),
+  freeCredits: z.number().transform((val) => Math.round(val)),
+  mandatoryCredits: z.number().transform((val) => Math.round(val)),
+  limitedCredits: z.number().transform((val) => Math.round(val)),
 });
 
 export const sigHistory = z.object({

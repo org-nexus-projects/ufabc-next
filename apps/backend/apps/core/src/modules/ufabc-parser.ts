@@ -1,7 +1,3 @@
-import type {
-  ParsedSigStudent,
-  SigStudent,
-} from '@/schemas/entities/students.js';
 import { ofetch } from 'ofetch';
 import { logger } from '@/utils/logger.js';
 import { sigHistory, type SigHistory } from '@/schemas/history.js';
@@ -12,18 +8,24 @@ export type UfabcParserComponent = {
   /** The code as we consume */
   UFComponentCode: string;
   UFClassroomCode: string;
+  rawTPI: [number, number, number];
   campus: 'sbc' | 'sa';
   name: string;
-  turma: string;
-  turno: 'diurno' | 'noturno';
+  class: string;
+  shift: 'morning' | 'night';
   credits: number;
   courses: Array<{
     name: string | '-';
     UFCourseId: number;
-    category: 'limitada' | 'obrigatoria';
+    category: 'limited' | 'mandatory';
   }>;
   vacancies: number;
   hours: Record<string, { periodicity: string; classPeriod: string[] }>[];
+  tpi: {
+    theory: number;
+    practice: number;
+    individual: number;
+  } | null;
 };
 
 type Weekdays =
@@ -39,36 +41,6 @@ type ComponentHours = {
     periodicity: 'weekly' | 'biweekly';
     classPeriod: string[];
   };
-};
-
-export type UfabcParserComponentV2 = {
-  UFComponentId: number;
-  UFClassroomCode: string;
-  class: string;
-  shift: 'morning' | 'night';
-  vacancies: number;
-  campus: 'sa' | 'sbc';
-  hours: ComponentHours;
-  tpi: {
-    theory: number;
-    practice: number;
-    individual: number;
-  };
-  courses: Array<{
-    category: string;
-    UFCourseId: number;
-    name?: string;
-  }>;
-  UFComponentCode: string;
-  name: string;
-  credits: number;
-  teachers: {
-    professor?: string;
-    practice?: string;
-    secondaryPractice?: string;
-    secondaryProfessor?: string;
-  };
-  season: string;
 };
 
 type StudentRA = string;
@@ -114,6 +86,43 @@ export type UFProcessorComponentFile = {
   hours: Record<string, { periodicity: string; classPeriod: string[] }>[];
 };
 
+type Schedule = Record<
+  'theory' | 'practice',
+  [
+    {
+      day: 'segunda' | 'terca' | 'quarta' | 'quinta' | 'sexta' | 'sabado';
+      room: string;
+      endTime: string;
+      startTime: string;
+      unparsed: string;
+      frequency: 'semanal' | 'quinzenal I' | 'quinzenal II';
+    },
+  ]
+>;
+
+export type UfabcParserEnrollment = {
+  id: number;
+  name: string;
+  class: string;
+  shift: 'morning' | 'night';
+  campus: 'sa' | 'sbc';
+  hours: ComponentHours;
+  schedules: Schedule;
+  credits: number;
+  enrollmentCode: string;
+  teachers: Array<{
+    name: string;
+    email: string;
+    role: 'professor' | 'practice' | 'secondaryPractice' | 'secondaryProfessor';
+    isSecondary: boolean;
+  }>;
+};
+
+type UserClasses = {
+  total: number;
+  data: Array<UfabcParserEnrollment>;
+};
+
 export const ufabcParserService = ofetch.create({
   baseURL: process.env.UFABC_PARSER_URL,
   timeout: 45 * 1000, // 45 seconds,
@@ -148,58 +157,11 @@ export const ufabcParserService = ofetch.create({
   },
 });
 
-export async function getSigUser(sigStudent: SigStudent, sessionId: string) {
-  const student = await ufabcParserService<{
-    data: ParsedSigStudent | null;
-    error: string | null;
-  }>('/sig/me', {
-    method: 'POST',
-    headers: {
-      sessionId,
-    },
-    query: {
-      action: 'default',
-    },
-    body: sigStudent,
-  });
-  return student;
-}
-
-type FullStudentRequest = {
-  student: ParsedSigStudent & { grade: string };
-  action: string;
-  viewState: string;
-  sessionId: string;
-};
-
-export async function getFullStudent({
-  student,
-  action,
-  viewState,
-  sessionId,
-}: FullStudentRequest) {
-  const fullStudent = await ufabcParserService<{
-    data: ParsedSigStudent | null;
-    error: string | null;
-  }>('/sig/grades', {
-    method: 'POST',
-    headers: {
-      sessionId,
-      viewState,
-    },
-    body: {
-      student,
-      action,
-    },
-  });
-  return fullStudent;
-}
-
 export async function getHistory(sessionId: string, viewState: string) {
   const rawHistory = await ufabcParserService<{
     data: SigHistory | null;
     error: string | null;
-  }>('/sig/history', {
+  }>('/v1/sig/history', {
     method: 'POST',
     headers: {
       sessionId,
@@ -216,8 +178,9 @@ export async function getHistory(sessionId: string, viewState: string) {
 }
 
 export async function getComponents() {
-  const components =
-    await ufabcParserService<UfabcParserComponent[]>('/components');
+  const components = await ufabcParserService<UfabcParserComponent[]>(
+    '/v1/matriculas/ufabc',
+  );
   return components;
 }
 
@@ -235,8 +198,22 @@ export async function getEnrollments(kind: string, season: string) {
   return enrollments;
 }
 
+export async function getClasses(season: string, login: string) {
+  const classes = await ufabcParserService<UserClasses>(
+    `/v1/matriculas/ufabc/classes/${login}`,
+    {
+      query: {
+        season,
+      },
+    },
+  );
+  return classes;
+}
+
 export async function getEnrolledStudents() {
-  const enrolled = await ufabcParserService<UFProcessorEnrolled>('/enrolled');
+  const enrolled = await ufabcParserService<UFProcessorEnrolled>(
+    '/v1/matriculas/ufabc/enrolled',
+  );
   return enrolled;
 }
 
@@ -253,16 +230,4 @@ export async function getComponentsFile(season: string, kind: string) {
   );
 
   return componentsFile;
-}
-
-export async function getComponentsV2(season: string) {
-  const components = await ufabcParserService<UfabcParserComponentV2[]>(
-    '/v2/components',
-    {
-      query: {
-        season,
-      },
-    },
-  );
-  return components;
 }
