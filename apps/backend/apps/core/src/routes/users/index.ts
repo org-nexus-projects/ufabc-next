@@ -132,14 +132,36 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     async (request, reply) => {
       const { email, ra } = request.body;
       try {
+        const ttlHours = 1;
+        const expiresAt = new Date(Date.now() + ttlHours * 60 * 60 * 1000);
+
         const user = await UserModel.findByIdAndUpdate(
           request.user._id,
-          { email, ra },
+          { email, ra, expiresAt },
           { new: true },
         );
 
         if (!user) {
           return reply.badRequest('Malformed token');
+        }
+
+        if (user.oauth?.email === user.email) {
+          user.confirmed = true;
+          user.expiresAt = null;
+
+          const confirmedUser = await user.save();
+
+          const jwtToken = app.jwt.sign({
+            _id: confirmedUser._id,
+            ra: confirmedUser.ra,
+            confirmed: confirmedUser.confirmed,
+            email: confirmedUser.email,
+            permissions: confirmedUser.permissions,
+          });
+
+          return {
+            token: jwtToken,
+          };
         }
 
         app.job.dispatch('SendEmail', {
@@ -148,8 +170,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         });
 
         return {
-          ra: user?.ra,
-          email: user?.email,
+          ra: user.ra,
+          email: user.email,
         };
       } catch (error) {
         request.log.error({ msg: 'error completing user', error });
@@ -177,6 +199,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       }
 
       user.confirmed = true;
+      user.expiresAt = null;
 
       const confirmedUser = await user.save();
 

@@ -113,7 +113,7 @@ async function createOrLogin(
     const findUserQuery: FilterQuery<UserDocument>[] = [];
 
     if (oauthUser?.email) {
-      findUserQuery.push({ email: oauthUser.email });
+      findUserQuery.push({ email: oauthUser.email, confirmed: true });
     }
 
     if (oauthUser?.google) {

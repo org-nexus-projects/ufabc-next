@@ -27,6 +27,11 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    expiresAt: {
+      type: Date,
+      default: null,
+      index: { expireAfterSeconds: 0 },
+    },
     active: {
       type: Boolean,
       default: true,
@@ -83,6 +88,8 @@ const userSchema = new Schema(
   },
 );
 
-export type User = InferSchemaType<typeof userSchema>;
+type UserBase = InferSchemaType<typeof userSchema>;
+export type User = Omit<UserBase, 'expiresAt'> & { expiresAt: Date | null };
+
 export type UserDocument = ReturnType<(typeof UserModel)['hydrate']>;
-export const UserModel = model('users', userSchema);
+export const UserModel = model<User>('users', userSchema);
