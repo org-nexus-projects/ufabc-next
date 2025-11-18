@@ -304,6 +304,7 @@ import { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';
 import { useField, useForm } from 'vee-validate';
 import { computed, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
 
 import { FeedbackAlert } from '@/components/FeedbackAlert';
@@ -311,6 +312,7 @@ import { useAuthStore } from '@/stores/auth';
 
 import { SignUpSchema } from './signUpValidationSchema';
 
+const router = useRouter();
 const authStore = useAuthStore();
 
 const handleLogout = () => {
@@ -339,8 +341,11 @@ const check = useField('check');
 
 const { mutate: mutateSignUp, isPending: isPendingSubmit } = useMutation({
   mutationFn: Users.completeSignup,
-  onSuccess: () => {
-    step.value = 3;
+  onSuccess: (data: any) => {
+    if (data?.data?.token) {
+      authStore.authenticate(data.data.token);
+      router.push('/');
+    } else step.value = 3;
   },
   onError: (error: AxiosError<RequestError>) => {
     const message =
