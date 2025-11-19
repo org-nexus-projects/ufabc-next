@@ -137,7 +137,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
         const user = await UserModel.findByIdAndUpdate(
           request.user._id,
-          { email, ra, expiresAt },
+          { email: email.toLowerCase(), ra, expiresAt },
           { new: true },
         );
 
