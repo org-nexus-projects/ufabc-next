@@ -80,78 +80,80 @@
                 size="small"
                 block
                 class="mt-4 bg-blue-darken-2 text-white text-caption pa-2"
-            style="border-color: #1e40af"
-            @click="createAccount"
-          >
-            Criar Conta
-          </v-btn>
+                style="border-color: #1e40af"
+                @click="createAccount"
+              >
+                Criar Conta
+              </v-btn>
+            </div>
+          </div>
+
+          <div v-if="authStore.user?.confirmed" style="user-select: none">
+            <v-menu location="top" :close-on-content-click="false">
+              <template #activator="{ props }">
+                <div
+                  v-bind="props"
+                  class="pa-4 cursor-pointer hover:bg-blue-darken-2 transition-colors"
+                  style="border-top: 1px solid rgba(255, 255, 255, 0.12)"
+                >
+                  <div class="d-flex align-center gap-3">
+                    <v-avatar color="primary" size="40">
+                      <span class="text-body-1 font-weight-medium">
+                        {{ userInitials }}
+                      </span>
+                    </v-avatar>
+                    <div class="flex-grow-1 pa-3">
+                      <div class="text-body-2 font-weight-medium">
+                        {{ userCleanUsername }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </template>
+              <v-card min-width="200">
+                <v-list>
+                  <v-list-item>
+                    <div class="d-flex align-center py-2">
+                      <v-avatar
+                        color="primary"
+                        size="40"
+                        style="user-select: none"
+                      >
+                        <span class="text-body-1 font-weight-bold">
+                          {{ userInitials }}
+                        </span>
+                      </v-avatar>
+                      <div class="flex-grow-1 pa-3">
+                        <div class="text-body-3 font-weight-black">
+                          {{ userCleanUsername }}
+                        </div>
+                        <div class="text-body-2">
+                          {{ 'RA: ' + userRA }}
+                        </div>
+                      </div>
+                    </div>
+                  </v-list-item>
+                  <v-divider />
+                  <v-list-item @click="router.push('/settings')">
+                    <div
+                      class="d-flex align-center py-2 rounded-lg bg-gray-200"
+                    >
+                      <v-icon icon="mdi-cog" />
+                      <div class="text-body-2 pa-3">Configurações</div>
+                    </div>
+                  </v-list-item>
+                  <v-list-item @click="handleLogout">
+                    <div class="d-flex align-center py-2">
+                      <v-icon icon="mdi-logout" color="red-darken-2" />
+                      <div class="text-body-2 pa-3 text-red-darken-2">Sair</div>
+                    </div>
+                  </v-list-item>
+                </v-list>
+              </v-card>
+            </v-menu>
+          </div>
         </div>
       </div>
-
-      <div v-if="authStore.user?.confirmed" style="user-select: none">
-        <v-menu location="top" :close-on-content-click="false">
-          <template #activator="{ props }">
-            <div
-              v-bind="props"
-              class="pa-4 cursor-pointer hover:bg-blue-darken-2 transition-colors"
-              style="border-top: 1px solid rgba(255, 255, 255, 0.12)"
-            >
-              <div class="d-flex align-center gap-3">
-                <v-avatar color="primary" size="40">
-                  <span class="text-body-1 font-weight-medium">
-                    {{ userInitials }}
-                  </span>
-                </v-avatar>
-                <div class="flex-grow-1 pa-3">
-                  <div class="text-body-2 font-weight-medium">
-                    {{ userCleanUsername }}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </template>
-          <v-card min-width="200">
-            <v-list>
-              <v-list-item>
-                <div class="d-flex align-center py-2">
-                  <v-avatar color="primary" size="40" style="user-select: none">
-                    <span class="text-body-1 font-weight-bold">
-                      {{ userInitials }}
-                    </span>
-                  </v-avatar>
-                  <div class="flex-grow-1 pa-3">
-                    <div class="text-body-3 font-weight-black">
-                      {{ userCleanUsername }}
-                    </div>
-                    <div class="text-body-2">
-                      {{ "RA: " + userRA }}
-                    </div>
-                  </div>
-                </div>
-              </v-list-item>
-              <v-divider />
-              <v-list-item @click="router.push('/settings')">
-                <div class="d-flex align-center py-2 rounded-lg bg-gray-200">
-                  <v-icon icon="mdi-cog" />
-                  <div class="text-body-2 pa-3">
-                    Configurações
-                  </div>
-                </div>
-              </v-list-item>
-              <v-list-item @click="handleLogout">
-                <div class="d-flex align-center py-2">
-                  <v-icon icon="mdi-logout" color="red-darken-2" />
-                  <div class="text-body-2 pa-3 text-red-darken-2">
-                    Sair
-                  </div>
-                </div>
-              </v-list-item>
-            </v-list>
-          </v-card>
-        </v-menu>
-      </div>
-    </div>
-  </div>
     </v-navigation-drawer>
 
     <v-app-bar
@@ -172,7 +174,7 @@
 
       <img
         class="logo-white"
-        src="@/assets/logo.svg"
+        :src="isDarkMode ? logoLight : logoDark"
         height="32"
         alt="logo do UFABC Next"
       />
@@ -201,6 +203,8 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useTheme } from 'vuetify';
 
+import logoDark from '@/assets/logo.svg';
+import logoLight from '@/assets/logo_white.svg';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';

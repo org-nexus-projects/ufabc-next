@@ -49,12 +49,14 @@ import { useQuery } from '@tanstack/vue-query';
 import { type CourseInformation, Performance } from '@ufabc-next/services';
 import { Chart } from 'highcharts-vue';
 import { computed, ref } from 'vue';
+import { useTheme } from 'vuetify';
 
 import { CenteredLoading } from '@/components/CenteredLoading';
 import { PaperCard } from '@/components/PaperCard';
 import { PerformanceCard } from '@/components/PerformanceCard';
-import { theme } from '@/theme';
 import { formatSeason } from '@/utils/season';
+
+const theme = useTheme();
 
 const areaGraphOptions = {
   accessibility: {
@@ -73,7 +75,7 @@ const areaGraphOptions = {
       },
     },
   },
-  colors: [theme.colors?.primary],
+  colors: [theme.global.current.value.colors?.primary],
   tooltip: {
     borderRadius: 10,
     padding: 12,
