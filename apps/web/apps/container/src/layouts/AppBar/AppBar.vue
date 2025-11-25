@@ -1,136 +1,140 @@
 <template>
   <v-app>
     <v-navigation-drawer
-  v-if="authStore.user?.confirmed || layout === 'include-sidebar'"
-  v-model="drawer"
-  color="navigation"
-  width="240"
->
-  <div class="d-flex flex-column" style="height: 100%;">
-    <div class="flex-grow-0">
-      <v-list>
-        <div class="py-4 d-flex justify-center align-center">
-          <img
-            class="logo-white"
-            src="@/assets/logo_white.svg"
-            height="44"
-            alt="logo do UFABC Next"
-          />
-        </div>
-        <v-divider />
-        <v-list-item
-          v-for="item in internalNavigationItems"
-          :key="item.title"
-          :to="!item.locked ? item.route : undefined"
-          :class="{ 'locked-item': item.locked }"
-        >
-          <v-layout class="d-flex">
-            <v-icon :icon="item.icon" class="mr-3" />
-            <p class="font-weight-medium text-caption">
-              {{ item.title }}
-            </p>
-            <span
-              v-if="item.releaseDate?.add(3, 'month').isAfter(dayjs())"
-              class="featured-chip font-weight-black"
-              >Novo</span
-            >
-            <v-icon
-              v-if="item.locked"
-              icon="mdi mdi-lock-outline"
-              class="locked-icon"
-              size="16"
-            />
-          </v-layout>
-        </v-list-item>
-      </v-list>
-      <v-divider />
-      <v-list>
-        <v-list-item
-          v-for="item in externalNavigationItems"
-          :key="item.title"
-          :href="item.url"
-          :target="item.url && '_blank'"
-          :rel="item.url && 'noopener noreferrer'"
-        >
-          <v-layout>
-            <v-icon :icon="item.icon" class="mr-3" />
-            <p class="font-weight-medium text-caption">
-              {{ item.title }}
-            </p>
-          </v-layout>
-        </v-list-item>
-      </v-list>
-    </div>
-
-    <div class="flex-grow-1"></div>
-
-    <div class="flex-grow-0">
-      <div v-if="!authStore.user?.confirmed">
-        <v-divider />
-        <div class="mb-4 pa-4 bg-blue-darken-3 border create-account-box">
-          <div class="d-flex align-center gap-3">
-            <v-icon class="pa-1" size="20"> mdi-lock-outline </v-icon>
-            <strong>Conta não confirmada</strong>
-          </div>
-          <div class="mt-2 text-caption">
-            Crie sua conta no next para acessar todas as funcionalidades.
-          </div>
-          <v-btn
-            variant="tonal"
-            size="small"
-            block
-            class="mt-4 bg-blue-darken-2 text-white text-caption pa-2"
-            style="border-color: #1e40af"
-            @click="createAccount"
-          >
-            Criar Conta
-          </v-btn>
-        </div>
-      </div>
-
-      <div v-if="authStore.user?.confirmed" style="user-select: none;">
-        <v-menu location="top" :close-on-content-click="false">
-          <template #activator="{ props }">
-            <div
-              v-bind="props"
-              class="pa-4 cursor-pointer hover:bg-blue-darken-2 transition-colors"
-              style="border-top: 1px solid rgba(255, 255, 255, 0.12)"
-            >
-              <div class="d-flex align-center gap-3">
-                <v-avatar color="primary" size="40">
-                  <span class="text-body-1 font-weight-medium">
-                    {{ userInitials }}
-                  </span>
-                </v-avatar>
-                <div class="flex-grow-1">
-                  <div class="text-body-2 font-weight-medium">
-                    {{ authStore.user?.name || 'rafael.evangelista' }}
-                  </div>
-                </div>
-              </div>
+      v-if="authStore.user?.confirmed || layout === 'include-sidebar'"
+      v-model="drawer"
+      color="navigation"
+      width="240"
+    >
+      <div class="d-flex flex-column" style="height: 100%">
+        <div class="flex-grow-0">
+          <v-list>
+            <div class="py-4 d-flex justify-center align-center">
+              <img
+                class="logo-white"
+                src="@/assets/logo_white.svg"
+                height="44"
+                alt="logo do UFABC Next"
+              />
             </div>
-          </template>
-          <v-card min-width="200">
-            <v-list>
-              <v-list-item>
-                <div class="d-flex align-center gap-3 py-2">
-                  <v-avatar color="primary" size="40" style="user-select: none;">
-                    <span class="text-body-1 font-weight-medium">
-                      {{ userInitials }}
-                    </span>
-                  </v-avatar>
-                  <div class="text-body-2">
-                    {{ authStore.user?.email || '' }}
+            <v-divider />
+            <v-list-item
+              v-for="item in internalNavigationItems"
+              :key="item.title"
+              :to="!item.locked ? item.route : undefined"
+              :class="{ 'locked-item': item.locked }"
+            >
+              <v-layout class="d-flex">
+                <v-icon :icon="item.icon" class="mr-3" />
+                <p class="font-weight-medium text-caption">
+                  {{ item.title }}
+                </p>
+                <span
+                  v-if="item.releaseDate?.add(3, 'month').isAfter(dayjs())"
+                  class="featured-chip font-weight-black"
+                  >Novo</span
+                >
+                <v-icon
+                  v-if="item.locked"
+                  icon="mdi mdi-lock-outline"
+                  class="locked-icon"
+                  size="16"
+                />
+              </v-layout>
+            </v-list-item>
+          </v-list>
+          <v-divider />
+          <v-list>
+            <v-list-item
+              v-for="item in externalNavigationItems"
+              :key="item.title"
+              :href="item.url"
+              :target="item.url && '_blank'"
+              :rel="item.url && 'noopener noreferrer'"
+            >
+              <v-layout>
+                <v-icon :icon="item.icon" class="mr-3" />
+                <p class="font-weight-medium text-caption">
+                  {{ item.title }}
+                </p>
+              </v-layout>
+            </v-list-item>
+          </v-list>
+        </div>
+
+        <div class="flex-grow-1"></div>
+
+        <div class="flex-grow-0">
+          <div v-if="!authStore.user?.confirmed">
+            <v-divider />
+            <div class="mb-4 pa-4 bg-blue-darken-3 border create-account-box">
+              <div class="d-flex align-center gap-3">
+                <v-icon class="pa-1" size="20"> mdi-lock-outline </v-icon>
+                <strong>Conta não confirmada</strong>
+              </div>
+              <div class="mt-2 text-caption">
+                Crie sua conta no next para acessar todas as funcionalidades.
+              </div>
+              <v-btn
+                variant="tonal"
+                size="small"
+                block
+                class="mt-4 bg-blue-darken-2 text-white text-caption pa-2"
+                style="border-color: #1e40af"
+                @click="createAccount"
+              >
+                Criar Conta
+              </v-btn>
+            </div>
+          </div>
+
+          <div v-if="authStore.user?.confirmed" style="user-select: none">
+            <v-menu location="top" :close-on-content-click="false">
+              <template #activator="{ props }">
+                <div
+                  v-bind="props"
+                  class="pa-4 cursor-pointer hover:bg-blue-darken-2 transition-colors"
+                  style="border-top: 1px solid rgba(255, 255, 255, 0.12)"
+                >
+                  <div class="d-flex align-center gap-3">
+                    <v-avatar color="primary" size="40">
+                      <span class="text-body-1 font-weight-medium">
+                        {{ userInitials }}
+                      </span>
+                    </v-avatar>
+                    <div class="flex-grow-1">
+                      <div class="text-body-2 font-weight-medium">
+                        {{ authStore.user?.name || 'rafael.evangelista' }}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </v-list-item>
-            </v-list>
-          </v-card>
-        </v-menu>
+              </template>
+              <v-card min-width="200">
+                <v-list>
+                  <v-list-item>
+                    <div class="d-flex align-center gap-3 py-2">
+                      <v-avatar
+                        color="primary"
+                        size="40"
+                        style="user-select: none"
+                      >
+                        <span class="text-body-1 font-weight-medium">
+                          {{ userInitials }}
+                        </span>
+                      </v-avatar>
+                      <div class="text-body-2">
+                        {{ authStore.user?.email || '' }}
+                      </div>
+                    </div>
+                  </v-list-item>
+                </v-list>
+              </v-card>
+            </v-menu>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</v-navigation-drawer>
+    </v-navigation-drawer>
 
     <v-app-bar
       v-if="authStore.user?.confirmed || layout === 'include-sidebar'"
@@ -185,7 +189,7 @@ import { useAliasInitials } from '@/utils/composables/aliasInitials';
 
 const router = useRouter();
 const authStore = useAuthStore();
-const userInitials = useAliasInitials().value.toUpperCase() ;
+const userInitials = useAliasInitials().value.toUpperCase();
 
 const layout = computed(() => router.currentRoute.value.meta.layout ?? null);
 
@@ -201,15 +205,23 @@ const createAccount = () => {
   router.push('/signup');
 };
 
+// styleDefinitions =
+
+// const applyStyles = () => {
+
+// };
+
 const drawer = ref(false);
 onMounted(() => {
   drawer.value = window.innerWidth >= 1024;
+  //applyStyles();
 });
 
-const isDarkMode = ref(false);
+const isDarkMode = ref(JSON.parse(localStorage.getItem('darkMode') ?? 'false'));
 
 const toggleTheme = () => {
   isDarkMode.value = !isDarkMode.value;
+  localStorage.setItem('darkMode', JSON.stringify(isDarkMode.value));
 };
 
 const internalNavigationItems = [
