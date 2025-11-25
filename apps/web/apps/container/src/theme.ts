@@ -1,6 +1,6 @@
 import type { ThemeDefinition } from 'vuetify';
 
-export const theme: ThemeDefinition = {
+export const lightTheme: ThemeDefinition = {
   dark: false,
   colors: {
     navigation: '#215096',
@@ -13,5 +13,21 @@ export const theme: ThemeDefinition = {
     'ufabcnext-red': '#E17472',
     error: '#f45576',
     background: '#ffffff',
+  },
+};
+
+export const darkTheme: ThemeDefinition = {
+  dark: true,
+  colors: {
+    navigation: '#215096',
+    primary: '#2e7eed',
+    secondary: '#121212',
+    'ufabcnext-green': '#37bba3',
+    'next-gray': '#404040',
+    'next-light-gray': '#848687',
+    'ufabcnext-yellow': '#FFCB17',
+    'ufabcnext-red': '#E17472',
+    error: '#f45576',
+    background: '#121212',
   },
 };

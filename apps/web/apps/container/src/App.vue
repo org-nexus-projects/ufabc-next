@@ -1,7 +1,7 @@
 <template>
   <VueQueryDevtools v-if="isLocal" />
   <AppBar :key="authStore.user?.ra">
-    <v-main style="background-color: #f5f5f5">
+    <v-main>
       <v-container
         id="app-container"
         :style="`min-height: calc(100vh${
