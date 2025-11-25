@@ -186,6 +186,7 @@ import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
 import { useAliasInitials } from '@/utils/composables/aliasInitials';
+import { useCleanUsername } from '@/utils/composables/cleanUsername';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -268,12 +269,6 @@ const internalNavigationItems = [
     icon: 'mdi-bank',
     route: '/donate',
     locked: false,
-  },
-  {
-    title: 'Configurações',
-    icon: 'mdi-cog',
-    route: '/settings',
-    locked: !authStore.user?.confirmed,
   },
   {
     title: 'Ajuda',

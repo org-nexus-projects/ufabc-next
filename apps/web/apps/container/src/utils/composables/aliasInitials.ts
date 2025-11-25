@@ -11,7 +11,7 @@ export function useAliasInitials() {
 
   const alias = ref('');
 
-  const userLogin = authStore.user?.email?.replace('@aluno.ufabc.edu.br', '');
+  const userLogin = authStore.user?.email?.replace('@aluno.ufabc.edu.br', '').toUpperCase();
 
   if (userLogin) {
     const userSplited = userLogin.split('.');
