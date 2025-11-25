@@ -1,11 +1,13 @@
 <template>
   <v-app>
     <v-navigation-drawer
-      v-if="authStore.user?.confirmed || layout === 'include-sidebar'"
-      v-model="drawer"
-      color="navigation"
-      width="240"
-    >
+  v-if="authStore.user?.confirmed || layout === 'include-sidebar'"
+  v-model="drawer"
+  color="navigation"
+  width="240"
+>
+  <div class="d-flex flex-column" style="height: 100%;">
+    <div class="flex-grow-0">
       <v-list>
         <div class="py-4 d-flex justify-center align-center">
           <img
@@ -58,9 +60,13 @@
           </v-layout>
         </v-list-item>
       </v-list>
+    </div>
+
+    <div class="flex-grow-1"></div>
+
+    <div class="flex-grow-0">
       <div v-if="!authStore.user?.confirmed">
         <v-divider />
-        <div style="height: 64px" />
         <div class="mb-4 pa-4 bg-blue-darken-3 border create-account-box">
           <div class="d-flex align-center gap-3">
             <v-icon class="pa-1" size="20"> mdi-lock-outline </v-icon>
@@ -81,7 +87,50 @@
           </v-btn>
         </div>
       </div>
-    </v-navigation-drawer>
+
+      <div v-if="authStore.user?.confirmed" style="user-select: none;">
+        <v-menu location="top" :close-on-content-click="false">
+          <template #activator="{ props }">
+            <div
+              v-bind="props"
+              class="pa-4 cursor-pointer hover:bg-blue-darken-2 transition-colors"
+              style="border-top: 1px solid rgba(255, 255, 255, 0.12)"
+            >
+              <div class="d-flex align-center gap-3">
+                <v-avatar color="primary" size="40">
+                  <span class="text-body-1 font-weight-medium">
+                    {{ userInitials }}
+                  </span>
+                </v-avatar>
+                <div class="flex-grow-1">
+                  <div class="text-body-2 font-weight-medium">
+                    {{ authStore.user?.name || 'rafael.evangelista' }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+          <v-card min-width="200">
+            <v-list>
+              <v-list-item>
+                <div class="d-flex align-center gap-3 py-2">
+                  <v-avatar color="primary" size="40" style="user-select: none;">
+                    <span class="text-body-1 font-weight-medium">
+                      {{ userInitials }}
+                    </span>
+                  </v-avatar>
+                  <div class="text-body-2">
+                    {{ authStore.user?.email || '' }}
+                  </div>
+                </div>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-menu>
+      </div>
+    </div>
+  </div>
+</v-navigation-drawer>
 
     <v-app-bar
       v-if="authStore.user?.confirmed || layout === 'include-sidebar'"
@@ -110,41 +159,10 @@
       <div v-if="authStore.user?.confirmed">
         <v-btn
           color="primary"
-          icon="mdi-dots-vertical"
-          aria-label="Expandir menu de usuário"
-        >
-          <v-icon />
-          <v-menu activator="parent">
-            <v-list class="px-2">
-              <v-list-item>
-                <v-layout>
-                  <v-avatar :size="38" color="primary">
-                    {{ userInitials.toLocaleUpperCase() }}
-                  </v-avatar>
-                  <v-layout class="flex-column ml-4">
-                    <p>{{ userLogin }}</p>
-                    <p
-                      v-if="authStore.user?.ra"
-                      class="text-caption text-medium-emphasis"
-                    >
-                      RA: {{ authStore.user.ra }}
-                    </p>
-                  </v-layout>
-                </v-layout>
-              </v-list-item>
-              <v-list-item>
-                <v-btn
-                  prepend-icon="mdi-exit-to-app"
-                  variant="text"
-                  class="text-capitalize text-body-2"
-                  @click="handleLogout"
-                >
-                  Sair
-                </v-btn>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-btn>
+          :icon="isDarkMode ? 'mdi-weather-night' : 'mdi-white-balance-sunny'"
+          aria-label="Toggle theme"
+          @click="toggleTheme"
+        />
       </div>
     </v-app-bar>
     <div
@@ -167,6 +185,7 @@ import { useAliasInitials } from '@/utils/composables/aliasInitials';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const userInitials = useAliasInitials().value.toUpperCase() ;
 
 const layout = computed(() => router.currentRoute.value.meta.layout ?? null);
 
@@ -187,10 +206,11 @@ onMounted(() => {
   drawer.value = window.innerWidth >= 1024;
 });
 
-const userLogin = computed(() =>
-  authStore.user?.email?.replace('@aluno.ufabc.edu.br', ''),
-);
-const userInitials = useAliasInitials();
+const isDarkMode = ref(false);
+
+const toggleTheme = () => {
+  isDarkMode.value = !isDarkMode.value;
+};
 
 const internalNavigationItems = [
   {
