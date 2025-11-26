@@ -241,7 +241,7 @@ const isDarkMode = computed(() => theme.global.current.value.dark);
 
 const toggleTheme = () => {
   const newTheme = theme.global.current.value.dark ? 'light' : 'dark';
-  theme.global.name.value = newTheme;
+  theme.change(`${newTheme}`);
   localStorage.setItem('darkMode', JSON.stringify(newTheme === 'dark'));
 };
 

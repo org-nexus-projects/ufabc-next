@@ -29,7 +29,6 @@
                 v-model="searchRaQuery"
                 placeholder="Digite seu RA (ex: 11202012345)"
                 variant="outlined"
-                size="large"
                 :loading="currentLoading"
                 :disabled="isUserLoggedIn"
                 prepend-inner-icon="mdi-magnify"
