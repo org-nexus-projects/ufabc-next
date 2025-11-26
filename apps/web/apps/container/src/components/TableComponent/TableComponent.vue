@@ -28,7 +28,7 @@
     & > tr > th {
       &:first-of-type {
         @extend .fixed-column;
-        background-color: #37bba3;
+        background-color: rgb(var(--v-theme-ufabcnext-green));
       }
     }
   }
@@ -41,7 +41,7 @@
       &:first-of-type {
         @extend .fixed-column;
       }
-      outline: 1px solid white;
+      outline: 1px solid rgb(var(--v-theme-surface));
       text-align: center;
     }
   }

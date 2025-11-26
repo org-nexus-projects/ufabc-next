@@ -15,7 +15,8 @@
       :items="subjects"
       hide-details
       menu-icon="mdi-menu-down"
-      class="mr-4"
+      class="mr-4 custom-select"
+      bg-color="appbar"
     />
 
     <v-switch
@@ -64,7 +65,7 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/vue-query';
 import { Comments, Reviews } from '@ufabc-next/services';
 import { computed, ref, watch } from 'vue';
-import { useDisplay } from 'vuetify';
+import { useDisplay, useTheme } from 'vuetify';
 
 import { CenteredLoading } from '@/components/CenteredLoading';
 import { FeedbackAlert } from '@/components/FeedbackAlert';
@@ -72,7 +73,7 @@ import { SingleComment } from '@/components/SingleComment';
 import { checkEAD } from '@/utils/season';
 
 const { smAndDown } = useDisplay();
-
+const theme = useTheme();
 const props = defineProps({
   teacherId: { type: String, required: true },
   selectedSubject: { type: String, required: true },

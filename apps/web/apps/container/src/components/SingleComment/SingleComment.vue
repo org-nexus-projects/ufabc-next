@@ -248,7 +248,7 @@ onMounted(() => {
   position: absolute;
   width: 100%;
   top: 60px;
-  background-image: linear-gradient(to right, transparent, white 40%);
+  background-image: linear-gradient(to right, transparent, rgb(var(--v-theme-surface)) 40%);
 }
 
 .v-btn--icon.v-btn--density-default.icon-button {

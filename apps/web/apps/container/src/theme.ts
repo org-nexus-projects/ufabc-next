@@ -12,9 +12,10 @@ export const lightTheme: ThemeDefinition = {
     'ufabcnext-yellow': '#FFCB17',
     'ufabcnext-red': '#E17472',
     error: '#f45576',
-    background: '#ffffff',
-    surface: '#FFFFFF',
-    appbar: '#F5F5F5'
+    background: '#F5F5F5',
+    surface: '#ffffff',
+    appbar: '#ffffff',
+    text: '#000000',
   },
 };
 
@@ -32,6 +33,7 @@ export const darkTheme: ThemeDefinition = {
     error: '#f45576',
     background: '#121212',
     surface: '#212121',
-    appbar: '#161616'
+    appbar: '#161616',
+    text: '#FFFFFF',
   },
 };
