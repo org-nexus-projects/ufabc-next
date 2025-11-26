@@ -704,7 +704,6 @@ onMounted(() => {
   margin-bottom: 20px;
   position: sticky;
   top: 0;
-  background: white;
   z-index: 1;
   padding-bottom: 8px;
 }

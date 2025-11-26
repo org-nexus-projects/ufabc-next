@@ -88,70 +88,7 @@
             </div>
           </div>
 
-          <div v-if="authStore.user?.confirmed" style="user-select: none">
-            <v-menu location="top" :close-on-content-click="false">
-              <template #activator="{ props }">
-                <div
-                  v-bind="props"
-                  class="pa-4 cursor-pointer hover:bg-blue-darken-2 transition-colors"
-                  style="border-top: 1px solid rgba(255, 255, 255, 0.12)"
-                >
-                  <div class="d-flex align-center gap-3">
-                    <v-avatar color="primary" size="40">
-                      <span class="text-body-1 font-weight-medium">
-                        {{ userInitials }}
-                      </span>
-                    </v-avatar>
-                    <div class="flex-grow-1 pa-3">
-                      <div class="text-body-2 font-weight-medium">
-                        {{ userCleanUsername }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </template>
-              <v-card min-width="200">
-                <v-list>
-                  <v-list-item>
-                    <div class="d-flex align-center py-2">
-                      <v-avatar
-                        color="primary"
-                        size="40"
-                        style="user-select: none"
-                      >
-                        <span class="text-body-1 font-weight-bold">
-                          {{ userInitials }}
-                        </span>
-                      </v-avatar>
-                      <div class="flex-grow-1 pa-3">
-                        <div class="text-body-3 font-weight-black">
-                          {{ userCleanUsername }}
-                        </div>
-                        <div class="text-body-2">
-                          {{ 'RA: ' + userRA }}
-                        </div>
-                      </div>
-                    </div>
-                  </v-list-item>
-                  <v-divider />
-                  <v-list-item @click="router.push('/settings')">
-                    <div
-                      class="d-flex align-center py-2 rounded-lg bg-gray-200"
-                    >
-                      <v-icon icon="mdi-cog" />
-                      <div class="text-body-2 pa-3">Configurações</div>
-                    </div>
-                  </v-list-item>
-                  <v-list-item @click="handleLogout">
-                    <div class="d-flex align-center py-2">
-                      <v-icon icon="mdi-logout" color="red-darken-2" />
-                      <div class="text-body-2 pa-3 text-red-darken-2">Sair</div>
-                    </div>
-                  </v-list-item>
-                </v-list>
-              </v-card>
-            </v-menu>
-          </div>
+           <UserMenu v-if="authStore.user?.confirmed" @logout="handleLogout" />
         </div>
       </div>
     </v-navigation-drawer>
@@ -160,7 +97,9 @@
       v-if="authStore.user?.confirmed || layout === 'include-sidebar'"
       app
       height="min-content"
-      class="py-2 header"
+      class="header justify-center"
+      color="appbar"
+      style="height: 64px;"
     >
       <v-app-bar-nav-icon
         app
@@ -180,14 +119,22 @@
       />
 
       <v-spacer />
-      <div v-if="authStore.user?.confirmed">
         <v-btn
           color="primary"
-          :icon="isDarkMode ? 'mdi-moon-waning-crescent' : 'mdi-weather-sunny'"
+          class="d-flex align-center justify-center"
+          height="100%"
           aria-label="Toggle theme"
+          flat
+          style="min-height: 64px;"
           @click="toggleTheme"
-        />
-      </div>
+        >
+          <v-img
+            :src="isDarkMode ? moonIcon : sunIcon"
+            height="24"
+            width="24"
+            alt="logo do UFABC Next"
+          />
+        </v-btn>
     </v-app-bar>
     <div
       v-if="authStore.user?.confirmed || layout === 'include-sidebar'"
@@ -203,20 +150,18 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useTheme } from 'vuetify';
 
+import moonIcon from '@/assets/icons/moon.svg';
+import sunIcon from '@/assets/icons/sun.svg';
 import logoDark from '@/assets/logo.svg';
 import logoLight from '@/assets/logo_white.svg';
+import UserMenu from '@/components/UserMenu';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
-import { useAliasInitials } from '@/utils/composables/aliasInitials';
-import { useCleanUsername } from '@/utils/composables/cleanUsername';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const theme = useTheme();
-const userInitials = useAliasInitials();
-const userRA = authStore.user?.ra;
-const userCleanUsername = useCleanUsername();
 
 const layout = computed(() => router.currentRoute.value.meta.layout ?? null);
 

@@ -13,13 +13,15 @@ export const lightTheme: ThemeDefinition = {
     'ufabcnext-red': '#E17472',
     error: '#f45576',
     background: '#ffffff',
+    surface: '#FFFFFF',
+    appbar: '#F5F5F5'
   },
 };
 
 export const darkTheme: ThemeDefinition = {
   dark: true,
   colors: {
-    navigation: '#215096',
+    navigation: '#0a2771',
     primary: '#2e7eed',
     secondary: '#121212',
     'ufabcnext-green': '#37bba3',
@@ -29,5 +31,7 @@ export const darkTheme: ThemeDefinition = {
     'ufabcnext-red': '#E17472',
     error: '#f45576',
     background: '#121212',
+    surface: '#212121',
+    appbar: '#161616'
   },
 };
