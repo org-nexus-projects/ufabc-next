@@ -24,7 +24,7 @@ import App from './App.vue';
 import { eventTracker } from './helpers/EventTracker';
 import client from './queryClient';
 import router from './router';
-import { darkTheme, lightTheme } from './theme';
+import { applyChartsTheme, darkTheme, lightTheme } from './theme';
 
 interface Device {
   cordova: string;
@@ -50,6 +50,10 @@ annotationsInit(Highcharts);
 
 const savedTheme = localStorage.getItem('darkMode');
 const defaultTheme = savedTheme === 'true' ? 'dark' : 'light';
+
+// Set initial Highcharts theme class
+document.body.classList.add(defaultTheme === 'dark' ? 'highcharts-dark' : 'highcharts-light');
+applyChartsTheme();
 
 const vuetify = createVuetify({
   components: {

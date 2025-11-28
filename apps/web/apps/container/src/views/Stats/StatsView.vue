@@ -27,50 +27,60 @@
         </v-list>
       </v-menu>
     </PaperCard>
-    <v-row align="stretch" no-gutters class="w-100 mt-4">
-      <v-col
-        v-for="card in cards"
-        :key="card.title"
-        cols="12"
-        sm="3"
-        class="mb-2 mb-sm-0"
-      >
-        <PerformanceCard
-          :title="card.title"
-          :sub-title="card.subtitle"
-          :description="card.content"
-          :color="card.color"
-          :icon="card.icon"
-          :progress-bar-value="card.progressBarValue"
-          :progress-bar-max-value="card.progressBarMaxValue"
-          :tooltip="card.tooltip"
-        />
-      </v-col>
-    </v-row>
+    <v-container fluid class="pa-0 mt-4">
+      <v-row align="stretch">
+        <v-col
+          v-for="card in cards"
+          :key="card.title"
+          cols="12"
+          sm="6"
+          md="3"
+        >
+          <PerformanceCard
+            :title="card.title"
+            :sub-title="card.subtitle"
+            :description="card.content"
+            :color="card.color"
+            :icon="card.icon"
+            :progress-bar-value="card.progressBarValue"
+            :progress-bar-max-value="card.progressBarMaxValue"
+            :tooltip="card.tooltip"
+          />
+        </v-col>
+      </v-row>
+    </v-container>
     <PaperCard class="mt-4">
-      <el-tabs v-model="tab">
-        <el-tab-pane label="Turmas" name="classes" />
-        <el-tab-pane label="Cursos" name="courses" />
-        <el-tab-pane label="Disciplinas" name="subjects" />
-      </el-tabs>
+      <v-tabs v-model="tab" color="primary" class="mb-4">
+        <v-tab value="classes">Turmas</v-tab>
+        <v-tab value="courses">Cursos</v-tab>
+        <v-tab value="subjects">Disciplinas</v-tab>
+      </v-tabs>
 
       <div
         class="d-flex justify-space-between flex-column flex-md-row align-md-center mb-4"
       >
         <p>{{ total }} resultados encontrados</p>
-        <el-checkbox-group
-          v-model="periodCheckboxes"
-          style="min-width: 200px"
-          class="my-2 my-md-0"
-        >
-          <el-checkbox label="diurno"> Matutino </el-checkbox>
-          <el-checkbox label="noturno"> Noturno </el-checkbox>
-        </el-checkbox-group>
+        <div class="d-flex gap-2 my-2 my-md-0" style="min-width: 200px">
+          <v-checkbox
+            v-model="periodCheckboxes"
+            label="Matutino"
+            value="diurno"
+            hide-details
+            density="compact"
+          />
+          <v-checkbox
+            v-model="periodCheckboxes"
+            label="Noturno"
+            value="noturno"
+            hide-details
+            density="compact"
+          />
+        </div>
         <v-menu transition="slide-y-transition">
           <template #activator="{ props }">
             <div>
               <button v-bind="props" class="text-body-2 order-button mr-2">
-                <span class="font-weight-bold text-black"> Ordenar por: </span>
+                <span class="font-weight-bold"> Ordenar por: </span>
                 {{
                   orderByOptionsLabel[
                     orderByOptions.findIndex((o) => o === orderBy)
@@ -94,54 +104,40 @@
         </v-menu>
       </div>
 
-      <el-table
-        ref="disciplinas"
-        v-loading="isLoadingCurrentInfo"
-        empty-text="Nenhum dado encontrado"
-        :data="disciplinas"
-        style="width: 100%"
-      >
-        <el-table-column fixed="left" min-width="200" label="Nome">
-          <template #default="scope">
-            {{ matriculaNameLabel(scope.row) }}
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="vagas"
-          label="Vagas"
-          align="center"
-          width="150"
-        />
-        <el-table-column
-          prop="requisicoes"
-          label="Requisições"
-          align="center"
-          width="150"
-        />
-        <el-table-column
-          prop="deficit"
-          label="Deficit"
-          align="center"
-          width="150"
-        />
-        <el-table-column
-          prop="ratio"
-          label="Pessoas por vaga"
-          align="center"
-          width="160"
-        >
-          <template #default="scope">
-            {{ scope.row.ratio.toFixed(2) }}
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-button
+      <v-progress-linear v-if="isLoadingCurrentInfo" indeterminate color="primary" class="mb-2" />
+      <v-table class="stats-table">
+        <thead>
+          <tr>
+            <th class="text-left" style="min-width: 200px">Nome</th>
+            <th class="text-center" style="width: 150px">Vagas</th>
+            <th class="text-center" style="width: 150px">Requisições</th>
+            <th class="text-center" style="width: 150px">Deficit</th>
+            <th class="text-center" style="width: 160px">Pessoas por vaga</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="!disciplinas || disciplinas.length === 0">
+            <td colspan="5" class="text-center py-8">Nenhum dado encontrado</td>
+          </tr>
+          <tr v-for="(item, index) in disciplinas" :key="index">
+            <td>{{ matriculaNameLabel(item) }}</td>
+            <td class="text-center">{{ item.vagas }}</td>
+            <td class="text-center">{{ item.requisicoes }}</td>
+            <td class="text-center">{{ item.deficit }}</td>
+            <td class="text-center">{{ item.ratio.toFixed(2) }}</td>
+          </tr>
+        </tbody>
+      </v-table>
+      <v-btn
         v-if="hasMoreItems"
-        class="w-100 mt-2"
+        variant="outlined"
+        color="primary"
+        class="w-100 mt-4"
         @click="fetchMoreItems()"
       >
-        Carregar mais <i class="el-icon-arrow-down el-icon-right" />
-      </el-button>
+        Carregar mais
+        <v-icon end>mdi-arrow-down</v-icon>
+      </v-btn>
     </PaperCard>
   </div>
 </template>
@@ -416,5 +412,18 @@ const cards = computed(() => [
 <style scoped lang="scss">
 .order-button:hover {
   color: rgb(var(--v-theme-ufabcnext-green));
+}
+
+.stats-table {
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+}
+
+.stats-table th,
+.stats-table td {
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+}
+
+.stats-table th {
+  font-weight: 600;
 }
 </style>

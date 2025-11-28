@@ -32,7 +32,7 @@
               :size="80"
               color="primary"
               class="white--text"
-              style="font-size: 32px; text-transform: uppercase"
+              style="font-size: 32px; font-weight: bold; text-transform: uppercase"
             >
               {{ userInitials }}
             </v-avatar>
@@ -48,15 +48,15 @@
               <div class="createdAt-settings mb-3">
                 Usuário desde {{ createdAt }}
               </div>
-              <div style="display: flex; flex-direction: column; gap: 10px">
-                <a v-if="user?.oauth?.facebook" href="#" class="links-settings">
+              <div class="links-container">
+                <div v-if="user?.oauth?.facebook" href="#" class="links-settings">
                   <v-icon color="ufabcnext-green">mdi-check</v-icon>
                   Conta do Facebook associada
-                </a>
-                <a v-if="user?.oauth?.google" href="#" class="links-settings">
+                </div>
+                <div v-if="user?.oauth?.google" href="#" class="links-settings">
                   <v-icon color="ufabcnext-green">mdi-check</v-icon>
                   Conta do Google associada
-                </a>
+                </div>
                 <a
                   v-else-if="user"
                   :href="addGoogleAccount"
@@ -207,30 +207,26 @@ const reloadPage = () => window.location.reload();
   line-height: 1.5;
   font-size: 26px;
   height: 45px;
-  color: #444;
+  font-weight: bold;
 }
 
 .email-settings {
   font-family: Lato, Roboto;
-  color: #676767;
   font-size: 16px;
 }
 
 .createdAt-settings {
   font-family: Lato, Roboto;
-  color: #676767;
   font-size: 16px;
 }
 
 .title-box-settings {
   font-family: Lato, Roboto;
-  color: #444;
   font-size: 26px;
   line-height: 1.3;
 }
 
 .text-box-settings {
-  color: #676767;
   font-size: 16px;
 }
 
@@ -238,7 +234,7 @@ const reloadPage = () => window.location.reload();
   display: flex;
   align-items: center;
   font-size: 16px;
-  text-decoration: none;
+  color: rgba(var(--v-theme-ufabcnext-green), 0.87);
 }
 
 .add-account {

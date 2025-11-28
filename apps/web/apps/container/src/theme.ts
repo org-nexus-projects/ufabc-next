@@ -1,3 +1,4 @@
+import Highcharts from 'highcharts';
 import type { ThemeDefinition } from 'vuetify';
 
 export const lightTheme: ThemeDefinition = {
@@ -37,3 +38,55 @@ export const darkTheme: ThemeDefinition = {
     text: '#FFFFFF',
   },
 };
+
+export function applyChartsTheme() {
+  const isDarkMode = document.body.classList.contains('highcharts-dark');
+
+  Highcharts.setOptions({
+    chart: {
+      backgroundColor: isDarkMode ? '#212121' : '#ffffff',
+    },
+    title: {
+      style: {
+        color: isDarkMode ? '#E0E0E3' : '#333333',
+      },
+    },
+    yAxis: {
+      title: {
+        style: {
+          color: isDarkMode ? '#E0E0E3' : '#333333',
+        },
+      },
+      labels: {
+        style: {
+          color: isDarkMode ? '#E0E0E3' : '#333333',
+        },
+      },
+    },
+    xAxis: {
+      title: {
+        style: {
+          color: isDarkMode ? '#E0E0E3' : '#333333',
+        },
+      },
+      labels: {
+        style: {
+          color: isDarkMode ? '#E0E0E3' : '#333333',
+        },
+      },
+    },
+    legend: {
+      itemStyle: {
+        color: isDarkMode ? '#E0E0E3' : '#333333',
+      },
+      itemHoverStyle: {
+        color: isDarkMode ? '#FFF' : '#000000',
+      },
+    },
+    credits: {
+      style: {
+        color: isDarkMode ? '#1f1f1f' : '#ffffff',
+      },
+    },
+  });
+}

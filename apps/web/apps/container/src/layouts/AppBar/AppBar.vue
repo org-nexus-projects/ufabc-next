@@ -97,28 +97,28 @@
       v-if="authStore.user?.confirmed || layout === 'include-sidebar'"
       app
       height="min-content"
-      class="header justify-center"
+      class="header"
       color="appbar"
       style="height: 64px;"
     >
-      <v-app-bar-nav-icon
-        app
-        variant="text"
-        color="primary"
-        class="d-lg-none"
-        @click.stop="drawer = !drawer"
-      />
+      <div class="d-flex align-center w-100">
+        <v-app-bar-nav-icon
+          app
+          variant="text"
+          color="primary"
+          class="d-lg-none"
+          @click.stop="drawer = !drawer"
+        />
 
-      <v-spacer />
+        <div class="flex-grow-1 d-flex justify-center">
+          <img
+            class="logo-white"
+            :src="isDarkMode ? logoLight : logoDark"
+            height="32"
+            alt="logo do UFABC Next"
+          />
+        </div>
 
-      <img
-        class="logo-white"
-        :src="isDarkMode ? logoLight : logoDark"
-        height="32"
-        alt="logo do UFABC Next"
-      />
-
-      <v-spacer />
         <v-btn
           color="primary"
           class="d-flex align-center justify-center"
@@ -132,9 +132,10 @@
             :src="isDarkMode ? moonIcon : sunIcon"
             height="24"
             width="24"
-            alt="logo do UFABC Next"
+            alt="Toggle theme"
           />
         </v-btn>
+      </div>
     </v-app-bar>
     <div
       v-if="authStore.user?.confirmed || layout === 'include-sidebar'"
@@ -158,6 +159,7 @@ import UserMenu from '@/components/UserMenu';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
+import { applyChartsTheme } from '@/theme';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -180,14 +182,22 @@ const createAccount = () => {
 const drawer = ref(false);
 onMounted(() => {
   drawer.value = window.innerWidth >= 1024;
+  updateHighchartsThemeClass(theme.global.current.value.dark);
 });
 
 const isDarkMode = computed(() => theme.global.current.value.dark);
+
+const updateHighchartsThemeClass = (isDark: boolean) => {
+  document.body.classList.remove('highcharts-light', 'highcharts-dark');
+  document.body.classList.add(isDark ? 'highcharts-dark' : 'highcharts-light');
+  applyChartsTheme();
+};
 
 const toggleTheme = () => {
   const newTheme = theme.global.current.value.dark ? 'light' : 'dark';
   theme.change(`${newTheme}`);
   localStorage.setItem('darkMode', JSON.stringify(newTheme === 'dark'));
+  updateHighchartsThemeClass(newTheme === 'dark');
 };
 
 const internalNavigationItems = [

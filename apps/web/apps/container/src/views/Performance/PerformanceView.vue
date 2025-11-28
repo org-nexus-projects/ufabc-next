@@ -6,26 +6,28 @@
     class="mt-10"
   />
   <v-layout v-else class="flex-column align-center justify-center">
-    <v-row align="stretch" no-gutters class="w-100">
-      <v-col
-        v-for="card in cards"
-        :key="card.title"
-        cols="12"
-        sm="3"
-        class="mb-2 mb-sm-0"
-      >
-        <PerformanceCard
-          :title="card.title"
-          :sub-title="card.subtitle"
-          :description="card.content"
-          :color="card.color"
-          :icon="card.icon"
-          :tooltip="card?.tooltip"
-        />
-      </v-col>
-    </v-row>
+    <v-container fluid class="pa-0">
+      <v-row align="stretch">
+        <v-col
+          v-for="card in cards"
+          :key="card.title"
+          cols="12"
+          sm="6"
+          md="3"
+        >
+          <PerformanceCard
+            :title="card.title"
+            :sub-title="card.subtitle"
+            :description="card.content"
+            :color="card.color"
+            :icon="card.icon"
+            :tooltip="card?.tooltip"
+          />
+        </v-col>
+      </v-row>
+    </v-container>
     <PaperCard class="w-100 mt-4">
-      <Chart :options="crHistoryOptions" />
+      <Chart :key="`cr-history-${chartKey}`" :options="crHistoryOptions" />
     </PaperCard>
     <PaperCard class="w-100 mt-4">
       <v-select
@@ -36,10 +38,10 @@
         variant="outlined"
         class="course-select"
       />
-      <Chart :options="cpHistoryOptions" />
+      <Chart :key="`cp-history-${chartKey}`" :options="cpHistoryOptions" />
     </PaperCard>
     <PaperCard class="w-100 mt-4">
-      <Chart :options="crDistributionOptions" />
+      <Chart :key="`cr-distribution-${chartKey}`" :options="crDistributionOptions" />
     </PaperCard>
   </v-layout>
 </template>
@@ -48,7 +50,7 @@
 import { useQuery } from '@tanstack/vue-query';
 import { type CourseInformation, Performance } from '@ufabc-next/services';
 import { Chart } from 'highcharts-vue';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useTheme } from 'vuetify';
 
 import { CenteredLoading } from '@/components/CenteredLoading';
@@ -57,8 +59,17 @@ import { PerformanceCard } from '@/components/PerformanceCard';
 import { formatSeason } from '@/utils/season';
 
 const theme = useTheme();
+const chartKey = ref(0);
 
-const areaGraphOptions = {
+//Re-render charts when theme changes
+watch(  
+  () => theme.global.current.value.dark,
+  () => {
+    chartKey.value++;
+  },
+);
+
+const areaGraphOptions = computed(() => ({
   accessibility: {
     enabled: true,
   },
@@ -80,7 +91,7 @@ const areaGraphOptions = {
     borderRadius: 10,
     padding: 12,
   },
-};
+}));
 
 const { data: crHistoryData, isPending: isPendingCrHistory } = useQuery({
   queryKey: ['users', 'me', 'grades'],
@@ -96,8 +107,8 @@ const crHistorySeries = computed(() => {
   return arrCrHistory;
 });
 
-const crHistoryOptions = ref({
-  ...areaGraphOptions,
+const crHistoryOptions = computed(() => ({
+  ...areaGraphOptions.value,
   title: {
     text: 'Seu CR ao longo do tempo',
   },
@@ -119,13 +130,13 @@ const crHistoryOptions = ref({
   series: [
     {
       name: 'Seu CR',
-      data: crHistorySeries,
+      data: crHistorySeries.value,
     },
   ],
   legend: {
     verticalAlign: 'top',
   },
-});
+}));
 
 const currentCpCourse = ref<CourseInformation>();
 const { data: cpHistoryData, isPending: isPendingCpHistory } = useQuery({
@@ -152,8 +163,8 @@ const cpHistorySeries = computed(() => {
   }
   return result;
 });
-const cpHistoryOptions = ref({
-  ...areaGraphOptions,
+const cpHistoryOptions = computed(() => ({
+  ...areaGraphOptions.value,
   title: {
     text: 'Seu CP ao longo do tempo',
   },
@@ -174,10 +185,10 @@ const cpHistoryOptions = ref({
   series: [
     {
       name: 'Seu CP',
-      data: cpHistorySeries,
+      data: cpHistorySeries.value,
     },
   ],
-});
+}));
 
 const { data: crDistributionData, isPending: isPendingCrDistributionData } =
   useQuery({
@@ -204,8 +215,8 @@ const closeCrs = computed(
     )?.[1] || '',
 );
 
-const crDistributionOptions = ref({
-  ...areaGraphOptions,
+const crDistributionOptions = computed(() => ({
+  ...areaGraphOptions.value,
   title: {
     text: 'Distribuição de CR',
   },
@@ -226,7 +237,7 @@ const crDistributionOptions = ref({
   series: [
     {
       name: 'Quantidade de alunos',
-      data: crDistributionSeries,
+      data: crDistributionSeries.value,
     },
   ],
   annotations: [
@@ -238,8 +249,8 @@ const crDistributionOptions = ref({
       labels: [
         {
           point: {
-            x: userCr,
-            y: closeCrs,
+            x: userCr.value,
+            y: closeCrs.value,
             xAxis: 0,
             yAxis: 0,
           },
@@ -248,7 +259,7 @@ const crDistributionOptions = ref({
       ],
     },
   ],
-});
+}));
 
 const userMaxCr = computed(() => {
   const crAcumulados = crHistoryData.value?.map((quad) => quad.cr_acumulado);

@@ -889,7 +889,7 @@ span {
     padding: 16px 0 0 0;
     position: sticky;
     bottom: 0;
-    background: white;
+    background: rgb(var(--v-theme-surface));
     border-top: 1px solid rgba(var(--v-theme-primary), 0.1);
   }
 
