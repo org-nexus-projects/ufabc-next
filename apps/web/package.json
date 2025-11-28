@@ -1,5 +1,7 @@
 {
+  "name": "ufabc-next-web",
   "private": true,
+  "packageManager": "pnpm@9.7.0",
   "scripts": {
     "build": "turbo run build",
     "build:staging": "turbo run build:staging",
@@ -13,16 +15,10 @@
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
     "eslint": "^9.33.0",
-    "@ufabc-next/eslint-config": "*",
+    "@ufabc-next/eslint-config": "workspace:*",
     "prettier": "^3.1.0",
     "turbo": "^2.5.3"
   },
-  "name": "ufabc-next-web",
-  "packageManager": "yarn@1.22.22",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "dependencies": {
     "@vitest/coverage-v8": "^3.2.4",
     "vitest": "^3.2.4"
