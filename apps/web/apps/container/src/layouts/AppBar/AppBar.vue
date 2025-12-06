@@ -88,7 +88,7 @@
             </div>
           </div>
 
-           <UserMenu v-if="authStore.user?.confirmed" @logout="handleLogout" />
+          <UserMenu v-if="authStore.user?.confirmed" @logout="handleLogout" />
         </div>
       </div>
     </v-navigation-drawer>
@@ -99,7 +99,7 @@
       height="min-content"
       class="header"
       color="appbar"
-      style="height: 64px;"
+      style="height: 64px"
     >
       <div class="d-flex align-center w-100">
         <v-app-bar-nav-icon
@@ -125,7 +125,7 @@
           height="100%"
           aria-label="Toggle theme"
           flat
-          style="min-height: 64px;"
+          style="min-height: 64px"
           @click="toggleTheme"
         >
           <v-img
@@ -195,7 +195,7 @@ const updateHighchartsThemeClass = (isDark: boolean) => {
 
 const toggleTheme = () => {
   const newTheme = theme.global.current.value.dark ? 'light' : 'dark';
-  theme.change(`${newTheme}`);
+  theme.toggle();
   localStorage.setItem('darkMode', JSON.stringify(newTheme === 'dark'));
   updateHighchartsThemeClass(newTheme === 'dark');
 };
