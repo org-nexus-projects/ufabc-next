@@ -1,2 +1,1 @@
-export { default } from './UserMenu.vue';
-
+export { default as UserMenu } from './UserMenu.vue';

@@ -7,7 +7,8 @@ export function useCleanUsername() {
 
   const userCleanUsername = ref('');
 
-  userCleanUsername.value = authStore.user?.email?.replace('@aluno.ufabc.edu.br', '');
+  userCleanUsername.value =
+    authStore.user?.email?.replace('@aluno.ufabc.edu.br', '') || '';
 
   return userCleanUsername;
 }

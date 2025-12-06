@@ -65,7 +65,7 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/vue-query';
 import { Comments, Reviews } from '@ufabc-next/services';
 import { computed, ref, watch } from 'vue';
-import { useDisplay, useTheme } from 'vuetify';
+import { useDisplay } from 'vuetify';
 
 import { CenteredLoading } from '@/components/CenteredLoading';
 import { FeedbackAlert } from '@/components/FeedbackAlert';
@@ -73,7 +73,6 @@ import { SingleComment } from '@/components/SingleComment';
 import { checkEAD } from '@/utils/season';
 
 const { smAndDown } = useDisplay();
-const theme = useTheme();
 const props = defineProps({
   teacherId: { type: String, required: true },
   selectedSubject: { type: String, required: true },
