@@ -1,13 +1,17 @@
 import type { Graduation } from '@/models/Graduation.js';
 import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
 import { HistoryModel } from '@/models/History.js';
+import { lastQuad } from '@next/common';
 
 export async function getCrDistribution(points: number, interval: number) {
-  const distribution = await HistoryModel.aggregate([
+  const { year, quad } = lastQuad();
+  const coefficientsKey = `coefficients.${year}.${quad}`;
+
+  const pipeline: any = [
     {
-      $match: { 'coefficients.2018.3': { $exists: true } },
+      $match: { [coefficientsKey]: { $exists: true } },
     },
-    { $project: { value: '$coefficients.2018.3' } },
+    { $project: { value: `$${coefficientsKey}` } },
     {
       $group: {
         _id: createDistributionGroup(points, interval),
@@ -18,7 +22,9 @@ export async function getCrDistribution(points: number, interval: number) {
     {
       $sort: { point: 1 },
     },
-  ]);
+  ];
+
+  const distribution = await HistoryModel.aggregate(pipeline);
 
   return distribution;
 }
