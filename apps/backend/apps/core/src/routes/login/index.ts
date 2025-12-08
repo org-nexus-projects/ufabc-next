@@ -137,6 +137,9 @@ async function createOrLogin(
 
     // If no user found, create a new one
     if (!user) {
+      const ttlHours = 1;
+      const userExpireTime = Date.now() + ttlHours * 60 * 60 * 1000
+      const expiresAt = new Date(userExpireTime);
       user = new UserModel({
         active: true,
         oauth: {
@@ -146,6 +149,7 @@ async function createOrLogin(
           facebook: oauthUser?.facebook,
           emailFacebook: oauthUser?.emailFacebook,
         },
+        expiresAt,
       });
     } else {
       // Update existing user's OAuth information
