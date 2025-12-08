@@ -53,7 +53,7 @@ export async function getReactions({
 }: GetReactionQuery) {
   const filter: FilterQuery<AnyObject> = {
     teacher: teacherId,
-    active: true
+    active: true,
   };
 
   if (subjectId) {
@@ -63,7 +63,7 @@ export async function getReactions({
   const reactions = await CommentModel.commentsByReaction(
     filter,
     userId,
-    ['enrollment', 'subject'],
+    [{ path: 'enrollment', select: '-ra' }, 'subject'],
     limit,
     page,
   );

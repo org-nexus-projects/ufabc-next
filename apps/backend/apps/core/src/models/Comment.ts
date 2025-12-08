@@ -2,6 +2,7 @@ import {
   type AnyObject,
   type FilterQuery,
   type InferSchemaType,
+  type PopulateOptions,
   Schema,
   type Types,
   model,
@@ -80,7 +81,10 @@ const commentSchema = new Schema(
       async commentsByReaction(
         query: FilterQuery<AnyObject>,
         userId: Types.ObjectId,
-        populateFields: string[] = ['enrollment', 'subject'],
+        populateFields: (string | PopulateOptions)[] = [
+          { path: 'enrollment', select: '-ra' },
+          'subject',
+        ],
         limit = 10,
         page = 0,
       ) {
@@ -88,7 +92,7 @@ const commentSchema = new Schema(
           throw new Error(`Usuário Não Encontrado ${userId}`);
         }
 
-        const comments = await this.find(query)
+        const comments = await this.find(query, '-ra')
           .lean(true)
           .populate(populateFields)
           .skip(page * limit)
