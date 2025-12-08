@@ -138,7 +138,8 @@ async function createOrLogin(
     // If no user found, create a new one
     if (!user) {
       const ttlHours = 1;
-      const expiresAt = new Date(Date.now() + ttlHours * 60 * 60 * 1000);
+      const userExpireTime = Date.now() + ttlHours * 60 * 60 * 1000
+      const expiresAt = new Date(userExpireTime);
       user = new UserModel({
         active: true,
         oauth: {
