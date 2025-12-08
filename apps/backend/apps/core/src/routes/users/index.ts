@@ -1,6 +1,10 @@
 import { StudentModel } from '@/models/Student.js';
 import { UserModel, type User } from '@/models/User.js';
-import { getEmployeeData, getStudentData } from '@/modules/email-validator.js';
+import {
+  getEmployeeData,
+  getStudentData,
+  validateUserData,
+} from '@/modules/email-validator.js';
 import { completeUserSchema, type Auth } from '@/schemas/auth.js';
 import {
   confirmUserSchema,
@@ -131,6 +135,26 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     // @ts-ignore
     async (request, reply) => {
       const { email, ra } = request.body;
+
+      //validade email and ra from user client again (now in backend)
+      try {
+        await validateUserData(email, ra, app);
+      } catch (err: any) {
+        switch (err.message) {
+          case 'RA_NOT_FOUND':
+            return reply.badRequest('O RA digitado não existe.');
+          case 'HAS_UFABC_CONTRACT':
+            return reply.forbidden(
+              'O aluno não pode ter contrato com a UFABC.',
+            );
+          case 'INVALID_EMAIL':
+            return reply.forbidden('O email fornecido não é válido.');
+          default:
+            request.log.error({ err }, 'unexpected validation error');
+            return reply.internalServerError('Erro de validação inesperado');
+        }
+      }
+
       try {
         const ttlHours = 1;
         const expiresAt = new Date(Date.now() + ttlHours * 60 * 60 * 1000);
