@@ -136,7 +136,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     async (request, reply) => {
       const { email, ra } = request.body;
 
-      //validade email and ra from user client again (now in backend)
       try {
         await validateUserData(email, ra, app);
       } catch (err: any) {
