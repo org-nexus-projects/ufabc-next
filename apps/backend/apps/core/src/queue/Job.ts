@@ -214,6 +214,10 @@ export class Jobs implements JobImpl {
           });
           request.isAdmin(reply);
         } catch (error) {
+          request.log.error({
+            msg: 'Failed to authenticate in jobs board',
+            error: error instanceof Error ? error.message : String(error),
+          });
           return reply.unauthorized(
             'You must be authenticated to access this route',
           );
