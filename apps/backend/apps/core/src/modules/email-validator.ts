@@ -1,4 +1,4 @@
-import type { FastifyInstance } from 'fastify';
+import { logger } from '@/utils/logger.js';
 import { ofetch } from 'ofetch';
 
 type Employee = {
@@ -45,11 +45,7 @@ export async function getStudentData(ra: string) {
   return response;
 }
 
-export async function validateUserData(
-  emailToCheck: string,
-  ra: string,
-  app: FastifyInstance,
-) {
+export async function validateUserData(emailToCheck: string, ra: string) {
   const checkUser = await getStudentData(ra);
 
   if (!checkUser) {
@@ -64,14 +60,14 @@ export async function validateUserData(
   const validEmployees = employees.filter((employee) => employee !== null);
 
   if (validEmployees.length > 0) {
-    app.log.warn('UFABC employee', validEmployees);
+    logger.warn('UFABC employee', validEmployees);
     throw new Error('HAS_UFABC_CONTRACT');
   }
 
   let email = '';
 
   if (emailList.length === 0) {
-    app.log.warn({
+    logger.warn({
       ra,
       username: checkUser.username,
       msg: 'No email found, using username as email',
@@ -84,12 +80,7 @@ export async function validateUserData(
   }
 
   if (emailToCheck !== email) {
-    app.log.warn(
-      'Tentativa de burlar o email com proxy:',
-      emailToCheck,
-      '!==',
-      email,
-    );
+    logger.warn({ emailToCheck, email }, 'wrong email received');
     throw new Error('INVALID_EMAIL');
   }
 }
