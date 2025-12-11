@@ -204,11 +204,25 @@ export class Jobs implements JobImpl {
 
   board() {
     const bullBoard = createBoard(Object.values(this.queues));
-    // @ts-expect-error Library types are not compatible with FastifyAdapter
-    this.app.register(bullBoard.registerPlugin(), {
-      prefix: boardUiPath,
-      basePath: boardUiPath,
-      logLevel: 'silent',
+
+    this.app.register(async (app) => {
+      app.addHook('onRequest', async (request, reply) => {
+        try {
+          await request.jwtVerify();
+          request.isAdmin(reply);
+        } catch (error) {
+          return reply.unauthorized(
+            'You must be authenticated to access this route',
+          );
+        }
+      });
+
+      // @ts-expect-error Library types are not compatible with FastifyAdapter
+      app.register(bullBoard.registerPlugin(), {
+        prefix: boardUiPath,
+        basePath: boardUiPath,
+        logLevel: 'silent',
+      });
     });
   }
 }
