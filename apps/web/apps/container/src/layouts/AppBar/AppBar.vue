@@ -269,7 +269,7 @@ const externalNavigationItems = [
         {
           title: 'Monitoramento de Jobs',
           icon: 'mdi-open-in-new',
-          url: `${apiURL}/login/jobs-monitoring?userId=${authStore.user?._id}`,
+          url: `${apiURL}/board/ui?token=${authStore.token}`,
         },
       ]
     : []),
