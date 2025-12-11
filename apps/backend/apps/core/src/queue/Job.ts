@@ -3,7 +3,7 @@ import ms from 'ms';
 import { JOBS, QUEUE_JOBS, type QueueNames } from './definitions.js';
 import { FastifyAdapter } from '@bull-board/fastify';
 import { boardUiPath, createBoard } from './board.js';
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyRequest } from 'fastify';
 import type {
   JobDataType,
   JobNames,
@@ -208,7 +208,10 @@ export class Jobs implements JobImpl {
     this.app.register(async (app) => {
       app.addHook('onRequest', async (request, reply) => {
         try {
-          await request.jwtVerify();
+          await request.jwtVerify({
+            //@ts-ignore
+            extractToken: (req: FastifyRequest) => req.query.token,
+          });
           request.isAdmin(reply);
         } catch (error) {
           return reply.unauthorized(
