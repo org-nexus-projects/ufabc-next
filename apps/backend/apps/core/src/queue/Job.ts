@@ -3,7 +3,7 @@ import ms from 'ms';
 import { JOBS, QUEUE_JOBS, type QueueNames } from './definitions.js';
 import { FastifyAdapter } from '@bull-board/fastify';
 import { boardUiPath, createBoard } from './board.js';
-import type { FastifyInstance, FastifyRequest } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import type {
   JobDataType,
   JobNames,
