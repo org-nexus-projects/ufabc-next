@@ -207,10 +207,26 @@ export class Jobs implements JobImpl {
 
     this.app.register(async (app) => {
       app.addHook('onRequest', async (request, reply) => {
+        const query = request.query as { token?: string };
         try {
+          if (query.token) {
+            await request.jwtVerify({
+              //@ts-expect-error extractToken property not well defined in jwt type definitions
+              extractToken: (req: any) => req.query.token,
+            });
+            request.isAdmin(reply);
+            reply.setCookie('token', query.token, {
+              path: boardUiPath,
+              secure: process.env.NODE_ENV === 'production',
+              httpOnly: true,
+              maxAge: 3600,
+              sameSite: 'lax',
+            });
+            return reply.redirect('/board/ui');
+          }
           await request.jwtVerify({
-            //@ts-ignore
-            extractToken: (req: FastifyRequest) => req.query.token,
+            //@ts-expect-error extractToken property not well defined in jwt type definitions
+            extractToken: (req: any) => req.cookies.token,
           });
           request.isAdmin(reply);
         } catch (error) {
