@@ -40,6 +40,7 @@ jobs:
       AWS_DISTRIBUTION_ID: ${{ github.ref == 'refs/heads/main' && secrets.AWS_DISTRIBUTION_ID_PRD  || secrets.AWS_DISTRIBUTION_ID_HOM }}
     steps:
       - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v6
         with:
           node-version: 20.19
