@@ -18,19 +18,15 @@ jobs:
         command: ['test', 'lint', 'tsc']
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 20.19
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: install dependencies
-        run: yarn --frozen-lockfile
-
-      # - name: Run tests and lint
-      #   uses: borales/actions-yarn@v4
-      #   with:
-      #     cmd: ${{ matrix.command }}
+        run: pnpm install --frozen-lockfile
   build:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
@@ -43,14 +39,15 @@ jobs:
       AWS_S3_BUCKET_NAME: ${{ github.ref == 'refs/heads/main' && secrets.AWS_S3_BUCKET_NAME_PRD  || secrets.AWS_S3_BUCKET_NAME_HOM }}
       AWS_DISTRIBUTION_ID: ${{ github.ref == 'refs/heads/main' && secrets.AWS_DISTRIBUTION_ID_PRD  || secrets.AWS_DISTRIBUTION_ID_HOM }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 20.19
       - uses: shinyinc/action-aws-cli@v1.2
 
       - name: install dependencies
-        run: yarn --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Debug environment variables
         run: |
@@ -58,8 +55,7 @@ jobs:
           echo "Environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}"
 
       - name: build projects
-        run: yarn ${{ github.ref == 'refs/heads/main' && 'build' || 'build:staging'  }}
-
+        run: pnpm run ${{ github.ref == 'refs/heads/main' && 'build' || 'build:staging'  }}
       - name: sync static with s3
         run: aws s3 sync apps/static s3://$AWS_S3_BUCKET_NAME
 

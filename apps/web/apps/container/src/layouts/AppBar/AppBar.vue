@@ -165,6 +165,8 @@ const router = useRouter();
 const authStore = useAuthStore();
 const theme = useTheme();
 
+const getCurrentDate = () => dayjs();
+
 const layout = computed(() => router.currentRoute.value.meta.layout ?? null);
 
 const handleLogout = () => {
@@ -271,7 +273,7 @@ const externalNavigationItems = [
         {
           title: 'Monitoramento de Jobs',
           icon: 'mdi-open-in-new',
-          url: `${apiURL}/login/jobs-monitoring?userId=${authStore.user?._id}`,
+          url: `${apiURL}/board/ui?token=${authStore.token}`,
         },
       ]
     : []),
