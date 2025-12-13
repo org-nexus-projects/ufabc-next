@@ -204,11 +204,48 @@ export class Jobs implements JobImpl {
 
   board() {
     const bullBoard = createBoard(Object.values(this.queues));
-    // @ts-expect-error Library types are not compatible with FastifyAdapter
-    this.app.register(bullBoard.registerPlugin(), {
-      prefix: boardUiPath,
-      basePath: boardUiPath,
-      logLevel: 'silent',
+
+    this.app.register(async (app) => {
+      app.addHook('onRequest', async (request, reply) => {
+        const query = request.query as { token?: string };
+        try {
+          if (query.token) {
+            await request.jwtVerify({
+              //@ts-expect-error extractToken property not well defined in jwt type definitions
+              extractToken: (req: any) => req.query.token,
+            });
+            request.isAdmin(reply);
+            reply.setCookie('token', query.token, {
+              path: boardUiPath,
+              secure: process.env.NODE_ENV === 'production',
+              httpOnly: true,
+              maxAge: 3600,
+              sameSite: 'lax',
+            });
+            return reply.redirect('/board/ui', 303);
+          }
+          await request.jwtVerify({
+            //@ts-expect-error extractToken property not well defined in jwt type definitions
+            extractToken: (req: any) => req.cookies.token,
+          });
+          request.isAdmin(reply);
+        } catch (error) {
+          request.log.error({
+            msg: 'Failed to authenticate in jobs board',
+            error: error instanceof Error ? error.message : String(error),
+          });
+          return reply.unauthorized(
+            'You must be authenticated to access this route',
+          );
+        }
+      });
+
+      // @ts-expect-error Library types are not compatible with FastifyAdapter
+      app.register(bullBoard.registerPlugin(), {
+        prefix: boardUiPath,
+        basePath: boardUiPath,
+        logLevel: 'silent',
+      });
     });
   }
 }

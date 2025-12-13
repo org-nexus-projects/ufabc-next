@@ -30,7 +30,7 @@ function verifyAccess(this: FastifyRequest, reply: FastifyReply, role: string) {
   }
 }
 
-async function isAdmin(this: FastifyRequest, reply: FastifyReply) {
+function isAdmin(this: FastifyRequest, reply: FastifyReply) {
   this.verifyAccess(reply, 'admin');
 }
 
