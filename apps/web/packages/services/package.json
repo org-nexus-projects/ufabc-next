@@ -10,11 +10,12 @@
     "tsc": "tsc --noEmit"
   },
   "devDependencies": {
-    "@ufabc-next/eslint-config": "*",
-    "tsconfig": "*",
+    "@ufabc-next/eslint-config": "workspace:*",
+    "tsconfig": "workspace:*",
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@ufabc-next/types": "*"
+    "@ufabc-next/types": "workspace:*",
+    "axios": "1.13.2"
   }
 }

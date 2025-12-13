@@ -44,7 +44,7 @@ Co-authored-by: Renan Zago Lorijola <renanzago@gmail.com>
 Por favor, siga o estilo de código do projeto. O projeto utiliza eslint e prettier. Se possível, habilite seus plugins em seu editor para receber feedback em tempo real. O lint pode ser realizado manualmente usando o segundo comando:
 
 ```
-yarn lint
+pnpm lint
 ```
 
 ## Testes unitários
@@ -52,7 +52,7 @@ yarn lint
 Para executar os testes unitários, basta executar:
 
 ```
-yarn test
+pnpm test
 ```
 
 Os testes unitários das funções são realizadas utilizando o [Jest.js](https://jestjs.io/pt-BR/docs/29.3/getting-started).
