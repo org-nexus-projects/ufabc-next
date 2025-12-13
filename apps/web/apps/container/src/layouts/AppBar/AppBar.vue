@@ -28,7 +28,7 @@
               {{ item.title }}
             </p>
             <span
-              v-if="item.releaseDate?.add(3, 'month').isAfter(dayjs())"
+              v-if="item.releaseDate?.add(3, 'month').isAfter(getCurrentDate())"
               class="featured-chip font-weight-black"
               >Novo</span
             >
@@ -168,6 +168,8 @@ import { useAliasInitials } from '@/utils/composables/aliasInitials';
 const router = useRouter();
 const authStore = useAuthStore();
 
+const getCurrentDate = () => dayjs();
+
 const layout = computed(() => router.currentRoute.value.meta.layout ?? null);
 
 const handleLogout = () => {
@@ -269,7 +271,7 @@ const externalNavigationItems = [
         {
           title: 'Monitoramento de Jobs',
           icon: 'mdi-open-in-new',
-          url: `${apiURL}/login/jobs-monitoring?userId=${authStore.user?._id}`,
+          url: `${apiURL}/board/ui?token=${authStore.token}`,
         },
       ]
     : []),
