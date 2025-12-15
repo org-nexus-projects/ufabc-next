@@ -36,9 +36,9 @@
     "pinia-plugin-persistedstate": "^4.5.0",
     "vee-validate": "4.15.1",
     "vue": "3.5.25",
-    "vue-router": "4.6.3",
+    "vue-router": "4.6.4",
     "vue-zustand": "0.6.0",
-    "vuetify": "3.11.2",
+    "vuetify": "3.11.3",
     "zod": "3.25.76"
   },
   "devDependencies": {
@@ -55,7 +55,7 @@
     "husky": "9.1.7",
     "jsdom": "26.1.0",
     "msw": "^2.8.4",
-    "sass": "1.94.2",
+    "sass": "1.96.0",
     "sass-loader": "16.0.6",
     "tsconfig": "workspace:*",
     "typescript": "5.9.3",
