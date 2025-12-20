@@ -7,17 +7,13 @@ import {
 } from 'fastify-zod-openapi';
 import { fastifyAutoload } from '@fastify/autoload';
 import { join } from 'node:path';
-import { tracingMiddleware } from './middlewares/tracing.js';
 
 export async function buildApp(
   app: FastifyInstance,
   opts: FastifyServerOptions = {},
 ) {
-  // for zod open api
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
-
-  app.register(tracingMiddleware);
 
   await app.register(fastifyAutoload, {
     dir: join(import.meta.dirname, 'plugins/external'),
@@ -29,7 +25,6 @@ export async function buildApp(
     options: { ...opts },
   });
 
-  // TODO: validate this idea
   app.register(fastifyAutoload, {
     dir: join(import.meta.dirname, 'routes'),
     autoHooks: true,
@@ -45,20 +40,6 @@ export async function buildApp(
     return reply.status(200).send({ message: 'OK' });
   });
 
-  app.setErrorHandler((error, request, reply) => {
-    if (error.validation) {
-      const zodValidationErrors = error.validation.filter(
-        (err) => err instanceof RequestValidationError,
-      );
-      const zodIssues = zodValidationErrors.map((err) => err.params.issue);
-      const originalError = zodValidationErrors?.[0]?.params.error;
-      return reply.status(422).send({
-        zodIssues,
-        originalError,
-      });
-    }
-  });
-
   app.setSchemaErrorFormatter((errors, dataVar) => {
     let message = `${dataVar}:`;
     for (const error of errors) {
@@ -71,8 +52,19 @@ export async function buildApp(
   });
 
   app.setErrorHandler((error, request, reply) => {
-    // Store error for tracing middleware to log
-    request.error = error;
+    reply.error = error;
+
+    if (error.validation) {
+      const zodValidationErrors = error.validation.filter(
+        (err) => err instanceof RequestValidationError,
+      );
+      const zodIssues = zodValidationErrors.map((err) => err.params.issue);
+      const originalError = zodValidationErrors?.[0]?.params.error;
+      return reply.status(422).send({
+        zodIssues,
+        originalError,
+      });
+    }
 
     if (error instanceof ResponseSerializationError) {
       request.log.error(

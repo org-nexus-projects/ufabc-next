@@ -7,6 +7,7 @@ import { randomUUID } from 'node:crypto';
 
 const appOptions = {
   loggerInstance: logger,
+  disableRequestLogging: true,
   requestIdHeader: 'global-trace-id',
   requestIdLogLabel: 'globalTraceId',
   genReqId: () => randomUUID(),
