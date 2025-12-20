@@ -6,7 +6,6 @@ import { join } from 'node:path';
 
 const logDirectory = join(process.cwd(), 'logs');
 
-// Ensure logs directory exists
 if (!existsSync(logDirectory)) {
   mkdirSync(logDirectory, { recursive: true });
 }
@@ -23,6 +22,7 @@ const pinoPrettyOptions = {
   colorize: true,
   translateTime: 'SYS:standard', // Uses system's local time
   ignore: 'pid,hostname',
+  messageKey: 'message',
 } satisfies PrettyOptions;
 
 const axiomOptions = {
@@ -30,10 +30,10 @@ const axiomOptions = {
   token: process.env.AXIOM_TOKEN as string,
 } satisfies AxiomOptions;
 
-// Logger configurations for different environments
 const loggerSetup = {
   dev: {
     timestamp: pino.stdTimeFunctions.isoTime,
+    messageKey: 'message',
     serializers: {
       error: pino.stdSerializers.err,
     },
@@ -58,7 +58,6 @@ const loggerSetup = {
     },
   } satisfies LoggerOptions,
 
-  // Minimal config for production
   prod: {
     timestamp: pino.stdTimeFunctions.isoTime,
     serializers: {

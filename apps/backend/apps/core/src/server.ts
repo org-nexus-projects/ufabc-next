@@ -3,9 +3,13 @@ import { buildApp } from './app.js';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 import { fastify, type FastifyServerOptions } from 'fastify';
 import { logger } from './utils/logger.js';
+import { randomUUID } from 'node:crypto';
 
 const appOptions = {
   loggerInstance: logger,
+  requestIdHeader: 'global-trace-id',
+  requestIdLogLabel: 'globalTraceId',
+  genReqId: () => randomUUID(),
   pluginTimeout: 35_000,
 } satisfies FastifyServerOptions;
 
@@ -18,7 +22,7 @@ export async function start() {
   }
 
   app.job.schedule('EnrolledSync');
-  app.job.schedule('ComponentsSync');
+  // app.job.schedule('ComponentsSync');
   app.job.schedule('LogsUpload');
 
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {

@@ -7,6 +7,7 @@ import {
 } from 'fastify-zod-openapi';
 import { fastifyAutoload } from '@fastify/autoload';
 import { join } from 'node:path';
+import { tracingMiddleware } from './middlewares/tracing.js';
 
 export async function buildApp(
   app: FastifyInstance,
@@ -15,6 +16,8 @@ export async function buildApp(
   // for zod open api
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
+
+  app.register(tracingMiddleware);
 
   await app.register(fastifyAutoload, {
     dir: join(import.meta.dirname, 'plugins/external'),
@@ -37,6 +40,10 @@ export async function buildApp(
 
   app.worker.setup();
   app.job.setup();
+
+  app.get('/health', (request, reply) => {
+    return reply.status(200).send({ message: 'OK' });
+  });
 
   app.setErrorHandler((error, request, reply) => {
     if (error.validation) {
@@ -64,8 +71,11 @@ export async function buildApp(
   });
 
   app.setErrorHandler((error, request, reply) => {
+    // Store error for tracing middleware to log
+    request.error = error;
+
     if (error instanceof ResponseSerializationError) {
-      app.log.error(
+      request.log.error(
         {
           error,
           request: {
@@ -90,7 +100,7 @@ export async function buildApp(
     }
 
     if (error) {
-      app.log.error(
+      request.log.error(
         {
           error,
           request: {

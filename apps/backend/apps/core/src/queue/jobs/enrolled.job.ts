@@ -68,7 +68,7 @@ export async function processSingleEnrolled({
     );
 
     if (!result) {
-      app.log.warn({
+      app.log.debug({
         msg: 'Component not found for enrolled update',
         componentId,
         tenant,
