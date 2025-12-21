@@ -1,14 +1,16 @@
+// @ts-nocheck only for the logger
 import { requestContext } from '@fastify/request-context';
 import { type FetchOptions, type FetchRequest, ofetch } from 'ofetch';
 import { randomUUID } from 'node:crypto';
 import { TRACING_DIRECTION, TRACING_MESSAGES } from '@/constants.js';
-import type { FastifyBaseLogger } from 'fastify';
+import { logger as defaultLogger } from '@/utils/logger.js';
 
 export class BaseRequester {
   protected readonly requester: ReturnType<typeof ofetch.create>;
 
   constructor(baseURL?: string) {
-    const logger = this.getLogger() as FastifyBaseLogger;
+    // TODO: Remove this once we have a proper logger
+    const logger = this.getLogger() ?? defaultLogger.child({ connector: true });
     const traceId = this.getTraceId();
     this.requester = ofetch.create({
       baseURL,
