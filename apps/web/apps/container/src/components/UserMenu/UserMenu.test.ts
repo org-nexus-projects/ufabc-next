@@ -46,7 +46,10 @@ describe('<UserMenu />', () => {
   test('exibe informações do usuário no ativador do menu', () => {
     render(UserMenu);
 
-    const userCleanUsername = mockedUser.email.replace('@aluno.ufabc.edu.br', '');
+    const userCleanUsername = mockedUser.email.replace(
+      '@aluno.ufabc.edu.br',
+      '',
+    );
     expect(screen.getByText(userCleanUsername)).toBeInTheDocument();
   });
 
@@ -56,9 +59,10 @@ describe('<UserMenu />', () => {
     const userLogin = mockedUser.email
       ?.replace('@aluno.ufabc.edu.br', '')
       .toUpperCase();
-    const expectedInitials = userLogin?.split('.').length === 1
-      ? `${userLogin[0]}${userLogin[1]}`
-      : `${userLogin?.[0]}${userLogin?.split('.')[1][0]}`;
+    const expectedInitials =
+      userLogin?.split('.').length === 1
+        ? `${userLogin[0]}${userLogin[1]}`
+        : `${userLogin?.[0]}${userLogin?.split('.')[1][0]}`;
 
     const avatars = screen.getAllByText(expectedInitials);
     expect(avatars.length).toBeGreaterThan(0);
@@ -68,9 +72,9 @@ describe('<UserMenu />', () => {
     const user = userEvent.setup();
     render(UserMenu);
 
-    const activator = screen.getByText(
-      mockedUser.email.replace('@aluno.ufabc.edu.br', ''),
-    ).closest('div');
+    const activator = screen
+      .getByText(mockedUser.email.replace('@aluno.ufabc.edu.br', ''))
+      .closest('div');
 
     expect(activator).toBeInTheDocument();
     await user.click(activator!);
@@ -85,9 +89,9 @@ describe('<UserMenu />', () => {
     const user = userEvent.setup();
     render(UserMenu);
 
-    const activator = screen.getByText(
-      mockedUser.email.replace('@aluno.ufabc.edu.br', ''),
-    ).closest('div');
+    const activator = screen
+      .getByText(mockedUser.email.replace('@aluno.ufabc.edu.br', ''))
+      .closest('div');
 
     await user.click(activator!);
 
@@ -100,9 +104,9 @@ describe('<UserMenu />', () => {
     const user = userEvent.setup();
     render(UserMenu);
 
-    const activator = screen.getByText(
-      mockedUser.email.replace('@aluno.ufabc.edu.br', ''),
-    ).closest('div');
+    const activator = screen
+      .getByText(mockedUser.email.replace('@aluno.ufabc.edu.br', ''))
+      .closest('div');
 
     await user.click(activator!);
 
@@ -123,18 +127,16 @@ describe('<UserMenu />', () => {
     let logoutEmitted = false;
 
     render(UserMenu, {
-      global: {
-        listeners: {
-          logout: () => {
-            logoutEmitted = true;
-          },
+      props: {
+        onLogout: () => {
+          logoutEmitted = true;
         },
       },
     });
 
-    const activator = screen.getByText(
-      mockedUser.email.replace('@aluno.ufabc.edu.br', ''),
-    ).closest('div');
+    const activator = screen
+      .getByText(mockedUser.email.replace('@aluno.ufabc.edu.br', ''))
+      .closest('div');
 
     await user.click(activator!);
 
@@ -154,9 +156,9 @@ describe('<UserMenu />', () => {
     const user = userEvent.setup();
     render(UserMenu);
 
-    const activator = screen.getByText(
-      mockedUser.email.replace('@aluno.ufabc.edu.br', ''),
-    ).closest('div');
+    const activator = screen
+      .getByText(mockedUser.email.replace('@aluno.ufabc.edu.br', ''))
+      .closest('div');
 
     await user.click(activator!);
 
@@ -177,18 +179,16 @@ describe('<UserMenu />', () => {
     let logoutEmitted = false;
 
     render(UserMenu, {
-      global: {
-        listeners: {
-          logout: () => {
-            logoutEmitted = true;
-          },
+      props: {
+        onLogout: () => {
+          logoutEmitted = true;
         },
       },
     });
 
-    const activator = screen.getByText(
-      mockedUser.email.replace('@aluno.ufabc.edu.br', ''),
-    ).closest('div');
+    const activator = screen
+      .getByText(mockedUser.email.replace('@aluno.ufabc.edu.br', ''))
+      .closest('div');
 
     await user.click(activator!);
 
@@ -209,9 +209,9 @@ describe('<UserMenu />', () => {
     const user = userEvent.setup();
     render(UserMenu);
 
-    const activator = screen.getByText(
-      mockedUser.email.replace('@aluno.ufabc.edu.br', ''),
-    ).closest('div');
+    const activator = screen
+      .getByText(mockedUser.email.replace('@aluno.ufabc.edu.br', ''))
+      .closest('div');
 
     await user.click(activator!);
 
