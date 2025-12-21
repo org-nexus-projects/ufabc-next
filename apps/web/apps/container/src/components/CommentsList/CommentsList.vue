@@ -15,7 +15,8 @@
       :items="subjects"
       hide-details
       menu-icon="mdi-menu-down"
-      class="mr-4"
+      class="mr-4 custom-select"
+      bg-color="appbar"
     />
 
     <v-switch
@@ -72,7 +73,6 @@ import { SingleComment } from '@/components/SingleComment';
 import { checkEAD } from '@/utils/season';
 
 const { smAndDown } = useDisplay();
-
 const props = defineProps({
   teacherId: { type: String, required: true },
   selectedSubject: { type: String, required: true },

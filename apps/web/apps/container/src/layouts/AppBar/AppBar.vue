@@ -6,79 +6,89 @@
       color="navigation"
       width="240"
     >
-      <v-list>
-        <div class="py-4 d-flex justify-center align-center">
-          <img
-            class="logo-white"
-            src="@/assets/logo_white.svg"
-            height="44"
-            alt="logo do UFABC Next"
-          />
-        </div>
-        <v-divider />
-        <v-list-item
-          v-for="item in internalNavigationItems"
-          :key="item.title"
-          :to="!item.locked ? item.route : undefined"
-          :class="{ 'locked-item': item.locked }"
-        >
-          <v-layout class="d-flex">
-            <v-icon :icon="item.icon" class="mr-3" />
-            <p class="font-weight-medium text-caption">
-              {{ item.title }}
-            </p>
-            <span
-              v-if="item.releaseDate?.add(3, 'month').isAfter(getCurrentDate())"
-              class="featured-chip font-weight-black"
-              >Novo</span
+      <div class="d-flex flex-column" style="height: 100%">
+        <div class="flex-grow-0">
+          <v-list>
+            <div class="py-4 d-flex justify-center align-center">
+              <img
+                class="logo-white"
+                src="@/assets/logo_white.svg"
+                height="44"
+                alt="logo do UFABC Next"
+              />
+            </div>
+            <v-divider />
+            <v-list-item
+              v-for="item in internalNavigationItems"
+              :key="item.title"
+              :to="!item.locked ? item.route : undefined"
+              :class="{ 'locked-item': item.locked }"
             >
-            <v-icon
-              v-if="item.locked"
-              icon="mdi mdi-lock-outline"
-              class="locked-icon"
-              size="16"
-            />
-          </v-layout>
-        </v-list-item>
-      </v-list>
-      <v-divider />
-      <v-list>
-        <v-list-item
-          v-for="item in externalNavigationItems"
-          :key="item.title"
-          :href="item.url"
-          :target="item.url && '_blank'"
-          :rel="item.url && 'noopener noreferrer'"
-        >
-          <v-layout>
-            <v-icon :icon="item.icon" class="mr-3" />
-            <p class="font-weight-medium text-caption">
-              {{ item.title }}
-            </p>
-          </v-layout>
-        </v-list-item>
-      </v-list>
-      <div v-if="!authStore.user?.confirmed">
-        <v-divider />
-        <div style="height: 64px" />
-        <div class="mb-4 pa-4 bg-blue-darken-3 border create-account-box">
-          <div class="d-flex align-center gap-3">
-            <v-icon class="pa-1" size="20"> mdi-lock-outline </v-icon>
-            <strong>Conta não confirmada</strong>
+              <v-layout class="d-flex">
+                <v-icon :icon="item.icon" class="mr-3" />
+                <p class="font-weight-medium text-caption">
+                  {{ item.title }}
+                </p>
+                <span
+                  v-if="item.releaseDate?.add(3, 'month').isAfter(dayjs())"
+                  class="featured-chip font-weight-black"
+                  >Novo</span
+                >
+                <v-icon
+                  v-if="item.locked"
+                  icon="mdi mdi-lock-outline"
+                  class="locked-icon"
+                  size="16"
+                />
+              </v-layout>
+            </v-list-item>
+          </v-list>
+          <v-divider />
+          <v-list>
+            <v-list-item
+              v-for="item in externalNavigationItems"
+              :key="item.title"
+              :href="item.url"
+              :target="item.url && '_blank'"
+              :rel="item.url && 'noopener noreferrer'"
+            >
+              <v-layout>
+                <v-icon :icon="item.icon" class="mr-3" />
+                <p class="font-weight-medium text-caption">
+                  {{ item.title }}
+                </p>
+              </v-layout>
+            </v-list-item>
+          </v-list>
+        </div>
+
+        <div class="flex-grow-1"></div>
+
+        <div class="flex-grow-0">
+          <div v-if="!authStore.user?.confirmed">
+            <v-divider />
+            <div class="mb-4 pa-4 bg-blue-darken-3 border create-account-box">
+              <div class="d-flex align-center gap-3">
+                <v-icon class="pa-1" size="20"> mdi-lock-outline </v-icon>
+                <strong>Conta não confirmada</strong>
+              </div>
+              <div class="mt-2 text-caption">
+                Crie sua conta no next para acessar todas as funcionalidades.
+              </div>
+              <v-btn
+                variant="tonal"
+                size="small"
+                block
+                class="mt-4 bg-blue-darken-2 text-white text-caption pa-2"
+                style="border-color: #1e40af"
+                @click="createAccount"
+              >
+                Criar Conta
+              </v-btn>
+            </div>
           </div>
-          <div class="mt-2 text-caption">
-            Crie sua conta no next para acessar todas as funcionalidades.
-          </div>
-          <v-btn
-            variant="tonal"
-            size="small"
-            block
-            class="mt-4 bg-blue-darken-2 text-white text-caption pa-2"
-            style="border-color: #1e40af"
-            @click="createAccount"
-          >
-            Criar Conta
-          </v-btn>
+
+          <UserMenu v-if="authStore.user?.confirmed" @logout="handleLogout" />
         </div>
       </div>
     </v-navigation-drawer>
@@ -87,63 +97,43 @@
       v-if="authStore.user?.confirmed || layout === 'include-sidebar'"
       app
       height="min-content"
-      class="py-2 header"
+      class="header"
+      color="appbar"
+      style="height: 64px"
     >
-      <v-app-bar-nav-icon
-        app
-        variant="text"
-        color="primary"
-        class="d-lg-none"
-        @click.stop="drawer = !drawer"
-      />
+      <div class="d-flex align-center w-100">
+        <v-app-bar-nav-icon
+          app
+          variant="text"
+          color="primary"
+          class="d-lg-none"
+          @click.stop="drawer = !drawer"
+        />
 
-      <v-spacer />
+        <div class="flex-grow-1 d-flex justify-center">
+          <img
+            class="logo-white"
+            :src="isDarkMode ? logoLight : logoDark"
+            height="32"
+            alt="logo do UFABC Next"
+          />
+        </div>
 
-      <img
-        class="logo-white"
-        src="@/assets/logo.svg"
-        height="32"
-        alt="logo do UFABC Next"
-      />
-
-      <v-spacer />
-      <div v-if="authStore.user?.confirmed">
         <v-btn
           color="primary"
-          icon="mdi-dots-vertical"
-          aria-label="Expandir menu de usuário"
+          class="d-flex align-center justify-center"
+          height="100%"
+          aria-label="Toggle theme"
+          flat
+          style="min-height: 64px"
+          @click="toggleTheme"
         >
-          <v-icon />
-          <v-menu activator="parent">
-            <v-list class="px-2">
-              <v-list-item>
-                <v-layout>
-                  <v-avatar :size="38" color="primary">
-                    {{ userInitials.toLocaleUpperCase() }}
-                  </v-avatar>
-                  <v-layout class="flex-column ml-4">
-                    <p>{{ userLogin }}</p>
-                    <p
-                      v-if="authStore.user?.ra"
-                      class="text-caption text-medium-emphasis"
-                    >
-                      RA: {{ authStore.user.ra }}
-                    </p>
-                  </v-layout>
-                </v-layout>
-              </v-list-item>
-              <v-list-item>
-                <v-btn
-                  prepend-icon="mdi-exit-to-app"
-                  variant="text"
-                  class="text-capitalize text-body-2"
-                  @click="handleLogout"
-                >
-                  Sair
-                </v-btn>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+          <v-img
+            :src="isDarkMode ? moonIcon : sunIcon"
+            height="24"
+            width="24"
+            alt="Toggle theme"
+          />
         </v-btn>
       </div>
     </v-app-bar>
@@ -159,14 +149,21 @@ import { api } from '@ufabc-next/services';
 import dayjs from 'dayjs';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useTheme } from 'vuetify';
 
+import moonIcon from '@/assets/icons/moon.svg';
+import sunIcon from '@/assets/icons/sun.svg';
+import logoDark from '@/assets/logo.svg';
+import logoLight from '@/assets/logo_white.svg';
+import { UserMenu } from '@/components/UserMenu';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
-import { useAliasInitials } from '@/utils/composables/aliasInitials';
+import { applyChartsTheme } from '@/theme';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const theme = useTheme();
 
 const getCurrentDate = () => dayjs();
 
@@ -187,12 +184,23 @@ const createAccount = () => {
 const drawer = ref(false);
 onMounted(() => {
   drawer.value = window.innerWidth >= 1024;
+  updateHighchartsThemeClass(theme.global.current.value.dark);
 });
 
-const userLogin = computed(() =>
-  authStore.user?.email?.replace('@aluno.ufabc.edu.br', ''),
-);
-const userInitials = useAliasInitials();
+const isDarkMode = computed(() => theme.global.current.value.dark);
+
+const updateHighchartsThemeClass = (isDark: boolean) => {
+  document.body.classList.remove('highcharts-light', 'highcharts-dark');
+  document.body.classList.add(isDark ? 'highcharts-dark' : 'highcharts-light');
+  applyChartsTheme();
+};
+
+const toggleTheme = () => {
+  const newTheme = isDarkMode.value ? 'light' : 'dark';
+  theme.toggle();
+  localStorage.setItem('darkMode', JSON.stringify(newTheme === 'dark'));
+  updateHighchartsThemeClass(newTheme === 'dark');
+};
 
 const internalNavigationItems = [
   {
@@ -238,12 +246,6 @@ const internalNavigationItems = [
     icon: 'mdi-bank',
     route: '/donate',
     locked: false,
-  },
-  {
-    title: 'Configurações',
-    icon: 'mdi-cog',
-    route: '/settings',
-    locked: !authStore.user?.confirmed,
   },
   {
     title: 'Ajuda',

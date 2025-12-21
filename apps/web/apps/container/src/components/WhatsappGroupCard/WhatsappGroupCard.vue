@@ -39,7 +39,6 @@
     <div class="activity-indicator">
       <v-btn
         v-if="isGroupAvailable"
-        color="black"
         prepend-icon="mdi-whatsapp"
         text="Entrar no Grupo"
         size="default"
@@ -48,7 +47,7 @@
         @click="handleClick"
       />
       <div v-else class="unavailable-group">
-        <v-icon color="grey-darken-1" size="20">mdi-whatsapp</v-icon>
+        <v-icon size="20">mdi-whatsapp</v-icon>
         <span class="unavailable-text">Grupo não disponível</span>
         <v-tooltip activator="parent" location="top">
           <span>Este grupo ainda não foi criado ou não está disponível no momento</span>
@@ -94,10 +93,10 @@ const handleClick = () => {
 
 <style scoped>
 .whatsapp-group-card {
-  background: white;
+  background: rgba(var(--v-theme-surface));
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(var(--v-theme-surface), 0.5);
   padding: 20px;
   cursor: pointer;
   transition: all 200ms ease;
@@ -110,13 +109,13 @@ const handleClick = () => {
 }
 
 .whatsapp-group-card:has(.unavailable-group) {
-  cursor: default;
+  cursor: not-allowed;
   opacity: 0.7;
 }
 
 .whatsapp-group-card:has(.unavailable-group):hover {
   transform: none;
-  border-color: #e5e7eb;
+  border-color: rgba(var(--v-theme-surface), 0.5);
 }
 
 .whatsapp-group-card__header {
@@ -152,7 +151,6 @@ const handleClick = () => {
 .info__name {
   font-size: 18px;
   font-weight: 600;
-  color: black;
   margin: 0 0 4px 0;
   white-space: nowrap;
   overflow: hidden;
@@ -166,7 +164,6 @@ const handleClick = () => {
 
 .info__description {
   font-size: 14px;
-  color: #6b7280;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -179,14 +176,12 @@ const handleClick = () => {
 
 .professor-name {
   font-size: 14px;
-  color: #374151;
   font-weight: 500;
   margin: 0 0 4px 0;
 }
 
 .season {
   font-size: 12px;
-  color: #6b7280;
   margin: 0;
 }
 
@@ -195,7 +190,6 @@ const handleClick = () => {
   align-items: center;
   justify-content: space-between;
   font-size: 14px;
-  color: #6b7280;
 }
 
 .metric {
@@ -229,13 +223,12 @@ const handleClick = () => {
   justify-content: center;
   padding: 8px 16px;
   border-radius: 6px;
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background-color: rgba(var(--v-theme-background), 0.5);
+  border: 1px solid rgba(var(--v-theme-background), 0.5);
 }
 
 .unavailable-text {
   font-size: 14px;
-  color: #6b7280;
   font-weight: 500;
 }
 
@@ -249,7 +242,6 @@ const handleClick = () => {
 
 .activity-text {
   font-size: 12px;
-  color: #6b7280;
 }
 
 @keyframes pulse {

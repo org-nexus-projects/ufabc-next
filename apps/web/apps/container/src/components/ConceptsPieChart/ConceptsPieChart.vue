@@ -1,15 +1,27 @@
 <template>
   <div class="chartWrapper">
-    <Chart :options="chartOptions" />
+    <Chart :key="chartKey" :options="chartOptions" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { Concept } from '@ufabc-next/types';
 import { Chart } from 'highcharts-vue';
-import { computed, PropType } from 'vue';
+import { computed, PropType, ref, watch } from 'vue';
+import { useTheme } from 'vuetify';
 
 import { conceptsColor } from '@/utils/consts';
+
+const theme = useTheme();
+const chartKey = ref(0);
+
+// Re-render chart when theme changes
+watch(
+  () => theme.global.current.value.dark,
+  () => {
+    chartKey.value++;
+  },
+);
 
 type Grades = Record<string, number>;
 const props = defineProps({
@@ -23,11 +35,9 @@ const grades = computed(() => {
   }));
   return data;
 });
-const chartOptions = {
+
+const chartOptions = computed(() => ({
   chart: {
-    plotBackgroundColor: null,
-    plotBorderWidth: null,
-    plotShadow: false,
     type: 'pie',
   },
   series: [
@@ -51,7 +61,7 @@ const chartOptions = {
       showInLegend: true,
     },
   },
-};
+}));
 </script>
 
 <style scoped>

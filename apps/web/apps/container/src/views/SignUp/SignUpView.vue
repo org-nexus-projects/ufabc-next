@@ -305,15 +305,18 @@ import { ElMessage } from 'element-plus';
 import { useField, useForm } from 'vee-validate';
 import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { useDisplay } from 'vuetify';
+import { useDisplay, useTheme } from 'vuetify';
 
 import { FeedbackAlert } from '@/components/FeedbackAlert';
 import { useAuthStore } from '@/stores/auth';
 
 import { SignUpSchema } from './signUpValidationSchema';
 
+const theme = useTheme();
 const router = useRouter();
 const authStore = useAuthStore();
+
+theme.change('light');
 
 const handleLogout = () => {
   authStore.logOut();

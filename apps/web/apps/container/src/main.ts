@@ -24,7 +24,7 @@ import App from './App.vue';
 import { eventTracker } from './helpers/EventTracker';
 import client from './queryClient';
 import router from './router';
-import { theme } from './theme';
+import { applyChartsTheme, darkTheme, lightTheme } from './theme';
 
 interface Device {
   cordova: string;
@@ -48,6 +48,13 @@ pinia.use(piniaPluginPersistedstate);
 accessibility(Highcharts);
 annotationsInit(Highcharts);
 
+const savedTheme = localStorage.getItem('darkMode');
+const defaultTheme = savedTheme === 'true' ? 'dark' : 'light';
+
+// Set initial Highcharts theme class
+document.body.classList.add(defaultTheme === 'dark' ? 'highcharts-dark' : 'highcharts-light');
+applyChartsTheme();
+
 const vuetify = createVuetify({
   components: {
     ...components,
@@ -55,9 +62,10 @@ const vuetify = createVuetify({
   },
   directives,
   theme: {
-    defaultTheme: 'theme',
+    defaultTheme,
     themes: {
-      theme,
+      light: lightTheme,
+      dark: darkTheme,
     },
   },
 });

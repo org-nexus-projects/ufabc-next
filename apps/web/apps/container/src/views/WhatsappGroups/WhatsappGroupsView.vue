@@ -29,7 +29,6 @@
                 v-model="searchRaQuery"
                 placeholder="Digite seu RA (ex: 11202012345)"
                 variant="outlined"
-                size="large"
                 :loading="currentLoading"
                 :disabled="isUserLoggedIn"
                 prepend-inner-icon="mdi-magnify"
@@ -705,7 +704,6 @@ onMounted(() => {
   margin-bottom: 20px;
   position: sticky;
   top: 0;
-  background: white;
   z-index: 1;
   padding-bottom: 8px;
 }
@@ -891,7 +889,7 @@ span {
     padding: 16px 0 0 0;
     position: sticky;
     bottom: 0;
-    background: white;
+    background: rgb(var(--v-theme-surface));
     border-top: 1px solid rgba(var(--v-theme-primary), 0.1);
   }
 

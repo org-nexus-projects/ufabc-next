@@ -32,7 +32,7 @@
           <v-menu transition="slide-y-transition">
             <template #activator="{ props }">
               <button v-bind="props" class="text-body-2 order-button mb-4 mr-2">
-                <span class="font-weight-bold text-black"> Ordenar por: </span>
+                <span class="font-weight-bold"> Ordenar por: </span>
                 {{ orders.find((o) => o.value === selectedOrder)?.title }}
                 <v-icon class="text-ufabcnext-green"> mdi-menu-down </v-icon>
               </button>
@@ -66,7 +66,7 @@
                 </th>
               </tr>
             </thead>
-            <tbody v-if="!xs" class="table-body bg-secondary">
+            <tbody v-if="!xs" class="table-body">
               <tr
                 v-for="teacher in shortedSpecifics"
                 :key="teacher._id.mainTeacher + 'row'"
@@ -91,7 +91,7 @@
                 </td>
               </tr>
             </tbody>
-            <tbody v-else class="table-body bg-secondary">
+            <tbody v-else class="table-body">
               <tr
                 v-for="teacher in shortedSpecifics"
                 :key="teacher._id.mainTeacher + 'row'"
@@ -292,7 +292,7 @@ const shortedSpecifics = computed(() => {
 }
 
 td {
-  outline: 1px solid white;
+  outline: 1px solid rgb(var(--v-theme-background));
 }
 
 .order-button:hover {

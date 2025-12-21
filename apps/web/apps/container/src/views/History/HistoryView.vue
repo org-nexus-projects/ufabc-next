@@ -125,9 +125,9 @@
         </template>
         <template #body>
           <template v-for="date in enrollmentByDateKeysSorted" :key="date">
-            <tr class="bg-white quad-header">
+            <tr class="quad-header">
               <td
-                style="position: sticky; left: 0"
+                style="position: sticky; left: 0; background-color: rgb(var(--v-theme-appbar)); z-index: 1"
                 colspan="1"
                 class="text-left"
               >
@@ -141,10 +141,7 @@
               <td
                 rowspan="1"
                 colspan="1"
-                :class="`bg-secondary text-left text-next-${
-                  subjectConceptClass[item.conceito]
-                }`"
-                style="position: sticky; left: 0; z-index: 1"
+                style="position: sticky; left: 0; z-index: 1; background-color: rgb(var(--v-theme-appbar))"
               >
                 {{ item.disciplina }}
               </td>
@@ -171,7 +168,7 @@
                       "
                     />
                   </v-btn>
-                  <span class="text-truncate">{{
+                  <span class="text-text">{{
                     item.teoria?.name || '-'
                   }}</span>
                 </div>
@@ -195,7 +192,7 @@
                       :color="hasCommented(item) ? 'ufabcnext-green' : ''"
                     />
                   </v-btn>
-                  <span class="text-truncate">{{
+                  <span class="text-text">{{
                     item.pratica?.name || '-'
                   }}</span>
                 </div>
@@ -373,7 +370,7 @@ const lastUpdate = computed(() => {
 .chip {
   min-height: 48px;
   border-radius: 4px;
-  background-color: #f3f6f7;
+  background-color: rgb(var(--v-theme-appbar));
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -385,7 +382,7 @@ const lastUpdate = computed(() => {
   padding-right: 8px;
   font-size: 18px;
   font-weight: 400;
-  color: rgba(0, 0, 0, 0.75);
+  color: rgb(var(--v-theme-on-surface));
 
   & button {
     width: var(--v-btn-width);

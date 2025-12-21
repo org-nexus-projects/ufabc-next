@@ -106,27 +106,28 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Por facilidade de implementação, manti a tabela do element plus, mas a intenção é mudar isso futuramente -->
-        <el-table
-          class="mb-3"
-          :data="tableData"
-          border
-          style="width: 100%; word-break: normal"
-        >
-          <el-table-column prop="name" label="Nome" />
-          <el-table-column
-            prop="description"
-            label="Descrição"
-            min-width="170"
-          />
-          <el-table-column prop="amount" label="Custo" />
-          <template #append>
-            <div class="summary">
-              <div class="summary-text flex">Total de aproximadamente</div>
-              <div class="summary-total">~R$ 1200,00/ano 😬</div>
-            </div>
-          </template>
-        </el-table>
+        <v-table class="mb-3 costs-table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Descrição</th>
+              <th>Custo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in tableData" :key="item.name">
+              <td>{{ item.name }}</td>
+              <td>{{ item.description }}</td>
+              <td>{{ item.amount }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="summary-row">
+              <td colspan="2" class="summary-text">Total de aproximadamente</td>
+              <td class="summary-total">~R$ 1200,00/ano 😬</td>
+            </tr>
+          </tfoot>
+        </v-table>
 
         <v-btn
           rounded
@@ -142,9 +143,6 @@ onMounted(() => {
     <v-dialog v-model="dialog" width="700px" transition="scroll-y-transition">
       <v-card class="dialog-content">
         <div class="dialog-header">
-          <v-card-title class="dialog-title ufabcnext-darkgrey--text">
-            Informações da conta:
-          </v-card-title>
           <v-card-actions class="dialog-close-btn">
             <v-btn
               variant="tonal"
@@ -206,6 +204,7 @@ onMounted(() => {
   font-size: 25px;
   align-self: center;
   border-radius: 20px;
+  border: none;
 }
 
 .dialog-content {
@@ -261,26 +260,32 @@ onMounted(() => {
   text-align: center;
 }
 
-.summary {
-  display: flex;
-  height: 49px;
-  align-items: center;
-  justify-content: center;
-  background: #f4f7fa;
+.costs-table {
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+}
+
+.costs-table th {
+  font-weight: 600;
+  text-align: left;
+}
+
+.costs-table td,
+.costs-table th {
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  padding: 12px;
+}
+
+.summary-row {
+  background: rgba(var(--v-theme-surface), 0.5);
+  font-weight: 500;
 }
 
 .summary-text {
-  text-align: right;
-  padding-right: 12px;
+  text-align: center;
+  font-weight: bold;
 }
 
 .summary-total {
-  width: 181px;
-  border-left: 1px solid #ebeef4;
-  height: 100%;
-  align-items: center;
-  display: flex;
-  padding-left: 12px;
   font-weight: bold;
 }
 

@@ -1,6 +1,6 @@
 <template>
   <div class="calengrade-page">
-    <div class="calengrade-page__container">
+    <div class="calengrade-page__container" :style="{ backgroundColor: theme.global.current.value.colors.surface }">
       <img
         src="../../assets/calengrade/calengrade-logo.svg"
         alt="logo do Calengrade"
@@ -48,6 +48,7 @@
 
 <script lang="ts" setup>
 import { onMounted, reactive, ref, watch } from 'vue';
+import { useTheme } from 'vuetify';
 
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
@@ -60,6 +61,8 @@ import WelcomeScreen from './screens/WelcomeScreen.vue';
 import { CalengradeInfo, CalengradeSteps, Classes } from './types';
 
 const currentStepName = ref<CalengradeSteps>(CalengradeSteps.Welcome);
+
+const theme = useTheme();
 
 const currentQuarter = ref(0);
 
@@ -144,15 +147,11 @@ const resetCalengrade = () => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
   margin: auto;
   width: 100%;
   height: 100%;
-
   padding: 40px 20px;
   justify-content: space-between;
-
-  background-color: white;
   border-radius: 16px;
 }
 

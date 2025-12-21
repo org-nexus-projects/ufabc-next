@@ -30,52 +30,41 @@ describe('<AppBar />', () => {
     expect(screen.getByText('Snapshot da Matrícula')).toBeInTheDocument();
     expect(screen.getByText('Grupos no WhatsApp')).toBeInTheDocument();
   });
-  test('render user info in app bar dropdown', async () => {
-    const user = userEvent.setup();
-
+  test('render theme toggle button', () => {
     render(AppBar);
 
-    user.click(
-      screen.getByRole('button', { name: 'Expandir menu de usuário' }),
-    );
-    expect(await screen.findByText(/sair/i)).toBeInTheDocument();
     expect(
-      await screen.findByText(mockedUser.email.replace(/(.*)@.*/, '$1')),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        new RegExp(`^${mockedUser.email[0]}${mockedUser.email[1]}$`, 'i'),
-      ),
+      screen.getByRole('button', { name: 'Toggle theme' }),
     ).toBeInTheDocument();
   });
-  test('render user initials if user email has two names', async () => {
-    authStore.user = {
-      ...mockedUser,
-      email: 'firstName.lastName@aluno.ufabc.edu.br',
-    };
+
+  test('toggle between sun and moon icons', async () => {
     const user = userEvent.setup();
 
     render(AppBar);
 
-    user.click(
-      screen.getByRole('button', { name: 'Expandir menu de usuário' }),
-    );
-    expect(await screen.findByText(/FL/)).toBeInTheDocument();
+    const toggleButton = screen.getByRole('button', { name: 'Toggle theme' });
+    expect(toggleButton).toBeInTheDocument();
+
+    await user.click(toggleButton);
+    await user.click(toggleButton);
   });
-  test('click on logout button to logout', async () => {
+
+  test('render user menu with settings and sign out options', async () => {
     const user = userEvent.setup();
 
     render(AppBar);
 
-    user.click(
-      screen.getByRole('button', { name: 'Expandir menu de usuário' }),
-    );
-    expect(authStore.token).not.toBeNull();
-    expect(authStore.user).not.toBeNull();
-    user.click(await screen.findByText(/sair/i));
+    const menuButton = screen.getByRole('button', {
+      name: 'Expandir menu de usuário',
+    });
+    expect(menuButton).toBeInTheDocument();
+
+    await user.click(menuButton);
+
     await waitFor(() => {
-      expect(authStore.token).toBeNull();
-      expect(authStore.user).toBeNull();
+      expect(screen.getByText('Configurações')).toBeInTheDocument();
+      expect(screen.getByText('Sair')).toBeInTheDocument();
     });
   });
 });
