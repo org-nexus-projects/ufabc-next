@@ -60,7 +60,7 @@ export async function validateUserData(emailToCheck: string, ra: string) {
   const validEmployees = employees.filter((employee) => employee !== null);
 
   if (validEmployees.length > 0) {
-    logger.warn('UFABC employee', validEmployees);
+    logger.warn({ validEmployees }, 'UFABC employee');
     throw new Error('HAS_UFABC_CONTRACT');
   }
 
