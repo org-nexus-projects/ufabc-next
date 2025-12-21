@@ -76,12 +76,18 @@ export class UfabcParserConnector extends BaseRequester {
   }
 
   async getHistory(sessionId: string, viewState: string) {
+    const headers = new Headers();
+    headers.set('session-id', sessionId);
+    headers.set('view-state', viewState);
     const response = await this.request<{
       data: SigHistory | null;
       error: string | null;
     }>('/v1/sig/history', {
       method: 'POST',
-      body: { sessionId, viewState },
+      headers,
+      query: {
+        action: 'history',
+      },
     });
 
     const parsedHistory = sigHistory.safeParse(response.data);

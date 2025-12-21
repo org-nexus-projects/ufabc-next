@@ -18,10 +18,18 @@ export class BaseRequester {
           this.getLogger() ?? defaultLogger.child({ connector: true });
         const traceId = this.getTraceId();
 
+        logger.info({ options }, 'request options');
+
+        // Convert Headers object to plain object if needed
+        const existingHeaders =
+          options.headers instanceof Headers
+            ? Object.fromEntries(options.headers.entries())
+            : options.headers || {};
+
         options.headers = {
-          ...options.headers,
+          ...existingHeaders,
           'global-trace-id': traceId,
-        } as Headers;
+        };
 
         const requestPath =
           typeof request === 'string'
