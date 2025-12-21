@@ -5,6 +5,7 @@ import type { FastifyBaseLogger } from 'fastify';
 declare module '@fastify/request-context' {
   interface RequestContextData {
     log: FastifyBaseLogger;
+    traceId: string;
   }
 }
 
@@ -16,8 +17,8 @@ declare module 'fastify' {
 
 export default fp(async (app) => {
   app.addHook('onRequest', async (request) => {
-    // request-context setup
     request.requestContext.set('log', request.log);
+    request.requestContext.set('traceId', request.id);
 
     request.log.info(
       {
