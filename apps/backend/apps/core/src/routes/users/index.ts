@@ -137,7 +137,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const { email, ra } = request.body;
 
       try {
-        await validateUserData(email, ra, app);
+        await validateUserData(email, ra);
       } catch (err: any) {
         switch (err.message) {
           case 'RA_NOT_FOUND':
