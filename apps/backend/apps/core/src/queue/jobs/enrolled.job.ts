@@ -1,11 +1,12 @@
 import { currentQuad } from '@next/common';
 import { ComponentModel } from '@/models/Component.js';
 import type { QueueContext } from '../types.js';
-import { getEnrolledStudents } from '@/modules/ufabc-parser.js';
+import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 
 export async function syncEnrolled({ app }: QueueContext<void>) {
   const tenant = currentQuad();
-  const enrollments = await getEnrolledStudents();
+  const connector = new UfabcParserConnector();
+  const enrollments = await connector.getEnrolledStudents();
 
   const enrollmentTasks = Object.entries(enrollments).map(
     ([componentId, students]) => ({

@@ -8,7 +8,7 @@ import {
 import { GraduationModel } from '@/models/Graduation.js';
 import { StudentModel } from '@/models/Student.js';
 import { sigHistorySchema, type SigStatus } from '@/schemas/history.js';
-import { getHistory } from '@/modules/ufabc-parser.js';
+import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { currentQuad } from '@next/common';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
@@ -33,7 +33,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         };
       }
 
-      const parsedHistory = await getHistory(sessionId, viewState as string);
+      const connector = new UfabcParserConnector();
+      const parsedHistory = await connector.getHistory(
+        sessionId,
+        viewState as string,
+      );
       if (parsedHistory.error) {
         app.log.error(
           {

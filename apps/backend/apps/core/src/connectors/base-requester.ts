@@ -2,18 +2,14 @@ import { requestContext } from '@fastify/request-context';
 import { type FetchOptions, type FetchRequest, ofetch } from 'ofetch';
 import { randomUUID } from 'node:crypto';
 import { TRACING_DIRECTION, TRACING_MESSAGES } from '@/constants.js';
+import type { FastifyBaseLogger } from 'fastify';
 
 export class BaseRequester {
   protected readonly requester: ReturnType<typeof ofetch.create>;
 
   constructor(baseURL?: string) {
-    const logger = this.getLogger();
+    const logger = this.getLogger() as FastifyBaseLogger;
     const traceId = this.getTraceId();
-
-    if (!logger) {
-      throw new Error('Logger not found');
-    }
-
     this.requester = ofetch.create({
       baseURL,
       onRequest: ({ options }) => {
