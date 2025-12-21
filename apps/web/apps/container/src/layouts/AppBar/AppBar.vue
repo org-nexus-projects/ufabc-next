@@ -196,7 +196,7 @@ const updateHighchartsThemeClass = (isDark: boolean) => {
 };
 
 const toggleTheme = () => {
-  const newTheme = theme.global.current.value.dark ? 'light' : 'dark';
+  const newTheme = isDarkMode.value ? 'light' : 'dark';
   theme.toggle();
   localStorage.setItem('darkMode', JSON.stringify(newTheme === 'dark'));
   updateHighchartsThemeClass(newTheme === 'dark');

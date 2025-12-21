@@ -8,13 +8,7 @@
   <v-layout v-else class="flex-column align-center justify-center">
     <v-container fluid class="pa-0">
       <v-row align="stretch">
-        <v-col
-          v-for="card in cards"
-          :key="card.title"
-          cols="12"
-          sm="6"
-          md="3"
-        >
+        <v-col v-for="card in cards" :key="card.title" cols="12" sm="6" md="3">
           <PerformanceCard
             :title="card.title"
             :sub-title="card.subtitle"
@@ -41,7 +35,10 @@
       <Chart :key="`cp-history-${chartKey}`" :options="cpHistoryOptions" />
     </PaperCard>
     <PaperCard class="w-100 mt-4">
-      <Chart :key="`cr-distribution-${chartKey}`" :options="crDistributionOptions" />
+      <Chart
+        :key="`cr-distribution-${chartKey}`"
+        :options="crDistributionOptions"
+      />
     </PaperCard>
   </v-layout>
 </template>
@@ -61,8 +58,8 @@ import { formatSeason } from '@/utils/season';
 const theme = useTheme();
 const chartKey = ref(0);
 
-//Re-render charts when theme changes
-watch(  
+// Re-render charts when theme changes
+watch(
   () => theme.global.current.value.dark,
   () => {
     chartKey.value++;

@@ -15,7 +15,7 @@ import { conceptsColor } from '@/utils/consts';
 const theme = useTheme();
 const chartKey = ref(0);
 
-//Re-render chart when theme changes
+// Re-render chart when theme changes
 watch(
   () => theme.global.current.value.dark,
   () => {
