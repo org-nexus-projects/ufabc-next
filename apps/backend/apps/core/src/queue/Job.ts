@@ -207,6 +207,9 @@ export class Jobs implements JobImpl {
 
     this.app.register(async (app) => {
       app.addHook('onRequest', async (request, reply) => {
+        if (app.config.NODE_ENV !== 'prod') {
+          return;
+        }
         const query = request.query as { token?: string };
         try {
           if (query.token) {

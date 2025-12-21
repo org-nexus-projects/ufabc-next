@@ -1,9 +1,5 @@
 import { createHash } from 'node:crypto';
-import {
-  getComponentsFile,
-  getEnrolledStudents,
-  getEnrollments,
-} from '@/modules/ufabc-parser.js';
+import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { syncEnrollmentsSchema } from '@/schemas/sync/enrollments.js';
 import { syncComponentsSchema } from '@/schemas/sync/components.js';
 import { TeacherModel } from '@/models/Teacher.js';
@@ -26,6 +22,7 @@ type SyncError = {
 };
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
+  const connector = new UfabcParserConnector();
   app.post(
     '/enrollments',
     {
@@ -48,7 +45,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         components.set(component.uf_cod_turma, component);
       }
 
-      const rawEnrollments = await getEnrollments(kind, season);
+      const rawEnrollments = await connector.getEnrollments(kind, season);
       const kvEnrollments = Object.entries(rawEnrollments);
 
       const tenantEnrollments = [];
@@ -179,8 +176,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       preHandler: (request, reply) => request.isAdmin(reply),
     },
     async (request, reply) => {
-      const { season, hash, ignoreErrors, kind} = request.body;
-      const componentsWithTeachers = await getComponentsFile(
+      const { season, hash, ignoreErrors, kind } = request.body;
+      const componentsWithTeachers = await connector.getComponentsFile(
         season,
         kind,
       );
@@ -400,7 +397,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const { operation } = request.body;
       const { season } = request.query;
 
-      const enrolledStudents = await getEnrolledStudents();
+      const enrolledStudents = await connector.getEnrolledStudents();
 
       const start = Date.now();
 
