@@ -23,7 +23,7 @@ export async function start() {
   }
 
   app.job.schedule('EnrolledSync');
-  // app.job.schedule('ComponentsSync');
+  app.job.schedule('ComponentsSync');
   app.job.schedule('LogsUpload');
 
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {

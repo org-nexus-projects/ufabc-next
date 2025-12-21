@@ -48,14 +48,16 @@ export default fp(async (app) => {
       params: request.params,
     };
 
+    const hasError = !!reply.error;
+
     if (status >= 500) {
       request.log.error(
-        { ...logData, error: reply.error },
+        { ...logData, ...(hasError && { error: reply.error }) },
         TRACING_MESSAGES.OUTGOING_RESPONSE_WITH_5XX_STATUS,
       );
     } else if (status >= 400) {
       request.log.warn(
-        { ...logData, error: reply.error },
+        { ...logData, ...(hasError && { error: reply.error }) },
         TRACING_MESSAGES.OUTGOING_RESPONSE_WITH_4XX_STATUS,
       );
     } else {

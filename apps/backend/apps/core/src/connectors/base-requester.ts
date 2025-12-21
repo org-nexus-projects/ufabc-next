@@ -7,29 +7,41 @@ import { logger as defaultLogger } from '@/utils/logger.js';
 
 export class BaseRequester {
   protected readonly requester: ReturnType<typeof ofetch.create>;
+  protected readonly baseURL?: string;
 
   constructor(baseURL?: string) {
-    // TODO: Remove this once we have a proper logger
-    const logger = this.getLogger() ?? defaultLogger.child({ connector: true });
-    const traceId = this.getTraceId();
+    this.baseURL = baseURL;
     this.requester = ofetch.create({
       baseURL,
-      onRequest: ({ options }) => {
-        if (!logger) {
-          return;
-        }
+      onRequest: ({ request, options }) => {
+        const logger =
+          this.getLogger() ?? defaultLogger.child({ connector: true });
+        const traceId = this.getTraceId();
 
         options.headers = {
           ...options.headers,
           'global-trace-id': traceId,
         } as Headers;
 
+        const requestPath =
+          typeof request === 'string'
+            ? request
+            : request instanceof Request
+              ? request.url
+              : '';
+        const fullUrl =
+          this.baseURL && requestPath
+            ? `${this.baseURL}${requestPath.startsWith('/') ? '' : '/'}${requestPath}`
+            : this.baseURL || requestPath || '';
+
         logger.info(
           {
             globalTraceId: traceId,
             direction: TRACING_DIRECTION.OUTGOING,
             method: options.method || 'GET',
-            url: options.baseURL,
+            url: fullUrl,
+            baseURL: this.baseURL,
+            path: requestPath,
             headers: options.headers,
             responseType: options.responseType,
             body: options.body,
@@ -38,6 +50,10 @@ export class BaseRequester {
         );
       },
       onResponse: ({ response, options }) => {
+        const logger =
+          this.getLogger() ?? defaultLogger.child({ connector: true });
+        const traceId = this.getTraceId();
+
         const logData = {
           globalTraceId: traceId,
           direction: TRACING_DIRECTION.INCOMING,
@@ -63,6 +79,9 @@ export class BaseRequester {
         }
       },
       onResponseError: ({ response }) => {
+        const logger =
+          this.getLogger() ?? defaultLogger.child({ connector: true });
+
         logger.error(
           {
             direction: TRACING_DIRECTION.INCOMING,
@@ -74,6 +93,9 @@ export class BaseRequester {
         );
       },
       onRequestError: ({ error }) => {
+        const logger =
+          this.getLogger() ?? defaultLogger.child({ connector: true });
+
         logger.error(
           {
             direction: TRACING_DIRECTION.OUTGOING,

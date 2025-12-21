@@ -14,6 +14,7 @@ import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   const historyCache = app.cache<History>();
+  const connector = new UfabcParserConnector();
   app.post(
     '/',
     { schema: sigHistorySchema },
@@ -32,8 +33,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           msg: 'Cached history!',
         };
       }
-
-      const connector = new UfabcParserConnector();
       const parsedHistory = await connector.getHistory(
         sessionId,
         viewState as string,
