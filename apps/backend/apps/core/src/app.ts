@@ -1,19 +1,22 @@
 import type { FastifyInstance, FastifyServerOptions } from 'fastify';
 import {
-  validatorCompiler,
-  serializerCompiler,
   RequestValidationError,
   ResponseSerializationError,
 } from 'fastify-zod-openapi';
 import { fastifyAutoload } from '@fastify/autoload';
 import { join } from 'node:path';
+import componentsController from './controllers/components-controller.js';
+import { setupV2Routes } from './plugins/v2/setup.js';
+
+const routesV2 = [componentsController];
 
 export async function buildApp(
   app: FastifyInstance,
   opts: FastifyServerOptions = {},
 ) {
-  app.setValidatorCompiler(validatorCompiler);
-  app.setSerializerCompiler(serializerCompiler);
+  // Set up hybrid compilers BEFORE registering routes
+  // This allows both fastify-zod-openapi (old routes) and fastify-type-provider-zod (v2 routes) to coexist
+  await setupV2Routes(app, routesV2);
 
   await app.register(fastifyAutoload, {
     dir: join(import.meta.dirname, 'plugins/external'),

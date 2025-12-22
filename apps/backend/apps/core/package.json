@@ -53,7 +53,8 @@
     "ulidx": "catalog:",
     "zod": "catalog:",
     "zod-openapi": "catalog:",
-    "zod-to-json-schema": "catalog:"
+    "zod-to-json-schema": "catalog:",
+    "fastify-type-provider-zod": "catalog:"
   },
   "devDependencies": {
     "@next/tsconfig": "workspace:*",
