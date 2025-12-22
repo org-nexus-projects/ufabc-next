@@ -1,6 +1,10 @@
+import { MoodleConnector } from '@/connectors/moodle.js';
 import { moodleSession } from '@/hooks/moodle-session.js';
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
+import { getComponentArchives } from '@/services/components-service.js';
+
+const moodleConnector = new MoodleConnector();
 
 const componentsController: FastifyPluginAsyncZod = async (app) => {
   app.route({
@@ -8,13 +12,9 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
     url: '/components/archives',
     preHandler: [moodleSession],
     schema: {
-      querystring: z.object({
-        page: z.coerce.number().int().positive().optional(),
-      }),
       response: {
-        200: z.object({
-          message: z.string(),
-          page: z.number().optional(),
+        202: z.object({
+          status: z.string(),
         }),
       },
       headers: z.object({
@@ -22,9 +22,21 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         'sess-key': z.string(),
       }),
     },
-    handler: async (request) => {
-      const { page } = request.query;
-      return { message: 'Components archives controller' };
+    handler: async (request, reply) => {
+      const session = request.requestContext.get('moodleSession')!;
+      const courses = await moodleConnector.getComponents(
+        session.sessionId,
+        session.sessKey,
+      );
+
+      const componentArchives = await getComponentArchives(courses[0]);
+      if (componentArchives.error) {
+        return reply.internalServerError(componentArchives.error);
+      }
+
+      return reply.status(202).send({
+        status: 'success',
+      });
     },
   });
 };

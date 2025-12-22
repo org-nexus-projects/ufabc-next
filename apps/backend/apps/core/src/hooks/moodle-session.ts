@@ -38,11 +38,11 @@ export const moodleSession: preHandlerAsyncHookHandler = async (
   }
 
   const isTokenValid = await validateToken(sessionId, sessKey);
-  request.log.info({ isTokenValid }, 'Token validated');
+  request.log.debug({ isTokenValid }, 'Token validated');
   if (!isTokenValid) {
     return reply.forbidden('Invalid Session');
   }
-  request.log.info({ sessionId }, 'Session validated');
+  request.log.debug({ sessionId }, 'Session validated');
 
   sessionCache.set(sessionId, { sessionId });
   request.requestContext.set('moodleSession', {
