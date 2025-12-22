@@ -16,9 +16,9 @@
     "deps-check": "pnpm dlx taze -r"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "tsx": "^4.21.0",
-    "turbo": "^2.7.1"
+    "@biomejs/biome": "catalog:",
+    "tsx": "catalog:",
+    "turbo": "catalog:"
   },
   "engines": {
     "node": "^22",

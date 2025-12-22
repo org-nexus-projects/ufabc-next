@@ -11,6 +11,6 @@
     "access": "public"
   },
   "devDependencies": {
-    "fastify-tsconfig": "^2.0.0"
+    "fastify-tsconfig": "catalog:"
   }
 }
