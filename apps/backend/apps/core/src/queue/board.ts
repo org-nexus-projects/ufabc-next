@@ -1,6 +1,6 @@
 import { FastifyAdapter } from '@bull-board/fastify';
 import { createBullBoard } from '@bull-board/api';
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter.js';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import type { Queue } from 'bullmq';
 
 export const boardUiPath = (process.env.BOARD_PATH as string) ?? '/board/ui';
@@ -9,6 +9,7 @@ export function createBoard(queues: Queue[]) {
   adapter.setBasePath(boardUiPath);
 
   createBullBoard({
+    // @ts-expect-error Types are not compatible with the latest version of Bull Board
     serverAdapter: adapter,
     queues: queues.map((queue) => new BullMQAdapter(queue)),
     options: {
