@@ -12,7 +12,6 @@ export async function buildApp(
   app: FastifyInstance,
   opts: FastifyServerOptions = {},
 ) {
-  // for zod open api
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
 
@@ -26,7 +25,6 @@ export async function buildApp(
     options: { ...opts },
   });
 
-  // TODO: validate this idea
   app.register(fastifyAutoload, {
     dir: join(import.meta.dirname, 'routes'),
     autoHooks: true,
@@ -38,18 +36,8 @@ export async function buildApp(
   app.worker.setup();
   app.job.setup();
 
-  app.setErrorHandler((error, request, reply) => {
-    if (error.validation) {
-      const zodValidationErrors = error.validation.filter(
-        (err) => err instanceof RequestValidationError,
-      );
-      const zodIssues = zodValidationErrors.map((err) => err.params.issue);
-      const originalError = zodValidationErrors?.[0]?.params.error;
-      return reply.status(422).send({
-        zodIssues,
-        originalError,
-      });
-    }
+  app.get('/health', (request, reply) => {
+    return reply.status(200).send({ message: 'OK' });
   });
 
   app.setSchemaErrorFormatter((errors, dataVar) => {
@@ -64,8 +52,22 @@ export async function buildApp(
   });
 
   app.setErrorHandler((error, request, reply) => {
+    reply.error = error;
+
+    if (error.validation) {
+      const zodValidationErrors = error.validation.filter(
+        (err) => err instanceof RequestValidationError,
+      );
+      const zodIssues = zodValidationErrors.map((err) => err.params.issue);
+      const originalError = zodValidationErrors?.[0]?.params.error;
+      return reply.status(422).send({
+        zodIssues,
+        originalError,
+      });
+    }
+
     if (error instanceof ResponseSerializationError) {
-      app.log.error(
+      request.log.error(
         {
           error,
           request: {
@@ -90,7 +92,7 @@ export async function buildApp(
     }
 
     if (error) {
-      app.log.error(
+      request.log.error(
         {
           error,
           request: {

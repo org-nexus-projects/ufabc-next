@@ -1,6 +1,10 @@
 import { StudentModel } from '@/models/Student.js';
 import { UserModel, type User } from '@/models/User.js';
-import { getEmployeeData, getStudentData } from '@/modules/email-validator.js';
+import {
+  getEmployeeData,
+  getStudentData,
+  validateUserData,
+} from '@/modules/email-validator.js';
 import { completeUserSchema, type Auth } from '@/schemas/auth.js';
 import {
   confirmUserSchema,
@@ -131,15 +135,57 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     // @ts-ignore
     async (request, reply) => {
       const { email, ra } = request.body;
+
       try {
+        await validateUserData(email, ra);
+      } catch (err: unknown) {
+        if (err instanceof Error)
+          switch (err.message) {
+            case 'RA_NOT_FOUND':
+              return reply.badRequest('O RA digitado não existe.');
+            case 'HAS_UFABC_CONTRACT':
+              return reply.forbidden(
+                'O aluno não pode ter contrato com a UFABC.',
+              );
+            case 'INVALID_EMAIL':
+              return reply.forbidden('O email fornecido não é válido.');
+            default:
+              request.log.error({ err }, 'unexpected validation error');
+              return reply.internalServerError('Erro de validação inesperado');
+          }
+      }
+
+      try {
+        const ttlHours = 1;
+        const expiresAt = new Date(Date.now() + ttlHours * 60 * 60 * 1000);
+
         const user = await UserModel.findByIdAndUpdate(
           request.user._id,
-          { email, ra },
-          { new: true },
+          { email: email.toLowerCase(), ra, expiresAt },
+          { runValidators: true, new: true },
         );
 
         if (!user) {
           return reply.badRequest('Malformed token');
+        }
+
+        if (user.oauth?.email === user.email) {
+          user.confirmed = true;
+          user.expiresAt = null;
+
+          const confirmedUser = await user.save();
+
+          const jwtToken = app.jwt.sign({
+            _id: confirmedUser._id,
+            ra: confirmedUser.ra,
+            confirmed: confirmedUser.confirmed,
+            email: confirmedUser.email,
+            permissions: confirmedUser.permissions,
+          });
+
+          return {
+            token: jwtToken,
+          };
         }
 
         app.job.dispatch('SendEmail', {
@@ -148,8 +194,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         });
 
         return {
-          ra: user?.ra,
-          email: user?.email,
+          ra: user.ra,
+          email: user.email,
         };
       } catch (error) {
         request.log.error({ msg: 'error completing user', error });
@@ -177,6 +223,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       }
 
       user.confirmed = true;
+      user.expiresAt = null;
 
       const confirmedUser = await user.save();
 

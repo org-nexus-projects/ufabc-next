@@ -1,4 +1,4 @@
-import { type LoggerOptions, pino } from 'pino';
+import { type LoggerOptions, pino, stdSerializers } from 'pino';
 import type { PrettyOptions } from 'pino-pretty';
 import type { Options as AxiomOptions } from '@axiomhq/pino';
 import { mkdirSync, existsSync } from 'node:fs';
@@ -6,7 +6,6 @@ import { join } from 'node:path';
 
 const logDirectory = join(process.cwd(), 'logs');
 
-// Ensure logs directory exists
 if (!existsSync(logDirectory)) {
   mkdirSync(logDirectory, { recursive: true });
 }
@@ -23,6 +22,7 @@ const pinoPrettyOptions = {
   colorize: true,
   translateTime: 'SYS:standard', // Uses system's local time
   ignore: 'pid,hostname',
+  messageKey: 'message',
 } satisfies PrettyOptions;
 
 const axiomOptions = {
@@ -30,12 +30,32 @@ const axiomOptions = {
   token: process.env.AXIOM_TOKEN as string,
 } satisfies AxiomOptions;
 
-// Logger configurations for different environments
+const commonConfig = {
+  level: process.env.LOG_LEVEL ?? 'info',
+  timestamp: pino.stdTimeFunctions.isoTime,
+  messageKey: 'message',
+  serializers: {
+    error: stdSerializers.err,
+    err: stdSerializers.err,
+  },
+  redact: {
+    paths: [
+      'headers.authorization',
+      'headers.cookie',
+      'headers["x-api-key"]',
+      'body.password',
+      'body.token',
+    ],
+    remove: true,
+  },
+} satisfies LoggerOptions;
+
 const loggerSetup = {
   dev: {
     timestamp: pino.stdTimeFunctions.isoTime,
+    messageKey: 'message',
     serializers: {
-      error: pino.stdSerializers.err,
+      error: stdSerializers.err,
     },
     transport: {
       targets: [
@@ -58,11 +78,10 @@ const loggerSetup = {
     },
   } satisfies LoggerOptions,
 
-  // Minimal config for production
   prod: {
     timestamp: pino.stdTimeFunctions.isoTime,
     serializers: {
-      error: pino.stdSerializers.err,
+      error: stdSerializers.err,
     },
     transport: {
       targets: [
@@ -83,16 +102,7 @@ const loggerSetup = {
 };
 
 export function buildLogger(env: 'dev' | 'prod' = 'dev') {
-  const baseConfig = {
-    level: process.env.LOG_LEVEL ?? (env === 'dev' ? 'info' : 'info'),
-  } satisfies LoggerOptions;
-
-  const config =
-    env !== 'dev'
-      ? { ...baseConfig, ...loggerSetup.prod }
-      : { ...loggerSetup.dev };
-
-  return pino(config);
+  return pino({ ...commonConfig, ...loggerSetup[env] });
 }
 
 export const logger = buildLogger(

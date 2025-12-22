@@ -71,10 +71,16 @@ export const completeUserSchema = {
     200: {
       content: {
         'application/json': {
-          schema: z.object({
-            ra: z.number(),
-            email: z.string().email(),
-          }),
+          schema: z
+            .object({
+              ra: z.number(),
+              email: z.string().email(),
+            })
+            .or(
+              z.object({
+                token: z.string(),
+              }),
+            ),
         },
       },
     },

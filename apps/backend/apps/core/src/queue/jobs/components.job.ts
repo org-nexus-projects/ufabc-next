@@ -1,19 +1,18 @@
 import { ComponentModel } from '@/models/Component.js';
 import { SubjectModel } from '@/models/Subject.js';
 import {
-  getComponents,
   type UfabcParserComponent,
-} from '@/modules/ufabc-parser.js';
+  UfabcParserConnector,
+} from '@/connectors/ufabc-parser.js';
 import { currentQuad } from '@next/common';
 import { camelCase, startCase } from 'lodash-es';
 import type { QueueContext } from '../types.js';
 import { logger } from '@/utils/logger.js';
 
-type ParserComponent = Awaited<ReturnType<typeof getComponents>>[number];
-
 export async function syncComponents({ app }: QueueContext<unknown>) {
   const tenant = currentQuad();
-  const parserComponents = await getComponents();
+  const connector = new UfabcParserConnector();
+  const parserComponents = await connector.getComponents();
 
   if (!parserComponents) {
     app.log.error({ parserComponents }, 'Error receiving components');
@@ -48,7 +47,7 @@ export async function processComponent({
   app,
   job,
 }: QueueContext<{
-  component: ParserComponent;
+  component: UfabcParserComponent;
   tenant: string;
 }>) {
   if (!job.data.tenant || !job.data.component) {
@@ -123,7 +122,7 @@ export async function processComponent({
   }
 }
 
-async function processSubject(component: ParserComponent) {
+async function processSubject(component: UfabcParserComponent) {
   const codeMatch = component.UFComponentCode.split('-')[0];
   if (!codeMatch) {
     logger.error({

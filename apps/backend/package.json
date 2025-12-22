@@ -2,22 +2,23 @@
   "name": "ufabc-next-backend",
   "version": "0.0.1",
   "private": false,
-  "packageManager": "pnpm@9.7.0",
+  "packageManager": "pnpm@9.15.9",
   "type": "module",
   "scripts": {
-    "dev": "pnpm run services:up && turbo run dev --parallel",
+    "dev": "turbo run dev --parallel",
     "services:up": "docker compose up -d",
     "build": "turbo run build",
     "tsc": "turbo run tsc --parallel",
     "start": "turbo run start",
     "start:watch": "turbo run start:watch",
     "lint": "turbo run lint --parallel",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "deps-check": "pnpm dlx taze"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.8.2",
-    "tsx": "^4.15.7",
-    "turbo": "^2.5.4"
+    "@biomejs/biome": "^1.9.4",
+    "tsx": "^4.21.0",
+    "turbo": "^2.7.0"
   },
   "engines": {
     "node": "^22",

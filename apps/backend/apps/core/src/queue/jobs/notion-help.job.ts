@@ -83,7 +83,7 @@ export async function postInfoIntoNotionDB(
         database_id: ctx.app.config.NOTION_DATABASE_ID,
       },
       properties: {
-        Titulo: {
+        card_title: {
           type: 'title',
           title: [
             {

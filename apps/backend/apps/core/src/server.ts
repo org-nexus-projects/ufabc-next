@@ -3,9 +3,14 @@ import { buildApp } from './app.js';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 import { fastify, type FastifyServerOptions } from 'fastify';
 import { logger } from './utils/logger.js';
+import { randomUUID } from 'node:crypto';
 
 const appOptions = {
   loggerInstance: logger,
+  disableRequestLogging: true,
+  requestIdHeader: 'global-trace-id',
+  requestIdLogLabel: 'globalTraceId',
+  genReqId: () => randomUUID(),
   pluginTimeout: 35_000,
 } satisfies FastifyServerOptions;
 
