@@ -3,7 +3,6 @@ import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import {
   serializerCompiler as zodSerializerCompiler,
   validatorCompiler as zodValidatorCompiler,
-  type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
 import {
   validatorCompiler as openApiValidatorCompiler,
@@ -25,13 +24,11 @@ function createHybridValidatorCompiler() {
     // Check if this is a v2 route
     // uri might be undefined for some routes, so default to openapi validator
     if (uri && typeof uri === 'string' && uri.startsWith('/v2')) {
-      // fastify-type-provider-zod compilers only take schema (not uri)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // fastify-type-provider-zod compilers only take schema (not uri)z
       return zodValidator(schema as any);
     }
     // Otherwise use the openapi validator (default for old routes and undefined uri)
     // Both compilers only take schema, not uri
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return openApiValidator(schema as any);
   };
 }

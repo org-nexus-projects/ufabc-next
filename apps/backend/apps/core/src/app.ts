@@ -14,7 +14,6 @@ export async function buildApp(
   app: FastifyInstance,
   opts: FastifyServerOptions = {},
 ) {
-  // Set up hybrid compilers BEFORE registering routes
   // This allows both fastify-zod-openapi (old routes) and fastify-type-provider-zod (v2 routes) to coexist
   await setupV2Routes(app, routesV2);
 
