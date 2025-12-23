@@ -12,4 +12,6 @@ export const testJob = defineJob('test_job').handler(async ({ job, app }) => {
 export async function registerJobs(app: FastifyInstance): Promise<void> {
   app.manager.register(testJob);
   await app.manager.start();
+  // Setup board after jobs are registered and started
+  await app.manager.board();
 }

@@ -100,16 +100,12 @@ export class JobManager {
         'Setting up scheduled job',
       );
 
-      await (queue as any).add(
-        name,
-        {} as unknown as JobData<TData>,
-        {
-          repeat: {
-            pattern: jobBuilder.config.schedule,
-            tz: jobBuilder.config.scheduleTimezone,
-          },
+      await (queue as any).add(name, {} as unknown as JobData<TData>, {
+        repeat: {
+          pattern: jobBuilder.config.schedule,
+          tz: jobBuilder.config.scheduleTimezone,
         },
-      );
+      });
     }
 
     const worker = new Worker<JobData<TData>, TResult, TName>(
@@ -253,34 +249,44 @@ export class JobManager {
 
     this.app.register(async (app) => {
       app.addHook('onRequest', async (request, reply) => {
-        if (process.env.NODE_ENV !== 'prod') {
-          return;
-        }
+        if (process.env.NODE_ENV === 'prod') {
+          const query = request.query as { token?: string };
 
-        const query = request.query as { token?: string };
-
-        try {
-          if (query.token) {
-            // @ts-ignore
-            await request.jwtVerify({
-              extractToken: (req: FastifyRequest) =>
-                (req.query as { token?: string })?.token,
-            });
-            // @ts-ignore
-            request.isAdmin(reply);
+          try {
+            if (query.token) {
+              // @ts-ignore
+              await request.jwtVerify({
+                extractToken: (req: FastifyRequest) =>
+                  (req.query as { token?: string })?.token,
+              });
+              // @ts-ignore
+              request.isAdmin(reply);
+            } else {
+              // @ts-ignore
+              await request.jwtVerify({
+                extractToken: (req: FastifyRequest) =>
+                  (req.cookies as { token?: string })?.token,
+              });
+              // @ts-ignore
+              request.isAdmin(reply);
+            }
+          } catch (error) {
+            request.log.error(
+              { error },
+              'Failed to authenticate in jobs board',
+            );
+            return reply
+              .status(401)
+              .send('You must be authenticated to access this route');
           }
-        } catch (error) {
-          request.log.error({ error }, 'Failed to authenticate in jobs board');
-          return reply
-            .status(401)
-            .send('You must be authenticated to access this route');
         }
+      });
 
-        app.register(adapter.registerPlugin() as any, {
-          prefix: this.boardPath,
-          basePath: this.boardPath,
-          logLevel: 'silent',
-        });
+      // Register the board plugin outside the hook so it's always available
+      app.register(adapter.registerPlugin() as any, {
+        prefix: this.boardPath,
+        basePath: this.boardPath,
+        logLevel: 'silent',
       });
     });
   }

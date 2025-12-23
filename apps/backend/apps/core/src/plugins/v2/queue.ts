@@ -17,8 +17,6 @@ export default fp(
 
     app.decorate('manager', jobManager);
 
-    await jobManager.board();
-
     app.log.info('[QUEUE-V2] JobManager available at app.manager');
   },
   { name: 'queue-v2' },
