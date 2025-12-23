@@ -9,7 +9,6 @@ export function createBoard(queues: Queue[]) {
   adapter.setBasePath(boardUiPath);
 
   createBullBoard({
-    // @ts-expect-error Types are not compatible with the latest version of Bull Board
     serverAdapter: adapter,
     queues: queues.map((queue) => new BullMQAdapter(queue)),
     options: {

@@ -52,7 +52,7 @@ function createHybridSerializerCompiler() {
 
     if (isV2Route) {
       // fastify-type-provider-zod compilers only take schema (not uri)
-      return zodSerializer(schema);
+      return zodSerializer(schema as any);
     }
     // Otherwise use the openapi serializer (default for old routes)
     return openApiSerializer(schema);
