@@ -36,6 +36,7 @@
     "@fastify/swagger": "catalog:",
     "@fastify/swagger-ui": "catalog:",
     "@next/common": "workspace:*",
+    "@next/queues": "workspace:*",
     "@notionhq/client": "catalog:",
     "bullmq": "catalog:",
     "cheerio": "catalog:",

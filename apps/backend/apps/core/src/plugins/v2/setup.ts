@@ -73,7 +73,6 @@ export async function setupV2Routes(
   app.setValidatorCompiler(createHybridValidatorCompiler());
   app.setSerializerCompiler(createHybridSerializerCompiler());
 
-  // Register v2 routes in an encapsulated scope
   await app.register(
     async (v2App) => {
       for (const controller of controllers) {

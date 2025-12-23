@@ -102,7 +102,7 @@ export class JobManager {
 
       await (queue as any).add(
         name,
-        { app: this.getApp() } as unknown as JobData<TData>,
+        {} as unknown as JobData<TData>,
         {
           repeat: {
             pattern: jobBuilder.config.schedule,
