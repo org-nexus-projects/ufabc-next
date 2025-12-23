@@ -6,7 +6,7 @@ import {
   type Job,
   type JobsOptions,
 } from 'bullmq';
-import type { FastifyInstance, FastifyRequest } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import { randomUUID } from 'node:crypto';
 import { FastifyAdapter } from '@bull-board/fastify';
 import { createBullBoard } from '@bull-board/api';
@@ -256,16 +256,14 @@ export class JobManager {
             if (query.token) {
               // @ts-ignore
               await request.jwtVerify({
-                extractToken: (req: FastifyRequest) =>
-                  (req.query as { token?: string })?.token,
+                extractToken: (req: any) => req.query.token,
               });
               // @ts-ignore
               request.isAdmin(reply);
             } else {
               // @ts-ignore
               await request.jwtVerify({
-                extractToken: (req: FastifyRequest) =>
-                  (req.cookies as { token?: string })?.token,
+                extractToken: (req: any) => req.cookies.token,
               });
               // @ts-ignore
               request.isAdmin(reply);
