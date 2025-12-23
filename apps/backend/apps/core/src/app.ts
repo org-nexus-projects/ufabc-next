@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import componentsController from './controllers/components-controller.js';
 import { setupV2Routes } from './plugins/v2/setup.js';
 import queueV2Plugin from './plugins/v2/queue.js';
-import { registerJobs } from './queue/v2/jobs.js';
+import { registerJobs } from './jobs/registry.js';
 
 const routesV2 = [componentsController];
 

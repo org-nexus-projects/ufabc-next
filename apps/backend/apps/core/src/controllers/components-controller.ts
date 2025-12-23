@@ -36,7 +36,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
 
       // Dispatch test job with globalTraceId from requestContext
       const globalTraceId = request.requestContext.get('traceId') ?? request.id;
-      await app.manager.dispatch('test_job', {
+      await app.manager.dispatch('', {
         message: 'hi its working!',
         globalTraceId,
       });
