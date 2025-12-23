@@ -3,6 +3,7 @@ import { moodleSession } from '@/hooks/moodle-session.js';
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import { getComponentArchives } from '@/services/components-service.js';
+import { JOB_NAMES } from '@/constants.js';
 
 const moodleConnector = new MoodleConnector();
 
@@ -30,14 +31,14 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       );
 
       const componentArchives = await getComponentArchives(courses[0]);
-      if (componentArchives.error) {
-        return reply.internalServerError(componentArchives.error);
+      if (componentArchives.error || !componentArchives.data) {
+        return reply.internalServerError(componentArchives.error ?? 'No data');
       }
 
-      // Dispatch test job with globalTraceId from requestContext
-      const globalTraceId = request.requestContext.get('traceId') ?? request.id;
-      await app.manager.dispatch('', {
-        message: 'hi its working!',
+      const globalTraceId = request.id;
+
+      await app.manager.dispatch(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING, {
+        component: componentArchives.data,
         globalTraceId,
       });
 

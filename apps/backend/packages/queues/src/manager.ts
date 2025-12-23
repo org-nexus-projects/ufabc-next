@@ -194,6 +194,42 @@ export class JobManager {
       throw new Error(`Queue not found: ${name}`);
     }
 
+    // Check if data contains an array field - if so, dispatch each item individually
+    const dataObj = data as Record<string, unknown>;
+    const arrayField = Object.entries(dataObj).find(
+      ([, value]) => Array.isArray(value) && value.length > 0,
+    );
+
+    if (arrayField) {
+      const [fieldName, arrayValue] = arrayField;
+      const array = arrayValue as unknown[];
+      const sharedData = { ...dataObj };
+      delete sharedData[fieldName];
+
+      // Dispatch each item in the array as a separate job
+      const baseOptions: JobsOptions = {
+        priority: options?.priority,
+        delay: options?.delay,
+        removeOnComplete: options?.removeOnComplete,
+      };
+
+      const jobs = array.map((item) => ({
+        name: name as TName,
+        data: {
+          ...sharedData,
+          [fieldName]: item,
+        } as JobData<TData>,
+        opts: {
+          ...baseOptions,
+          jobId: randomUUID(),
+        },
+      }));
+
+      await queue.addBulk(jobs);
+      return;
+    }
+
+    // Single job dispatch
     const baseOptions: JobsOptions = {
       jobId: randomUUID(),
       priority: options?.priority,
