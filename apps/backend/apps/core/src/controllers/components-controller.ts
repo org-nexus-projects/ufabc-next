@@ -9,7 +9,7 @@ const moodleConnector = new MoodleConnector();
 
 const componentsController: FastifyPluginAsyncZod = async (app) => {
   app.route({
-    method: 'GET',
+    method: 'POST',
     url: '/components/archives',
     preHandler: [moodleSession],
     schema: {
@@ -35,11 +35,10 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         return reply.internalServerError(componentArchives.error ?? 'No data');
       }
 
-      const globalTraceId = request.id;
-
       await app.manager.dispatch(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING, {
         component: componentArchives.data,
-        globalTraceId,
+        globalTraceId: request.id,
+        session,
       });
 
       return reply.status(202).send({
