@@ -59,21 +59,15 @@ export async function buildApp(
   });
 
   app.setErrorHandler((error, request, reply) => {
-    reply.error = error;
-
-    if (error.validation) {
-      const zodValidationErrors = error.validation.filter(
-        (err) => err instanceof RequestValidationError,
-      );
-      const zodIssues = zodValidationErrors.map((err) => err.params.issue);
-      const originalError = zodValidationErrors?.[0]?.params.error;
-      return reply.status(422).send({
-        zodIssues,
-        originalError,
-      });
-    }
+    reply.error = error as Error;
 
     if (error instanceof ResponseSerializationError) {
+      return reply.status(422).send({
+        zodIssues: error.validation?.map((err) => err.params.issue) ?? [],
+        originalError: error.validation?.[0]?.params.error ?? null,
+      });
+    }
+    if (error instanceof Error) {
       request.log.error(
         {
           error,
@@ -84,7 +78,7 @@ export async function buildApp(
             params: request.params,
           },
         },
-        'Error serializing response',
+        error.message,
       );
 
       return reply.status(500).send({
@@ -96,30 +90,6 @@ export async function buildApp(
 
     if (!error) {
       return;
-    }
-
-    if (error) {
-      request.log.error(
-        {
-          error,
-          request: {
-            method: request.method,
-            url: request.url,
-            query: request.query,
-            params: request.params,
-          },
-        },
-        'Unhandled error occurred',
-      );
-
-      reply.code(error.statusCode ?? 500);
-
-      let message = 'Internal Server Error';
-      if (error.statusCode && error.statusCode < 500) {
-        message = error.message;
-      }
-
-      return { message };
     }
   });
 
