@@ -34,6 +34,10 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         return reply.internalServerError(componentArchives.error);
       }
 
+      // TODO: Publish to queue, create job to extract PDFs from component archives
+      // TODO: Implement the needed changes in the database for accommodation of this new feature
+      // TODO: Cache the request, so we dont refetch ids everytime
+
       return reply.status(202).send({
         status: 'success',
       });
