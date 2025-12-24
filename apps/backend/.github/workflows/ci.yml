@@ -10,30 +10,44 @@ on:
 jobs:
   ci:
     name: 🔄 CI Workflow
-    runs-on: [ubuntu-latest]
+    runs-on: ubuntu-latest
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      NODE_ENV: test
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: dummy
+      AWS_SECRET_ACCESS_KEY: dummy
+      OAUTH_GOOGLE_CLIENT_ID: dummy
+      OAUTH_GOOGLE_SECRET: dummy-secret-long-enough
+      JWT_SECRET: LWp9YJMiUtfQxoepoTL7RkWJi6W5C6ED
+      NEXT_AI_LAMBDA_URL: http://dummy
+      UFABC_PARSER_URL: http://dummy
+      ALLOWED_ORIGINS: http://localhost:3000
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22.x
+
       - uses: pnpm/action-setup@v4
+
       - name: setup pnpm store cache
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
       - uses: actions/cache@v4
         with:
           path: ${{ env.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
-      
+
       - name: 📦 Install dependencies
         run: pnpm i
 
@@ -46,7 +60,5 @@ jobs:
       - name: 💼 Type Check
         run: pnpm tsc
 
-      # - name: 🧪 Test
-      #   env:
-      #     CI: true
-      #   run: pnpm test
+      - name: 🧪 Test (Integration & Unit)
+        run: pnpm test

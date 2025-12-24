@@ -42,7 +42,19 @@
       "outputLogs": "errors-only"
     },
     "test": {
-      "cache": true
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": true,
+      "inputs": [
+        "src/**/*.ts",
+        "test/**/*.ts"
+      ],
+      "env": [
+        "NODE_ENV",
+        "MONGODB_CONNECTION_URL",
+        "REDIS_CONNECTION_URL"
+      ]
     },
     "test:watch": {
       "cache": false,
