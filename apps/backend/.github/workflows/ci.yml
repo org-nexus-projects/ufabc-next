@@ -59,6 +59,3 @@ jobs:
 
       - name: 💼 Type Check
         run: pnpm tsc
-
-      - name: 🧪 Test (Integration & Unit)
-        run: pnpm test

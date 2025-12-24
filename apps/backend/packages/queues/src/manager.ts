@@ -276,7 +276,7 @@ export class JobManager<
       },
     });
 
-    this.app.register(async (app) => {
+    await this.app.register(async (app) => {
       if (options?.authenticate) {
         app.addHook('onRequest', options.authenticate);
       }

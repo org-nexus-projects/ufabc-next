@@ -42,9 +42,6 @@
       "outputLogs": "errors-only"
     },
     "test": {
-      "dependsOn": [
-        "^build"
-      ],
       "cache": true,
       "inputs": [
         "src/**/*.ts",

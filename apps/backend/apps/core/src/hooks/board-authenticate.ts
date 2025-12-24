@@ -7,21 +7,28 @@ export const authenticateBoard: BoardAuthHook = async (request, reply) => {
   }
 
   try {
-    const query = request.query as { token?: string };
+    const { token } = request.query as { token?: string };
+    const cookieToken = request.cookies.token;
+    const tokenToVerify = token || cookieToken;
 
-    if (query.token) {
-      await request.jwtVerify({
-        extractToken: (req: any) => req.query.token,
-      });
-    } else {
-      await request.jwtVerify({
-        extractToken: (req: any) => req.cookies.token,
-      });
+    if (!tokenToVerify) {
+      return reply
+        .status(401)
+        .send({ error: 'Unauthorized', message: 'No token provided' });
     }
 
-    await request.isAdmin(reply);
+    await request.jwtVerify({
+      extractToken: () => tokenToVerify,
+    });
+
+    const user = request.user;
+    if (!user.permissions?.includes('admin')) {
+      return reply
+        .status(401)
+        .send({ error: 'Unauthorized', message: 'Insufficient permissions' });
+    }
   } catch (error) {
-    request.log.error({ error }, 'Board auth failed');
-    return reply.status(401).send('Unauthorized');
+    request.log.warn({ error }, 'Board access denied');
+    return reply.status(401).send({ error: 'Unauthorized' });
   }
 };
