@@ -2,6 +2,7 @@ import type { BackoffOptions, Job, JobsOptions, WorkerOptions } from 'bullmq';
 import type { FastifyInstance } from 'fastify';
 import type { z } from 'zod';
 import ms from 'ms';
+import type { JobManager } from './manager.js';
 
 export type JobData<TData = unknown> = TData & {
   globalTraceId?: string;
@@ -14,6 +15,7 @@ export interface JobContext<
 > {
   job: Job<JobData<TData>, TResult, TName>;
   app: FastifyInstance;
+  manager: JobManager;
 }
 
 export type JobHandler<

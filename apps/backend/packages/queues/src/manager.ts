@@ -2,9 +2,11 @@ import type { JobBuilder, JobContext, JobData } from './builder.js';
 import {
   Queue,
   Worker,
+  FlowProducer,
   type ConnectionOptions,
   type Job,
   type JobsOptions,
+  type FlowJob,
 } from 'bullmq';
 import type { FastifyInstance } from 'fastify';
 import { randomUUID } from 'node:crypto';
@@ -16,6 +18,7 @@ export class JobManager {
   private readonly jobs: Map<string, JobBuilder<string, any, any>> = new Map();
   private readonly queues: Map<string, Queue> = new Map();
   private readonly workers: Map<string, Worker> = new Map();
+  private readonly flowProducer: FlowProducer;
   private isStarted = false;
   private readonly app: FastifyInstance;
   private readonly redisConnection: ConnectionOptions;
@@ -30,6 +33,13 @@ export class JobManager {
       host: redisURL.hostname ?? '',
       port: Number(redisURL.port) ?? 6379,
     } satisfies ConnectionOptions;
+    this.flowProducer = new FlowProducer({
+      connection: this.redisConnection,
+    });
+  }
+
+  async dispatchFlow(flow: FlowJob) {
+    await this.flowProducer.add(flow);
   }
 
   register<TName extends string, TData, TResult>(
@@ -141,6 +151,7 @@ export class JobManager {
     const ctx: JobContext<TData, TResult, TName> = {
       job,
       app: this.getApp(),
+      manager: this,
     };
 
     const result = await jobBuilder.config.handler(ctx);

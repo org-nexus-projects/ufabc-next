@@ -11,6 +11,7 @@
     "./manager": "./src/manager.ts"
   },
   "scripts": {
+    "dev": "tsc --noEmit --watch",
     "build": "tsc",
     "check-types": "tsc --noEmit",
     "clean": "git clean -xdf .cache .turbo dist node_modules"
