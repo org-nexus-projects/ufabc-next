@@ -16,7 +16,8 @@ export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
       (next) => async (args) => {
         const logger = this.getLogger();
         const traceId = this.getTraceId();
-        const commandName = args.input?.constructor?.name || 'UnknownCommand';
+        // @ts-expect-error - schema is not typed
+        const commandName = args.schema?.[2];
 
         logger.info(
           {
@@ -24,7 +25,7 @@ export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
             service: this.client.constructor.name,
             command: commandName,
           },
-          `AWS Request: ${commandName}`,
+          'AWS Request',
         );
 
         try {
@@ -37,7 +38,7 @@ export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
               // @ts-expect-error - $metadata is not typed
               metadata: result.response?.$metadata,
             },
-            `AWS Response Success: ${commandName}`,
+            'AWS Response Success',
           );
 
           return result;
@@ -48,7 +49,7 @@ export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
               command: commandName,
               error,
             },
-            `AWS Request Failed: ${commandName}`,
+            'AWS Request Failed',
           );
           throw error;
         }
