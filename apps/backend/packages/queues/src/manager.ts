@@ -87,12 +87,6 @@ export class JobManager<
       return;
     }
 
-    const isTest = process.env.NODE_ENV === 'test';
-    if (isTest) {
-      this.app.log.info('Skipping JobManager start in test environment');
-      return;
-    }
-
     this.app.log.info(
       { totalJobs: this.registeredJobs.size },
       'Starting JobManager with registered jobs',
@@ -338,5 +332,9 @@ export class JobManager<
 
     this.isStarted = false;
     this.app.log.info('JobManager stopped');
+  }
+
+  getQueue(name: string) {
+    return this.queues.get(name);
   }
 }
