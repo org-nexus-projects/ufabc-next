@@ -3,6 +3,7 @@ import type {
   JobBuilder,
   JobContext,
   JobData,
+  InferHandlerData,
 } from './builder.js';
 import {
   Queue,
@@ -20,7 +21,7 @@ import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 
 export class JobManager<
-  TRegistry extends Record<string, JobBuilder<any, any, any>>,
+  TRegistry extends Record<string, JobBuilder<any, any, any, any>>,
 > {
   private readonly queues: Map<string, Queue> = new Map();
   private readonly workers: Map<string, Worker> = new Map();
@@ -98,13 +99,13 @@ export class JobManager<
       'Starting JobManager with registered jobs',
     );
 
-    for (const [name, builder] of Object.entries(this.registeredJobs)) {
+    for (const [name, builder] of this.registeredJobs) {
       await this.setup(name, builder);
     }
 
     this.isStarted = true;
     this.app.log.info(
-      { totalJobs: this.registeredJobs.size },
+      { totalJobs: this.queues.size },
       'JobManager started successfully',
     );
   }
@@ -158,8 +159,11 @@ export class JobManager<
   }
 
   private async handler(job: Job, jobBuilder: JobBuilder<any, any, any>) {
-    if (jobBuilder.config.inputSchema) {
-      jobBuilder.config.inputSchema.parse(job.data);
+    const schema =
+      jobBuilder.config.workerSchema || jobBuilder.config.inputSchema;
+
+    if (schema) {
+      schema.parse(job.data);
     }
 
     const ctx: JobContext = { job, app: this.app, manager: this };
@@ -214,27 +218,29 @@ export class JobManager<
     options?: JobsOptions,
   ) {
     const queue = this.queues.get(name);
+    const builder = this.registeredJobs.get(name);
 
-    if (!queue) {
+    if (!queue || !builder) {
       throw new Error(`Queue ${name} not initialized`);
     }
 
-    const dataObj = data as Record<string, unknown>;
-    const arrayField = Object.entries(dataObj).find(([, value]) =>
-      Array.isArray(value),
-    );
+    const iteratorKey = builder.config.iteratorKey as unknown as string;
+    const dataObj = data as Record<string, any>;
+    if (iteratorKey && Array.isArray(dataObj[iteratorKey])) {
+      const array = dataObj[iteratorKey];
+      const sharedData = { ...dataObj };
+      delete sharedData[iteratorKey];
 
-    if (arrayField) {
-      const [key, value] = arrayField as [string, unknown[]];
-      const jobs = value.map((item) => ({
+      const jobs = array.map((item) => ({
         name,
-        data: { ...dataObj, [key]: item },
+        data: { ...sharedData, [iteratorKey]: item },
         opts: { ...options, jobId: randomUUID() },
       }));
+
       return queue.addBulk(jobs);
     }
 
-    return queue.add(name, data, options);
+    return queue.add(name, data, { ...options, jobId: randomUUID() });
   }
 
   async schedule<TName extends Extract<keyof TRegistry, string>>(
@@ -258,11 +264,19 @@ export class JobManager<
     const adapter = new FastifyAdapter();
     adapter.setBasePath(this.boardPath);
 
+    const bullMqAdapters = Array.from(this.queues.values()).map(
+      (queue) => new BullMQAdapter(queue),
+    );
+
+    if (bullMqAdapters.length === 0) {
+      this.app.log.warn(
+        '[QUEUE-V2] Board initialized with 0 queues. Ensure manager.start() was called first.',
+      );
+    }
+
     createBullBoard({
       serverAdapter: adapter,
-      queues: Array.from(this.queues.values()).map(
-        (queue) => new BullMQAdapter(queue),
-      ),
+      queues: bullMqAdapters,
       options: {
         uiConfig: {
           boardTitle: 'Job Queue Dashboard',
