@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import componentsController from './controllers/components-controller.js';
 import { setupV2Routes } from './plugins/v2/setup.js';
 import queueV2Plugin from './plugins/v2/queue.js';
+import awsV2Plugin from './plugins/v2/aws.js';
 
 const routesV2 = [componentsController];
 
@@ -30,6 +31,13 @@ export async function buildApp(
 
   await app.register(queueV2Plugin, {
     redisURL: new URL(app.config.REDIS_CONNECTION_URL),
+  });
+  await app.register(awsV2Plugin, {
+    credentials: {
+      accessKeyId: app.config.AWS_ACCESS_KEY_ID,
+      secretAccessKey: app.config.AWS_SECRET_ACCESS_KEY,
+      region: app.config.AWS_REGION,
+    },
   });
 
   app.register(fastifyAutoload, {

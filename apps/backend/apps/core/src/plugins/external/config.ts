@@ -4,7 +4,7 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 
 declare module 'fastify' {
   export interface FastifyInstance {
-    config: z.infer<typeof configSchema>;
+    config: Config;
   }
 }
 
@@ -31,6 +31,7 @@ const configSchema = z.object({
   SERVICE_HEADER: z.string().optional(),
   AWS_SECRET_ACCESS_KEY: z.string(),
   USE_LOCALSTACK: z.coerce.boolean().default(true),
+  LOCALSTACK_ENDPOINT: z.string().default('http://localhost:4566'),
   AWS_LOGS_BUCKET: z.string().optional(),
   OAUTH_GOOGLE_CLIENT_ID: z.string(),
   OAUTH_GOOGLE_SECRET: z.string().min(16),
@@ -48,6 +49,7 @@ const configSchema = z.object({
 
 const schema = zodToJsonSchema(configSchema);
 
+export type Config = z.infer<typeof configSchema>;
 export const autoConfig = {
   schema,
   dotenv: {
