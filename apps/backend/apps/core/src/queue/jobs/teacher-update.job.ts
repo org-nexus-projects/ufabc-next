@@ -34,12 +34,14 @@ export async function updateTeachers(ctx: QueueContext<UpdateTeachers>) {
 
       // Find teoria teacher
       const teoriaTeacher = enrollment.teoria
-        ? await TeacherModel.findByFuzzName(enrollment.teoria.toLowerCase())
+        ? // @ts-ignore Complex Type Mismatch
+          await TeacherModel.findByFuzzName(enrollment.teoria.toLowerCase())
         : null;
 
       // Find pratica teacher
       const praticaTeacher = enrollment.pratica
-        ? await TeacherModel.findByFuzzName(enrollment.pratica.toLowerCase())
+        ? // @ts-ignore Complex Type Mismatch
+          await TeacherModel.findByFuzzName(enrollment.pratica.toLowerCase())
         : null;
 
       const result = await EnrollmentModel.findOneAndUpdate(

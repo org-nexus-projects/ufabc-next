@@ -193,6 +193,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           .replace(/\u0300-\u036f/g, '');
         if (teacherCache.has(normalizedName))
           return teacherCache.get(normalizedName);
+        // @ts-ignore Complex Type Mismatch
         const teacher = await TeacherModel.findByFuzzName(normalizedName);
         if (!teacher && normalizedName !== '0') {
           app.log.warn({

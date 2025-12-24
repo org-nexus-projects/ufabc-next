@@ -2,13 +2,11 @@ import { defineJob } from '@next/queues/client';
 import { JOB_NAMES } from '@/constants.js';
 import z from 'zod';
 import { MoodleConnector } from '@/connectors/moodle.js';
-import { AIProxyConnector } from '@/connectors/ai-proxy.js';
 
 import { load } from 'cheerio';
 import { ofetch } from 'ofetch';
 
 const connector = new MoodleConnector();
-const aiProxyConnector = new AIProxyConnector();
 
 const componentSchema = z.object({
   viewurl: z.string().url(),

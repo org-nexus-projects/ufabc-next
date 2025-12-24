@@ -9,6 +9,7 @@ import componentsController from './controllers/components-controller.js';
 import { setupV2Routes } from './plugins/v2/setup.js';
 import queueV2Plugin from './plugins/v2/queue.js';
 import awsV2Plugin from './plugins/v2/aws.js';
+import { authenticateBoard } from './hooks/board-authenticate.js';
 
 const routesV2 = [componentsController];
 
@@ -49,7 +50,7 @@ export async function buildApp(
   });
 
   await app.manager.start();
-  await app.manager.board();
+  await app.manager.board({ authenticate: authenticateBoard });
 
   app.worker.setup();
   app.job.setup();

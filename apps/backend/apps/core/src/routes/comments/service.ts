@@ -60,6 +60,7 @@ export async function getReactions({
     filter.subject = subjectId;
   }
 
+  // @ts-ignore Complex Type Mismatch
   const reactions = await CommentModel.commentsByReaction(
     filter,
     userId,

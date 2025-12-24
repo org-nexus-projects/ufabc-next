@@ -13,11 +13,16 @@ import {
   type JobsOptions,
   type FlowJob,
 } from 'bullmq';
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { randomUUID } from 'node:crypto';
 import { FastifyAdapter } from '@bull-board/fastify';
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+
+export type BoardAuthHook = (
+  request: FastifyRequest,
+  reply: FastifyReply,
+) => Promise<void>;
 
 export class JobManager<
   TRegistry extends Record<string, JobBuilder<any, any, any, any>>,
@@ -199,12 +204,6 @@ export class JobManager<
     });
   }
 
-  private getApp(): FastifyInstance {
-    // @ts-ignore
-    const { mongoose, worker, job, server, config, jwt, ...rest } = this.app;
-    return rest as FastifyInstance;
-  }
-
   async dispatch<TName extends Extract<keyof TRegistry, string>>(
     name: TName,
     data: InferJobData<TRegistry[TName]>,
@@ -253,7 +252,7 @@ export class JobManager<
     }
   }
 
-  async board() {
+  async board(options?: { authenticate?: BoardAuthHook }) {
     const adapter = new FastifyAdapter();
     adapter.setBasePath(this.boardPath);
 
@@ -278,40 +277,11 @@ export class JobManager<
     });
 
     this.app.register(async (app) => {
-      app.addHook('onRequest', async (request, reply) => {
-        if (process.env.NODE_ENV === 'prod') {
-          const query = request.query as { token?: string };
+      if (options?.authenticate) {
+        app.addHook('onRequest', options.authenticate);
+      }
 
-          try {
-            if (query.token) {
-              // @ts-ignore
-              await request.jwtVerify({
-                extractToken: (req: any) => req.query.token,
-              });
-              // @ts-ignore
-              request.isAdmin(reply);
-            } else {
-              // @ts-ignore
-              await request.jwtVerify({
-                extractToken: (req: any) => req.cookies.token,
-              });
-              // @ts-ignore
-              request.isAdmin(reply);
-            }
-          } catch (error) {
-            request.log.error(
-              { error },
-              'Failed to authenticate in jobs board',
-            );
-            return reply
-              .status(401)
-              .send('You must be authenticated to access this route');
-          }
-        }
-      });
-
-      // Register the board plugin outside the hook so it's always available
-      app.register(adapter.registerPlugin() as any, {
+      this.app.register(adapter.registerPlugin() as any, {
         prefix: this.boardPath,
         basePath: this.boardPath,
         logLevel: 'silent',

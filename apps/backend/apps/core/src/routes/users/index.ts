@@ -283,7 +283,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const validEmployees = employees.filter((employee) => employee !== null);
 
       if (validEmployees.length > 0) {
-        request.log.warn('UFABC employee', validEmployees);
+        request.log.warn(validEmployees, 'UFABC employee');
         return reply.forbidden(
           'O aluno não pode ter contrato de trabalho com a UFABC',
         );
