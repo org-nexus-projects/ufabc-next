@@ -3,7 +3,6 @@ import type {
   JobBuilder,
   JobContext,
   JobData,
-  InferHandlerData,
 } from './builder.js';
 import {
   Queue,

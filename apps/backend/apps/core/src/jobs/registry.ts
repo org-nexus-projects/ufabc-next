@@ -1,8 +1,14 @@
-import type { FastifyInstance } from 'fastify';
-import { componentsArchivesProcessingJob } from './components-archive-processing.js';
+import {
+  componentsArchivesProcessingJob,
+  pdfDownloadJob,
+  archivesSummaryJob,
+} from './components-archive-processing-flow.js';
+import { JOB_NAMES } from '../constants.js';
 
-export async function registerJobs(app: FastifyInstance): Promise<void> {
-  app.manager.register(componentsArchivesProcessingJob);
-  await app.manager.start();
-  await app.manager.board();
-}
+export const jobRegistry = {
+  [JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING]: componentsArchivesProcessingJob,
+  [JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_PDF]: pdfDownloadJob,
+  [JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_SUMMARY]: archivesSummaryJob,
+} as const;
+
+export type JobRegistry = typeof jobRegistry;

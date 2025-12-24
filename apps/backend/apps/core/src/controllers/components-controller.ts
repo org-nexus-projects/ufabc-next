@@ -36,7 +36,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       }
 
       await app.manager.dispatch(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING, {
-        component: componentArchives.data,
+        component: componentArchives.data[0],
         globalTraceId: request.id,
         session,
       });
