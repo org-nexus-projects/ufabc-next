@@ -9,6 +9,7 @@
         "./src/*"
       ]
     },
+    "skipLibCheck": true,
     "plugins": [
       {
         "transform": "typescript-transform-paths"

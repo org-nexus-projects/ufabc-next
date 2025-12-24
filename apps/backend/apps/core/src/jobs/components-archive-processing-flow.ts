@@ -2,9 +2,12 @@ import { defineJob } from '@next/queues/client';
 import { JOB_NAMES } from '@/constants.js';
 import z from 'zod';
 import { MoodleConnector } from '@/connectors/moodle.js';
+import { AIProxyConnector } from '@/connectors/ai-proxy.js';
+
 import { load } from 'cheerio';
 
 const connector = new MoodleConnector();
+const aiProxyConnector = new AIProxyConnector();
 
 const componentSchema = z.object({
   viewurl: z.string().url(),
@@ -17,7 +20,7 @@ export const componentsArchivesProcessingJob = defineJob(
 )
   .input(
     z.object({
-      component: componentSchema,
+      component: componentSchema.array(),
       globalTraceId: z.string().optional(),
       session: z.object({
         sessionId: z.string(),
@@ -57,7 +60,6 @@ export const componentsArchivesProcessingJob = defineJob(
         name: JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_PDF,
         queueName: JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_PDF,
         data: { ...pdf, globalTraceId },
-        opts: { removeOnComplete: true },
       })),
     });
 
@@ -72,14 +74,19 @@ export const pdfDownloadJob = defineJob(
 )
   .input(
     z.object({
-      pdfLink: z.string().url(),
-      pdfName: z.string(),
+      url: z.string().url(),
+      name: z.string(),
       globalTraceId: z.string().optional(),
     }),
   )
   .concurrency(10)
   .handler(async ({ job, app }) => {
-    const { pdfLink, pdfName } = job.data;
+    const { url, name } = job.data;
+    // Represents nothing currently.
+    const filteredFiles = await aiProxyConnector.filterFiles(name, [
+      { url, name },
+    ]);
+
     return {
       success: true,
       message: 'PDF downloaded',
