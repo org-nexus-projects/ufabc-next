@@ -8,6 +8,10 @@ export type JobData<TData = unknown> = TData & {
   globalTraceId?: string;
 };
 
+export type InferJobData<T> = T extends JobBuilder<any, infer TData, any>
+  ? TData
+  : never;
+
 export interface JobContext<
   TData = unknown,
   TResult = unknown,
@@ -15,7 +19,7 @@ export interface JobContext<
 > {
   job: Job<JobData<TData>, TResult, TName>;
   app: FastifyInstance;
-  manager: JobManager;
+  manager: JobManager<any>; // prevent circular dependency
 }
 
 export type JobHandler<
@@ -35,17 +39,19 @@ export class JobBuilder<TName extends string, TData, TResult> {
     removeOnFail: { age: 24 * 60 * 60, count: 500 },
   };
   private _workerOptions: Partial<WorkerOptions> = {};
-  private _handler?: JobHandler<TData, TResult>;
-  private _schedule?: number;
+  private _handler?: JobHandler<TData, TResult, TName>;
+  private _schedule?: string;
   private _scheduleTimezone?: string;
 
   constructor(name: TName) {
     this._name = name;
   }
 
-  input<T extends TData>(schema: z.ZodType<T>): this {
-    this._inputSchema = schema;
-    return this;
+  input<T extends z.ZodTypeAny>(
+    schema: T,
+  ): JobBuilder<TName, z.infer<T>, TResult> {
+    this._inputSchema = schema as any;
+    return this as any;
   }
 
   output<T extends TResult>(schema: z.ZodType<T>): this {
@@ -94,12 +100,13 @@ export class JobBuilder<TName extends string, TData, TResult> {
   }
 
   every(pattern: string, tz = 'UTC'): this {
-    this._schedule = ms(pattern);
+    const msPattern = ms(pattern) as unknown as string;
+    this._schedule = msPattern;
     this._scheduleTimezone = tz;
     return this;
   }
 
-  handler(handler: JobHandler<TData, TResult, string>): this {
+  handler(handler: JobHandler<TData, TResult, TName>): this {
     this._handler = handler;
     return this;
   }

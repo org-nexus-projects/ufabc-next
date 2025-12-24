@@ -1,4 +1,9 @@
-import type { JobBuilder, JobContext, JobData } from './builder.js';
+import type {
+  InferJobData,
+  JobBuilder,
+  JobContext,
+  JobData,
+} from './builder.js';
 import {
   Queue,
   Worker,
@@ -14,17 +19,24 @@ import { FastifyAdapter } from '@bull-board/fastify';
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 
-export class JobManager {
-  private readonly jobs: Map<string, JobBuilder<string, any, any>> = new Map();
+export class JobManager<
+  TRegistry extends Record<string, JobBuilder<any, any, any>>,
+> {
   private readonly queues: Map<string, Queue> = new Map();
   private readonly workers: Map<string, Worker> = new Map();
+  private readonly registeredJobs: Map<string, JobBuilder<any, any, any>> =
+    new Map();
   private readonly flowProducer: FlowProducer;
   private isStarted = false;
-  private readonly app: FastifyInstance;
   private readonly redisConnection: ConnectionOptions;
   private readonly boardPath: string;
 
-  constructor(app: FastifyInstance, redisURL: URL, boardPath = '/board/ui') {
+  constructor(
+    private readonly app: FastifyInstance,
+    private readonly jobs: TRegistry,
+    redisURL: URL,
+    boardPath: string,
+  ) {
     this.app = app;
     this.boardPath = boardPath;
     this.redisConnection = {
@@ -36,6 +48,10 @@ export class JobManager {
     this.flowProducer = new FlowProducer({
       connection: this.redisConnection,
     });
+
+    for (const [name, builder] of Object.entries(this.jobs)) {
+      this.registeredJobs.set(name, builder);
+    }
   }
 
   async dispatchFlow(flow: FlowJob) {
@@ -45,14 +61,14 @@ export class JobManager {
   register<TName extends string, TData, TResult>(
     job: JobBuilder<TName, TData, TResult>,
   ): this {
-    if (this.jobs.has(job.name)) {
+    if (this.registeredJobs.has(job.name)) {
       this.app.log.warn({ name: job.name }, 'Job already registered, skipping');
       return this;
     }
 
-    this.jobs.set(job.name, job);
+    this.registeredJobs.set(job.name, job);
     this.app.log.debug(
-      { name: job.name, totalJobs: this.jobs.size },
+      { name: job.name, totalJobs: this.registeredJobs.size },
       'Job registered with JobManager',
     );
     return this;
@@ -78,17 +94,17 @@ export class JobManager {
     }
 
     this.app.log.info(
-      { totalJobs: this.jobs.size },
+      { totalJobs: this.registeredJobs.size },
       'Starting JobManager with registered jobs',
     );
 
-    for (const [name, jobBuilder] of this.jobs) {
-      await this.setup(name, jobBuilder);
+    for (const [name, builder] of Object.entries(this.registeredJobs)) {
+      await this.setup(name, builder);
     }
 
     this.isStarted = true;
     this.app.log.info(
-      { totalJobs: this.jobs.size },
+      { totalJobs: this.registeredJobs.size },
       'JobManager started successfully',
     );
   }
@@ -97,7 +113,7 @@ export class JobManager {
     name: TName,
     jobBuilder: JobBuilder<TName, TData, TResult>,
   ): Promise<void> {
-    const queue = new Queue<JobData<TData>, TResult, TName>(name, {
+    const queue = new Queue(name, {
       connection: this.redisConnection,
       defaultJobOptions: jobBuilder.config.jobOptions,
     });
@@ -110,49 +126,47 @@ export class JobManager {
         'Setting up scheduled job',
       );
 
-      await (queue as any).add(name, {} as unknown as JobData<TData>, {
-        repeat: {
-          pattern: jobBuilder.config.schedule,
-          tz: jobBuilder.config.scheduleTimezone,
+      await queue.add(
+        name,
+        {},
+        {
+          repeat: {
+            pattern: jobBuilder.config.schedule,
+            tz: jobBuilder.config.scheduleTimezone,
+          },
         },
-      });
+      );
     }
 
-    const worker = new Worker<JobData<TData>, TResult, TName>(
+    const worker = new Worker(
       name,
-      async (job) => {
-        return this.handler<TData, TResult, TName>(job, jobBuilder);
-      },
+      async (job) => this.handler(job, jobBuilder),
       {
         ...jobBuilder.config.workerOptions,
         connection: this.redisConnection,
       },
     );
+
     this.events(
       worker as unknown as Worker<JobData<TData>, TResult, string>,
       name,
     );
-    this.workers.set(name, worker as unknown as Worker);
+
+    this.workers.set(name, worker);
+
     this.app.log.debug({ name }, 'Worker setup completed');
   }
 
-  private async handler<TData, TResult, TName extends string>(
-    job: Job<JobData<TData>, TResult, TName>,
-    jobBuilder: JobBuilder<TName, TData, TResult>,
-  ): Promise<TResult> {
-    if (!jobBuilder.config.handler) {
-      throw new Error(`No handler defined for job: ${job.name}`);
-    }
-
+  private async handler(job: Job, jobBuilder: JobBuilder<any, any, any>) {
     if (jobBuilder.config.inputSchema) {
       jobBuilder.config.inputSchema.parse(job.data);
     }
 
-    const ctx: JobContext<TData, TResult, TName> = {
-      job,
-      app: this.getApp(),
-      manager: this,
-    };
+    const ctx: JobContext = { job, app: this.app, manager: this };
+
+    if (!jobBuilder.config.handler) {
+      throw new Error(`No handler defined for job: ${job.name}`);
+    }
 
     const result = await jobBuilder.config.handler(ctx);
 
@@ -194,78 +208,40 @@ export class JobManager {
     return rest as FastifyInstance;
   }
 
-  async dispatch<TData, TResult, TName extends string>(
+  async dispatch<TName extends Extract<keyof TRegistry, string>>(
     name: TName,
-    data: TData,
-    options?: { priority?: number; delay?: number; removeOnComplete?: boolean },
+    data: InferJobData<TRegistry[TName]>,
+    options?: JobsOptions,
   ) {
     const queue = this.queues.get(name);
 
     if (!queue) {
-      throw new Error(`Queue not found: ${name}`);
+      throw new Error(`Queue ${name} not initialized`);
     }
 
-    // Check if data contains an array field - if so, dispatch each item individually
     const dataObj = data as Record<string, unknown>;
-    const arrayField = Object.entries(dataObj).find(
-      ([, value]) => Array.isArray(value) && value.length > 0,
+    const arrayField = Object.entries(dataObj).find(([, value]) =>
+      Array.isArray(value),
     );
 
     if (arrayField) {
-      const [fieldName, arrayValue] = arrayField;
-      const array = arrayValue as unknown[];
-      const sharedData = { ...dataObj };
-      delete sharedData[fieldName];
-
-      // Dispatch each item in the array as a separate job
-      const baseOptions: JobsOptions = {
-        priority: options?.priority,
-        delay: options?.delay,
-        removeOnComplete: options?.removeOnComplete,
-      };
-
-      const jobs = array.map((item) => ({
-        name: name as TName,
-        data: {
-          ...sharedData,
-          [fieldName]: item,
-        } as JobData<TData>,
-        opts: {
-          ...baseOptions,
-          jobId: randomUUID(),
-        },
+      const [key, value] = arrayField as [string, unknown[]];
+      const jobs = value.map((item) => ({
+        name,
+        data: { ...dataObj, [key]: item },
+        opts: { ...options, jobId: randomUUID() },
       }));
-
-      await queue.addBulk(jobs);
-      return;
+      return queue.addBulk(jobs);
     }
 
-    // Single job dispatch
-    const baseOptions: JobsOptions = {
-      jobId: randomUUID(),
-      priority: options?.priority,
-      delay: options?.delay,
-      removeOnComplete: options?.removeOnComplete,
-    };
-
-    await queue.add(
-      name as TName,
-      {
-        ...data,
-      } as JobData<TData>,
-      baseOptions,
-    );
+    return queue.add(name, data, options);
   }
 
-  async schedule<TData, TResult, TName extends string>(
+  async schedule<TName extends Extract<keyof TRegistry, string>>(
     name: TName,
-    data: TData,
-    options?: { priority?: number; delay?: number; removeOnComplete?: boolean },
+    data: InferJobData<TRegistry[TName]>,
+    options?: JobsOptions,
   ) {
-    const queue = this.queues.get(name);
-    if (!queue) {
-      throw new Error(`Queue not found: ${name}`);
-    }
     return this.dispatch(name, data, options);
   }
 
