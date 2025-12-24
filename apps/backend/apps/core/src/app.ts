@@ -34,13 +34,7 @@ export async function buildApp(
   await app.register(queueV2Plugin, {
     redisURL: new URL(app.config.REDIS_CONNECTION_URL),
   });
-  await app.register(awsV2Plugin, {
-    credentials: {
-      accessKeyId: app.config.AWS_ACCESS_KEY_ID,
-      secretAccessKey: app.config.AWS_SECRET_ACCESS_KEY,
-      region: app.config.AWS_REGION,
-    },
-  });
+  await app.register(awsV2Plugin);
 
   app.register(fastifyAutoload, {
     dir: join(import.meta.dirname, 'routes'),
