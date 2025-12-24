@@ -52,6 +52,15 @@
       ],
       "env": [
         "NODE_ENV",
+        "ALLOWED_ORIGINS",
+        "UFABC_PARSER_URL",
+        "AWS_REGION",
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY",
+        "OAUTH_GOOGLE_CLIENT_ID",
+        "OAUTH_GOOGLE_SECRET",
+        "NEXT_AI_LAMBDA_URL",
+        "JWT_SECRET",
         "MONGODB_CONNECTION_URL",
         "REDIS_CONNECTION_URL"
       ]

@@ -12,24 +12,18 @@ jobs:
     name: 🔄 CI Workflow
     runs-on: ubuntu-latest
     env:
-      # Turborepo configuration
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-
       NODE_ENV: test
-
-      AWS_REGION: us-east-1
-      AWS_ACCESS_KEY_ID: dummy
-      AWS_SECRET_ACCESS_KEY: dummy
-
-      OAUTH_GOOGLE_CLIENT_ID: dummy
-      OAUTH_GOOGLE_SECRET: dummy-secret-long-enough
-
-      NEXT_AI_LAMBDA_URL: http://dummy
-      UFABC_PARSER_URL: http://dummy
-
-      JWT_SECRET: LWp9YJMiUtfQxoepoTL7RkWJi6W5C6ED
-      ALLOWED_ORIGINS: http://localhost:3000
+      ALLOWED_ORIGINS: "http://localhost:3000"
+      UFABC_PARSER_URL: "http://localhost:8080"
+      AWS_REGION: "us-east-1"
+      AWS_ACCESS_KEY_ID: "testing"
+      AWS_SECRET_ACCESS_KEY: "testing"
+      OAUTH_GOOGLE_CLIENT_ID: "dummy-client-id"
+      OAUTH_GOOGLE_SECRET: "dummy-secret-at-least-16-chars"
+      JWT_SECRET: "LWp9YJMiUtfQxoepoTL7RkWJi6W5C6ED"
+      NEXT_AI_LAMBDA_URL: "http://localhost:8080"
+      MONGODB_CONNECTION_URL: "mongodb://localhost:27017"
+      REDIS_CONNECTION_URL: "redis://localhost:6379"
 
     steps:
       - uses: actions/checkout@v4
