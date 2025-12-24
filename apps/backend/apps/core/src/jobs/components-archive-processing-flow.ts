@@ -93,7 +93,7 @@ export const pdfDownloadJob = defineJob(
     const buffer = await ofetch(url, { responseType: 'arrayBuffer' });
 
     await app.aws.s3.upload(
-      'bucket-files',
+      app.config.AWS_BUCKET ?? '',
       `${component}`,
       Buffer.from(buffer),
     );
@@ -172,10 +172,12 @@ async function extractPDFsFromComponent(
       href,
       sessionId,
     );
+
     if (!isPdf) {
       return null;
     }
-    if (isPdf && finalUrl) {
+
+    if (finalUrl) {
       return { pdfLink: finalUrl, pdfName: name };
     }
     return null;

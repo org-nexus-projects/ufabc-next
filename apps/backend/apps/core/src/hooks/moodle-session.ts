@@ -34,6 +34,10 @@ export const moodleSession: preHandlerAsyncHookHandler = async (
 
   if (sessionCache.has(sessionId)) {
     request.log.debug({ sessionId }, 'Session found in cache');
+    request.requestContext.set('moodleSession', {
+      sessionId,
+      sessKey,
+    });
     return;
   }
 
@@ -57,7 +61,7 @@ async function validateToken(sessionId: string, sessKey: string) {
   const hasError = response.some((item) => item.error);
   const hasException = response.some((item) => item.exception);
 
-  if (hasError && hasException) {
+  if (hasError || hasException) {
     return false;
   }
 

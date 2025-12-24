@@ -23,8 +23,10 @@ export async function createTestContainers() {
 
 export async function startTestStack() {
   const [mongo, redis, localstack] = await Promise.all([
-    new MongoDBContainer('mongo:6.0').start(),
-    new RedisContainer('redis:latest').withPassword('qj6wGxXINcQyWXdN').start(),
+    new MongoDBContainer('mongo:6-alpine').start(),
+    new RedisContainer('redis:7-alpine')
+      .withPassword('qj6wGxXINcQyWXdN')
+      .start(),
     new LocalstackContainer('localstack/localstack:latest').start(),
   ]);
 
@@ -36,7 +38,7 @@ export async function startTestStack() {
     credentials: { accessKeyId: 'test', secretAccessKey: 'test' },
     forcePathStyle: true,
   });
-  await s3.send(new CreateBucketCommand({ Bucket: 'bucket-files' }));
+  await s3.send(new CreateBucketCommand({ Bucket: 'ufabc-next' }));
 
   return {
     config: {
@@ -47,6 +49,7 @@ export async function startTestStack() {
       AWS_ACCESS_KEY_ID: 'test',
       AWS_SECRET_ACCESS_KEY: 'test',
       USE_LOCALSTACK: true,
+      AWS_BUCKET: 'ufabc-next',
     },
     stop: async () => {
       await Promise.all([mongo.stop(), redis.stop(), localstack.stop()]);

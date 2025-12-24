@@ -24,7 +24,7 @@ function createHybridValidatorCompiler() {
     // Check if this is a v2 route
     // uri might be undefined for some routes, so default to openapi validator
     if (uri && typeof uri === 'string' && uri.startsWith('/v2')) {
-      // fastify-type-provider-zod compilers only take schema (not uri)z
+      // fastify-type-provider-zod compilers only take schema (not uri)
       return zodValidator(schema as any);
     }
     // Otherwise use the openapi validator (default for old routes and undefined uri)

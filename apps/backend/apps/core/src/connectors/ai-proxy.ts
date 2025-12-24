@@ -6,13 +6,16 @@ type Files = {
 };
 
 export class AIProxyConnector extends BaseRequester {
-  constructor() {
-    super(process.env.NEXT_AI_LAMBDA_URL);
+  constructor(
+    baseUrl: string,
+    private readonly serviceHeader: string,
+  ) {
+    super(baseUrl);
   }
 
   async filterFiles(course: string, files: Files[]) {
     const headers = new Headers();
-    headers.set('x-service-id', process.env.SERVICE_HEADER ?? '');
+    headers.set('x-service-id', this.serviceHeader);
     const response = await this.request<unknown[]>('/', {
       method: 'POST',
       body: {

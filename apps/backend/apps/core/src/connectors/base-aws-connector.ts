@@ -23,7 +23,6 @@ export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
             globalTraceId: traceId,
             service: this.client.constructor.name,
             command: commandName,
-            payload: args.input,
           },
           `AWS Request: ${commandName}`,
         );
