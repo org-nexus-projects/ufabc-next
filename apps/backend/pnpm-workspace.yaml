@@ -56,3 +56,9 @@ catalog:
   zod-openapi: ^3.3.0
   zod-to-json-schema: ^3.25.0
   fastify-type-provider-zod: ^3.0.0
+  "@testcontainers/mongodb": ^11.10.0
+  "@testcontainers/redis": ^11.10.0
+  "@testcontainers/localstack": ^11.10.0
+  nock: ^14.0.10
+  vitest: ^4.0.16
+  vite-tsconfig-paths: ^6.0.3

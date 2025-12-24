@@ -13,8 +13,8 @@
     "tsc": "tsc",
     "start": "node --env-file=.env.prod dist/server.js",
     "start:local": "pnpm build && node --env-file=.env.prod dist/server.js",
-    "test": "node --import=tsx runTests.ts",
-    "test:watch": "node --import=tsx runTests.ts watch",
+    "test": "vitest",
+    "test:watch": "vitest watch",
     "lint": "biome lint --write --unsafe --diagnostic-level=error ."
   },
   "dependencies": {
@@ -72,7 +72,10 @@
     "tsx": "catalog:",
     "typescript": "catalog:",
     "typescript-transform-paths": "catalog:",
-    "@aws-sdk/types": "catalog:"
+    "@aws-sdk/types": "catalog:",
+    "vitest": "catalog:",
+    "@next/testing": "workspace:*",
+    "vite-tsconfig-paths": "catalog:"
   },
   "engines": {
     "node": "^22"

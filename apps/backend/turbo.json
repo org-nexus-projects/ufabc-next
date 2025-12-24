@@ -1,20 +1,30 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
-  "globalDependencies": [".env"],
+  "globalDependencies": [
+    ".env"
+  ],
   "tasks": {
     "dev": {
       "cache": false,
       "persistent": true
     },
     "build": {
-      "env": ["NODE_ENV"],
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**"],
+      "env": [
+        "NODE_ENV"
+      ],
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
       "cache": true
     },
     "tsc": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "cache": true,
       "outputLogs": "errors-only"
     },
@@ -32,15 +42,16 @@
       "outputLogs": "errors-only"
     },
     "test": {
-      "cache": true,
-      "outputLogs": "errors-only"
+      "cache": true
     },
     "test:watch": {
       "cache": false,
       "persistent": true
     },
     "test:coverage": {
-      "dependsOn": ["^test"],
+      "dependsOn": [
+        "^test"
+      ],
       "cache": true
     }
   }
