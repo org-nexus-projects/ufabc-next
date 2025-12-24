@@ -71,7 +71,8 @@
     "ts-patch": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:",
-    "typescript-transform-paths": "catalog:"
+    "typescript-transform-paths": "catalog:",
+    "@aws-sdk/types": "catalog:"
   },
   "engines": {
     "node": "^22"
