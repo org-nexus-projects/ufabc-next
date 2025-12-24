@@ -4,9 +4,7 @@ import { LocalstackContainer } from '@testcontainers/localstack';
 import { S3Client, CreateBucketCommand } from '@aws-sdk/client-s3';
 
 export async function createTestContainers() {
-  const mongo = await new MongoDBContainer('mongo:6-alpine')
-    .withReuse()
-    .start();
+  const mongo = await new MongoDBContainer('mongo:6').withReuse().start();
   const redis = await new RedisContainer('redis:7-alpine').withReuse().start();
   const localstack = await new LocalstackContainer(
     'localstack/localstack:latest',
@@ -23,11 +21,12 @@ export async function createTestContainers() {
 
 export async function startTestStack() {
   const [mongo, redis, localstack] = await Promise.all([
-    new MongoDBContainer('mongo:6-alpine').start(),
+    new MongoDBContainer('mongo:6').withReuse().start(),
     new RedisContainer('redis:7-alpine')
       .withPassword('qj6wGxXINcQyWXdN')
+      .withReuse()
       .start(),
-    new LocalstackContainer('localstack/localstack:latest').start(),
+    new LocalstackContainer('localstack/localstack:latest').withReuse().start(),
   ]);
 
   const localstackUrl = `http://${localstack.getHost()}:${localstack.getMappedPort(4566)}`;
@@ -43,7 +42,7 @@ export async function startTestStack() {
   return {
     config: {
       MONGODB_CONNECTION_URL: mongo.getConnectionString(),
-      REDIS_CONNECTION_URL: `redis://default:qj6wGxXINcQyWXdN@${redis.getHost()}:${redis.getMappedPort(6379)}`,
+      REDIS_CONNECTION_URL: `redis://default:${redis.getPassword()}@${redis.getHost()}:${redis.getMappedPort(6379)}`,
       LOCALSTACK_ENDPOINT: localstackUrl,
       AWS_REGION: 'us-east-1',
       AWS_ACCESS_KEY_ID: 'test',
