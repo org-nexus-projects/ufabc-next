@@ -46,6 +46,15 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       });
     },
   });
+
+  app.route({
+    method: 'GET',
+    url: '/components/archives/pdfs',
+    handler: async (request, reply) => {
+      const pdfs = await app.aws.s3.list('bucket-files');
+      return reply.status(200).send(pdfs.Contents);
+    },
+  });
 };
 
 export default componentsController;

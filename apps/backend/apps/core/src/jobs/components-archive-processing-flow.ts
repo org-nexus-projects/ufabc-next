@@ -5,6 +5,7 @@ import { MoodleConnector } from '@/connectors/moodle.js';
 import { AIProxyConnector } from '@/connectors/ai-proxy.js';
 
 import { load } from 'cheerio';
+import { ofetch } from 'ofetch';
 
 const connector = new MoodleConnector();
 const aiProxyConnector = new AIProxyConnector();
@@ -59,7 +60,11 @@ export const componentsArchivesProcessingJob = defineJob(
       children: pdfs.map((pdf) => ({
         name: JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_PDF,
         queueName: JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_PDF,
-        data: { ...pdf, globalTraceId },
+        data: {
+          component: component.fullname,
+          url: pdf.pdfLink,
+          globalTraceId,
+        },
       })),
     });
 
@@ -74,25 +79,33 @@ export const pdfDownloadJob = defineJob(
 )
   .input(
     z.object({
+      component: z.string(),
       url: z.string().url(),
-      name: z.string(),
       globalTraceId: z.string().optional(),
     }),
   )
   .concurrency(10)
   .handler(async ({ job, app }) => {
-    const { url, name } = job.data;
+    const { url, component } = job.data;
     // Represents nothing currently.
-    const filteredFiles = await aiProxyConnector.filterFiles(name, [
-      { url, name },
-    ]);
+    // const filteredFiles = await aiProxyConnector.filterFiles(component, [
+    //   { url, name: `${component}.pdf` },
+    // ]);
+
+    const buffer = await ofetch(url, { responseType: 'arrayBuffer' });
+
+    await app.aws.s3.upload(
+      'bucket-files',
+      `${component}`,
+      Buffer.from(buffer),
+    );
 
     return {
       success: true,
-      message: 'PDF downloaded',
+      message: 'PDF uploaded',
       data: {
-        pdfLink,
-        pdfName,
+        pdfLink: url,
+        pdfName: component,
       },
     };
   });
