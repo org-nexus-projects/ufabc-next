@@ -10,6 +10,7 @@ import { setupV2Routes } from './plugins/v2/setup.js';
 import queueV2Plugin from './plugins/v2/queue.js';
 import awsV2Plugin from './plugins/v2/aws.js';
 import { authenticateBoard } from './hooks/board-authenticate.js';
+import testUtilsPlugin from './plugins/v2/test-utils.js';
 
 const routesV2 = [componentsController];
 
@@ -48,6 +49,8 @@ export async function buildApp(
     ignorePattern: /^.*(?:test|spec|service).(ts|js)$/,
     options: { ...opts },
   });
+
+  await app.register(testUtilsPlugin);
 
   await app.manager.start();
   await app.manager.board({ authenticate: authenticateBoard });

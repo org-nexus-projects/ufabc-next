@@ -53,3 +53,5 @@ export async function startTestStack() {
     },
   };
 }
+
+export type TestStack = Awaited<ReturnType<typeof startTestStack>>;

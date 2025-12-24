@@ -2,7 +2,7 @@
 import type { BoardAuthHook } from '@next/queues/manager';
 
 export const authenticateBoard: BoardAuthHook = async (request, reply) => {
-  if (request.server.config.NODE_ENV !== 'prod') {
+  if (request.server.config.NODE_ENV === 'dev') {
     return;
   }
 
