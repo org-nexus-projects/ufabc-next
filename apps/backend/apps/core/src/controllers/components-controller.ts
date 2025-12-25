@@ -15,6 +15,10 @@ const cache = new LRUWeakCache<{
   maxAge: 1000 * 60 * 60 * 24, // 24 Hours,
 });
 
+type Cache = LRUWeakCache<{
+  session: { sessionId: string; sessKey: string };
+}>;
+
 const componentsController: FastifyPluginAsyncZod = async (app) => {
   app.decorate('cacheV2', cache);
 
@@ -34,10 +38,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       }),
     },
     handler: async (request, reply) => {
-      const cache =
-        app.getDecorator<
-          LRUWeakCache<{ session: { sessionId: string; sessKey: string } }>
-        >('cacheV2');
+      const cache = app.getDecorator<Cache>('cacheV2');
       const session = request.requestContext.get('moodleSession')!;
       const cachedSession = cache.get('session');
       if (cachedSession) {
@@ -55,11 +56,11 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         return reply.internalServerError(componentArchives.error ?? 'No data');
       }
 
-      // await app.manager.dispatch(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING, {
-      //   component: componentArchives.data,
-      //   globalTraceId: request.id,
-      //   session,
-      // });
+      await app.manager.dispatch(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING, {
+        component: componentArchives.data,
+        globalTraceId: request.id,
+        session,
+      });
 
       cache.set('session', {
         session,

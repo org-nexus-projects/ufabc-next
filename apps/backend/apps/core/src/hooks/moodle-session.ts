@@ -11,6 +11,11 @@ declare module '@fastify/request-context' {
   }
 }
 
+export type Session = {
+  sessionId: string;
+  sessKey: string;
+};
+
 const sessionCache = new LRUWeakCache<{ sessionId: string }>({
   capacity: 5000,
   maxAge: 1000 * 60 * 5,
