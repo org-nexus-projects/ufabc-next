@@ -22,3 +22,5 @@ export const JOB_NAMES = {
     'components_archives_processing_summary',
   COMPONENTS_ARCHIVES_PROCESSING_PDF: 'components_archives_processing_pdf',
 } as const;
+
+export const HTTP_REDIS_KEY_PREFIX = 'http:lock';

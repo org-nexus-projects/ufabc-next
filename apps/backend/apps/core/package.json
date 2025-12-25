@@ -55,7 +55,8 @@
     "zod": "catalog:",
     "zod-openapi": "catalog:",
     "zod-to-json-schema": "catalog:",
-    "fastify-type-provider-zod": "catalog:"
+    "fastify-type-provider-zod": "catalog:",
+    "@fastify/redis": "catalog:"
   },
   "devDependencies": {
     "@next/tsconfig": "workspace:*",

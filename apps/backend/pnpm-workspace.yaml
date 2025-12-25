@@ -20,6 +20,7 @@ catalog:
   "@fastify/sensible": ^6.0.4
   "@fastify/swagger": ^9.6.1
   "@fastify/swagger-ui": ^5.2.3
+  "@fastify/redis": ^7.1.0
   "@notionhq/client": ^2.3.0
   "@total-typescript/ts-reset": ^0.5.1
   "@types/lodash-es": ^4.17.12

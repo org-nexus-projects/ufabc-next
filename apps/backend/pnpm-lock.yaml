@@ -51,6 +51,9 @@ catalogs:
     '@fastify/rate-limit':
       specifier: ^10.3.0
       version: 10.3.0
+    '@fastify/redis':
+      specifier: ^7.1.0
+      version: 7.1.0
     '@fastify/request-context':
       specifier: ^6.2.1
       version: 6.2.1
@@ -242,6 +245,9 @@ importers:
       '@fastify/rate-limit':
         specifier: 'catalog:'
         version: 10.3.0
+      '@fastify/redis':
+        specifier: 'catalog:'
+        version: 7.1.0
       '@fastify/request-context':
         specifier: 'catalog:'
         version: 6.2.1
@@ -928,6 +934,9 @@ packages:
 
   '@fastify/rate-limit@10.3.0':
     resolution: {integrity: sha512-eIGkG9XKQs0nyynatApA3EVrojHOuq4l6fhB4eeCk4PIOeadvOJz9/4w3vGI44Go17uaXOWEcPkaD8kuKm7g6Q==}
+
+  '@fastify/redis@7.1.0':
+    resolution: {integrity: sha512-S5GUxv8Rp5dlCuB/BXuWYc7a+anhDdHzrPPeCfPd/YGMr/khpFUQEhDkJdmnkwwnebGJrT2mYapq+ugvPV4qVg==}
 
   '@fastify/request-context@6.2.1':
     resolution: {integrity: sha512-WJTWXI59ViguS/JFgVck6mnwpv+5UrvMLb711pOGIlyN6ghV4Pb/eEbJG01XvQsTAr/AbjMETjk7Jq9ARIxKnQ==}
@@ -4110,6 +4119,13 @@ snapshots:
       '@lukeed/ms': 2.0.2
       fastify-plugin: 5.0.1
       toad-cache: 3.7.0
+
+  '@fastify/redis@7.1.0':
+    dependencies:
+      fastify-plugin: 5.0.1
+      ioredis: 5.8.2
+    transitivePeerDependencies:
+      - supports-color
 
   '@fastify/request-context@6.2.1':
     dependencies:
