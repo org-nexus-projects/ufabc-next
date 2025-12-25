@@ -4,24 +4,10 @@ import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import { getComponentArchives } from '@/services/components-service.js';
 import { JOB_NAMES } from '@/constants.js';
-import LRUWeakCache from 'lru-weak-cache';
 
 const moodleConnector = new MoodleConnector();
 
-const cache = new LRUWeakCache<{
-  session: { sessionId: string; sessKey: string };
-}>({
-  capacity: 10,
-  maxAge: 1000 * 60 * 60 * 24, // 24 Hours,
-});
-
-type Cache = LRUWeakCache<{
-  session: { sessionId: string; sessKey: string };
-}>;
-
 const componentsController: FastifyPluginAsyncZod = async (app) => {
-  app.decorate('cacheV2', cache);
-
   app.route({
     method: 'POST',
     url: '/components/archives',
@@ -38,36 +24,43 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       }),
     },
     handler: async (request, reply) => {
-      const cache = app.getDecorator<Cache>('cacheV2');
       const session = request.requestContext.get('moodleSession')!;
-      const cachedSession = cache.get('session');
-      if (cachedSession) {
+      const hasLock = await request.acquireLock(session.sessionId, '24h');
+
+      if (!hasLock) {
+        request.log.debug(
+          { sessionId: session.sessionId },
+          'Archives already processing',
+        );
+        return reply.status(202).send({ status: 'success' });
+      }
+
+      try {
+        const courses = await moodleConnector.getComponents(
+          session.sessionId,
+          session.sessKey,
+        );
+
+        const componentArchives = await getComponentArchives(courses[0]);
+        if (componentArchives.error || !componentArchives.data) {
+          await request.releaseLock(session.sessionId);
+          return reply.badRequest(componentArchives.error ?? 'No data');
+        }
+
+        await app.manager.dispatch(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING, {
+          component: componentArchives.data,
+          globalTraceId: request.id,
+          session,
+        });
+
         return reply.status(202).send({
           status: 'success',
         });
+      } catch (error) {
+        request.log.error(error, 'Error getting archives');
+        await request.releaseLock(session.sessionId);
+        return reply.internalServerError('Error getting archives');
       }
-      const courses = await moodleConnector.getComponents(
-        session.sessionId,
-        session.sessKey,
-      );
-
-      const componentArchives = await getComponentArchives(courses[0]);
-      if (componentArchives.error || !componentArchives.data) {
-        return reply.internalServerError(componentArchives.error ?? 'No data');
-      }
-
-      await app.manager.dispatch(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING, {
-        component: componentArchives.data,
-        globalTraceId: request.id,
-        session,
-      });
-
-      cache.set('session', {
-        session,
-      });
-      return reply.status(202).send({
-        status: 'success',
-      });
     },
   });
 };

@@ -11,8 +11,10 @@ import queueV2Plugin from './plugins/v2/queue.js';
 import awsV2Plugin from './plugins/v2/aws.js';
 import { authenticateBoard } from './hooks/board-authenticate.js';
 import testUtilsPlugin from './plugins/v2/test-utils.js';
+import redisV2Plugin from './plugins/v2/redis.js';
+import backofficeController from './controllers/backoffice-controller.js';
 
-const routesV2 = [componentsController];
+const routesV2 = [componentsController, backofficeController];
 
 export async function buildApp(
   app: FastifyInstance,
@@ -31,6 +33,7 @@ export async function buildApp(
     options: { ...opts },
   });
 
+  await app.register(redisV2Plugin);
   await app.register(queueV2Plugin, {
     redisURL: new URL(app.config.REDIS_CONNECTION_URL),
   });
