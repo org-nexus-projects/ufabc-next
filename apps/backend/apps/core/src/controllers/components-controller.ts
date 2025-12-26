@@ -63,6 +63,43 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       }
     },
   });
+
+  app.route({
+    method: 'GET',
+    url: '/components/archives',
+    preHandler: [moodleSession],
+    schema: {
+      response: {
+        200: z.object({
+          status: z.string(),
+          data: z.any().array(),
+        }),
+      },
+    },
+    handler: async (request, reply) => {
+      const session = request.requestContext.get('moodleSession')!;
+      const components = await moodleConnector.getComponents(
+        session.sessionId,
+        session.sessKey,
+      );
+      return reply.status(200).send({
+        status: 'success',
+        data: components,
+      });
+    },
+  });
+
+  app.route({
+    method: 'GET',
+    url: '/components/archives/uploads',
+    handler: async (request, reply) => {
+      const uploads = await app.aws.s3.list(app.config.AWS_BUCKET);
+      return reply.status(200).send({
+        status: 'success',
+        data: uploads,
+      });
+    },
+  });
 };
 
 export default componentsController;

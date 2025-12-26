@@ -1,10 +1,9 @@
 import { defineJob } from '@next/queues/client';
 import { JOB_NAMES } from '@/constants.js';
-import z from 'zod';
 import { MoodleConnector } from '@/connectors/moodle.js';
-
 import { load } from 'cheerio';
 import { ofetch } from 'ofetch';
+import z from 'zod';
 
 const connector = new MoodleConnector();
 
@@ -60,7 +59,8 @@ export const componentsArchivesProcessingJob = defineJob(
         queueName: JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_PDF,
         data: {
           component: component.fullname,
-          url: pdf.pdfLink,
+          rawUrl: pdf.pdfLink,
+          moodleComponentId: component.id,
           globalTraceId,
         },
       })),
@@ -78,23 +78,30 @@ export const pdfDownloadJob = defineJob(
   .input(
     z.object({
       component: z.string(),
-      url: z.string().url(),
+      rawUrl: z.string().url(),
+      moodleComponentId: z.number(),
       globalTraceId: z.string().optional(),
     }),
   )
   .concurrency(10)
   .handler(async ({ job, app }) => {
-    const { url, component } = job.data;
+    const { rawUrl, moodleComponentId } = job.data;
     // Represents nothing currently.
     // const filteredFiles = await aiProxyConnector.filterFiles(component, [
     //   { url, name: `${component}.pdf` },
     // ]);
 
-    const buffer = await ofetch(url, { responseType: 'arrayBuffer' });
+    const url = new URL(rawUrl);
+    const buffer = await ofetch(url.href, { responseType: 'arrayBuffer' });
+
+    // Extract filename from URL pathname and decode it
+    const filenameFromUrl = extractFilenameFromUrl(url);
+    const sanitizedFilename = sanitizeFilename(filenameFromUrl);
+    const s3Key = `/archives/${moodleComponentId}/${sanitizedFilename}`;
 
     await app.aws.s3.upload(
       app.config.AWS_BUCKET ?? '',
-      `${component}`,
+      s3Key,
       Buffer.from(buffer),
     );
 
@@ -102,8 +109,9 @@ export const pdfDownloadJob = defineJob(
       success: true,
       message: 'PDF uploaded',
       data: {
-        pdfLink: url,
-        pdfName: component,
+        pdfLink: url.href,
+        pdfName: sanitizedFilename,
+        s3Key,
       },
     };
   });
@@ -185,4 +193,55 @@ async function extractPDFsFromComponent(
 
   const validatedLinks = await Promise.all(validationPromises);
   return validatedLinks.filter((link) => link !== null);
+}
+
+function extractFilenameFromUrl(url: URL): string {
+  const pathname = url.pathname;
+  const segments = pathname.split('/').filter((segment) => segment.length > 0);
+  const lastSegment = segments[segments.length - 1] || 'document.pdf';
+
+  try {
+    return decodeURIComponent(lastSegment);
+  } catch {
+    return lastSegment;
+  }
+}
+
+/**
+ * Sanitizes a filename for S3 upload by:
+ * - Removing invalid characters
+ * - Ensuring it ends with .pdf
+ * - Replacing spaces and special chars with underscores
+ */
+function sanitizeFilename(filename: string): string {
+  // Remove invalid S3 characters: < > : " | ? * and control characters
+  const invalidChars = /[<>:"|?*\s]/g;
+
+  let sanitized = filename
+    .split('')
+    .map((char) => {
+      const code = char.charCodeAt(0);
+      // Check for invalid S3 chars or control characters (0-31)
+      if (invalidChars.test(char) || (code >= 0 && code <= 31)) {
+        return '_';
+      }
+      return char;
+    })
+    .join('')
+    .replace(/_{2,}/g, '_')
+    .trim();
+
+  // Ensure it ends with .pdf
+  if (!sanitized.toLowerCase().endsWith('.pdf')) {
+    sanitized = `${sanitized}.pdf`;
+  }
+
+  // Limit length (S3 key limit is 1024 chars, but keep reasonable)
+  if (sanitized.length > 255) {
+    const ext = '.pdf';
+    const nameWithoutExt = sanitized.slice(0, 255 - ext.length);
+    sanitized = `${nameWithoutExt}${ext}`;
+  }
+
+  return sanitized || 'document.pdf';
 }

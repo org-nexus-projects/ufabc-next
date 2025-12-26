@@ -32,7 +32,7 @@ const configSchema = z.object({
   AWS_SECRET_ACCESS_KEY: z.string(),
   USE_LOCALSTACK: z.coerce.boolean().default(true),
   LOCALSTACK_ENDPOINT: z.string().default('http://localhost:4566'),
-  AWS_BUCKET: z.string().optional(),
+  AWS_BUCKET: z.string().default('ufabc-next'),
   OAUTH_GOOGLE_CLIENT_ID: z.string(),
   OAUTH_GOOGLE_SECRET: z.string().min(16),
   BACKOFFICE_EMAILS: z

@@ -23,6 +23,37 @@ export class S3Connector extends BaseAWSConnector<S3Client> {
     const command = new ListObjectsV2Command({
       Bucket: bucket,
     });
-    return this.client.send(command);
+    const result = await this.client.send(command);
+
+    if (!result.Contents) {
+      return [];
+    }
+
+    const files = [];
+    for (const item of result.Contents) {
+      files.push({
+        key: item.Key,
+        lastModified: item.LastModified,
+        size: this.#formatFileSize(item.Size),
+        rawSize: item.Size,
+      });
+    }
+    return files;
+  }
+
+  #formatFileSize(size?: number) {
+    if (!size) {
+      return '0 B';
+    }
+
+    if (size < 1024) {
+      return `${size} B`;
+    }
+
+    if (size < 1024 * 1024) {
+      return `${(size / 1024).toFixed(2)} KB`;
+    }
+
+    return `${(size / 1024 / 1024).toFixed(2)} MB`;
   }
 }
