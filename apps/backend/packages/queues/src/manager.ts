@@ -125,16 +125,10 @@ export class JobManager<
         'Setting up scheduled job',
       );
 
-      await queue.add(
-        name,
-        {},
-        {
-          repeat: {
-            pattern: jobBuilder.config.schedule,
-            tz: jobBuilder.config.scheduleTimezone,
-          },
-        },
-      );
+      await queue.upsertJobScheduler(name, {
+        every: jobBuilder.config.schedule,
+        tz: jobBuilder.config.scheduleTimezone,
+      });
     }
 
     const worker = new Worker(

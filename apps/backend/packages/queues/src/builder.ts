@@ -65,7 +65,7 @@ export class JobBuilder<
   };
   private _workerOptions: Partial<WorkerOptions> = {};
   private _handler?: JobHandler<any, TResult, TName>;
-  private _schedule?: string;
+  private _schedule?: number;
   private _scheduleTimezone?: string;
 
   constructor(name: TName) {
@@ -126,8 +126,8 @@ export class JobBuilder<
   }
 
   every(pattern: string, tz = 'UTC'): this {
-    const msPattern = ms(pattern) as unknown as string;
-    this._schedule = msPattern;
+    const msPattern = ms(pattern) as unknown as number;
+    this._schedule = Number(msPattern);
     this._scheduleTimezone = tz;
     return this;
   }
