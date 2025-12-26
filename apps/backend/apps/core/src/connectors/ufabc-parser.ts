@@ -136,4 +136,16 @@ export class UfabcParserConnector extends BaseRequester {
 
     return componentsFile;
   }
+
+  async getEnrolled(componentId?: number) {
+    const response = await this.request<UFProcessorEnrolled>(
+      '/v2/components/enrolled',
+      {
+        query: {
+          componentId,
+        },
+      },
+    );
+    return response;
+  }
 }
