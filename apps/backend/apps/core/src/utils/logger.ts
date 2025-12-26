@@ -20,7 +20,7 @@ const getLogFilePath = () => {
 
 const pinoPrettyOptions = {
   colorize: true,
-  translateTime: 'SYS:standard', // Uses system's local time
+  translateTime: 'SYS:standard',
   ignore: 'pid,hostname',
   messageKey: 'message',
 } satisfies PrettyOptions;
@@ -29,6 +29,14 @@ const axiomOptions = {
   dataset: process.env.AXIOM_DATASET as string,
   token: process.env.AXIOM_TOKEN as string,
 } satisfies AxiomOptions;
+
+const SENSITIVE_KEYS = [
+  'authorization',
+  'cookie',
+  'x-api-key',
+  'password',
+  'token',
+];
 
 const commonConfig = {
   level: process.env.LOG_LEVEL ?? 'info',
@@ -82,6 +90,31 @@ const loggerSetup = {
     timestamp: pino.stdTimeFunctions.isoTime,
     serializers: {
       error: stdSerializers.err,
+      err: stdSerializers.err,
+      req: (req) => {
+        const raw = stdSerializers.req(req);
+
+        if (raw.headers) {
+          const cleanHeaders = { ...raw.headers };
+          for (const key of SENSITIVE_KEYS) {
+            // @ts-expect-error - we want to remove the key
+            cleanHeaders[key] = undefined;
+          }
+
+          // @ts-expect-error - we want to stringify the headers
+          raw.headers = JSON.stringify(cleanHeaders);
+        }
+        if (raw.query) {
+          // @ts-expect-error - we want to stringify the query
+          raw.query = JSON.stringify(raw.query);
+        }
+        if (raw.params) {
+          // @ts-expect-error - we want to stringify the params
+          raw.params = JSON.stringify(raw.params);
+        }
+
+        return raw;
+      },
     },
     transport: {
       targets: [
@@ -102,6 +135,9 @@ const loggerSetup = {
 };
 
 export function buildLogger(env: 'dev' | 'prod' = 'dev') {
+  // Note: We use Object.assign logic or spread.
+  // Pino does a shallow merge, so defining serializers in 'prod'
+  // overrides the 'commonConfig' serializers completely for that keys.
   return pino({ ...commonConfig, ...loggerSetup[env] });
 }
 
