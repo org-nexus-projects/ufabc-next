@@ -1,5 +1,4 @@
 import { adminHook } from '@/hooks/admin.js';
-import { HTTP_REDIS_KEY_PREFIX } from '@/constants.js';
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 
@@ -13,11 +12,15 @@ const backofficeController: FastifyPluginAsyncZod = async (app) => {
           keys: z.string().array(),
         }),
       },
+      querystring: z.object({
+        namespace: z.enum(['http', 'bull']).optional().default('http'),
+      }),
     },
     preHandler: [adminHook],
     handler: async (request, reply) => {
-      const httpKeys = await app.redis.keys(`${HTTP_REDIS_KEY_PREFIX}:*`);
-      return reply.status(200).send({ keys: httpKeys });
+      const { namespace } = request.query;
+      const keys = await app.redis.keys(`${namespace}:*`);
+      return reply.status(200).send({ keys });
     },
   });
 };
