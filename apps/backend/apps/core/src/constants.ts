@@ -23,6 +23,7 @@ export const JOB_NAMES = {
   COMPONENTS_ARCHIVES_PROCESSING_PDF: 'components_archives_processing_pdf',
   ENROLLED_STUDENTS: 'enrolled_students',
   PROCESS_ENROLLED_STUDENTS: 'process_enrolled_students',
+  CREATE_COMPONENT: 'create_component',
 } as const;
 
 export const HTTP_REDIS_KEY_PREFIX = 'http:lock';

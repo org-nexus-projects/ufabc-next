@@ -37,28 +37,35 @@ export const enrolledStudentsJob = defineJob(JOB_NAMES.ENROLLED_STUDENTS)
       flowStarted: true,
     };
   })
-  .every('3 minutes');
+  .every('45 minutes');
 
 export const processEnrollmentJob = defineJob(
   JOB_NAMES.PROCESS_ENROLLED_STUDENTS,
-).handler(async ({ job }) => {
-  const { tenant, componentId, students } = job.data;
-  const component = await ComponentModel.findOneAndUpdate(
-    {
-      disciplina_id: componentId,
-      season: tenant,
-    },
-    {
-      $set: {
-        alunos_matriculados: students,
+)
+  .handler(async ({ job, manager }) => {
+    const { tenant, componentId, students } = job.data;
+    const component = await ComponentModel.findOneAndUpdate(
+      {
+        disciplina_id: componentId,
+        season: tenant,
       },
-    },
-  );
+      {
+        $set: {
+          alunos_matriculados: students,
+        },
+      },
+    );
 
-  if (!component) {
-    // TODO: dispatch a job to create the component
-    throw new Error('Component not found');
-  }
+    if (!component) {
+      await manager.dispatch(JOB_NAMES.CREATE_COMPONENT, {
+        componentId,
+      });
+      throw new Error('Component not found');
+    }
 
-  return component.toJSON();
-});
+    return component.toJSON();
+  })
+  .options({
+    removeOnComplete: { count: 1000, age: 24 * 60 * 60 },
+    removeOnFail: { count: 500, age: 24 * 60 * 60 },
+  });

@@ -22,7 +22,6 @@ export async function start() {
     app.log.info(app.printRoutes());
   }
 
-  // app.job.schedule('EnrolledSync');
   // app.job.schedule('ComponentsSync');
   // app.job.schedule('LogsUpload');
 

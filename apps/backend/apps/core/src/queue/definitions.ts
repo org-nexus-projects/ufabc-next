@@ -1,6 +1,5 @@
 import { sendConfirmationEmail, sendBulkEmail } from './jobs/email.job.js';
 import { processSingleEnrollment } from './jobs/enrollments.job.js';
-import { processSingleEnrolled, syncEnrolled } from './jobs/enrolled.job.js';
 import { updateTeachers } from './jobs/teacher-update.job.js';
 import { processComponent, syncComponents } from './jobs/components.job.js';
 import {
@@ -16,7 +15,6 @@ type JobNames =
   | 'send_email'
   | 'enrollments_update'
   | 'teacher_update_enrollments'
-  | 'sync_enrolled'
   | 'sync_components'
   | 'user_enrollments_update'
   | 'sync_components_teachers'
@@ -55,9 +53,6 @@ export const QUEUE_JOBS: Record<JobNames, WorkerOptions> = {
   teacher_update_enrollments: withConnection({
     concurrency: 5,
   }),
-  sync_enrolled: withConnection({
-    concurrency: 5,
-  }),
   user_enrollments_update: withConnection({
     concurrency: 5,
     removeOnComplete: { count: 400, age: 0 },
@@ -90,15 +85,6 @@ export const JOBS = {
   SendBulkEmail: {
     queue: 'send_email',
     handler: sendBulkEmail,
-  },
-  EnrolledSync: {
-    queue: 'sync_enrolled',
-    handler: syncEnrolled,
-    every: '3 minutes',
-  },
-  ProcessSingleEnrolled: {
-    queue: 'sync_enrolled',
-    handler: processSingleEnrolled,
   },
   ComponentsSync: {
     queue: 'sync_components',
