@@ -7,8 +7,8 @@
   "license": "ISC",
   "author": "Joabe Varjao <joabevarjao123@gmail.com>",
   "exports": {
-    "./client": "./src/builder.ts",
-    "./manager": "./src/manager.ts"
+    "./client": "./dist/builder.js",
+    "./manager": "./dist/manager.js"
   },
   "scripts": {
     "dev": "tsc --noEmit --watch",

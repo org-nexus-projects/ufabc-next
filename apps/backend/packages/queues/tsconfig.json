@@ -2,6 +2,11 @@
   "extends": [
     "@next/tsconfig/libs.json"
   ],
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
   "include": [
     "./src/**/*.ts"
   ],
