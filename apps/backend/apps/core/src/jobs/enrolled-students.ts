@@ -66,6 +66,6 @@ export const processEnrollmentJob = defineJob(
     return component.toJSON();
   })
   .options({
-    removeOnComplete: { count: 1000, age: 24 * 60 * 60 },
-    removeOnFail: { count: 500, age: 24 * 60 * 60 },
+    removeOnComplete: 1000,
+    removeOnFail: 50000,
   });
