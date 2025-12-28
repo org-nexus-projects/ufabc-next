@@ -1,5 +1,6 @@
 import { sigHistory, type SigHistory } from '@/schemas/history.js';
 import { BaseRequester } from './base-requester.js';
+import { currentQuad } from '@next/common';
 
 type ComponentId = number;
 type StudentIds = number;
@@ -70,6 +71,46 @@ export type UFProcessorComponentFile = {
   hours: Record<string, { periodicity: string; classPeriod: string[] }>[];
 };
 
+type Timetable = {
+  dayOfTheWeek:
+    | 'monday'
+    | 'tuesday'
+    | 'wednesday'
+    | 'thursday'
+    | 'friday'
+    | 'saturday'
+    | 'sunday';
+  periodicty: 'weekly' | 'biweekly';
+  startTime: string;
+  endTime: string;
+};
+
+type UfabcParserComponentV2 = {
+  componentKey: string;
+  subjectKey: string;
+  name: string;
+  credits: number;
+  ufComponentId: number;
+  ufComponentCode: string;
+  campus: 'sbc' | 'sa';
+  shift: 'morning' | 'night';
+  vacancies: number;
+  componentClass: string;
+  season: string;
+  ufClassroomCode: string;
+  tpi: {
+    theory: number;
+    practice: number;
+    individual: number;
+  };
+  courses: Array<{
+    name: string | '-';
+    UFCourseId: number;
+    category: 'limited' | 'mandatory';
+  }>;
+  timetable: Timetable[];
+};
+
 export class UfabcParserConnector extends BaseRequester {
   constructor() {
     super(process.env.UFABC_PARSER_URL);
@@ -135,5 +176,31 @@ export class UfabcParserConnector extends BaseRequester {
     );
 
     return componentsFile;
+  }
+
+  async getEnrolled(componentId?: number) {
+    const response = await this.request<UFProcessorEnrolled>(
+      '/v2/components/enrolled',
+      {
+        query: {
+          componentId,
+        },
+      },
+    );
+    return response;
+  }
+
+  async getComponent(ufComponentId: number) {
+    const season = currentQuad();
+    const response = await this.request<UfabcParserComponentV2[]>(
+      '/v2/components',
+      {
+        query: {
+          ufComponentId,
+          season,
+        },
+      },
+    );
+    return response;
   }
 }

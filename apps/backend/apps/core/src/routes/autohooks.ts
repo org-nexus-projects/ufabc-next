@@ -22,6 +22,7 @@ const EXTENSION_ROUTES = [
   '/entities/students/sig',
   '/histories',
   '/entities/students',
+  '/components'
 ];
 
 const isPublicRoute = (url: string): boolean => {

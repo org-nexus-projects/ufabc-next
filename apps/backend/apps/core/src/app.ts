@@ -1,19 +1,27 @@
 import type { FastifyInstance, FastifyServerOptions } from 'fastify';
 import {
-  validatorCompiler,
-  serializerCompiler,
   RequestValidationError,
   ResponseSerializationError,
 } from 'fastify-zod-openapi';
 import { fastifyAutoload } from '@fastify/autoload';
 import { join } from 'node:path';
+import componentsController from './controllers/components-controller.js';
+import { setupV2Routes } from './plugins/v2/setup.js';
+import queueV2Plugin from './plugins/v2/queue.js';
+import awsV2Plugin from './plugins/v2/aws.js';
+import { authenticateBoard } from './hooks/board-authenticate.js';
+import testUtilsPlugin from './plugins/v2/test-utils.js';
+import redisV2Plugin from './plugins/v2/redis.js';
+import backofficeController from './controllers/backoffice-controller.js';
+
+const routesV2 = [componentsController, backofficeController];
 
 export async function buildApp(
   app: FastifyInstance,
   opts: FastifyServerOptions = {},
 ) {
-  app.setValidatorCompiler(validatorCompiler);
-  app.setSerializerCompiler(serializerCompiler);
+  // This allows both fastify-zod-openapi (old routes) and fastify-type-provider-zod (v2 routes) to coexist
+  await setupV2Routes(app, routesV2);
 
   await app.register(fastifyAutoload, {
     dir: join(import.meta.dirname, 'plugins/external'),
@@ -25,6 +33,12 @@ export async function buildApp(
     options: { ...opts },
   });
 
+  await app.register(redisV2Plugin);
+  await app.register(queueV2Plugin, {
+    redisURL: new URL(app.config.REDIS_CONNECTION_URL),
+  });
+  await app.register(awsV2Plugin);
+
   app.register(fastifyAutoload, {
     dir: join(import.meta.dirname, 'routes'),
     autoHooks: true,
@@ -32,6 +46,11 @@ export async function buildApp(
     ignorePattern: /^.*(?:test|spec|service).(ts|js)$/,
     options: { ...opts },
   });
+
+  await app.register(testUtilsPlugin);
+
+  await app.manager.start();
+  await app.manager.board({ authenticate: authenticateBoard });
 
   app.worker.setup();
   app.job.setup();
@@ -52,21 +71,15 @@ export async function buildApp(
   });
 
   app.setErrorHandler((error, request, reply) => {
-    reply.error = error;
-
-    if (error.validation) {
-      const zodValidationErrors = error.validation.filter(
-        (err) => err instanceof RequestValidationError,
-      );
-      const zodIssues = zodValidationErrors.map((err) => err.params.issue);
-      const originalError = zodValidationErrors?.[0]?.params.error;
-      return reply.status(422).send({
-        zodIssues,
-        originalError,
-      });
-    }
+    reply.error = error as Error;
 
     if (error instanceof ResponseSerializationError) {
+      return reply.status(422).send({
+        zodIssues: error.validation?.map((err) => err.params.issue) ?? [],
+        originalError: error.validation?.[0]?.params.error ?? null,
+      });
+    }
+    if (error instanceof Error) {
       request.log.error(
         {
           error,
@@ -77,7 +90,7 @@ export async function buildApp(
             params: request.params,
           },
         },
-        'Error serializing response',
+        error.message,
       );
 
       return reply.status(500).send({
@@ -89,30 +102,6 @@ export async function buildApp(
 
     if (!error) {
       return;
-    }
-
-    if (error) {
-      request.log.error(
-        {
-          error,
-          request: {
-            method: request.method,
-            url: request.url,
-            query: request.query,
-            params: request.params,
-          },
-        },
-        'Unhandled error occurred',
-      );
-
-      reply.code(error.statusCode ?? 500);
-
-      let message = 'Internal Server Error';
-      if (error.statusCode && error.statusCode < 500) {
-        message = error.message;
-      }
-
-      return { message };
     }
   });
 

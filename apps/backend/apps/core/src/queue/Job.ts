@@ -104,18 +104,9 @@ export class Jobs implements JobImpl {
       );
       if ('every' in jobDefinition) {
         const queue = this.queues[jobDefinition.queue];
-        const {
-          mongoose: _mongoose,
-          job: _job,
-          worker: _worker,
-          server: _server,
-          config: _config,
-          jwt: _jwt,
-          ...app
-        } = this.app;
         await queue.add(
           name as JobNames,
-          { app },
+          {},
           {
             repeat: {
               every: ms(jobDefinition.every),

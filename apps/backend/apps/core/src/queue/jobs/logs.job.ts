@@ -9,7 +9,7 @@ const LOGS_DIR = join(process.cwd(), 'logs');
 const ARCHIVE_DIR = join(LOGS_DIR, 'archive');
 
 export async function uploadLogsToS3(ctx: QueueContext<unknown>) {
-  const bucket = process.env.AWS_LOGS_BUCKET;
+  const bucket = process.env.AWS_BUCKET;
 
   try {
     ctx.app.log.info('init logs processing');

@@ -2,9 +2,7 @@ import { notionClient } from '@/lib/notion.service.js';
 import type { QueueContext } from '../types.js';
 import type { HelpForm } from '@/schemas/help.js';
 
-export async function postInfoIntoNotionDB(
-  ctx: QueueContext<HelpForm>,
-) {
+export async function postInfoIntoNotionDB(ctx: QueueContext<HelpForm>) {
   const data = ctx.job.data;
   try {
     const requestDay = new Date(ctx.job.timestamp);
@@ -21,21 +19,24 @@ export async function postInfoIntoNotionDB(
       const imageBuffer = Buffer.from(data.imageBuffer, 'base64');
       try {
         //Create file upload object in Notion
-        const fileUpload = await notionClient.request({
+        const fileUpload = (await notionClient.request({
           method: 'post',
           path: 'file_uploads',
           body: {
             mode: 'single_part',
             filename: data.imageFilename,
           },
-        }) as { id: string; upload_url: string; status: string };
+        })) as { id: string; upload_url: string; status: string };
 
-        ctx.app.log.debug('File upload object created', { 
-          fileUploadId: fileUpload.id, 
-          status: fileUpload.status,
-          hasUploadUrl: !!fileUpload.upload_url,
-          fullResponse: fileUpload 
-        });
+        ctx.app.log.debug(
+          {
+            fileUploadId: fileUpload.id,
+            status: fileUpload.status,
+            hasUploadUrl: !!fileUpload.upload_url,
+            fullResponse: fileUpload,
+          },
+          'File upload object created',
+        );
 
         // Upload file to the provided upload_url
         const formData = new FormData();
@@ -45,7 +46,7 @@ export async function postInfoIntoNotionDB(
         const uploadResponse = await fetch(fileUpload.upload_url, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${process.env.NOTION_INTEGRATION_SECRET}`,
+            Authorization: `Bearer ${process.env.NOTION_INTEGRATION_SECRET}`,
             'Notion-Version': '2022-06-28',
           },
           body: formData,
@@ -55,25 +56,39 @@ export async function postInfoIntoNotionDB(
 
         if (uploadResponse.ok) {
           fileUploadId = fileUpload.id;
-          ctx.app.log.debug('File uploaded to Notion successfully', { 
-            fileUploadId,
-            uploadResult 
-          });
+          ctx.app.log.debug(
+            {
+              fileUploadId,
+              uploadResult,
+            },
+            'File uploaded to Notion successfully',
+          );
         } else {
           const errorText = await uploadResponse.text();
-          const uploadError = new Error(`Failed to upload file to Notion: ${uploadResponse.status} ${uploadResponse.statusText}`);
-          ctx.app.log.error('Failed to upload file to Notion', { 
-            status: uploadResponse.status,
-            statusText: uploadResponse.statusText,
-            error: errorText
-          });
+          const uploadError = new Error(
+            `Failed to upload file to Notion: ${uploadResponse.status} ${uploadResponse.statusText}`,
+          );
+          ctx.app.log.error(
+            {
+              status: uploadResponse.status,
+              statusText: uploadResponse.statusText,
+              error: errorText,
+            },
+            'Failed to upload file to Notion',
+          );
           throw uploadError;
         }
       } catch (uploadError) {
-        ctx.app.log.error('Error uploading file to Notion', { 
-          error: uploadError instanceof Error ? uploadError.message : String(uploadError),
-          stack: uploadError instanceof Error ? uploadError.stack : undefined
-        });
+        ctx.app.log.error(
+          {
+            error:
+              uploadError instanceof Error
+                ? uploadError.message
+                : String(uploadError),
+            stack: uploadError instanceof Error ? uploadError.stack : undefined,
+          },
+          'Error uploading file to Notion',
+        );
         throw uploadError;
       }
     }

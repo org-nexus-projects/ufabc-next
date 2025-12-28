@@ -1,4 +1,5 @@
 {
+  "sourceMap": true,
   "extends": [
     "fastify-tsconfig"
   ],
@@ -8,13 +9,14 @@
         "./src/*"
       ]
     },
+    "skipLibCheck": true,
     "plugins": [
       {
         "transform": "typescript-transform-paths"
       }
     ],
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
   },
   "include": [
     "src/**/*.ts",

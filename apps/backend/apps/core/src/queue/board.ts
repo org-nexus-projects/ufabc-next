@@ -1,6 +1,6 @@
 import { FastifyAdapter } from '@bull-board/fastify';
 import { createBullBoard } from '@bull-board/api';
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter.js';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import type { Queue } from 'bullmq';
 
 export const boardUiPath = (process.env.BOARD_PATH as string) ?? '/board/ui';

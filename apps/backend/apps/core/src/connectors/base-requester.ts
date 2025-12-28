@@ -18,9 +18,6 @@ export class BaseRequester {
           this.getLogger() ?? defaultLogger.child({ connector: true });
         const traceId = this.getTraceId();
 
-        logger.info({ options }, 'request options');
-
-        // Convert Headers object to plain object if needed
         const existingHeaders =
           options.headers instanceof Headers
             ? Object.fromEntries(options.headers.entries())
@@ -54,7 +51,7 @@ export class BaseRequester {
             responseType: options.responseType,
             body: options.body,
           },
-          TRACING_MESSAGES.INCOMING_REQUEST,
+          TRACING_MESSAGES.OUTGOING_REQUEST,
         );
       },
       onResponse: ({ response, options }) => {
@@ -70,6 +67,7 @@ export class BaseRequester {
           status: response.status,
           headers: response.headers,
           responseType: options.responseType || 'json',
+          body: response.body,
         };
 
         if (response.status >= 500) {
@@ -83,7 +81,7 @@ export class BaseRequester {
             TRACING_MESSAGES.INCOMING_RESPONSE_WITH_4XX_STATUS,
           );
         } else {
-          logger.info(logData, TRACING_MESSAGES.INCOMING_REQUEST);
+          logger.info(logData, TRACING_MESSAGES.INCOMING_RESPONSE);
         }
       },
       onResponseError: ({ response }) => {

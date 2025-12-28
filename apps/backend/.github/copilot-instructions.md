@@ -21,7 +21,7 @@ Be productive in the UFABC Next backend monorepo. This document gives concise, a
 
 - Fastify with autoload: Plugins are separated into `external` (third-party wrappers + infra) and `custom` (application plugins like authorization, queue, token-generator). Use `fastifyAutoload` when adding new plugins and follow existing plugin initialization style (see `apps/core/src/app.ts`).
 - Job / Worker system: There is a queue/worker abstraction in `apps/core/src/queue/*` and jobs scheduled in `server.ts` via `app.job.schedule(... )`. When adding background tasks, register them under `queue/jobs` and wire up `Worker.ts`/`Job.ts` types.
-- Config/Env: `config.ts` defines the zod schema; environment variables are accessed on `app.config`. Respect defaults and `.env.dev` values when writing code that uses config flags (e.g., `USE_LOCALSTACK`, `AWS_LOGS_BUCKET`, `WEB_URL`).
+- Config/Env: `config.ts` defines the zod schema; environment variables are accessed on `app.config`. Respect defaults and `.env.dev` values when writing code that uses config flags (e.g., `USE_LOCALSTACK`, `AWS_BUCKET`, `WEB_URL`).
 - Error handling: `app.setErrorHandler` and special handling for zod validation/serialization errors is centralized in `app.ts`. Return structured errors with status codes consistent with current handlers (422 for validation, 500 for serialization/internal).
 - Routes auto-loading: Routes are auto-registered and use zod + zod-openapi for validation/serialization. Place route files under `routes/` and avoid names matching `test|spec|service` to prevent ignorePattern.
 
@@ -60,7 +60,7 @@ Be productive in the UFABC Next backend monorepo. This document gives concise, a
 - Read a config value:
 
 ```ts
-const bucket = app.config.AWS_LOGS_BUCKET;
+const bucket = app.config.AWS_BUCKET;
 ```
 
 - Register an autoloaded plugin (follow existing style):
