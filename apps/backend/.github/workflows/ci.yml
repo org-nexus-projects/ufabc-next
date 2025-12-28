@@ -21,7 +21,7 @@ jobs:
       OAUTH_GOOGLE_CLIENT_ID: "dummy-client-id"
       OAUTH_GOOGLE_SECRET: "dummy-secret-at-least-16-chars"
       JWT_SECRET: "LWp9YJMiUtfQxoepoTL7RkWJi6W5C6ED"
-      NEXT_AI_LAMBDA_URL: "http://localhost:8080"
+      NEXT_AGENT_URL: "http://localhost:8080"
       MONGODB_CONNECTION_URL: "mongodb://localhost:27017"
       REDIS_CONNECTION_URL: "redis://localhost:6379"
 
