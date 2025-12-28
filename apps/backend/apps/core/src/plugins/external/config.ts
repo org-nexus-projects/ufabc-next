@@ -27,7 +27,7 @@ const configSchema = z.object({
   UFABC_PARSER_URL: z.string(),
   AWS_REGION: z.string(),
   AWS_ACCESS_KEY_ID: z.string(),
-  NEXT_AI_LAMBDA_URL: z.string(),
+  NEXT_AGENT_URL: z.string(),
   SERVICE_HEADER: z.string().optional(),
   AWS_SECRET_ACCESS_KEY: z.string(),
   USE_LOCALSTACK: z.coerce.boolean().default(true),
