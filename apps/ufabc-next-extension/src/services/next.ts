@@ -181,11 +181,11 @@ export async function sendResults(results: { sessionToken: string | null, sessKe
   headers.set('sess-key', results.sessKey);
 
   try {
-    const response = await nextService<{ msg: string }>("/components", {
+    const response = await nextService<{ msg: string }>("/v2/components/archives", {
       method: 'POST',
       headers
     });
-
+    return response;
   } catch (error) {
     console.error('[sendResults] Erro ao enviar dados:', error);
   }
