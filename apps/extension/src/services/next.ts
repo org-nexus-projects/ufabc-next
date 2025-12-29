@@ -142,7 +142,7 @@ export type MatriculaStudent =  {
 }
 
 export const nextService = ofetch.create({
-  baseURL: import.meta.env.VITE_UFABC_NEXT_URL,
+  baseURL: "https://api.v2.ufabcnext.com",
 });
 
 

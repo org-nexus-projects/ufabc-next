@@ -42,7 +42,7 @@ export type ShallowStudent = {
 
 
 const ufParserService = ofetch.create({
-	baseURL: import.meta.env.VITE_UFABC_PARSER_URL,
+	baseURL: "https://ufabc-parser.com",
 });
 
 
