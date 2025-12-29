@@ -22,16 +22,16 @@ services:
     image: localstack/localstack:latest
     container_name: localstack
     ports:
-      - "4566:4566" # LocalStack gateway
-      - "4571:4571" # Alternative API gateway
+      - '4566:4566' # LocalStack gateway
+      - '4571:4571' # Alternative API gateway
     environment:
-      SERVICES: "s3,lambda,dynamodb,sqs,sns,ses"
-      AWS_ACCESS_KEY_ID: "AWS_ACCESS_KEY_ID_LOCALSTACK"
-      AWS_SECRET_ACCESS_KEY: "AWS_SECRET_ACCESS_KEY_LOCALSTACK"
-      DEBUG: "1"
+      SERVICES: 's3,lambda,dynamodb,sqs,sns,ses'
+      AWS_ACCESS_KEY_ID: 'AWS_ACCESS_KEY_ID_LOCALSTACK'
+      AWS_SECRET_ACCESS_KEY: 'AWS_SECRET_ACCESS_KEY_LOCALSTACK'
+      DEBUG: '1'
     volumes:
-      - "./scripts/docker/localstack:/var/lib/localstack"
-      - "./scripts/init-localstack.sh:/etc/localstack/init/ready.d/init.sh"
+      - './scripts/docker/localstack:/var/lib/localstack'
+      - './scripts/init-localstack.sh:/etc/localstack/init/ready.d/init.sh'
 
 volumes:
   next-db-data:

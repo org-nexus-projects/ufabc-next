@@ -1,13 +1,6 @@
 import { type InferSchemaType, Schema, model } from 'mongoose';
 
-export const COURSE_SHIFTS = [
-  'Noturno',
-  'Matutino',
-  'noturno',
-  'matutino',
-  'n',
-  'm',
-] as const;
+export const COURSE_SHIFTS = ['Noturno', 'Matutino', 'noturno', 'matutino', 'n', 'm'] as const;
 
 const coursesSchema = new Schema(
   {

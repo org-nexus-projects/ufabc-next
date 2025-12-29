@@ -13,29 +13,15 @@ export interface QueueContext<TData = unknown> {
 }
 
 // Type-safe queue that enforces job data and result types
-export type TypeSafeQueue<TData = unknown, TResult = unknown> = Queue<
-  TData,
-  TResult,
-  JobNames
->;
+export type TypeSafeQueue<TData = unknown, TResult = unknown> = Queue<TData, TResult, JobNames>;
 
 // Type-safe worker that enforces job data and result types
-export type TypeSafeWorker<TData = unknown, TResult = unknown> = Worker<
-  TData,
-  TResult,
-  JobNames
->;
+export type TypeSafeWorker<TData = unknown, TResult = unknown> = Worker<TData, TResult, JobNames>;
 
 // Helper type to extract the data type from a job name
-export type JobDataType<T extends JobNames> = Parameters<
-  (typeof JOBS)[T]['handler']
->[0] extends QueueContext<infer D>
-  ? D
-  : never;
+export type JobDataType<T extends JobNames> =
+  Parameters<(typeof JOBS)[T]['handler']>[0] extends QueueContext<infer D> ? D : never;
 
 // Helper type to extract the result type from a job name
-export type JobResultType<T extends JobNames> = ReturnType<
-  (typeof JOBS)[T]['handler']
-> extends Promise<infer R>
-  ? R
-  : never;
+export type JobResultType<T extends JobNames> =
+  ReturnType<(typeof JOBS)[T]['handler']> extends Promise<infer R> ? R : never;

@@ -28,9 +28,7 @@ export type SigStatus = (typeof SIG_COMPONENTS_STATUS)[number];
 const sigComponents = z.object({
   UFCode: z.string(),
   category: z.enum(SIG_CATEGORIES),
-  class: z
-    .string()
-    .transform((val) => (val === '--' || val === '-' ? null : val)),
+  class: z.string().transform((val) => (val === '--' || val === '-' ? null : val)),
   credits: z.number().int(),
   grade: z.enum(SIG_RESULTS),
   name: z.string().toLowerCase(),
@@ -50,9 +48,7 @@ const CAMPUS_ENUM = z.enum(['sa', 'sbc']);
 
 const sigStudent = z.object({
   campus: CAMPUS_ENUM.optional(),
-  shift: z
-    .enum(['n', 'm'])
-    .transform((val) => (val === 'n' ? 'noturno' : 'matutino')),
+  shift: z.enum(['n', 'm']).transform((val) => (val === 'n' ? 'noturno' : 'matutino')),
   course: z
     .string()
     .toLowerCase()

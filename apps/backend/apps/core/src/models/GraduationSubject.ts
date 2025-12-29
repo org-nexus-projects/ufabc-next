@@ -34,7 +34,4 @@ const graduationSubjectSchema = new Schema(
 graduationSubjectSchema.index({ graduation: 'asc' });
 
 export type GraduationSubject = InferSchemaType<typeof graduationSubjectSchema>;
-export const GraduationSubjectModel = model(
-  'subjectgraduations',
-  graduationSubjectSchema,
-);
+export const GraduationSubjectModel = model('subjectgraduations', graduationSubjectSchema);

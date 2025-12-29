@@ -10,12 +10,7 @@ declare module 'fastify' {
 
 export default fp(
   async (app, opts: { redisURL: URL }) => {
-    const manager = new JobManager(
-      app,
-      jobRegistry,
-      opts.redisURL,
-      '/v2/board/ui',
-    );
+    const manager = new JobManager(app, jobRegistry, opts.redisURL, '/v2/board/ui');
 
     app.decorate('manager', manager);
 

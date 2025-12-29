@@ -81,10 +81,7 @@ export async function postInfoIntoNotionDB(ctx: QueueContext<HelpForm>) {
       } catch (uploadError) {
         ctx.app.log.error(
           {
-            error:
-              uploadError instanceof Error
-                ? uploadError.message
-                : String(uploadError),
+            error: uploadError instanceof Error ? uploadError.message : String(uploadError),
             stack: uploadError instanceof Error ? uploadError.stack : undefined,
           },
           'Error uploading file to Notion',

@@ -148,9 +148,7 @@ commentSchema.pre('save', async function () {
       type: this.type,
     });
     if (enrollment) {
-      throw new Error(
-        `Você só pode comentar uma vez neste vinculo ${this.enrollment}`,
-      );
+      throw new Error(`Você só pode comentar uma vez neste vinculo ${this.enrollment}`);
     }
   }
 });

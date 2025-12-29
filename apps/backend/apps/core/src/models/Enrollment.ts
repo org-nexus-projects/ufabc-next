@@ -141,7 +141,5 @@ enrollmentSchema.post('findOneAndUpdate', async function (doc) {
 });
 
 export type Enrollment = InferSchemaType<typeof enrollmentSchema>;
-export type EnrollmentDocument = ReturnType<
-  (typeof EnrollmentModel)['hydrate']
->;
+export type EnrollmentDocument = ReturnType<(typeof EnrollmentModel)['hydrate']>;
 export const EnrollmentModel = model('enrollments', enrollmentSchema);

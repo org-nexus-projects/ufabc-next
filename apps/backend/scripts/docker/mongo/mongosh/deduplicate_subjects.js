@@ -18,16 +18,18 @@ const preEnrollmentsCount = db.enrollments.countDocuments();
 const preCommentsCount = db.comments.countDocuments();
 log(`Pre-deduplication: enrollments=${preEnrollmentsCount}, comments=${preCommentsCount}`);
 
-const duplicateGroups = db.subjects.aggregate([
-  {
-    $group: {
-      _id: "$search",
-      docs: { $push: "$$ROOT" },
-      count: { $sum: 1 }
-    }
-  },
-  { $match: { count: { $gt: 1 } } }
-]).toArray();
+const duplicateGroups = db.subjects
+  .aggregate([
+    {
+      $group: {
+        _id: '$search',
+        docs: { $push: '$$ROOT' },
+        count: { $sum: 1 },
+      },
+    },
+    { $match: { count: { $gt: 1 } } },
+  ])
+  .toArray();
 
 let totalDuplicates = 0;
 let totalUpdated = 0;
@@ -47,14 +49,16 @@ for (const group of duplicateGroups) {
   if (duplicates.length === 0) continue;
   totalDuplicates += duplicates.length;
   log(`Canonical for search='${group._id}': ${canonical._id}`);
-  log(`Duplicates: ${duplicates.map(d => d._id).join(', ')}`);
+  log(`Duplicates: ${duplicates.map((d) => d._id).join(', ')}`);
 
   // Update references in all related collections
   for (const { name, field } of collectionsToUpdate) {
-    const res = db.getCollection(name).updateMany(
-      { [field]: { $in: duplicates.map(d => d._id) } },
-      { $set: { [field]: canonical._id } }
-    );
+    const res = db
+      .getCollection(name)
+      .updateMany(
+        { [field]: { $in: duplicates.map((d) => d._id) } },
+        { $set: { [field]: canonical._id } },
+      );
     if (res.modifiedCount > 0) {
       log(`Updated ${res.modifiedCount} docs in ${name}`);
       totalUpdated += res.modifiedCount;
@@ -62,14 +66,16 @@ for (const group of duplicateGroups) {
   }
 
   // Delete duplicate subjects
-  const delRes = db.subjects.deleteMany({ _id: { $in: duplicates.map(d => d._id) } });
+  const delRes = db.subjects.deleteMany({ _id: { $in: duplicates.map((d) => d._id) } });
   if (delRes.deletedCount > 0) {
     log(`Deleted ${delRes.deletedCount} duplicate subjects`);
     totalDeleted += delRes.deletedCount;
   }
 }
 
-log(`Deduplication complete. Duplicates merged: ${totalDuplicates}, References updated: ${totalUpdated}, Subjects deleted: ${totalDeleted}`);
+log(
+  `Deduplication complete. Duplicates merged: ${totalDuplicates}, References updated: ${totalUpdated}, Subjects deleted: ${totalDeleted}`,
+);
 
 // SAFETY CHECK: Count enrollments and comments after deduplication
 const postEnrollmentsCount = db.enrollments.countDocuments();
@@ -77,12 +83,22 @@ const postCommentsCount = db.comments.countDocuments();
 log(`Post-deduplication: enrollments=${postEnrollmentsCount}, comments=${postCommentsCount}`);
 
 if (preEnrollmentsCount !== postEnrollmentsCount) {
-  log('WARNING: Enrollment count changed! Before: ' + preEnrollmentsCount + ', After: ' + postEnrollmentsCount);
+  log(
+    'WARNING: Enrollment count changed! Before: ' +
+      preEnrollmentsCount +
+      ', After: ' +
+      postEnrollmentsCount,
+  );
 } else {
   log('SUCCESS: Enrollment count unchanged.');
 }
 if (preCommentsCount !== postCommentsCount) {
-  log('WARNING: Comments count changed! Before: ' + preCommentsCount + ', After: ' + postCommentsCount);
+  log(
+    'WARNING: Comments count changed! Before: ' +
+      preCommentsCount +
+      ', After: ' +
+      postCommentsCount,
+  );
 } else {
   log('SUCCESS: Comments count unchanged.');
 }
@@ -93,4 +109,4 @@ try {
   log('Unique index on search created.');
 } catch (e) {
   log('Could not create unique index on search: ' + e.message);
-} 
+}

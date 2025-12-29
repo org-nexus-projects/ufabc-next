@@ -20,13 +20,7 @@ export default fp(
     const acquireLock = async (key: string, ttl: string) => {
       const ttlInMs = ms(ttl);
       const lockKey = `${HTTP_REDIS_KEY_PREFIX}:${key}`;
-      const result = await app.redis.set(
-        lockKey,
-        new Date().toISOString(),
-        'EX',
-        ttlInMs,
-        'NX',
-      );
+      const result = await app.redis.set(lockKey, new Date().toISOString(), 'EX', ttlInMs, 'NX');
 
       return result === 'OK';
     };

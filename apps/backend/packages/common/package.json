@@ -2,10 +2,10 @@
   "name": "@next/common",
   "version": "1.0.0",
   "description": "Common functions for the backend",
-  "type": "module",
   "keywords": [],
   "license": "ISC",
   "author": "Joabe Varjao <joabevarjao123@gmail.com>",
+  "type": "module",
   "main": "dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {

@@ -18,9 +18,7 @@ const configSchema = z.object({
   HOST: z.string().min(4).default('0.0.0.0'),
   JWT_SECRET: z.string().default(JWT_SECRET),
   RATE_LIMIT_MAX: z.coerce.number().default(100),
-  MONGODB_CONNECTION_URL: z
-    .string()
-    .default('mongodb://127.0.0.1:27017/ufabc-matricula'),
+  MONGODB_CONNECTION_URL: z.string().default('mongodb://127.0.0.1:27017/ufabc-matricula'),
   REDIS_CONNECTION_URL: z.string().default('redis://localhost:6379'),
   WEB_URL: z.string().default(NEXT_WEB_LOCAL),
   ALLOWED_ORIGINS: z.string().transform((origins) => origins.split(',')),

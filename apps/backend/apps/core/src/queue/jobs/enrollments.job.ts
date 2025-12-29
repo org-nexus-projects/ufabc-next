@@ -2,9 +2,7 @@ import { EnrollmentModel } from '@/models/Enrollment.js';
 import type { QueueContext } from '../types.js';
 import type { StudentEnrollment } from '@/routes/sync/index.js';
 
-export async function processSingleEnrollment(
-  ctx: QueueContext<StudentEnrollment>,
-) {
+export async function processSingleEnrollment(ctx: QueueContext<StudentEnrollment>) {
   const enrollment = ctx.job.data;
 
   try {

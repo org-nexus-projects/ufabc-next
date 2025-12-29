@@ -731,8 +731,7 @@ db.histories.insertMany([
         categoria: 'Obrigatória',
         periodo: '3',
         situacao: 'Aprovado',
-        disciplina:
-          'Práticas de Ensino de Ciências e Matemática no Ensino Fundamental',
+        disciplina: 'Práticas de Ensino de Ciências e Matemática no Ensino Fundamental',
         ano: '2014',
         conceito: 'A',
       },
@@ -1067,5 +1066,5 @@ db.histories.insertMany([
         conceito: 'F',
       },
     ],
-  }
-])
+  },
+]);

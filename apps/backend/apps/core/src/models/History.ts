@@ -16,12 +16,7 @@ export const POSSIBLE_SITUATIONS = [
   null,
 ] as const;
 // can be '-' if the component was dropped (trancamento)
-export const CATEGORIES = [
-  'Livre Escolha',
-  'Obrigatória',
-  'Opção Limitada',
-  '-',
-] as const;
+export const CATEGORIES = ['Livre Escolha', 'Obrigatória', 'Opção Limitada', '-'] as const;
 export type Categories = (typeof CATEGORIES)[number];
 export type Concept = (typeof CONCEITOS)[number];
 export type Situations = (typeof POSSIBLE_SITUATIONS)[number];
@@ -106,7 +101,4 @@ const historySchema = new Schema<History, THistoryModel>(
 
 historySchema.index({ curso: 'asc', grade: 'asc' });
 
-export const HistoryModel = model<History, THistoryModel>(
-  'histories',
-  historySchema,
-);
+export const HistoryModel = model<History, THistoryModel>('histories', historySchema);

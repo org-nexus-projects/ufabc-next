@@ -1,12 +1,7 @@
 import { Worker, type WorkerOptions } from 'bullmq';
 import { JOBS, QUEUE_JOBS } from './definitions.js';
 import type { FastifyInstance } from 'fastify';
-import type {
-  JobNames,
-  JobResultType,
-  QueueContext,
-  TypeSafeWorker,
-} from './types.js';
+import type { JobNames, JobResultType, QueueContext, TypeSafeWorker } from './types.js';
 
 export class QueueWorker {
   private workers: Partial<Record<JobNames, TypeSafeWorker>> = {};
@@ -22,10 +17,7 @@ export class QueueWorker {
       return;
     }
 
-    for (const [name, settings] of Object.entries(QUEUE_JOBS) as [
-      JobNames,
-      WorkerOptions,
-    ][]) {
+    for (const [name, settings] of Object.entries(QUEUE_JOBS) as [JobNames, WorkerOptions][]) {
       const workerOpts: WorkerOptions = {
         ...settings,
       };
@@ -50,10 +42,7 @@ export class QueueWorker {
     }
   }
 
-  private buildWorkerEvents(
-    worker: Worker<unknown, unknown, JobNames>,
-    queueName: string,
-  ) {
+  private buildWorkerEvents(worker: Worker<unknown, unknown, JobNames>, queueName: string) {
     worker.on('error', (error) => {
       this.app.log.error({ err: error, queueName }, 'Queue worker error');
     });
@@ -67,10 +56,7 @@ export class QueueWorker {
     });
 
     worker.on('failed', (job, error) => {
-      this.app.log.error(
-        { jobId: job?.id, err: error, queueName },
-        'Job failed',
-      );
+      this.app.log.error({ jobId: job?.id, err: error, queueName }, 'Job failed');
     });
   }
 

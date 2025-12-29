@@ -1,13 +1,9 @@
 {
   "sourceMap": true,
-  "extends": [
-    "fastify-tsconfig"
-  ],
+  "extends": ["fastify-tsconfig"],
   "compilerOptions": {
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"]
     },
     "skipLibCheck": true,
     "plugins": [
@@ -16,15 +12,8 @@
       }
     ],
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": "src"
   },
-  "include": [
-    "src/**/*.ts",
-    "esbuild.ts",
-    "test/**/*.ts",
-    "runTests.ts"
-  ],
-  "exclude": [
-    "node_modules/**/*"
-  ]
+  "include": ["src/**/*.ts", "esbuild.ts", "test/**/*.ts", "runTests.ts"],
+  "exclude": ["node_modules/**/*"]
 }

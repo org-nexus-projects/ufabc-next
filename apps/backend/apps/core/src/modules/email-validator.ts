@@ -22,9 +22,7 @@ export async function getEmployeeData(email: string) {
     return null;
   }
 
-  const response = await ofetch<Employee>(
-    `${process.env.EMAIL_API}?funcao=1&valor=${email}`,
-  );
+  const response = await ofetch<Employee>(`${process.env.EMAIL_API}?funcao=1&valor=${email}`);
 
   return response ? response : null;
 }
@@ -34,9 +32,7 @@ export async function getStudentData(ra: string) {
     return null;
   }
 
-  const response = await ofetch<User>(
-    `${process.env.EMAIL_API}?funcao=2&valor=${ra}`,
-  );
+  const response = await ofetch<User>(`${process.env.EMAIL_API}?funcao=2&valor=${ra}`);
 
   if (Object.keys(response).every((key) => key === 'usergroupid')) {
     return null;
@@ -53,9 +49,7 @@ export async function validateUserData(emailToCheck: string, ra: string) {
   }
 
   const emailList = Array.isArray(checkUser?.email) ? checkUser.email : [];
-  const employeePromises = emailList.map(
-    async (email) => await getEmployeeData(email),
-  );
+  const employeePromises = emailList.map(async (email) => await getEmployeeData(email));
   const employees = await Promise.all(employeePromises);
   const validEmployees = employees.filter((employee) => employee !== null);
 

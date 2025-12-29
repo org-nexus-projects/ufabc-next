@@ -1,8 +1,5 @@
 import { SubjectModel, type Subject } from '@/models/Subject.js';
-import {
-  listSubjectsSchema,
-  searchSubjectSchema,
-} from '@/schemas/entities/subjects.js';
+import { listSubjectsSchema, searchSubjectSchema } from '@/schemas/entities/subjects.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import { rawSubjectsReviews, type Distribution } from './service.js';
 import { TeacherModel } from '@/models/Teacher.js';
@@ -105,8 +102,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         {} as Record<string, Distribution[]>,
       );
 
-    const generalDistributions = Object.entries(generalDistribution).map(
-      ([key, value]) => getMean(value, key),
+    const generalDistributions = Object.entries(generalDistribution).map(([key, value]) =>
+      getMean(value, key),
     );
 
     const subject = await SubjectModel.findOne({

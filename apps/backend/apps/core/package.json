@@ -2,10 +2,10 @@
   "name": "@next/core",
   "version": "1.0.0",
   "description": "Core logic of the backend",
-  "type": "module",
   "keywords": [],
   "license": "ISC",
   "author": "Joabe Silva <joabevarjao123@gmail.com>",
+  "type": "module",
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch --env-file=.env.dev src/server.ts",
@@ -30,6 +30,7 @@
     "@fastify/multipart": "catalog:",
     "@fastify/oauth2": "catalog:",
     "@fastify/rate-limit": "catalog:",
+    "@fastify/redis": "catalog:",
     "@fastify/request-context": "catalog:",
     "@fastify/sensible": "catalog:",
     "@fastify/swagger": "catalog:",
@@ -42,6 +43,7 @@
     "close-with-grace": "catalog:",
     "fastify": "catalog:",
     "fastify-plugin": "catalog:",
+    "fastify-type-provider-zod": "catalog:",
     "fastify-zod-openapi": "catalog:",
     "lodash-es": "catalog:",
     "lru-weak-cache": "catalog:",
@@ -53,11 +55,11 @@
     "ulidx": "catalog:",
     "zod": "catalog:",
     "zod-openapi": "catalog:",
-    "zod-to-json-schema": "catalog:",
-    "fastify-type-provider-zod": "catalog:",
-    "@fastify/redis": "catalog:"
+    "zod-to-json-schema": "catalog:"
   },
   "devDependencies": {
+    "@aws-sdk/types": "catalog:",
+    "@next/testing": "workspace:*",
     "@next/tsconfig": "workspace:*",
     "@total-typescript/ts-reset": "catalog:",
     "@types/lodash-es": "catalog:",
@@ -72,10 +74,8 @@
     "tsx": "catalog:",
     "typescript": "catalog:",
     "typescript-transform-paths": "catalog:",
-    "@aws-sdk/types": "catalog:",
-    "vitest": "catalog:",
-    "@next/testing": "workspace:*",
-    "vite-tsconfig-paths": "catalog:"
+    "vite-tsconfig-paths": "catalog:",
+    "vitest": "catalog:"
   },
   "engines": {
     "node": "^22"

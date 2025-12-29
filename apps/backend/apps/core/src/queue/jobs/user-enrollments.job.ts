@@ -1,17 +1,10 @@
 import { calculateCoefficients } from '@next/common';
-import {
-  GraduationModel,
-  type GraduationDocument,
-} from '@/models/Graduation.js';
+import { GraduationModel, type GraduationDocument } from '@/models/Graduation.js';
 import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
 import { SubjectModel, type SubjectDocument } from '@/models/Subject.js';
 import { EnrollmentModel, type Enrollment } from '@/models/Enrollment.js';
 import { ComponentModel } from '@/models/Component.js';
-import {
-  type History,
-  type HistoryCoefficients,
-  HistoryModel,
-} from '@/models/History.js';
+import { type History, type HistoryCoefficients, HistoryModel } from '@/models/History.js';
 import { logger } from '@/utils/logger.js';
 import type { QueueContext } from '../types.js';
 import type { FilterQuery } from 'mongoose';
@@ -27,18 +20,13 @@ type ProcessComponentData = {
 };
 
 // Main job handler for processing user enrollment history
-export async function userEnrollmentsUpdate(
-  ctx: QueueContext<History | undefined>,
-) {
+export async function userEnrollmentsUpdate(ctx: QueueContext<History | undefined>) {
   const history = ctx.job.data;
 
   if (!isValidHistory(history)) {
-    const invalidHistoryError = new Error(
-      'Invalid history structure or missing required fields',
-      {
-        cause: history,
-      },
-    );
+    const invalidHistoryError = new Error('Invalid history structure or missing required fields', {
+      cause: history,
+    });
     ctx.app.log.warn({
       msg: 'Invalid history data provided',
       job_data_debug: ctx.job.data,
@@ -77,17 +65,11 @@ export async function userEnrollmentsUpdate(
 // enrollment -> components -> poder comentar
 //          -> sync matriculas deferidas (double check)
 
-export async function processComponentEnrollment(
-  ctx: QueueContext<ProcessComponentData>,
-) {
+export async function processComponentEnrollment(ctx: QueueContext<ProcessComponentData>) {
   const { history, component } = ctx.job.data;
 
   try {
-    const enrollmentData = await buildEnrollmentData(
-      history,
-      component,
-      ctx.app.log,
-    );
+    const enrollmentData = await buildEnrollmentData(history, component, ctx.app.log);
 
     if (!enrollmentData) {
       ctx.app.log.warn({
@@ -162,12 +144,10 @@ function mapSubjects(
     .map((e) => {
       // Normalize the subject code (strip year, uppercase, etc.)
       const codeMatch = (e.disciplina ?? '').match(/^(.*?)-\d{2}$/);
-      const normalizedCode = codeMatch ? codeMatch[1] : e.disciplina ?? '';
+      const normalizedCode = codeMatch ? codeMatch[1] : (e.disciplina ?? '');
       // Find matching subject using uf_subject_code
       const subject = subjects.find(
-        (s) =>
-          Array.isArray(s.uf_subject_code) &&
-          s.uf_subject_code.includes(normalizedCode),
+        (s) => Array.isArray(s.uf_subject_code) && s.uf_subject_code.includes(normalizedCode),
       );
       if (subject) {
         return {
@@ -182,10 +162,7 @@ function mapSubjects(
       });
       return e;
     })
-    .filter(
-      (e): e is Partial<Enrollment> =>
-        e.disciplina !== '' && e.disciplina != null,
-    );
+    .filter((e): e is Partial<Enrollment> => e.disciplina !== '' && e.disciplina != null);
 }
 
 // only needed for subject matching
@@ -219,10 +196,7 @@ function calculateHistoryCoefficients(
   graduation: GraduationDocument | null,
 ) {
   // @ts-ignore for now - maintaining original behavior
-  return calculateCoefficients<HistoryComponent>(
-    components,
-    graduation,
-  ) as HistoryCoefficients;
+  return calculateCoefficients<HistoryComponent>(components, graduation) as HistoryCoefficients;
 }
 
 async function updateHistoryRecords(
@@ -522,10 +496,7 @@ function getCampusFromTurma(turma: string | null | undefined): string | null {
 
   const campus = turma.slice(-2).toUpperCase();
   if (campus !== 'SA' && campus !== 'SB' && campus !== 'AA') {
-    logger.warn(
-      { turma, campus },
-      'Invalid campus detected in getCampusFromTurma.',
-    );
+    logger.warn({ turma, campus }, 'Invalid campus detected in getCampusFromTurma.');
     throw new Error('Invalid campus', { cause: campus });
   }
   return campus === 'SA' || campus === 'AA' ? 'sa' : 'sbc';

@@ -13,9 +13,7 @@ const componentSchema = z.object({
   id: z.number(),
 });
 
-export const componentsArchivesProcessingJob = defineJob(
-  JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING,
-)
+export const componentsArchivesProcessingJob = defineJob(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING)
   .input(
     z.object({
       component: componentSchema.array(),
@@ -32,17 +30,10 @@ export const componentsArchivesProcessingJob = defineJob(
     const { component, session } = job.data;
     const globalTraceId = job.data.globalTraceId;
 
-    const pdfs = await extractPDFsFromComponent(
-      component.viewurl,
-      session.sessionId,
-      component.id,
-    );
+    const pdfs = await extractPDFsFromComponent(component.viewurl, session.sessionId, component.id);
 
     if (pdfs.length === 0) {
-      app.log.info(
-        { globalTraceId, component: component.fullname },
-        'No PDFs found in component',
-      );
+      app.log.info({ globalTraceId, component: component.fullname }, 'No PDFs found in component');
       return {
         success: true,
         message: 'No PDFs found in component',
@@ -72,9 +63,7 @@ export const componentsArchivesProcessingJob = defineJob(
     };
   });
 
-export const pdfDownloadJob = defineJob(
-  JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_PDF,
-)
+export const pdfDownloadJob = defineJob(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_PDF)
   .input(
     z.object({
       component: z.string(),
@@ -99,11 +88,7 @@ export const pdfDownloadJob = defineJob(
     const sanitizedFilename = sanitizeFilename(filenameFromUrl);
     const s3Key = `/archives/${moodleComponentId}/${sanitizedFilename}`;
 
-    await app.aws.s3.upload(
-      app.config.AWS_BUCKET ?? '',
-      s3Key,
-      Buffer.from(buffer),
-    );
+    await app.aws.s3.upload(app.config.AWS_BUCKET ?? '', s3Key, Buffer.from(buffer));
 
     return {
       success: true,
@@ -116,9 +101,7 @@ export const pdfDownloadJob = defineJob(
     };
   });
 
-export const archivesSummaryJob = defineJob(
-  JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_SUMMARY,
-)
+export const archivesSummaryJob = defineJob(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_SUMMARY)
   .input(
     z.object({
       name: z.string(),
@@ -135,11 +118,7 @@ export const archivesSummaryJob = defineJob(
     };
   });
 
-async function extractPDFsFromComponent(
-  viewurl: string,
-  sessionId: string,
-  componentId: number,
-) {
+async function extractPDFsFromComponent(viewurl: string, sessionId: string, componentId: number) {
   const url = new URL(viewurl);
   const page = await connector.getComponentContentsPage(
     sessionId,
@@ -176,10 +155,7 @@ async function extractPDFsFromComponent(
   });
 
   const validationPromises = potentialLinks.map(async ({ href, name }) => {
-    const { isPdf, finalUrl } = await connector.validatePdfLink(
-      href,
-      sessionId,
-    );
+    const { isPdf, finalUrl } = await connector.validatePdfLink(href, sessionId);
 
     if (!isPdf) {
       return null;

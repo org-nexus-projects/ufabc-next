@@ -40,10 +40,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     let graduation = null;
     if (lastHistory.curso && lastHistory.grade) {
-      graduation = await findOneGraduation(
-        lastHistory.curso,
-        lastHistory.grade,
-      );
+      graduation = await findOneGraduation(lastHistory.curso, lastHistory.grade);
     }
 
     const coefficients =

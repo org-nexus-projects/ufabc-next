@@ -43,12 +43,7 @@ type KeysOptions =
   | 'year'
   | 'quad';
 
-const DEFAULT_FIELDS_TO_ENCODE = [
-  'disciplina',
-  'turno',
-  'campus',
-  'turma',
-] as const;
+const DEFAULT_FIELDS_TO_ENCODE = ['disciplina', 'turno', 'campus', 'turma'] as const;
 
 /**
  * Generates a unique identifier for a given disciplina

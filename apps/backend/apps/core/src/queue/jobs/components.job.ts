@@ -1,9 +1,6 @@
 import { ComponentModel } from '@/models/Component.js';
 import { SubjectModel } from '@/models/Subject.js';
-import {
-  type UfabcParserComponent,
-  UfabcParserConnector,
-} from '@/connectors/ufabc-parser.js';
+import { type UfabcParserComponent, UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { currentQuad } from '@next/common';
 import { camelCase, startCase } from 'lodash-es';
 import type { QueueContext } from '../types.js';

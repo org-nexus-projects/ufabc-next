@@ -46,11 +46,7 @@ export const listStudentStats = {
 export const listComponentsResume = {
   params: z.object({
     action: z
-      .union([
-        z.literal('overview'),
-        z.literal('component'),
-        z.literal('courses'),
-      ])
+      .union([z.literal('overview'), z.literal('component'), z.literal('courses')])
       .optional(),
   }),
   querystring: z.object({

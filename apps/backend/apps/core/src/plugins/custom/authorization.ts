@@ -18,9 +18,7 @@ async function isStudent(this: FastifyRequest, reply: FastifyReply) {
     this.headers.sessionid;
   const ufLogin = this.headers['uf-login'] ?? this.headers['Uf-login'];
   if (!sessionId && !ufLogin) {
-    return reply
-      .status(403)
-      .send('You are not authorized to access this resource.');
+    return reply.status(403).send('You are not authorized to access this resource.');
   }
 }
 

@@ -30,13 +30,7 @@ const axiomOptions = {
   token: process.env.AXIOM_TOKEN as string,
 } satisfies AxiomOptions;
 
-const SENSITIVE_KEYS = [
-  'authorization',
-  'cookie',
-  'x-api-key',
-  'password',
-  'token',
-];
+const SENSITIVE_KEYS = ['authorization', 'cookie', 'x-api-key', 'password', 'token'];
 
 const commonConfig = {
   level: process.env.LOG_LEVEL ?? 'info',
@@ -141,6 +135,4 @@ export function buildLogger(env: 'dev' | 'prod' = 'dev') {
   return pino({ ...commonConfig, ...loggerSetup[env] });
 }
 
-export const logger = buildLogger(
-  (process.env.NODE_ENV as 'dev' | 'prod') ?? 'dev',
-);
+export const logger = buildLogger((process.env.NODE_ENV as 'dev' | 'prod') ?? 'dev');

@@ -6,9 +6,7 @@ import { S3Client, CreateBucketCommand } from '@aws-sdk/client-s3';
 export async function createTestContainers() {
   const mongo = await new MongoDBContainer('mongo:6').withReuse().start();
   const redis = await new RedisContainer('redis:7-alpine').withReuse().start();
-  const localstack = await new LocalstackContainer(
-    'localstack/localstack:latest',
-  )
+  const localstack = await new LocalstackContainer('localstack/localstack:latest')
     .withReuse()
     .start();
 
@@ -22,10 +20,7 @@ export async function createTestContainers() {
 export async function startTestStack() {
   const [mongo, redis, localstack] = await Promise.all([
     new MongoDBContainer('mongo:6').withReuse().start(),
-    new RedisContainer('redis:7-alpine')
-      .withPassword('qj6wGxXINcQyWXdN')
-      .withReuse()
-      .start(),
+    new RedisContainer('redis:7-alpine').withPassword('qj6wGxXINcQyWXdN').withReuse().start(),
     new LocalstackContainer('localstack/localstack:latest').withReuse().start(),
   ]);
 

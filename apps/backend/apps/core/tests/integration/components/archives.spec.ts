@@ -38,9 +38,7 @@ describe('Archive Flow Integration', () => {
     });
     expect(res.statusCode).toBe(202);
 
-    const summaryQueue = app.manager.getQueue(
-      JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_SUMMARY,
-    );
+    const summaryQueue = app.manager.getQueue(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_SUMMARY);
     await waitForJobCompletion(summaryQueue);
 
     const pdfsRes = await app.inject({

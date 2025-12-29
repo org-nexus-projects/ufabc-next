@@ -42,10 +42,7 @@ export async function sendConfirmationEmail(ctx: QueueContext<EmailJobData>) {
     let emailRequest: Email;
 
     if (kind === 'Confirmation') {
-      const token = ctx.app.createToken(
-        JSON.stringify({ email: user.email }),
-        ctx.app.config,
-      );
+      const token = ctx.app.createToken(JSON.stringify({ email: user.email }), ctx.app.config);
       emailRequest = {
         recipient: user.email,
         body: {
@@ -63,12 +60,7 @@ export async function sendConfirmationEmail(ctx: QueueContext<EmailJobData>) {
       };
     }
 
-    const response = await sesSendEmail(
-      user,
-      emailTemplate,
-      emailRequest,
-      ctx.app.log,
-    );
+    const response = await sesSendEmail(user, emailTemplate, emailRequest, ctx.app.log);
     ctx.app.log.info({
       sentTo: `${user.email}`,
       messageId: response?.MessageId,
@@ -130,36 +122,41 @@ export async function sendBulkEmail(ctx: QueueContext<BulkEmailJob>) {
   const { templateName, recipients } = ctx.job.data;
   const uniqueRecipients = Array.from(new Set(recipients));
   const fromIdentity = 'contato@ufabcnext.com';
-  
-  const results = await Promise.allSettled(uniqueRecipients.map(recipient => {
-    const input = {
-      Source: `UFABCnext <${fromIdentity}>`,
-      Destination: { 
-        ToAddresses: [recipient]
-      },
-      Template: templateName,
-      TemplateData: JSON.stringify({}),
-   };
-   const cmd = new SendTemplatedEmailCommand(input);
-   return sesClient.send(cmd).catch((error) => {
-     ctx.app.log.error({ 
-        recipient, 
-        error: error?.message,
-      }, 'Failed to send email')
-     throw error; 
-   })
-  }))
-  
-  const failures = results.filter(result => result.status === "rejected")
-  
+
+  const results = await Promise.allSettled(
+    uniqueRecipients.map((recipient) => {
+      const input = {
+        Source: `UFABCnext <${fromIdentity}>`,
+        Destination: {
+          ToAddresses: [recipient],
+        },
+        Template: templateName,
+        TemplateData: JSON.stringify({}),
+      };
+      const cmd = new SendTemplatedEmailCommand(input);
+      return sesClient.send(cmd).catch((error) => {
+        ctx.app.log.error(
+          {
+            recipient,
+            error: error?.message,
+          },
+          'Failed to send email',
+        );
+        throw error;
+      });
+    }),
+  );
+
+  const failures = results.filter((result) => result.status === 'rejected');
+
   const result = {
     totalRecipients: uniqueRecipients.length,
     sentEmails: results.length - failures.length,
     failedEmails: failures.length,
     failures,
   };
-  
+
   ctx.app.log.info(result, 'Sending emails completed');
-  
+
   return result;
 }

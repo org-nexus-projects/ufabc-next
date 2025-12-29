@@ -1,10 +1,5 @@
 import { fastifyPlugin as fp } from 'fastify-plugin';
-import {
-  createCipheriv,
-  createDecipheriv,
-  createHash,
-  randomBytes,
-} from 'node:crypto';
+import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 
 declare module 'fastify' {
@@ -19,11 +14,7 @@ type TokenPayload = {
   expiresAt: number;
 };
 
-function createToken(
-  text: string,
-  config: FastifyInstance['config'],
-  ttlSeconds = 3600,
-): string {
+function createToken(text: string, config: FastifyInstance['config'], ttlSeconds = 3600): string {
   // Validate inputs
   if (!text || typeof text !== 'string') {
     throw new Error('Invalid input: text must be a non-empty string');
@@ -51,10 +42,7 @@ function createToken(
   });
 
   const jsonPayload = JSON.stringify(payload);
-  const encrypted = Buffer.concat([
-    cipher.update(jsonPayload, 'utf8'),
-    cipher.final(),
-  ]);
+  const encrypted = Buffer.concat([cipher.update(jsonPayload, 'utf8'), cipher.final()]);
 
   const authTag = cipher.getAuthTag();
 
@@ -70,9 +58,11 @@ function createToken(
 function verifyToken(token: string, config: FastifyInstance['config']): string {
   try {
     // Decode token components
-    const components = JSON.parse(
-      Buffer.from(token, 'base64').toString('utf8'),
-    ) as { iv: string; data: string; tag: string };
+    const components = JSON.parse(Buffer.from(token, 'base64').toString('utf8')) as {
+      iv: string;
+      data: string;
+      tag: string;
+    };
 
     // Validate token structure
     if (!components.iv || !components.data || !components.tag) {

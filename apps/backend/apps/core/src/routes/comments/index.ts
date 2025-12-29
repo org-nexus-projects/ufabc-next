@@ -20,37 +20,31 @@ import {
 import { Types } from 'mongoose';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
-  app.get(
-    '/:userId/missing',
-    { schema: missingCommentsSchema },
-    async (request, reply) => {
-      const { userId } = request.params;
+  app.get('/:userId/missing', { schema: missingCommentsSchema }, async (request, reply) => {
+    const { userId } = request.params;
 
-      if (!userId) {
-        request.log.warn({ params: request.params }, 'Missing userId');
-        return reply.badRequest('userId was not passed');
+    if (!userId) {
+      request.log.warn({ params: request.params }, 'Missing userId');
+      return reply.badRequest('userId was not passed');
+    }
+    const user = request.user._id === userId.toString() ? request.user : null;
+
+    if (!user) {
+      return reply.badRequest(`Invalid User: ${userId}`);
+    }
+
+    const enrollments = await getUserEnrollments(user.ra);
+    const comments = await getUserComments(user.ra);
+    const enrollmentsFromComments = comments.map((comment) => comment.enrollment.toString());
+    const enrollmentsToComment = [];
+    for (const enrollment of enrollments) {
+      if (!enrollmentsFromComments.includes(enrollment._id.toString())) {
+        enrollmentsToComment.push(enrollment);
       }
-      const user = request.user._id === userId.toString() ? request.user : null;
+    }
 
-      if (!user) {
-        return reply.badRequest(`Invalid User: ${userId}`);
-      }
-
-      const enrollments = await getUserEnrollments(user.ra);
-      const comments = await getUserComments(user.ra);
-      const enrollmentsFromComments = comments.map((comment) =>
-        comment.enrollment.toString(),
-      );
-      const enrollmentsToComment = [];
-      for (const enrollment of enrollments) {
-        if (!enrollmentsFromComments.includes(enrollment._id.toString())) {
-          enrollmentsToComment.push(enrollment);
-        }
-      }
-
-      return enrollmentsToComment;
-    },
-  );
+    return enrollmentsToComment;
+  });
 
   app.post('/', { schema: createCommentSchema }, async (request, reply) => {
     const { enrollment: enrollmentId, comment, type } = request.body;
@@ -89,110 +83,94 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return createdComment;
   });
 
-  app.put(
-    '/:commentId',
-    { schema: updateCommentSchema },
-    async (request, reply) => {
-      const { commentId } = request.params;
+  app.put('/:commentId', { schema: updateCommentSchema }, async (request, reply) => {
+    const { commentId } = request.params;
 
-      if (!commentId) {
-        request.log.warn({ params: request.params }, 'Missing commentId');
-        return reply.badRequest('CommentId was not passed');
-      }
+    if (!commentId) {
+      request.log.warn({ params: request.params }, 'Missing commentId');
+      return reply.badRequest('CommentId was not passed');
+    }
 
-      const comment = await findCommentById(commentId);
+    const comment = await findCommentById(commentId);
 
-      if (!comment) {
-        request.log.warn(comment, 'Comment missing');
-        return reply.notFound('Comment not found');
-      }
+    if (!comment) {
+      request.log.warn(comment, 'Comment missing');
+      return reply.notFound('Comment not found');
+    }
 
-      comment.comment = request.body.comment;
+    comment.comment = request.body.comment;
 
-      await comment.save();
+    await comment.save();
 
-      return comment;
-    },
-  );
+    return comment;
+  });
 
-  app.delete(
-    '/:commentId',
-    { schema: deleteCommentSchema },
-    async (request, reply) => {
-      const { commentId } = request.params;
+  app.delete('/:commentId', { schema: deleteCommentSchema }, async (request, reply) => {
+    const { commentId } = request.params;
 
-      if (!commentId) {
-        request.log.warn({ params: request.params }, 'Missing commentId');
-        return reply.badRequest('CommentId was not passed');
-      }
+    if (!commentId) {
+      request.log.warn({ params: request.params }, 'Missing commentId');
+      return reply.badRequest('CommentId was not passed');
+    }
 
-      const comment = await findCommentById(commentId);
+    const comment = await findCommentById(commentId);
 
-      if (!comment) {
-        request.log.warn(comment, 'Comment not found');
-        return reply.notFound('Comment not found');
-      }
+    if (!comment) {
+      request.log.warn(comment, 'Comment not found');
+      return reply.notFound('Comment not found');
+    }
 
-      comment.active = false;
+    comment.active = false;
 
-      await comment.save();
+    await comment.save();
 
-      return comment;
-    },
-  );
+    return comment;
+  });
 
-  app.get(
-    '/:teacherId',
-    { schema: commentsOnTeacherSchema },
-    async (request, reply) => {
-      const { teacherId } = request.params;
-      const { limit, page } = request.query;
+  app.get('/:teacherId', { schema: commentsOnTeacherSchema }, async (request, reply) => {
+    const { teacherId } = request.params;
+    const { limit, page } = request.query;
 
-      if (!teacherId) {
-        request.log.warn({ params: request.params }, 'Missing teacherId');
-        return reply.badRequest('teacherId was not passed');
-      }
+    if (!teacherId) {
+      request.log.warn({ params: request.params }, 'Missing teacherId');
+      return reply.badRequest('teacherId was not passed');
+    }
 
-      const { data, total } = await getReactions({
-        teacherId,
-        userId: new Types.ObjectId(request.user._id),
-        limit,
-        page,
-      });
+    const { data, total } = await getReactions({
+      teacherId,
+      userId: new Types.ObjectId(request.user._id),
+      limit,
+      page,
+    });
 
-      return {
-        data,
-        total,
-      };
-    },
-  );
+    return {
+      data,
+      total,
+    };
+  });
 
-  app.get(
-    '/:teacherId/:subjectId',
-    { schema: commentsOnTeacherSchema },
-    async (request, reply) => {
-      const { teacherId, subjectId } = request.params;
-      const { limit, page } = request.query;
+  app.get('/:teacherId/:subjectId', { schema: commentsOnTeacherSchema }, async (request, reply) => {
+    const { teacherId, subjectId } = request.params;
+    const { limit, page } = request.query;
 
-      if (!teacherId) {
-        request.log.warn({ params: request.params }, 'Missing teacherId');
-        return reply.badRequest('teacherId was not passed');
-      }
+    if (!teacherId) {
+      request.log.warn({ params: request.params }, 'Missing teacherId');
+      return reply.badRequest('teacherId was not passed');
+    }
 
-      const { data, total } = await getReactions({
-        teacherId,
-        subjectId,
-        userId: new Types.ObjectId(request.user._id),
-        limit,
-        page,
-      });
+    const { data, total } = await getReactions({
+      teacherId,
+      subjectId,
+      userId: new Types.ObjectId(request.user._id),
+      limit,
+      page,
+    });
 
-      return {
-        data,
-        total,
-      };
-    },
-  );
+    return {
+      data,
+      total,
+    };
+  });
 
   app.post(
     '/reactions/:commentId',
@@ -247,9 +225,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       });
 
       if (!reaction) {
-        return reply.notFound(
-          `Reação não encontrada no comentário: ${commentId}`,
-        );
+        return reply.notFound(`Reação não encontrada no comentário: ${commentId}`);
       }
 
       await deleteReaction(commentId);

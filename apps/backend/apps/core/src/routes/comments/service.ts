@@ -72,9 +72,7 @@ export async function getReactions({
   return reactions;
 }
 
-export async function createReaction(
-  reaction: Omit<Reaction, 'createdAt' | 'updatedAt'>,
-) {
+export async function createReaction(reaction: Omit<Reaction, 'createdAt' | 'updatedAt'>) {
   const createdReaction = await ReactionModel.create(reaction);
   return createdReaction;
 }

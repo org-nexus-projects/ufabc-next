@@ -1,9 +1,4 @@
-import {
-  type InferSchemaType,
-  Schema,
-  isObjectIdOrHexString,
-  model,
-} from 'mongoose';
+import { type InferSchemaType, Schema, isObjectIdOrHexString, model } from 'mongoose';
 import { UserModel } from './User.js';
 import { CommentModel } from './Comment.js';
 import { EnrollmentModel } from './Enrollment.js';
@@ -92,9 +87,7 @@ reactionSchema.pre('save', async function () {
   if (this.isNew) {
     const equalReaction = await this.collection.findOne({ slug });
     if (equalReaction) {
-      throw new Error(
-        'Você não pode reagir duas vezes iguais ao mesmo comentário',
-      );
+      throw new Error('Você não pode reagir duas vezes iguais ao mesmo comentário');
     }
     this.slug = slug;
   }

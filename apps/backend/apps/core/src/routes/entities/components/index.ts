@@ -110,22 +110,14 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         : kickRule(component.ideal_quad, request.query.season);
 
       const kicksOrder = kicks.map((kick) =>
-        kick === 'turno'
-          ? component.turno === 'diurno'
-            ? 'asc'
-            : 'desc'
-          : 'desc',
+        kick === 'turno' ? (component.turno === 'diurno' ? 'asc' : 'desc') : 'desc',
       );
 
-      const isAfterKick = component.after_kick
-        ? component.after_kick.length > 0
-        : false;
+      const isAfterKick = component.after_kick ? component.after_kick.length > 0 : false;
 
       const resolveKicked = resolveEnrolled(component, isAfterKick);
 
-      const kicksMap = new Map(
-        resolveKicked.map((kicked) => [kicked.studentId, kicked]),
-      );
+      const kicksMap = new Map(resolveKicked.map((kicked) => [kicked.studentId, kicked]));
 
       const students = await StudentModel.aggregate([
         {
@@ -181,10 +173,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         .filter(({ _id: name }) => interCourses.includes(name))
         .flatMap(({ ids }) => ids);
 
-      const obrigatorias = getObrigatoriasFromComponents(
-        component.obrigatorias,
-        interCourseIds,
-      );
+      const obrigatorias = getObrigatoriasFromComponents(component.obrigatorias, interCourseIds);
 
       const studentsWithGraduation = students.map((student) => {
         const reserva = obrigatorias.includes(student.cursos.id_curso);
@@ -203,36 +192,26 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         return graduationToStudent;
       });
 
-      const sortedStudents = LodashOrderBy(
-        studentsWithGraduation,
-        kicks,
-        kicksOrder,
-      );
+      const sortedStudents = LodashOrderBy(studentsWithGraduation, kicks, kicksOrder);
 
       const uniqueStudents = Array.from(
-        new Map(
-          sortedStudents.map((student) => [student.studentId, student]),
-        ).values(),
+        new Map(sortedStudents.map((student) => [student.studentId, student])).values(),
       );
 
       return uniqueStudents;
     },
   );
 
-  app.get(
-    '/teachers',
-    { schema: listTeacherComponents },
-    async (request, reply) => {
-      const { season, subject } = request.query;
+  app.get('/teachers', { schema: listTeacherComponents }, async (request, reply) => {
+    const { season, subject } = request.query;
 
-      const components = await findTeachers(subject, season);
+    const components = await findTeachers(subject, season);
 
-      return components.map((c) => ({
-        teoria: c.teoria?.name,
-        pratica: c.pratica?.name,
-      }));
-    },
-  );
+    return components.map((c) => ({
+      teoria: c.teoria?.name,
+      pratica: c.pratica?.name,
+    }));
+  });
 };
 
 function kickRule(idealQuad: boolean, season: string) {
@@ -288,10 +267,7 @@ function resolveEnrolled(component: Component, isAfterKick: boolean) {
  * @description this code is incorrect, since currently we save ids
  * that contains this component as 'limitada'
  */
-function getObrigatoriasFromComponents(
-  obrigatorias: number[],
-  filterList: number[],
-) {
+function getObrigatoriasFromComponents(obrigatorias: number[], filterList: number[]) {
   const removeSet = new Set(filterList);
   return obrigatorias.filter((obrigatoria) => !removeSet.has(obrigatoria));
 }

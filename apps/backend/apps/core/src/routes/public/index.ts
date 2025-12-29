@@ -83,16 +83,15 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       },
     ];
 
-    const [users, currentStudents, comments, enrollments, [componentStats]] =
-      await Promise.all([
-        UserModel.countDocuments({}),
-        StudentModel.countDocuments({}),
-        CommentModel.countDocuments({}),
-        EnrollmentModel.countDocuments({
-          conceito: { $in: ['A', 'B', 'C', 'D', '0', 'F'] },
-        }),
-        ComponentModel.aggregate<ComponentsStats>(componentStatsFacetQuery),
-      ]);
+    const [users, currentStudents, comments, enrollments, [componentStats]] = await Promise.all([
+      UserModel.countDocuments({}),
+      StudentModel.countDocuments({}),
+      CommentModel.countDocuments({}),
+      EnrollmentModel.countDocuments({
+        conceito: { $in: ['A', 'B', 'C', 'D', '0', 'F'] },
+      }),
+      ComponentModel.aggregate<ComponentsStats>(componentStatsFacetQuery),
+    ]);
 
     const [allStudents] = componentStats.studentTotal.map(({ total }) => total);
     const summary = {
@@ -110,27 +109,23 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return summary;
   });
 
-  app.get(
-    '/graduations',
-    { schema: listGraduationsSchema, logLevel: 'silent' },
-    async () => {
-      const graduations = await GraduationModel.find(
-        {
-          grade: { $exists: true },
-        },
-        {
-          _id: 0,
-          createdAt: 0,
-          locked: 0,
-          updatedAt: 0,
-          __v: 0,
-          creditsBreakdown: 0,
-        },
-      ).lean<GraduationList[]>();
+  app.get('/graduations', { schema: listGraduationsSchema, logLevel: 'silent' }, async () => {
+    const graduations = await GraduationModel.find(
+      {
+        grade: { $exists: true },
+      },
+      {
+        _id: 0,
+        createdAt: 0,
+        locked: 0,
+        updatedAt: 0,
+        __v: 0,
+        creditsBreakdown: 0,
+      },
+    ).lean<GraduationList[]>();
 
-      return graduations;
-    },
-  );
+    return graduations;
+  });
 
   app.get(
     '/stats/student',
@@ -240,11 +235,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       }),
     };
 
-    const platformGeneralStats = Object.assign(
-      {},
-      disciplinasStats,
-      generalStatsCount,
-    );
+    const platformGeneralStats = Object.assign({}, disciplinasStats, generalStatsCount);
 
     return platformGeneralStats;
   });
@@ -308,7 +299,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             disciplina: 1,
             obrigatorias: 1,
             requisicoes: 1,
-            turma: 1,    
+            turma: 1,
             deficit: { $subtract: ['$requisicoes', '$vagas'] },
             ratio: { $divide: ['$requisicoes', '$vagas'] },
           },
@@ -323,7 +314,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         pipeline.push(...resolveStep(action, turno, courseId));
       }
 
- 
       pipeline.push(
         {
           $facet: {

@@ -47,8 +47,7 @@ function createHybridSerializerCompiler() {
       typeof schema === 'object' &&
       ('_def' in schema || '_type' in schema || 'parse' in schema);
 
-    const isV2Route =
-      (uri && typeof uri === 'string' && uri.startsWith('/v2')) || isZodSchema;
+    const isV2Route = (uri && typeof uri === 'string' && uri.startsWith('/v2')) || isZodSchema;
 
     if (isV2Route) {
       // fastify-type-provider-zod compilers only take schema (not uri)
@@ -64,10 +63,7 @@ function createHybridSerializerCompiler() {
  * Uses hybrid compilers that route to the appropriate validator/serializer
  * based on the route path, allowing both systems to coexist
  */
-export async function setupV2Routes(
-  app: FastifyInstance,
-  controllers: V2Routes,
-) {
+export async function setupV2Routes(app: FastifyInstance, controllers: V2Routes) {
   // Set up hybrid compilers FIRST (before any routes are registered)
   // This ensures all routes use the hybrid compiler that routes based on path
   app.setValidatorCompiler(createHybridValidatorCompiler());

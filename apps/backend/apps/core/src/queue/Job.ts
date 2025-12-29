@@ -4,12 +4,7 @@ import { JOBS, QUEUE_JOBS, type QueueNames } from './definitions.js';
 import { FastifyAdapter } from '@bull-board/fastify';
 import { boardUiPath, createBoard } from './board.js';
 import type { FastifyInstance } from 'fastify';
-import type {
-  JobDataType,
-  JobNames,
-  JobResultType,
-  TypeSafeQueue,
-} from './types.js';
+import type { JobDataType, JobNames, JobResultType, TypeSafeQueue } from './types.js';
 import { ulid } from 'ulidx';
 
 interface JobImpl {
@@ -43,11 +38,7 @@ export class Jobs implements JobImpl {
       port: Number(redisURL.port),
     };
     for (const name of Object.keys(QUEUE_JOBS) as QueueNames[]) {
-      const queue = new Queue<
-        JobDataType<JobNames>,
-        JobResultType<JobNames>,
-        JobNames
-      >(name, {
+      const queue = new Queue<JobDataType<JobNames>, JobResultType<JobNames>, JobNames>(name, {
         connection: {
           ...this.redisConfig,
         },
@@ -61,17 +52,11 @@ export class Jobs implements JobImpl {
     }
   }
 
-  private getQueue<TData, TResult>(
-    jobName: JobNames,
-  ): TypeSafeQueue<TData, TResult> {
+  private getQueue<TData, TResult>(jobName: JobNames): TypeSafeQueue<TData, TResult> {
     return this.queues[JOBS[jobName].queue] as TypeSafeQueue<TData, TResult>;
   }
 
-  async getFailedByReason(
-    queueName: QueueNames,
-    reason: string,
-    batchSize: number,
-  ) {
+  async getFailedByReason(queueName: QueueNames, reason: string, batchSize: number) {
     const queue = this.queues[queueName];
     const totalFailed = await queue.getFailedCount();
     const failedJobs = [];
@@ -98,10 +83,7 @@ export class Jobs implements JobImpl {
     }
 
     for (const [name, jobDefinition] of Object.entries(JOBS)) {
-      this.app.log.info(
-        { jobName: name, queue: jobDefinition.queue },
-        '[QUEUE] Setting up job',
-      );
+      this.app.log.info({ jobName: name, queue: jobDefinition.queue }, '[QUEUE] Setting up job');
       if ('every' in jobDefinition) {
         const queue = this.queues[jobDefinition.queue];
         await queue.add(
@@ -117,10 +99,7 @@ export class Jobs implements JobImpl {
     }
   }
 
-  dispatch<T extends JobNames>(
-    jobName: T,
-    jobParameters: Omit<JobDataType<T>, 'app'>,
-  ) {
+  dispatch<T extends JobNames>(jobName: T, jobParameters: Omit<JobDataType<T>, 'app'>) {
     const jobOptions = {
       jobId: ulid(),
     } satisfies JobsOptions;
@@ -176,21 +155,10 @@ export class Jobs implements JobImpl {
   async clean(
     grace: number,
     limit: number,
-    type?:
-      | 'completed'
-      | 'wait'
-      | 'active'
-      | 'paused'
-      | 'prioritized'
-      | 'delayed'
-      | 'failed',
+    type?: 'completed' | 'wait' | 'active' | 'paused' | 'prioritized' | 'delayed' | 'failed',
   ) {
     const jobsToClean = Object.values(this.queues);
-    return (
-      await Promise.all(
-        jobsToClean.map((queue) => queue.clean(grace, limit, type)),
-      )
-    ).flat();
+    return (await Promise.all(jobsToClean.map((queue) => queue.clean(grace, limit, type)))).flat();
   }
 
   board() {
@@ -228,9 +196,7 @@ export class Jobs implements JobImpl {
             msg: 'Failed to authenticate in jobs board',
             error: error instanceof Error ? error.message : String(error),
           });
-          return reply.unauthorized(
-            'You must be authenticated to access this route',
-          );
+          return reply.unauthorized('You must be authenticated to access this route');
         }
       });
 

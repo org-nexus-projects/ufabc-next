@@ -21,18 +21,10 @@ const sessionCache = new LRUWeakCache<{ sessionId: string }>({
   maxAge: 1000 * 60 * 5,
 });
 
-export const moodleSession: preHandlerAsyncHookHandler = async (
-  request,
-  reply,
-) => {
+export const moodleSession: preHandlerAsyncHookHandler = async (request, reply) => {
   const { 'session-id': sessionId, 'sess-key': sessKey } = request.headers;
 
-  if (
-    !sessionId ||
-    !sessKey ||
-    typeof sessionId !== 'string' ||
-    typeof sessKey !== 'string'
-  ) {
+  if (!sessionId || !sessKey || typeof sessionId !== 'string' || typeof sessKey !== 'string') {
     // should never happen, cause the schema validation runs before this hook
     return reply.unauthorized('Missing Session');
   }

@@ -1,8 +1,5 @@
 import type { FastifyInstance, FastifyServerOptions } from 'fastify';
-import {
-  RequestValidationError,
-  ResponseSerializationError,
-} from 'fastify-zod-openapi';
+import { RequestValidationError, ResponseSerializationError } from 'fastify-zod-openapi';
 import { fastifyAutoload } from '@fastify/autoload';
 import { join } from 'node:path';
 import componentsController from './controllers/components-controller.js';
@@ -16,10 +13,7 @@ import backofficeController from './controllers/backoffice-controller.js';
 
 const routesV2 = [componentsController, backofficeController];
 
-export async function buildApp(
-  app: FastifyInstance,
-  opts: FastifyServerOptions = {},
-) {
+export async function buildApp(app: FastifyInstance, opts: FastifyServerOptions = {}) {
   // This allows both fastify-zod-openapi (old routes) and fastify-type-provider-zod (v2 routes) to coexist
   await setupV2Routes(app, routesV2);
 

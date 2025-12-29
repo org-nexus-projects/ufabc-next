@@ -2,32 +2,32 @@ packages:
   - apps/*
   - packages/*
 catalog:
-  "@aws-sdk/client-s3": ^3.956.0
-  "@aws-sdk/client-ses": ^3.956.0
-  "@axiomhq/pino": ^1.3.1
-  "@biomejs/biome": ^1.9.4
-  "@bull-board/api": ^6.15.0
-  "@bull-board/fastify": ^6.15.0
-  "@fastify/autoload": ^6.3.1
-  "@fastify/cookie": ^11.0.2
-  "@fastify/cors": ^10.1.0
-  "@fastify/env": ^5.0.3
-  "@fastify/jwt": ^9.1.0
-  "@fastify/multipart": ^9.3.0
-  "@fastify/oauth2": ^8.1.2
-  "@fastify/rate-limit": ^10.3.0
-  "@fastify/request-context": ^6.2.1
-  "@fastify/sensible": ^6.0.4
-  "@fastify/swagger": ^9.6.1
-  "@fastify/swagger-ui": ^5.2.3
-  "@fastify/redis": ^7.1.0
-  "@notionhq/client": ^2.3.0
-  "@total-typescript/ts-reset": ^0.5.1
-  "@types/lodash-es": ^4.17.12
-  "@types/ms": ^0.7.34
-  "@types/node": ^22.19.3
-  "@types/string-similarity": ^4.0.2
-  "@aws-sdk/types": ^3.957.0
+  '@aws-sdk/client-s3': ^3.956.0
+  '@aws-sdk/client-ses': ^3.956.0
+  '@axiomhq/pino': ^1.3.1
+  '@biomejs/biome': ^1.9.4
+  '@bull-board/api': ^6.15.0
+  '@bull-board/fastify': ^6.15.0
+  '@fastify/autoload': ^6.3.1
+  '@fastify/cookie': ^11.0.2
+  '@fastify/cors': ^10.1.0
+  '@fastify/env': ^5.0.3
+  '@fastify/jwt': ^9.1.0
+  '@fastify/multipart': ^9.3.0
+  '@fastify/oauth2': ^8.1.2
+  '@fastify/rate-limit': ^10.3.0
+  '@fastify/request-context': ^6.2.1
+  '@fastify/sensible': ^6.0.4
+  '@fastify/swagger': ^9.6.1
+  '@fastify/swagger-ui': ^5.2.3
+  '@fastify/redis': ^7.1.0
+  '@notionhq/client': ^2.3.0
+  '@total-typescript/ts-reset': ^0.5.1
+  '@types/lodash-es': ^4.17.12
+  '@types/ms': ^0.7.34
+  '@types/node': ^22.19.3
+  '@types/string-similarity': ^4.0.2
+  '@aws-sdk/types': ^3.957.0
   oxlint: ^1.35.0
   oxlint-tsgolint: ^0.10.0
   oxfmt: ^0.20.0
@@ -60,9 +60,9 @@ catalog:
   zod-openapi: ^3.3.0
   zod-to-json-schema: ^3.25.0
   fastify-type-provider-zod: ^3.0.0
-  "@testcontainers/mongodb": ^11.10.0
-  "@testcontainers/redis": ^11.10.0
-  "@testcontainers/localstack": ^11.10.0
+  '@testcontainers/mongodb': ^11.10.0
+  '@testcontainers/redis': ^11.10.0
+  '@testcontainers/localstack': ^11.10.0
   nock: ^14.0.10
   vitest: ^4.0.16
   vite-tsconfig-paths: ^6.0.3

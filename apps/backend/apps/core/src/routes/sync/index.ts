@@ -57,15 +57,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           const isMissingAllMandatory = Object.keys(studentClass).every(
             (f) => !MANDATORY_FIELDS.includes(f),
           );
-          const isErrorParsingName = studentClass.errors?.includes(
-            'Could not parse name:',
-          );
+          const isErrorParsingName = studentClass.errors?.includes('Could not parse name:');
 
-          if (
-            isMissingAllMandatory &&
-            isErrorParsingName &&
-            !studentClass.name
-          ) {
+          if (isMissingAllMandatory && isErrorParsingName && !studentClass.name) {
             app.log.warn(
               { studentClass },
               'Component missing mandatory fields or has parse errors',
@@ -117,13 +111,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         tenantEnrollments.push(preInsertEnrollments);
       }
 
-      const enrollments = tenantEnrollments.flatMap(
-        (enrollment) => enrollment.enrollments,
-      );
+      const enrollments = tenantEnrollments.flatMap((enrollment) => enrollment.enrollments);
 
-      const enrollmentsHash = createHash('md5')
-        .update(JSON.stringify(enrollments))
-        .digest('hex');
+      const enrollmentsHash = createHash('md5').update(JSON.stringify(enrollments)).digest('hex');
 
       if (enrollmentsHash !== hash) {
         return {
@@ -134,9 +124,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         };
       }
 
-      const isAllComponentsMatched = errors.every(
-        (e) => e.type !== 'MATCHING_FAILED',
-      );
+      const isAllComponentsMatched = errors.every((e) => e.type !== 'MATCHING_FAILED');
 
       if (isAllComponentsMatched) {
         const enrollmentJobs = enrollments.map(
@@ -177,10 +165,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     },
     async (request, reply) => {
       const { season, hash, ignoreErrors, kind } = request.body;
-      const componentsWithTeachers = await connector.getComponentsFile(
-        season,
-        kind,
-      );
+      const componentsWithTeachers = await connector.getComponentsFile(season, kind);
 
       const teacherCache = new Map();
       const errors: Array<SyncError> = [];
@@ -191,8 +176,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           .toLowerCase()
           .normalize('NFD')
           .replace(/\u0300-\u036f/g, '');
-        if (teacherCache.has(normalizedName))
-          return teacherCache.get(normalizedName);
+        if (teacherCache.has(normalizedName)) return teacherCache.get(normalizedName);
         // @ts-ignore Complex Type Mismatch
         const teacher = await TeacherModel.findByFuzzName(normalizedName);
         if (!teacher && normalizedName !== '0') {
@@ -301,12 +285,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       );
 
       if (!ignoreErrors && errors.length > 0) {
-        const teacherErrors = errors.filter(
-          (e) => e.type === 'TEACHER_NOT_FOUND',
-        );
-        const matchingErrors = errors.filter(
-          (e) => e.type === 'MATCHING_FAILED',
-        );
+        const teacherErrors = errors.filter((e) => e.type === 'TEACHER_NOT_FOUND');
+        const matchingErrors = errors.filter((e) => e.type === 'MATCHING_FAILED');
         return reply.status(403).send({
           msg: 'Errors found while verifying components',
           errors: {
@@ -321,9 +301,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         });
       }
 
-      const componentHash = createHash('md5')
-        .update(JSON.stringify(components))
-        .digest('hex');
+      const componentHash = createHash('md5').update(JSON.stringify(components)).digest('hex');
       if (componentHash !== hash) {
         return {
           hash: componentHash,
@@ -372,12 +350,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         }
       });
       const dispatchResults = await Promise.all(dispatchPromises);
-      const successfulDispatches = dispatchResults.filter(
-        (r) => r.success,
-      ).length;
-      const ignoredErrors = dispatchResults.filter(
-        (r) => !r.success && r.ignored,
-      ).length;
+      const successfulDispatches = dispatchResults.filter((r) => r.success).length;
+      const ignoredErrors = dispatchResults.filter((r) => !r.success && r.ignored).length;
       return reply.send({
         dispatched: true,
         msg: 'Component teacher sync jobs dispatched',

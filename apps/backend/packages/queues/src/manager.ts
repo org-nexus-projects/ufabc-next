@@ -1,9 +1,4 @@
-import type {
-  InferJobData,
-  JobBuilder,
-  JobContext,
-  JobData,
-} from './builder.js';
+import type { InferJobData, JobBuilder, JobContext, JobData } from './builder.js';
 import {
   Queue,
   Worker,
@@ -19,18 +14,12 @@ import { FastifyAdapter } from '@bull-board/fastify';
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 
-export type BoardAuthHook = (
-  request: FastifyRequest,
-  reply: FastifyReply,
-) => Promise<void>;
+export type BoardAuthHook = (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
 
-export class JobManager<
-  TRegistry extends Record<string, JobBuilder<any, any, any, any>>,
-> {
+export class JobManager<TRegistry extends Record<string, JobBuilder<any, any, any, any>>> {
   private readonly queues: Map<string, Queue> = new Map();
   private readonly workers: Map<string, Worker> = new Map();
-  private readonly registeredJobs: Map<string, JobBuilder<any, any, any>> =
-    new Map();
+  private readonly registeredJobs: Map<string, JobBuilder<any, any, any>> = new Map();
   private readonly flowProducer: FlowProducer;
   private isStarted = false;
   private readonly redisConnection: ConnectionOptions;
@@ -63,9 +52,7 @@ export class JobManager<
     await this.flowProducer.add(flow);
   }
 
-  register<TName extends string, TData, TResult>(
-    job: JobBuilder<TName, TData, TResult>,
-  ): this {
+  register<TName extends string, TData, TResult>(job: JobBuilder<TName, TData, TResult>): this {
     if (this.registeredJobs.has(job.name)) {
       this.app.log.warn({ name: job.name }, 'Job already registered, skipping');
       return this;
@@ -102,10 +89,7 @@ export class JobManager<
     }
 
     this.isStarted = true;
-    this.app.log.info(
-      { totalJobs: this.queues.size },
-      'JobManager started successfully',
-    );
+    this.app.log.info({ totalJobs: this.queues.size }, 'JobManager started successfully');
   }
 
   private async setup<TName extends string, TData, TResult>(
@@ -131,19 +115,12 @@ export class JobManager<
       });
     }
 
-    const worker = new Worker(
-      name,
-      async (job) => this.handler(job, jobBuilder),
-      {
-        ...jobBuilder.config.workerOptions,
-        connection: this.redisConnection,
-      },
-    );
+    const worker = new Worker(name, async (job) => this.handler(job, jobBuilder), {
+      ...jobBuilder.config.workerOptions,
+      connection: this.redisConnection,
+    });
 
-    this.events(
-      worker as unknown as Worker<JobData<TData>, TResult, string>,
-      name,
-    );
+    this.events(worker as unknown as Worker<JobData<TData>, TResult, string>, name);
 
     this.workers.set(name, worker);
 
@@ -151,8 +128,7 @@ export class JobManager<
   }
 
   private async handler(job: Job, jobBuilder: JobBuilder<any, any, any>) {
-    const schema =
-      jobBuilder.config.workerSchema || jobBuilder.config.inputSchema;
+    const schema = jobBuilder.config.workerSchema || jobBuilder.config.inputSchema;
 
     if (schema) {
       schema.parse(job.data);
@@ -173,10 +149,7 @@ export class JobManager<
     return result;
   }
 
-  private events<TData, TResult>(
-    worker: Worker<TData, TResult, string>,
-    name: string,
-  ): void {
+  private events<TData, TResult>(worker: Worker<TData, TResult, string>, name: string): void {
     worker.on('active', (job) => {
       this.app.log.info({ data: job.data }, 'Job started');
     });

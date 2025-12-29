@@ -22,7 +22,7 @@ const EXTENSION_ROUTES = [
   '/entities/students/sig',
   '/histories',
   '/entities/students',
-  '/components'
+  '/components',
 ];
 
 const isPublicRoute = (url: string): boolean => {
@@ -57,9 +57,7 @@ export default async function (app: FastifyInstance) {
     try {
       await request.jwtVerify();
     } catch (error) {
-      return reply.unauthorized(
-        'You must be authenticated to access this route',
-      );
+      return reply.unauthorized('You must be authenticated to access this route');
     }
   });
 }

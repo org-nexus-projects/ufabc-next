@@ -7,10 +7,7 @@ import { ofetch } from 'ofetch';
 
 export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get('/google', async function (request, reply) {
-    const validatedURI = await this.google.generateAuthorizationUri(
-      request,
-      reply,
-    );
+    const validatedURI = await this.google.generateAuthorizationUri(request, reply);
     const redirectURL = new URL(validatedURI);
     redirectURL.searchParams.append('prompt', 'select_account');
 
@@ -29,11 +26,7 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     try {
       // @ts-ignore
       const userId = request.query.state;
-      const { token } =
-        await this.google.getAccessTokenFromAuthorizationCodeFlow(
-          request,
-          reply,
-        );
+      const { token } = await this.google.getAccessTokenFromAuthorizationCodeFlow(request, reply);
       const oauthUser = await getUserDetails(token, request.log);
       const user = await createOrLogin(oauthUser, userId, request.log);
       request.log.info(
@@ -58,18 +51,13 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       return reply.redirect(redirectURL.href);
     } catch (error: any) {
       if (error?.data?.payload) {
-        reply.log.error(
-          { originalError: error, error: error.data.payload },
-          'Error in oauth2',
-        );
+        reply.log.error({ originalError: error, error: error.data.payload }, 'Error in oauth2');
         return error.data.payload;
       }
 
       // Unknwon (probably db) error
       request.log.error(error, 'deu merda severa');
-      return reply.internalServerError(
-        'Algo de errado aconteceu no seu login, tente novamente',
-      );
+      return reply.internalServerError('Algo de errado aconteceu no seu login, tente novamente');
     }
   });
 };
@@ -78,12 +66,9 @@ async function getUserDetails(token: Token, logger: any) {
   const headers = new Headers();
   headers.append('Authorization', `Bearer ${token.access_token}`);
 
-  const user = await ofetch<LegacyGoogleUser>(
-    'https://www.googleapis.com/plus/v1/people/me',
-    {
-      headers,
-    },
-  );
+  const user = await ofetch<LegacyGoogleUser>('https://www.googleapis.com/plus/v1/people/me', {
+    headers,
+  });
   logger.info(user, {
     msg: 'Google User',
   });
@@ -104,11 +89,7 @@ async function getUserDetails(token: Token, logger: any) {
   };
 }
 
-async function createOrLogin(
-  oauthUser: User['oauth'],
-  userId: string,
-  logger: any,
-) {
+async function createOrLogin(oauthUser: User['oauth'], userId: string, logger: any) {
   try {
     const findUserQuery: FilterQuery<UserDocument>[] = [];
 
@@ -130,15 +111,12 @@ async function createOrLogin(
     }
 
     // Find existing user or create a new one
-    let user =
-      findUserQuery.length > 0
-        ? await UserModel.findOne({ $or: findUserQuery })
-        : null;
+    let user = findUserQuery.length > 0 ? await UserModel.findOne({ $or: findUserQuery }) : null;
 
     // If no user found, create a new one
     if (!user) {
       const ttlHours = 1;
-      const userExpireTime = Date.now() + ttlHours * 60 * 60 * 1000
+      const userExpireTime = Date.now() + ttlHours * 60 * 60 * 1000;
       const expiresAt = new Date(userExpireTime);
       user = new UserModel({
         active: true,

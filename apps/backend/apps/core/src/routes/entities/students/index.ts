@@ -7,31 +7,22 @@ import {
   updateStudentSchema,
 } from '@/schemas/entities/students.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import {
-  getAllCourses,
-  getComponentsStudentsStats,
-  getStudent,
-  update,
-} from './service.js';
+import { getAllCourses, getComponentsStudentsStats, getStudent, update } from './service.js';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
-  app.get(
-    '/stats/components',
-    { schema: listStudentsStatsComponents },
-    async (request, reply) => {
-      const { season } = request.query;
+  app.get('/stats/components', { schema: listStudentsStatsComponents }, async (request, reply) => {
+    const { season } = request.query;
 
-      const isPrevious = await ComponentModel.countDocuments({
-        season,
-        before_kick: { $exists: true, $ne: [] },
-      });
+    const isPrevious = await ComponentModel.countDocuments({
+      season,
+      before_kick: { $exists: true, $ne: [] },
+    });
 
-      const dataKey = isPrevious ? '$before_kick' : '$alunos_matriculados';
-      const statusAggregate = await getComponentsStudentsStats(season, dataKey);
+    const dataKey = isPrevious ? '$before_kick' : '$alunos_matriculados';
+    const statusAggregate = await getComponentsStudentsStats(season, dataKey);
 
-      return statusAggregate;
-    },
-  );
+    return statusAggregate;
+  });
 
   app.get('/courses', async () => {
     const allStudentsCourses = await getAllCourses();
@@ -68,39 +59,35 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     };
   });
 
-  app.get(
-    '/student',
-    { schema: listMatriculaStudent },
-    async (request, reply) => {
-      const login = request.headers['uf-login'];
+  app.get('/student', { schema: listMatriculaStudent }, async (request, reply) => {
+    const login = request.headers['uf-login'];
 
-      if (!login) {
-        return reply.badRequest('Missing required params');
-      }
+    if (!login) {
+      return reply.badRequest('Missing required params');
+    }
 
-      const student = await getStudent({ login });
+    const student = await getStudent({ login });
 
-      if (!student) {
-        return reply.notFound('Student not found');
-      }
+    if (!student) {
+      return reply.notFound('Student not found');
+    }
 
-      const matriculaStudent = {
-        studentId: student.aluno_id,
-        graduations: student.cursos.map((c) => ({
-          courseId: c.id_curso,
-          name: c.nome_curso,
-          shift: c.turno,
-          affinity: c.ind_afinidade,
-          cp: c.cp ?? 0,
-          cr: c.cr ?? 0,
-          ca: c.ca ?? 0,
-        })),
-        updatedAt: student.updatedAt.toISOString(),
-      } satisfies MatriculaStudent;
+    const matriculaStudent = {
+      studentId: student.aluno_id,
+      graduations: student.cursos.map((c) => ({
+        courseId: c.id_curso,
+        name: c.nome_curso,
+        shift: c.turno,
+        affinity: c.ind_afinidade,
+        cp: c.cp ?? 0,
+        cr: c.cr ?? 0,
+        ca: c.ca ?? 0,
+      })),
+      updatedAt: student.updatedAt.toISOString(),
+    } satisfies MatriculaStudent;
 
-      return matriculaStudent;
-    },
-  );
+    return matriculaStudent;
+  });
 
   app.put('/', { schema: updateStudentSchema }, async (request, reply) => {
     const { login, ra, studentId, graduationId } = request.body;

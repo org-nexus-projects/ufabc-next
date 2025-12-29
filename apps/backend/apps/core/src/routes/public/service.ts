@@ -1,4 +1,4 @@
-import { StudentModel } from "@/models/Student.js";
+import { StudentModel } from '@/models/Student.js';
 
 export async function getAllCourses() {
   const courses = await StudentModel.aggregate<{ names: string; UFCourseIds: number[] }>([
@@ -34,10 +34,10 @@ export async function getAllCourses() {
       $project: {
         _id: 0,
         names: '$_id',
-        UFCourseIds: '$ids'
-      }
-    }
-  ])
+        UFCourseIds: '$ids',
+      },
+    },
+  ]);
 
   return courses;
 }

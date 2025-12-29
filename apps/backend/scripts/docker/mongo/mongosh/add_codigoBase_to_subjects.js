@@ -9,22 +9,28 @@ const mapping = db.disciplinas.aggregate([
   { $match: { codigo: { $exists: true, $ne: null }, subject: { $exists: true, $ne: null } } },
   {
     $project: {
-      codigoBase: { $regexFind: { input: "$codigo", regex: /^(.*?)-\d{2}$/ } },
-      subject: 1
-    }
+      codigoBase: { $regexFind: { input: '$codigo', regex: /^(.*?)-\d{2}$/ } },
+      subject: 1,
+    },
   },
   {
     $project: {
-      codigoBase: { $cond: [{ $ne: ["$codigoBase", null] }, { $arrayElemAt: ["$codigoBase.captures", 0] }, "$codigo"] },
-      subject: 1
-    }
+      codigoBase: {
+        $cond: [
+          { $ne: ['$codigoBase', null] },
+          { $arrayElemAt: ['$codigoBase.captures', 0] },
+          '$codigo',
+        ],
+      },
+      subject: 1,
+    },
   },
   {
     $group: {
-      _id: "$subject",
-      codigoBases: { $addToSet: "$codigoBase" }
-    }
-  }
+      _id: '$subject',
+      codigoBases: { $addToSet: '$codigoBase' },
+    },
+  },
 ]);
 
 let updated = 0;
@@ -37,13 +43,10 @@ while (mapping.hasNext()) {
   const codes = Array.from(new Set(doc.codigoBases.filter(Boolean)));
   if (codes.length === 0) continue;
   if (codes.length > 1) {
-    print(`WARNING: Subject ${subjectId} has multiple uf_subject_code values: ${(codes)}`);
+    print(`WARNING: Subject ${subjectId} has multiple uf_subject_code values: ${codes}`);
     warnings++;
   }
-  const res = db.subjects.updateOne(
-    { _id: subjectId },
-    { $set: { uf_subject_code: codes } }
-  );
+  const res = db.subjects.updateOne({ _id: subjectId }, { $set: { uf_subject_code: codes } });
   if (res.modifiedCount > 0) updated++;
 }
 

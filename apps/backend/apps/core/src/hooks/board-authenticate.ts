@@ -12,9 +12,7 @@ export const authenticateBoard: BoardAuthHook = async (request, reply) => {
     const tokenToVerify = token || cookieToken;
 
     if (!tokenToVerify) {
-      return reply
-        .status(401)
-        .send({ error: 'Unauthorized', message: 'No token provided' });
+      return reply.status(401).send({ error: 'Unauthorized', message: 'No token provided' });
     }
 
     await request.jwtVerify({
@@ -23,9 +21,7 @@ export const authenticateBoard: BoardAuthHook = async (request, reply) => {
 
     const user = request.user;
     if (!user.permissions?.includes('admin')) {
-      return reply
-        .status(401)
-        .send({ error: 'Unauthorized', message: 'Insufficient permissions' });
+      return reply.status(401).send({ error: 'Unauthorized', message: 'Insufficient permissions' });
     }
   } catch (error) {
     request.log.warn({ error }, 'Board access denied');

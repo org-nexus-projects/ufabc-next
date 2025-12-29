@@ -1,9 +1,4 @@
-import {
-  type InferSchemaType,
-  Schema,
-  type ValidatorProps,
-  model,
-} from 'mongoose';
+import { type InferSchemaType, Schema, type ValidatorProps, model } from 'mongoose';
 
 const userSchema = new Schema(
   {
@@ -15,10 +10,8 @@ const userSchema = new Schema(
     email: {
       type: String,
       validate: {
-        validator: (email: string) =>
-          email ? email.includes('ufabc.edu.br') : true,
-        message: (props: ValidatorProps) =>
-          `${props.value} não é um e-mail válido.`,
+        validator: (email: string) => (email ? email.includes('ufabc.edu.br') : true),
+        message: (props: ValidatorProps) => `${props.value} não é um e-mail válido.`,
       },
       unique: true,
       partialFilterExpression: { email: { $exists: true } },

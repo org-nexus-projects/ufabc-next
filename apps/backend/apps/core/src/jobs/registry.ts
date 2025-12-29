@@ -4,10 +4,7 @@ import {
   archivesSummaryJob,
 } from './components-archive-processing-flow.js';
 import { JOB_NAMES } from '../constants.js';
-import {
-  enrolledStudentsJob,
-  processEnrollmentJob,
-} from './enrolled-students.js';
+import { enrolledStudentsJob, processEnrollmentJob } from './enrolled-students.js';
 import { createComponentJob } from './components.js';
 
 export const jobRegistry = {

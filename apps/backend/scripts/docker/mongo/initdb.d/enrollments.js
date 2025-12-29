@@ -42,4 +42,3 @@ db.enrollments.insertMany([
     creditos: 2,
   },
 ]);
-

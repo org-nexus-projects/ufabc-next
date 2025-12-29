@@ -32,16 +32,15 @@ export async function rawReviews(teacherId: Types.ObjectId) {
           $sum: {
             $cond: [
               {
-                $in: ['$season', [
-                  '2020:1', '2020:2', '2020:3',
-                  '2021:1', '2021:2', '2021:3',
-                  '2022:1', '2022:2'
-                ]]
+                $in: [
+                  '$season',
+                  ['2020:1', '2020:2', '2020:3', '2021:1', '2021:2', '2021:3', '2022:1', '2022:2'],
+                ],
               },
               1,
-              0
-            ]
-          }
+              0,
+            ],
+          },
         },
         crs: { $push: '$cr_acumulado' },
         weight: {
@@ -102,7 +101,7 @@ export async function rawReviews(teacherId: Types.ObjectId) {
         numeric: { $sum: { $multiply: ['$amount', '$cr_medio'] } },
         amount: { $sum: '$amount' },
         count: { $sum: '$count' },
-        eadCount: { $sum: '$eadCount'}
+        eadCount: { $sum: '$eadCount' },
       },
     },
     {
@@ -114,11 +113,7 @@ export async function rawReviews(teacherId: Types.ObjectId) {
         count: 1,
         eadCount: 1,
         cr_professor: {
-          $cond: [
-            { $eq: ['$amount', 0] },
-            'N/A',
-            { $divide: ['$numericWeight', '$amount'] },
-          ],
+          $cond: [{ $eq: ['$amount', 0] }, 'N/A', { $divide: ['$numericWeight', '$amount'] }],
         },
       },
     },
@@ -176,9 +171,8 @@ export async function findAndUpdate(id: string, alias: string) {
 }
 
 export async function listAll() {
-  const teachers = await TeacherModel.find(
-    {},
-    { _id: 0, name: 1, alias: 1 },
-  ).lean<{ name: string; alias: string[] }[]>();
+  const teachers = await TeacherModel.find({}, { _id: 0, name: 1, alias: 1 }).lean<
+    { name: string; alias: string[] }[]
+  >();
   return teachers;
 }

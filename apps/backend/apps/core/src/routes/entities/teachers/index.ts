@@ -37,26 +37,22 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return insertedTeacher;
   });
 
-  app.put(
-    '/:teacherId',
-    { schema: updateTeacherSchema },
-    async (request, reply) => {
-      const { teacherId } = request.params;
-      const { alias } = request.body;
+  app.put('/:teacherId', { schema: updateTeacherSchema }, async (request, reply) => {
+    const { teacherId } = request.params;
+    const { alias } = request.body;
 
-      if (!teacherId) {
-        return reply.badRequest('Missing teacherId');
-      }
+    if (!teacherId) {
+      return reply.badRequest('Missing teacherId');
+    }
 
-      const updatedTeacher = await findAndUpdate(teacherId, alias);
+    const updatedTeacher = await findAndUpdate(teacherId, alias);
 
-      if (!updatedTeacher) {
-        return reply.badRequest('Teacher not found');
-      }
+    if (!updatedTeacher) {
+      return reply.badRequest('Teacher not found');
+    }
 
-      return updatedTeacher;
-    },
-  );
+    return updatedTeacher;
+  });
 
   app.get('/search', { schema: searchTeacherSchema }, async (request) => {
     const { q } = request.query;
@@ -97,8 +93,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         return acc;
       }, {});
 
-    const generalDistributions = Object.entries(generalDistribution).map(
-      ([key, value]) => getMean(value as any, key),
+    const generalDistributions = Object.entries(generalDistribution).map(([key, value]) =>
+      getMean(value as any, key),
     );
 
     const teacher = await findOne(teacherId);
@@ -121,7 +117,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 function getMean(value: any[], key?: string): any {
   const count = value.reduce((sum, v) => sum + v.count, 0);
   const amount = value.reduce((sum, v) => sum + v.amount, 0);
-  const eadCount = value.reduce((sum, v) => sum + v.eadCount, 0)
+  const eadCount = value.reduce((sum, v) => sum + v.eadCount, 0);
   const simpleSum = value
     .filter((v) => v.cr_medio != null)
     .reduce((sum, v) => sum + v.amount * v.cr_medio, 0);

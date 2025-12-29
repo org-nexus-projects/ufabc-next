@@ -1,10 +1,6 @@
 import { StudentModel } from '@/models/Student.js';
 import { UserModel, type User } from '@/models/User.js';
-import {
-  getEmployeeData,
-  getStudentData,
-  validateUserData,
-} from '@/modules/email-validator.js';
+import { getEmployeeData, getStudentData, validateUserData } from '@/modules/email-validator.js';
 import { completeUserSchema, type Auth } from '@/schemas/auth.js';
 import {
   confirmUserSchema,
@@ -69,46 +65,38 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return userInfo;
   });
 
-  app.post(
-    '/facebook',
-    { schema: loginFacebookSchema },
-    async (request, reply) => {
-      const { ra, email } = request.body;
-      const user = await UserModel.findOne({
-        ra,
-        $or: [
-          { 'oauth.facebookEmail': email },
-          { 'oauth.email': email },
-          { 'oauth.emailFacebook': email },
-        ],
-      });
+  app.post('/facebook', { schema: loginFacebookSchema }, async (request, reply) => {
+    const { ra, email } = request.body;
+    const user = await UserModel.findOne({
+      ra,
+      $or: [
+        { 'oauth.facebookEmail': email },
+        { 'oauth.email': email },
+        { 'oauth.emailFacebook': email },
+      ],
+    });
 
-      if (!user) {
-        return reply.notFound('Usuario não encontrado');
-      }
+    if (!user) {
+      return reply.notFound('Usuario não encontrado');
+    }
 
-      const userEmails = [user.oauth?.emailFacebook, user.oauth?.email].filter(
-        Boolean,
-      );
+    const userEmails = [user.oauth?.emailFacebook, user.oauth?.email].filter(Boolean);
 
-      if (!userEmails.includes(email)) {
-        throw new Error(
-          'Email does not match the registered email for this RA',
-        );
-      }
+    if (!userEmails.includes(email)) {
+      throw new Error('Email does not match the registered email for this RA');
+    }
 
-      const jwtToken = app.jwt.sign({
-        _id: user._id.toJSON(),
-        ra: user.ra,
-        permissions: user.permissions,
-        active: user.active,
-        confirmed: user.confirmed,
-        email: user.email,
-      });
+    const jwtToken = app.jwt.sign({
+      _id: user._id.toJSON(),
+      ra: user.ra,
+      permissions: user.permissions,
+      active: user.active,
+      confirmed: user.confirmed,
+      email: user.email,
+    });
 
-      return { success: true, token: jwtToken };
-    },
-  );
+    return { success: true, token: jwtToken };
+  });
 
   app.post('/resend', { schema: resendEmailSchema }, async (request, reply) => {
     const user = await UserModel.findOne({
@@ -144,9 +132,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             case 'RA_NOT_FOUND':
               return reply.badRequest('O RA digitado não existe.');
             case 'HAS_UFABC_CONTRACT':
-              return reply.forbidden(
-                'O aluno não pode ter contrato com a UFABC.',
-              );
+              return reply.forbidden('O aluno não pode ter contrato com a UFABC.');
             case 'INVALID_EMAIL':
               return reply.forbidden('O email fornecido não é válido.');
             default:
@@ -204,61 +190,53 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     },
   );
 
-  app.post(
-    '/confirm',
-    { schema: confirmUserSchema },
-    async (request, reply) => {
-      const { token } = request.body;
-      const notConfirmedUser = app.verifyToken(token, app.config);
+  app.post('/confirm', { schema: confirmUserSchema }, async (request, reply) => {
+    const { token } = request.body;
+    const notConfirmedUser = app.verifyToken(token, app.config);
 
-      if (!notConfirmedUser) {
-        return reply.badRequest('Invalid token');
-      }
-      const { email } = JSON.parse(notConfirmedUser) as { email: string };
-      const user = await UserModel.findOne({
-        email,
-      });
-      if (!user) {
-        return reply.notFound('User not found');
-      }
+    if (!notConfirmedUser) {
+      return reply.badRequest('Invalid token');
+    }
+    const { email } = JSON.parse(notConfirmedUser) as { email: string };
+    const user = await UserModel.findOne({
+      email,
+    });
+    if (!user) {
+      return reply.notFound('User not found');
+    }
 
-      user.confirmed = true;
-      user.expiresAt = null;
+    user.confirmed = true;
+    user.expiresAt = null;
 
-      const confirmedUser = await user.save();
+    const confirmedUser = await user.save();
 
-      const jwtToken = app.jwt.sign({
-        _id: confirmedUser._id,
-        ra: confirmedUser.ra,
-        confirmed: confirmedUser.confirmed,
-        email: confirmedUser.email,
-        permissions: confirmedUser.permissions,
-      });
+    const jwtToken = app.jwt.sign({
+      _id: confirmedUser._id,
+      ra: confirmedUser.ra,
+      confirmed: confirmedUser.confirmed,
+      email: confirmedUser.email,
+      permissions: confirmedUser.permissions,
+    });
 
-      return {
-        token: jwtToken,
-      };
-    },
-  );
+    return {
+      token: jwtToken,
+    };
+  });
 
-  app.delete(
-    '/remove',
-    { schema: deactivateUserSchema },
-    async ({ user }, reply) => {
-      const currentUser = await UserModel.findById(user._id);
+  app.delete('/remove', { schema: deactivateUserSchema }, async ({ user }, reply) => {
+    const currentUser = await UserModel.findById(user._id);
 
-      if (!currentUser) {
-        return reply.notFound('User not found');
-      }
+    if (!currentUser) {
+      return reply.notFound('User not found');
+    }
 
-      currentUser.active = false;
-      await currentUser.save();
+    currentUser.active = false;
+    await currentUser.save();
 
-      return {
-        message: 'Foi bom te ter aqui =)',
-      };
-    },
-  );
+    return {
+      message: 'Foi bom te ter aqui =)',
+    };
+  });
 
   app.get(
     '/check-email',
@@ -270,23 +248,17 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const checkUser = await getStudentData(ra);
 
       if (!checkUser) {
-        return reply.badRequest(
-          'O RA digitado não existe. Por favor, tente novamente',
-        );
+        return reply.badRequest('O RA digitado não existe. Por favor, tente novamente');
       }
 
       const emailList = Array.isArray(checkUser?.email) ? checkUser.email : [];
-      const employeePromises = emailList.map(
-        async (email) => await getEmployeeData(email),
-      );
+      const employeePromises = emailList.map(async (email) => await getEmployeeData(email));
       const employees = await Promise.all(employeePromises);
       const validEmployees = employees.filter((employee) => employee !== null);
 
       if (validEmployees.length > 0) {
         request.log.warn(validEmployees, 'UFABC employee');
-        return reply.forbidden(
-          'O aluno não pode ter contrato de trabalho com a UFABC',
-        );
+        return reply.forbidden('O aluno não pode ter contrato de trabalho com a UFABC');
       }
 
       let email = '';
@@ -308,29 +280,23 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     },
   );
 
-  app.post(
-    '/recover',
-    { schema: sendRecoveryEmailSchema },
-    async (request, reply) => {
-      const { email } = request.body;
-      const user = await UserModel.findOne({ email }).lean<
-        User & { _id: string }
-      >();
+  app.post('/recover', { schema: sendRecoveryEmailSchema }, async (request, reply) => {
+    const { email } = request.body;
+    const user = await UserModel.findOne({ email }).lean<User & { _id: string }>();
 
-      if (!user) {
-        return reply.badRequest(`E-mail inválido: ${email}`);
-      }
+    if (!user) {
+      return reply.badRequest(`E-mail inválido: ${email}`);
+    }
 
-      await app.job.dispatch('SendEmail', {
-        kind: 'Recover',
-        user,
-      });
+    await app.job.dispatch('SendEmail', {
+      kind: 'Recover',
+      user,
+    });
 
-      return reply.send({
-        msg: 'success',
-      });
-    },
-  );
+    return reply.send({
+      msg: 'success',
+    });
+  });
 };
 
 export default plugin;

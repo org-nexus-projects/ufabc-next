@@ -1,7 +1,7 @@
-import type { FastifyZodOpenApiSchema } from "fastify-zod-openapi";
-import { z } from "zod";
+import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
+import { z } from 'zod';
 
-const tags = ['graduations']
+const tags = ['graduations'];
 
 const paginatedGraduationSubjectsSchema = z.object({
   total: z.number().int(),
@@ -35,9 +35,8 @@ export const listGraduationsSubjectsSchema = {
         },
       },
     },
-  }
+  },
 } satisfies FastifyZodOpenApiSchema;
-
 
 export const listGraduationsSubjectsByIdSchema = {
   tags,
@@ -50,12 +49,12 @@ export const listGraduationsSubjectsByIdSchema = {
   response: {
     200: {
       content: {
-        "application/json": {
+        'application/json': {
           schema: z.object({
             docs: z.any(),
-          })
-        }
-      }
-    }
-  }
+          }),
+        },
+      },
+    },
+  },
 } satisfies FastifyZodOpenApiSchema;
