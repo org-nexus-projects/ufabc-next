@@ -26,7 +26,7 @@ jobs:
 
       - name: Get IP Addresses
         id: ip
-        uses: candidob/get-runner-ip@v1.0.0  
+        uses: candidob/get-runner-ip@v1.0.0
 
       - name: ⚙️ Whitelist runner ip address
         id: whitelist-ip

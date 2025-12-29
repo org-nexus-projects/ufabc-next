@@ -7,9 +7,7 @@
       "request": "launch",
       "program": "${file}",
       "runtimeExecutable": "tsx",
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
+      "skipFiles": ["<node_internals>/**"]
     }
   ]
 }

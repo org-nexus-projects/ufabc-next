@@ -1,7 +1,3 @@
 {
-  "plugins": [
-    "import",
-    "node",
-    "promise"
-  ]
+  "plugins": ["import", "node", "promise"]
 }

@@ -1,11 +1,6 @@
 {
   "dotenv.enableAutocloaking": false,
-  "cSpell.words": [
-    "paralleldrive"
-  ],
-  "editor.formatOnSave": true,
-  "[typescript]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "typescript.experimental.useTsgo": false
+  "cSpell.words": ["paralleldrive"],
+  "typescript.experimental.useTsgo": true,
+  "editor.defaultFormatter": "oxc.oxc-vscode"
 }

@@ -2,7 +2,6 @@
   "name": "ufabc-next-backend",
   "version": "0.0.1",
   "private": false,
-  "packageManager": "pnpm@9.15.9",
   "type": "module",
   "scripts": {
     "dev": "turbo run dev --parallel",
@@ -12,18 +11,20 @@
     "start": "turbo run start",
     "start:watch": "turbo run start:watch",
     "test": "turbo run test",
-    "lint": "oxlint --type-aware",
+    "lint": "oxlint --type-aware --fix && oxfmt",
     "deps-check": "pnpm dlx taze -r"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
-    "oxlint": "^1.35.0",
-    "oxlint-tsgolint": "^0.10.0",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
     "tsx": "catalog:",
     "turbo": "catalog:"
   },
   "engines": {
     "node": "^22",
     "pnpm": "^9"
-  }
+  },
+  "packageManager": "pnpm@9.15.9"
 }
