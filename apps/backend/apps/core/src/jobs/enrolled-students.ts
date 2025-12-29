@@ -26,6 +26,10 @@ export const enrolledStudentsJob = defineJob(JOB_NAMES.ENROLLED_STUDENTS)
           students: enrollment.students,
           tenant,
         },
+        opts: {
+          removeOnComplete: 1000,
+          removeOnFail: 50000,
+        },
         queueName: JOB_NAMES.PROCESS_ENROLLED_STUDENTS,
       })),
     });
@@ -61,7 +65,3 @@ export const processEnrollmentJob = defineJob(JOB_NAMES.PROCESS_ENROLLED_STUDENT
 
     return component.toJSON();
   })
-  .options({
-    removeOnComplete: 1000,
-    removeOnFail: 50000,
-  });

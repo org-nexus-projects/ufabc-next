@@ -12,6 +12,7 @@
     "start:watch": "turbo run start:watch",
     "test": "turbo run test",
     "lint": "oxlint --type-aware --fix && oxfmt",
+    "lint:ci": "oxlint --type-aware --quiet && oxfmt",
     "deps-check": "pnpm dlx taze -r"
   },
   "devDependencies": {
