@@ -18,8 +18,8 @@
   "dependencies": {
     "@amcharts/amcharts5": "5.14.4",
     "@mdi/font": "7.4.47",
-    "@tanstack/query-core": "5.90.12",
-    "@tanstack/vue-query": "5.92.1",
+    "@tanstack/query-core": "5.90.14",
+    "@tanstack/vue-query": "5.92.3",
     "@tanstack/vue-query-devtools": "5.91.0",
     "@ufabc-next/services": "workspace:*",
     "@vee-validate/zod": "4.15.1",
@@ -38,7 +38,7 @@
     "vue": "3.5.26",
     "vue-router": "4.6.4",
     "vue-zustand": "0.6.0",
-    "vuetify": "3.11.4",
+    "vuetify": "3.11.5",
     "zod": "3.25.76"
   },
   "devDependencies": {
