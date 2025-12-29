@@ -29,3 +29,4 @@ auto-imports.d.ts
 components.d.ts
 
 dist/**
+.env.submit
