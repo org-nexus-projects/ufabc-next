@@ -14,8 +14,7 @@
     "start": "node --env-file=.env.prod dist/server.js",
     "start:local": "pnpm build && node --env-file=.env.prod dist/server.js",
     "test": "vitest",
-    "test:watch": "vitest watch",
-    "lint": "biome lint --write --unsafe --diagnostic-level=error ."
+    "test:watch": "vitest watch"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",

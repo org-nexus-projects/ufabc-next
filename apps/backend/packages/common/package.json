@@ -16,7 +16,6 @@
   "scripts": {
     "build": "tsup index.ts --dts --format=esm --clean",
     "tsc": "tsc",
-    "lint": "biome lint --write --unsafe --diagnostic-level=error .",
     "test": "node --import=tsx --test lib/*.spec.ts",
     "test:watch": "node --import=tsx --watch --test lib/*.spec.ts",
     "test:coverage": "c8 --all --src=lib node --test --import=tsx lib/*.spec.ts"

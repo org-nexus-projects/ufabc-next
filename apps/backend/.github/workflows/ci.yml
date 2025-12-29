@@ -55,7 +55,7 @@ jobs:
         run: pnpm build
 
       - name: 💪 Lint
-        run: pnpm lint
+        run: pnpm lint -- --deny-warnings
 
       - name: 💼 Type Check
         run: pnpm tsc

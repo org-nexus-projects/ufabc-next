@@ -11,12 +11,14 @@
     "tsc": "turbo run tsc --parallel",
     "start": "turbo run start",
     "start:watch": "turbo run start:watch",
-    "lint": "turbo run lint --parallel",
     "test": "turbo run test",
+    "lint": "oxlint --type-aware",
     "deps-check": "pnpm dlx taze -r"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
+    "oxlint": "^1.35.0",
+    "oxlint-tsgolint": "^0.10.0",
     "tsx": "catalog:",
     "turbo": "catalog:"
   },
