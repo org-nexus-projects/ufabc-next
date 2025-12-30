@@ -5,9 +5,6 @@ import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
-  zip: {
-    artifactTemplate: '{{name}}-{{version}}-{{platform}}.zip',
-  },
   srcDir: 'src',
 	modules: ["@wxt-dev/module-vue"],
 	manifest: {
