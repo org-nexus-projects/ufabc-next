@@ -39,5 +39,5 @@ jobs:
         env:
           CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
           CHROME_REFRESH_TOKEN: ${{ steps.auth.outputs.access_token }}
-          CHROME_CLIENT_ID: "dummy-client-id"
-          CHROME_CLIENT_SECRET: "dummy-client-secret"
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
