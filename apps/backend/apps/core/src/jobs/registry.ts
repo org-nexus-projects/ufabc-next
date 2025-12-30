@@ -5,7 +5,7 @@ import {
 } from './components-archive-processing-flow.js';
 import { JOB_NAMES } from '../constants.js';
 import { enrolledStudentsJob, processEnrollmentJob } from './enrolled-students.js';
-import { createComponentJob } from './components.js';
+import { createComponentJob } from './components-create.js';
 
 export const jobRegistry = {
   [JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING]: componentsArchivesProcessingJob,
