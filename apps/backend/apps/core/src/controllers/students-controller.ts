@@ -3,7 +3,7 @@ import { sigaaSession } from '@/hooks/sigaa-session.js';
 import { z } from 'zod';
 import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 
-const CACHE_TTL = 1 * 60 * 60 * 24; // 1 day
+const CACHE_TTL = 1000 * 60 * 60 * 24; // 1 day
 
 export const studentsController: FastifyPluginAsyncZod = async (app) => {
   const connector = new UfabcParserConnector();
@@ -29,19 +29,23 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
     },
     handler: async (request, reply) => {
       const { ra, login } = request.body;
-      const cached  = await app.redis.get(`students:sigaa:${ra}`);
+      const { sessionId, viewId } = request.sigaaSession;
+      const cacheKey = `students:sigaa:${ra}`;
+
+      const cached  = await app.redis.get(cacheKey);
       if (cached) {
+        app.log.debug({ cacheKey }, 'Student already synced');
         return reply.status(200).send({
           status: 'success',
         });
       }
 
       await connector.syncStudent({
-        sessionId: request.headers['session-id'],
-        viewId: request.headers['view-id'],
+        sessionId,
+        viewId,
         requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
       });
-      await app.redis.set(`students:sigaa:${ra}`, login, 'PX', CACHE_TTL);
+      await app.redis.set(cacheKey, login, 'PX', CACHE_TTL);
   
       return reply.status(200).send({
         status: 'success',
