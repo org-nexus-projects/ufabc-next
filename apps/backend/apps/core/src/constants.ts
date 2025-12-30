@@ -25,4 +25,4 @@ export const JOB_NAMES = {
   CREATE_COMPONENT: 'create_component',
 } as const;
 
-export const HTTP_REDIS_KEY_PREFIX = 'http:lock';
+export const HTTP_REDIS_KEY_PREFIX = 'http';
