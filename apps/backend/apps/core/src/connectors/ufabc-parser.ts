@@ -104,6 +104,12 @@ type UfabcParserComponentV2 = {
   timetable: Timetable[];
 };
 
+type SyncStudentParams = {
+  sessionId: string;
+  viewId: string;
+  requesterKey: string;
+}
+
 export class UfabcParserConnector extends BaseRequester {
   constructor() {
     super(process.env.UFABC_PARSER_URL);
@@ -180,6 +186,21 @@ export class UfabcParserConnector extends BaseRequester {
         ufComponentId,
         season,
       },
+    });
+    return response;
+  }
+
+  async syncStudent(params: SyncStudentParams) {
+    const { sessionId, viewId, requesterKey } = params;
+    const headers = new Headers();
+    headers.set('session-id', sessionId);
+    headers.set('view-state', viewId);
+    headers.set('requester-key', requesterKey);
+    const response = await this.request<{
+      message: string;
+    }>('/v2/students', {
+      method: 'POST',
+      headers,
     });
     return response;
   }

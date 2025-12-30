@@ -43,6 +43,7 @@ const configSchema = z.object({
   BOARD_PATH: z.string().optional(),
   NOTION_INTEGRATION_SECRET: z.string().default('notion_integration_secret'),
   NOTION_DATABASE_ID: z.string().default('notion_database_id'),
+  UFABC_PARSER_REQUESTER_KEY: z.string(),
 });
 
 const schema = zodToJsonSchema(configSchema);
