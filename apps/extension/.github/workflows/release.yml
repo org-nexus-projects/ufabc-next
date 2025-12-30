@@ -24,20 +24,12 @@ jobs:
         run: |
           pnpm zip
 
-      - name: Authenticate to Google
-        id: auth
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.CHROME_SERVICE_ACCOUNT_JSON }}
-          token_format: 'access_token'
-          access_token_scopes: 'https://www.googleapis.com/auth/chromewebstore'
-
       - name: Submit to stores
         run: |
           pnpm wxt submit \
             --chrome-zip .output/*-chrome.zip
         env:
           CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
-          CHROME_REFRESH_TOKEN: ${{ steps.auth.outputs.access_token }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
           CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
           CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
