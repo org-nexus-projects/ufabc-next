@@ -8,7 +8,7 @@ type RedisService = {
   releaseLock: (key: string) => Promise<boolean>;
   setJSON: <T>(key: string, value: T, ttl: string) => Promise<'OK'>;
   getJSON: <T>(key: string) => Promise<T | null>;
-}
+};
 
 declare module 'fastify' {
   export interface FastifyRequest {
@@ -24,7 +24,6 @@ export default fp(
       url: app.config.REDIS_CONNECTION_URL,
       closeClient: true,
     });
-
 
     const acquireLock = async (key: string, ttl: string) => {
       const ttlInMs = ms(ttl);
@@ -46,7 +45,7 @@ export default fp(
       setJSON: async <T>(key: string, value: T, ttl: string) => {
         const fullKey = `${HTTP_REDIS_KEY_PREFIX}:${key}`;
         const serializedValue = JSON.stringify(value);
-        
+
         if (ttl) {
           return app.redis.set(fullKey, serializedValue, 'PX', ms(ttl));
         }
@@ -61,7 +60,7 @@ export default fp(
         }
         return JSON.parse(serializedValue) as T;
       },
-    }
+    };
 
     app.decorateRequest('acquireLock', acquireLock);
     app.decorateRequest('releaseLock', releaseLock);

@@ -41,8 +41,8 @@ export const enrolledStudentsJob = defineJob(JOB_NAMES.ENROLLED_STUDENTS)
   })
   .every('45 minutes');
 
-export const processEnrollmentJob = defineJob(JOB_NAMES.PROCESS_ENROLLED_STUDENTS)
-  .handler(async ({ job, manager }) => {
+export const processEnrollmentJob = defineJob(JOB_NAMES.PROCESS_ENROLLED_STUDENTS).handler(
+  async ({ job, manager }) => {
     const { tenant, componentId, students } = job.data;
     const component = await ComponentModel.findOneAndUpdate(
       {
@@ -64,4 +64,5 @@ export const processEnrollmentJob = defineJob(JOB_NAMES.PROCESS_ENROLLED_STUDENT
     }
 
     return component.toJSON();
-  })
+  },
+);

@@ -7,7 +7,7 @@ declare module 'fastify' {
     sigaaSession: {
       sessionId: string;
       viewId: string;
-    };  
+    };
   }
 }
 export const sigaaSession: preHandlerAsyncHookHandler = async (request, reply) => {
@@ -18,7 +18,9 @@ export const sigaaSession: preHandlerAsyncHookHandler = async (request, reply) =
   }
 
   const sessionKey = `sigaa:session:${sessionId}`;
-  const cachedSession = await request.redisService.getJSON<{ sessionId: string; viewId: string }>(sessionKey);
+  const cachedSession = await request.redisService.getJSON<{ sessionId: string; viewId: string }>(
+    sessionKey,
+  );
 
   if (cachedSession) {
     request.sigaaSession = cachedSession;
@@ -33,7 +35,6 @@ export const sigaaSession: preHandlerAsyncHookHandler = async (request, reply) =
   await request.redisService.setJSON(sessionKey, { sessionId, viewId }, '25 minutes');
   request.sigaaSession = { sessionId, viewId };
 };
-
 
 async function validateToken(sessionId: string) {
   const connector = new SigaaConnector();

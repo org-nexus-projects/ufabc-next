@@ -1,6 +1,5 @@
 import { BaseRequester } from './base-requester.js';
 
-
 export class SigaaConnector extends BaseRequester {
   constructor() {
     super('https://sig.ufabc.edu.br');

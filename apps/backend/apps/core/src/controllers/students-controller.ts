@@ -7,7 +7,7 @@ const CACHE_TTL = 1000 * 60 * 60 * 24; // 1 day
 
 export const studentsController: FastifyPluginAsyncZod = async (app) => {
   const connector = new UfabcParserConnector();
-  
+
   app.route({
     method: 'POST',
     url: '/students/sigaa',
@@ -32,7 +32,7 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
       const { sessionId, viewId } = request.sigaaSession;
       const cacheKey = `students:sigaa:${ra}`;
 
-      const cached  = await app.redis.get(cacheKey);
+      const cached = await app.redis.get(cacheKey);
       if (cached) {
         app.log.debug({ cacheKey }, 'Student already synced');
         return reply.status(200).send({
@@ -46,13 +46,12 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
         requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
       });
       await app.redis.set(cacheKey, login, 'PX', CACHE_TTL);
-  
+
       return reply.status(200).send({
         status: 'success',
       });
     },
-  })
-  
+  });
 };
 
 export default studentsController;

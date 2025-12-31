@@ -108,7 +108,7 @@ type SyncStudentParams = {
   sessionId: string;
   viewId: string;
   requesterKey: string;
-}
+};
 
 export class UfabcParserConnector extends BaseRequester {
   constructor() {
