@@ -85,7 +85,6 @@ teacherSchema.pre('save', function (next) {
   if (this.isNew) {
     this.name = this.name.toLowerCase();
   }
-  next();
 });
 
 teacherSchema.index(

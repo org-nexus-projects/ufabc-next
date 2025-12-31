@@ -118,7 +118,7 @@ enrollmentSchema.index({
   conceito: 'asc',
 });
 
-enrollmentSchema.pre('findOneAndUpdate', function (next) {
+enrollmentSchema.pre('findOneAndUpdate', function () {
   const update = this.getUpdate();
 
   // @ts-ignore
@@ -130,10 +130,8 @@ enrollmentSchema.pre('findOneAndUpdate', function (next) {
   // Your existing pre update logic
   // @ts-ignore
   setTheoryAndPractice(update);
-  next();
 });
 
--ignore lint/complexity/useArrowFunction: Mongoose needs an anonymous func
 enrollmentSchema.post('findOneAndUpdate', async function (doc) {
   if (doc) {
     await addEnrollmentToGroup(doc);
