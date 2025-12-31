@@ -71,7 +71,7 @@ export async function processComponentsTeachers(ctx: QueueContext<JobData>) {
       const normalizedDisciplina = component.disciplina
         .toLowerCase()
         .normalize('NFD')
-        // biome-ignore lint/suspicious/noMisleadingCharacterClass: not needed
+        -ignore lint/suspicious/noMisleadingCharacterClass: not needed
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9\s]/g, ' ')
         .trim();

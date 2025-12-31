@@ -16,7 +16,7 @@ export type StudentEnrollment = Component & {
 type SyncError = {
   original: string;
   parserError: string[];
-  // biome-ignore lint/suspicious/noExplicitAny: metadata can be any type
+  -ignore lint/suspicious/noExplicitAny: metadata can be any type
   metadata?: any;
   type: 'MATCHING_FAILED' | 'MISSING_MANDATORY_FIELDS' | 'TEACHER_NOT_FOUND';
 };

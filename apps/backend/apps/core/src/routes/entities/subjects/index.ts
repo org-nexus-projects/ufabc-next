@@ -84,7 +84,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     const validSubjectId = new Types.ObjectId(subjectId);
     const stats = await rawSubjectsReviews(validSubjectId);
-    // biome-ignore lint/complexity/noForEach: <explanation>
+    -ignore lint/complexity/noForEach: <explanation>
     stats.forEach((s) => {
       s.cr_medio = s.numeric / s.amount;
     });

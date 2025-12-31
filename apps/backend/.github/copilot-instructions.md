@@ -29,7 +29,6 @@ Be productive in the UFABC Next backend monorepo. This document gives concise, a
 
 - TypeScript, ES modules, `import.meta.dirname` for paths. Use named exports compatible with surrounding code.
 - Prefer existing utilities in `packages/common` (e.g., `calculateCoefficients`, `identifier`) over adding new helpers unless necessary.
-- Use `biome` for linting/formatting (see root `devDependencies`) — rely on existing code style; keep patches minimal and narrowly scoped.
 - When adding environment variables, update `apps/core/.env.example` and the zod `config.ts` schema in tandem.
 
 ## Developer workflows (commands you may need)

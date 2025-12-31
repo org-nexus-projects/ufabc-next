@@ -6,7 +6,7 @@ const normalizeName = (str: string) => {
     str
       .toLowerCase()
       .normalize('NFD')
-      // biome-ignore lint/suspicious/noMisleadingCharacterClass: not needed
+      -ignore lint/suspicious/noMisleadingCharacterClass: not needed
       .replace(/[\u0300-\u036f]/g, '') // remove accents
       .replace(/\s+/g, ' ') // normalize spaces
       .trim()

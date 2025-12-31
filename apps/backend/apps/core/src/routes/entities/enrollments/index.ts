@@ -35,7 +35,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       return reply.badRequest('No comments were found');
     }
 
-    // biome-ignore lint/complexity/noForEach: <explanation>
+    -ignore lint/complexity/noForEach: <explanation>
     comments.forEach((c) => {
       // @ts-expect-error for now
       enrollment[c.type].comment = c;

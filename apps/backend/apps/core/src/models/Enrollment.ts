@@ -133,7 +133,7 @@ enrollmentSchema.pre('findOneAndUpdate', function (next) {
   next();
 });
 
-// biome-ignore lint/complexity/useArrowFunction: Mongoose needs an anonymous func
+-ignore lint/complexity/useArrowFunction: Mongoose needs an anonymous func
 enrollmentSchema.post('findOneAndUpdate', async function (doc) {
   if (doc) {
     await addEnrollmentToGroup(doc);

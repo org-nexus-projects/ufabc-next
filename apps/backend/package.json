@@ -16,7 +16,6 @@
     "deps-check": "pnpm dlx taze -r"
   },
   "devDependencies": {
-    "@biomejs/biome": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
