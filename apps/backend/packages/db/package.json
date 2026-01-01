@@ -9,8 +9,8 @@
     "./client": "./dist/client.js"
   },  
   "scripts": {
-    "dev": "tsc --noEmit --watch",
-    "build": "tsc",
+    "dev": "rimraf dist && tsc --watch",
+    "build": "rimraf dist && tsc",
     "check-types": "tsc --noEmit",
     "clean": "git clean -xdf .cache .turbo dist node_modules"
   },
@@ -23,6 +23,7 @@
     "@types/node": "catalog:",
     "fastify": "catalog:",
     "fastify-plugin": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "rimraf": "catalog:"
   }
 }

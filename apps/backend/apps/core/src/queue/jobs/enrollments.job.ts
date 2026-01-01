@@ -61,7 +61,6 @@ function normalizeText(text: string): string {
     text
       .toLowerCase()
       .normalize('NFD')
-      -ignore lint/suspicious/noMisleadingCharacterClass: not needed
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9\s]/g, ' ')
       .trim()

@@ -439,6 +439,9 @@ importers:
       fastify-plugin:
         specifier: 'catalog:'
         version: 4.5.1
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.1.2
       typescript:
         specifier: 'catalog:'
         version: 5.9.3

@@ -10,11 +10,18 @@ import { authenticateBoard } from './hooks/board-authenticate.js';
 import testUtilsPlugin from './plugins/v2/test-utils.js';
 import redisV2Plugin from './plugins/v2/redis.js';
 import backofficeController from './controllers/backoffice-controller.js';
+import dbPlugin from '@next/db/client';
+import type { DatabaseModels } from '@next/db/models';
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    db: DatabaseModels;
+  }
+}
 
 const routesV2 = [componentsController, backofficeController];
 
 export async function buildApp(app: FastifyInstance, opts: FastifyServerOptions = {}) {
-  // This allows both fastify-zod-openapi (old routes) and fastify-type-provider-zod (v2 routes) to coexist
   await setupV2Routes(app, routesV2);
 
   await app.register(fastifyAutoload, {
@@ -28,6 +35,7 @@ export async function buildApp(app: FastifyInstance, opts: FastifyServerOptions 
   });
 
   await app.register(redisV2Plugin);
+  await app.register(dbPlugin);
   await app.register(queueV2Plugin, {
     redisURL: new URL(app.config.REDIS_CONNECTION_URL),
   });
@@ -37,7 +45,7 @@ export async function buildApp(app: FastifyInstance, opts: FastifyServerOptions 
     dir: join(import.meta.dirname, 'routes'),
     autoHooks: true,
     cascadeHooks: true,
-    ignorePattern: /^.*(?:test|spec|service).(ts|js)$/,
+    ignorePattern: /^.*(?:test|spec|service|sync).(ts|js)$/,
     options: { ...opts },
   });
 

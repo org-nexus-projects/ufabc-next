@@ -1,4 +1,4 @@
-import { type HydratedDocument, Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { type HydratedDocument, Schema, model, type InferSchemaType } from 'mongoose';
 
 const status = ['created', 'awaiting', 'processing', 'completed', 'failed'] as const;
 
@@ -72,7 +72,7 @@ const studentSyncSchema = new Schema(
 
 export type SyncStudent = InferSchemaType<typeof studentSyncSchema>;
 
-interface StudentSyncMethods {
+export interface StudentSyncMethods {
   transition(status: OperationStatus, metadata?: Record<string, unknown>): Promise<this>;
   markFailed(error: string, metadata?: Record<string, unknown>): Promise<this>;
 }
@@ -123,8 +123,7 @@ studentSyncSchema.method('markFailed', function(
   return this.transition('failed', { error, ...metadata });
 });
 
-export type StudentSyncModel = Model<StudentSyncDocument>;
 export const StudentSync = model<StudentSyncDocument>(
-  'StudentSync',
+  'student_sync',
   studentSyncSchema,
 );

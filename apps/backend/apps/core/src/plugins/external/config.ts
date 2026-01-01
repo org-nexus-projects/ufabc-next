@@ -1,6 +1,7 @@
 import env, { type FastifyEnvOptions } from '@fastify/env';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
+import { fastifyPlugin as fp } from 'fastify-plugin';
 
 declare module 'fastify' {
   export interface FastifyInstance {
@@ -62,4 +63,6 @@ export const autoConfig = {
  *
  * @see {@link https://github.com/fastify/fastify-env}
  */
-export default env;
+export default fp(async (app) => {
+  await app.register(env, autoConfig);
+}, { name: 'config' });
