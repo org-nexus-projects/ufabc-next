@@ -64,7 +64,9 @@ export default fp(
 
     app.decorateRequest('acquireLock', acquireLock);
     app.decorateRequest('releaseLock', releaseLock);
-    app.decorateRequest('redisService', redisService);
+    app.decorateRequest('redisService', {
+      getter: () => redisService,
+    });
 
     app.log.info('[REDIS] Redis available at app.redis');
   },

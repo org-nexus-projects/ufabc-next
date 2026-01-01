@@ -7,7 +7,7 @@ import { ComponentModel } from '@/models/Component.js';
 import { type History, type HistoryCoefficients, HistoryModel } from '@/models/History.js';
 import { logger } from '@/utils/logger.js';
 import type { QueueContext } from '../types.js';
-import type { FilterQuery } from 'mongoose';
+import type { QueryFilter as FilterQuery } from 'mongoose';
 
 type HistoryComponent = History['disciplinas'][number];
 
@@ -171,7 +171,6 @@ function normalizeText(text: string): string {
     text
       .toLowerCase()
       .normalize('NFD')
-      -ignore lint/suspicious/noMisleadingCharacterClass: not needed
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9\s]/g, ' ')
       .trim()

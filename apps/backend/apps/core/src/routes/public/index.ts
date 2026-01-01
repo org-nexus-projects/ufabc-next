@@ -12,7 +12,7 @@ import {
 } from '@/schemas/public.js';
 import { currentQuad } from '@next/common';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import type { FilterQuery, PipelineStage } from 'mongoose';
+import type { QueryFilter as FilterQuery, PipelineStage } from 'mongoose';
 import { getAllCourses } from './service.js';
 import { resolveStep } from '@/utils/resolve-stats-steps.js';
 

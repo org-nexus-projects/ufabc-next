@@ -78,7 +78,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     const validTeacherId = new Types.ObjectId(teacherId);
     const stats = await rawReviews(validTeacherId);
-    -ignore lint/complexity/noForEach: <explanation>
     stats.forEach((s) => {
       s.cr_medio = s.numeric / s.amount;
     });

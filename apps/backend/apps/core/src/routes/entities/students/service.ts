@@ -3,7 +3,7 @@ import { HistoryModel } from '@/models/History.js';
 import { StudentModel, type Student } from '@/models/Student.js';
 import { currentQuad } from '@next/common';
 import { logger } from '@/utils/logger.js';
-import type { FilterQuery } from 'mongoose';
+import type { QueryFilter as FilterQuery } from 'mongoose';
 import type { UpdatedStudent } from '@/schemas/entities/students.js';
 
 export async function getComponentsStudentsStats(

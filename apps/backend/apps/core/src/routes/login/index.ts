@@ -2,7 +2,7 @@ import { type UserDocument, UserModel, type User } from '@/models/User.js';
 import type { LegacyGoogleUser } from '@/schemas/login.js';
 import type { Token } from '@fastify/oauth2';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import { Types, type FilterQuery } from 'mongoose';
+import { Types, type QueryFilter as FilterQuery } from 'mongoose';
 import { ofetch } from 'ofetch';
 
 export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
