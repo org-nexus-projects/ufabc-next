@@ -12,14 +12,17 @@ import redisV2Plugin from './plugins/v2/redis.js';
 import backofficeController from './controllers/backoffice-controller.js';
 import dbPlugin from '@next/db/client';
 import type { DatabaseModels } from '@next/db/models';
+import type { Mongoose } from 'mongoose';
+import { webhookController } from './controllers/webhook-controller.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
     db: DatabaseModels;
+    rawMongoose: Mongoose;
   }
 }
 
-const routesV2 = [componentsController, backofficeController];
+const routesV2 = [componentsController, backofficeController, webhookController];
 
 export async function buildApp(app: FastifyInstance, opts: FastifyServerOptions = {}) {
   await setupV2Routes(app, routesV2);

@@ -2,8 +2,24 @@ import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { sigaaSession } from '@/hooks/sigaa-session.js';
 import { z } from 'zod';
 import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
+import type { onSendAsyncHookHandler } from 'fastify';
 
 const CACHE_TTL = 1000 * 60 * 60 * 24; // 1 day
+
+const onSendStudentSync: onSendAsyncHookHandler<{ ra: string; login: string }> = async (request, reply, body) => {
+  const { ra, login } = body;
+  const { db } = request.server
+  await db.StudentSync.create({
+    ra,
+    status: 'created',
+    timeline: [{
+      status: 'created',
+      metadata: {
+        login,
+      }
+    }]
+  })
+}
 
 export const studentsController: FastifyPluginAsyncZod = async (app) => {
   const connector = new UfabcParserConnector();
@@ -12,6 +28,7 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
     method: 'POST',
     url: '/students/sigaa',
     preHandler: [sigaaSession],
+    onSend: [onSendStudentSync],
     schema: {
       headers: z.object({
         'session-id': z.string(),

@@ -1,6 +1,10 @@
 import { StudentSync, type StudentSyncDocument } from '../models/student-sync.js';
 
-export async function createStudentSyncOperation(model: typeof StudentSync, ra: string, metadata?: any): Promise<StudentSyncDocument> {
+export async function createStudentSyncOperation(
+  model: typeof StudentSync,
+  ra: string,
+  metadata?: any,
+): Promise<StudentSyncDocument> {
   return model.create({
     ra,
     status: 'created',
@@ -9,7 +13,7 @@ export async function createStudentSyncOperation(model: typeof StudentSync, ra: 
         status: 'created',
         timestamp: new Date(),
         metadata,
-      }
-    ]
-  })
+      },
+    ],
+  });
 }

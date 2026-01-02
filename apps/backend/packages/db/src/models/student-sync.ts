@@ -79,51 +79,51 @@ export interface StudentSyncMethods {
 
 export type StudentSyncDocument = HydratedDocument<SyncStudent, StudentSyncMethods>;
 
-studentSyncSchema.method('transition', async function(
-  this: StudentSyncDocument, 
-  status: OperationStatus, 
-  metadata?: Record<string, unknown>
-) {
-  const previousStatus = this.status;
-  this.status = status;
+studentSyncSchema.method(
+  'transition',
+  async function (
+    this: StudentSyncDocument,
+    status: OperationStatus,
+    metadata?: Record<string, unknown>,
+  ) {
+    const previousStatus = this.status;
+    this.status = status;
 
-  const now = new Date();
-  
-  // Safe access to timeline thanks to inference
-  const lastEvent = this.timeline.at(-1);
+    const now = new Date();
 
-  if (lastEvent) {
-    const stepDuration = now.getTime() - lastEvent.timestamp.getTime();
-    const stepName = `${previousStatus}_to_${status}`;
+    const lastEvent = this.timeline.at(-1);
 
-    // Initialize if missing (defensive coding)
-    if (!this.metrics) this.metrics = { totalDuration: 0, stepDurations: new Map() };
-    if (!this.metrics.stepDurations) this.metrics.stepDurations = new Map();
+    if (lastEvent) {
+      const stepDuration = now.getTime() - lastEvent.timestamp.getTime();
+      const stepName = `${previousStatus}_to_${status}`;
 
-    // Using Map API
-    this.metrics.stepDurations.set(stepName, stepDuration);
-    this.metrics.totalDuration = (this.metrics.totalDuration || 0) + stepDuration;
-  }
+      if (!this.metrics) {
+        this.metrics = { totalDuration: 0, stepDurations: new Map() };
+      }
+      if (!this.metrics.stepDurations) {
+        this.metrics.stepDurations = new Map();
+      }
 
-  this.timeline.push({
-    status,
-    timestamp: now,
-    metadata: metadata || {},
-  });
+      this.metrics.stepDurations.set(stepName, stepDuration);
+      this.metrics.totalDuration = (this.metrics.totalDuration || 0) + stepDuration;
+    }
 
-  return this.save();
-});
+    this.timeline.push({
+      status,
+      timestamp: now,
+      metadata: metadata || {},
+    });
 
-studentSyncSchema.method('markFailed', function(
-  this: StudentSyncDocument, 
-  error: string, 
-  metadata?: Record<string, unknown>
-) {
-  this.error = error;
-  return this.transition('failed', { error, ...metadata });
-});
-
-export const StudentSync = model<StudentSyncDocument>(
-  'student_sync',
-  studentSyncSchema,
+    return this.save();
+  },
 );
+
+studentSyncSchema.method(
+  'markFailed',
+  function (this: StudentSyncDocument, error: string, metadata?: Record<string, unknown>) {
+    this.error = error;
+    return this.transition('failed', { error, ...metadata });
+  },
+);
+
+export const StudentSync = model<StudentSyncDocument>('student_sync', studentSyncSchema);
