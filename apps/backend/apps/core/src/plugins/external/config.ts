@@ -63,6 +63,9 @@ export const autoConfig = {
  *
  * @see {@link https://github.com/fastify/fastify-env}
  */
-export default fp(async (app) => {
-  await app.register(env, autoConfig);
-}, { name: 'config' });
+export default fp(
+  async (app) => {
+    await app.register(env, autoConfig);
+  },
+  { name: 'config' },
+);

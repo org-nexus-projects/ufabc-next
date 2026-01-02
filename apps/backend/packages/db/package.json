@@ -7,7 +7,7 @@
     "./models": "./dist/models.js",
     "./queries": "./dist/queries.js",
     "./client": "./dist/client.js"
-  },  
+  },
   "scripts": {
     "dev": "rimraf dist && tsc --watch",
     "build": "rimraf dist && tsc",
@@ -23,7 +23,7 @@
     "@types/node": "catalog:",
     "fastify": "catalog:",
     "fastify-plugin": "catalog:",
-    "typescript": "catalog:",
-    "rimraf": "catalog:"
+    "rimraf": "catalog:",
+    "typescript": "catalog:"
   }
 }

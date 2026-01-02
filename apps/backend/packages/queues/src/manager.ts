@@ -79,7 +79,7 @@ export class JobManager<TRegistry extends Record<string, JobBuilder<any, any, an
       return;
     }
 
-    this.app.log.info(
+    this.app.log.debug(
       { totalJobs: this.registeredJobs.size },
       'Starting JobManager with registered jobs',
     );

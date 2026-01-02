@@ -83,7 +83,7 @@ export class Jobs implements JobImpl {
     }
 
     for (const [name, jobDefinition] of Object.entries(JOBS)) {
-      this.app.log.info({ jobName: name, queue: jobDefinition.queue }, '[QUEUE] Setting up job');
+      this.app.log.debug({ jobName: name, queue: jobDefinition.queue }, '[QUEUE] Setting up job');
       if ('every' in jobDefinition) {
         const queue = this.queues[jobDefinition.queue];
         await queue.add(

@@ -2,14 +2,12 @@ import { type InferSchemaType, Schema, model } from 'mongoose';
 import stringSimilarity from 'string-similarity';
 
 const normalizeName = (str: string) => {
-  return (
-    str
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // remove accents
-      .replace(/\s+/g, ' ') // normalize spaces
-      .trim()
-  );
+  return str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove accents
+    .replace(/\s+/g, ' ') // normalize spaces
+    .trim();
 };
 
 const teacherSchema = new Schema(

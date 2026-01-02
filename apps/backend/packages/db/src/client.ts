@@ -1,8 +1,8 @@
 import mongoose, { type Mongoose, connect } from 'mongoose';
 import type { FastifyInstance } from 'fastify';
 import { fastifyPlugin as fp } from 'fastify-plugin';
-import { inspect } from 'node:util'
-import  { db, type DatabaseModels } from './models.js'
+import { inspect } from 'node:util';
+import { db, type DatabaseModels } from './models.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -32,15 +32,15 @@ export default fp(
       if (isLogDebug) {
         mongoose.set('debug', (collection, method, query, doc, options) => {
           const queryStr = inspect(query, { depth: null, colors: false, breakLength: Infinity });
-          app.log.debug({
+          app.log.info({
             type: 'db',
             collection,
             method,
             query: queryStr,
             doc,
             options,
-            message: `Mongoose: ${collection}.${method}(${queryStr})`
-          })
+            message: `Mongoose: ${collection}.${method}(${queryStr})`,
+          });
         });
       }
 

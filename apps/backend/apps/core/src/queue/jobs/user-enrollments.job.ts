@@ -167,14 +167,12 @@ function mapSubjects(
 
 // only needed for subject matching
 function normalizeText(text: string): string {
-  return (
-    text
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9\s]/g, ' ')
-      .trim()
-  );
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .trim();
 }
 
 async function findGraduation(
