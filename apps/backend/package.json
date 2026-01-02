@@ -20,7 +20,8 @@
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
     "tsx": "catalog:",
-    "turbo": "catalog:"
+    "turbo": "catalog:",
+    "ultracite": "catalog:"
   },
   "engines": {
     "node": "^22",

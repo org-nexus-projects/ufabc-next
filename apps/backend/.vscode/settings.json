@@ -2,5 +2,11 @@
   "dotenv.enableAutocloaking": false,
   "cSpell.words": ["paralleldrive"],
   "typescript.experimental.useTsgo": true,
-  "editor.defaultFormatter": "oxc.oxc-vscode"
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.oxc": "explicit",
+  },
+  "oxc.enable": true,
+  "oxc.lint.run": "onSave",
+  "oxc.typeAware": true
 }
