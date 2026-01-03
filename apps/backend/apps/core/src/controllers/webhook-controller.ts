@@ -1,9 +1,12 @@
 import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
+
+import { JOB_NAMES } from '@/constants.js';
+
 import {
   HistoryWebhookRequestSchema,
   HistoryWebhookResponseSchema,
-} from '@/schemas/webhook/history-payload';
+} from '../schemas/v2/webhook/history.js';
 
 const WebhookController: FastifyPluginAsyncZod = async (app) => {
   app.route({
@@ -12,7 +15,6 @@ const WebhookController: FastifyPluginAsyncZod = async (app) => {
     schema: {
       headers: z.object({
         'x-api-key': z.string().describe('API key for authentication'),
-        'content-type': z.literal('application/json').optional(),
       }),
       body: HistoryWebhookRequestSchema,
       response: {
@@ -28,58 +30,109 @@ const WebhookController: FastifyPluginAsyncZod = async (app) => {
       const validApiKey = app.config.WEBHOOK_API_KEY;
 
       if (!apiKey || apiKey !== validApiKey) {
-        return reply.status(401).send({ error: 'Invalid API key' });
+        return reply.unauthorized();
       }
 
-      try {
-        const webhookData = request.body;
-        const idempotencyKey = `${webhookData.payload.ra}-${webhookData.payload.timestamp}`;
+      const webhookData = request.body;
+      const idempotencyKey = `${webhookData.payload.ra}-${webhookData.payload.timestamp}`;
 
-        const existingJob = await app.db.models.HistoryProcessingJob.findOne({
-          idempotencyKey,
-        });
+      const existingJob = await app.db.HistoryProcessingJob.findOne({
+        idempotencyKey,
+      });
 
-        if (existingJob) {
-          return reply.status(409).send({
-            error: 'Duplicate webhook request',
-            existingJobId: existingJob._id.toString(),
-          });
-        }
+      if (existingJob) {
+        reply.log.debug(
+          { existingJobId: existingJob._id.toString() },
+          'Duplicate webhook request received'
+        );
+        return reply.conflict();
+      }
 
-        const processingJob = await app.db.models.HistoryProcessingJob.create({
-          ra: webhookData.payload.ra,
-          status: webhookData.type === 'error' ? 'failed' : 'pending',
-          webhookTimestamp: webhookData.payload.timestamp,
-          idempotencyKey,
-          jobType: webhookData.type,
-          payload: webhookData.payload,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
+      const processingJob = await app.db.HistoryProcessingJob.create({
+        ra: webhookData.payload.ra,
+        idempotencyKey,
+        payload: webhookData.payload,
+        source: 'webhook',
+      });
 
-        const job = await app.jobManager.add('HISTORY_PROCESSING', {
+      await app.db.StudentSync.create({
+        ra: webhookData.payload.ra,
+        status: 'created',
+        timeline: [
+          {
+            status: 'created',
+            timestamp: new Date(),
+            metadata: {
+              source: 'webhook',
+              idempotencyKey,
+              processingJobId: processingJob._id.toString(),
+              webhookType: webhookData.type,
+            },
+          },
+        ],
+        externalIds: {
           jobId: processingJob._id.toString(),
-          webhookData,
-        });
+          webhookId: idempotencyKey,
+        },
+      });
 
-        await app.db.HistoryProcessingJob.findByIdAndUpdate(processingJob._id, {
-          bgJobId: job.id,
-          status: 'queued',
-          updatedAt: new Date(),
-        });
+      const studentSyncRecord = await app.db.StudentSync.findOne({
+        ra: webhookData.payload.ra,
+      });
+
+      if (webhookData.type === 'history.error') {
+        await processingJob.markFailed(
+          {
+            code: webhookData.payload.error.code,
+            message: webhookData.payload.error.message,
+            details: webhookData.payload.error.details,
+          },
+          { source: 'webhook', immediate: true }
+        );
+
+        await studentSyncRecord?.markFailed(
+          `Webhook error: ${webhookData.payload.error.code} - ${webhookData.payload.error.message}`,
+          {
+            source: 'webhook',
+            processingJobId: processingJob._id.toString(),
+            error: webhookData.payload.error,
+          }
+        );
 
         return reply.send({
-          status: 'accepted',
+          status: 'rejected',
           jobId: processingJob._id.toString(),
-          message: 'Webhook received and queued for processing',
+          message: 'Webhook error processed and marked as failed',
           timestamp: new Date().toISOString(),
         });
-      } catch (error) {
-        app.log.error('Webhook processing failed:', error);
-        return reply.status(500).send({
-          error: 'Internal server error',
-        });
       }
+
+      const job = await app.manager.dispatch(JOB_NAMES.HISTORY_PROCESSING, {
+        jobId: processingJob._id.toString(),
+        webhookData,
+      });
+
+      const bgJobId = Array.isArray(job) ? job[0]?.id : job?.id;
+
+      await processingJob.transition('processing', {
+        bgJobId,
+        source: 'webhook',
+        webhookType: webhookData.type,
+      });
+
+      await studentSyncRecord?.transition('processing', {
+        source: 'webhook',
+        processingJobId: processingJob._id.toString(),
+        bgJobId,
+        webhookType: webhookData.type,
+      });
+
+      return reply.send({
+        status: 'accepted',
+        jobId: processingJob._id.toString(),
+        message: 'Webhook received and queued for processing',
+        timestamp: new Date().toISOString(),
+      });
     },
   });
 
@@ -97,7 +150,7 @@ const WebhookController: FastifyPluginAsyncZod = async (app) => {
         200: z.object({
           jobId: z.string(),
           ra: z.string(),
-          status: z.enum(['pending', 'processing', 'completed', 'failed']),
+          status: z.enum(['created', 'processing', 'completed', 'failed']),
           createdAt: z.string().datetime(),
           updatedAt: z.string().datetime(),
           error: z
@@ -130,29 +183,34 @@ const WebhookController: FastifyPluginAsyncZod = async (app) => {
         return reply.status(401).send({ error: 'Invalid API key' });
       }
 
-      try {
-        const { jobId } = request.params;
+      const { jobId } = request.params;
 
-        const processingJob =
-          await app.db.models.HistoryProcessingJob.findById(jobId);
+      const processingJob = await app.db.HistoryProcessingJob.findById(jobId);
 
-        if (!processingJob) {
-          return reply.status(404).send({ error: 'Job not found' });
-        }
-
-        return reply.send({
-          jobId: processingJob._id.toString(),
-          ra: processingJob.ra,
-          status: processingJob.status,
-          createdAt: processingJob.createdAt.toISOString(),
-          updatedAt: processingJob.updatedAt.toISOString(),
-          error: processingJob.error,
-          timeline: processingJob.timeline,
-        });
-      } catch (error) {
-        app.log.error('Status check failed:', error);
-        return reply.status(500).send({ error: 'Internal server error' });
+      if (!processingJob) {
+        return reply.status(404).send({ error: 'Job not found' });
       }
+
+      return reply.send({
+        jobId: processingJob._id.toString(),
+        ra: processingJob.ra,
+        status: processingJob.status,
+        createdAt: processingJob.createdAt.toISOString(),
+        updatedAt: processingJob.updatedAt.toISOString(),
+        error: processingJob.error
+          ? {
+              code: processingJob.error.code || 'UNKNOWN',
+              message: processingJob.error.message || 'Unknown error',
+              type: processingJob.error.details?.type || 'UNKNOWN',
+            }
+          : undefined,
+        timeline: processingJob.timeline.map((event) => ({
+          status: event.status,
+          timestamp: event.timestamp.toISOString(),
+          note: event.metadata?.note || event.status,
+          details: event.metadata,
+        })),
+      });
     },
   });
 };

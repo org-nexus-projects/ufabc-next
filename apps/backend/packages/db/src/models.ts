@@ -1,5 +1,8 @@
 import { StudentSync } from './models/student-sync.js';
-import { HistoryProcessingJobModel as HistoryProcessingJob } from './models/history-processing-job.js';
+import {
+  HistoryProcessingJobModel as HistoryProcessingJob,
+  HistoryProcessingJobDocument,
+} from './models/history-processing-job.js';
 
 export const db = {
   StudentSync,
@@ -7,3 +10,4 @@ export const db = {
 };
 
 export type DatabaseModels = typeof db;
+export type { HistoryProcessingJobDocument };

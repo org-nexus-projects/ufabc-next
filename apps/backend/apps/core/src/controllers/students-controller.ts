@@ -1,30 +1,11 @@
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
-import { sigaaSession } from '@/hooks/sigaa-session.js';
+
 import { z } from 'zod';
+
 import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
-import type { onSendAsyncHookHandler } from 'fastify';
+import { sigaaSession } from '@/hooks/sigaa-session.js';
 
 const CACHE_TTL = 1000 * 60 * 60 * 24; // 1 day
-
-const onSendStudentSync: onSendAsyncHookHandler<{
-  ra: string;
-  login: string;
-}> = async (request, reply, body) => {
-  const { ra, login } = body;
-  const { db } = request.server;
-  await db.StudentSync.create({
-    ra,
-    status: 'created',
-    timeline: [
-      {
-        status: 'created',
-        metadata: {
-          login,
-        },
-      },
-    ],
-  });
-};
 
 export const studentsController: FastifyPluginAsyncZod = async (app) => {
   const connector = new UfabcParserConnector();
@@ -32,8 +13,6 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
   app.route({
     method: 'POST',
     url: '/students/sigaa',
-    preHandler: [sigaaSession],
-    onSend: [onSendStudentSync],
     schema: {
       headers: z.object({
         'session-id': z.string(),
@@ -44,10 +23,27 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
         login: z.string(),
       }),
       response: {
-        200: z.object({
+        202: z.object({
           status: z.string(),
         }),
       },
+    },
+    preHandler: [sigaaSession],
+    onSend: async (request, _reply, _payload) => {
+      const { ra, login } = request.body;
+      const { db } = request.server;
+      await db.StudentSync.create({
+        ra: String(ra),
+        status: 'created',
+        timeline: [
+          {
+            status: 'created',
+            metadata: {
+              login,
+            },
+          },
+        ],
+      });
     },
     handler: async (request, reply) => {
       const { ra, login } = request.body;
@@ -57,7 +53,7 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
       const cached = await app.redis.get(cacheKey);
       if (cached) {
         app.log.debug({ cacheKey }, 'Student already synced');
-        return reply.status(200).send({
+        return reply.status(202).send({
           status: 'success',
         });
       }
@@ -67,9 +63,21 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
         viewId,
         requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
       });
+
+      const studentSync = await app.db.StudentSync.findOne({ ra: String(ra) });
+      if (!studentSync) {
+        return reply.forbidden();
+      }
+
+      await studentSync.transition('awaiting', {
+        source: 'sigaa',
+        metadata: {
+          login,
+        },
+      });
       await app.redis.set(cacheKey, login, 'PX', CACHE_TTL);
 
-      return reply.status(200).send({
+      return reply.status(202).send({
         status: 'success',
       });
     },
