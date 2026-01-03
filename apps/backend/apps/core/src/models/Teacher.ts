@@ -34,7 +34,7 @@ const teacherSchema = new Schema(
         const nameParts = normalizedName.split(' ').filter(Boolean);
         const textSearchResults = await this.find(
           { $text: { $search: nameParts.join(' ') } },
-          { score: { $meta: 'textScore' } },
+          { score: { $meta: 'textScore' } }
         )
           .sort({ score: { $meta: 'textScore' } })
           .limit(5); // Get top 5 matches
@@ -49,22 +49,24 @@ const teacherSchema = new Schema(
             const teacherNormalizedName = normalizeName(teacher.name);
             const similarity = stringSimilarity.compareTwoStrings(
               normalizedName,
-              teacherNormalizedName,
+              teacherNormalizedName
             );
 
             // Also check aliases
             const aliasSimilarity = teacher.alias.reduce((max, alias) => {
               const aliasSim = stringSimilarity.compareTwoStrings(
                 normalizedName,
-                normalizeName(alias),
+                normalizeName(alias)
               );
               return Math.max(max, aliasSim);
             }, 0);
 
             const maxSimilarity = Math.max(similarity, aliasSimilarity);
-            return maxSimilarity > best.similarity ? { teacher, similarity: maxSimilarity } : best;
+            return maxSimilarity > best.similarity
+              ? { teacher, similarity: maxSimilarity }
+              : best;
           },
-          { teacher: null, similarity: 0 },
+          { teacher: null, similarity: 0 }
         );
 
         // Lower threshold since we're already filtering via text search
@@ -75,7 +77,7 @@ const teacherSchema = new Schema(
         return null;
       },
     },
-  },
+  }
 );
 
 teacherSchema.pre('save', function (next) {
@@ -95,7 +97,7 @@ teacherSchema.index(
       alias: 5, // Alias matches are less important
     },
     name: 'TeacherTextSearch',
-  },
+  }
 );
 
 export type Teacher = InferSchemaType<typeof teacherSchema>;

@@ -1,6 +1,17 @@
-import { type HydratedDocument, Schema, model, type InferSchemaType } from 'mongoose';
+import {
+  type HydratedDocument,
+  Schema,
+  model,
+  type InferSchemaType,
+} from 'mongoose';
 
-const status = ['created', 'awaiting', 'processing', 'completed', 'failed'] as const;
+const status = [
+  'created',
+  'awaiting',
+  'processing',
+  'completed',
+  'failed',
+] as const;
 
 export type OperationStatus = (typeof status)[number];
 
@@ -20,7 +31,7 @@ const timelineEventSchema = new Schema(
       default: {},
     },
   },
-  { _id: false },
+  { _id: false }
 );
 
 const studentSyncSchema = new Schema(
@@ -67,24 +78,30 @@ const studentSyncSchema = new Schema(
   {
     timestamps: true,
     versionKey: false,
-  },
+  }
 );
 
 export type SyncStudent = InferSchemaType<typeof studentSyncSchema>;
 
 export interface StudentSyncMethods {
-  transition(status: OperationStatus, metadata?: Record<string, unknown>): Promise<this>;
+  transition(
+    status: OperationStatus,
+    metadata?: Record<string, unknown>
+  ): Promise<this>;
   markFailed(error: string, metadata?: Record<string, unknown>): Promise<this>;
 }
 
-export type StudentSyncDocument = HydratedDocument<SyncStudent, StudentSyncMethods>;
+export type StudentSyncDocument = HydratedDocument<
+  SyncStudent,
+  StudentSyncMethods
+>;
 
 studentSyncSchema.method(
   'transition',
   async function (
     this: StudentSyncDocument,
     status: OperationStatus,
-    metadata?: Record<string, unknown>,
+    metadata?: Record<string, unknown>
   ) {
     const previousStatus = this.status;
     this.status = status;
@@ -105,7 +122,8 @@ studentSyncSchema.method(
       }
 
       this.metrics.stepDurations.set(stepName, stepDuration);
-      this.metrics.totalDuration = (this.metrics.totalDuration || 0) + stepDuration;
+      this.metrics.totalDuration =
+        (this.metrics.totalDuration || 0) + stepDuration;
     }
 
     this.timeline.push({
@@ -115,15 +133,22 @@ studentSyncSchema.method(
     });
 
     return this.save();
-  },
+  }
 );
 
 studentSyncSchema.method(
   'markFailed',
-  function (this: StudentSyncDocument, error: string, metadata?: Record<string, unknown>) {
+  function (
+    this: StudentSyncDocument,
+    error: string,
+    metadata?: Record<string, unknown>
+  ) {
     this.error = error;
     return this.transition('failed', { error, ...metadata });
-  },
+  }
 );
 
-export const StudentSync = model<StudentSyncDocument>('student_sync', studentSyncSchema);
+export const StudentSync = model<StudentSyncDocument>(
+  'student_sync',
+  studentSyncSchema
+);

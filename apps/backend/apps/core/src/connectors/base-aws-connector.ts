@@ -25,7 +25,7 @@ export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
             service: this.client.constructor.name,
             command: commandName,
           },
-          'AWS Request',
+          'AWS Request'
         );
 
         try {
@@ -38,7 +38,7 @@ export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
               // @ts-expect-error - $metadata is not typed
               metadata: result.response?.$metadata,
             },
-            'AWS Response Success',
+            'AWS Response Success'
           );
 
           return result;
@@ -49,12 +49,12 @@ export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
               command: commandName,
               error,
             },
-            'AWS Request Failed',
+            'AWS Request Failed'
           );
           throw error;
         }
       },
-      { step: 'initialize', name: 'NodeStackLoggingMiddleware' },
+      { step: 'initialize', name: 'NodeStackLoggingMiddleware' }
     );
   }
 

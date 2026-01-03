@@ -42,7 +42,10 @@ export async function sendConfirmationEmail(ctx: QueueContext<EmailJobData>) {
     let emailRequest: Email;
 
     if (kind === 'Confirmation') {
-      const token = ctx.app.createToken(JSON.stringify({ email: user.email }), ctx.app.config);
+      const token = ctx.app.createToken(
+        JSON.stringify({ email: user.email }),
+        ctx.app.config
+      );
       emailRequest = {
         recipient: user.email,
         body: {
@@ -60,7 +63,12 @@ export async function sendConfirmationEmail(ctx: QueueContext<EmailJobData>) {
       };
     }
 
-    const response = await sesSendEmail(user, emailTemplate, emailRequest, ctx.app.log);
+    const response = await sesSendEmail(
+      user,
+      emailTemplate,
+      emailRequest,
+      ctx.app.log
+    );
     ctx.app.log.info({
       sentTo: `${user.email}`,
       messageId: response?.MessageId,
@@ -75,7 +83,7 @@ export async function sesSendEmail(
   user: User,
   templateId: 'Confirmation' | 'Recover',
   email: Email,
-  log: any,
+  log: any
 ) {
   let templateData: string;
   if (templateId === 'Confirmation') {
@@ -140,11 +148,11 @@ export async function sendBulkEmail(ctx: QueueContext<BulkEmailJob>) {
             recipient,
             error: error?.message,
           },
-          'Failed to send email',
+          'Failed to send email'
         );
         throw error;
       });
-    }),
+    })
   );
 
   const failures = results.filter((result) => result.status === 'rejected');

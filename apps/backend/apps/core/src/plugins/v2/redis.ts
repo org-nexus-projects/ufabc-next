@@ -28,7 +28,13 @@ export default fp(
     const acquireLock = async (key: string, ttl: string) => {
       const ttlInMs = ms(ttl);
       const lockKey = `${HTTP_REDIS_KEY_PREFIX}:lock:${key}`;
-      const result = await app.redis.set(lockKey, new Date().toISOString(), 'EX', ttlInMs, 'NX');
+      const result = await app.redis.set(
+        lockKey,
+        new Date().toISOString(),
+        'EX',
+        ttlInMs,
+        'NX'
+      );
 
       return result === 'OK';
     };
@@ -70,5 +76,5 @@ export default fp(
 
     app.log.info('[REDIS] Redis available at app.redis');
   },
-  { name: 'redis' },
+  { name: 'redis' }
 );

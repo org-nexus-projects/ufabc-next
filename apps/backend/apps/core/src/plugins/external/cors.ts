@@ -7,7 +7,9 @@ export async function cors(app: FastifyInstance) {
     await app.register(fastifyCors, {
       origin: '*',
     });
-    app.log.info(`[PLUGIN] CORS, allowed for origins: ${app.config.ALLOWED_ORIGINS}`);
+    app.log.info(
+      `[PLUGIN] CORS, allowed for origins: ${app.config.ALLOWED_ORIGINS}`
+    );
   } catch (error) {
     app.log.error(error, '[PLUGIN] error in Cors');
   }

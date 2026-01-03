@@ -6,7 +6,8 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "noEmit": false
+    "noEmit": false,
+    "strictNullChecks": true
   },
   "include": ["./src/**/*.ts"],
   "exclude": ["node_modules"]

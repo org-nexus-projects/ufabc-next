@@ -6,7 +6,12 @@ const normalizeCodigo = (codigo) => codigo?.replace(/-\d{2}$/, '') ?? null;
 
 print('Aggregating normalized codes from disciplinas...');
 const mapping = db.disciplinas.aggregate([
-  { $match: { codigo: { $exists: true, $ne: null }, subject: { $exists: true, $ne: null } } },
+  {
+    $match: {
+      codigo: { $exists: true, $ne: null },
+      subject: { $exists: true, $ne: null },
+    },
+  },
   {
     $project: {
       codigoBase: { $regexFind: { input: '$codigo', regex: /^(.*?)-\d{2}$/ } },
@@ -43,10 +48,15 @@ while (mapping.hasNext()) {
   const codes = Array.from(new Set(doc.codigoBases.filter(Boolean)));
   if (codes.length === 0) continue;
   if (codes.length > 1) {
-    print(`WARNING: Subject ${subjectId} has multiple uf_subject_code values: ${codes}`);
+    print(
+      `WARNING: Subject ${subjectId} has multiple uf_subject_code values: ${codes}`
+    );
     warnings++;
   }
-  const res = db.subjects.updateOne({ _id: subjectId }, { $set: { uf_subject_code: codes } });
+  const res = db.subjects.updateOne(
+    { _id: subjectId },
+    { $set: { uf_subject_code: codes } }
+  );
   if (res.modifiedCount > 0) updated++;
 }
 

@@ -12,7 +12,8 @@
       }
     ],
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "strictNullChecks": true
   },
   "include": ["src/**/*.ts", "esbuild.ts", "test/**/*.ts", "runTests.ts"],
   "exclude": ["node_modules/**/*"]

@@ -66,13 +66,15 @@ export async function getReactions({
     userId,
     [{ path: 'enrollment', select: '-ra' }, 'subject'],
     limit,
-    page,
+    page
   );
 
   return reactions;
 }
 
-export async function createReaction(reaction: Omit<Reaction, 'createdAt' | 'updatedAt'>) {
+export async function createReaction(
+  reaction: Omit<Reaction, 'createdAt' | 'updatedAt'>
+) {
   const createdReaction = await ReactionModel.create(reaction);
   return createdReaction;
 }

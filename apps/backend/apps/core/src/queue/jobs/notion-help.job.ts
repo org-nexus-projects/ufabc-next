@@ -35,7 +35,7 @@ export async function postInfoIntoNotionDB(ctx: QueueContext<HelpForm>) {
             hasUploadUrl: !!fileUpload.upload_url,
             fullResponse: fileUpload,
           },
-          'File upload object created',
+          'File upload object created'
         );
 
         // Upload file to the provided upload_url
@@ -61,12 +61,12 @@ export async function postInfoIntoNotionDB(ctx: QueueContext<HelpForm>) {
               fileUploadId,
               uploadResult,
             },
-            'File uploaded to Notion successfully',
+            'File uploaded to Notion successfully'
           );
         } else {
           const errorText = await uploadResponse.text();
           const uploadError = new Error(
-            `Failed to upload file to Notion: ${uploadResponse.status} ${uploadResponse.statusText}`,
+            `Failed to upload file to Notion: ${uploadResponse.status} ${uploadResponse.statusText}`
           );
           ctx.app.log.error(
             {
@@ -74,17 +74,20 @@ export async function postInfoIntoNotionDB(ctx: QueueContext<HelpForm>) {
               statusText: uploadResponse.statusText,
               error: errorText,
             },
-            'Failed to upload file to Notion',
+            'Failed to upload file to Notion'
           );
           throw uploadError;
         }
       } catch (uploadError) {
         ctx.app.log.error(
           {
-            error: uploadError instanceof Error ? uploadError.message : String(uploadError),
+            error:
+              uploadError instanceof Error
+                ? uploadError.message
+                : String(uploadError),
             stack: uploadError instanceof Error ? uploadError.stack : undefined,
           },
-          'Error uploading file to Notion',
+          'Error uploading file to Notion'
         );
         throw uploadError;
       }

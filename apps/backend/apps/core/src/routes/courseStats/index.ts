@@ -40,7 +40,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     let graduation = null;
     if (lastHistory.curso && lastHistory.grade) {
-      graduation = await findOneGraduation(lastHistory.curso, lastHistory.grade);
+      graduation = await findOneGraduation(
+        lastHistory.curso,
+        lastHistory.grade
+      );
     }
 
     const coefficients =
@@ -74,7 +77,7 @@ function normalizeHistory(history: GraduationHistory['coefficients']) {
           season: `${graduationYear}:${month}`,
           quad: Number.parseInt(month),
           year: Number.parseInt(graduationYear),
-        }),
+        })
       );
     }
   }

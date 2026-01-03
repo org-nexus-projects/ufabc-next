@@ -29,8 +29,5 @@
     "tsup": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:"
-  },
-  "engines": {
-    "node": "^22"
   }
 }

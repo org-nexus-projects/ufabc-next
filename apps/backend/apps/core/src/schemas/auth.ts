@@ -79,7 +79,7 @@ export const completeUserSchema = {
             .or(
               z.object({
                 token: z.string(),
-              }),
+              })
             ),
         },
       },

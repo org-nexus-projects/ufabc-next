@@ -14,7 +14,8 @@ export class BaseRequester {
     this.requester = ofetch.create({
       baseURL,
       onRequest: ({ request, options }) => {
-        const logger = this.getLogger() ?? defaultLogger.child({ connector: true });
+        const logger =
+          this.getLogger() ?? defaultLogger.child({ connector: true });
         const traceId = this.getTraceId();
 
         const existingHeaders =
@@ -28,7 +29,11 @@ export class BaseRequester {
         };
 
         const requestPath =
-          typeof request === 'string' ? request : request instanceof Request ? request.url : '';
+          typeof request === 'string'
+            ? request
+            : request instanceof Request
+              ? request.url
+              : '';
         const fullUrl =
           this.baseURL && requestPath
             ? `${this.baseURL}${requestPath.startsWith('/') ? '' : '/'}${requestPath}`
@@ -46,11 +51,12 @@ export class BaseRequester {
             responseType: options.responseType,
             body: options.body,
           },
-          TRACING_MESSAGES.OUTGOING_REQUEST,
+          TRACING_MESSAGES.OUTGOING_REQUEST
         );
       },
       onResponse: ({ response, options }) => {
-        const logger = this.getLogger() ?? defaultLogger.child({ connector: true });
+        const logger =
+          this.getLogger() ?? defaultLogger.child({ connector: true });
         const traceId = this.getTraceId();
 
         const logData = {
@@ -65,15 +71,22 @@ export class BaseRequester {
         };
 
         if (response.status >= 500) {
-          logger.error(logData, TRACING_MESSAGES.INCOMING_RESPONSE_WITH_5XX_STATUS);
+          logger.error(
+            logData,
+            TRACING_MESSAGES.INCOMING_RESPONSE_WITH_5XX_STATUS
+          );
         } else if (response.status >= 400) {
-          logger.warn(logData, TRACING_MESSAGES.INCOMING_RESPONSE_WITH_4XX_STATUS);
+          logger.warn(
+            logData,
+            TRACING_MESSAGES.INCOMING_RESPONSE_WITH_4XX_STATUS
+          );
         } else {
           logger.info(logData, TRACING_MESSAGES.INCOMING_RESPONSE);
         }
       },
       onResponseError: ({ response }) => {
-        const logger = this.getLogger() ?? defaultLogger.child({ connector: true });
+        const logger =
+          this.getLogger() ?? defaultLogger.child({ connector: true });
 
         logger.error(
           {
@@ -82,24 +95,28 @@ export class BaseRequester {
             url: response.url,
             data: response._data,
           },
-          TRACING_MESSAGES.INCOMING_REQUEST_FAILED,
+          TRACING_MESSAGES.INCOMING_REQUEST_FAILED
         );
       },
       onRequestError: ({ error }) => {
-        const logger = this.getLogger() ?? defaultLogger.child({ connector: true });
+        const logger =
+          this.getLogger() ?? defaultLogger.child({ connector: true });
 
         logger.error(
           {
             direction: TRACING_DIRECTION.OUTGOING,
             error,
           },
-          TRACING_MESSAGES.OUTGOING_REQUEST_FAILED,
+          TRACING_MESSAGES.OUTGOING_REQUEST_FAILED
         );
       },
     });
   }
 
-  protected async request<T = unknown>(url: FetchRequest, options?: FetchOptions): Promise<T> {
+  protected async request<T = unknown>(
+    url: FetchRequest,
+    options?: FetchOptions
+  ): Promise<T> {
     return this.requester(url, options) as Promise<T>;
   }
 

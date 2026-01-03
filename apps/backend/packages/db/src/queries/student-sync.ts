@@ -1,9 +1,12 @@
-import { StudentSync, type StudentSyncDocument } from '../models/student-sync.js';
+import {
+  StudentSync,
+  type StudentSyncDocument,
+} from '../models/student-sync.js';
 
 export async function createStudentSyncOperation(
   model: typeof StudentSync,
   ra: string,
-  metadata?: any,
+  metadata?: any
 ): Promise<StudentSyncDocument> {
   return model.create({
     ra,

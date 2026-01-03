@@ -1,6 +1,13 @@
 import { type InferSchemaType, Schema, model } from 'mongoose';
 
-export const COURSE_SHIFTS = ['Noturno', 'Matutino', 'noturno', 'matutino', 'n', 'm'] as const;
+export const COURSE_SHIFTS = [
+  'Noturno',
+  'Matutino',
+  'noturno',
+  'matutino',
+  'n',
+  'm',
+] as const;
 
 const coursesSchema = new Schema(
   {
@@ -12,7 +19,7 @@ const coursesSchema = new Schema(
     ind_afinidade: { type: Number, required: true },
     turno: { type: String, required: true, enum: COURSE_SHIFTS },
   },
-  { _id: false },
+  { _id: false }
 );
 
 const studentSchema = new Schema(
@@ -34,7 +41,7 @@ const studentSchema = new Schema(
       required: true,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export type Student = InferSchemaType<typeof studentSchema>;

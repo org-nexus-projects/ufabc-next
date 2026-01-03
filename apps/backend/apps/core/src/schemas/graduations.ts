@@ -19,7 +19,9 @@ const paginatedGraduationSubjectsSchema = z.object({
     .array(),
 });
 
-export type PaginatedGraduationSubjectsSchema = z.infer<typeof paginatedGraduationSubjectsSchema>;
+export type PaginatedGraduationSubjectsSchema = z.infer<
+  typeof paginatedGraduationSubjectsSchema
+>;
 
 export const listGraduationsSubjectsSchema = {
   tags,

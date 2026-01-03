@@ -72,7 +72,14 @@ export type UFProcessorComponentFile = {
 };
 
 type Timetable = {
-  dayOfTheWeek: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+  dayOfTheWeek:
+    | 'monday'
+    | 'tuesday'
+    | 'wednesday'
+    | 'thursday'
+    | 'friday'
+    | 'saturday'
+    | 'sunday';
   periodicty: 'weekly' | 'biweekly';
   startTime: string;
   endTime: string;
@@ -135,23 +142,30 @@ export class UfabcParserConnector extends BaseRequester {
   }
 
   async getEnrolledStudents() {
-    const response = await this.request<UFProcessorEnrolled>('/v1/matriculas/ufabc/enrolled');
+    const response = await this.request<UFProcessorEnrolled>(
+      '/v1/matriculas/ufabc/enrolled'
+    );
     return response;
   }
 
   async getComponents() {
-    const response = await this.request<UfabcParserComponent[]>('/v1/matriculas/ufabc');
+    const response = await this.request<UfabcParserComponent[]>(
+      '/v1/matriculas/ufabc'
+    );
     return response;
   }
 
   async getEnrollments(kind: string, season: string) {
-    const enrollments = await this.request<UFProcessorEnrollment>('/enrollments', {
-      query: {
-        kind,
-        season,
-        granted: true,
-      },
-    });
+    const enrollments = await this.request<UFProcessorEnrollment>(
+      '/enrollments',
+      {
+        query: {
+          kind,
+          season,
+          granted: true,
+        },
+      }
+    );
     return enrollments;
   }
 
@@ -164,29 +178,35 @@ export class UfabcParserConnector extends BaseRequester {
           granted: false,
           kind,
         },
-      },
+      }
     );
 
     return componentsFile;
   }
 
   async getEnrolled(componentId?: number) {
-    const response = await this.request<UFProcessorEnrolled>('/v2/components/enrolled', {
-      query: {
-        componentId,
-      },
-    });
+    const response = await this.request<UFProcessorEnrolled>(
+      '/v2/components/enrolled',
+      {
+        query: {
+          componentId,
+        },
+      }
+    );
     return response;
   }
 
   async getComponent(ufComponentId: number) {
     const season = currentQuad();
-    const response = await this.request<UfabcParserComponentV2[]>('/v2/components', {
-      query: {
-        ufComponentId,
-        season,
-      },
-    });
+    const response = await this.request<UfabcParserComponentV2[]>(
+      '/v2/components',
+      {
+        query: {
+          ufComponentId,
+          season,
+        },
+      }
+    );
     return response;
   }
 

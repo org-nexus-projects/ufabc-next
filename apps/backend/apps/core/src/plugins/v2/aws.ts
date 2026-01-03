@@ -28,8 +28,8 @@ export default fp(
         localstack: app.config.USE_LOCALSTACK,
         endpoint: app.config.LOCALSTACK_ENDPOINT ?? 'native',
       },
-      '[AWS] S3Connector available at app.aws.s3',
+      '[AWS] S3Connector available at app.aws.s3'
     );
   },
-  { name: 'aws' },
+  { name: 'aws' }
 );

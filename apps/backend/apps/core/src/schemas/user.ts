@@ -94,7 +94,9 @@ export const validateUserEmailSchema = {
           schema: z.object({
             message: z
               .string()
-              .describe('Error message when the user does not exist or is an UFABC employee'),
+              .describe(
+                'Error message when the user does not exist or is an UFABC employee'
+              ),
           }),
         },
       },

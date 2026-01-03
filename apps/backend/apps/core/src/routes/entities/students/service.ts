@@ -8,7 +8,7 @@ import type { UpdatedStudent } from '@/schemas/entities/students.js';
 
 export async function getComponentsStudentsStats(
   season: string,
-  dataKey: '$before_kick' | '$alunos_matriculados',
+  dataKey: '$before_kick' | '$alunos_matriculados'
 ) {
   const stats = await ComponentModel.aggregate<{
     studentsNumber: number;
@@ -113,7 +113,12 @@ type UpdateStudent = {
   graduationId: number | null | undefined;
 };
 
-export async function createOrInsert({ studentId, ra, login, graduations }: CreateStudent) {
+export async function createOrInsert({
+  studentId,
+  ra,
+  login,
+  graduations,
+}: CreateStudent) {
   const season = currentQuad();
 
   const student = await StudentModel.findOneAndUpdate(
@@ -122,7 +127,7 @@ export async function createOrInsert({ studentId, ra, login, graduations }: Crea
       season,
     },
     { ra, login, cursos: graduations },
-    { new: true, upsert: true },
+    { new: true, upsert: true }
   );
 
   return student;
@@ -145,7 +150,7 @@ export async function update({
     {
       ra,
     },
-    { disciplinas: 1, _id: 0 },
+    { disciplinas: 1, _id: 0 }
   )
     .sort({
       updatedAt: -1,

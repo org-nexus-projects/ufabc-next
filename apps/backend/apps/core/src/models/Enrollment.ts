@@ -75,7 +75,7 @@ const enrollmentSchema = new Schema(
     },
     disciplina_id: Number,
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 function setTheoryAndPractice(update: { $set: Partial<Enrollment> }) {
@@ -103,7 +103,7 @@ async function addEnrollmentToGroup(enrollment: EnrollmentDocument) {
       },
       {
         $push: { users: enrollment.ra },
-      },
+      }
     );
   }
 }
@@ -139,5 +139,7 @@ enrollmentSchema.post('findOneAndUpdate', async function (doc) {
 });
 
 export type Enrollment = InferSchemaType<typeof enrollmentSchema>;
-export type EnrollmentDocument = ReturnType<(typeof EnrollmentModel)['hydrate']>;
+export type EnrollmentDocument = ReturnType<
+  (typeof EnrollmentModel)['hydrate']
+>;
 export const EnrollmentModel = model('enrollments', enrollmentSchema);

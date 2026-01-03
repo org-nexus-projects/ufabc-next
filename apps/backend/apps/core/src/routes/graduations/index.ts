@@ -36,7 +36,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         pages,
         data: results,
       };
-    },
+    }
   );
 
   app.get(
@@ -50,7 +50,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const limit = request.query.limit;
       const graduationSubjects = await listSubjectsById(graduationId, limit);
       return { docs: graduationSubjects };
-    },
+    }
   );
 };
 

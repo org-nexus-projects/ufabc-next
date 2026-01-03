@@ -27,11 +27,16 @@ export default fp(
         app.log.warn('[MONGO] Disconnected from instance');
       });
 
-      const isLogDebug = app.config.NODE_ENV === 'dev' && app.config.LOG_LEVEL === 'debug';
+      const isLogDebug =
+        app.config.NODE_ENV === 'dev' && app.config.LOG_LEVEL === 'debug';
 
       if (isLogDebug) {
         mongoose.set('debug', (collection, method, query, doc, options) => {
-          const queryStr = inspect(query, { depth: null, colors: false, breakLength: Infinity });
+          const queryStr = inspect(query, {
+            depth: null,
+            colors: false,
+            breakLength: Infinity,
+          });
           app.log.info({
             type: 'db',
             collection,
@@ -68,5 +73,5 @@ export default fp(
   {
     name: 'mongoose-connector',
     dependencies: ['config'],
-  },
+  }
 );

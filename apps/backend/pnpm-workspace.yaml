@@ -65,4 +65,4 @@ catalog:
   nock: ^14.0.10
   vitest: ^4.0.16
   vite-tsconfig-paths: ^6.0.3
-  ultracite: ^7.0.4
+  ultracite: latest

@@ -3,6 +3,7 @@
 ## Architecture Overview
 
 **Monorepo** using Turborepo + pnpm workspaces:
+
 - `apps/core` — Fastify API (main application)
 - `packages/common` — Shared utilities (`currentQuad`, `calculateCoefficients`, `generateIdentifier`)
 - `packages/db` — Mongoose models and database client as a Fastify plugin
@@ -12,13 +13,17 @@
 ## Key Patterns
 
 ### Route Registration
+
 Routes use `@fastify/autoload` with file-based routing in `apps/core/src/routes/`. Authentication is controlled in `autohooks.ts`:
+
 - `PUBLIC_ROUTES` — No authentication
 - `EXTENSION_ROUTES` — Session-based auth via `request.isStudent()`
 - All other routes — JWT via `request.jwtVerify()`
 
 ### V2 Controllers
+
 New controllers use `fastify-type-provider-zod` under `/v2` prefix. Add to `routesV2` array in `apps/core/src/app.ts`:
+
 ```typescript
 const controller: FastifyPluginAsyncZod = async (app) => {
   app.route({
@@ -31,7 +36,9 @@ const controller: FastifyPluginAsyncZod = async (app) => {
 ```
 
 ### Hooks Pattern
+
 Hooks in `apps/core/src/hooks/` validate external sessions and cache results. Pattern:
+
 1. Extend `FastifyRequest` or `@fastify/request-context` with session type
 2. Extract credentials from headers
 3. Check cache (LRU or Redis), return early if valid
@@ -41,21 +48,27 @@ Hooks in `apps/core/src/hooks/` validate external sessions and cache results. Pa
 See `moodle-session.ts` (uses LRU cache) and `sigaa-session.ts` (uses Redis) for examples.
 
 ### Job System (Two Systems Coexist)
+
 **Legacy jobs** in `apps/core/src/queue/` — Use `JOBS` and `QUEUE_JOBS` in `definitions.ts`
 
 **New jobs** in `apps/core/src/jobs/` — Use `defineJob()` builder:
+
 ```typescript
 export const myJob = defineJob('JOB_NAME')
   .input(z.object({ data: z.string() }))
   .handler(async ({ job, app, manager }) => { /* ... */ });
 ```
+
 Register in `apps/core/src/jobs/registry.ts`.
 
 ### Database Access
+
 Models accessed via `app.db` (decorated by `@next/db`). Schemas in `apps/core/src/models/`.
 
 ### External Connectors
+
 Connectors in `apps/core/src/connectors/` wrap external APIs:
+
 - `MoodleConnector` — UFABC Moodle
 - `SigaaConnector` — Academic system
 - `S3Connector` — AWS S3 (LocalStack in dev)
@@ -72,6 +85,7 @@ pnpm lint                 # Lint (oxlint) + format (oxfmt)
 ```
 
 ### Environment Setup
+
 ```bash
 cp apps/core/.env.example apps/core/.env.dev
 ```
@@ -86,9 +100,11 @@ cp apps/core/.env.example apps/core/.env.dev
 ## Deployment
 
 Docker multi-stage build with git-secret for encrypted env vars:
+
 ```bash
 docker build --secret id=env,src=.env -f ./Dockerfile . -t ufabc-next:latest
 ```
+
 Production runs on port 5000 with `pnpm run start`.
 
 ## Configuration
@@ -108,18 +124,21 @@ Env vars validated via Zod in `apps/core/src/plugins/external/config.ts`. Access
 ## Change Impact Categories (Blast Radius)
 
 ### Small Bomb
+
 - **Scope**: Single route, model, utility, or schema
 - **Action**: Atomic commit with focused description
 - **Testing**: Run specific test file only
 - **Examples**: Adding a new endpoint, fixing a bug in one model
 
-### Medium Bomb  
+### Medium Bomb
+
 - **Scope**: Controller + related schemas, service + models
 - **Action**: Single commit but verify integration
 - **Testing**: Run related test suite + integration tests
 - **Examples**: Adding V2 controller with multiple endpoints, refactoring service layer
 
 ### Large Bomb
+
 - **Scope**: Core infrastructure (plugins, jobs, auth), database schema changes
 - **Action**: Multiple commits, each with clear scope
 - **Testing**: Full test suite + manual verification
@@ -128,6 +147,7 @@ Env vars validated via Zod in `apps/core/src/plugins/external/config.ts`. Access
 ## Strict Prohibitions
 
 ### NEVER Use These Patterns
+
 - **`any` type** - Use `unknown` with type guards or proper interfaces
 - **Legacy queue system** - Always prefer `defineJob()` in `/jobs/` over `/queue/`
 - **Direct request object mutation** - Create copies: `const data = { ...request.body }`
@@ -135,6 +155,7 @@ Env vars validated via Zod in `apps/core/src/plugins/external/config.ts`. Access
 - **Cross-package import pollution** - Respect workspace boundaries, use proper exports
 
 ### ALWAYS Follow These Patterns
+
 - **Type-first development** - Define interfaces/Zod schemas before implementation
 - **Atomic commits** - One logical change per commit
 - **Test before finish** - Run relevant tests before marking task complete
@@ -143,6 +164,7 @@ Env vars validated via Zod in `apps/core/src/plugins/external/config.ts`. Access
 ## Debugging Protocol
 
 ### When Tests Fail
+
 1. **Check Infrastructure**: `pnpm services:up` (MongoDB, Redis, LocalStack)
 2. **Verify Environment**: Ensure `apps/core/.env.dev` exists and is valid
 3. **Run Single Test**: `pnpm test path/to/failing.test.spec.ts`
@@ -150,11 +172,13 @@ Env vars validated via Zod in `apps/core/src/plugins/external/config.ts`. Access
 5. **Clean State**: `docker compose down -v && pnpm services:up` if containers are corrupted
 
 ### When Build Fails
+
 1. **Check Dependencies**: `pnpm i` to ensure workspace links are correct
 2. **Type Errors**: Run `pnpm tsc` for detailed TypeScript diagnostics
 3. **Clean Build**: `rm -rf apps/core/dist && pnpm build`
 
 ### When Runtime Fails
+
 1. **Check Port Conflicts**: Ensure ports 5000, 27017, 6379 are available
 2. **Verify Services**: `docker ps` to confirm all containers are running
 3. **Check Logs**: `docker compose logs [service-name]` for detailed errors
@@ -162,6 +186,7 @@ Env vars validated via Zod in `apps/core/src/plugins/external/config.ts`. Access
 ## Decision Trees
 
 ### Route Implementation Choices
+
 ```
 Need new endpoint?
 ├─ Need strict typing + OpenAPI? → V2 controller in /controllers/
@@ -171,6 +196,7 @@ Need new endpoint?
 ```
 
 ### Background Processing Choices
+
 ```
 Need background work?
 ├─ New feature? → defineJob() in /jobs/ (register in registry.ts)
@@ -179,6 +205,7 @@ Need background work?
 ```
 
 ### Database Access Patterns
+
 ```
 Need data operations?
 ├─ New entity? → Model in /models/ + schema in /schemas/entities/
@@ -188,6 +215,7 @@ Need data operations?
 ```
 
 ### Authentication Strategy
+
 ```
 Protecting endpoint?
 ├─ Public data? → Add to PUBLIC_ROUTES in autohooks.ts
@@ -195,3 +223,128 @@ Protecting endpoint?
 ├─ JWT token required? → Default (no list addition needed)
 └─ Admin/board access? → Use authenticateBoard hook
 ```
+
+
+# Ultracite Code Standards
+
+This project uses **Ultracite**, a zero-config Biome preset that enforces strict code quality standards through automated formatting and linting.
+
+## Quick Reference
+
+- **Format code**: `pnpm dlx ultracite fix`
+- **Check for issues**: `pnpm dlx ultracite check`
+- **Diagnose setup**: `pnpm dlx ultracite doctor`
+
+Biome (the underlying engine) provides extremely fast Rust-based linting and formatting. Most issues are automatically fixable.
+
+---
+
+## Core Principles
+
+Write code that is **accessible, performant, type-safe, and maintainable**. Focus on clarity and explicit intent over brevity.
+
+### Type Safety & Explicitness
+
+- Use explicit types for function parameters and return values when they enhance clarity
+- Prefer `unknown` over `any` when the type is genuinely unknown
+- Use const assertions (`as const`) for immutable values and literal types
+- Leverage TypeScript's type narrowing instead of type assertions
+- Use meaningful variable names instead of magic numbers - extract constants with descriptive names
+
+### Modern JavaScript/TypeScript
+
+- Use arrow functions for callbacks and short functions
+- Prefer `for...of` loops over `.forEach()` and indexed `for` loops
+- Use optional chaining (`?.`) and nullish coalescing (`??`) for safer property access
+- Prefer template literals over string concatenation
+- Use destructuring for object and array assignments
+- Use `const` by default, `let` only when reassignment is needed, never `var`
+
+### Async & Promises
+
+- Always `await` promises in async functions - don't forget to use the return value
+- Use `async/await` syntax instead of promise chains for better readability
+- Handle errors appropriately in async code with try-catch blocks
+- Don't use async functions as Promise executors
+
+### React & JSX
+
+- Use function components over class components
+- Call hooks at the top level only, never conditionally
+- Specify all dependencies in hook dependency arrays correctly
+- Use the `key` prop for elements in iterables (prefer unique IDs over array indices)
+- Nest children between opening and closing tags instead of passing as props
+- Don't define components inside other components
+- Use semantic HTML and ARIA attributes for accessibility:
+  - Provide meaningful alt text for images
+  - Use proper heading hierarchy
+  - Add labels for form inputs
+  - Include keyboard event handlers alongside mouse events
+  - Use semantic elements (`<button>`, `<nav>`, etc.) instead of divs with roles
+
+### Error Handling & Debugging
+
+- Remove `console.log`, `debugger`, and `alert` statements from production code
+- Throw `Error` objects with descriptive messages, not strings or other values
+- Use `try-catch` blocks meaningfully - don't catch errors just to rethrow them
+- Prefer early returns over nested conditionals for error cases
+
+### Code Organization
+
+- Keep functions focused and under reasonable cognitive complexity limits
+- Extract complex conditions into well-named boolean variables
+- Use early returns to reduce nesting
+- Prefer simple conditionals over nested ternary operators
+- Group related code together and separate concerns
+
+### Security
+
+- Add `rel="noopener"` when using `target="_blank"` on links
+- Avoid `dangerouslySetInnerHTML` unless absolutely necessary
+- Don't use `eval()` or assign directly to `document.cookie`
+- Validate and sanitize user input
+
+### Performance
+
+- Avoid spread syntax in accumulators within loops
+- Use top-level regex literals instead of creating them in loops
+- Prefer specific imports over namespace imports
+- Avoid barrel files (index files that re-export everything)
+- Use proper image components (e.g., Next.js `<Image>`) over `<img>` tags
+
+### Framework-Specific Guidance
+
+**Next.js:**
+- Use Next.js `<Image>` component for images
+- Use `next/head` or App Router metadata API for head elements
+- Use Server Components for async data fetching instead of async Client Components
+
+**React 19+:**
+- Use ref as a prop instead of `React.forwardRef`
+
+**Solid/Svelte/Vue/Qwik:**
+- Use `class` and `for` attributes (not `className` or `htmlFor`)
+
+---
+
+## Testing
+
+- Write assertions inside `it()` or `test()` blocks
+- Avoid done callbacks in async tests - use async/await instead
+- Don't use `.only` or `.skip` in committed code
+- Keep test suites reasonably flat - avoid excessive `describe` nesting
+
+## When Biome Can't Help
+
+Biome's linter will catch most issues automatically. Focus your attention on:
+
+1. **Business logic correctness** - Biome can't validate your algorithms
+2. **Meaningful naming** - Use descriptive names for functions, variables, and types
+3. **Architecture decisions** - Component structure, data flow, and API design
+4. **Edge cases** - Handle boundary conditions and error states
+5. **User experience** - Accessibility, performance, and usability considerations
+6. **Documentation** - Add comments for complex logic, but prefer self-documenting code
+
+---
+
+Most formatting and common issues are automatically fixed by Biome. Run `pnpm dlx ultracite fix` before committing to ensure compliance.

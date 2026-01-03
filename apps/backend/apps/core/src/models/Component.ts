@@ -75,7 +75,7 @@ const componentSchema = new Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 componentSchema.index({ identifier: 'asc' });

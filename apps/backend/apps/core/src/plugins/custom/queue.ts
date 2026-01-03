@@ -33,5 +33,5 @@ export default fp(
 
     app.log.info('[QUEUE] registered');
   },
-  { name: 'queue' },
+  { name: 'queue' }
 );

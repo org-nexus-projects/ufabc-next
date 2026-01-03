@@ -1,4 +1,9 @@
-import { type InferSchemaType, Schema, type ValidatorProps, model } from 'mongoose';
+import {
+  type InferSchemaType,
+  Schema,
+  type ValidatorProps,
+  model,
+} from 'mongoose';
 
 const userSchema = new Schema(
   {
@@ -10,8 +15,10 @@ const userSchema = new Schema(
     email: {
       type: String,
       validate: {
-        validator: (email: string) => (email ? email.includes('ufabc.edu.br') : true),
-        message: (props: ValidatorProps) => `${props.value} não é um e-mail válido.`,
+        validator: (email: string) =>
+          email ? email.includes('ufabc.edu.br') : true,
+        message: (props: ValidatorProps) =>
+          `${props.value} não é um e-mail válido.`,
       },
       unique: true,
       partialFilterExpression: { email: { $exists: true } },
@@ -73,12 +80,12 @@ const userSchema = new Schema(
       },
       removeDevice(deviceId: string) {
         this.devices = this.devices.filter(
-          (device) => device.deviceId !== deviceId,
+          (device) => device.deviceId !== deviceId
         ) as typeof this.devices;
       },
     },
     timestamps: true,
-  },
+  }
 );
 
 type UserBase = InferSchemaType<typeof userSchema>;

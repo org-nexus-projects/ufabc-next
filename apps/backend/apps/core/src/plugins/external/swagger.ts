@@ -2,7 +2,10 @@ import { fastifySwagger } from '@fastify/swagger';
 import { fastifySwaggerUi } from '@fastify/swagger-ui';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 import type { FastifyInstance } from 'fastify';
-import { fastifyZodOpenApiTransform, fastifyZodOpenApiTransformObject } from 'fastify-zod-openapi';
+import {
+  fastifyZodOpenApiTransform,
+  fastifyZodOpenApiTransformObject,
+} from 'fastify-zod-openapi';
 
 export async function swagger(app: FastifyInstance) {
   await app.register(fastifySwagger, {

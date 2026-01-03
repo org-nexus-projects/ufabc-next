@@ -10,17 +10,26 @@ declare module 'fastify' {
     };
   }
 }
-export const sigaaSession: preHandlerAsyncHookHandler = async (request, reply) => {
+export const sigaaSession: preHandlerAsyncHookHandler = async (
+  request,
+  reply
+) => {
   const { 'session-id': sessionId, 'view-id': viewId } = request.headers;
 
-  if (!sessionId || !viewId || typeof sessionId !== 'string' || typeof viewId !== 'string') {
+  if (
+    !sessionId ||
+    !viewId ||
+    typeof sessionId !== 'string' ||
+    typeof viewId !== 'string'
+  ) {
     return reply.unauthorized('Missing Session');
   }
 
   const sessionKey = `sigaa:session:${sessionId}`;
-  const cachedSession = await request.redisService.getJSON<{ sessionId: string; viewId: string }>(
-    sessionKey,
-  );
+  const cachedSession = await request.redisService.getJSON<{
+    sessionId: string;
+    viewId: string;
+  }>(sessionKey);
 
   if (cachedSession) {
     request.sigaaSession = cachedSession;
@@ -32,7 +41,11 @@ export const sigaaSession: preHandlerAsyncHookHandler = async (request, reply) =
     return reply.forbidden();
   }
 
-  await request.redisService.setJSON(sessionKey, { sessionId, viewId }, '25 minutes');
+  await request.redisService.setJSON(
+    sessionKey,
+    { sessionId, viewId },
+    '25 minutes'
+  );
   request.sigaaSession = { sessionId, viewId };
 };
 
@@ -42,7 +55,9 @@ async function validateToken(sessionId: string) {
   const $ = load(response);
 
   const title = $('title').text();
-  if (title !== 'SIGAA - Sistema Integrado de Gestão Acadêmica e Administrativa') {
+  if (
+    title !== 'SIGAA - Sistema Integrado de Gestão Acadêmica e Administrativa'
+  ) {
     return false;
   }
 

@@ -24,7 +24,9 @@ export async function uploadLogsToS3(ctx: QueueContext<unknown>) {
     }
 
     const files = await readdir(LOGS_DIR);
-    const logFiles = files.filter((file) => file.startsWith('app-') && !file.includes('archive'));
+    const logFiles = files.filter(
+      (file) => file.startsWith('app-') && !file.includes('archive')
+    );
 
     for (const file of logFiles) {
       const filePath = join(LOGS_DIR, file);

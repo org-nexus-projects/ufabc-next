@@ -1,7 +1,10 @@
 import { StudentModel } from '@/models/Student.js';
 
 export async function getAllCourses() {
-  const courses = await StudentModel.aggregate<{ names: string; UFCourseIds: number[] }>([
+  const courses = await StudentModel.aggregate<{
+    names: string;
+    UFCourseIds: number[];
+  }>([
     {
       $unwind: '$cursos',
     },

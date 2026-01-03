@@ -6,20 +6,25 @@ import type { onSendAsyncHookHandler } from 'fastify';
 
 const CACHE_TTL = 1000 * 60 * 60 * 24; // 1 day
 
-const onSendStudentSync: onSendAsyncHookHandler<{ ra: string; login: string }> = async (request, reply, body) => {
+const onSendStudentSync: onSendAsyncHookHandler<{
+  ra: string;
+  login: string;
+}> = async (request, reply, body) => {
   const { ra, login } = body;
-  const { db } = request.server
+  const { db } = request.server;
   await db.StudentSync.create({
     ra,
     status: 'created',
-    timeline: [{
-      status: 'created',
-      metadata: {
-        login,
-      }
-    }]
-  })
-}
+    timeline: [
+      {
+        status: 'created',
+        metadata: {
+          login,
+        },
+      },
+    ],
+  });
+};
 
 export const studentsController: FastifyPluginAsyncZod = async (app) => {
   const connector = new UfabcParserConnector();

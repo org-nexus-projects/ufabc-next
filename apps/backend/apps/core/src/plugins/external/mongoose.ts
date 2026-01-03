@@ -17,5 +17,5 @@ export default fp(
       await instance.mongoose.disconnect();
     });
   },
-  { name: 'mongoose' },
+  { name: 'mongoose' }
 );

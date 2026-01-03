@@ -86,7 +86,7 @@ const commentSchema = new Schema(
           'subject',
         ],
         limit = 10,
-        page = 0,
+        page = 0
       ) {
         if (!userId) {
           throw new Error(`Usuário Não Encontrado ${userId}`);
@@ -136,7 +136,7 @@ const commentSchema = new Schema(
     },
     toObject: { virtuals: true },
     timestamps: true,
-  },
+  }
 );
 
 commentSchema.pre('save', async function () {
@@ -148,7 +148,9 @@ commentSchema.pre('save', async function () {
       type: this.type,
     });
     if (enrollment) {
-      throw new Error(`Você só pode comentar uma vez neste vinculo ${this.enrollment}`);
+      throw new Error(
+        `Você só pode comentar uma vez neste vinculo ${this.enrollment}`
+      );
     }
   }
 });
@@ -156,7 +158,7 @@ commentSchema.pre('save', async function () {
 commentSchema.post('save', async function () {
   await EnrollmentModel.findOneAndUpdate(
     { _id: this.enrollment },
-    { $addToSet: { comments: [this.type] } },
+    { $addToSet: { comments: [this.type] } }
   );
 });
 

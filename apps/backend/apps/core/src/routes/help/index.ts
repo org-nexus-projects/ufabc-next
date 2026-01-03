@@ -42,7 +42,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           error: 'Failed to process help form. Please try again later.',
         });
       }
-    },
+    }
   );
 };
 

@@ -28,10 +28,13 @@ const graduationSubjectSchema = new Schema(
       ref: 'graduations',
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 graduationSubjectSchema.index({ graduation: 'asc' });
 
 export type GraduationSubject = InferSchemaType<typeof graduationSubjectSchema>;
-export const GraduationSubjectModel = model('subjectgraduations', graduationSubjectSchema);
+export const GraduationSubjectModel = model(
+  'subjectgraduations',
+  graduationSubjectSchema
+);

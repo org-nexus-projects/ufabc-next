@@ -19,5 +19,5 @@ export default fp(
   },
   {
     name: 'cookie',
-  },
+  }
 );

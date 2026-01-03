@@ -1,5 +1,8 @@
 import type { FastifyInstance, FastifyServerOptions } from 'fastify';
-import { RequestValidationError, ResponseSerializationError } from 'fastify-zod-openapi';
+import {
+  RequestValidationError,
+  ResponseSerializationError,
+} from 'fastify-zod-openapi';
 import { fastifyAutoload } from '@fastify/autoload';
 import { join } from 'node:path';
 import componentsController from './controllers/components-controller.js';
@@ -13,7 +16,7 @@ import backofficeController from './controllers/backoffice-controller.js';
 import dbPlugin from '@next/db/client';
 import type { DatabaseModels } from '@next/db/models';
 import type { Mongoose } from 'mongoose';
-import { webhookController } from './controllers/webhook-controller.js';
+import webhookController from './controllers/webhook-controller.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -22,9 +25,16 @@ declare module 'fastify' {
   }
 }
 
-const routesV2 = [componentsController, backofficeController, webhookController];
+const routesV2 = [
+  componentsController,
+  backofficeController,
+  webhookController,
+];
 
-export async function buildApp(app: FastifyInstance, opts: FastifyServerOptions = {}) {
+export async function buildApp(
+  app: FastifyInstance,
+  opts: FastifyServerOptions = {}
+) {
   await setupV2Routes(app, routesV2);
 
   await app.register(fastifyAutoload, {
@@ -95,7 +105,7 @@ export async function buildApp(app: FastifyInstance, opts: FastifyServerOptions 
             params: request.params,
           },
         },
-        error.message,
+        error.message
       );
 
       return reply.status(500).send({
@@ -127,12 +137,12 @@ export async function buildApp(app: FastifyInstance, opts: FastifyServerOptions 
             params: request.params,
           },
         },
-        'Resource not found',
+        'Resource not found'
       );
 
       reply.code(404);
 
       return { message: 'Not Found' };
-    },
+    }
   );
 }

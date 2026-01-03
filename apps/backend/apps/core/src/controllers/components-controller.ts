@@ -28,12 +28,18 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       const hasLock = await request.acquireLock(session.sessionId, '24h');
 
       if (!hasLock) {
-        request.log.debug({ sessionId: session.sessionId }, 'Archives already processing');
+        request.log.debug(
+          { sessionId: session.sessionId },
+          'Archives already processing'
+        );
         return reply.status(202).send({ status: 'success' });
       }
 
       try {
-        const courses = await moodleConnector.getComponents(session.sessionId, session.sessKey);
+        const courses = await moodleConnector.getComponents(
+          session.sessionId,
+          session.sessKey
+        );
 
         const componentArchives = await getComponentArchives(courses[0]);
         if (componentArchives.error || !componentArchives.data) {
@@ -72,7 +78,10 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
     },
     handler: async (request, reply) => {
       const session = request.requestContext.get('moodleSession')!;
-      const components = await moodleConnector.getComponents(session.sessionId, session.sessKey);
+      const components = await moodleConnector.getComponents(
+        session.sessionId,
+        session.sessKey
+      );
       return reply.status(200).send({
         status: 'success',
         data: components,

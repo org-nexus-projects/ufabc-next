@@ -6,5 +6,5 @@ export default fp(
   async function requestContextPlugin(app: FastifyInstance) {
     await app.register(fastifyRequestContext);
   },
-  { name: 'request-context' },
+  { name: 'request-context' }
 );

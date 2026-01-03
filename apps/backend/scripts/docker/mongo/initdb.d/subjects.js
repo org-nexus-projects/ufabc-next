@@ -51,7 +51,8 @@ db.subjects.insertMany([
   { name: 'Banco de Dados', search: 'Banco De Dados', creditos: 4 },
   {
     name: 'Administração Pública e Reforma do Estado em Perspectiva Comparada',
-    search: 'Administracao Publica E Reforma Do Estado Em Perspectiva Comparada',
+    search:
+      'Administracao Publica E Reforma Do Estado Em Perspectiva Comparada',
     creditos: 4,
   },
   { name: 'Análise Complexa', search: 'Analise Complexa', creditos: 4 },
@@ -573,7 +574,8 @@ db.subjects.insertMany([
   },
   {
     name: 'Conhecimento na Economia: Abordagens e Interfaces com as Atividades de CT&I',
-    search: 'Conhecimento Na Economia Abordagens E Interfaces Com As Atividades De Ct I',
+    search:
+      'Conhecimento Na Economia Abordagens E Interfaces Com As Atividades De Ct I',
     creditos: 4,
   },
   {
@@ -746,7 +748,8 @@ db.subjects.insertMany([
   { name: 'Ecologia Animal', search: 'Ecologia Animal', creditos: 4 },
   {
     name: 'Conhecimento e Técnica: perspectivas da Antiguidade e Período Medieval',
-    search: 'Conhecimento E Tecnica Perspectivas Da Antiguidade E Periodo Medieval',
+    search:
+      'Conhecimento E Tecnica Perspectivas Da Antiguidade E Periodo Medieval',
     creditos: 4,
   },
   {
@@ -2048,7 +2051,8 @@ db.subjects.insertMany([
   { name: 'Genética Geral', search: 'Genetica Geral', creditos: 5 },
   {
     name: 'História de Atuação do Brasil nos Processos de Integração Sul-americana',
-    search: 'Historia De Atuacao Do Brasil Nos Processos De Integracao Sul Americana',
+    search:
+      'Historia De Atuacao Do Brasil Nos Processos De Integracao Sul Americana',
     creditos: 4,
   },
   {
@@ -2590,7 +2594,8 @@ db.subjects.insertMany([
   },
   {
     name: 'Métodos de Tomada de Decisão Aplicados ao Planejamento Urbano-Ambiental',
-    search: 'Metodos De Tomada De Decisao Aplicados Ao Planejamento Urbano Ambiental',
+    search:
+      'Metodos De Tomada De Decisao Aplicados Ao Planejamento Urbano Ambiental',
     creditos: 2,
   },
   {
@@ -2740,7 +2745,8 @@ db.subjects.insertMany([
   },
   {
     name: 'Negociações Internacionais, Propriedade Intelectual e Transferência Tecnológica',
-    search: 'Negociacoes Internacionais Propriedade Intelectual E Transferencia Tecnologica',
+    search:
+      'Negociacoes Internacionais Propriedade Intelectual E Transferencia Tecnologica',
     creditos: 4,
   },
   {
@@ -2927,7 +2933,8 @@ db.subjects.insertMany([
   },
   {
     name: 'Mudança Tecnológica e Dinâmica Capitalista na Economia Contemporânea',
-    search: 'Mudanca Tecnologica E Dinamica Capitalista Na Economia Contemporanea',
+    search:
+      'Mudanca Tecnologica E Dinamica Capitalista Na Economia Contemporanea',
     creditos: 4,
   },
   {
@@ -2942,7 +2949,8 @@ db.subjects.insertMany([
   },
   {
     name: 'Oficina de Planejamento de Áreas Periurbanas, Interioranas e Rurais',
-    search: 'Oficina De Planejamento De Areas Periurbanas Interioranas E Rurais',
+    search:
+      'Oficina De Planejamento De Areas Periurbanas Interioranas E Rurais',
     creditos: 4,
   },
   { name: 'Parasitologia', search: 'Parasitologia', creditos: 3 },
@@ -3036,7 +3044,8 @@ db.subjects.insertMany([
   },
   {
     name: 'Memória, Identidades Sociais e Cidadania nas Sociedades Complexas Contemporâneas',
-    search: 'Memoria Identidades Sociais E Cidadania Nas Sociedades Complexas Contemporaneas',
+    search:
+      'Memoria Identidades Sociais E Cidadania Nas Sociedades Complexas Contemporaneas',
     creditos: 4,
   },
   {
@@ -3917,7 +3926,8 @@ db.subjects.insertMany([
   },
   {
     name: 'Regimes de Negociação Comercial Internacional e a Atuação Brasileira',
-    search: 'Regimes De Negociacao Comercial Internacional EA Atuacao Brasileira',
+    search:
+      'Regimes De Negociacao Comercial Internacional EA Atuacao Brasileira',
     creditos: 4,
   },
   {
@@ -3928,7 +3938,8 @@ db.subjects.insertMany([
   { name: 'Resíduos Sólidos', search: 'Residuos Solidos', creditos: 3 },
   {
     name: 'Segurança Internacional em Perspectiva Histórica e Desafios Contemporâneos',
-    search: 'Seguranca Internacional Em Perspectiva Historica E Desafios Contemporaneos',
+    search:
+      'Seguranca Internacional Em Perspectiva Historica E Desafios Contemporaneos',
     creditos: 4,
   },
   {
@@ -3938,7 +3949,8 @@ db.subjects.insertMany([
   },
   {
     name: 'Trajetória Internacional do Continente Africano e do Oriente Médio',
-    search: 'Trajetoria Internacional Do Continente Africano E Do Oriente Medio',
+    search:
+      'Trajetoria Internacional Do Continente Africano E Do Oriente Medio',
     creditos: 4,
   },
   {
@@ -3998,7 +4010,8 @@ db.subjects.insertMany([
   },
   {
     name: 'Regimes de Negociação Financeira Internacional e a Atuação Brasileira',
-    search: 'Regimes De Negociacao Financeira Internacional EA Atuacao Brasileira',
+    search:
+      'Regimes De Negociacao Financeira Internacional EA Atuacao Brasileira',
     creditos: 4,
   },
   {
@@ -4214,7 +4227,8 @@ db.subjects.insertMany([
   },
   {
     name: 'Regimes de Negociação Ambiental Internacional e a Atuação Brasileira',
-    search: 'Regimes De Negociacao Ambiental Internacional EA Atuacao Brasileira',
+    search:
+      'Regimes De Negociacao Ambiental Internacional EA Atuacao Brasileira',
     creditos: 4,
   },
   {
@@ -4560,7 +4574,8 @@ db.subjects.insertMany([
   },
   {
     name: 'Técnicas de Tomadas de Decisão Aplicáveis em Modelos de Dependência',
-    search: 'Tecnicas De Tomadas De Decisao Aplicaveis Em Modelos De Dependencia',
+    search:
+      'Tecnicas De Tomadas De Decisao Aplicaveis Em Modelos De Dependencia',
     creditos: 4,
   },
   {
@@ -4697,7 +4712,8 @@ db.subjects.insertMany([
   },
   {
     name: 'Tópicos de Otimização em Sistemas Elétricos de Potência e Aplicações',
-    search: 'Topicos De Otimizacao Em Sistemas Eletricos De Potencia E Aplicacoes',
+    search:
+      'Topicos De Otimizacao Em Sistemas Eletricos De Potencia E Aplicacoes',
     creditos: 2,
   },
   {
@@ -4902,7 +4918,8 @@ db.subjects.insertMany([
   },
   {
     name: 'Projeto e Desenvolvimento de Sistemas para Análise de Dados Médicos',
-    search: 'Projeto E Desenvolvimento De Sistemas Para Analise De Dados Medicos',
+    search:
+      'Projeto E Desenvolvimento De Sistemas Para Analise De Dados Medicos',
     creditos: 4,
   },
   {
@@ -5193,7 +5210,8 @@ db.subjects.insertMany([
   },
   {
     name: 'Técnicas de Tomadas de Decisão Aplicáveis em Modelos de Interdependência',
-    search: 'Tecnicas De Tomadas De Decisao Aplicaveis Em Modelos De Interdependencia',
+    search:
+      'Tecnicas De Tomadas De Decisao Aplicaveis Em Modelos De Interdependencia',
     creditos: 4,
   },
   {
@@ -5889,7 +5907,8 @@ db.subjects.insertMany([
   },
   {
     name: 'Métodos Qualitativos e Desenho de Pesquisa para o TCC de Políticas Públicas',
-    search: 'Metodos Qualitativos E Desenho De Pesquisa Para O Tcc De Politicas Publicas',
+    search:
+      'Metodos Qualitativos E Desenho De Pesquisa Para O Tcc De Politicas Publicas',
     creditos: 4,
   },
   {
@@ -6022,7 +6041,8 @@ db.subjects.insertMany([
   { name: 'Geografia Urbana', search: 'Geografia Urbana', creditos: 4 },
   {
     name: 'Política Previdenciária, Interesses Organizados e Processo Decisório',
-    search: 'Politica Previdenciaria Interesses Organizados E Processo Decisorio',
+    search:
+      'Politica Previdenciaria Interesses Organizados E Processo Decisorio',
     creditos: 4,
   },
   {
@@ -6103,7 +6123,8 @@ db.subjects.insertMany([
   },
   {
     name: 'as categorias de karl marx e a análise do capitalismo contemporâneo',
-    search: 'As Categorias De Karl Marx EA Analise Do Capitalismo Contemporaneo',
+    search:
+      'As Categorias De Karl Marx EA Analise Do Capitalismo Contemporaneo',
     creditos: 4,
   },
   {
@@ -6249,7 +6270,8 @@ db.subjects.insertMany([
   },
   {
     name: 'introdução ao acolhimento intercultural aos migrantes e refugiados',
-    search: 'Introducao Ao Acolhimento Intercultural Aos Migrantes E Refugiados',
+    search:
+      'Introducao Ao Acolhimento Intercultural Aos Migrantes E Refugiados',
     creditos: 8,
   },
   {
@@ -6503,7 +6525,8 @@ db.subjects.insertMany([
   },
   {
     name: 'dinâmica e controle de veículos aéreos não-tripulados de asas rotativas',
-    search: 'Dinamica E Controle De Veiculos Aereos Nao Tripulados De Asas Rotativas',
+    search:
+      'Dinamica E Controle De Veiculos Aereos Nao Tripulados De Asas Rotativas',
     creditos: 4,
   },
   {
@@ -6614,7 +6637,8 @@ db.subjects.insertMany([
   },
   {
     name: 'governança, políticas públicas e resistência em tempos de crises múltiplas',
-    search: 'Governanca Politicas Publicas E Resistencia Em Tempos De Crises Multiplas',
+    search:
+      'Governanca Politicas Publicas E Resistencia Em Tempos De Crises Multiplas',
     creditos: 4,
   },
   {
@@ -6644,7 +6668,8 @@ db.subjects.insertMany([
   },
   {
     name: 'gestão da qualidade, segurança, saúde e ambiental aplicada em projetos',
-    search: 'Gestao Da Qualidade Seguranca Saude E Ambiental Aplicada Em Projetos',
+    search:
+      'Gestao Da Qualidade Seguranca Saude E Ambiental Aplicada Em Projetos',
     creditos: 2,
   },
   {
@@ -6903,7 +6928,8 @@ db.subjects.insertMany([
   { name: 'petrofísica', search: 'Petrofisica', creditos: 4 },
   {
     name: 'psicologia do desenvolvimento: infância, juventude, vida adulta e envelhecimento',
-    search: 'Psicologia Do Desenvolvimento Infancia Juventude Vida Adulta E Envelhecimento',
+    search:
+      'Psicologia Do Desenvolvimento Infancia Juventude Vida Adulta E Envelhecimento',
     creditos: 4,
   },
   {
@@ -6913,7 +6939,8 @@ db.subjects.insertMany([
   },
   {
     name: 'trabalho de graduação iii em engenharia de instrumentação, automação e robótica',
-    search: 'Trabalho De Graduacao Iii Em Engenharia De Instrumentacao Automacao E Robotica',
+    search:
+      'Trabalho De Graduacao Iii Em Engenharia De Instrumentacao Automacao E Robotica',
     creditos: 2,
   },
   {
@@ -7108,7 +7135,8 @@ db.subjects.insertMany([
   },
   {
     name: 'tópicos avançados em modalidades: lógica deôntica e lógica epistêmica',
-    search: 'Topicos Avancados Em Modalidades Logica Deontica E Logica Epistemica',
+    search:
+      'Topicos Avancados Em Modalidades Logica Deontica E Logica Epistemica',
     creditos: 2,
   },
   {
@@ -7253,7 +7281,8 @@ db.subjects.insertMany([
   },
   {
     name: 'introdução à transferência de calor, massa e movimentação de fluidos.',
-    search: 'Introducao A Transferencia De Calor Massa E Movimentacao De Fluidos',
+    search:
+      'Introducao A Transferencia De Calor Massa E Movimentacao De Fluidos',
     creditos: 4,
   },
   {
@@ -7319,7 +7348,8 @@ db.subjects.insertMany([
   },
   {
     name: 'políticas públicas de desenvolvimento sustentável e economia solidária',
-    search: 'Politicas Publicas De Desenvolvimento Sustentavel E Economia Solidaria',
+    search:
+      'Politicas Publicas De Desenvolvimento Sustentavel E Economia Solidaria',
     creditos: 4,
   },
   {
@@ -7441,7 +7471,8 @@ db.subjects.insertMany([
   },
   {
     name: 'estágio curricular em engenharia de instrumentação, automação e robótica',
-    search: 'Estagio Curricular Em Engenharia De Instrumentacao Automacao E Robotica',
+    search:
+      'Estagio Curricular Em Engenharia De Instrumentacao Automacao E Robotica',
     creditos: 14,
   },
   {
@@ -7451,7 +7482,8 @@ db.subjects.insertMany([
   },
   {
     name: 'trabalho de conclusão de curso ii em relações internacionais (tcc 2)',
-    search: 'Trabalho De Conclusao De Curso Ii Em Relacoes Internacionais Tcc 2',
+    search:
+      'Trabalho De Conclusao De Curso Ii Em Relacoes Internacionais Tcc 2',
     creditos: 2,
   },
   {
@@ -7527,7 +7559,8 @@ db.subjects.insertMany([
   },
   {
     name: 'teoria e prática da cooperação internacional e da ajuda humanitária',
-    search: 'Teoria E Pratica Da Cooperacao Internacional E Da Ajuda Humanitaria',
+    search:
+      'Teoria E Pratica Da Cooperacao Internacional E Da Ajuda Humanitaria',
     creditos: 4,
   },
   {
@@ -7628,7 +7661,8 @@ db.subjects.insertMany([
   },
   {
     name: 'trabalho de graduação i em engenharia de instrumentação, automação e robótica',
-    search: 'Trabalho De Graduacao I Em Engenharia De Instrumentacao Automacao E Robotica',
+    search:
+      'Trabalho De Graduacao I Em Engenharia De Instrumentacao Automacao E Robotica',
     creditos: 2,
   },
   {
@@ -7718,12 +7752,14 @@ db.subjects.insertMany([
   },
   {
     name: 'tópicos especiais em direito internacional, multilateralismo e direitos humanos',
-    search: 'Topicos Especiais Em Direito Internacional Multilateralismo E Direitos Humanos',
+    search:
+      'Topicos Especiais Em Direito Internacional Multilateralismo E Direitos Humanos',
     creditos: 4,
   },
   {
     name: 'consolidação de conceitos e métodos de interações atômicas e moleculares',
-    search: 'Consolidacao De Conceitos E Metodos De Interacoes Atomicas E Moleculares',
+    search:
+      'Consolidacao De Conceitos E Metodos De Interacoes Atomicas E Moleculares',
     creditos: 2,
   },
   {
@@ -7825,7 +7861,8 @@ db.subjects.insertMany([
   },
   {
     name: 'tópicos especiais em métodos e técnicas para o planejamento territorial',
-    search: 'Topicos Especiais Em Metodos E Tecnicas Para O Planejamento Territorial',
+    search:
+      'Topicos Especiais Em Metodos E Tecnicas Para O Planejamento Territorial',
     creditos: 4,
   },
   {
@@ -7850,7 +7887,8 @@ db.subjects.insertMany([
   },
   {
     name: 'trabalho de conclusão de curso iii em relações internacionais (tcc 3)',
-    search: 'Trabalho De Conclusao De Curso Iii Em Relacoes Internacionais Tcc 3',
+    search:
+      'Trabalho De Conclusao De Curso Iii Em Relacoes Internacionais Tcc 3',
     creditos: 2,
   },
   {
@@ -7985,7 +8023,8 @@ db.subjects.insertMany([
   },
   {
     name: 'trabalho de graduação ii em engenharia de instrumentação, automação e robótica',
-    search: 'Trabalho De Graduacao Ii Em Engenharia De Instrumentacao Automacao E Robotica',
+    search:
+      'Trabalho De Graduacao Ii Em Engenharia De Instrumentacao Automacao E Robotica',
     creditos: 2,
   },
   {

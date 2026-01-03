@@ -24,7 +24,8 @@ export default fp(
         auth: fastifyOauth2.GOOGLE_CONFIGURATION,
       },
       scope: ['profile', 'email'],
-      callbackUri: (req) => `${app.config.PROTOCOL}://${req.host}/login/google/callback`,
+      callbackUri: (req) =>
+        `${app.config.PROTOCOL}://${req.host}/login/google/callback`,
       generateStateFunction: (request) => {
         // @ts-ignore
         return request.query.userId;
@@ -34,5 +35,5 @@ export default fp(
 
     app.log.info('[PLUGIN] Oauth');
   },
-  { name: 'oauth2' },
+  { name: 'oauth2' }
 );

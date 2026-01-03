@@ -8,7 +8,7 @@ type Files = {
 export class AIProxyConnector extends BaseRequester {
   constructor(
     baseUrl: string,
-    private readonly serviceHeader: string,
+    private readonly serviceHeader: string
   ) {
     super(baseUrl);
   }

@@ -27,7 +27,7 @@ type Graduation = {
 
 export function calculateCoefficients<TComponent extends HistoryComponent>(
   components: TComponent[],
-  graduation: Graduation | null,
+  graduation: Graduation | null
 ) {
   const componentsHash = {} as Record<any, any>;
 
@@ -60,9 +60,11 @@ export function calculateCoefficients<TComponent extends HistoryComponent>(
       let credits_limited = 0;
 
       for (const component in componentsHash[year][quad]) {
-        const currComponent: HistoryComponent = componentsHash[year][quad][component];
+        const currComponent: HistoryComponent =
+          componentsHash[year][quad][component];
         const creditos = Number.parseInt(currComponent.creditos.toString(), 10);
-        const convertable = convertLetterToNumber(currComponent.conceito) * creditos;
+        const convertable =
+          convertLetterToNumber(currComponent.conceito) * creditos;
 
         const category = parseCategory(currComponent.categoria);
 
@@ -107,32 +109,39 @@ export function calculateCoefficients<TComponent extends HistoryComponent>(
 
       const ca_quad = period_unique === 0 ? 0 : conceitos_quad / period_unique;
       const ca_acumulado =
-        accumulated_unique === 0 ? 0 : accumulated_conceitos / accumulated_unique;
-      const cr_quad = period_credits === 0 ? 0 : conceitos_quad / period_credits;
+        accumulated_unique === 0
+          ? 0
+          : accumulated_conceitos / accumulated_unique;
+      const cr_quad =
+        period_credits === 0 ? 0 : conceitos_quad / period_credits;
       const cr_acumulado =
-        accumulated_credits === 0 ? 0 : accumulated_conceitos / accumulated_credits;
-      const percentage_approved = period_credits === 0 ? 0 : period_aprovados / period_credits;
+        accumulated_credits === 0
+          ? 0
+          : accumulated_conceitos / accumulated_credits;
+      const percentage_approved =
+        period_credits === 0 ? 0 : period_aprovados / period_credits;
 
       let cp_acumulado = 0;
 
       if (graduation && hasValidGraduationCredits(graduation)) {
         const totalLimitedCredits = Math.min(
           accumulated_credits_limited,
-          graduation.limited_credits_number,
+          graduation.limited_credits_number
         );
         const totalMandatoryCredits = Math.min(
           accumulated_credits_mandatory,
-          graduation.mandatory_credits_number,
+          graduation.mandatory_credits_number
         );
 
         // excess limited credits are added to free credits
         let excessLimitedCredits = 0;
         if (accumulated_credits_limited > graduation.limited_credits_number) {
-          excessLimitedCredits = accumulated_credits_limited - totalLimitedCredits;
+          excessLimitedCredits =
+            accumulated_credits_limited - totalLimitedCredits;
         }
         const totalFreeCredits = Math.min(
           accumulated_credits_free + excessLimitedCredits,
-          graduation.free_credits_number,
+          graduation.free_credits_number
         );
 
         const creditsTotal =
@@ -193,7 +202,8 @@ function parseCategory(category: HistoryComponent['categoria'] | null) {
   }
 }
 
-const isAprovado = (letter: HistoryComponent['conceito']) => !['F', '0', 'O', 'I'].includes(letter);
+const isAprovado = (letter: HistoryComponent['conceito']) =>
+  !['F', '0', 'O', 'I'].includes(letter);
 
 // one-dumb-liner
 const isNumber = (a: string) => typeof a === 'number';
@@ -210,5 +220,7 @@ const hasValidGraduationCredits = (graduation: any): boolean =>
 // https://stackoverflow.com/questions/33429136/round-to-3-decimal-points-in-javascript-jquery
 function roundTo(n: number, decimalPlaces: number) {
   // @ts-expect-error ignore
-  return +(+`${Math.round(`${n}e+${decimalPlaces}`)}e-${decimalPlaces}`).toFixed(decimalPlaces);
+  return +(+`${Math.round(`${n}e+${decimalPlaces}`)}e-${decimalPlaces}`).toFixed(
+    decimalPlaces
+  );
 }
