@@ -1,10 +1,8 @@
 {
-  "dotenv.enableAutocloaking": false,
   "cSpell.words": [
     "paralleldrive"
   ],
   "typescript.experimental.useTsgo": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
     "source.fixAll.oxc": "explicit"
   },
