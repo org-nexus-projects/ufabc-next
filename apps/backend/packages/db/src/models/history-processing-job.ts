@@ -10,6 +10,7 @@ const PROCESSING_STATUS = [
   'processing',
   'completed',
   'failed',
+  'in_queue',
 ] as const;
 export type ProcessingStatus = (typeof PROCESSING_STATUS)[number];
 
@@ -41,7 +42,11 @@ export interface HistoryProcessingJobMethods {
     metadata?: Record<string, unknown>
   ): Promise<this>;
   markFailed(
-    error: { code: string; message: string; details?: Record<string, unknown> },
+    error: {
+      code: string;
+      message: string;
+      details: Record<string, unknown> | null | undefined;
+    },
     metadata?: Record<string, unknown>
   ): Promise<this>;
   addTimelineEvent(

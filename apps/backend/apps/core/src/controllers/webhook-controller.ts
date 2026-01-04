@@ -11,7 +11,7 @@ import {
 const WebhookController: FastifyPluginAsyncZod = async (app) => {
   app.route({
     method: 'POST',
-    url: '/history',
+    url: '/webhook/history',
     schema: {
       headers: z.object({
         'x-api-key': z.string().describe('API key for authentication'),
@@ -24,6 +24,8 @@ const WebhookController: FastifyPluginAsyncZod = async (app) => {
         409: z.object({ error: z.string(), existingJobId: z.string() }),
         500: z.object({ error: z.string() }),
       },
+      tags: ['webhook', 'history'],
+      hide: false,
     },
     handler: async (request, reply) => {
       const apiKey = request.headers['x-api-key'];
@@ -34,7 +36,8 @@ const WebhookController: FastifyPluginAsyncZod = async (app) => {
       }
 
       const webhookData = request.body;
-      const idempotencyKey = `${webhookData.payload.ra}-${webhookData.payload.timestamp}`;
+      const ra = webhookData.payload.ra;
+      const idempotencyKey = `${ra}-${webhookData.payload.timestamp}`;
 
       const existingJob = await app.db.HistoryProcessingJob.findOne({
         idempotencyKey,
@@ -49,54 +52,37 @@ const WebhookController: FastifyPluginAsyncZod = async (app) => {
       }
 
       const processingJob = await app.db.HistoryProcessingJob.create({
-        ra: webhookData.payload.ra,
+        ra,
         idempotencyKey,
         payload: webhookData.payload,
         source: 'webhook',
       });
 
-      await app.db.StudentSync.create({
-        ra: webhookData.payload.ra,
-        status: 'created',
-        timeline: [
-          {
-            status: 'created',
-            timestamp: new Date(),
-            metadata: {
-              source: 'webhook',
-              idempotencyKey,
-              processingJobId: processingJob._id.toString(),
-              webhookType: webhookData.type,
-            },
-          },
-        ],
-        externalIds: {
-          jobId: processingJob._id.toString(),
-          webhookId: idempotencyKey,
-        },
-      });
-
       const studentSyncRecord = await app.db.StudentSync.findOne({
-        ra: webhookData.payload.ra,
+        ra,
       });
 
       if (webhookData.type === 'history.error') {
         await processingJob.markFailed(
           {
             code: webhookData.payload.error.code,
-            message: webhookData.payload.error.message,
-            details: webhookData.payload.error.details,
+            message: webhookData.payload.error.description,
+            // @ts-ignore - 'details' was just added to the interface
+            details: webhookData.payload.error.additionalData,
           },
           { source: 'webhook', immediate: true }
         );
 
-        await studentSyncRecord?.markFailed(
-          `Webhook error: ${webhookData.payload.error.code} - ${webhookData.payload.error.message}`,
-          {
-            source: 'webhook',
-            processingJobId: processingJob._id.toString(),
-            error: webhookData.payload.error,
-          }
+        const errorRa = webhookData.payload.ra;
+        await app.db.StudentSync.findOne({ ra: errorRa })?.then((record) =>
+          record?.markFailed(
+            `Webhook error: ${webhookData.payload.error.code} - ${webhookData.payload.error.description}`,
+            {
+              source: 'webhook',
+              processingJobId: processingJob._id.toString(),
+              error: webhookData.payload.error,
+            }
+          )
         );
 
         return reply.send({
@@ -138,7 +124,7 @@ const WebhookController: FastifyPluginAsyncZod = async (app) => {
 
   app.route({
     method: 'GET',
-    url: '/history/:jobId/status',
+    url: '/webhook/history/:jobId/status',
     schema: {
       headers: z.object({
         'x-api-key': z.string().describe('API key for authentication'),

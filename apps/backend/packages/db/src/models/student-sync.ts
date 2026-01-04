@@ -11,6 +11,7 @@ const status = [
   'processing',
   'completed',
   'failed',
+  'in_queue',
 ] as const;
 
 export type OperationStatus = (typeof status)[number];

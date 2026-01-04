@@ -1,22 +1,24 @@
+import type { DatabaseModels } from '@next/db/models';
 import type { FastifyInstance, FastifyServerOptions } from 'fastify';
+import type { Mongoose } from 'mongoose';
+
+import { fastifyAutoload } from '@fastify/autoload';
+import dbPlugin from '@next/db/client';
 import {
   RequestValidationError,
   ResponseSerializationError,
 } from 'fastify-zod-openapi';
-import { fastifyAutoload } from '@fastify/autoload';
 import { join } from 'node:path';
-import componentsController from './controllers/components-controller.js';
-import { setupV2Routes } from './plugins/v2/setup.js';
-import queueV2Plugin from './plugins/v2/queue.js';
-import awsV2Plugin from './plugins/v2/aws.js';
-import { authenticateBoard } from './hooks/board-authenticate.js';
-import testUtilsPlugin from './plugins/v2/test-utils.js';
-import redisV2Plugin from './plugins/v2/redis.js';
+
 import backofficeController from './controllers/backoffice-controller.js';
-import dbPlugin from '@next/db/client';
-import type { DatabaseModels } from '@next/db/models';
-import type { Mongoose } from 'mongoose';
+import componentsController from './controllers/components-controller.js';
 import webhookController from './controllers/webhook-controller.js';
+import { authenticateBoard } from './hooks/board-authenticate.js';
+import awsV2Plugin from './plugins/v2/aws.js';
+import queueV2Plugin from './plugins/v2/queue.js';
+import redisV2Plugin from './plugins/v2/redis.js';
+import { setupV2Routes } from './plugins/v2/setup.js';
+import testUtilsPlugin from './plugins/v2/test-utils.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -68,7 +70,7 @@ export async function buildApp(
   await app.manager.board({ authenticate: authenticateBoard });
 
   app.worker.setup();
-  app.job.setup();
+  await app.job.setup();
 
   app.get('/health', (request, reply) => {
     return reply.status(200).send({ message: 'OK' });
