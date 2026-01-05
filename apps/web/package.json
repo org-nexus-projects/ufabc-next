@@ -1,7 +1,7 @@
 {
   "name": "ufabc-next-web",
   "private": true,
-  "packageManager": "pnpm@10.26.2",
+  "packageManager": "pnpm@10.27.0",
   "scripts": {
     "build": "turbo run build",
     "build:staging": "turbo run build:staging",
