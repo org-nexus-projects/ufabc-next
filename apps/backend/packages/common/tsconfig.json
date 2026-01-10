@@ -1,9 +1,7 @@
 {
   "extends": ["@next/tsconfig/libs.json"],
   "include": ["./lib/**/*.ts", "./index.ts"],
-  "exclude": [
-    "node_modules"
-  ],
+  "exclude": ["node_modules"],
   "compilerOptions": {
     "strictNullChecks": true
   }

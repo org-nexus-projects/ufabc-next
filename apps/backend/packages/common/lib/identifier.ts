@@ -1,5 +1,5 @@
-import { createHash } from 'node:crypto';
 import { camelCase } from 'lodash-es';
+import { createHash } from 'node:crypto';
 
 type Disciplina = {
   nome: string;

@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
-import { connect, type Mongoose } from 'mongoose';
+
 import fp from 'fastify-plugin';
+import { connect, type Mongoose } from 'mongoose';
 
 declare module 'fastify' {
   export interface FastifyInstance {

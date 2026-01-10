@@ -1,6 +1,8 @@
-import { sigHistory, type SigHistory } from '@/schemas/history.js';
-import { BaseRequester } from './base-requester.js';
 import { currentQuad } from '@next/common';
+
+import { sigHistory, type SigHistory } from '@/schemas/history.js';
+
+import { BaseRequester } from './base-requester.js';
 
 type ComponentId = number;
 type StudentIds = number;

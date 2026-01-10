@@ -1,5 +1,6 @@
 import type { Job, Queue, Worker } from 'bullmq';
 import type { FastifyInstance } from 'fastify';
+
 import type { JOBS, QUEUE_JOBS } from './definitions.js';
 
 // Basic types for job definitions

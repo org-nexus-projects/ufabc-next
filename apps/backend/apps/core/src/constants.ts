@@ -25,6 +25,8 @@ export const JOB_NAMES = {
   PROCESS_ENROLLED_STUDENTS: 'process_enrolled_students',
   CREATE_COMPONENT: 'create_component',
   HISTORY_PROCESSING: 'history_processing',
+  USER_ENROLLMENTS_UPDATE: 'user_enrollments_update',
+  PROCESS_COMPONENTS_ENROLLMENTS: 'process_components_enrollments',
 } as const;
 
 export const HTTP_REDIS_KEY_PREFIX = 'http';

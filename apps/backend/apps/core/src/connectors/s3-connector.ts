@@ -3,6 +3,7 @@ import {
   PutObjectCommand,
   type S3Client,
 } from '@aws-sdk/client-s3';
+
 import { BaseAWSConnector } from './base-aws-connector.js';
 
 export class S3Connector extends BaseAWSConnector<S3Client> {

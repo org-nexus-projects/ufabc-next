@@ -1,6 +1,8 @@
-import { EnrollmentModel } from '@/models/Enrollment.js';
-import type { QueueContext } from '../types.js';
 import type { StudentEnrollment } from '@/routes/sync/index.js';
+
+import { EnrollmentModel } from '@/models/Enrollment.js';
+
+import type { QueueContext } from '../types.js';
 
 export async function processSingleEnrollment(
   ctx: QueueContext<StudentEnrollment>

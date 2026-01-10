@@ -1,10 +1,13 @@
-import type { User } from '@/models/User.js';
-import type { QueueContext } from '../types.js';
 import {
   SendTemplatedEmailCommand,
   type SendTemplatedEmailCommandInput,
 } from '@aws-sdk/client-ses';
+
+import type { User } from '@/models/User.js';
+
 import { sesClient } from '@/lib/aws.service.js';
+
+import type { QueueContext } from '../types.js';
 
 const MAILER_CONFIG = {
   EMAIL_CONFIRMATION_TEMPLATE: 'Confirmation',

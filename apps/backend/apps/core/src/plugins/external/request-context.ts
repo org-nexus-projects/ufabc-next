@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify';
+
 import { fastifyRequestContext } from '@fastify/request-context';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 

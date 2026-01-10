@@ -1,5 +1,6 @@
-import { currentQuad } from '@next/common';
 import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
+
+import { currentQuad } from '@next/common';
 import { z } from 'zod';
 
 const graduationsListSchema = z.object({

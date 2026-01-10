@@ -15,8 +15,8 @@
     "deps-check": "pnpm dlx taze -r"
   },
   "devDependencies": {
-    "oxfmt": "^0.21.0",
-    "oxlint": "^1.36.0",
+    "oxfmt": "^0.22.0",
+    "oxlint": "^1.37.0",
     "oxlint-tsgolint": "catalog:",
     "tsx": "catalog:",
     "turbo": "catalog:",

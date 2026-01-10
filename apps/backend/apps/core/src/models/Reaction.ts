@@ -4,9 +4,10 @@ import {
   isObjectIdOrHexString,
   model,
 } from 'mongoose';
-import { UserModel } from './User.js';
+
 import { CommentModel } from './Comment.js';
 import { EnrollmentModel } from './Enrollment.js';
+import { UserModel } from './User.js';
 
 const REACTIONS_KIND = ['like', 'recommendation', 'star'] as const;
 const reactionSchema = new Schema(

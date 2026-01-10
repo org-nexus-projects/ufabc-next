@@ -1,5 +1,6 @@
-import { fastifyPlugin as fp } from 'fastify-plugin';
 import { fastifyOauth2, type OAuth2Namespace } from '@fastify/oauth2';
+import { fastifyPlugin as fp } from 'fastify-plugin';
+
 import type { Auth } from '@/schemas/auth.js';
 
 declare module 'fastify' {

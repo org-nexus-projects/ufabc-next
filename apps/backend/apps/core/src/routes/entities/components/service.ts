@@ -1,6 +1,8 @@
-import { ComponentModel } from '@/models/Component.js';
-import type { TeacherDocument } from '@/models/Teacher.js';
 import type { Types } from 'mongoose';
+
+import type { TeacherDocument } from '@/models/Teacher.js';
+
+import { ComponentModel } from '@/models/Component.js';
 
 export async function findTeachers(subject: Types.ObjectId, season: string) {
   const teachers = await ComponentModel.find({ subject, season })

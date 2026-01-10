@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify';
+
 import { fastifyMultipart } from '@fastify/multipart';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 

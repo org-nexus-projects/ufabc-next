@@ -1,8 +1,9 @@
-import { type LoggerOptions, pino, stdSerializers } from 'pino';
-import type { PrettyOptions } from 'pino-pretty';
 import type { Options as AxiomOptions } from '@axiomhq/pino';
+import type { PrettyOptions } from 'pino-pretty';
+
 import { mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { type LoggerOptions, pino, stdSerializers } from 'pino';
 
 const logDirectory = join(process.cwd(), 'logs');
 

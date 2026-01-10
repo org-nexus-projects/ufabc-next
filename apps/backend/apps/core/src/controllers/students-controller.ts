@@ -25,6 +25,7 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
       response: {
         202: z.object({
           status: z.string(),
+          data: z.any(),
         }),
       },
     },
@@ -48,14 +49,19 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
     handler: async (request, reply) => {
       const { ra, login } = request.body;
       const { sessionId, viewId } = request.sigaaSession;
-      const cacheKey = `students:sigaa:${ra}`;
+      const cacheKey = `http:students:sigaa:${ra}`;
 
       const cached = await app.redis.get(cacheKey);
       if (cached) {
         app.log.debug({ cacheKey }, 'Student already synced');
         return reply.status(202).send({
-          status: 'success',
+          status: 'cached',
         });
+      }
+
+      const studentSync = await app.db.StudentSync.findOne({ ra: String(ra) });
+      if (!studentSync) {
+        return reply.forbidden();
       }
 
       await connector.syncStudent({
@@ -64,16 +70,9 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
         requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
       });
 
-      const studentSync = await app.db.StudentSync.findOne({ ra: String(ra) });
-      if (!studentSync) {
-        return reply.forbidden();
-      }
-
       await studentSync.transition('awaiting', {
         source: 'sigaa',
-        metadata: {
-          login,
-        },
+        login,
       });
       await app.redis.set(cacheKey, login, 'PX', CACHE_TTL);
 

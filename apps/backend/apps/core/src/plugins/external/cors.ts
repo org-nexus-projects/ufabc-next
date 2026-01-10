@@ -1,6 +1,7 @@
+import type { FastifyInstance } from 'fastify';
+
 import { fastifyCors } from '@fastify/cors';
 import { fastifyPlugin as fp } from 'fastify-plugin';
-import type { FastifyInstance } from 'fastify';
 
 export async function cors(app: FastifyInstance) {
   try {

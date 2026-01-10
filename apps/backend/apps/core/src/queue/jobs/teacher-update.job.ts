@@ -1,6 +1,8 @@
 import { generateIdentifier } from '@next/common';
+
 import { EnrollmentModel } from '@/models/Enrollment.js';
 import { TeacherModel } from '@/models/Teacher.js';
+
 import type { QueueContext } from '../types.js';
 
 type ParsedData = {

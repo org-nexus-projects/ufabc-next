@@ -1,16 +1,19 @@
+import type { FastifyInstance } from 'fastify';
+
+import { FastifyAdapter } from '@bull-board/fastify';
 import { type JobsOptions, Queue, type RedisOptions } from 'bullmq';
 import ms from 'ms';
-import { JOBS, QUEUE_JOBS, type QueueNames } from './definitions.js';
-import { FastifyAdapter } from '@bull-board/fastify';
-import { boardUiPath, createBoard } from './board.js';
-import type { FastifyInstance } from 'fastify';
+import { ulid } from 'ulidx';
+
 import type {
   JobDataType,
   JobNames,
   JobResultType,
   TypeSafeQueue,
 } from './types.js';
-import { ulid } from 'ulidx';
+
+import { boardUiPath, createBoard } from './board.js';
+import { JOBS, QUEUE_JOBS, type QueueNames } from './definitions.js';
 
 interface JobImpl {
   setup(): Promise<void>;

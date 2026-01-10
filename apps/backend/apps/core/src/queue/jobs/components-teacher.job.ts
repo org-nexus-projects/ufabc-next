@@ -1,6 +1,7 @@
 import { ComponentModel, type Component } from '@/models/Component.js';
-import type { QueueContext } from '../types.js';
 import { SubjectModel } from '@/models/Subject.js';
+
+import type { QueueContext } from '../types.js';
 
 // Add flag and ignoreErrors to JobData
 type JobData = Omit<Component, 'createdAt' | 'updatedAt'> & {

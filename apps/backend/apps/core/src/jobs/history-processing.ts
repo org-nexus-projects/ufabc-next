@@ -1,366 +1,554 @@
+import type { QueryFilter as FilterQuery } from 'mongoose';
+
+import { currentQuad, findQuarter } from '@next/common';
 import { defineJob } from '@next/queues/client';
+import { FastifyBaseLogger } from 'fastify';
 import { z } from 'zod';
-import { FastifyInstance } from 'fastify';
 
-export const historyProcessingJob = defineJob('HISTORY_PROCESSING')
-  .input(
-    z.object({
-      jobId: z.string().describe('Processing job ID'),
-      webhookData: z.object({
-        type: z.enum(['history', 'error']),
-        payload: z.any(),
-      }),
-    })
-  )
-  .handler(async ({ job, app, manager }) => {
+import { JOB_NAMES } from '@/constants.js';
+import { ComponentModel } from '@/models/Component.js';
+import { EnrollmentModel, type Enrollment } from '@/models/Enrollment.js';
+import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
+import { HistoryModel, type HistoryCoefficients } from '@/models/History.js';
+import { StudentModel, type StudentCourse } from '@/models/Student.js';
+import { SubjectModel, type SubjectDocument } from '@/models/Subject.js';
+
+import { HistoryWebhookPayloadSchema } from '../schemas/v2/webhook/history.js';
+
+const jobSchema = z.object({
+  jobId: z.string().describe('Processing job ID'),
+  webhookData: z.object({
+    type: z.enum(['history.success', 'history.error']),
+    payload: HistoryWebhookPayloadSchema.extend({
+      login: z.string().describe('Student login'),
+    }),
+  }),
+});
+
+type JobData = z.infer<typeof jobSchema>;
+
+type HistoryData = JobData['webhookData']['payload'];
+
+export const historyProcessingJob = defineJob(JOB_NAMES.HISTORY_PROCESSING)
+  .input(jobSchema)
+  .handler(async ({ job, app }) => {
     const { jobId, webhookData } = job.data;
-    const db = (app as FastifyInstance).db;
+    const season = currentQuad();
+    const db = (app as any).db;
+    const jobDocument = await db.HistoryProcessingJob.findById(jobId);
 
-    await db.models.HistoryProcessingJob.findByIdAndUpdate(jobId, {
-      status: 'processing',
-      updatedAt: new Date(),
-      $push: {
-        timeline: {
-          status: 'processing',
-          timestamp: new Date(),
-          note: 'Job started processing',
-        },
-      },
+    if (!jobDocument) {
+      throw new Error(`Processing job with ID ${jobId} not found`);
+    }
+
+    await jobDocument.transition('in_queue', {
+      note: 'Job started processing',
     });
 
     try {
-      if (webhookData.type === 'error') {
-        await handleErrorPayload(jobId, webhookData.payload, db);
-      } else {
-        await handleHistoryPayload(
-          jobId,
-          webhookData.payload,
-          db,
-          app as FastifyInstance
-        );
-      }
+      await upsertStudentRecord(webhookData.payload, season);
+      await createHistoryRecord(webhookData.payload);
+      await processCurrentEnrollments(webhookData.payload, app.log);
 
-      await db.models.HistoryProcessingJob.findByIdAndUpdate(jobId, {
-        status: 'completed',
-        completedAt: new Date(),
-        updatedAt: new Date(),
-        $push: {
-          timeline: {
-            status: 'completed',
-            timestamp: new Date(),
-            note: 'Job completed successfully',
-          },
-        },
-      });
-    } catch (processingError) {
-      const errorInfo = categorizeError(processingError);
-
-      await db.models.HistoryProcessingJob.findByIdAndUpdate(jobId, {
-        status: 'failed',
-        error: errorInfo,
-        failedAt: new Date(),
-        updatedAt: new Date(),
-        $push: {
-          timeline: {
-            status: 'failed',
-            timestamp: new Date(),
-            note: `Job failed: ${errorInfo.message}`,
-            details: errorInfo,
-          },
-        },
+      await jobDocument.transition('completed', {
+        note: 'Job completed successfully',
       });
 
-      const maxRetries = getMaxRetriesForError(errorInfo.code);
-      const retryDelay = calculateRetryDelay(job.attemptsMade);
+      return { success: true };
+    } catch (processingError: any) {
+      await jobDocument.transition('failed', {
+        note: `Job failed: ${processingError.message}`,
+        details: processingError,
+      });
 
-      if (job.attemptsMade < maxRetries) {
-        throw processingError;
-      }
-
-      job.log(
-        `Job permanently failed after ${job.attemptsMade} attempts: ${errorInfo.message}`
-      );
-    }
-  });
-
-async function handleHistoryPayload(
-  jobId: string,
-  payload: any,
-  db: any,
-  app: FastifyInstance
-) {
-  const { ra, student, histories } = payload;
-
-  await db.models.HistoryProcessingJob.findByIdAndUpdate(jobId, {
-    $push: {
-      timeline: {
-        status: 'processing',
-        timestamp: new Date(),
-        note: 'Processing student data',
-        details: { ra, studentName: student.name },
-      },
-    },
-  });
-
-  const existingStudent = await db.models.Student.findOne({ ra });
-
-  if (existingStudent) {
-    await db.models.Student.updateOne(
-      { ra },
-      {
-        name: student.name,
-        course: student.course,
-        currentQuad: student.currentQuad,
-        breakdown: student.breakdown,
-      }
-    );
-  } else {
-    await db.models.Student.create({
-      ra,
-      name: student.name,
-      course: student.course,
-      currentQuad: student.currentQuad,
-      breakdown: student.breakdown,
-    });
-  }
-
-  await db.models.HistoryProcessingJob.findByIdAndUpdate(jobId, {
-    $push: {
-      timeline: {
-        status: 'processing',
-        timestamp: new Date(),
-        note: 'Processing history records',
-        details: { historyCount: histories.length },
-      },
-    },
-  });
-
-  await db.models.History.deleteMany({ ra });
-
-  const historyDocuments = histories.map((history: any) => ({
-    ...history,
-    ra,
-  }));
-
-  await db.models.History.insertMany(historyDocuments);
-
-  await processEnrollmentsIfNeeded(jobId, ra, histories, db, app);
-}
-
-async function handleErrorPayload(jobId: string, payload: any, db: any) {
-  const { ra, error, processing, partialData } = payload;
-
-  await db.models.HistoryProcessingJob.findByIdAndUpdate(jobId, {
-    $push: {
-      timeline: {
-        status: 'processing',
-        timestamp: new Date(),
-        note: 'Processing error webhook',
-        details: { errorCode: error.code, errorMessage: error.message },
-      },
-    },
-  });
-
-  if (partialData?.student) {
-    const existingStudent = await db.models.Student.findOne({ ra });
-
-    if (existingStudent) {
-      await db.models.Student.updateOne(
-        { ra },
+      app.log.error(
         {
-          name: partialData.student.name,
-          course: partialData.student.course,
-        }
+          attemptsMade: job.attemptsMade,
+          error: processingError,
+        },
+        'Job permanently failed'
       );
+      return {
+        success: false,
+        error: processingError,
+      };
     }
-  }
+  });
 
-  if (partialData?.histories && partialData.histories.length > 0) {
-    const shouldFreezeProcessing = shouldFreezeForError(error.code);
+async function upsertStudentRecord(data: HistoryData, season: string) {
+  const { student, coefficients, login, ra } = data;
+  const courseData: StudentCourse = {
+    nome_curso: student.course,
+    turno: student.shift as StudentCourse['turno'],
+    ind_afinidade: coefficients.ik,
+    cp: coefficients.cp,
+    cr: coefficients.cr,
+    ca: coefficients.ca,
+  };
 
-    if (!shouldFreezeProcessing) {
-      const historyDocuments = partialData.histories.map((history: any) => ({
-        ...history,
-        ra,
-      }));
+  await StudentModel.updateOne(
+    { ra: Number(ra), season },
+    {
+      login,
+      $push: { cursos: courseData },
+    },
 
-      await db.models.History.insertMany(historyDocuments);
-    }
-  }
-
-  throw new Error(`Parser error: ${error.code} - ${error.message}`);
+    { upsert: true }
+  );
 }
 
-async function processEnrollmentsIfNeeded(
-  jobId: string,
-  ra: string,
-  histories: any[],
-  db: any,
-  app: FastifyInstance
+async function createHistoryRecord({
+  coefficients,
+  components,
+  student,
+  ra,
+}: HistoryData) {
+  const historyData = {
+    ra: Number(ra),
+    curso: student.course,
+    grade: student.campus,
+    disciplinas: components.map(transformComponentToHistory),
+    coefficients: transformCoefficients(coefficients),
+  };
+
+  await Promise.all([
+    HistoryModel.findOneAndUpdate(
+      { ra: Number(ra) },
+      { $set: historyData },
+      { upsert: true }
+    ),
+    GraduationHistoryModel.findOneAndUpdate(
+      { ra: Number(ra), curso: student.course, grade: student.campus },
+      { $set: historyData },
+      { upsert: true }
+    ),
+  ]);
+}
+
+async function processCurrentEnrollments(
+  { ra, components, coefficients, student }: HistoryData,
+  log: FastifyBaseLogger
 ) {
-  const currentQuad = getCurrentQuadFromDate();
-  const currentHistories = histories.filter(
-    (h: any) => h.year === currentQuad.year && h.quad === currentQuad.quad
+  const current = findQuarter();
+  const currentComponents = components.filter(
+    (c) =>
+      c.year === current.year.toString() && c.period === current.quad.toString()
   );
 
-  if (currentHistories.length === 0) {
+  if (currentComponents.length === 0) {
     return;
   }
 
-  await db.models.HistoryProcessingJob.findByIdAndUpdate(jobId, {
-    $push: {
-      timeline: {
-        status: 'processing',
-        timestamp: new Date(),
-        note: 'Processing current quad enrollments',
-        details: { enrollmentCount: currentHistories.length },
+  const historyData = { ra: Number(ra), coefficients };
+
+  for (const component of currentComponents) {
+    try {
+      const enrollmentData = await buildEnrollmentData(
+        historyData,
+        component,
+        log
+      );
+
+      if (!enrollmentData) {
+        log.warn({
+          msg: 'Could not build enrollment data for component',
+          ra: Number(ra),
+          disciplina: component.name,
+          turma: component.class,
+        });
+        continue;
+      }
+
+      await upsertEnrollment(enrollmentData, log);
+    } catch (error) {
+      log.error({
+        error: error instanceof Error ? error.message : String(error),
+        ra: Number(ra),
+        disciplina: component.name,
+        turma: component.class,
+        msg: 'Failed to process current enrollment',
+      });
+      throw error;
+    }
+  }
+}
+
+function transformComponentToHistory(component: any) {
+  return {
+    periodo: component.period,
+    codigo: component.UFCode,
+    disciplina: component.name,
+    ano: Number(component.year),
+    situacao: component.status,
+    creditos: component.credits,
+    categoria: component.category,
+    conceito: component.grade,
+    turma: component.class || '',
+    teachers: component.teachers || [],
+  };
+}
+
+function transformCoefficients(coefficients: any): HistoryCoefficients {
+  const { year } = findQuarter();
+  const result: HistoryCoefficients = {};
+
+  for (let y = year - 5; y <= year; y++) {
+    result[y] = {
+      '1': {
+        ca_quad: coefficients.ca || 0,
+        ca_acumulado: coefficients.ca || 0,
+        cr_quad: coefficients.cr || 0,
+        cr_acumulado: coefficients.cr || 0,
+        cp_acumulado: coefficients.cp || 0,
+        percentage_approved: 0,
+        accumulated_credits: 0,
+        period_credits: 0,
       },
-    },
-  });
+      '2': {
+        ca_quad: coefficients.ca || 0,
+        ca_acumulado: coefficients.ca || 0,
+        cr_quad: coefficients.cr || 0,
+        cr_acumulado: coefficients.cr || 0,
+        cp_acumulado: coefficients.cp || 0,
+        percentage_approved: 0,
+        accumulated_credits: 0,
+        period_credits: 0,
+      },
+      '3': {
+        ca_quad: coefficients.ca || 0,
+        ca_acumulado: coefficients.ca || 0,
+        cr_quad: coefficients.cr || 0,
+        cr_acumulado: coefficients.cr || 0,
+        cp_acumulado: coefficients.cp || 0,
+        percentage_approved: 0,
+        accumulated_credits: 0,
+        period_credits: 0,
+      },
+    };
+  }
 
-  const existingEnrollments = await db.models.Enrollment.find({
-    ra,
-    year: currentQuad.year,
-    quad: currentQuad.quad,
-  });
+  return result;
+}
 
-  const enrollmentsToCreate = currentHistories.filter(
-    (history: any) =>
-      !existingEnrollments.some(
-        (enrollment) =>
-          enrollment.subjectCode === history.code &&
-          enrollment.class === history.className
-      )
+async function upsertEnrollment(
+  enrollmentData: Partial<Enrollment>,
+  log: FastifyBaseLogger
+): Promise<void> {
+  // @ts-ignore - Mongoose FilterQuery type
+  const base: FilterQuery<Enrollment> = {
+    ra: enrollmentData.ra,
+    season: enrollmentData.season,
+  };
+
+  let query = { ...base, uf_cod_turma: enrollmentData.uf_cod_turma };
+  let enrollment = await EnrollmentModel.findOneAndUpdate(
+    query,
+    { $set: enrollmentData },
+    { new: true }
   );
 
-  if (enrollmentsToCreate.length > 0) {
-    const enrollmentDocuments = enrollmentsToCreate.map((history: any) => ({
-      ra,
-      subjectCode: history.code,
-      year: currentQuad.year,
-      quad: currentQuad.quad,
-      class: history.className,
-      status: mapHistoryStatusToEnrollment(history.status),
-      createdAt: new Date(),
-    }));
-
-    await db.models.Enrollment.insertMany(enrollmentDocuments);
-  }
-}
-
-function categorizeError(error: any): {
-  code: string;
-  message: string;
-  type: string;
-} {
-  if (error.code === 'ValidationError') {
-    return {
-      code: 'VALIDATION_ERROR',
-      message: 'Invalid payload structure',
-      type: 'INVALID_DATA',
-    };
+  if (!enrollment && enrollmentData.disciplina_id) {
+    // @ts-ignore - Mongoose FilterQuery type
+    query = { ...base, disciplina_id: enrollmentData.disciplina_id };
+    enrollment = await EnrollmentModel.findOneAndUpdate(
+      query,
+      { $set: enrollmentData },
+      { new: true }
+    );
   }
 
-  if (error.name === 'CastError') {
-    return {
-      code: 'DATA_TYPE_ERROR',
-      message: 'Invalid data type in payload',
-      type: 'INVALID_DATA',
-    };
+  if (!enrollment && enrollmentData.subject) {
+    // @ts-ignore - Mongoose FilterQuery type
+    query = { ...base, subject: enrollmentData.subject };
+    enrollment = await EnrollmentModel.findOneAndUpdate(
+      query,
+      { $set: enrollmentData },
+      { new: true }
+    );
   }
 
-  if (error.code === 11000) {
-    return {
-      code: 'DUPLICATE_DATA',
-      message: 'Duplicate data detected',
-      type: 'INVALID_DATA',
-    };
+  if (!enrollment && enrollmentData.disciplina) {
+    const normalizedDisciplina = normalizeText(enrollmentData.disciplina);
+    // @ts-ignore - Mongoose FilterQuery type
+    query = {
+      ...base,
+      disciplina: { $regex: normalizedDisciplina, $options: 'i' },
+    } as FilterQuery<Enrollment>;
+    enrollment = await EnrollmentModel.findOneAndUpdate(
+      query,
+      { $set: enrollmentData },
+      { new: true }
+    );
   }
 
-  if (
-    error.message.includes('timeout') ||
-    error.message.includes('ETIMEDOUT')
-  ) {
-    return {
-      code: 'TIMEOUT',
-      message: 'Processing timeout',
-      type: 'TIMEOUT',
-    };
-  }
-
-  if (
-    error.message.includes('ECONNREFUSED') ||
-    error.message.includes('connection')
-  ) {
-    return {
-      code: 'DATABASE_ERROR',
-      message: 'Database connection error',
-      type: 'SYSTEM_ERROR',
-    };
-  }
-
-  return {
-    code: 'UNKNOWN_ERROR',
-    message: error.message || 'Unknown error occurred',
-    type: 'SYSTEM_ERROR',
-  };
-}
-
-function shouldFreezeForError(errorCode: string): boolean {
-  const freezeErrors = [
-    'STUDENT_NOT_FOUND',
-    'INVALID_DATA',
-    'VALIDATION_ERROR',
-    'DATA_TYPE_ERROR',
-  ];
-
-  return freezeErrors.includes(errorCode);
-}
-
-function getMaxRetriesForError(errorCode: string): number {
-  const retryLimits: Record<string, number> = {
-    TIMEOUT: 5,
-    DATABASE_ERROR: 3,
-    SYSTEM_ERROR: 2,
-    DUPLICATE_DATA: 1,
-    VALIDATION_ERROR: 0,
-    DATA_TYPE_ERROR: 0,
-    STUDENT_NOT_FOUND: 0,
-    INVALID_DATA: 0,
-  };
-
-  return retryLimits[errorCode] || 2;
-}
-
-function calculateRetryDelay(attemptsMade: number): number {
-  return Math.min(1000 * Math.pow(2, attemptsMade), 60000);
-}
-
-function getCurrentQuadFromDate() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
-
-  let quad: string;
-  if (month >= 2 && month <= 5) {
-    quad = '1';
-  } else if (month >= 6 && month <= 9) {
-    quad = '2';
+  if (!enrollment) {
+    enrollment = await EnrollmentModel.create(enrollmentData);
+    log.debug({
+      msg: 'Enrollment created',
+      enrollmentId: enrollment?.identifier,
+      ra: enrollment?.ra,
+      disciplina: enrollment?.disciplina,
+      uf_cod_turma: enrollment?.uf_cod_turma,
+      season: enrollment?.season,
+    });
   } else {
-    quad = '3';
+    log.debug({
+      msg: 'Enrollment updated',
+      enrollmentId: enrollment?.identifier,
+      ra: enrollment?.ra,
+      disciplina: enrollment?.disciplina,
+      uf_cod_turma: enrollment?.uf_cod_turma,
+      season: enrollment?.season,
+    });
   }
-
-  return { year, quad };
 }
 
-function mapHistoryStatusToEnrollment(historyStatus: string): string {
-  const statusMapping: Record<string, string> = {
-    Aprovado: 'approved',
-    Matriculado: 'enrolled',
-    Reprovado: 'failed',
-    Trancado: 'dropped',
-    Cancelado: 'cancelled',
+function normalizeText(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .trim();
+}
+
+function getCampusFromTurma(turma: string | null | undefined): string | null {
+  if (!turma || turma === '--' || turma === '-') {
+    return null;
+  }
+
+  const campus = turma.slice(-2).toUpperCase();
+  if (campus !== 'SA' && campus !== 'SB' && campus !== 'AA') {
+    const error = new Error('Invalid campus') as any;
+    error.cause = campus;
+    throw error;
+  }
+  return campus === 'SA' || campus === 'AA' ? 'sa' : 'sbc';
+}
+
+function getTurnoFromTurma(turma: string | null | undefined): string | null {
+  if (!turma || turma === '--' || turma === '-') {
+    return null;
+  }
+  return turma.slice(0, 1).toUpperCase() === 'N' ? 'noturno' : 'diurno';
+}
+
+function extractTurma(turmaRaw: string): string | null {
+  const turmaStr = turmaRaw.startsWith('F') ? turmaRaw.slice(1) : turmaRaw;
+  const match = turmaStr.match(/^[A-Z]([A-Z]\d{0,2})/i);
+  return match ? match[1] : null;
+}
+
+function getLastPeriod(
+  coefficients: HistoryCoefficients,
+  year: number,
+  quad: number,
+  begin?: string
+) {
+  const firstYear = Object.keys(coefficients)[0];
+  const firstMonth = Object.keys(coefficients[Number(firstYear)])[0];
+
+  const beginValue = begin ?? `${firstYear}.${firstMonth}`;
+
+  let localYear = year;
+  let localQuad = quad;
+
+  if (localQuad === 1) {
+    localQuad = 3;
+    localYear -= 1;
+  } else if (localQuad === 2 || localQuad === 3) {
+    localQuad -= 1;
+  }
+
+  if (beginValue > `${localYear}.${localQuad}`) {
+    return null;
+  }
+
+  const resp =
+    coefficients?.[localYear as keyof typeof coefficients]?.[
+      localQuad as unknown as '1' | '2' | '3'
+    ] ?? null;
+  if (resp == null) {
+    return getLastPeriod(coefficients, localYear, localQuad, begin);
+  }
+
+  return resp;
+}
+
+async function buildEnrollmentData(
+  history: { ra: number; coefficients: HistoryCoefficients },
+  component: any,
+  log: FastifyBaseLogger
+) {
+  const campus = getCampusFromTurma(component.turma);
+  const turno = getTurnoFromTurma(component.turma);
+  const coef = getLastPeriod(
+    history.coefficients,
+    component.ano,
+    Number.parseInt(component.period)
+  );
+
+  const baseEnrollmentData: Partial<Enrollment> = {
+    ra: history.ra,
+    year: component.ano,
+    quad: Number(component.period),
+    disciplina: component.name,
+    conceito: component.grade,
+    creditos: component.credits,
+    cr_acumulado: coef?.cr_acumulado,
+    ca_acumulado: coef?.ca_acumulado ?? null,
+    cp_acumulado: coef?.cp_acumulado ?? null,
+    season: `${component.ano}:${component.period}`,
+    kind: null,
+    syncedBy: 'extension',
+    turma: component.class,
+    campus,
+    turno,
   };
 
-  return statusMapping[historyStatus] || 'unknown';
+  const matchingComponent = await ComponentModel.findOne({
+    uf_cod_turma: component.class,
+    season: baseEnrollmentData.season,
+  }).lean();
+
+  if (matchingComponent) {
+    log.info('Using matching class component');
+    return {
+      ...baseEnrollmentData,
+      disciplina_id: matchingComponent.disciplina_id,
+      turma: matchingComponent.turma,
+      pratica: matchingComponent.pratica,
+      teoria: matchingComponent.teoria,
+      subject: matchingComponent.subject,
+      uf_cod_turma: matchingComponent.uf_cod_turma,
+    };
+  }
+
+  log.info(
+    {
+      msg: 'No matching class component found, using subject match',
+      disciplina: component.name,
+      ra: history.ra,
+      turma: component.class,
+      creditos: component.credits,
+      season: baseEnrollmentData.season,
+    },
+    'Using subject match for sync'
+  );
+  return buildEnrollmentFromSubject({ ...baseEnrollmentData }, component, log);
+}
+
+async function buildEnrollmentFromSubject(
+  baseData: Partial<Enrollment>,
+  component: any,
+  log: FastifyBaseLogger
+): Promise<Partial<Enrollment> | null> {
+  const codeMatch = component.UFCode.match(/^(.*?)-\d{2}$/);
+  const normalizedCode = codeMatch ? codeMatch[1] : component.UFCode;
+
+  const subjects = await SubjectModel.find({
+    uf_subject_code: { $in: [normalizedCode] },
+    creditos: component.credits,
+  }).lean<SubjectDocument[]>();
+
+  if (!subjects.length) {
+    log.warn({
+      msg: 'Subject matching failed',
+      original: component.UFCode,
+      normalized: normalizedCode,
+      creditos: component.credits,
+      ra: baseData.ra,
+    });
+    return null;
+  }
+
+  const mappedEnrollments = mapSubjects(baseData, subjects);
+
+  if (!mappedEnrollments.length) {
+    log.warn({
+      msg: 'No mapped enrollments returned from mapSubjects',
+      component,
+      baseData,
+      ra: baseData.ra,
+      disciplina: baseData.disciplina,
+    });
+    return null;
+  }
+
+  const [mappedEnrollment] = mappedEnrollments;
+
+  if (!baseData.turma || baseData.turma === '--' || baseData.turma === '-') {
+    log.warn(
+      {
+        component,
+        baseData,
+        ra: baseData.ra,
+        disciplina: baseData.disciplina,
+      },
+      'No valid turma provided, cannot generate UFClassroomCode'
+    );
+    return mappedEnrollment;
+  }
+
+  const turma = extractTurma(baseData.turma);
+
+  if (!turma) {
+    log.warn(
+      { turmaRaw: baseData.turma, component, baseData },
+      'Turma format did not match expected pattern'
+    );
+    const error = new Error('Invalid turma format') as any;
+    error.cause = baseData.turma;
+    throw error;
+  }
+
+  if (!baseData.turno || !baseData.campus) {
+    log.warn({
+      msg: 'Missing turno or campus data, cannot generate UFClassroomCode',
+      turno: baseData.turno,
+      campus: baseData.campus,
+      ra: baseData.ra,
+      disciplina: baseData.disciplina,
+    });
+    return mappedEnrollment;
+  }
+
+  const turnoPrefix = baseData.turno?.slice(0, 1).toUpperCase() || '';
+  const campusSuffix = baseData.campus?.slice(0, 2) || '';
+  const UFClassroomCode = `${turnoPrefix}${turma.toUpperCase()}${component.codigo}${campusSuffix}`;
+
+  mappedEnrollment.uf_cod_turma = UFClassroomCode;
+
+  return mappedEnrollment;
+}
+
+function mapSubjects(
+  enrollment: Partial<Enrollment>,
+  subjects: SubjectDocument[]
+): Partial<Enrollment>[] {
+  const enrollmentArray = (
+    Array.isArray(enrollment) ? enrollment : [enrollment]
+  ) as Partial<Enrollment>[];
+
+  return enrollmentArray
+    .map((e) => {
+      const codeMatch = (e.disciplina ?? '').match(/^(.*?)-\d{2}$/);
+      const normalizedCode = codeMatch ? codeMatch[1] : (e.disciplina ?? '');
+      const subject = subjects.find(
+        (s) =>
+          Array.isArray(s.uf_subject_code) &&
+          s.uf_subject_code.includes(normalizedCode)
+      );
+      if (subject) {
+        return {
+          ...e,
+          subject: subject._id.toString(),
+        };
+      }
+      return e;
+    })
+    .filter(
+      (e): e is Partial<Enrollment> =>
+        e.disciplina !== '' && e.disciplina != null
+    );
 }

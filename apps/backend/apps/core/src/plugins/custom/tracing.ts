@@ -1,6 +1,8 @@
-import { TRACING_DIRECTION, TRACING_MESSAGES } from '@/constants.js';
-import { fastifyPlugin as fp } from 'fastify-plugin';
 import type { FastifyBaseLogger } from 'fastify';
+
+import { fastifyPlugin as fp } from 'fastify-plugin';
+
+import { TRACING_DIRECTION, TRACING_MESSAGES } from '@/constants.js';
 
 declare module '@fastify/request-context' {
   interface RequestContextData {

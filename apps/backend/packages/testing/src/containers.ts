@@ -1,7 +1,7 @@
+import { S3Client, CreateBucketCommand } from '@aws-sdk/client-s3';
+import { LocalstackContainer } from '@testcontainers/localstack';
 import { MongoDBContainer } from '@testcontainers/mongodb';
 import { RedisContainer } from '@testcontainers/redis';
-import { LocalstackContainer } from '@testcontainers/localstack';
-import { S3Client, CreateBucketCommand } from '@aws-sdk/client-s3';
 
 export async function createTestContainers() {
   const mongo = await new MongoDBContainer('mongo:6').withReuse().start();

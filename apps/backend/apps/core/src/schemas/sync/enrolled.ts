@@ -1,6 +1,7 @@
+import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
+
 import { currentQuad } from '@next/common';
 import { z } from 'zod';
-import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 
 export const syncEnrolledSchema = {
   querystring: z.object({

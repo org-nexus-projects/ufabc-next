@@ -1,7 +1,9 @@
-import mongoose, { type Mongoose, connect } from 'mongoose';
 import type { FastifyInstance } from 'fastify';
+
 import { fastifyPlugin as fp } from 'fastify-plugin';
+import mongoose, { type Mongoose, connect } from 'mongoose';
 import { inspect } from 'node:util';
+
 import { db, type DatabaseModels } from './models.js';
 
 declare module 'fastify' {

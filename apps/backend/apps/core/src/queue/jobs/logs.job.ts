@@ -1,9 +1,11 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { existsSync } from 'node:fs';
 import { mkdir, readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+
 import { s3Client } from '@/lib/aws.service.js';
+
 import type { QueueContext } from '../types.js';
-import { existsSync } from 'node:fs';
 
 const LOGS_DIR = join(process.cwd(), 'logs');
 const ARCHIVE_DIR = join(LOGS_DIR, 'archive');

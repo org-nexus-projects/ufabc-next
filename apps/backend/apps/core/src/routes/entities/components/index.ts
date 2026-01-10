@@ -1,4 +1,12 @@
+import type { preHandlerAsyncHookHandler } from 'fastify';
+import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+
+import { currentQuad } from '@next/common';
 import { orderBy as LodashOrderBy } from 'lodash-es';
+
+import type { SubjectDocument } from '@/models/Subject.js';
+import type { TeacherDocument } from '@/models/Teacher.js';
+
 import { type Component, ComponentModel } from '@/models/Component.js';
 import { StudentModel } from '@/models/Student.js';
 import {
@@ -6,11 +14,7 @@ import {
   listTeacherComponents,
   type NonPaginatedComponents,
 } from '@/schemas/entities/components.js';
-import type { preHandlerAsyncHookHandler } from 'fastify';
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import type { SubjectDocument } from '@/models/Subject.js';
-import type { TeacherDocument } from '@/models/Teacher.js';
-import { currentQuad } from '@next/common';
+
 import { findTeachers } from './service.js';
 
 const validateStudent: preHandlerAsyncHookHandler = async (request, reply) => {

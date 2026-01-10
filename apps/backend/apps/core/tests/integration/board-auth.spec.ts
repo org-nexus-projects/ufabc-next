@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { startTestStack, type TestStack } from '@next/testing/containers';
 import { fastify, type FastifyInstance } from 'fastify';
 import { fastifyPlugin as fp } from 'fastify-plugin';
-import { startTestStack, type TestStack } from '@next/testing/containers';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+
 import { buildApp } from '../../src/app.js';
 
 describe('Bull Board Security (Blackbox)', () => {

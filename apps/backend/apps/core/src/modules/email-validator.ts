@@ -1,5 +1,6 @@
-import { logger } from '@/utils/logger.js';
 import { ofetch } from 'ofetch';
+
+import { logger } from '@/utils/logger.js';
 
 type Employee = {
   siape: string;

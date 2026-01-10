@@ -1,15 +1,16 @@
+import type { ConnectionOptions, WorkerOptions } from 'bullmq';
+
+import { processComponentsTeachers } from './jobs/components-teacher.job.js';
+import { processComponent, syncComponents } from './jobs/components.job.js';
 import { sendConfirmationEmail, sendBulkEmail } from './jobs/email.job.js';
 import { processSingleEnrollment } from './jobs/enrollments.job.js';
+import { uploadLogsToS3 } from './jobs/logs.job.js';
+import { postInfoIntoNotionDB } from './jobs/notion-help.job.js';
 import { updateTeachers } from './jobs/teacher-update.job.js';
-import { processComponent, syncComponents } from './jobs/components.job.js';
 import {
   processComponentEnrollment,
   userEnrollmentsUpdate,
 } from './jobs/user-enrollments.job.js';
-import type { ConnectionOptions, WorkerOptions } from 'bullmq';
-import { processComponentsTeachers } from './jobs/components-teacher.job.js';
-import { uploadLogsToS3 } from './jobs/logs.job.js';
-import { postInfoIntoNotionDB } from './jobs/notion-help.job.js';
 
 type JobNames =
   | 'send_email'

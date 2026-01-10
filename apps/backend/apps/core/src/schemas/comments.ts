@@ -1,4 +1,5 @@
 import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
+
 import { Types } from 'mongoose';
 import { z } from 'zod';
 

@@ -3,12 +3,17 @@ import { z } from 'zod';
 const ComponentSchema = z.object({
   UFCode: z.string().describe('UFABC subject code'),
   name: z.string().describe('Subject name'),
-  grade: z.enum(['A', 'B', 'C', 'D', 'O', 'F', 'E']).nullable().describe('Subject grade'),
+  grade: z
+    .enum(['A', 'B', 'C', 'D', 'O', 'F', 'E'])
+    .nullable()
+    .describe('Subject grade'),
   status: z.string().describe('Subject status'),
   year: z.string().describe('Year when the subject was taken'),
   period: z.enum(['1', '2', '3']).describe('Academic period'),
   credits: z.number().describe('Number of credits'),
-  category: z.enum(['mandatory', 'free', 'limited']).describe('Subject category'),
+  category: z
+    .enum(['mandatory', 'free', 'limited'])
+    .describe('Subject category'),
   class: z.string().optional().describe('Class name'),
   teachers: z.array(z.string()).optional().describe('Teacher names'),
 });
@@ -77,7 +82,11 @@ export const HistoryErrorWebhookPayloadSchema = z.object({
     code: z.string().describe('Error code from UfabcParserError'),
     httpStatus: z.number().describe('HTTP status code from UfabcParserError'),
     description: z.string().describe('Error description from UfabcParserError'),
-    additionalData: z.record(z.unknown()).nullable().optional().describe('Additional error data'),
+    additionalData: z
+      .record(z.unknown())
+      .nullable()
+      .optional()
+      .describe('Additional error data'),
   }),
   processing: z
     .object({

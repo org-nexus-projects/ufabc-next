@@ -1,14 +1,14 @@
+import { JOB_NAMES } from '../constants.js';
 import {
   componentsArchivesProcessingJob,
   pdfDownloadJob,
   archivesSummaryJob,
 } from './components-archive-processing-flow.js';
-import { JOB_NAMES } from '../constants.js';
+import { createComponentJob } from './components-create.js';
 import {
   enrolledStudentsJob,
   processEnrollmentJob,
 } from './enrolled-students.js';
-import { createComponentJob } from './components-create.js';
 import { historyProcessingJob } from './history-processing.js';
 
 export const jobRegistry = {

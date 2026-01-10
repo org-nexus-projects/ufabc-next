@@ -1,13 +1,15 @@
-import { ComponentModel } from '@/models/Component.js';
-import { SubjectModel } from '@/models/Subject.js';
+import { currentQuad } from '@next/common';
+import { camelCase, startCase } from 'lodash-es';
+
 import {
   type UfabcParserComponent,
   UfabcParserConnector,
 } from '@/connectors/ufabc-parser.js';
-import { currentQuad } from '@next/common';
-import { camelCase, startCase } from 'lodash-es';
-import type { QueueContext } from '../types.js';
+import { ComponentModel } from '@/models/Component.js';
+import { SubjectModel } from '@/models/Subject.js';
 import { logger } from '@/utils/logger.js';
+
+import type { QueueContext } from '../types.js';
 
 export async function syncComponents({ app }: QueueContext<unknown>) {
   const tenant = currentQuad();

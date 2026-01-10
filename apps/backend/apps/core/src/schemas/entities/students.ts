@@ -1,8 +1,10 @@
+import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
+
 import { currentQuad } from '@next/common';
 import { z } from 'zod';
-import { COURSE_SHIFTS } from '@/models/Student.js';
+
 import { CATEGORIES } from '@/models/History.js';
-import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
+import { COURSE_SHIFTS } from '@/models/Student.js';
 
 const tags = ['Students'];
 

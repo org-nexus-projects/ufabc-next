@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
+
 import {
   serializerCompiler as zodSerializerCompiler,
   validatorCompiler as zodValidatorCompiler,

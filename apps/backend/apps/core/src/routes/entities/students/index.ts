@@ -1,3 +1,5 @@
+import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+
 import { ComponentModel } from '@/models/Component.js';
 import {
   listMatriculaStudent,
@@ -6,7 +8,7 @@ import {
   type MatriculaStudent,
   updateStudentSchema,
 } from '@/schemas/entities/students.js';
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+
 import {
   getAllCourses,
   getComponentsStudentsStats,

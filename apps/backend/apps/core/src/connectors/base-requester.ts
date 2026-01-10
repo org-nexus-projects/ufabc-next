@@ -1,7 +1,8 @@
 // @ts-nocheck only for the logger
 import { requestContext } from '@fastify/request-context';
-import { type FetchOptions, type FetchRequest, ofetch } from 'ofetch';
 import { randomUUID } from 'node:crypto';
+import { type FetchOptions, type FetchRequest, ofetch } from 'ofetch';
+
 import { TRACING_DIRECTION, TRACING_MESSAGES } from '@/constants.js';
 import { logger as defaultLogger } from '@/utils/logger.js';
 

@@ -1,6 +1,8 @@
-import { MoodleConnector } from '@/connectors/moodle.js';
 import type { preHandlerAsyncHookHandler } from 'fastify';
+
 import LRUWeakCache from 'lru-weak-cache';
+
+import { MoodleConnector } from '@/connectors/moodle.js';
 
 declare module '@fastify/request-context' {
   interface RequestContextData {

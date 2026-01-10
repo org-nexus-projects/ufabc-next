@@ -37,6 +37,7 @@ const WebhookController: FastifyPluginAsyncZod = async (app) => {
 
       const webhookData = request.body;
       const ra = webhookData.payload.ra;
+
       const idempotencyKey = `${ra}-${webhookData.payload.timestamp}`;
 
       const existingJob = await app.db.HistoryProcessingJob.findOne({
@@ -93,9 +94,16 @@ const WebhookController: FastifyPluginAsyncZod = async (app) => {
         });
       }
 
+      const login = studentSyncRecord?.timeline[0].metadata.login;
       const job = await app.manager.dispatch(JOB_NAMES.HISTORY_PROCESSING, {
         jobId: processingJob._id.toString(),
-        webhookData,
+        webhookData: {
+          type: webhookData.type,
+          payload: {
+            ...webhookData.payload,
+            login,
+          },
+        },
       });
 
       const bgJobId = Array.isArray(job) ? job[0]?.id : job?.id;

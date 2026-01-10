@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { startTestStack } from '@next/testing/containers';
 import { waitForJobCompletion } from '@next/testing/methods';
 import { moodleMock } from '@next/testing/mocks';
 import { fastify, type FastifyInstance } from 'fastify';
 import { fastifyPlugin as fp } from 'fastify-plugin';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+
 import { buildApp } from '../../../src/app.js';
 import { JOB_NAMES } from '../../constants.js';
 

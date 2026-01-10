@@ -1,6 +1,9 @@
 import type { preHandlerAsyncHookHandler } from 'fastify';
+
 import { load } from 'cheerio';
+
 import { SigaaConnector } from '@/connectors/sigaa.js';
+import { logger } from '@/utils/logger.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -53,13 +56,6 @@ async function validateToken(sessionId: string) {
   const connector = new SigaaConnector();
   const response = await connector.validateToken(sessionId);
   const $ = load(response);
-
-  const title = $('title').text();
-  if (
-    title !== 'SIGAA - Sistema Integrado de Gestão Acadêmica e Administrativa'
-  ) {
-    return false;
-  }
-
-  return true;
+  const hasLogout = $('#info-sistema > div > span.sair-sistema > a').length > 0;
+  return hasLogout;
 }

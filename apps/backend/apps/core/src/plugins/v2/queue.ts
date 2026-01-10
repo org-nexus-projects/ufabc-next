@@ -1,5 +1,6 @@
 import { JobManager } from '@next/queues/manager';
 import { fastifyPlugin as fp } from 'fastify-plugin';
+
 import { jobRegistry, type JobRegistry } from '@/jobs/registry.js';
 
 declare module 'fastify' {

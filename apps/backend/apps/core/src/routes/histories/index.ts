@@ -1,3 +1,9 @@
+import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+
+import { currentQuad } from '@next/common';
+
+import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
+import { GraduationModel } from '@/models/Graduation.js';
 import {
   HistoryModel,
   type Categories,
@@ -5,12 +11,8 @@ import {
   type History,
   type Situations,
 } from '@/models/History.js';
-import { GraduationModel } from '@/models/Graduation.js';
 import { StudentModel } from '@/models/Student.js';
 import { sigHistorySchema, type SigStatus } from '@/schemas/history.js';
-import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
-import { currentQuad } from '@next/common';
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   const historyCache = app.cache<History>();

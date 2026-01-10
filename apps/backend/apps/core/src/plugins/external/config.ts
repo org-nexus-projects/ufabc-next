@@ -1,7 +1,7 @@
 import env, { type FastifyEnvOptions } from '@fastify/env';
+import { fastifyPlugin as fp } from 'fastify-plugin';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { fastifyPlugin as fp } from 'fastify-plugin';
 
 declare module 'fastify' {
   export interface FastifyInstance {

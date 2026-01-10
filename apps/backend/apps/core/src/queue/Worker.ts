@@ -1,12 +1,15 @@
-import { Worker, type WorkerOptions } from 'bullmq';
-import { JOBS, QUEUE_JOBS } from './definitions.js';
 import type { FastifyInstance } from 'fastify';
+
+import { Worker, type WorkerOptions } from 'bullmq';
+
 import type {
   JobNames,
   JobResultType,
   QueueContext,
   TypeSafeWorker,
 } from './types.js';
+
+import { JOBS, QUEUE_JOBS } from './definitions.js';
 
 export class QueueWorker {
   private workers: Partial<Record<JobNames, TypeSafeWorker>> = {};

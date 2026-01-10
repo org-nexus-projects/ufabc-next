@@ -5,36 +5,36 @@
       "language_servers": ["tsgo"],
       "formatter": {
         "language_server": {
-          "name": "oxfmt",
-        },
+          "name": "oxfmt"
+        }
       },
       "code_actions_on_format": {
         "source.fixAll.oxc": true,
-        "source.organizeImports.oxc": true,
-      },
+        "source.organizeImports.oxc": true
+      }
     },
     "JavaScript": {
       "formatter": {
         "language_server": {
-          "name": "oxfmt",
-        },
+          "name": "oxfmt"
+        }
       },
       "code_actions_on_format": {
         "source.fixAll.oxc": true,
-        "source.organizeImports.oxc": true,
-      },
+        "source.organizeImports.oxc": true
+      }
     },
     "TSX": {
       "formatter": {
         "language_server": {
-          "name": "oxfmt",
-        },
+          "name": "oxfmt"
+        }
       },
       "code_actions_on_format": {
         "source.fixAll.oxc": true,
-        "source.organizeImports.oxc": true,
-      },
-    },
+        "source.organizeImports.oxc": true
+      }
+    }
   },
   "formatter": "language_server",
   "format_on_save": "on",
@@ -43,10 +43,10 @@
       "settings": {
         "typescript": {
           "preferences": {
-            "includePackageJsonAutoImports": "on",
-          },
-        },
-      },
+            "includePackageJsonAutoImports": "on"
+          }
+        }
+      }
     },
     "oxlint": {
       "initialization_options": {
@@ -55,9 +55,9 @@
           "fixKind": "safe_fix",
           "run": "onType",
           "typeAware": true,
-          "unusedDisableDirectives": "deny",
-        },
-      },
+          "unusedDisableDirectives": "deny"
+        }
+      }
     },
     "oxfmt": {
       "initialization_options": {
@@ -65,9 +65,9 @@
           "fmt.configPath": null,
           "fmt.experimental": true,
           "run": "onSave",
-          "typeAware": true,
-        },
-      },
-    },
-  },
+          "typeAware": true
+        }
+      }
+    }
+  }
 }

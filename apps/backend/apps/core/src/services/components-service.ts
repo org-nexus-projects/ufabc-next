@@ -1,4 +1,5 @@
 import type { MoodleComponent } from '@/connectors/moodle.js';
+
 import { componentArchiveSchema } from '@/schemas/v2/components.js';
 
 export async function getComponentArchives(

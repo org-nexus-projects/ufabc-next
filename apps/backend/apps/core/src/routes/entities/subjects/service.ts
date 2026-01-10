@@ -1,6 +1,8 @@
-import { EnrollmentModel } from '@/models/Enrollment.js';
-import type { Concept } from '@/models/History.js';
 import type { Types } from 'mongoose';
+
+import type { Concept } from '@/models/History.js';
+
+import { EnrollmentModel } from '@/models/Enrollment.js';
 
 export type Distribution = {
   conceito: Concept;

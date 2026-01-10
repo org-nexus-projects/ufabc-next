@@ -1,9 +1,10 @@
 import { defineJob } from '@next/queues/client';
-import { JOB_NAMES } from '@/constants.js';
-import { MoodleConnector } from '@/connectors/moodle.js';
 import { load } from 'cheerio';
 import { ofetch } from 'ofetch';
 import z from 'zod';
+
+import { MoodleConnector } from '@/connectors/moodle.js';
+import { JOB_NAMES } from '@/constants.js';
 
 const connector = new MoodleConnector();
 

@@ -1,3 +1,7 @@
+import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+
+import { currentQuad } from '@next/common';
+
 import { StudentModel } from '@/models/Student.js';
 import { UserModel, type User } from '@/models/User.js';
 import {
@@ -14,8 +18,6 @@ import {
   sendRecoveryEmailSchema,
   validateUserEmailSchema,
 } from '@/schemas/user.js';
-import { currentQuad } from '@next/common';
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   const usersCache = app.cache<Auth>();

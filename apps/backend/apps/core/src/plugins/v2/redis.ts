@@ -1,7 +1,8 @@
-import { HTTP_REDIS_KEY_PREFIX } from '@/constants.js';
 import { fastifyRedis } from '@fastify/redis';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 import ms from 'ms';
+
+import { HTTP_REDIS_KEY_PREFIX } from '@/constants.js';
 
 type RedisService = {
   acquireLock: (key: string, ttl: string) => Promise<boolean>;

@@ -1,7 +1,9 @@
 import type { BackoffOptions, Job, JobsOptions, WorkerOptions } from 'bullmq';
 import type { FastifyInstance } from 'fastify';
-import { z } from 'zod';
+
 import ms from 'ms';
+import { z } from 'zod';
+
 import type { JobManager } from './manager.js';
 
 export type JobData<TData = unknown> = TData & {

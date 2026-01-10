@@ -18,6 +18,10 @@ const coursesSchema = new Schema(
     ca: { type: Number, required: false },
     ind_afinidade: { type: Number, required: true },
     turno: { type: String, required: true, enum: COURSE_SHIFTS },
+    creditos_obtidos: { type: Number, required: false },
+    creditos_obrigatorios: { type: Number, required: false },
+    creditos_optativos: { type: Number, required: false },
+    creditos_livres: { type: Number, required: false },
   },
   { _id: false }
 );
@@ -46,4 +50,5 @@ const studentSchema = new Schema(
 
 export type Student = InferSchemaType<typeof studentSchema>;
 export type StudentDocument = ReturnType<(typeof StudentModel)['hydrate']>;
+export type StudentCourse = InferSchemaType<typeof coursesSchema>;
 export const StudentModel = model('alunos', studentSchema);

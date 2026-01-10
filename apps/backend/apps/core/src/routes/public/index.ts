@@ -1,3 +1,8 @@
+import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+import type { QueryFilter as FilterQuery, PipelineStage } from 'mongoose';
+
+import { currentQuad } from '@next/common';
+
 import { CommentModel } from '@/models/Comment.js';
 import { type Component, ComponentModel } from '@/models/Component.js';
 import { EnrollmentModel } from '@/models/Enrollment.js';
@@ -10,11 +15,9 @@ import {
   listStudentStats,
   type GraduationList,
 } from '@/schemas/public.js';
-import { currentQuad } from '@next/common';
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import type { QueryFilter as FilterQuery, PipelineStage } from 'mongoose';
-import { getAllCourses } from './service.js';
 import { resolveStep } from '@/utils/resolve-stats-steps.js';
+
+import { getAllCourses } from './service.js';
 
 type ComponentsStats = {
   teachers: number;

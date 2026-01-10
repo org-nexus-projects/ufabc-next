@@ -1,8 +1,10 @@
+import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+
 import {
   listGraduationsSubjectsByIdSchema,
   listGraduationsSubjectsSchema,
 } from '@/schemas/graduations.js';
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+
 import { getPaginated, getTotal, listSubjectsById } from './service.js';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {

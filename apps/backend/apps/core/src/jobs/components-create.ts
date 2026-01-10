@@ -1,9 +1,10 @@
+import { defineJob } from '@next/queues/client';
+import { camelCase, startCase } from 'lodash-es';
+
+import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { JOB_NAMES } from '@/constants.js';
 import { ComponentModel, type Component } from '@/models/Component.js';
-import { defineJob } from '@next/queues/client';
-import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { SubjectModel } from '@/models/Subject.js';
-import { camelCase, startCase } from 'lodash-es';
 
 const connector = new UfabcParserConnector();
 
@@ -16,15 +17,16 @@ export const createComponentJob = defineJob(JOB_NAMES.CREATE_COMPONENT).handler(
       throw new Error('Component not found');
     }
 
+    const subjectCode = component.ufComponentCode.split('-')[0];
     let subject = await SubjectModel.findOne({
-      uf_subject_code: { $in: [component.ufComponentCode] },
+      uf_subject_code: { $in: [subjectCode] },
     });
 
     if (!subject) {
       subject = await SubjectModel.create({
         name: component.name,
         creditos: component.credits,
-        uf_subject_code: [component.ufComponentCode.split('-')[0]],
+        uf_subject_code: [subjectCode],
         search: startCase(camelCase(component.name)),
       });
     }

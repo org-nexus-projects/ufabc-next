@@ -1,7 +1,8 @@
-import { JOB_NAMES } from '@/constants.js';
-import { defineJob } from '@next/queues/client';
-import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { currentQuad } from '@next/common';
+import { defineJob } from '@next/queues/client';
+
+import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
+import { JOB_NAMES } from '@/constants.js';
 import { ComponentModel } from '@/models/Component.js';
 
 const connector = new UfabcParserConnector();

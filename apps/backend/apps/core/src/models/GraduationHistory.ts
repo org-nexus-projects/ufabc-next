@@ -5,6 +5,7 @@ import {
   type Types,
   model,
 } from 'mongoose';
+
 import type { CoefficientsMap } from './History.js';
 
 const CONCEITOS = ['A', 'B', 'C', 'D', 'O', 'F', '-'] as const;

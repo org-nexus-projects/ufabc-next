@@ -1,9 +1,11 @@
-import { MoodleConnector } from '@/connectors/moodle.js';
-import { moodleSession } from '@/hooks/moodle-session.js';
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
+
 import { z } from 'zod';
-import { getComponentArchives } from '@/services/components-service.js';
+
+import { MoodleConnector } from '@/connectors/moodle.js';
 import { JOB_NAMES } from '@/constants.js';
+import { moodleSession } from '@/hooks/moodle-session.js';
+import { getComponentArchives } from '@/services/components-service.js';
 
 const moodleConnector = new MoodleConnector();
 

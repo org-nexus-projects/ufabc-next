@@ -1,5 +1,6 @@
-import { currentQuad } from '@next/common';
 import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
+
+import { currentQuad } from '@next/common';
 import { Types } from 'mongoose';
 import { z } from 'zod';
 import 'zod-openapi/extend';

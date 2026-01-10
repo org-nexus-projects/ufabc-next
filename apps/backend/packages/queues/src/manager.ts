@@ -1,9 +1,8 @@
-import type {
-  InferJobData,
-  JobBuilder,
-  JobContext,
-  JobData,
-} from './builder.js';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+
+import { createBullBoard } from '@bull-board/api';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { FastifyAdapter } from '@bull-board/fastify';
 import {
   Queue,
   Worker,
@@ -13,11 +12,14 @@ import {
   type JobsOptions,
   type FlowJob,
 } from 'bullmq';
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { randomUUID } from 'node:crypto';
-import { FastifyAdapter } from '@bull-board/fastify';
-import { createBullBoard } from '@bull-board/api';
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+
+import type {
+  InferJobData,
+  JobBuilder,
+  JobContext,
+  JobData,
+} from './builder.js';
 
 export type BoardAuthHook = (
   request: FastifyRequest,

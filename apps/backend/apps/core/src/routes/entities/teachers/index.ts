@@ -1,3 +1,7 @@
+import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+
+import { Types } from 'mongoose';
+
 import { TeacherModel } from '@/models/Teacher.js';
 import {
   createTeachersSchema,
@@ -5,8 +9,7 @@ import {
   searchTeacherSchema,
   updateTeacherSchema,
 } from '@/schemas/entities/teachers.js';
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import { Types } from 'mongoose';
+
 import {
   findAndUpdate,
   findOne,

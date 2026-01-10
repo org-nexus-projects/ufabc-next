@@ -1,3 +1,7 @@
+import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+
+import { Types } from 'mongoose';
+
 import {
   missingCommentsSchema,
   createCommentSchema,
@@ -5,7 +9,7 @@ import {
   deleteCommentSchema,
   commentsOnTeacherSchema,
 } from '@/schemas/comments.js';
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+
 import {
   createReaction,
   deleteReaction,
@@ -17,7 +21,6 @@ import {
   getUserEnrollments,
   insert,
 } from './service.js';
-import { Types } from 'mongoose';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get(

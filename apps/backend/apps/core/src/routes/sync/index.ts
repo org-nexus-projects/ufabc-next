@@ -1,12 +1,14 @@
-import { createHash } from 'node:crypto';
-import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
-import { syncEnrollmentsSchema } from '@/schemas/sync/enrollments.js';
-import { syncComponentsSchema } from '@/schemas/sync/components.js';
-import { TeacherModel } from '@/models/Teacher.js';
-import { ComponentModel, type Component } from '@/models/Component.js';
-import { syncEnrolledSchema } from '@/schemas/sync/enrolled.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+
+import { createHash } from 'node:crypto';
+
+import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
+import { ComponentModel, type Component } from '@/models/Component.js';
 import { SubjectModel } from '@/models/Subject.js';
+import { TeacherModel } from '@/models/Teacher.js';
+import { syncComponentsSchema } from '@/schemas/sync/components.js';
+import { syncEnrolledSchema } from '@/schemas/sync/enrolled.js';
+import { syncEnrollmentsSchema } from '@/schemas/sync/enrollments.js';
 
 export type StudentEnrollment = Component & {
   ra: number;

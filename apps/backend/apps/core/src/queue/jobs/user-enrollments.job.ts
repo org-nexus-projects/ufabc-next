@@ -1,20 +1,23 @@
+import type { QueryFilter as FilterQuery } from 'mongoose';
+
 import { calculateCoefficients } from '@next/common';
+
+import { ComponentModel } from '@/models/Component.js';
+import { EnrollmentModel, type Enrollment } from '@/models/Enrollment.js';
 import {
   GraduationModel,
   type GraduationDocument,
 } from '@/models/Graduation.js';
 import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
-import { SubjectModel, type SubjectDocument } from '@/models/Subject.js';
-import { EnrollmentModel, type Enrollment } from '@/models/Enrollment.js';
-import { ComponentModel } from '@/models/Component.js';
 import {
   type History,
   type HistoryCoefficients,
   HistoryModel,
 } from '@/models/History.js';
+import { SubjectModel, type SubjectDocument } from '@/models/Subject.js';
 import { logger } from '@/utils/logger.js';
+
 import type { QueueContext } from '../types.js';
-import type { QueryFilter as FilterQuery } from 'mongoose';
 
 type HistoryComponent = History['disciplinas'][number];
 

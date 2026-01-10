@@ -1,3 +1,5 @@
+import type { FastifyInstance } from 'fastify';
+
 import { fastifyPlugin as fp } from 'fastify-plugin';
 import {
   createCipheriv,
@@ -5,7 +7,6 @@ import {
   createHash,
   randomBytes,
 } from 'node:crypto';
-import type { FastifyInstance } from 'fastify';
 
 declare module 'fastify' {
   export interface FastifyInstance {
