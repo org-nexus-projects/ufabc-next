@@ -64,7 +64,7 @@ export const processEnrollmentJob = defineJob(
     await manager.dispatch(JOB_NAMES.CREATE_COMPONENT, {
       componentId,
     });
-    throw new Error('Component not found');
+    return
   }
 
   return component.toJSON();

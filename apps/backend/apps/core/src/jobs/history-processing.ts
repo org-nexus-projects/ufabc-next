@@ -35,17 +35,25 @@ export const historyProcessingJob = defineJob(JOB_NAMES.HISTORY_PROCESSING)
   .handler(async ({ job, app }) => {
     const { jobId, webhookData } = job.data;
     const season = currentQuad();
-    const db = (app as any).db;
+    const db = app.db;
+    const studentSync = await db.StudentSync.findOne({
+      ra: webhookData.payload.ra,
+      status: { 
+        $nin: ['completed', 'created']
+      }
+    });
     const jobDocument = await db.HistoryProcessingJob.findById(jobId);
 
-    if (!jobDocument) {
+    if (!jobDocument || !studentSync) {
       throw new Error(`Processing job with ID ${jobId} not found`);
     }
 
     await jobDocument.transition('in_queue', {
       note: 'Job started processing',
     });
-
+    await studentSync.transition('in_queue', {
+      note: 'Sync started processing'
+    })
     try {
       await upsertStudentRecord(webhookData.payload, season);
       await createHistoryRecord(webhookData.payload);
@@ -55,6 +63,9 @@ export const historyProcessingJob = defineJob(JOB_NAMES.HISTORY_PROCESSING)
         note: 'Job completed successfully',
       });
 
+      await studentSync.transition('completed', {
+        note: 'finished'
+      })
       return { success: true };
     } catch (processingError: any) {
       await jobDocument.transition('failed', {
@@ -106,7 +117,7 @@ async function createHistoryRecord({
 }: HistoryData) {
   const historyData = {
     ra: Number(ra),
-    curso: student.course,
+    curso: student.course.toLowerCase(),
     grade: student.campus,
     disciplinas: components.map(transformComponentToHistory),
     coefficients: transformCoefficients(coefficients),
@@ -119,7 +130,7 @@ async function createHistoryRecord({
       { upsert: true }
     ),
     GraduationHistoryModel.findOneAndUpdate(
-      { ra: Number(ra), curso: student.course, grade: student.campus },
+      { ra: Number(ra), curso: student.course.toLowerCase(), grade: student.campus },
       { $set: historyData },
       { upsert: true }
     ),
@@ -402,7 +413,7 @@ async function buildEnrollmentData(
     ra: history.ra,
     year: component.ano,
     quad: Number(component.periodo),
-    disciplina: component.disciplina,
+    disciplina: component.disciplina.toLowerCase(),
     conceito: component.conceito,
     creditos: component.creditos,
     cr_acumulado: coef?.cr_acumulado,
@@ -411,7 +422,7 @@ async function buildEnrollmentData(
     season: `${component.ano}:${component.periodo}`,
     kind: null,
     syncedBy: 'extension',
-    turma: component.class,
+    turma: component.turma,
     campus,
     turno,
   };
@@ -455,7 +466,7 @@ async function buildEnrollmentFromSubject(
 ): Promise<Partial<Enrollment> | null> {
 const normalizedCode = component.codigo.split('-')[0];
 
-  const subject = await findOrCreateSubject(component.disciplina, component.creditos, normalizedCode);
+  const subject = await findOrCreateSubject(component.disciplina.toLowerCase(), component.creditos, normalizedCode);
 
   if (!subject) {
     log.warn(
