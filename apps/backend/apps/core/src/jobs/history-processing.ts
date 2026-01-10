@@ -10,8 +10,9 @@ import { ComponentModel } from '@/models/Component.js';
 import { EnrollmentModel, type Enrollment } from '@/models/Enrollment.js';
 import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
 import { HistoryModel, type HistoryCoefficients } from '@/models/History.js';
+import type { SubjectDocument } from '@/models/Subject.js';
 import { StudentModel, type StudentCourse } from '@/models/Student.js';
-import { SubjectModel, type SubjectDocument } from '@/models/Subject.js';
+import { findOrCreateSubject } from './utils/subject-resolution.js';
 
 import { HistoryWebhookPayloadSchema } from '../schemas/v2/webhook/history.js';
 
@@ -126,22 +127,12 @@ async function createHistoryRecord({
 }
 
 async function processCurrentEnrollments(
-  { ra, components, coefficients, student }: HistoryData,
+  { ra, components, coefficients }: HistoryData,
   log: FastifyBaseLogger
 ) {
-  const current = findQuarter();
-  const currentComponents = components.filter(
-    (c) =>
-      c.year === current.year.toString() && c.period === current.quad.toString()
-  );
-
-  if (currentComponents.length === 0) {
-    return;
-  }
-
   const historyData = { ra: Number(ra), coefficients };
 
-  for (const component of currentComponents) {
+  for (const component of components.map(transformComponentToHistory)) {
     try {
       const enrollmentData = await buildEnrollmentData(
         historyData,
@@ -150,24 +141,28 @@ async function processCurrentEnrollments(
       );
 
       if (!enrollmentData) {
-        log.warn({
-          msg: 'Could not build enrollment data for component',
-          ra: Number(ra),
-          disciplina: component.name,
-          turma: component.class,
-        });
+        log.warn(
+          {
+            ra: Number(ra),
+            disciplina: component.name,
+            turma: component.turma,
+          },
+          'Could not build enrollment data for component'
+        );
         continue;
       }
 
       await upsertEnrollment(enrollmentData, log);
     } catch (error) {
-      log.error({
-        error: error instanceof Error ? error.message : String(error),
-        ra: Number(ra),
-        disciplina: component.name,
-        turma: component.class,
-        msg: 'Failed to process current enrollment',
-      });
+      log.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          ra: Number(ra),
+          disciplina: component.name,
+          turma: component.class,
+        },
+        'Failed to process current enrollment'
+      );
       throw error;
     }
   }
@@ -284,7 +279,6 @@ async function upsertEnrollment(
   if (!enrollment) {
     enrollment = await EnrollmentModel.create(enrollmentData);
     log.debug({
-      msg: 'Enrollment created',
       enrollmentId: enrollment?.identifier,
       ra: enrollment?.ra,
       disciplina: enrollment?.disciplina,
@@ -292,14 +286,16 @@ async function upsertEnrollment(
       season: enrollment?.season,
     });
   } else {
-    log.debug({
-      msg: 'Enrollment updated',
-      enrollmentId: enrollment?.identifier,
-      ra: enrollment?.ra,
-      disciplina: enrollment?.disciplina,
-      uf_cod_turma: enrollment?.uf_cod_turma,
-      season: enrollment?.season,
-    });
+    log.debug(
+      {
+        enrollmentId: enrollment?.identifier,
+        ra: enrollment?.ra,
+        disciplina: enrollment?.disciplina,
+        uf_cod_turma: enrollment?.uf_cod_turma,
+        season: enrollment?.season,
+      },
+      'Enrollment updated'
+    );
   }
 }
 
@@ -345,8 +341,22 @@ function getLastPeriod(
   quad: number,
   begin?: string
 ) {
+  if (!coefficients || Object.keys(coefficients).length === 0) {
+    return null;
+  }
+
   const firstYear = Object.keys(coefficients)[0];
-  const firstMonth = Object.keys(coefficients[Number(firstYear)])[0];
+  const firstYearCoefficients = coefficients[Number(firstYear)];
+
+  if (!firstYearCoefficients) {
+    return null;
+  }
+
+  const firstMonth = Object.keys(firstYearCoefficients)[0];
+
+  if (!firstMonth) {
+    return null;
+  }
 
   const beginValue = begin ?? `${firstYear}.${firstMonth}`;
 
@@ -385,20 +395,20 @@ async function buildEnrollmentData(
   const coef = getLastPeriod(
     history.coefficients,
     component.ano,
-    Number.parseInt(component.period)
+    Number.parseInt(component.periodo)
   );
 
   const baseEnrollmentData: Partial<Enrollment> = {
     ra: history.ra,
     year: component.ano,
-    quad: Number(component.period),
-    disciplina: component.name,
-    conceito: component.grade,
-    creditos: component.credits,
+    quad: Number(component.periodo),
+    disciplina: component.disciplina,
+    conceito: component.conceito,
+    creditos: component.creditos,
     cr_acumulado: coef?.cr_acumulado,
     ca_acumulado: coef?.ca_acumulado ?? null,
     cp_acumulado: coef?.cp_acumulado ?? null,
-    season: `${component.ano}:${component.period}`,
+    season: `${component.ano}:${component.periodo}`,
     kind: null,
     syncedBy: 'extension',
     turma: component.class,
@@ -407,7 +417,7 @@ async function buildEnrollmentData(
   };
 
   const matchingComponent = await ComponentModel.findOne({
-    uf_cod_turma: component.class,
+    uf_cod_turma: component.turma,
     season: baseEnrollmentData.season,
   }).lean();
 
@@ -426,12 +436,12 @@ async function buildEnrollmentData(
 
   log.info(
     {
-      msg: 'No matching class component found, using subject match',
-      disciplina: component.name,
+      disciplina: component.disciplina,
       ra: history.ra,
-      turma: component.class,
-      creditos: component.credits,
+      turma: component.turma,
+      creditos: component.creditos,
       season: baseEnrollmentData.season,
+      codigo: component.UFCode,
     },
     'Using subject match for sync'
   );
@@ -443,35 +453,37 @@ async function buildEnrollmentFromSubject(
   component: any,
   log: FastifyBaseLogger
 ): Promise<Partial<Enrollment> | null> {
-  const codeMatch = component.UFCode.match(/^(.*?)-\d{2}$/);
-  const normalizedCode = codeMatch ? codeMatch[1] : component.UFCode;
+const normalizedCode = component.codigo.split('-')[0];
 
-  const subjects = await SubjectModel.find({
-    uf_subject_code: { $in: [normalizedCode] },
-    creditos: component.credits,
-  }).lean<SubjectDocument[]>();
+  const subject = await findOrCreateSubject(component.disciplina, component.creditos, normalizedCode);
 
-  if (!subjects.length) {
-    log.warn({
-      msg: 'Subject matching failed',
-      original: component.UFCode,
-      normalized: normalizedCode,
-      creditos: component.credits,
-      ra: baseData.ra,
-    });
+  if (!subject) {
+    log.warn(
+      {
+        original: component.codigo,
+        normalized: normalizedCode,
+        creditos: component.creditos,
+        ra: baseData.ra,
+      },
+      'Subject creation failed'
+    );
     return null;
   }
+
+  const subjects = [subject];
 
   const mappedEnrollments = mapSubjects(baseData, subjects);
 
   if (!mappedEnrollments.length) {
-    log.warn({
-      msg: 'No mapped enrollments returned from mapSubjects',
-      component,
-      baseData,
-      ra: baseData.ra,
-      disciplina: baseData.disciplina,
-    });
+    log.warn(
+      {
+        component,
+        baseData,
+        ra: baseData.ra,
+        disciplina: baseData.disciplina,
+      },
+      'No mapped enrollments returned from mapSubjects'
+    );
     return null;
   }
 
@@ -503,13 +515,15 @@ async function buildEnrollmentFromSubject(
   }
 
   if (!baseData.turno || !baseData.campus) {
-    log.warn({
-      msg: 'Missing turno or campus data, cannot generate UFClassroomCode',
-      turno: baseData.turno,
-      campus: baseData.campus,
-      ra: baseData.ra,
-      disciplina: baseData.disciplina,
-    });
+    log.warn(
+      {
+        turno: baseData.turno,
+        campus: baseData.campus,
+        ra: baseData.ra,
+        disciplina: baseData.disciplina,
+      },
+      'Missing turno or campus data, cannot generate UFClassroomCode'
+    );
     return mappedEnrollment;
   }
 

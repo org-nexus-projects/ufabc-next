@@ -125,8 +125,22 @@ function getLastPeriod(
   quad: number,
   begin?: string
 ) {
+  if (!coefficients || Object.keys(coefficients).length === 0) {
+    return null;
+  }
+
   const firstYear = Object.keys(coefficients)[0];
-  const firstMonth = Object.keys(coefficients[Number(firstYear)])[0];
+  const firstYearCoefficients = coefficients[Number(firstYear)];
+
+  if (!firstYearCoefficients) {
+    return null;
+  }
+
+  const firstMonth = Object.keys(firstYearCoefficients)[0];
+
+  if (!firstMonth) {
+    return null;
+  }
 
   const beginValue = begin ?? `${firstYear}.${firstMonth}`;
 
