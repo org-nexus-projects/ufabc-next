@@ -30,22 +30,6 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
       },
     },
     preHandler: [sigaaSession],
-    onSend: async (request, _reply, _payload) => {
-      const { ra, login } = request.body;
-      const { db } = request.server;
-      await db.StudentSync.create({
-        ra: String(ra),
-        status: 'created',
-        timeline: [
-          {
-            status: 'created',
-            metadata: {
-              login,
-            },
-          },
-        ],
-      });
-    },
     handler: async (request, reply) => {
       const { ra, login } = request.body;
       const { sessionId, viewId } = request.sigaaSession;
@@ -59,9 +43,20 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
         });
       }
 
-      const studentSync = await app.db.StudentSync.findOne({ ra: String(ra) });
+      let studentSync = await app.db.StudentSync.findOne({ ra: String(ra) });
       if (!studentSync) {
-        return reply.forbidden();
+        studentSync = await app.db.StudentSync.create({
+          ra: String(ra),
+          status: 'created',
+          timeline: [
+            {
+              status: 'created',
+              metadata: {
+                login,
+              },
+            },
+          ],
+        });
       }
 
       await connector.syncStudent({
