@@ -9,6 +9,7 @@ import {
   enrolledStudentsJob,
   processEnrollmentJob,
 } from './enrolled-students.js';
+import { enrollmentsProcessingJob } from './enrollments-processing.js';
 import { historyProcessingJob } from './history-processing.js';
 
 export const jobRegistry = {
@@ -19,6 +20,7 @@ export const jobRegistry = {
   [JOB_NAMES.PROCESS_ENROLLED_STUDENTS]: processEnrollmentJob,
   [JOB_NAMES.CREATE_COMPONENT]: createComponentJob,
   [JOB_NAMES.HISTORY_PROCESSING]: historyProcessingJob,
+  [JOB_NAMES.PROCESS_COMPONENTS_ENROLLMENTS]: enrollmentsProcessingJob,
 } as const;
 
 export type JobRegistry = typeof jobRegistry;

@@ -64,7 +64,7 @@ export const processEnrollmentJob = defineJob(
     await manager.dispatch(JOB_NAMES.CREATE_COMPONENT, {
       componentId,
     });
-    return
+    return;
   }
 
   return component.toJSON();

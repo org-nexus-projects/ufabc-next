@@ -1,5 +1,6 @@
-import { SubjectModel, type SubjectDocument } from '@/models/Subject.js';
 import { camelCase, startCase } from 'lodash-es';
+
+import { SubjectModel, type SubjectDocument } from '@/models/Subject.js';
 
 export async function findOrCreateSubject(
   name: string,

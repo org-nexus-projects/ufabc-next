@@ -1,7 +1,9 @@
 import { defineJob } from '@next/queues/client';
+
 import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { JOB_NAMES } from '@/constants.js';
 import { ComponentModel, type Component } from '@/models/Component.js';
+
 import { findOrCreateSubject } from './utils/subject-resolution.js';
 
 const connector = new UfabcParserConnector();
@@ -16,7 +18,11 @@ export const createComponentJob = defineJob(JOB_NAMES.CREATE_COMPONENT).handler(
     }
 
     const subjectCode = component.ufComponentCode.split('-')[0];
-    const subject = await findOrCreateSubject(component.name, component.credits, subjectCode);
+    const subject = await findOrCreateSubject(
+      component.name,
+      component.credits,
+      subjectCode
+    );
 
     const dbComponent = {
       after_kick: [],
