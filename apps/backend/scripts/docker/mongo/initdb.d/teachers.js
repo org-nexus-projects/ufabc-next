@@ -1,4 +1,4 @@
-db = db.getSiblingDB('local');
+db = db.getSiblingDB('ufabc-matricula');
 db.createCollection('teachers');
 db.teachers.insertMany([
   {

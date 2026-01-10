@@ -1,4 +1,4 @@
-db = db.getSiblingDB('local');
+db = db.getSiblingDB('ufabc-matricula');
 db.createCollection('subjects');
 db.subjects.insertMany([
   { name: 'Aerodinâmica II', search: 'Aerodinamica Ii', creditos: 4 },
