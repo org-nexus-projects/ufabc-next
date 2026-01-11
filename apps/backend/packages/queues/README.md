@@ -5,10 +5,10 @@ This guide demonstrates how to set up and use the `@next/queues` package in your
 ## Basic Setup
 
 ```typescript
-import { defineJob } from "@next/queues/client";
-import { JobManager } from "@next/queues/manager";
-import { z } from "zod";
-import type { FastifyInstance } from "fastify";
+import { defineJob } from '@next/queues/client';
+import { JobManager } from '@next/queues/manager';
+import { z } from 'zod';
+import type { FastifyInstance } from 'fastify';
 
 // Define job data and result types
 type EmailData = {
@@ -23,7 +23,7 @@ type EmailResult = {
 };
 
 // Define job with builder pattern
-const emailJob = defineJob<"send_email", EmailData, EmailResult>("send_email")
+const emailJob = defineJob<'send_email', EmailData, EmailResult>('send_email')
   .input(
     z.object({
       to: z.string().email(),
@@ -37,38 +37,38 @@ const emailJob = defineJob<"send_email", EmailData, EmailResult>("send_email")
       sent: z.boolean(),
     })
   )
-  .retry(3, 1000, { type: "exponential", delay: 1000 })
+  .retry(3, 1000, { type: 'exponential', delay: 1000 })
   .concurrency(10)
   .removeOnComplete(30 * 24 * 60 * 60, 1000) // 30 days, 1000 jobs
   .handler(async ({ job, app }) => {
     const { to, subject, body } = job.data;
     const traceId = job.data.globalTraceId;
 
-    app.log.info({ traceId, to }, "Sending email");
+    app.log.info({ traceId, to }, 'Sending email');
 
     // Send email logic here
     // ...
 
     return {
-      messageId: "123",
+      messageId: '123',
       sent: true,
     };
   });
 
 // Scheduled job (runs daily at 2 AM UTC)
-const cleanupJob = defineJob<"cleanup", { app: FastifyInstance }, void>(
-  "cleanup"
+const cleanupJob = defineJob<'cleanup', { app: FastifyInstance }, void>(
+  'cleanup'
 )
-  .every("0 2 * * *", "UTC")
+  .every('0 2 * * *', 'UTC')
   .handler(async ({ app }) => {
-    app.log.info("Running cleanup");
+    app.log.info('Running cleanup');
     // Cleanup logic here
   });
 
 // Initialize JobManager
 export async function setupQueues(app: FastifyInstance) {
-  const redisURL = new URL(process.env.REDIS_URL || "redis://localhost:6379");
-  const jobManager = new JobManager(app, redisURL, "/admin/jobs");
+  const redisURL = new URL(process.env.REDIS_URL || 'redis://localhost:6379');
+  const jobManager = new JobManager(app, redisURL, '/admin/jobs');
 
   // Register all jobs
   jobManager.register(emailJob).register(cleanupJob);
@@ -90,13 +90,13 @@ export async function setupQueues(app: FastifyInstance) {
 
 ```typescript
 // Dispatch a job immediately
-app.post("/send-email", async (request, reply) => {
-  const traceId = request.headers["x-trace-id"] as string;
+app.post('/send-email', async (request, reply) => {
+  const traceId = request.headers['x-trace-id'] as string;
 
-  await jobManager.dispatch("send_email", {
-    to: "user@example.com",
-    subject: "Hello",
-    body: "World",
+  await jobManager.dispatch('send_email', {
+    to: 'user@example.com',
+    subject: 'Hello',
+    body: 'World',
     globalTraceId: traceId, // Include traceId in data
   });
 
@@ -105,12 +105,12 @@ app.post("/send-email", async (request, reply) => {
 
 // Schedule a job for later (with delay)
 await jobManager.schedule(
-  "send_email",
+  'send_email',
   {
-    to: "user@example.com",
-    subject: "Scheduled Email",
-    body: "This will be sent in 1 minute",
-    globalTraceId: "abc-123",
+    to: 'user@example.com',
+    subject: 'Scheduled Email',
+    body: 'This will be sent in 1 minute',
+    globalTraceId: 'abc-123',
   },
   {
     delay: 60000, // 1 minute delay
@@ -123,11 +123,11 @@ await jobManager.schedule(
 ### Job Options
 
 ```typescript
-const advancedJob = defineJob<"advanced", MyData, MyResult>("advanced")
+const advancedJob = defineJob<'advanced', MyData, MyResult>('advanced')
   .options({
     attempts: 5,
     backoff: {
-      type: "exponential",
+      type: 'exponential',
       delay: 2000,
     },
     removeOnComplete: {
@@ -147,8 +147,8 @@ const advancedJob = defineJob<"advanced", MyData, MyResult>("advanced")
 ### Worker Options
 
 ```typescript
-const rateLimitedJob = defineJob<"rate_limited", MyData, MyResult>(
-  "rate_limited"
+const rateLimitedJob = defineJob<'rate_limited', MyData, MyResult>(
+  'rate_limited'
 )
   .worker({
     concurrency: 5,
@@ -166,15 +166,15 @@ const rateLimitedJob = defineJob<"rate_limited", MyData, MyResult>(
 
 ```typescript
 // Run every 5 minutes
-const frequentJob = defineJob<"frequent", MyData, MyResult>("frequent")
-  .every("5 minutes")
+const frequentJob = defineJob<'frequent', MyData, MyResult>('frequent')
+  .every('5 minutes')
   .handler(async ({ job, app }) => {
     // Handler logic
   });
 
 // Run every day at midnight (local time)
-const dailyJob = defineJob<"daily", MyData, MyResult>("daily")
-  .every("0 0 * * *", "America/Sao_Paulo")
+const dailyJob = defineJob<'daily', MyData, MyResult>('daily')
+  .every('0 0 * * *', 'America/Sao_Paulo')
   .handler(async ({ job, app }) => {
     // Handler logic
   });
@@ -193,14 +193,14 @@ The handler receives a context object with:
 - `app`: Your Fastify instance (with some internal properties removed)
 
 ```typescript
-const jobWithContext = defineJob<"context_example", MyData, MyResult>(
-  "context_example"
+const jobWithContext = defineJob<'context_example', MyData, MyResult>(
+  'context_example'
 ).handler(async ({ job, app }) => {
   const traceId = job.data.globalTraceId;
   const jobId = job.id;
   const attempts = job.attemptsMade;
 
-  app.log.info({ traceId, jobId, attempts }, "Processing job");
+  app.log.info({ traceId, jobId, attempts }, 'Processing job');
 
   // Your logic here
 });
@@ -212,8 +212,8 @@ The package provides full TypeScript type safety:
 
 ```typescript
 // Type-safe job definition
-const typedJob = defineJob<"my_job", { userId: number }, { success: boolean }>(
-  "my_job"
+const typedJob = defineJob<'my_job', { userId: number }, { success: boolean }>(
+  'my_job'
 )
   .input(z.object({ userId: z.number() }))
   .output(z.object({ success: z.boolean() }))
@@ -224,7 +224,7 @@ const typedJob = defineJob<"my_job", { userId: number }, { success: boolean }>(
   });
 
 // Type-safe dispatch
-await jobManager.dispatch("my_job", {
+await jobManager.dispatch('my_job', {
   userId: 123, // TypeScript will error if you pass wrong type
 });
 ```
@@ -234,13 +234,13 @@ await jobManager.dispatch("my_job", {
 Jobs automatically retry on failure based on your configuration:
 
 ```typescript
-const retryJob = defineJob<"retry_example", MyData, MyResult>("retry_example")
-  .retry(3, 1000, { type: "exponential", delay: 1000 })
+const retryJob = defineJob<'retry_example', MyData, MyResult>('retry_example')
+  .retry(3, 1000, { type: 'exponential', delay: 1000 })
   .handler(async ({ job, app }) => {
     // If this throws an error, it will retry up to 3 times
     // with exponential backoff
     if (Math.random() > 0.5) {
-      throw new Error("Random failure");
+      throw new Error('Random failure');
     }
     return { success: true };
   });
@@ -260,13 +260,13 @@ The board provides:
 ## Complete Example
 
 ```typescript
-import { defineJob } from "@next/queues/client";
-import { JobManager } from "@next/queues/manager";
-import { z } from "zod";
-import type { FastifyInstance } from "fastify";
+import { defineJob } from '@next/queues/client';
+import { JobManager } from '@next/queues/manager';
+import { z } from 'zod';
+import type { FastifyInstance } from 'fastify';
 
 // 1. Define your jobs
-const emailJob = defineJob<"send_email", EmailData, EmailResult>("send_email")
+const emailJob = defineJob<'send_email', EmailData, EmailResult>('send_email')
   .input(
     z.object({
       to: z.string().email(),
@@ -280,24 +280,24 @@ const emailJob = defineJob<"send_email", EmailData, EmailResult>("send_email")
       sent: z.boolean(),
     })
   )
-  .retry(3, 1000, { type: "exponential", delay: 1000 })
+  .retry(3, 1000, { type: 'exponential', delay: 1000 })
   .concurrency(10)
   .removeOnComplete(30 * 24 * 60 * 60, 1000)
   .handler(async ({ job, app }) => {
-    app.log.info({ data: job.data }, "Sending email");
-    return { messageId: "123", sent: true };
+    app.log.info({ data: job.data }, 'Sending email');
+    return { messageId: '123', sent: true };
   });
 
-const cleanupJob = defineJob<"cleanup", Record<string, never>, void>("cleanup")
-  .every("0 2 * * *", "UTC")
+const cleanupJob = defineJob<'cleanup', Record<string, never>, void>('cleanup')
+  .every('0 2 * * *', 'UTC')
   .handler(async ({ app }) => {
-    app.log.info("Running cleanup");
+    app.log.info('Running cleanup');
   });
 
 // 2. Setup function
 export async function setupQueues(app: FastifyInstance) {
-  const redisURL = new URL(process.env.REDIS_URL || "redis://localhost:6379");
-  const jobManager = new JobManager(app, redisURL, "/admin/jobs");
+  const redisURL = new URL(process.env.REDIS_URL || 'redis://localhost:6379');
+  const jobManager = new JobManager(app, redisURL, '/admin/jobs');
 
   jobManager.register(emailJob).register(cleanupJob);
 
@@ -308,13 +308,13 @@ export async function setupQueues(app: FastifyInstance) {
 }
 
 // 3. Use in your routes
-app.post("/send-email", async (request, reply) => {
-  const traceId = request.headers["x-trace-id"] as string;
+app.post('/send-email', async (request, reply) => {
+  const traceId = request.headers['x-trace-id'] as string;
 
-  await jobManager.dispatch("send_email", {
-    to: "user@example.com",
-    subject: "Hello",
-    body: "World",
+  await jobManager.dispatch('send_email', {
+    to: 'user@example.com',
+    subject: 'Hello',
+    body: 'World',
     globalTraceId: traceId,
   });
 

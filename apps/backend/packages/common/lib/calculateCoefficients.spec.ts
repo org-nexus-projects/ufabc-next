@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+
 import { calculateCoefficients } from './calculateCoefficients';
 
 describe('common.lib.calculateCoefficients', () => {
@@ -74,7 +75,10 @@ describe('common.lib.calculateCoefficients', () => {
       mandatory_credits_number: 90,
     };
 
-    const result: any = calculateCoefficients(mockedDisciplines as any, mockedGraduation as any);
+    const result: any = calculateCoefficients(
+      mockedDisciplines as any,
+      mockedGraduation as any
+    );
     assert.deepEqual(0.089, result['2020'][3].cp_acumulado);
     assert.deepEqual(0.211, result['2021'][1].cp_acumulado);
   });

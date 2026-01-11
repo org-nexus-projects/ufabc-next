@@ -1,6 +1,8 @@
-import { TRACING_DIRECTION, TRACING_MESSAGES } from '@/constants.js';
-import { fastifyPlugin as fp } from 'fastify-plugin';
 import type { FastifyBaseLogger } from 'fastify';
+
+import { fastifyPlugin as fp } from 'fastify-plugin';
+
+import { TRACING_DIRECTION, TRACING_MESSAGES } from '@/constants.js';
 
 declare module '@fastify/request-context' {
   interface RequestContextData {
@@ -28,7 +30,7 @@ export default fp(async (app) => {
         headers: request.headers, // Redaction should happen at the Pino level
         queryParams: request.query,
       },
-      TRACING_MESSAGES.INCOMING_REQUEST,
+      TRACING_MESSAGES.INCOMING_REQUEST
     );
   });
 
@@ -53,12 +55,12 @@ export default fp(async (app) => {
     if (status >= 500) {
       request.log.error(
         { ...logData, ...(hasError && { error: reply.error }) },
-        TRACING_MESSAGES.OUTGOING_RESPONSE_WITH_5XX_STATUS,
+        TRACING_MESSAGES.OUTGOING_RESPONSE_WITH_5XX_STATUS
       );
     } else if (status >= 400) {
       request.log.warn(
         { ...logData, ...(hasError && { error: reply.error }) },
-        TRACING_MESSAGES.OUTGOING_RESPONSE_WITH_4XX_STATUS,
+        TRACING_MESSAGES.OUTGOING_RESPONSE_WITH_4XX_STATUS
       );
     } else {
       request.log.info(logData, TRACING_MESSAGES.OUTGOING_RESPONSE);

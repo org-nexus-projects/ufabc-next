@@ -36,6 +36,7 @@
     "@fastify/swagger": "catalog:",
     "@fastify/swagger-ui": "catalog:",
     "@next/common": "workspace:*",
+    "@next/db": "workspace:*",
     "@next/queues": "workspace:*",
     "@notionhq/client": "catalog:",
     "bullmq": "catalog:",
@@ -76,8 +77,5 @@
     "typescript-transform-paths": "catalog:",
     "vite-tsconfig-paths": "catalog:",
     "vitest": "catalog:"
-  },
-  "engines": {
-    "node": "^22"
   }
 }

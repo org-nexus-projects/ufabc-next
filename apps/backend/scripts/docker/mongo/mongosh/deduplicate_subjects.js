@@ -16,7 +16,9 @@ log('Starting deduplication by search field...');
 // SAFETY CHECK: Count enrollments and comments before deduplication
 const preEnrollmentsCount = db.enrollments.countDocuments();
 const preCommentsCount = db.comments.countDocuments();
-log(`Pre-deduplication: enrollments=${preEnrollmentsCount}, comments=${preCommentsCount}`);
+log(
+  `Pre-deduplication: enrollments=${preEnrollmentsCount}, comments=${preCommentsCount}`
+);
 
 const duplicateGroups = db.subjects
   .aggregate([
@@ -38,8 +40,10 @@ let totalDeleted = 0;
 for (const group of duplicateGroups) {
   // Sort by createdAt ascending, then by _id as tiebreaker
   const sorted = group.docs.sort((a, b) => {
-    const aTime = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt);
-    const bTime = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt);
+    const aTime =
+      a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt);
+    const bTime =
+      b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt);
     if (aTime < bTime) return -1;
     if (aTime > bTime) return 1;
     return a._id.str < b._id.str ? -1 : 1;
@@ -57,7 +61,7 @@ for (const group of duplicateGroups) {
       .getCollection(name)
       .updateMany(
         { [field]: { $in: duplicates.map((d) => d._id) } },
-        { $set: { [field]: canonical._id } },
+        { $set: { [field]: canonical._id } }
       );
     if (res.modifiedCount > 0) {
       log(`Updated ${res.modifiedCount} docs in ${name}`);
@@ -66,7 +70,9 @@ for (const group of duplicateGroups) {
   }
 
   // Delete duplicate subjects
-  const delRes = db.subjects.deleteMany({ _id: { $in: duplicates.map((d) => d._id) } });
+  const delRes = db.subjects.deleteMany({
+    _id: { $in: duplicates.map((d) => d._id) },
+  });
   if (delRes.deletedCount > 0) {
     log(`Deleted ${delRes.deletedCount} duplicate subjects`);
     totalDeleted += delRes.deletedCount;
@@ -74,20 +80,22 @@ for (const group of duplicateGroups) {
 }
 
 log(
-  `Deduplication complete. Duplicates merged: ${totalDuplicates}, References updated: ${totalUpdated}, Subjects deleted: ${totalDeleted}`,
+  `Deduplication complete. Duplicates merged: ${totalDuplicates}, References updated: ${totalUpdated}, Subjects deleted: ${totalDeleted}`
 );
 
 // SAFETY CHECK: Count enrollments and comments after deduplication
 const postEnrollmentsCount = db.enrollments.countDocuments();
 const postCommentsCount = db.comments.countDocuments();
-log(`Post-deduplication: enrollments=${postEnrollmentsCount}, comments=${postCommentsCount}`);
+log(
+  `Post-deduplication: enrollments=${postEnrollmentsCount}, comments=${postCommentsCount}`
+);
 
 if (preEnrollmentsCount !== postEnrollmentsCount) {
   log(
     'WARNING: Enrollment count changed! Before: ' +
       preEnrollmentsCount +
       ', After: ' +
-      postEnrollmentsCount,
+      postEnrollmentsCount
   );
 } else {
   log('SUCCESS: Enrollment count unchanged.');
@@ -97,7 +105,7 @@ if (preCommentsCount !== postCommentsCount) {
     'WARNING: Comments count changed! Before: ' +
       preCommentsCount +
       ', After: ' +
-      postCommentsCount,
+      postCommentsCount
   );
 } else {
   log('SUCCESS: Comments count unchanged.');

@@ -1,12 +1,16 @@
+import type { ConnectionOptions, WorkerOptions } from 'bullmq';
+
+import { processComponentsTeachers } from './jobs/components-teacher.job.js';
+import { processComponent, syncComponents } from './jobs/components.job.js';
 import { sendConfirmationEmail, sendBulkEmail } from './jobs/email.job.js';
 import { processSingleEnrollment } from './jobs/enrollments.job.js';
-import { updateTeachers } from './jobs/teacher-update.job.js';
-import { processComponent, syncComponents } from './jobs/components.job.js';
-import { processComponentEnrollment, userEnrollmentsUpdate } from './jobs/user-enrollments.job.js';
-import type { ConnectionOptions, WorkerOptions } from 'bullmq';
-import { processComponentsTeachers } from './jobs/components-teacher.job.js';
 import { uploadLogsToS3 } from './jobs/logs.job.js';
 import { postInfoIntoNotionDB } from './jobs/notion-help.job.js';
+import { updateTeachers } from './jobs/teacher-update.job.js';
+import {
+  processComponentEnrollment,
+  userEnrollmentsUpdate,
+} from './jobs/user-enrollments.job.js';
 
 type JobNames =
   | 'send_email'
@@ -20,7 +24,9 @@ type JobNames =
 
 const MONTH = 60 * 60 * 24 * 30;
 
-const redisURL = new URL(process.env.REDIS_CONNECTION_URL ?? 'redis://localhost:6379');
+const redisURL = new URL(
+  process.env.REDIS_CONNECTION_URL ?? 'redis://localhost:6379'
+);
 
 export const redisConnection: ConnectionOptions = {
   username: redisURL.username,
@@ -29,7 +35,9 @@ export const redisConnection: ConnectionOptions = {
   port: Number(redisURL.port),
 };
 
-function withConnection(opts: Omit<WorkerOptions, 'connection'>): WorkerOptions {
+function withConnection(
+  opts: Omit<WorkerOptions, 'connection'>
+): WorkerOptions {
   return { ...opts, connection: redisConnection };
 }
 

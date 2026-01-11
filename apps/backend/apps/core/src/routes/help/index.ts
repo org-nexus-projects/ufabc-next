@@ -1,5 +1,6 @@
-import { type HelpForm } from '@/schemas/help.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+
+import { type HelpForm } from '@/schemas/help.js';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.post(
@@ -42,7 +43,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           error: 'Failed to process help form. Please try again later.',
         });
       }
-    },
+    }
   );
 };
 

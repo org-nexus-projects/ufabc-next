@@ -1,4 +1,5 @@
 import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
+
 import { z } from 'zod';
 
 const helpFormBodySchema = z.object({
@@ -8,7 +9,10 @@ const helpFormBodySchema = z.object({
     .string()
     .max(120)
     .openapi({ description: 'pequeno titulo explicando o problema' }),
-  problemDescription: z.string().max(5000).openapi({ description: 'descrição do problema' }),
+  problemDescription: z
+    .string()
+    .max(5000)
+    .openapi({ description: 'descrição do problema' }),
   imageBuffer: z.string().optional(),
   imageFilename: z.string().optional(),
   imageMimeType: z.string().optional(),

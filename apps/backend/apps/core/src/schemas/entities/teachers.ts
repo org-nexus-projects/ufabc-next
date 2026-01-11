@@ -1,4 +1,5 @@
 import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
+
 import { camelCase, startCase } from 'lodash-es';
 import { z } from 'zod';
 
@@ -11,7 +12,8 @@ export const listTeachersSchema = {
           schema: z
             .object({
               name: z.string().openapi({
-                description: 'Nome do professor, pode vir minusculo ou em Title Case',
+                description:
+                  'Nome do professor, pode vir minusculo ou em Title Case',
                 example: 'John Doe / john doe',
               }),
               alias: z
@@ -19,7 +21,8 @@ export const listTeachersSchema = {
                 .array()
                 .nullish()
                 .openapi({
-                  description: 'Outros nomes pelo qual o professor ja pode ter aparecido',
+                  description:
+                    'Outros nomes pelo qual o professor ja pode ter aparecido',
                   example: ['Johnzinho doe'],
                 }),
             })

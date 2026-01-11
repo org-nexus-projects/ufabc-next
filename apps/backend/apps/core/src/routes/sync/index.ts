@@ -1,12 +1,14 @@
-import { createHash } from 'node:crypto';
-import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
-import { syncEnrollmentsSchema } from '@/schemas/sync/enrollments.js';
-import { syncComponentsSchema } from '@/schemas/sync/components.js';
-import { TeacherModel } from '@/models/Teacher.js';
-import { ComponentModel, type Component } from '@/models/Component.js';
-import { syncEnrolledSchema } from '@/schemas/sync/enrolled.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+
+import { createHash } from 'node:crypto';
+
+import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
+import { ComponentModel, type Component } from '@/models/Component.js';
 import { SubjectModel } from '@/models/Subject.js';
+import { TeacherModel } from '@/models/Teacher.js';
+import { syncComponentsSchema } from '@/schemas/sync/components.js';
+import { syncEnrolledSchema } from '@/schemas/sync/enrolled.js';
+import { syncEnrollmentsSchema } from '@/schemas/sync/enrollments.js';
 
 export type StudentEnrollment = Component & {
   ra: number;
@@ -16,7 +18,6 @@ export type StudentEnrollment = Component & {
 type SyncError = {
   original: string;
   parserError: string[];
-  // biome-ignore lint/suspicious/noExplicitAny: metadata can be any type
   metadata?: any;
   type: 'MATCHING_FAILED' | 'MISSING_MANDATORY_FIELDS' | 'TEACHER_NOT_FOUND';
 };
@@ -55,14 +56,20 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
         for (const studentClass of classes) {
           const isMissingAllMandatory = Object.keys(studentClass).every(
-            (f) => !MANDATORY_FIELDS.includes(f),
+            (f) => !MANDATORY_FIELDS.includes(f)
           );
-          const isErrorParsingName = studentClass.errors?.includes('Could not parse name:');
+          const isErrorParsingName = studentClass.errors?.includes(
+            'Could not parse name:'
+          );
 
-          if (isMissingAllMandatory && isErrorParsingName && !studentClass.name) {
+          if (
+            isMissingAllMandatory &&
+            isErrorParsingName &&
+            !studentClass.name
+          ) {
             app.log.warn(
               { studentClass },
-              'Component missing mandatory fields or has parse errors',
+              'Component missing mandatory fields or has parse errors'
             );
             errors.push({
               original: studentClass.original,
@@ -79,7 +86,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
               {
                 search: studentClass.original,
               },
-              'could not find matching component via criteria',
+              'could not find matching component via criteria'
             );
             // collect and move on
             errors.push({
@@ -111,9 +118,13 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         tenantEnrollments.push(preInsertEnrollments);
       }
 
-      const enrollments = tenantEnrollments.flatMap((enrollment) => enrollment.enrollments);
+      const enrollments = tenantEnrollments.flatMap(
+        (enrollment) => enrollment.enrollments
+      );
 
-      const enrollmentsHash = createHash('md5').update(JSON.stringify(enrollments)).digest('hex');
+      const enrollmentsHash = createHash('md5')
+        .update(JSON.stringify(enrollments))
+        .digest('hex');
 
       if (enrollmentsHash !== hash) {
         return {
@@ -124,7 +135,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         };
       }
 
-      const isAllComponentsMatched = errors.every((e) => e.type !== 'MATCHING_FAILED');
+      const isAllComponentsMatched = errors.every(
+        (e) => e.type !== 'MATCHING_FAILED'
+      );
 
       if (isAllComponentsMatched) {
         const enrollmentJobs = enrollments.map(
@@ -139,7 +152,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
                 msg: 'Failed to dispatch enrollment processing job',
               });
             }
-          },
+          }
         );
         await Promise.all(enrollmentJobs);
         return reply.send({
@@ -154,7 +167,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         errors,
         size: enrollments.length,
       });
-    },
+    }
   );
 
   app.put(
@@ -165,7 +178,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     },
     async (request, reply) => {
       const { season, hash, ignoreErrors, kind } = request.body;
-      const componentsWithTeachers = await connector.getComponentsFile(season, kind);
+      const componentsWithTeachers = await connector.getComponentsFile(
+        season,
+        kind
+      );
 
       const teacherCache = new Map();
       const errors: Array<SyncError> = [];
@@ -176,7 +192,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           .toLowerCase()
           .normalize('NFD')
           .replace(/\u0300-\u036f/g, '');
-        if (teacherCache.has(normalizedName)) return teacherCache.get(normalizedName);
+        if (teacherCache.has(normalizedName))
+          return teacherCache.get(normalizedName);
         // @ts-ignore Complex Type Mismatch
         const teacher = await TeacherModel.findByFuzzName(normalizedName);
         if (!teacher && normalizedName !== '0') {
@@ -281,12 +298,16 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             pratica,
             ignoreErrors,
           };
-        }),
+        })
       );
 
       if (!ignoreErrors && errors.length > 0) {
-        const teacherErrors = errors.filter((e) => e.type === 'TEACHER_NOT_FOUND');
-        const matchingErrors = errors.filter((e) => e.type === 'MATCHING_FAILED');
+        const teacherErrors = errors.filter(
+          (e) => e.type === 'TEACHER_NOT_FOUND'
+        );
+        const matchingErrors = errors.filter(
+          (e) => e.type === 'MATCHING_FAILED'
+        );
         return reply.status(403).send({
           msg: 'Errors found while verifying components',
           errors: {
@@ -301,7 +322,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         });
       }
 
-      const componentHash = createHash('md5').update(JSON.stringify(components)).digest('hex');
+      const componentHash = createHash('md5')
+        .update(JSON.stringify(components))
+        .digest('hex');
       if (componentHash !== hash) {
         return {
           hash: componentHash,
@@ -350,8 +373,12 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         }
       });
       const dispatchResults = await Promise.all(dispatchPromises);
-      const successfulDispatches = dispatchResults.filter((r) => r.success).length;
-      const ignoredErrors = dispatchResults.filter((r) => !r.success && r.ignored).length;
+      const successfulDispatches = dispatchResults.filter(
+        (r) => r.success
+      ).length;
+      const ignoredErrors = dispatchResults.filter(
+        (r) => !r.success && r.ignored
+      ).length;
       return reply.send({
         dispatched: true,
         msg: 'Component teacher sync jobs dispatched',
@@ -359,7 +386,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         successfulDispatches,
         ignoredErrors: ignoreErrors ? ignoredErrors : 0,
       });
-    },
+    }
   );
 
   app.put(
@@ -389,7 +416,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
                   [operation]: students,
                 },
               },
-              { upsert: true, new: true },
+              { upsert: true, new: true }
             );
           } catch (error) {
             request.log.error({
@@ -398,7 +425,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
               msg: 'Failed to process Enrolled processing job',
             });
           }
-        },
+        }
       );
 
       const processed = await Promise.all(enrolledOperationsPromises);
@@ -408,7 +435,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         time: Date.now() - start,
         componentsProcessed: processed.length,
       };
-    },
+    }
   );
 };
 

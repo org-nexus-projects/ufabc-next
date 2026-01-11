@@ -41,5 +41,5 @@ export default fp(
 
     app.decorate('cache', cacheFactory);
   },
-  { name: 'cache' },
+  { name: 'cache' }
 );

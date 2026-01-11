@@ -1,5 +1,6 @@
-import { currentQuad } from '@next/common';
 import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
+
+import { currentQuad } from '@next/common';
 import { Types } from 'mongoose';
 import { z } from 'zod';
 import 'zod-openapi/extend';
@@ -26,11 +27,19 @@ const NonPaginatedComponentsSchema = z.object({
   groupURL: z.string().optional().openapi({
     description: 'Link do grupo de WhatsApp',
   }),
-  uf_cod_turma: z.string().optional().openapi({ description: 'Código da turma na UFABC' }),
-  subjectId: z.coerce.string().optional().openapi({ description: 'Id interno' }),
+  uf_cod_turma: z
+    .string()
+    .optional()
+    .openapi({ description: 'Código da turma na UFABC' }),
+  subjectId: z.coerce
+    .string()
+    .optional()
+    .openapi({ description: 'Id interno' }),
 });
 
-export type NonPaginatedComponents = z.infer<typeof NonPaginatedComponentsSchema>;
+export type NonPaginatedComponents = z.infer<
+  typeof NonPaginatedComponentsSchema
+>;
 
 export const listComponentsSchema = {
   tags: ['Components'],
@@ -48,7 +57,7 @@ export const listComponentsSchema = {
 
           return true;
         },
-        { message: 'Season deve seguir o padrão ano:quadrimestre' },
+        { message: 'Season deve seguir o padrão ano:quadrimestre' }
       ),
   }),
   response: {

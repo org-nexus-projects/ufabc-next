@@ -1,7 +1,13 @@
-import { type InferSchemaType, Schema, isObjectIdOrHexString, model } from 'mongoose';
-import { UserModel } from './User.js';
+import {
+  type InferSchemaType,
+  Schema,
+  isObjectIdOrHexString,
+  model,
+} from 'mongoose';
+
 import { CommentModel } from './Comment.js';
 import { EnrollmentModel } from './Enrollment.js';
+import { UserModel } from './User.js';
 
 const REACTIONS_KIND = ['like', 'recommendation', 'star'] as const;
 const reactionSchema = new Schema(
@@ -35,7 +41,7 @@ const reactionSchema = new Schema(
       default: null,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 async function validateRules(reaction: ReactionDocument) {
@@ -57,7 +63,7 @@ async function validateRules(reaction: ReactionDocument) {
 
     if (!isValid)
       throw new Error(
-        'Você não pode recomendar este comentário, pois não fez nenhuma matéria com este professor',
+        'Você não pode recomendar este comentário, pois não fez nenhuma matéria com este professor'
       );
   }
 }
@@ -78,7 +84,7 @@ async function computeReactions(reaction: ReactionDocument) {
     { _id: commentId },
     {
       $set: updateReactionKind,
-    },
+    }
   );
 }
 
@@ -87,7 +93,9 @@ reactionSchema.pre('save', async function () {
   if (this.isNew) {
     const equalReaction = await this.collection.findOne({ slug });
     if (equalReaction) {
-      throw new Error('Você não pode reagir duas vezes iguais ao mesmo comentário');
+      throw new Error(
+        'Você não pode reagir duas vezes iguais ao mesmo comentário'
+      );
     }
     this.slug = slug;
   }
@@ -100,12 +108,12 @@ reactionSchema.post('save', { query: false }, async function () {
 });
 
 reactionSchema.post<ReactionDocument>(
-  // @ts-ignore
   'deleteOne',
+  // @ts-ignore
   { query: false },
   async function () {
     await computeReactions(this);
-  },
+  }
 );
 
 reactionSchema.index({ comment: 'asc', kind: 'asc' });

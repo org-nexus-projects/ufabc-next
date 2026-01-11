@@ -1,3 +1,8 @@
+import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+import type { QueryFilter as FilterQuery, PipelineStage } from 'mongoose';
+
+import { currentQuad } from '@next/common';
+
 import { CommentModel } from '@/models/Comment.js';
 import { type Component, ComponentModel } from '@/models/Component.js';
 import { EnrollmentModel } from '@/models/Enrollment.js';
@@ -10,11 +15,9 @@ import {
   listStudentStats,
   type GraduationList,
 } from '@/schemas/public.js';
-import { currentQuad } from '@next/common';
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import type { FilterQuery, PipelineStage } from 'mongoose';
-import { getAllCourses } from './service.js';
 import { resolveStep } from '@/utils/resolve-stats-steps.js';
+
+import { getAllCourses } from './service.js';
 
 type ComponentsStats = {
   teachers: number;
@@ -83,15 +86,16 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       },
     ];
 
-    const [users, currentStudents, comments, enrollments, [componentStats]] = await Promise.all([
-      UserModel.countDocuments({}),
-      StudentModel.countDocuments({}),
-      CommentModel.countDocuments({}),
-      EnrollmentModel.countDocuments({
-        conceito: { $in: ['A', 'B', 'C', 'D', '0', 'F'] },
-      }),
-      ComponentModel.aggregate<ComponentsStats>(componentStatsFacetQuery),
-    ]);
+    const [users, currentStudents, comments, enrollments, [componentStats]] =
+      await Promise.all([
+        UserModel.countDocuments({}),
+        StudentModel.countDocuments({}),
+        CommentModel.countDocuments({}),
+        EnrollmentModel.countDocuments({
+          conceito: { $in: ['A', 'B', 'C', 'D', '0', 'F'] },
+        }),
+        ComponentModel.aggregate<ComponentsStats>(componentStatsFacetQuery),
+      ]);
 
     const [allStudents] = componentStats.studentTotal.map(({ total }) => total);
     const summary = {
@@ -109,23 +113,27 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return summary;
   });
 
-  app.get('/graduations', { schema: listGraduationsSchema, logLevel: 'silent' }, async () => {
-    const graduations = await GraduationModel.find(
-      {
-        grade: { $exists: true },
-      },
-      {
-        _id: 0,
-        createdAt: 0,
-        locked: 0,
-        updatedAt: 0,
-        __v: 0,
-        creditsBreakdown: 0,
-      },
-    ).lean<GraduationList[]>();
+  app.get(
+    '/graduations',
+    { schema: listGraduationsSchema, logLevel: 'silent' },
+    async () => {
+      const graduations = await GraduationModel.find(
+        {
+          grade: { $exists: true },
+        },
+        {
+          _id: 0,
+          createdAt: 0,
+          locked: 0,
+          updatedAt: 0,
+          __v: 0,
+          creditsBreakdown: 0,
+        }
+      ).lean<GraduationList[]>();
 
-    return graduations;
-  });
+      return graduations;
+    }
+  );
 
   app.get(
     '/stats/student',
@@ -159,7 +167,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       ]);
 
       return studentsStats;
-    },
+    }
   );
 
   app.get('/stats/usage', { logLevel: 'silent' }, async () => {
@@ -235,7 +243,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       }),
     };
 
-    const platformGeneralStats = Object.assign({}, disciplinasStats, generalStatsCount);
+    const platformGeneralStats = Object.assign(
+      {},
+      disciplinasStats,
+      generalStatsCount
+    );
 
     return platformGeneralStats;
   });
@@ -349,12 +361,12 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             data: 1,
             page: 1,
           },
-        },
+        }
       );
 
       const [result] = await ComponentModel.aggregate(pipeline);
       return result;
-    },
+    }
   );
 };
 

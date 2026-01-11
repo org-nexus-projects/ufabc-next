@@ -1,13 +1,17 @@
-import { gradesStatsSchema, userGradesSchema } from '@/schemas/courseStats.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+
+import { calculateCoefficients } from '@next/common';
+
+import type { GraduationHistory } from '@/models/GraduationHistory.js';
+
+import { gradesStatsSchema, userGradesSchema } from '@/schemas/courseStats.js';
+
 import {
   findLatestHistory,
   findOneGraduation,
   getCrDistribution,
   getGraduationHistory,
 } from './service.js';
-import { calculateCoefficients } from '@next/common';
-import type { GraduationHistory } from '@/models/GraduationHistory.js';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get('/grades', { schema: gradesStatsSchema }, async (request, reply) => {
@@ -40,7 +44,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     let graduation = null;
     if (lastHistory.curso && lastHistory.grade) {
-      graduation = await findOneGraduation(lastHistory.curso, lastHistory.grade);
+      graduation = await findOneGraduation(
+        lastHistory.curso,
+        lastHistory.grade
+      );
     }
 
     const coefficients =
@@ -74,7 +81,7 @@ function normalizeHistory(history: GraduationHistory['coefficients']) {
           season: `${graduationYear}:${month}`,
           quad: Number.parseInt(month),
           year: Number.parseInt(graduationYear),
-        }),
+        })
       );
     }
   }

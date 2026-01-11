@@ -1,5 +1,5 @@
-import { createHash } from 'node:crypto';
 import { camelCase } from 'lodash-es';
+import { createHash } from 'node:crypto';
 
 type Disciplina = {
   nome: string;
@@ -43,14 +43,19 @@ type KeysOptions =
   | 'year'
   | 'quad';
 
-const DEFAULT_FIELDS_TO_ENCODE = ['disciplina', 'turno', 'campus', 'turma'] as const;
+const DEFAULT_FIELDS_TO_ENCODE = [
+  'disciplina',
+  'turno',
+  'campus',
+  'turma',
+] as const;
 
 /**
  * Generates a unique identifier for a given disciplina
  * */
 export function generateIdentifier(
   disciplina: Partial<Disciplina>,
-  keys: KeysOptions[] | readonly KeysOptions[] = DEFAULT_FIELDS_TO_ENCODE,
+  keys: KeysOptions[] | readonly KeysOptions[] = DEFAULT_FIELDS_TO_ENCODE
 ) {
   const unorderedDisciplinas = keys.map((key) => String(disciplina[key]));
   const disciplinaToEncode = unorderedDisciplinas

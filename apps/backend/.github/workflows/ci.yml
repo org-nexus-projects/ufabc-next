@@ -32,7 +32,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24.x
 
       - uses: pnpm/action-setup@v4
 
@@ -55,7 +55,7 @@ jobs:
         run: pnpm build
 
       - name: 💪 Lint
-        run: pnpm lint:ci
+        run: pnpm lint
 
       - name: 💼 Type Check
         run: pnpm tsc

@@ -1,7 +1,8 @@
-import { z } from 'zod';
+import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
+
 import { Types } from 'mongoose';
 import 'zod-openapi/extend';
-import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
+import { z } from 'zod';
 
 const OauthSchema = z.object({
   google: z
@@ -79,7 +80,7 @@ export const completeUserSchema = {
             .or(
               z.object({
                 token: z.string(),
-              }),
+              })
             ),
         },
       },

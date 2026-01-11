@@ -1,7 +1,8 @@
+import type { AnyObject, QueryFilter as FilterQuery, Types } from 'mongoose';
+
 import { type Comment, CommentModel } from '@/models/Comment.js';
 import { EnrollmentModel } from '@/models/Enrollment.js';
 import { type Reaction, ReactionModel } from '@/models/Reaction.js';
-import type { AnyObject, FilterQuery, Types } from 'mongoose';
 
 export async function getUserEnrollments(ra: number) {
   const userEnrollments = await EnrollmentModel.find({
@@ -12,7 +13,7 @@ export async function getUserEnrollments(ra: number) {
 }
 
 export async function getUserComments(ra: number) {
-  const userComments = await CommentModel.find({ ra }).lean();
+  const userComments = await CommentModel.find({ ra: ra.toString() }).lean();
   return userComments;
 }
 
@@ -66,13 +67,15 @@ export async function getReactions({
     userId,
     [{ path: 'enrollment', select: '-ra' }, 'subject'],
     limit,
-    page,
+    page
   );
 
   return reactions;
 }
 
-export async function createReaction(reaction: Omit<Reaction, 'createdAt' | 'updatedAt'>) {
+export async function createReaction(
+  reaction: Omit<Reaction, 'createdAt' | 'updatedAt'>
+) {
   const createdReaction = await ReactionModel.create(reaction);
   return createdReaction;
 }

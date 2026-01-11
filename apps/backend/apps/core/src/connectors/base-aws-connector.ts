@@ -1,7 +1,9 @@
 import type { Client } from '@aws-sdk/types';
+
 import { requestContext } from '@fastify/request-context';
-import { logger as defaultLogger } from '@/utils/logger.js';
 import { randomUUID } from 'node:crypto';
+
+import { logger as defaultLogger } from '@/utils/logger.js';
 
 export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
   protected readonly client: TClient;
@@ -25,7 +27,7 @@ export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
             service: this.client.constructor.name,
             command: commandName,
           },
-          'AWS Request',
+          'AWS Request'
         );
 
         try {
@@ -38,7 +40,7 @@ export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
               // @ts-expect-error - $metadata is not typed
               metadata: result.response?.$metadata,
             },
-            'AWS Response Success',
+            'AWS Response Success'
           );
 
           return result;
@@ -49,12 +51,12 @@ export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
               command: commandName,
               error,
             },
-            'AWS Request Failed',
+            'AWS Request Failed'
           );
           throw error;
         }
       },
-      { step: 'initialize', name: 'NodeStackLoggingMiddleware' },
+      { step: 'initialize', name: 'NodeStackLoggingMiddleware' }
     );
   }
 

@@ -1,7 +1,9 @@
 import type { BackoffOptions, Job, JobsOptions, WorkerOptions } from 'bullmq';
 import type { FastifyInstance } from 'fastify';
-import { z } from 'zod';
+
 import ms from 'ms';
+import { z } from 'zod';
+
 import type { JobManager } from './manager.js';
 
 export type JobData<TData = unknown> = TData & {
@@ -24,15 +26,21 @@ export type InferHandlerData<TBuilder> =
       : TData
     : never;
 
-export interface JobContext<TData = unknown, TResult = unknown, TName extends string = string> {
+export interface JobContext<
+  TData = unknown,
+  TResult = unknown,
+  TName extends string = string,
+> {
   job: Job<JobData<TData>, TResult, TName>;
   app: FastifyInstance;
   manager: JobManager<any>; // prevent circular dependency
 }
 
-export type JobHandler<TData = unknown, TResult = unknown, TName extends string = string> = (
-  ctx: JobContext<TData, TResult, TName>,
-) => Promise<TResult>;
+export type JobHandler<
+  TData = unknown,
+  TResult = unknown,
+  TName extends string = string,
+> = (ctx: JobContext<TData, TResult, TName>) => Promise<TResult>;
 
 export class JobBuilder<
   TName extends string,
@@ -62,7 +70,9 @@ export class JobBuilder<
     this._name = name;
   }
 
-  input<T extends z.ZodTypeAny>(schema: T): JobBuilder<TName, z.infer<T>, TResult, TIterator> {
+  input<T extends z.ZodTypeAny>(
+    schema: T
+  ): JobBuilder<TName, z.infer<T>, TResult, TIterator> {
     this._inputSchema = schema as any;
     this._workerSchema = schema as any;
     return this as any;
@@ -124,7 +134,9 @@ export class JobBuilder<
    * Defines which field in the input schema is an array that should be
    * split into individual jobs. The handler will receive a single item.
    */
-  iterator<K extends keyof TData>(key: K): JobBuilder<TName, TData, TResult, K> {
+  iterator<K extends keyof TData>(
+    key: K
+  ): JobBuilder<TName, TData, TResult, K> {
     this._iteratorKey = key as any;
 
     // Internal Zod Transformation:
@@ -167,6 +179,8 @@ export class JobBuilder<
   }
 }
 
-export const defineJob = <T extends string, TData = any, TResult = any>(name: T) => {
+export const defineJob = <T extends string, TData = any, TResult = any>(
+  name: T
+) => {
   return new JobBuilder<T, TData, TResult, undefined>(name);
 };

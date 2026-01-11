@@ -1,7 +1,8 @@
+import { Types } from 'mongoose';
+
 import { EnrollmentModel } from '@/models/Enrollment.js';
 import { SubjectModel, type Subject } from '@/models/Subject.js';
 import { TeacherModel, type Teacher } from '@/models/Teacher.js';
-import { Types } from 'mongoose';
 
 type SearchResult = {
   total: number;
@@ -34,7 +35,16 @@ export async function rawReviews(teacherId: Types.ObjectId) {
               {
                 $in: [
                   '$season',
-                  ['2020:1', '2020:2', '2020:3', '2021:1', '2021:2', '2021:3', '2022:1', '2022:2'],
+                  [
+                    '2020:1',
+                    '2020:2',
+                    '2020:3',
+                    '2021:1',
+                    '2021:2',
+                    '2021:3',
+                    '2022:1',
+                    '2022:2',
+                  ],
                 ],
               },
               1,
@@ -113,7 +123,11 @@ export async function rawReviews(teacherId: Types.ObjectId) {
         count: 1,
         eadCount: 1,
         cr_professor: {
-          $cond: [{ $eq: ['$amount', 0] }, 'N/A', { $divide: ['$numericWeight', '$amount'] }],
+          $cond: [
+            { $eq: ['$amount', 0] },
+            'N/A',
+            { $divide: ['$numericWeight', '$amount'] },
+          ],
         },
       },
     },
@@ -164,15 +178,16 @@ export async function findAndUpdate(id: string, alias: string) {
   const teacherWithAlias = await TeacherModel.findOneAndUpdate(
     { _id: new Types.ObjectId(id) },
     { alias },
-    { new: true },
+    { new: true }
   ).lean<Teacher>();
 
   return teacherWithAlias;
 }
 
 export async function listAll() {
-  const teachers = await TeacherModel.find({}, { _id: 0, name: 1, alias: 1 }).lean<
-    { name: string; alias: string[] }[]
-  >();
+  const teachers = await TeacherModel.find(
+    {},
+    { _id: 0, name: 1, alias: 1 }
+  ).lean<{ name: string; alias: string[] }[]>();
   return teachers;
 }

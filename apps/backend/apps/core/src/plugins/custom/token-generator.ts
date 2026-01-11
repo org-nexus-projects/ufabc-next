@@ -1,6 +1,12 @@
-import { fastifyPlugin as fp } from 'fastify-plugin';
-import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
+
+import { fastifyPlugin as fp } from 'fastify-plugin';
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  randomBytes,
+} from 'node:crypto';
 
 declare module 'fastify' {
   export interface FastifyInstance {
@@ -14,7 +20,11 @@ type TokenPayload = {
   expiresAt: number;
 };
 
-function createToken(text: string, config: FastifyInstance['config'], ttlSeconds = 3600): string {
+function createToken(
+  text: string,
+  config: FastifyInstance['config'],
+  ttlSeconds = 3600
+): string {
   // Validate inputs
   if (!text || typeof text !== 'string') {
     throw new Error('Invalid input: text must be a non-empty string');
@@ -42,7 +52,10 @@ function createToken(text: string, config: FastifyInstance['config'], ttlSeconds
   });
 
   const jsonPayload = JSON.stringify(payload);
-  const encrypted = Buffer.concat([cipher.update(jsonPayload, 'utf8'), cipher.final()]);
+  const encrypted = Buffer.concat([
+    cipher.update(jsonPayload, 'utf8'),
+    cipher.final(),
+  ]);
 
   const authTag = cipher.getAuthTag();
 
@@ -58,7 +71,9 @@ function createToken(text: string, config: FastifyInstance['config'], ttlSeconds
 function verifyToken(token: string, config: FastifyInstance['config']): string {
   try {
     // Decode token components
-    const components = JSON.parse(Buffer.from(token, 'base64').toString('utf8')) as {
+    const components = JSON.parse(
+      Buffer.from(token, 'base64').toString('utf8')
+    ) as {
       iv: string;
       data: string;
       tag: string;
@@ -73,7 +88,7 @@ function verifyToken(token: string, config: FastifyInstance['config']): string {
     const decipher = createDecipheriv(
       'aes-256-gcm',
       createHash('sha256').update(config.JWT_SECRET).digest(),
-      Buffer.from(components.iv, 'base64'),
+      Buffer.from(components.iv, 'base64')
     );
 
     // Set auth tag
@@ -108,5 +123,5 @@ export default fp(
   },
   {
     name: 'token-generator',
-  },
+  }
 );

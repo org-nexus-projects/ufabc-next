@@ -21,7 +21,7 @@ const subjectSchema = new Schema(
       required: true,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 subjectSchema.pre('save', function () {

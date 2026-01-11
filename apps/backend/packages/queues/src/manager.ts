@@ -1,4 +1,8 @@
-import type { InferJobData, JobBuilder, JobContext, JobData } from './builder.js';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+
+import { createBullBoard } from '@bull-board/api';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { FastifyAdapter } from '@bull-board/fastify';
 import {
   Queue,
   Worker,
@@ -8,18 +12,27 @@ import {
   type JobsOptions,
   type FlowJob,
 } from 'bullmq';
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { randomUUID } from 'node:crypto';
-import { FastifyAdapter } from '@bull-board/fastify';
-import { createBullBoard } from '@bull-board/api';
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 
-export type BoardAuthHook = (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
+import type {
+  InferJobData,
+  JobBuilder,
+  JobContext,
+  JobData,
+} from './builder.js';
 
-export class JobManager<TRegistry extends Record<string, JobBuilder<any, any, any, any>>> {
+export type BoardAuthHook = (
+  request: FastifyRequest,
+  reply: FastifyReply
+) => Promise<void>;
+
+export class JobManager<
+  TRegistry extends Record<string, JobBuilder<any, any, any, any>>,
+> {
   private readonly queues: Map<string, Queue> = new Map();
   private readonly workers: Map<string, Worker> = new Map();
-  private readonly registeredJobs: Map<string, JobBuilder<any, any, any>> = new Map();
+  private readonly registeredJobs: Map<string, JobBuilder<any, any, any>> =
+    new Map();
   private readonly flowProducer: FlowProducer;
   private isStarted = false;
   private readonly redisConnection: ConnectionOptions;
@@ -29,7 +42,7 @@ export class JobManager<TRegistry extends Record<string, JobBuilder<any, any, an
     private readonly app: FastifyInstance,
     private readonly jobs: TRegistry,
     redisURL: URL,
-    boardPath: string,
+    boardPath: string
   ) {
     this.app = app;
     this.boardPath = boardPath;
@@ -52,7 +65,9 @@ export class JobManager<TRegistry extends Record<string, JobBuilder<any, any, an
     await this.flowProducer.add(flow);
   }
 
-  register<TName extends string, TData, TResult>(job: JobBuilder<TName, TData, TResult>): this {
+  register<TName extends string, TData, TResult>(
+    job: JobBuilder<TName, TData, TResult>
+  ): this {
     if (this.registeredJobs.has(job.name)) {
       this.app.log.warn({ name: job.name }, 'Job already registered, skipping');
       return this;
@@ -61,7 +76,7 @@ export class JobManager<TRegistry extends Record<string, JobBuilder<any, any, an
     this.registeredJobs.set(job.name, job);
     this.app.log.debug(
       { name: job.name, totalJobs: this.registeredJobs.size },
-      'Job registered with JobManager',
+      'Job registered with JobManager'
     );
     return this;
   }
@@ -79,9 +94,9 @@ export class JobManager<TRegistry extends Record<string, JobBuilder<any, any, an
       return;
     }
 
-    this.app.log.info(
+    this.app.log.debug(
       { totalJobs: this.registeredJobs.size },
-      'Starting JobManager with registered jobs',
+      'Starting JobManager with registered jobs'
     );
 
     for (const [name, builder] of this.registeredJobs) {
@@ -89,12 +104,15 @@ export class JobManager<TRegistry extends Record<string, JobBuilder<any, any, an
     }
 
     this.isStarted = true;
-    this.app.log.info({ totalJobs: this.queues.size }, 'JobManager started successfully');
+    this.app.log.info(
+      { totalJobs: this.queues.size },
+      'JobManager started successfully'
+    );
   }
 
   private async setup<TName extends string, TData, TResult>(
     name: TName,
-    jobBuilder: JobBuilder<TName, TData, TResult>,
+    jobBuilder: JobBuilder<TName, TData, TResult>
   ): Promise<void> {
     const queue = new Queue(name, {
       connection: this.redisConnection,
@@ -106,7 +124,7 @@ export class JobManager<TRegistry extends Record<string, JobBuilder<any, any, an
     if (jobBuilder.config.schedule) {
       this.app.log.debug(
         { name, schedule: jobBuilder.config.schedule },
-        'Setting up scheduled job',
+        'Setting up scheduled job'
       );
 
       await queue.upsertJobScheduler(name, {
@@ -115,12 +133,19 @@ export class JobManager<TRegistry extends Record<string, JobBuilder<any, any, an
       });
     }
 
-    const worker = new Worker(name, async (job) => this.handler(job, jobBuilder), {
-      ...jobBuilder.config.workerOptions,
-      connection: this.redisConnection,
-    });
+    const worker = new Worker(
+      name,
+      async (job) => this.handler(job, jobBuilder),
+      {
+        ...jobBuilder.config.workerOptions,
+        connection: this.redisConnection,
+      }
+    );
 
-    this.events(worker as unknown as Worker<JobData<TData>, TResult, string>, name);
+    this.events(
+      worker as unknown as Worker<JobData<TData>, TResult, string>,
+      name
+    );
 
     this.workers.set(name, worker);
 
@@ -128,7 +153,8 @@ export class JobManager<TRegistry extends Record<string, JobBuilder<any, any, an
   }
 
   private async handler(job: Job, jobBuilder: JobBuilder<any, any, any>) {
-    const schema = jobBuilder.config.workerSchema || jobBuilder.config.inputSchema;
+    const schema =
+      jobBuilder.config.workerSchema || jobBuilder.config.inputSchema;
 
     if (schema) {
       schema.parse(job.data);
@@ -149,7 +175,10 @@ export class JobManager<TRegistry extends Record<string, JobBuilder<any, any, an
     return result;
   }
 
-  private events<TData, TResult>(worker: Worker<TData, TResult, string>, name: string): void {
+  private events<TData, TResult>(
+    worker: Worker<TData, TResult, string>,
+    name: string
+  ): void {
     worker.on('active', (job) => {
       this.app.log.info({ data: job.data }, 'Job started');
     });
@@ -174,7 +203,7 @@ export class JobManager<TRegistry extends Record<string, JobBuilder<any, any, an
   async dispatch<TName extends Extract<keyof TRegistry, string>>(
     name: TName,
     data: InferJobData<TRegistry[TName]>,
-    options?: JobsOptions,
+    options?: JobsOptions
   ) {
     const queue = this.queues.get(name);
     const builder = this.registeredJobs.get(name);
@@ -205,7 +234,7 @@ export class JobManager<TRegistry extends Record<string, JobBuilder<any, any, an
   async schedule<TName extends Extract<keyof TRegistry, string>>(
     name: TName,
     data: InferJobData<TRegistry[TName]>,
-    options?: JobsOptions,
+    options?: JobsOptions
   ) {
     return this.dispatch(name, data, options);
   }
@@ -224,12 +253,12 @@ export class JobManager<TRegistry extends Record<string, JobBuilder<any, any, an
     adapter.setBasePath(this.boardPath);
 
     const bullMqAdapters = Array.from(this.queues.values()).map(
-      (queue) => new BullMQAdapter(queue),
+      (queue) => new BullMQAdapter(queue)
     );
 
     if (bullMqAdapters.length === 0) {
       this.app.log.warn(
-        '[QUEUE-V2] Board initialized with 0 queues. Ensure manager.start() was called first.',
+        '[QUEUE-V2] Board initialized with 0 queues. Ensure manager.start() was called first.'
       );
     }
 

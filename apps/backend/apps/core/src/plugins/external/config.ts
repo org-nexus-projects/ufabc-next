@@ -1,4 +1,5 @@
 import env, { type FastifyEnvOptions } from '@fastify/env';
+import { fastifyPlugin as fp } from 'fastify-plugin';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
@@ -18,7 +19,9 @@ const configSchema = z.object({
   HOST: z.string().min(4).default('0.0.0.0'),
   JWT_SECRET: z.string().default(JWT_SECRET),
   RATE_LIMIT_MAX: z.coerce.number().default(100),
-  MONGODB_CONNECTION_URL: z.string().default('mongodb://127.0.0.1:27017/ufabc-matricula'),
+  MONGODB_CONNECTION_URL: z
+    .string()
+    .default('mongodb://127.0.0.1:27017/ufabc-matricula'),
   REDIS_CONNECTION_URL: z.string().default('redis://localhost:6379'),
   WEB_URL: z.string().default(NEXT_WEB_LOCAL),
   ALLOWED_ORIGINS: z.string().transform((origins) => origins.split(',')),
@@ -43,6 +46,8 @@ const configSchema = z.object({
   BOARD_PATH: z.string().optional(),
   NOTION_INTEGRATION_SECRET: z.string().default('notion_integration_secret'),
   NOTION_DATABASE_ID: z.string().default('notion_database_id'),
+  UFABC_PARSER_REQUESTER_KEY: z.string(),
+  WEBHOOK_API_KEY: z.string().default('webhook-api-key'),
 });
 
 const schema = zodToJsonSchema(configSchema);
@@ -61,4 +66,9 @@ export const autoConfig = {
  *
  * @see {@link https://github.com/fastify/fastify-env}
  */
-export default env;
+export default fp(
+  async (app) => {
+    await app.register(env, autoConfig);
+  },
+  { name: 'config' }
+);

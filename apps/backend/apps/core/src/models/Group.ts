@@ -18,7 +18,7 @@ const groupSchema = new Schema(
       },
     ],
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 groupSchema.index({ users: 'desc' });

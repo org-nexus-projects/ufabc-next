@@ -1,10 +1,11 @@
+import type { QueryFilter as FilterQuery } from 'mongoose';
+
 import type { Component } from '@/models/Component.js';
-import type { FilterQuery } from 'mongoose';
 
 export function resolveStep(
   action: 'overview' | 'component' | 'courses',
   turno?: string,
-  courseId?: number,
+  courseId?: number
 ) {
   switch (action) {
     case 'overview':

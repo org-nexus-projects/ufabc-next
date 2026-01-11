@@ -1,4 +1,5 @@
 import { type InferSchemaType, Schema, model } from 'mongoose';
+
 import { GroupModel } from './Group.js';
 
 const COMMENT_TYPE = ['teoria', 'pratica'] as const;
@@ -75,7 +76,7 @@ const enrollmentSchema = new Schema(
     },
     disciplina_id: Number,
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 function setTheoryAndPractice(update: { $set: Partial<Enrollment> }) {
@@ -103,7 +104,7 @@ async function addEnrollmentToGroup(enrollment: EnrollmentDocument) {
       },
       {
         $push: { users: enrollment.ra },
-      },
+      }
     );
   }
 }
@@ -118,7 +119,7 @@ enrollmentSchema.index({
   conceito: 'asc',
 });
 
-enrollmentSchema.pre('findOneAndUpdate', function (next) {
+enrollmentSchema.pre('findOneAndUpdate', function () {
   const update = this.getUpdate();
 
   // @ts-ignore
@@ -130,10 +131,8 @@ enrollmentSchema.pre('findOneAndUpdate', function (next) {
   // Your existing pre update logic
   // @ts-ignore
   setTheoryAndPractice(update);
-  next();
 });
 
-// biome-ignore lint/complexity/useArrowFunction: Mongoose needs an anonymous func
 enrollmentSchema.post('findOneAndUpdate', async function (doc) {
   if (doc) {
     await addEnrollmentToGroup(doc);
@@ -141,5 +140,7 @@ enrollmentSchema.post('findOneAndUpdate', async function (doc) {
 });
 
 export type Enrollment = InferSchemaType<typeof enrollmentSchema>;
-export type EnrollmentDocument = ReturnType<(typeof EnrollmentModel)['hydrate']>;
+export type EnrollmentDocument = ReturnType<
+  (typeof EnrollmentModel)['hydrate']
+>;
 export const EnrollmentModel = model('enrollments', enrollmentSchema);

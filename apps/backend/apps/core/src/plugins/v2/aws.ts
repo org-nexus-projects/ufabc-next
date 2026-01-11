@@ -1,7 +1,9 @@
-import { S3Connector } from '@/connectors/s3-connector.js';
 import type { FastifyInstance } from 'fastify';
+
 import { S3Client } from '@aws-sdk/client-s3';
 import { fastifyPlugin as fp } from 'fastify-plugin';
+
+import { S3Connector } from '@/connectors/s3-connector.js';
 import { getAWSClientOptions } from '@/utils/aws-client-options.js';
 
 declare module 'fastify' {
@@ -28,8 +30,8 @@ export default fp(
         localstack: app.config.USE_LOCALSTACK,
         endpoint: app.config.LOCALSTACK_ENDPOINT ?? 'native',
       },
-      '[AWS] S3Connector available at app.aws.s3',
+      '[AWS] S3Connector available at app.aws.s3'
     );
   },
-  { name: 'aws' },
+  { name: 'aws' }
 );

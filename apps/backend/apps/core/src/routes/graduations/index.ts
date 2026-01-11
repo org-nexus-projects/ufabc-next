@@ -1,8 +1,10 @@
+import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+
 import {
   listGraduationsSubjectsByIdSchema,
   listGraduationsSubjectsSchema,
 } from '@/schemas/graduations.js';
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+
 import { getPaginated, getTotal, listSubjectsById } from './service.js';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
@@ -36,7 +38,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         pages,
         data: results,
       };
-    },
+    }
   );
 
   app.get(
@@ -50,7 +52,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const limit = request.query.limit;
       const graduationSubjects = await listSubjectsById(graduationId, limit);
       return { docs: graduationSubjects };
-    },
+    }
   );
 };
 

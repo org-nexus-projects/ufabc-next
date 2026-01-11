@@ -1,7 +1,15 @@
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import { findComment, findOne, listByRa, listWithComponents } from './service.js';
-import { listUserEnrollments } from '@/schemas/entities/enrollments.js';
+
 import { currentQuad } from '@next/common';
+
+import { listUserEnrollments } from '@/schemas/entities/enrollments.js';
+
+import {
+  findComment,
+  findOne,
+  listByRa,
+  listWithComponents,
+} from './service.js';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get('/', { schema: listUserEnrollments }, async ({ user }) => {
@@ -17,7 +25,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     const actualSeason = season ?? currentQuad();
 
-    const wppEnrollments = await listWithComponents(user?.ra ?? ra, actualSeason);
+    const wppEnrollments = await listWithComponents(
+      user?.ra ?? ra,
+      actualSeason
+    );
     return wppEnrollments;
   });
 
@@ -35,7 +46,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       return reply.badRequest('No comments were found');
     }
 
-    // biome-ignore lint/complexity/noForEach: <explanation>
     comments.forEach((c) => {
       // @ts-expect-error for now
       enrollment[c.type].comment = c;

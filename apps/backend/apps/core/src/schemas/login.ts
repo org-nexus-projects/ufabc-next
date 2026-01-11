@@ -1,4 +1,5 @@
 import type { FastifySchema } from 'fastify';
+
 import { z } from 'zod';
 import 'zod-openapi/extend';
 
@@ -56,7 +57,8 @@ export type LegacyGoogleUser = {
 export const loginSchema = {
   querystring: z.object({
     inApp: z.coerce.boolean().default(false).openapi({
-      description: 'Váriavel legada que informava, se o acesso estava acontecendo pelo aplicativo',
+      description:
+        'Váriavel legada que informava, se o acesso estava acontecendo pelo aplicativo',
       example: false,
     }),
     state: z.string(),

@@ -23,11 +23,13 @@ const graduationSchema = new Schema(
       },
     ],
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 graduationSchema.index({ curso: 'asc', grade: 'asc' });
 
 export type Graduation = InferSchemaType<typeof graduationSchema>;
-export type GraduationDocument = ReturnType<(typeof GraduationModel)['hydrate']>;
+export type GraduationDocument = ReturnType<
+  (typeof GraduationModel)['hydrate']
+>;
 export const GraduationModel = model('graduations', graduationSchema);

@@ -1,4 +1,11 @@
-import { type InferSchemaType, type Model, Schema, type Types, model } from 'mongoose';
+import {
+  type InferSchemaType,
+  type Model,
+  Schema,
+  type Types,
+  model,
+} from 'mongoose';
+
 import type { CoefficientsMap } from './History.js';
 
 const CONCEITOS = ['A', 'B', 'C', 'D', 'O', 'F', '-'] as const;
@@ -48,10 +55,13 @@ const GraduationHistoryDisciplinasSchema = new Schema(
     },
     identifier: { type: String, required: false, default: null },
   },
-  { _id: false },
+  { _id: false }
 );
 
-const graduationHistorySchema = new Schema<GraduationHistory, GraduationHistoryModel>(
+const graduationHistorySchema = new Schema<
+  GraduationHistory,
+  GraduationHistoryModel
+>(
   {
     ra: {
       type: Number,
@@ -68,11 +78,11 @@ const graduationHistorySchema = new Schema<GraduationHistory, GraduationHistoryM
       ref: 'graduation',
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export type { GraduationHistory };
-export const GraduationHistoryModel = model<GraduationHistory, GraduationHistoryModel>(
-  'historiesgraduations',
-  graduationHistorySchema,
-);
+export const GraduationHistoryModel = model<
+  GraduationHistory,
+  GraduationHistoryModel
+>('historiesgraduations', graduationHistorySchema);

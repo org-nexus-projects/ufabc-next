@@ -1,6 +1,7 @@
 import { ComponentModel, type Component } from '@/models/Component.js';
-import type { QueueContext } from '../types.js';
 import { SubjectModel } from '@/models/Subject.js';
+
+import type { QueueContext } from '../types.js';
 
 // Add flag and ignoreErrors to JobData
 type JobData = Omit<Component, 'createdAt' | 'updatedAt'> & {
@@ -26,7 +27,7 @@ export async function processComponentsTeachers(ctx: QueueContext<JobData>) {
         await ComponentModel.findOneAndUpdate(
           { season: component.season, uf_cod_turma: component.uf_cod_turma },
           { $set: { ...component } },
-          { upsert: true, new: true },
+          { upsert: true, new: true }
         );
         ctx.app.log.info({
           msg: 'Component upserted (flag: upsert)',
@@ -58,7 +59,7 @@ export async function processComponentsTeachers(ctx: QueueContext<JobData>) {
           pratica: component.pratica,
         },
       },
-      { new: true },
+      { new: true }
     );
 
     if (!result) {
@@ -71,7 +72,6 @@ export async function processComponentsTeachers(ctx: QueueContext<JobData>) {
       const normalizedDisciplina = component.disciplina
         .toLowerCase()
         .normalize('NFD')
-        // biome-ignore lint/suspicious/noMisleadingCharacterClass: not needed
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9\s]/g, ' ')
         .trim();

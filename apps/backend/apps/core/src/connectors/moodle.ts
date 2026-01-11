@@ -1,6 +1,7 @@
-import { ofetch } from 'ofetch';
-import { BaseRequester } from './base-requester.js';
 import { setTimeout as sleep } from 'node:timers/promises';
+import { ofetch } from 'ofetch';
+
+import { BaseRequester } from './base-requester.js';
 
 type MoodleResponse = {
   error: boolean;
@@ -51,7 +52,8 @@ export class MoodleConnector extends BaseRequester {
     const body = [
       {
         index: 0,
-        methodname: 'core_course_get_enrolled_courses_by_timeline_classification',
+        methodname:
+          'core_course_get_enrolled_courses_by_timeline_classification',
         args: { offset: 0, limit: 1, classification: 'all' },
       },
     ];
@@ -61,15 +63,18 @@ export class MoodleConnector extends BaseRequester {
     headers.set('Content-Type', 'application/json');
     headers.set('X-Requested-With', 'XMLHttpRequest');
 
-    const response = await this.request<Array<MoodleResponse>>('/lib/ajax/service.php?', {
-      method: 'POST',
-      query: {
-        sesskey: sessKey,
-      },
-      headers,
-      body,
-      timeout: 5_000,
-    });
+    const response = await this.request<Array<MoodleResponse>>(
+      '/lib/ajax/service.php?',
+      {
+        method: 'POST',
+        query: {
+          sesskey: sessKey,
+        },
+        headers,
+        body,
+        timeout: 5_000,
+      }
+    );
 
     return response;
   }
@@ -78,21 +83,25 @@ export class MoodleConnector extends BaseRequester {
     const headers = new Headers();
     headers.set('Cookie', `MoodleSession=${sessionId}`);
 
-    const response = await this.request<Array<MoodleComponent>>('/lib/ajax/service.php', {
-      method: 'POST',
-      query: {
-        sesskey: sessKey,
-      },
-      headers,
-      credentials: 'include',
-      body: [
-        {
-          index: 0,
-          methodname: 'core_course_get_enrolled_courses_by_timeline_classification',
-          args: { offset: 0, limit: 0, classification: 'all' },
+    const response = await this.request<Array<MoodleComponent>>(
+      '/lib/ajax/service.php',
+      {
+        method: 'POST',
+        query: {
+          sesskey: sessKey,
         },
-      ],
-    });
+        headers,
+        credentials: 'include',
+        body: [
+          {
+            index: 0,
+            methodname:
+              'core_course_get_enrolled_courses_by_timeline_classification',
+            args: { offset: 0, limit: 0, classification: 'all' },
+          },
+        ],
+      }
+    );
     return response;
   }
 
@@ -149,7 +158,8 @@ export class MoodleConnector extends BaseRequester {
 
       const isPdf =
         // @ts-expect-error - contentType is a string
-        contentType?.includes('application/pdf') || finalUrl.toLowerCase().endsWith('.pdf');
+        contentType?.includes('application/pdf') ||
+        finalUrl.toLowerCase().endsWith('.pdf');
 
       return {
         isPdf,
@@ -177,7 +187,8 @@ export class MoodleConnector extends BaseRequester {
 
         const isPdf =
           // @ts-expect-error - contentType is a string
-          contentType?.includes('application/pdf') || finalUrl.toLowerCase().endsWith('.pdf');
+          contentType?.includes('application/pdf') ||
+          finalUrl.toLowerCase().endsWith('.pdf');
 
         return {
           isPdf,

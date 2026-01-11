@@ -11,20 +11,19 @@
     "start": "turbo run start",
     "start:watch": "turbo run start:watch",
     "test": "turbo run test",
-    "lint": "oxlint --type-aware --fix && oxfmt",
-    "lint:ci": "oxlint --type-aware --quiet && oxfmt",
+    "lint": "pnpm dlx ultracite fix",
     "deps-check": "pnpm dlx taze -r"
   },
   "devDependencies": {
-    "@biomejs/biome": "catalog:",
-    "oxfmt": "catalog:",
-    "oxlint": "catalog:",
+    "oxfmt": "^0.22.0",
+    "oxlint": "^1.37.0",
     "oxlint-tsgolint": "catalog:",
     "tsx": "catalog:",
-    "turbo": "catalog:"
+    "turbo": "catalog:",
+    "ultracite": "^7.0.4"
   },
   "engines": {
-    "node": "^22",
+    "node": "^24",
     "pnpm": "^9"
   },
   "packageManager": "pnpm@9.15.9"

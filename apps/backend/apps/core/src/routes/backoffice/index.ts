@@ -1,7 +1,10 @@
-import { UserModel } from '@/models/User.js';
-import type { QueueNames } from '@/queue/types.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+
 import { z } from 'zod';
+
+import type { QueueNames } from '@/queue/types.js';
+
+import { UserModel } from '@/models/User.js';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.post(
@@ -37,13 +40,13 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           email: user.email,
           permissions: user.permissions ?? [],
         },
-        { expiresIn: '2h' },
+        { expiresIn: '2h' }
       );
 
       return {
         token,
       };
-    },
+    }
   );
 
   app.get(
@@ -54,7 +57,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           reason: z.string(),
           batchSize: z.number().optional().default(500),
           queue: z.custom<QueueNames>((val) => {
-            return typeof val === 'string' && Object.keys(app.job.queues).includes(val);
+            return (
+              typeof val === 'string' &&
+              Object.keys(app.job.queues).includes(val)
+            );
           }),
         }),
       },
@@ -67,14 +73,18 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         return reply.badRequest('Missing reason');
       }
 
-      const failedJobs = await app.job.getFailedByReason(queue, reason, batchSize);
+      const failedJobs = await app.job.getFailedByReason(
+        queue,
+        reason,
+        batchSize
+      );
 
       // log the quantity of failed jobs per reason
       return reply.send({
         count: failedJobs.length,
         data: failedJobs,
       });
-    },
+    }
   );
 
   app.post(
@@ -103,7 +113,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         jobId: job.id,
         recipients: recipients.length,
       });
-    },
+    }
   );
 };
 

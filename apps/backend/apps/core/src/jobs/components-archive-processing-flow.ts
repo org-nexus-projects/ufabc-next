@@ -1,9 +1,10 @@
 import { defineJob } from '@next/queues/client';
-import { JOB_NAMES } from '@/constants.js';
-import { MoodleConnector } from '@/connectors/moodle.js';
 import { load } from 'cheerio';
 import { ofetch } from 'ofetch';
 import z from 'zod';
+
+import { MoodleConnector } from '@/connectors/moodle.js';
+import { JOB_NAMES } from '@/constants.js';
 
 const connector = new MoodleConnector();
 
@@ -13,7 +14,9 @@ const componentSchema = z.object({
   id: z.number(),
 });
 
-export const componentsArchivesProcessingJob = defineJob(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING)
+export const componentsArchivesProcessingJob = defineJob(
+  JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING
+)
   .input(
     z.object({
       component: componentSchema.array(),
@@ -22,7 +25,7 @@ export const componentsArchivesProcessingJob = defineJob(JOB_NAMES.COMPONENTS_AR
         sessionId: z.string(),
         sessKey: z.string(),
       }),
-    }),
+    })
   )
   .iterator('component')
   .concurrency(3)
@@ -30,10 +33,17 @@ export const componentsArchivesProcessingJob = defineJob(JOB_NAMES.COMPONENTS_AR
     const { component, session } = job.data;
     const globalTraceId = job.data.globalTraceId;
 
-    const pdfs = await extractPDFsFromComponent(component.viewurl, session.sessionId, component.id);
+    const pdfs = await extractPDFsFromComponent(
+      component.viewurl,
+      session.sessionId,
+      component.id
+    );
 
     if (pdfs.length === 0) {
-      app.log.info({ globalTraceId, component: component.fullname }, 'No PDFs found in component');
+      app.log.info(
+        { globalTraceId, component: component.fullname },
+        'No PDFs found in component'
+      );
       return {
         success: true,
         message: 'No PDFs found in component',
@@ -63,14 +73,16 @@ export const componentsArchivesProcessingJob = defineJob(JOB_NAMES.COMPONENTS_AR
     };
   });
 
-export const pdfDownloadJob = defineJob(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_PDF)
+export const pdfDownloadJob = defineJob(
+  JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_PDF
+)
   .input(
     z.object({
       component: z.string(),
       rawUrl: z.string().url(),
       moodleComponentId: z.number(),
       globalTraceId: z.string().optional(),
-    }),
+    })
   )
   .concurrency(10)
   .handler(async ({ job, app }) => {
@@ -88,7 +100,11 @@ export const pdfDownloadJob = defineJob(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING
     const sanitizedFilename = sanitizeFilename(filenameFromUrl);
     const s3Key = `/archives/${moodleComponentId}/${sanitizedFilename}`;
 
-    await app.aws.s3.upload(app.config.AWS_BUCKET ?? '', s3Key, Buffer.from(buffer));
+    await app.aws.s3.upload(
+      app.config.AWS_BUCKET ?? '',
+      s3Key,
+      Buffer.from(buffer)
+    );
 
     return {
       success: true,
@@ -101,13 +117,15 @@ export const pdfDownloadJob = defineJob(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING
     };
   });
 
-export const archivesSummaryJob = defineJob(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_SUMMARY)
+export const archivesSummaryJob = defineJob(
+  JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_SUMMARY
+)
   .input(
     z.object({
       name: z.string(),
       total: z.number(),
       globalTraceId: z.string().optional(),
-    }),
+    })
   )
   .handler(async ({ job, app }) => {
     const { name, total, globalTraceId } = job.data;
@@ -118,12 +136,16 @@ export const archivesSummaryJob = defineJob(JOB_NAMES.COMPONENTS_ARCHIVES_PROCES
     };
   });
 
-async function extractPDFsFromComponent(viewurl: string, sessionId: string, componentId: number) {
+async function extractPDFsFromComponent(
+  viewurl: string,
+  sessionId: string,
+  componentId: number
+) {
   const url = new URL(viewurl);
   const page = await connector.getComponentContentsPage(
     sessionId,
     url.pathname,
-    componentId.toString(),
+    componentId.toString()
   );
   const $ = load(page);
   const potentialLinks: { href: string; name: string }[] = [];
@@ -155,7 +177,10 @@ async function extractPDFsFromComponent(viewurl: string, sessionId: string, comp
   });
 
   const validationPromises = potentialLinks.map(async ({ href, name }) => {
-    const { isPdf, finalUrl } = await connector.validatePdfLink(href, sessionId);
+    const { isPdf, finalUrl } = await connector.validatePdfLink(
+      href,
+      sessionId
+    );
 
     if (!isPdf) {
       return null;

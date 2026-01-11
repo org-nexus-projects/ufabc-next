@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { startTestStack } from '@next/testing/containers';
 import { waitForJobCompletion } from '@next/testing/methods';
 import { moodleMock } from '@next/testing/mocks';
 import { fastify, type FastifyInstance } from 'fastify';
 import { fastifyPlugin as fp } from 'fastify-plugin';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+
 import { buildApp } from '../../../src/app.js';
 import { JOB_NAMES } from '../../constants.js';
 
@@ -38,7 +39,9 @@ describe('Archive Flow Integration', () => {
     });
     expect(res.statusCode).toBe(202);
 
-    const summaryQueue = app.manager.getQueue(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_SUMMARY);
+    const summaryQueue = app.manager.getQueue(
+      JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_SUMMARY
+    );
     await waitForJobCompletion(summaryQueue);
 
     const pdfsRes = await app.inject({

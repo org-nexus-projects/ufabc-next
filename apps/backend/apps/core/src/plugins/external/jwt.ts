@@ -1,6 +1,7 @@
+import type { FastifyInstance } from 'fastify';
+
 import { fastifyJwt } from '@fastify/jwt';
 import { fastifyPlugin as fp } from 'fastify-plugin';
-import type { FastifyInstance } from 'fastify';
 
 declare module '@fastify/jwt' {
   interface FastifyJWT {

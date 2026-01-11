@@ -1,6 +1,8 @@
 import { generateIdentifier } from '@next/common';
+
 import { EnrollmentModel } from '@/models/Enrollment.js';
 import { TeacherModel } from '@/models/Teacher.js';
+
 import type { QueueContext } from '../types.js';
 
 type ParsedData = {
@@ -58,7 +60,7 @@ export async function updateTeachers(ctx: QueueContext<UpdateTeachers>) {
             pratica: praticaTeacher?._id || null,
           },
         },
-        { new: true, upsert: true },
+        { new: true, upsert: true }
       );
 
       ctx.app.log.debug(
@@ -68,7 +70,7 @@ export async function updateTeachers(ctx: QueueContext<UpdateTeachers>) {
           teoriaTeacher: teoriaTeacher?.name,
           praticaTeacher: praticaTeacher?.name,
         },
-        'sucess',
+        'sucess'
       );
     } catch (error) {
       ctx.app.log.error(
@@ -83,7 +85,7 @@ export async function updateTeachers(ctx: QueueContext<UpdateTeachers>) {
           teoria: enrollment.teoria,
           pratica: enrollment.pratica,
         },
-        'error',
+        'error'
       );
       throw error;
     }

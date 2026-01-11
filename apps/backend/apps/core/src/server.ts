@@ -1,9 +1,10 @@
 import gracefullyShutdown from 'close-with-grace';
-import { buildApp } from './app.js';
-import { fastifyPlugin as fp } from 'fastify-plugin';
 import { fastify, type FastifyServerOptions } from 'fastify';
-import { logger } from './utils/logger.js';
+import { fastifyPlugin as fp } from 'fastify-plugin';
 import { randomUUID } from 'node:crypto';
+
+import { buildApp } from './app.js';
+import { logger } from './utils/logger.js';
 
 const appOptions = {
   loggerInstance: logger,

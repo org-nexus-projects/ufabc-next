@@ -1,21 +1,28 @@
-import { JOB_NAMES } from '@/constants.js';
-import { defineJob } from '@next/queues/client';
-import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { currentQuad } from '@next/common';
+import { defineJob } from '@next/queues/client';
+
+import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
+import { JOB_NAMES } from '@/constants.js';
 import { ComponentModel } from '@/models/Component.js';
 
 const connector = new UfabcParserConnector();
 
 export const enrolledStudentsJob = defineJob(JOB_NAMES.ENROLLED_STUDENTS)
-  .handler(async ({ manager }) => {
+  .handler(async ({ manager, app }) => {
     const tenant = currentQuad();
     const enrollments = await connector.getEnrolled();
 
-    const enrollmentTasks = Object.entries(enrollments).map(([componentId, students]) => ({
-      componentId,
-      students,
-    }));
+    const enrollmentTasks = Object.entries(enrollments).map(
+      ([componentId, students]) => ({
+        componentId,
+        students,
+      })
+    );
 
+    app.log.info(
+      { tenant, count: enrollmentTasks.length },
+      'dispatching enrolled students'
+    );
     await manager.dispatchFlow({
       name: 'enrolled-students',
       queueName: JOB_NAMES.ENROLLED_STUDENTS,
@@ -41,27 +48,28 @@ export const enrolledStudentsJob = defineJob(JOB_NAMES.ENROLLED_STUDENTS)
   })
   .every('45 minutes');
 
-export const processEnrollmentJob = defineJob(JOB_NAMES.PROCESS_ENROLLED_STUDENTS)
-  .handler(async ({ job, manager }) => {
-    const { tenant, componentId, students } = job.data;
-    const component = await ComponentModel.findOneAndUpdate(
-      {
-        disciplina_id: componentId,
-        season: tenant,
+export const processEnrollmentJob = defineJob(
+  JOB_NAMES.PROCESS_ENROLLED_STUDENTS
+).handler(async ({ job, manager }) => {
+  const { tenant, componentId, students } = job.data;
+  const component = await ComponentModel.findOneAndUpdate(
+    {
+      disciplina_id: componentId,
+      season: tenant,
+    },
+    {
+      $set: {
+        alunos_matriculados: students,
       },
-      {
-        $set: {
-          alunos_matriculados: students,
-        },
-      },
-    );
-
-    if (!component) {
-      await manager.dispatch(JOB_NAMES.CREATE_COMPONENT, {
-        componentId,
-      });
-      throw new Error('Component not found');
     }
+  );
 
-    return component.toJSON();
-  })
+  if (!component) {
+    await manager.dispatch(JOB_NAMES.CREATE_COMPONENT, {
+      componentId,
+    });
+    return;
+  }
+
+  return component.toJSON();
+});

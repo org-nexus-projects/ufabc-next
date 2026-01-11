@@ -1,9 +1,15 @@
-import { SubjectModel, type Subject } from '@/models/Subject.js';
-import { listSubjectsSchema, searchSubjectSchema } from '@/schemas/entities/subjects.js';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import { rawSubjectsReviews, type Distribution } from './service.js';
-import { TeacherModel } from '@/models/Teacher.js';
+
 import { Types } from 'mongoose';
+
+import { SubjectModel, type Subject } from '@/models/Subject.js';
+import { TeacherModel } from '@/models/Teacher.js';
+import {
+  listSubjectsSchema,
+  searchSubjectSchema,
+} from '@/schemas/entities/subjects.js';
+
+import { rawSubjectsReviews, type Distribution } from './service.js';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   const subjectsCache = app.cache<{}>();
@@ -84,7 +90,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     const validSubjectId = new Types.ObjectId(subjectId);
     const stats = await rawSubjectsReviews(validSubjectId);
-    // biome-ignore lint/complexity/noForEach: <explanation>
     stats.forEach((s) => {
       s.cr_medio = s.numeric / s.amount;
     });
@@ -99,11 +104,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           acc[dist.conceito].push(dist);
           return acc;
         },
-        {} as Record<string, Distribution[]>,
+        {} as Record<string, Distribution[]>
       );
 
-    const generalDistributions = Object.entries(generalDistribution).map(([key, value]) =>
-      getMean(value, key),
+    const generalDistributions = Object.entries(generalDistribution).map(
+      ([key, value]) => getMean(value, key)
     );
 
     const subject = await SubjectModel.findOne({

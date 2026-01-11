@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+
 import { currentQuad, findQuadFromDate, findQuarter } from './findQuad';
 
 describe('common.lib.findQuad', () => {

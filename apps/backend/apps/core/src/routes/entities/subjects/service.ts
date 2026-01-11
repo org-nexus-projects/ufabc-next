@@ -1,6 +1,8 @@
-import { EnrollmentModel } from '@/models/Enrollment.js';
-import type { Concept } from '@/models/History.js';
 import type { Types } from 'mongoose';
+
+import type { Concept } from '@/models/History.js';
+
+import { EnrollmentModel } from '@/models/Enrollment.js';
 
 export type Distribution = {
   conceito: Concept;
@@ -113,7 +115,11 @@ export async function rawSubjectsReviews(subjectId: Types.ObjectId) {
         amount: 1,
         count: 1,
         cr_professor: {
-          $cond: [{ $eq: ['$amount', 0] }, 'N/A', { $divide: ['$numericWeight', '$amount'] }],
+          $cond: [
+            { $eq: ['$amount', 0] },
+            'N/A',
+            { $divide: ['$numericWeight', '$amount'] },
+          ],
         },
         teacher: '$_id.mainTeacher',
       },

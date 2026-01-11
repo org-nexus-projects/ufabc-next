@@ -1,13 +1,23 @@
+import type { QueryFilter as FilterQuery } from 'mongoose';
+
 import { calculateCoefficients } from '@next/common';
-import { GraduationModel, type GraduationDocument } from '@/models/Graduation.js';
-import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
-import { SubjectModel, type SubjectDocument } from '@/models/Subject.js';
-import { EnrollmentModel, type Enrollment } from '@/models/Enrollment.js';
+
 import { ComponentModel } from '@/models/Component.js';
-import { type History, type HistoryCoefficients, HistoryModel } from '@/models/History.js';
+import { EnrollmentModel, type Enrollment } from '@/models/Enrollment.js';
+import {
+  GraduationModel,
+  type GraduationDocument,
+} from '@/models/Graduation.js';
+import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
+import {
+  type History,
+  type HistoryCoefficients,
+  HistoryModel,
+} from '@/models/History.js';
+import { SubjectModel, type SubjectDocument } from '@/models/Subject.js';
 import { logger } from '@/utils/logger.js';
+
 import type { QueueContext } from '../types.js';
-import type { FilterQuery } from 'mongoose';
 
 type HistoryComponent = History['disciplinas'][number];
 
@@ -20,13 +30,18 @@ type ProcessComponentData = {
 };
 
 // Main job handler for processing user enrollment history
-export async function userEnrollmentsUpdate(ctx: QueueContext<History | undefined>) {
+export async function userEnrollmentsUpdate(
+  ctx: QueueContext<History | undefined>
+) {
   const history = ctx.job.data;
 
   if (!isValidHistory(history)) {
-    const invalidHistoryError = new Error('Invalid history structure or missing required fields', {
-      cause: history,
-    });
+    const invalidHistoryError = new Error(
+      'Invalid history structure or missing required fields',
+      {
+        cause: history,
+      }
+    );
     ctx.app.log.warn({
       msg: 'Invalid history data provided',
       job_data_debug: ctx.job.data,
@@ -65,11 +80,17 @@ export async function userEnrollmentsUpdate(ctx: QueueContext<History | undefine
 // enrollment -> components -> poder comentar
 //          -> sync matriculas deferidas (double check)
 
-export async function processComponentEnrollment(ctx: QueueContext<ProcessComponentData>) {
+export async function processComponentEnrollment(
+  ctx: QueueContext<ProcessComponentData>
+) {
   const { history, component } = ctx.job.data;
 
   try {
-    const enrollmentData = await buildEnrollmentData(history, component, ctx.app.log);
+    const enrollmentData = await buildEnrollmentData(
+      history,
+      component,
+      ctx.app.log
+    );
 
     if (!enrollmentData) {
       ctx.app.log.warn({
@@ -102,10 +123,24 @@ function getLastPeriod(
   coefficients: History['coefficients'],
   year: number,
   quad: number,
-  begin?: string,
+  begin?: string
 ) {
+  if (!coefficients || Object.keys(coefficients).length === 0) {
+    return null;
+  }
+
   const firstYear = Object.keys(coefficients)[0];
-  const firstMonth = Object.keys(coefficients[Number(firstYear)])[0];
+  const firstYearCoefficients = coefficients[Number(firstYear)];
+
+  if (!firstYearCoefficients) {
+    return null;
+  }
+
+  const firstMonth = Object.keys(firstYearCoefficients)[0];
+
+  if (!firstMonth) {
+    return null;
+  }
 
   const beginValue = begin ?? `${firstYear}.${firstMonth}`;
 
@@ -134,7 +169,7 @@ function getLastPeriod(
 
 function mapSubjects(
   enrollment: Partial<Enrollment>,
-  subjects: SubjectDocument[],
+  subjects: SubjectDocument[]
 ): Partial<Enrollment>[] {
   const enrollmentArray = (
     Array.isArray(enrollment) ? enrollment : [enrollment]
@@ -147,7 +182,9 @@ function mapSubjects(
       const normalizedCode = codeMatch ? codeMatch[1] : (e.disciplina ?? '');
       // Find matching subject using uf_subject_code
       const subject = subjects.find(
-        (s) => Array.isArray(s.uf_subject_code) && s.uf_subject_code.includes(normalizedCode),
+        (s) =>
+          Array.isArray(s.uf_subject_code) &&
+          s.uf_subject_code.includes(normalizedCode)
       );
       if (subject) {
         return {
@@ -162,26 +199,26 @@ function mapSubjects(
       });
       return e;
     })
-    .filter((e): e is Partial<Enrollment> => e.disciplina !== '' && e.disciplina != null);
+    .filter(
+      (e): e is Partial<Enrollment> =>
+        e.disciplina !== '' && e.disciplina != null
+    );
 }
 
 // only needed for subject matching
 function normalizeText(text: string): string {
-  return (
-    text
-      .toLowerCase()
-      .normalize('NFD')
-      // biome-ignore lint/suspicious/noMisleadingCharacterClass: not needed
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9\s]/g, ' ')
-      .trim()
-  );
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .trim();
 }
 
 async function findGraduation(
   curso: string | undefined,
   grade: string | undefined,
-  log: QueueContext['app']['log'],
+  log: QueueContext['app']['log']
 ): Promise<GraduationDocument | null> {
   if (!curso || !grade) {
     return null;
@@ -193,16 +230,19 @@ async function findGraduation(
 
 function calculateHistoryCoefficients(
   components: HistoryComponent[],
-  graduation: GraduationDocument | null,
+  graduation: GraduationDocument | null
 ) {
   // @ts-ignore for now - maintaining original behavior
-  return calculateCoefficients<HistoryComponent>(components, graduation) as HistoryCoefficients;
+  return calculateCoefficients<HistoryComponent>(
+    components,
+    graduation
+  ) as HistoryCoefficients;
 }
 
 async function updateHistoryRecords(
   history: History,
   coefficients: HistoryCoefficients,
-  graduation: GraduationDocument | null,
+  graduation: GraduationDocument | null
 ): Promise<void> {
   const { ra, curso, grade, disciplinas: components } = history;
   const updateData = {
@@ -219,7 +259,7 @@ async function updateHistoryRecords(
     GraduationHistoryModel.findOneAndUpdate(
       { curso, grade, ra },
       { $set: updateData },
-      { upsert: true },
+      { upsert: true }
     ),
   ]);
 }
@@ -227,7 +267,7 @@ async function updateHistoryRecords(
 async function dispatchEnrollmentJobs(
   components: HistoryComponent[],
   historyData: { ra: number; coefficients: HistoryCoefficients },
-  app: QueueContext['app'],
+  app: QueueContext['app']
 ): Promise<void> {
   const dispatchPromises = components.map(async (component) => {
     try {
@@ -252,14 +292,14 @@ async function dispatchEnrollmentJobs(
 async function buildEnrollmentData(
   history: { ra: number; coefficients: HistoryCoefficients },
   component: HistoryComponent,
-  log: QueueContext['app']['log'],
+  log: QueueContext['app']['log']
 ) {
   const campus = getCampusFromTurma(component.turma);
   const turno = getTurnoFromTurma(component.turma);
   const coef = getLastPeriod(
     history.coefficients,
     component.ano,
-    Number.parseInt(component.periodo),
+    Number.parseInt(component.periodo)
   );
 
   const baseEnrollmentData: Partial<Enrollment> = {
@@ -308,7 +348,7 @@ async function buildEnrollmentData(
       creditos: component.creditos,
       season: baseEnrollmentData.season,
     },
-    'Using subject match for sync',
+    'Using subject match for sync'
   );
   return buildEnrollmentFromSubject({ ...baseEnrollmentData }, component, log);
 }
@@ -316,7 +356,7 @@ async function buildEnrollmentData(
 async function buildEnrollmentFromSubject(
   baseData: Partial<Enrollment>,
   component: HistoryComponent,
-  log: QueueContext['app']['log'],
+  log: QueueContext['app']['log']
 ): Promise<Partial<Enrollment> | null> {
   // Normalize the subject code (strip year, uppercase, etc.)
   const codeMatch = component.disciplina.match(/^(.*?)-\d{2}$/);
@@ -363,7 +403,7 @@ async function buildEnrollmentFromSubject(
         ra: baseData.ra,
         disciplina: baseData.disciplina,
       },
-      'No valid turma provided, cannot generate UFClassroomCode',
+      'No valid turma provided, cannot generate UFClassroomCode'
     );
     // Return enrollment without uf_cod_turma - it will be handled by the upsert logic
     return mappedEnrollment;
@@ -374,7 +414,7 @@ async function buildEnrollmentFromSubject(
   if (!turma) {
     log.warn(
       { turmaRaw: baseData.turma, component, baseData },
-      'Turma format did not match expected pattern',
+      'Turma format did not match expected pattern'
     );
     throw new Error('Invalid turma format', { cause: baseData.turma });
   }
@@ -403,7 +443,7 @@ async function buildEnrollmentFromSubject(
 
 async function upsertEnrollment(
   enrollmentData: Partial<Enrollment>,
-  log: QueueContext['app']['log'],
+  log: QueueContext['app']['log']
 ): Promise<void> {
   // @ts-ignore - Mongoose FilterQuery type
   const base: FilterQuery<Enrollment> = {
@@ -416,7 +456,7 @@ async function upsertEnrollment(
   let enrollment = await EnrollmentModel.findOneAndUpdate(
     query,
     { $set: enrollmentData },
-    { new: true },
+    { new: true }
   );
 
   // 2. Try disciplina_id if not found
@@ -426,7 +466,7 @@ async function upsertEnrollment(
     enrollment = await EnrollmentModel.findOneAndUpdate(
       query,
       { $set: enrollmentData },
-      { new: true },
+      { new: true }
     );
   }
 
@@ -437,7 +477,7 @@ async function upsertEnrollment(
     enrollment = await EnrollmentModel.findOneAndUpdate(
       query,
       { $set: enrollmentData },
-      { new: true },
+      { new: true }
     );
   }
 
@@ -452,7 +492,7 @@ async function upsertEnrollment(
     enrollment = await EnrollmentModel.findOneAndUpdate(
       query,
       { $set: enrollmentData },
-      { new: true },
+      { new: true }
     );
   }
 
@@ -489,14 +529,17 @@ function getCampusFromTurma(turma: string | null | undefined): string | null {
   if (!turma || turma === '--' || turma === '-') {
     logger.warn(
       { turma },
-      'Turma is null, undefined, or invalid in getCampusFromTurma, skipping campus extraction.',
+      'Turma is null, undefined, or invalid in getCampusFromTurma, skipping campus extraction.'
     );
     return null;
   }
 
   const campus = turma.slice(-2).toUpperCase();
   if (campus !== 'SA' && campus !== 'SB' && campus !== 'AA') {
-    logger.warn({ turma, campus }, 'Invalid campus detected in getCampusFromTurma.');
+    logger.warn(
+      { turma, campus },
+      'Invalid campus detected in getCampusFromTurma.'
+    );
     throw new Error('Invalid campus', { cause: campus });
   }
   return campus === 'SA' || campus === 'AA' ? 'sa' : 'sbc';
@@ -507,7 +550,7 @@ function getTurnoFromTurma(turma: string | null | undefined): string | null {
   if (!turma || turma === '--' || turma === '-') {
     logger.warn(
       { turma },
-      'Turma is null, undefined, or invalid in getTurnoFromTurma, skipping turno extraction.',
+      'Turma is null, undefined, or invalid in getTurnoFromTurma, skipping turno extraction.'
     );
     return null;
   }

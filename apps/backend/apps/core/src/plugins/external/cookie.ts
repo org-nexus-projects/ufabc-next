@@ -1,5 +1,6 @@
-import fp from 'fastify-plugin';
 import fastifyCookie from '@fastify/cookie';
+import fp from 'fastify-plugin';
+
 import type { Auth } from '@/schemas/auth.js';
 
 declare module 'fastify' {
@@ -19,5 +20,5 @@ export default fp(
   },
   {
     name: 'cookie',
-  },
+  }
 );
