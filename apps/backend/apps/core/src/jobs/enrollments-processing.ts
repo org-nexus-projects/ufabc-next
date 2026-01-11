@@ -62,7 +62,7 @@ export const enrollmentsProcessingJob = defineJob(
           {
             ra,
             disciplina: partialEnrollment.disciplina,
-            turma: component.turma,
+            turma: partialEnrollment.turma,
           },
           'Could not build enrollment data for component'
         );
@@ -81,7 +81,7 @@ export const enrollmentsProcessingJob = defineJob(
         data: {
           disciplina: partialEnrollment.disciplina,
           ra: ra,
-          turma: component.turma,
+          turma: partialEnrollment.turma,
         },
       };
     } catch (error) {
@@ -90,7 +90,7 @@ export const enrollmentsProcessingJob = defineJob(
           error: error instanceof Error ? error.message : String(error),
           ra,
           disciplina: partialEnrollment.disciplina,
-          turma: component.turma,
+          turma: partialEnrollment.turma,
         },
         'Failed to process current enrollment'
       );
@@ -227,7 +227,7 @@ async function buildEnrollmentData(
   };
 
   const matchingComponent = await ComponentModel.findOne({
-    uf_cod_turma: component.turma,
+    uf_cod_turma: baseEnrollmentData.uf_cod_turma,
     season: baseEnrollmentData.season,
   }).lean();
 
@@ -303,7 +303,7 @@ async function buildEnrollmentFromSubject(
 
   const [mappedEnrollment] = mappedEnrollments;
 
-  if (!baseData.turma || baseData.turma === '--' || baseData.turma === '-') {
+  if (!baseData.uf_cod_turma || baseData.uf_cod_turma === '--' || baseData.uf_cod_turma === '-') {
     log.warn(
       {
         component,
@@ -311,25 +311,12 @@ async function buildEnrollmentFromSubject(
         ra: baseData.ra,
         disciplina: baseData.disciplina,
       },
-      'No valid turma provided, cannot generate UFClassroomCode'
+      'No valid turma provided, cannot generate uf_cod_turma'
     );
     return mappedEnrollment;
   }
 
-  if (!baseData.turno || !baseData.campus) {
-    log.warn(
-      {
-        turno: baseData.turno,
-        campus: baseData.campus,
-        ra: baseData.ra,
-        disciplina: baseData.disciplina,
-      },
-      'Missing turno or campus data, cannot generate UFClassroomCode'
-    );
-    return mappedEnrollment;
-  }
-
-  mappedEnrollment.uf_cod_turma = baseData.turma;
+  mappedEnrollment.uf_cod_turma = baseData.uf_cod_turma;
 
   return mappedEnrollment;
 }
