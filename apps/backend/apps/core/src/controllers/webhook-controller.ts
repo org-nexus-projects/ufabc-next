@@ -144,7 +144,13 @@ const WebhookController: FastifyPluginAsyncZod = async (app) => {
         200: z.object({
           jobId: z.string(),
           ra: z.string(),
-          status: z.enum(['created', 'processing', 'completed', 'failed', 'in_queue']),
+          status: z.enum([
+            'created',
+            'processing',
+            'completed',
+            'failed',
+            'in_queue',
+          ]),
           createdAt: z.string().datetime(),
           updatedAt: z.string().datetime(),
           error: z

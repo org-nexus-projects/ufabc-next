@@ -50,24 +50,16 @@ export const historyProcessingJob = defineJob(JOB_NAMES.HISTORY_PROCESSING)
     try {
       await upsertStudentRecord(webhookData.payload, season);
       await createHistoryRecord(webhookData.payload);
-      const enrollmentIds = await dispatchEnrollmentsProcessing(
-        webhookData.payload,
-        app
-      );
-
-      if (enrollmentIds.length > 0) {
-        await jobDocument.addEnrollmentReferences(enrollmentIds);
-      }
+      await dispatchEnrollmentsProcessing(webhookData.payload, jobId, app);
 
       await jobDocument.transition('completed', {
         note: 'Job completed successfully',
-        enrollmentCount: enrollmentIds.length,
       });
 
       await studentSync.transition('completed', {
         note: 'finished',
       });
-      return { success: true, enrollmentCount: enrollmentIds.length };
+      return { success: true };
     } catch (processingError: any) {
       await jobDocument.transition('failed', {
         note: `Job failed: ${processingError.message}`,
@@ -143,44 +135,15 @@ async function createHistoryRecord({
 
 async function dispatchEnrollmentsProcessing(
   { ra, components, coefficients }: HistoryData,
+  historyJobId: string,
   app: any
-): Promise<string[]> {
-  const flowResult = await app.manager.dispatchFlow({
-    name: `enrollments-${ra}`,
-    queueName: JOB_NAMES.PROCESS_COMPONENTS_ENROLLMENTS,
-    data: {
-      ra: Number(ra),
-      component: components,
-      coefficients,
-    },
-    children: components.map((component) => ({
-      name: JOB_NAMES.PROCESS_COMPONENTS_ENROLLMENTS,
-      data: {
-        ra: Number(ra),
-        component,
-        coefficients,
-      },
-      opts: {
-        removeOnComplete: 1000,
-        removeOnFail: 5000,
-      },
-      queueName: JOB_NAMES.PROCESS_COMPONENTS_ENROLLMENTS,
-    })),
+): Promise<void> {
+  await app.manager.dispatch(JOB_NAMES.PROCESS_COMPONENTS_ENROLLMENTS, {
+    ra: Number(ra),
+    historyJobId,
+    component: components,
+    coefficients,
   });
-
-  const enrollmentIds: string[] = [];
-  if (flowResult?.children) {
-    for (const childResult of flowResult.children) {
-      if (
-        childResult?.result?.success &&
-        childResult?.result?.data?.enrollmentId
-      ) {
-        enrollmentIds.push(childResult.result.data.enrollmentId);
-      }
-    }
-  }
-
-  return enrollmentIds;
 }
 
 function transformComponentToHistory(component: any) {

@@ -14,6 +14,10 @@ import { findOrCreateSubject } from './utils/subject-resolution.js';
 
 const jobSchema = z.object({
   ra: z.number(),
+  historyJobId: z
+    .string()
+    .optional()
+    .describe('History processing job ID to update with enrollment references'),
   component: z
     .object({
       period: z.string(),
@@ -44,7 +48,7 @@ export const enrollmentsProcessingJob = defineJob(
   .iterator('component')
   .concurrency(5)
   .handler(async ({ job, app }) => {
-    const { ra, component, coefficients } = job.data;
+    const { ra, component, coefficients, historyJobId } = job.data;
     const log = app.log;
     const historyData = { ra, coefficients };
 
@@ -89,6 +93,14 @@ export const enrollmentsProcessingJob = defineJob(
           message: 'Could not build enrollment data for component',
           skipped: true,
         };
+      }
+
+      if (historyJobId) {
+        const historyJob =
+          await app.db.HistoryProcessingJob.findById(historyJobId);
+        if (historyJob) {
+          await historyJob.addEnrollmentReferences([enrollmentId]);
+        }
       }
 
       return {

@@ -19,7 +19,10 @@ export const enrolledStudentsJob = defineJob(JOB_NAMES.ENROLLED_STUDENTS)
       })
     );
 
-    app.log.info({ tenant, count: enrollmentTasks.length }, 'dispatching enrolled students')
+    app.log.info(
+      { tenant, count: enrollmentTasks.length },
+      'dispatching enrolled students'
+    );
     await manager.dispatchFlow({
       name: 'enrolled-students',
       queueName: JOB_NAMES.ENROLLED_STUDENTS,
