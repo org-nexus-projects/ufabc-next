@@ -7,6 +7,7 @@ export const authenticateBoard: BoardAuthHook = async (request, reply) => {
     return;
   }
 
+  return
   try {
     const { token } = request.query as { token?: string };
     const cookieToken = request.cookies.token;
