@@ -1,24 +1,22 @@
-import 'toastify-js/src/toastify.css';
-import '@/assets/tailwind.css'
-import { storage } from 'wxt/storage';
-import { scrapeMenu } from '@/scripts/sig/homepage';
-import { syncHistory } from '@/services/next';
-import { processingToast, errorToast, successToast } from '@/utils/toasts'
-import { sendMessage } from '@/messaging';
+import "toastify-js/src/toastify.css";
+import "@/assets/tailwind.css";
+import { storage } from "wxt/storage";
+import { scrapeMenu } from "@/scripts/sig/homepage";
+import { syncHistoryV2 } from "@/services/next";
+import { processingToast, errorToast, successToast } from "@/utils/toasts";
+import { sendMessage } from "@/messaging";
 
 export default defineContentScript({
-	async main() {
+  async main() {
     const sigrootURL = new URL(document.location.href);
-    if (!sigrootURL.pathname.includes('/portais/discente/discente.jsf')) {
+    if (!sigrootURL.pathname.includes("/portais/discente/discente.jsf")) {
       return;
     }
 
-    const viewStateID = document.querySelector<HTMLInputElement>(
-      'input[name="javax.faces.ViewState"]'
-    )
+    const viewStateID = document.querySelector<HTMLInputElement>('input[name="javax.faces.ViewState"]');
     const sessionId = await getToken();
     if (!sessionId || !viewStateID) {
-      const msg = 'Ocorreu um erro ao extrair as disciplinas cursadas, por favor tente novamente mais tarde!'
+      const msg = "Ocorreu um erro ao extrair as disciplinas cursadas, por favor tente novamente mais tarde!";
       scrappingErrorToast(msg).showToast();
       return null;
     }
@@ -28,16 +26,15 @@ export default defineContentScript({
     const $trs = document.querySelectorAll<HTMLTableRowElement>("#agenda-docente tbody tr");
     const shouldFormatItinerary = sigURL.pathname.includes("/portais/discente/discente.jsf") && itineraryTable;
     if (shouldFormatItinerary) {
-      const sigStudent = scrapeMenu($trs, sessionId, viewStateID.value)
+      const sigStudent = scrapeMenu($trs);
       if (!sigStudent.data) {
-
-        errorToast.showToast()
+        errorToast.showToast();
         return;
       }
       try {
         processingToast.showToast();
-        await storage.setItem('local:student', sigStudent.data)
-        await syncHistory({
+        await storage.setItem("local:student", sigStudent.data);
+        await syncHistoryV2({
           login: sigStudent.data.login,
           ra: sigStudent.data.ra,
           sessionId,
@@ -45,30 +42,26 @@ export default defineContentScript({
         });
         successToast.showToast();
       } catch (error) {
-        console.error('Student data processing failed:', error);
+        console.error("Student data processing failed:", error);
         errorToast.showToast();
       } finally {
-        processingToast.hideToast()
+        processingToast.hideToast();
       }
     }
-	},
-	runAt: "document_end",
-
-  matches: [
-    "https://sig.ufabc.edu.br/*",
-  ],
+  },
+  runAt: "document_end",
+  matches: ["https://sig.ufabc.edu.br/*"],
 });
-
 
 async function getToken() {
   try {
-    const token = await sendMessage('getToken', {
-      action: 'getToken',
-      pageURL: document.URL
-    })
+    const token = await sendMessage("getToken", {
+      action: "getToken",
+      pageURL: document.URL,
+    });
     if (!token) {
-      console.error('Could not retrieve token, please try again')
-      return null
+      console.error("Could not retrieve token, please try again");
+      return null;
     }
     return token.value;
   } catch (error) {
