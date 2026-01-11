@@ -36,6 +36,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       return insertedTeachers;
     }
 
+    // @ts-ignore - For now, after executing TS with node directly will be fixed
     const insertedTeacher = await TeacherModel.create({ names });
     return insertedTeacher;
   });

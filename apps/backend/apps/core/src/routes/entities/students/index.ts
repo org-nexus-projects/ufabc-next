@@ -42,7 +42,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
   app.get('/', { schema: listStudentSchema }, async ({ headers }, reply) => {
     const login = headers['uf-login'];
-    const ra = headers.ra;
+    const ra = Number(headers.ra as string);
 
     if (!login || !ra) {
       return reply.badRequest('Missing required params');

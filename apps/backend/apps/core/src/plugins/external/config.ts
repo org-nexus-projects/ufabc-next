@@ -5,6 +5,7 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 
 declare module 'fastify' {
   export interface FastifyInstance {
+    // @ts-ignore - For now, after executing TS with node directly will be fixed
     config: Config;
   }
 }
