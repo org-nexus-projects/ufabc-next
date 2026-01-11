@@ -52,7 +52,11 @@ export const createComponentJob = defineJob(JOB_NAMES.CREATE_COMPONENT).handler(
       season: component.season,
     } satisfies Omit<Component, 'createdAt' | 'updatedAt'>;
 
-    const createdComponent = await ComponentModel.create(dbComponent);
+    const createdComponent = await ComponentModel.findOneAndUpdate(
+      { season: component.season, uf_cod_turma: component.ufClassroomCode },
+      dbComponent,
+      { upsert: true, new: true }
+    );
     return {
       success: true,
       component: createdComponent._id,

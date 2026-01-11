@@ -97,7 +97,6 @@ async function upsertStudentRecord(data: HistoryData, season: string) {
       login,
       $push: { cursos: courseData },
     },
-
     { upsert: true }
   );
 }
@@ -138,11 +137,27 @@ async function dispatchEnrollmentsProcessing(
   { ra, components, coefficients }: HistoryData,
   app: any
 ) {
-  await app.manager.dispatch(JOB_NAMES.PROCESS_COMPONENTS_ENROLLMENTS, {
-    ra: Number(ra),
-    season: currentQuad(),
-    components,
-    coefficients,
+  await app.manager.dispatchFlow({
+    name: `enrollments-${ra}`,
+    queueName: JOB_NAMES.PROCESS_COMPONENTS_ENROLLMENTS,
+    data: {
+      ra: Number(ra),
+      component: components,
+      coefficients,
+    },
+    children: components.map((component) => ({
+      name: JOB_NAMES.PROCESS_COMPONENTS_ENROLLMENTS,
+      data: {
+        ra: Number(ra),
+        component,
+        coefficients,
+      },
+      opts: {
+        removeOnComplete: 1000,
+        removeOnFail: 5000,
+      },
+      queueName: JOB_NAMES.PROCESS_COMPONENTS_ENROLLMENTS,
+    })),
   });
 }
 

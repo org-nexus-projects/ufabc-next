@@ -1,5 +1,5 @@
 import { JobManager } from '@next/queues/manager';
-import { startTestStack } from '@next/testing';
+import { startTestStack } from '@next/testing/containers';
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 
 import { buildApp } from '@/app';

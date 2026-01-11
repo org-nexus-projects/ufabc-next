@@ -8,7 +8,7 @@ import { ComponentModel } from '@/models/Component.js';
 const connector = new UfabcParserConnector();
 
 export const enrolledStudentsJob = defineJob(JOB_NAMES.ENROLLED_STUDENTS)
-  .handler(async ({ manager }) => {
+  .handler(async ({ manager, app }) => {
     const tenant = currentQuad();
     const enrollments = await connector.getEnrolled();
 
@@ -19,6 +19,7 @@ export const enrolledStudentsJob = defineJob(JOB_NAMES.ENROLLED_STUDENTS)
       })
     );
 
+    app.log.info({ tenant, count: enrollmentTasks.length }, 'dispatching enrolled students')
     await manager.dispatchFlow({
       name: 'enrolled-students',
       queueName: JOB_NAMES.ENROLLED_STUDENTS,
