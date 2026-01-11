@@ -277,6 +277,15 @@ const externalNavigationItems = [
         },
       ]
     : []),
+  ...(authStore.user?.permissions?.includes('admin')
+    ? [
+        {
+          title: 'Monitoramento de Jobs V2',
+          icon: 'mdi-open-in-new',
+          url: `${apiURL}/v2/board/ui?token=${authStore.token}`,
+        },
+      ]
+    : []),
 ];
 </script>
 <style scoped lang="scss">
