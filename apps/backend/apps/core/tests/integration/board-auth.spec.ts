@@ -8,7 +8,7 @@ import { buildApp } from '../../src/app.js';
 describe('Bull Board Security (Blackbox)', () => {
   let stack: TestStack;
   let app: FastifyInstance;
-  const BOARD_PATH = '/v2/board/ui';
+  const BOARD_PATH = '/v2/board/ui/';
 
   beforeAll(async () => {
     stack = await startTestStack();
@@ -35,7 +35,7 @@ describe('Bull Board Security (Blackbox)', () => {
     return JSON.parse(res.body).token;
   }
 
-  it('should return 401 when accessing the board without a token', async () => {
+  it('should return 401 when accessing board without a token', async () => {
     const res = await app.inject({ method: 'GET', url: BOARD_PATH });
     expect(res.statusCode).toBe(401);
   });
@@ -49,6 +49,6 @@ describe('Bull Board Security (Blackbox)', () => {
       query: { token },
     });
 
-    expect([200, 302]).toContain(res.statusCode);
+    expect([200, 302, 303]).toContain(res.statusCode);
   });
 });

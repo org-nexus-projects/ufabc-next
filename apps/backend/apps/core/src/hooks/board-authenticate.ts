@@ -3,6 +3,7 @@ import type { BoardAuthHook } from '@next/queues/manager';
 
 export const authenticateBoard: BoardAuthHook = async (request, reply) => {
   if (request.server.config.NODE_ENV === 'dev') {
+    request.log.info(request.query,'Skipping board authentication in development mode');
     return;
   }
 
@@ -21,14 +22,14 @@ export const authenticateBoard: BoardAuthHook = async (request, reply) => {
         extractToken: (req: any) => req.query.token,
       });
       request.isAdmin(reply);
-      reply.setCookie('token', query.token, {
-        path: boardUiPath,
+      reply.setCookie('token', token, {
+        path: '/v2/board/ui/',
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
         maxAge: 3600,
         sameSite: 'lax',
       });
-      return reply.redirect('/v2/board/ui', 303);
+      return reply.redirect('/v2/board/ui/', 303);
     }
     
     await request.jwtVerify({

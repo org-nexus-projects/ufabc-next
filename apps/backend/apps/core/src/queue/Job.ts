@@ -219,7 +219,7 @@ export class Jobs implements JobImpl {
               maxAge: 3600,
               sameSite: 'lax',
             });
-            return reply.redirect('/board/ui', 303);
+            return reply.redirect('/board/ui/', 303);
           }
           await request.jwtVerify({
             //@ts-expect-error extractToken property not well defined in jwt type definitions

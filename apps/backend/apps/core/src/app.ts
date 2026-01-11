@@ -125,12 +125,6 @@ export async function buildApp(
   });
 
   app.setNotFoundHandler(
-    {
-      preHandler: app.rateLimit({
-        max: 3,
-        timeWindow: 500,
-      }),
-    },
     (request, reply) => {
       request.log.warn(
         {
