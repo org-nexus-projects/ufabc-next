@@ -3,6 +3,7 @@ import {
   Schema,
   model,
   type InferSchemaType,
+  Types,
 } from 'mongoose';
 
 const PROCESSING_STATUS = [
@@ -53,6 +54,7 @@ export interface HistoryProcessingJobMethods {
     status: ProcessingStatus,
     metadata?: Record<string, unknown>
   ): void;
+  addEnrollmentReferences(enrollmentIds: string[]): Promise<this>;
 }
 
 const historyProcessingJobSchema = new Schema(
@@ -119,6 +121,12 @@ const historyProcessingJobSchema = new Schema(
       default: 'webhook',
       comment: 'Source of the job',
     },
+    enrollments: {
+      type: [Schema.Types.ObjectId],
+      ref: 'enrollments',
+      default: [],
+      comment: 'Array of enrollment IDs created/updated during this processing',
+    },
   },
   {
     timestamps: true,
@@ -130,6 +138,7 @@ const historyProcessingJobSchema = new Schema(
 historyProcessingJobSchema.index({ status: 1, createdAt: 1 });
 historyProcessingJobSchema.index({ idempotencyKey: 1 });
 historyProcessingJobSchema.index({ ra: 1, createdAt: -1 });
+historyProcessingJobSchema.index({ enrollments: 1 });
 
 // TTL index - auto-delete after 7 days for completed/failed jobs
 historyProcessingJobSchema.index(
@@ -185,6 +194,21 @@ historyProcessingJobSchema.method(
     };
     this.addTimelineEvent('failed', { error, ...metadata });
     return this.transition('failed', metadata);
+  }
+);
+
+historyProcessingJobSchema.method(
+  'addEnrollmentReferences',
+  async function (
+    this: HydratedDocument<HistoryProcessingJob, HistoryProcessingJobMethods>,
+    enrollmentIds: string[]
+  ) {
+    const existingEnrollmentIds = this.enrollments.map((id) => id.toString());
+    const mergedEnrollmentIds = [
+      ...new Set([...existingEnrollmentIds, ...enrollmentIds]),
+    ];
+    this.enrollments = mergedEnrollmentIds.map((id) => new Types.ObjectId(id));
+    return this.save();
   }
 );
 

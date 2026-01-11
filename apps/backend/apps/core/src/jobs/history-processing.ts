@@ -50,16 +50,24 @@ export const historyProcessingJob = defineJob(JOB_NAMES.HISTORY_PROCESSING)
     try {
       await upsertStudentRecord(webhookData.payload, season);
       await createHistoryRecord(webhookData.payload);
-      await dispatchEnrollmentsProcessing(webhookData.payload, app);
+      const enrollmentIds = await dispatchEnrollmentsProcessing(
+        webhookData.payload,
+        app
+      );
+
+      if (enrollmentIds.length > 0) {
+        await jobDocument.addEnrollmentReferences(enrollmentIds);
+      }
 
       await jobDocument.transition('completed', {
         note: 'Job completed successfully',
+        enrollmentCount: enrollmentIds.length,
       });
 
       await studentSync.transition('completed', {
         note: 'finished',
       });
-      return { success: true };
+      return { success: true, enrollmentCount: enrollmentIds.length };
     } catch (processingError: any) {
       await jobDocument.transition('failed', {
         note: `Job failed: ${processingError.message}`,
@@ -136,8 +144,8 @@ async function createHistoryRecord({
 async function dispatchEnrollmentsProcessing(
   { ra, components, coefficients }: HistoryData,
   app: any
-) {
-  await app.manager.dispatchFlow({
+): Promise<string[]> {
+  const flowResult = await app.manager.dispatchFlow({
     name: `enrollments-${ra}`,
     queueName: JOB_NAMES.PROCESS_COMPONENTS_ENROLLMENTS,
     data: {
@@ -159,6 +167,20 @@ async function dispatchEnrollmentsProcessing(
       queueName: JOB_NAMES.PROCESS_COMPONENTS_ENROLLMENTS,
     })),
   });
+
+  const enrollmentIds: string[] = [];
+  if (flowResult?.children) {
+    for (const childResult of flowResult.children) {
+      if (
+        childResult?.result?.success &&
+        childResult?.result?.data?.enrollmentId
+      ) {
+        enrollmentIds.push(childResult.result.data.enrollmentId);
+      }
+    }
+  }
+
+  return enrollmentIds;
 }
 
 function transformComponentToHistory(component: any) {

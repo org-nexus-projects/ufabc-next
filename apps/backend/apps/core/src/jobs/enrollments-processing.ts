@@ -16,23 +16,23 @@ const jobSchema = z.object({
   ra: z.number(),
   component: z
     .object({
-        period: z.string(),
-        UFCode: z.string(),
-        name: z.string().toLowerCase(),
-        year: z.string(),
-        status: z.string(),
-        credits: z.number(),
-        category: z.string(),
-        grade: z.string(),
-        class: z.string(),
-        teachers: z.array(z.any()).optional(),
-      }).array(),
-  coefficients: z
-    .object({
-      ca: z.number().optional(),
-      cr: z.number(),
-      cp: z.number().optional(),
+      period: z.string(),
+      UFCode: z.string(),
+      name: z.string().toLowerCase(),
+      year: z.string(),
+      status: z.string(),
+      credits: z.number(),
+      category: z.string(),
+      grade: z.string(),
+      class: z.string(),
+      teachers: z.array(z.any()).optional(),
     })
+    .array(),
+  coefficients: z.object({
+    ca: z.number().optional(),
+    cr: z.number(),
+    cp: z.number().optional(),
+  }),
 });
 
 type Component = z.infer<typeof jobSchema>['component'][number];
@@ -73,12 +73,29 @@ export const enrollmentsProcessingJob = defineJob(
         };
       }
 
-      await upsertEnrollment(enrollmentData, log);
+      const enrollmentId = await upsertEnrollment(enrollmentData, log);
+
+      if (!enrollmentId) {
+        log.warn(
+          {
+            ra,
+            disciplina: partialEnrollment.disciplina,
+            turma: partialEnrollment.turma,
+          },
+          'Could not build enrollment data for component'
+        );
+        return {
+          success: false,
+          message: 'Could not build enrollment data for component',
+          skipped: true,
+        };
+      }
 
       return {
         success: true,
         message: 'Enrollment processed successfully',
         data: {
+          enrollmentId,
           disciplina: partialEnrollment.disciplina,
           ra: ra,
           turma: partialEnrollment.turma,
@@ -303,7 +320,11 @@ async function buildEnrollmentFromSubject(
 
   const [mappedEnrollment] = mappedEnrollments;
 
-  if (!baseData.uf_cod_turma || baseData.uf_cod_turma === '--' || baseData.uf_cod_turma === '-') {
+  if (
+    !baseData.uf_cod_turma ||
+    baseData.uf_cod_turma === '--' ||
+    baseData.uf_cod_turma === '-'
+  ) {
     log.warn(
       {
         component,
@@ -355,7 +376,7 @@ function mapSubjects(
 async function upsertEnrollment(
   enrollmentData: Partial<Enrollment>,
   log: FastifyBaseLogger
-): Promise<void> {
+): Promise<string | null> {
   // @ts-ignore - Mongoose FilterQuery type
   const base: FilterQuery<Enrollment> = {
     ra: enrollmentData.ra,
@@ -424,4 +445,6 @@ async function upsertEnrollment(
       'Enrollment updated'
     );
   }
+
+  return enrollment?._id?.toString() || null;
 }
