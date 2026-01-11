@@ -170,6 +170,23 @@ export async function syncHistory(data: SyncHistory) {
   return syncedStudent;
 }
 
+export async function syncHistoryV2(data: SyncHistory) {
+  const headers = new Headers()
+  
+  headers.set('session-id', data.sessionId)
+  headers.set('view-id', data.viewState)
+
+  
+  await nextService('/v2/students/sigaa', {
+    method: 'POST',
+    headers,
+    body: {
+      login: data.login,
+      ra: Number.parseInt(data.ra),
+    }
+  });
+}
+
 export async function sendResults(results: { sessionToken: string | null, sessKey: string | null }) {
   if (!results.sessionToken || !results.sessKey) {
     console.warn('[sendResults] Token de sessão ou sessKey inválido(s), abortando envio.');

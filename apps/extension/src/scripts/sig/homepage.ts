@@ -3,7 +3,6 @@ import { normalizeDiacritics } from '@/utils/remove-diacritics';
 
 export function retrieveStudent(
 	pageTrs: NodeListOf<HTMLTableRowElement>,
-	sessionId: string,
 ) {
 	const rows = Array.from(pageTrs);
 	const kvStudent = rows.map((row) => {
@@ -28,10 +27,8 @@ export function retrieveStudent(
 
 export function scrapeMenu(
 	trs: NodeListOf<HTMLTableRowElement>,
-	sessionId: string,
-  viewState: string
 ): { data: { login: string; ra: string } | null, error: string | null } {
-	const shallowStudent = retrieveStudent(trs, sessionId);
+	const shallowStudent = retrieveStudent(trs);
 
 	if (!shallowStudent) {
 		return {
