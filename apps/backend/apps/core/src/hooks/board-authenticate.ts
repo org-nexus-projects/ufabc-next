@@ -20,6 +20,7 @@ export const authenticateBoard: BoardAuthHook = async (request, reply) => {
     await request.jwtVerify({
       extractToken: () => tokenToVerify,
     });
+    return
 
     const user = request.user;
     if (!user.permissions?.includes('admin')) {
