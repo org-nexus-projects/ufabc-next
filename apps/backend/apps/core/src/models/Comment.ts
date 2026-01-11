@@ -1,6 +1,6 @@
 import {
   type AnyObject,
-  type FilterQuery,
+  type QueryFilter as FilterQuery,
   type InferSchemaType,
   type PopulateOptions,
   Schema,

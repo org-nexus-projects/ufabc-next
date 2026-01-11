@@ -10,7 +10,7 @@ declare module 'fastify' {
   interface FastifyInstance {
     rawMongoose: Mongoose;
     db: DatabaseModels;
-    config: Record<string, any>;
+    config: any;
   }
 }
 

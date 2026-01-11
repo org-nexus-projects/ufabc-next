@@ -70,7 +70,7 @@ const userSchema = new Schema(
         const uniqueDevices = [];
         const uniqueDeviceIds = new Set<string>();
         for (const device of this.devices) {
-          if (!uniqueDeviceIds.has(device.id)) {
+          if (!uniqueDeviceIds.has(device._id.toString())) {
             uniqueDevices.push(device);
             uniqueDeviceIds.add(device.deviceId);
           }

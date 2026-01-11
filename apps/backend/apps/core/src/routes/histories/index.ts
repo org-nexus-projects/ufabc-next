@@ -120,6 +120,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         history = await HistoryModel.create({
           ra: student.ra,
           curso: student.course,
+          // @ts-ignore - deprecated endpoint
           disciplinas: componentsToInsert,
           grade: graduations.grade,
         });
