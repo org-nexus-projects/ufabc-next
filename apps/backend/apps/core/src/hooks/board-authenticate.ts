@@ -27,7 +27,7 @@ export const authenticateBoard: BoardAuthHook = async (request, reply) => {
         .status(401)
         .send({ error: 'Unauthorized', message: 'Insufficient permissions' });
     }
-    return
+      return reply.redirect('/v2/board/ui', 303);
   } catch (error) {
     request.log.warn({ error }, 'Board access denied');
     return reply.status(401).send({ error: 'Unauthorized' });
