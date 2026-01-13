@@ -139,6 +139,14 @@ export class JobManager<
       {
         ...jobBuilder.config.workerOptions,
         connection: this.redisConnection,
+        removeOnComplete: {
+          count: 150,
+          age: 1000 * 60 * 60 * 24 * 7 // 7 days
+        },
+        removeOnFail: {
+          count: 150,
+          age: 1000 * 60 * 60 * 24 * 14 // 14 days
+        }
       }
     );
 
