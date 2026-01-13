@@ -20,7 +20,7 @@ const WebhookController: FastifyPluginAsyncZod = async (app) => {
       response: {
         200: HistoryWebhookResponseSchema,
         401: z.object({ error: z.string() }),
-        400: z.object({ error: z.string() }),
+        400: z.any(),
         409: z.object({ error: z.string(), existingJobId: z.string() }),
         500: z.object({ error: z.string() }),
       },
