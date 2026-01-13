@@ -51,7 +51,7 @@ const commonConfig = {
     paths: [
       'headers.authorization',
       'headers.cookie',
-      'headers["x-api-key"]',
+      'headers',
       'body.password',
       'body.token',
     ],

@@ -68,7 +68,7 @@ export class BaseRequester {
           status: response.status,
           headers: response.headers,
           responseType: options.responseType || 'json',
-          body: response.body,
+          body: response._data,
         };
 
         if (response.status >= 500) {
