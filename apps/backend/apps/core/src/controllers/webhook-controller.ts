@@ -5,7 +5,6 @@ import { JOB_NAMES } from '@/constants.js';
 
 import {
   HistoryWebhookRequestSchema,
-  HistoryWebhookResponseSchema,
 } from '../schemas/v2/webhook/history.js';
 
 const WebhookController: FastifyPluginAsyncZod = async (app) => {
@@ -17,13 +16,6 @@ const WebhookController: FastifyPluginAsyncZod = async (app) => {
         'x-api-key': z.string().describe('API key for authentication'),
       }),
       body: HistoryWebhookRequestSchema,
-      response: {
-        200: HistoryWebhookResponseSchema,
-        401: z.object({ error: z.string() }),
-        400: z.any(),
-        409: z.object({ error: z.string(), existingJobId: z.string() }),
-        500: z.object({ error: z.string() }),
-      },
       tags: ['webhook', 'history'],
       hide: false,
     },
