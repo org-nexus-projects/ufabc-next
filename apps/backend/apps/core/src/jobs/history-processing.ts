@@ -2,6 +2,7 @@ import { currentQuad, findQuarter } from '@next/common';
 import { defineJob } from '@next/queues/client';
 import { z } from 'zod';
 
+import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { JOB_NAMES } from '@/constants.js';
 import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
 import { HistoryModel, type HistoryCoefficients } from '@/models/History.js';
@@ -79,6 +80,54 @@ export const historyProcessingJob = defineJob(JOB_NAMES.HISTORY_PROCESSING)
       };
     }
   });
+
+export const historyProcessingRetry = defineJob(
+  JOB_NAMES.HISTORY_PROCESSING_RETRY
+)
+.every('15 minutes')
+  .handler(async ({ app }) => {
+  const connector = new UfabcParserConnector();
+  const pendingStudentsSyncs = await app.db.StudentSync.find({
+    status: 'awaiting',
+  });
+
+  if (!pendingStudentsSyncs.length) {
+    return { success: true, message: 'No pending students syncs found' };
+  }
+
+  for (const studentSync of pendingStudentsSyncs) {
+    const login = studentSync.timeline[0]?.metadata.login;
+    if (!login) {
+      app.log.info('Skipping student sync with missing login');
+      continue;
+    }
+
+    const key = `${login}-${Date.now()}`;
+    const formattedHistory = await connector.getStudentHistory(login);
+    const job = await app.db.HistoryProcessingJob.insertOne({
+      ra: formattedHistory.student.ra,
+      idempotencyKey: key,
+      payload: formattedHistory,
+      source: 'retry',
+    });
+
+    await app.manager.dispatch(
+      JOB_NAMES.HISTORY_PROCESSING,
+      {
+        jobId: job._id.toString(),
+        webhookData: {
+          type: 'history.success',
+          payload: {
+            ...formattedHistory,
+            login: login,
+          },
+        },
+      },
+    );
+  }
+
+  return { success: true };
+});
 
 async function upsertStudentRecord(data: HistoryData, season: string) {
   const { student, coefficients, login, ra } = data;

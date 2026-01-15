@@ -2,7 +2,7 @@ import { JobManager } from '@next/queues/manager';
 import { startTestStack } from '@next/testing/containers';
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 
-import { buildApp } from '@/app';
+import { buildApp } from '@/app.js';
 
 describe('History Webhook Integration', () => {
   let app: any;
@@ -491,6 +491,20 @@ describe('History Webhook Integration', () => {
       );
       expect(processingJob.status).toBe('failed');
       expect(processingJob.error).toBeDefined();
+    });
+  });
+
+  describe('History Processing Retry', () => {
+    it('should handle no awaiting student syncs gracefully', async () => {
+      // Ensure no awaiting syncs exist
+      await app.db.models.StudentSync.deleteMany({});
+
+      // Execute the retry job manually
+      const { historyProcessingRetry } = await import('@/jobs/history-processing.js');
+      const result = await historyProcessingRetry.handler({ app });
+
+      expect(result.success).toBe(true);
+      expect(result.message).toBe('No pending students syncs found');
     });
   });
 });
