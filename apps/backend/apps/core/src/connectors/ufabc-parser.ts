@@ -226,4 +226,17 @@ export class UfabcParserConnector extends BaseRequester {
     });
     return response;
   }
+  
+  async getStudentHistory(login: string) {
+    const headers = new Headers();
+    headers.set('requester-key', process.env.UFABC_PARSER_REQUESTER_KEY!);
+    
+    const response = await this.request<any>(
+      `/v2/students/${login}/formatted`,
+      {
+        headers,
+      }
+    );
+    return response;
+  }
 }
