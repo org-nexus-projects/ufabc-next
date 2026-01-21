@@ -105,7 +105,6 @@ const goToSummaryScreen = () => {
 label {
   font-size: 14px;
   font-weight: bold;
-  color: #444;
   line-height: 30px;
 }
 

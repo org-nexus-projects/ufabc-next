@@ -6,7 +6,6 @@
       </h1>
       <h2 class="calengrade-summary__title-link">
         <a
-          class="hint"
           rel="noopener noreferrer"
           target="_blank"
           href="https://matricula.ufabc.edu.br/matricula/resumo"
@@ -159,11 +158,6 @@ const goToStep = (step: CalengradeSteps) => {
   font-weight: 400;
   margin-bottom: 16px;
   text-decoration: underline;
-  color: black;
-}
-
-.hint {
-  color: rgb(29, 29, 29);
 }
 
 .calengrade-summary__quad-label {
