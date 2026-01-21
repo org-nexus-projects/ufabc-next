@@ -13,7 +13,7 @@ export const definedQuarters: Quarter[] = [
   },
   {
     title: '2/2026',
-    startDate: '2026-05-18',
+    startDate: '2026-05-25',
     endDate: '2026-08-24',
   },
   {
