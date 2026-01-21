@@ -132,7 +132,7 @@ export const listMatriculaStudent = {
 export const updateStudentSchema = {
   tags,
   body: z.object({
-    ra: z.coerce.number().openapi({
+    ra: z.coerce.number().nullable().openapi({
       example: 112222332,
     }),
     login: z.string().openapi({

@@ -110,7 +110,7 @@ type CreateStudent = {
 };
 
 type UpdateStudent = {
-  ra: number;
+  ra: number | null;
   login: string;
   studentId: number | null | undefined;
   graduationId: number | null | undefined;
@@ -143,15 +143,15 @@ export async function update({
   graduationId,
 }: UpdateStudent): Promise<UpdatedStudent | null> {
   const season = currentQuad();
-  logger.info({ ra, login, studentId, graduationId });
+  logger.info({ ra, login, studentId, graduationId });  
   const student = await StudentModel.findOne({
-    ra,
     login,
     season,
   });
   const historyComponents = await HistoryModel.findOne(
     {
-      ra,
+      // @ts-ignore fix later
+      ra: student.ra,
     },
     { disciplinas: 1, _id: 0 }
   )
