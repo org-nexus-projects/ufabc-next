@@ -1,7 +1,7 @@
 {
   "name": "UFABC next - extensão",
   "private": true,
-  "version": "2.2.0",
+  "version": "2.2.2",
   "description": "Adiciona funcionalidades novas em sistemas da UFABC",
   "engines": {
     "node": ">22"

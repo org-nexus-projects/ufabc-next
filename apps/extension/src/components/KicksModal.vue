@@ -182,9 +182,11 @@ const { data: ufabcComponents } = useQuery({
   enabled: computed(() => props.isOpen)
 });
 
+const studentId = getStudentId() || matriculaStudent.value?.studentId;
+
 const { data: kicksData, isError, error } = useQuery({
-  queryKey: ['kicks', props.corteId, matriculaStudent.value?.studentId],
-  queryFn: () => getKicksInfo(props.corteId!, matriculaStudent.value?.studentId),
+  queryKey: ['kicks', props.corteId, studentId],
+  queryFn: () => getKicksInfo(props.corteId!, studentId),
   enabled: computed(() => Boolean(props.corteId && props.isOpen)),
 });
 
