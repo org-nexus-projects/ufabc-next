@@ -3,7 +3,6 @@ import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 import { currentQuad } from '@next/common';
 import { z } from 'zod';
 
-import { CATEGORIES } from '@/models/History.js';
 import { COURSE_SHIFTS } from '@/models/Student.js';
 
 const tags = ['Students'];
