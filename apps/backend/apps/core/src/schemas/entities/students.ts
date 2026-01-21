@@ -25,32 +25,10 @@ const listMatriculaStudentSchema = z.object({
 });
 
 const updatedStudentSchema = z.object({
-  ra: z.number(),
+  ra: z.number().nullable(),
   studentId: z.number().nullish(),
   graduations: z
-    .object({
-      nome_curso: z.string(),
-      cp: z.number(),
-      cr: z.number(),
-      ca: z.number(),
-      ind_afinidade: z.number(),
-      id_curso: z.number().int().optional(),
-      turno: z.enum(COURSE_SHIFTS),
-      components: z
-        .object({
-          periodo: z.string(),
-          codigo: z.string(),
-          disciplina: z.string(),
-          ano: z.number().int(),
-          situacao: z.string().nullable(),
-          creditos: z.number().int(),
-          categoria: z.enum(CATEGORIES),
-          conceito: z.string(),
-          turma: z.string(),
-          teachers: z.string().array(),
-        })
-        .array(),
-    })
+    .any()
     .array(),
 });
 
