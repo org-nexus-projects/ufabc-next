@@ -889,7 +889,6 @@
     <script src="assets/js/contact.js"></script>
     <script src="assets/js/custom.js"></script>
     <script type="text/javascript">
-      localStorage.clear();
 
       const resolveEndpoint = () => {
         const isLocal =
@@ -970,9 +969,18 @@
         window.location.hostname === 'localhost' ||
         window.location.hostname === '127.0.0.1' ||
         window.location.origin.includes('file://');
+
+      const actualPageUrl = window.location.href
+
       if (isLocal) {
         const devLoginContainer = document.querySelector('#dev-login');
         devLoginContainer.insertAdjacentHTML('afterend', devLoginBtn);
+      } else {
+        if (localStorage.getItem("auth")) {
+            window.location.replace("https://www.ufabcnext.com/app/reviews");
+        } else if (!actualPageUrl.startsWith("https://www.ufabcnext.com")) {
+            window.location.replace("https://www.ufabcnext.com/");
+        }
       }
     </script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
