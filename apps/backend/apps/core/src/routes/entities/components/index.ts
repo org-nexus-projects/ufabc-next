@@ -237,6 +237,69 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       }));
     }
   );
+
+  app.post('/update-group-urls/:disciplinaId', async (request, reply) => {
+    const { disciplinaId } = request.params as { disciplinaId: number };
+    const { season } = request.query as { season?: string };
+    const { groupURL } = request.body as { groupURL: string };
+
+    if (!groupURL) {
+      return reply.badRequest('groupURL in request body is required');
+    }
+
+    try {
+      app.log.info({ disciplinaId, season, groupURL }, 'Updating groupURL');
+
+      const seasonToUse = season ?? currentQuad();
+
+      const result = await ComponentModel.updateOne(
+        { disciplina_id: disciplinaId, season: seasonToUse },
+        { $set: { groupURL } }
+      );
+
+      if (result.matchedCount === 0) {
+        app.log.info({ disciplinaId, season: seasonToUse }, 'No matching component found');
+        return reply.status(404).send({
+          error: 'No matching component found',
+          disciplinaId,
+          season: seasonToUse,
+        });
+      }
+
+      if (result.modifiedCount === 0) {
+        app.log.info({ disciplinaId, season: seasonToUse }, 'Component found but not modified (same groupURL)');
+        return reply.send({
+          message: 'Component found but groupURL was already set to this value',
+          disciplinaId,
+          season: seasonToUse,
+          groupURL,
+        });
+      }
+
+      app.log.info(
+        { disciplinaId, season: seasonToUse, modifiedCount: result.modifiedCount },
+        'GroupURL updated successfully'
+      );
+
+      return reply.send({
+        message: 'GroupURL updated successfully',
+        disciplinaId,
+        season: seasonToUse,
+        groupURL,
+        modifiedCount: result.modifiedCount,
+      });
+    } catch (error) {
+      app.log.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          disciplinaId,
+          season,
+        },
+        'Error updating groupURL'
+      );
+      return reply.internalServerError('Error updating groupURL');
+    }
+  });
 };
 
 function kickRule(idealQuad: boolean, season: string) {
