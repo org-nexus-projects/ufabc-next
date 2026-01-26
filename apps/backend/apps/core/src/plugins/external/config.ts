@@ -25,6 +25,7 @@ const configSchema = z.object({
     .default('mongodb://127.0.0.1:27017/ufabc-matricula'),
   REDIS_CONNECTION_URL: z.string().default('redis://localhost:6379'),
   WEB_URL: z.string().default(NEXT_WEB_LOCAL),
+  CRONOS_URL: z.string().default('http://localhost:5173'),
   ALLOWED_ORIGINS: z.string().transform((origins) => origins.split(',')),
   UFABC_PARSER_URL: z.string(),
   AWS_REGION: z.string(),

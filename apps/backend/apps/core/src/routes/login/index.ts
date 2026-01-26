@@ -7,6 +7,7 @@ import { ofetch } from 'ofetch';
 import type { LegacyGoogleUser } from '@/schemas/login.js';
 
 import { type UserDocument, UserModel, type User } from '@/models/User.js';
+import { statePayloadType } from '@/plugins/external/oauth2.js';
 
 export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get('/google', async function (request, reply) {
@@ -31,7 +32,9 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get('/google/callback', async function (request, reply) {
     try {
       // @ts-ignore
-      const userId = request.query.state;
+      const { requesterKey, userId } = JSON.parse(
+        Buffer.from(request.query.state, 'base64url').toString()
+      ) as statePayloadType;
       const { token } =
         await this.google.getAccessTokenFromAuthorizationCodeFlow(
           request,
@@ -54,9 +57,25 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         permissions: user.permissions,
       });
 
-      const redirectURL = new URL('login', app.config.WEB_URL);
+      let baseUrl = app.config.WEB_URL;
+      let page = 'login';
+      let params = { token: jwtToken };
 
-      redirectURL.searchParams.append('token', jwtToken);
+      if (requesterKey === 'ufabc-cronos') {
+        if (!user.confirmed) {
+          page = 'signup';
+          //se o user tenta entrar no cronos mas nao tem conta no next, redireciona para o front do next com um aviso
+          params = { advice: true };
+        } else {
+          baseUrl = app.config.CRONOS_URL;
+          page = '/';
+        }
+      }
+
+      const redirectURL = new URL(page, baseUrl);
+
+      for (const [key, value] of Object.entries(params))
+        redirectURL.searchParams.append(key, value);
 
       return reply.redirect(redirectURL.href);
     } catch (error: any) {
