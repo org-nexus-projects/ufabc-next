@@ -93,19 +93,23 @@
         <div class="coming-soon-content">
           <h2>Quase lá! 🛠️</h2>
           <p>
-            Estamos deixando tudo pronto para 2026.1. <br>
+            Estamos deixando tudo pronto para 2026.1. <br />
             Em poucos dias, você poderá acessar todos os grupos de WhatsApp das
             suas disciplinas.
-            <br>
-            <br>
-            Enquanto isso, atualize seu histórico para garantir acesso aos grupos assim que estiverem disponíveis.
+            <br />
+            <br />
+            Enquanto isso, atualize seu histórico para garantir acesso aos
+            grupos assim que estiverem disponíveis.
           </p>
           <div class="not-synced__actions">
             <button class="not-synced__button" @click="handleExtension">
               <v-icon size="20"> mdi-link-variant </v-icon>
               Baixar extensão
             </button>
-            <button class="not-synced__button secondary" @click="handleSyncHistory">
+            <button
+              class="not-synced__button secondary"
+              @click="handleSyncHistory"
+            >
               <v-icon size="20"> mdi-sync </v-icon>
               Sincronizar histórico
             </button>
@@ -220,9 +224,7 @@ type SearchType = 'ra' | 'component';
 
 const router = useRouter();
 const authStore = useAuthStore();
-const userRa = computed(
-  () => authStore.user?.ra || null,
-);
+const userRa = computed(() => authStore.user?.ra || null);
 const isUserLoggedIn = computed(() => authStore.isLoggedIn);
 
 const whatsappRestrictionDialog = ref(false);
@@ -233,7 +235,7 @@ const selectedSearchType = ref<SearchType>('ra');
 const mockGroups = ref([
   {
     season: '2025:2',
-    groupURL: 'https://chat.whatsapp.com/GBQropAUsuEGZGXhWYSHrL',
+    groupURL: 'https://chat.whatsapp.com/example1',
     codigo: 'BCJ0205-15',
     campus: 'sa' as const,
     turma: 'B1',
