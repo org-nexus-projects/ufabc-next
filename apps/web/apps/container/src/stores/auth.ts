@@ -25,10 +25,12 @@ export const useAuthStore = defineStore('auth', {
         this.user = user;
       }
     },
-    logOut() {
+    logOut(redirect = true) {
+      localStorage.removeItem('auth');
       this.user = null;
       this.token = null;
-      window.location.href = '/';
+
+      if (redirect) window.location.href = '/';
     },
   },
 });
