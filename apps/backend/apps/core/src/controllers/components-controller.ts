@@ -6,6 +6,7 @@ import { MoodleConnector } from '@/connectors/moodle.js';
 import { JOB_NAMES } from '@/constants.js';
 import { moodleSession } from '@/hooks/moodle-session.js';
 import { getComponentArchives } from '@/services/components-service.js';
+import { ComponentModel } from '@/models/Component.js';
 
 const moodleConnector = new MoodleConnector();
 
@@ -102,6 +103,49 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       });
     },
   });
+  
+  app.get('/components/top-requests', async (request, reply) => {
+    const requested = await ComponentModel.aggregate([
+      {
+        $match: {
+          season: '2026:1'
+        }
+      },
+      {
+        $unwind: "$alunos_matriculados"
+      },
+      {
+        $group: {
+          _id: {
+            codigo: "$codigo",
+            studentId: "$alunos_matriculados"
+          },
+          doc: { $first: "$$ROOT" }
+        }
+      },
+      {
+        $group: {
+          _id: "$_id.codigo",
+          studentsTotalUnique: { $sum: 1 },
+          data: { $first: "$doc" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          studentsTotalUnique: 1,
+          component: "$data"
+        }
+      },
+      {
+        $sort: { studentsTotalUnique: -1 }
+      }
+    ]);
+    return reply.status(200).send({
+      status: 'success',
+      data: requested,
+    });
+  })
 };
 
 export default componentsController;
