@@ -28,3 +28,11 @@ export type SearchComponentItem = {
   teoria: string;
   pratica: string;
 };
+
+export type SearchCourseItem = {
+  id: number;
+  name: string;
+  ufComponentCodes: string[];
+  ufabcCourseIdentifier: number;
+  componentKeys: string[];
+};
