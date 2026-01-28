@@ -10,7 +10,17 @@ import { StudentModel, type StudentCourse } from '@/models/Student.js';
 
 import { HistoryWebhookPayloadSchema } from '../schemas/v2/webhook/history.js';
 
-const jobSchema = z.object({
+export const jobSchema = z.object({
+  jobData: z.object({
+    jobId: z.string().describe('Processing job ID'),
+    webhookData: z.object({
+      type: z.enum(['history.success', 'history.error']),
+      payload: HistoryWebhookPayloadSchema.extend({
+        login: z.string().describe('Student login'),
+      }),
+    }),
+  }),
+}).or(z.object({
   jobId: z.string().describe('Processing job ID'),
   webhookData: z.object({
     type: z.enum(['history.success', 'history.error']),
@@ -18,16 +28,19 @@ const jobSchema = z.object({
       login: z.string().describe('Student login'),
     }),
   }),
-});
+}));
 
-type JobData = z.infer<typeof jobSchema>;
-
-type HistoryData = JobData['webhookData']['payload'];
+// Use the webhook payload schema type directly since it's the same for both structures
+type HistoryData = z.infer<typeof HistoryWebhookPayloadSchema> & {
+  login: string;
+};
 
 export const historyProcessingJob = defineJob(JOB_NAMES.HISTORY_PROCESSING)
   .input(jobSchema)
   .handler(async ({ job, app }) => {
-    const { jobId, webhookData } = job.data;
+    // Handle both wrapped and unwrapped job data structures
+    const jobData = 'jobData' in job.data ? job.data.jobData : job.data;
+    const { jobId, webhookData } = jobData;
     const season = currentQuad();
     const db = app.db;
     const studentSync = await db.StudentSync.findOne({
