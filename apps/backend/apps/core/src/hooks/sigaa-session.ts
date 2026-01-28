@@ -38,7 +38,7 @@ export const sigaaSession: preHandlerAsyncHookHandler = async (
     return;
   }
 
-  const isValid = await validateToken(sessionId);
+  const isValid = await validateToken(sessionId, request.id);
   if (!isValid) {
     return reply.forbidden();
   }
@@ -51,8 +51,8 @@ export const sigaaSession: preHandlerAsyncHookHandler = async (
   request.sigaaSession = { sessionId, viewId };
 };
 
-async function validateToken(sessionId: string) {
-  const connector = new SigaaConnector();
+async function validateToken(sessionId: string, traceId: string) {
+  const connector = new SigaaConnector(traceId);
   const response = await connector.validateToken(sessionId);
   const $ = load(response);
   const hasLogout = $('#info-sistema > div > span.sair-sistema > a').length > 0;
