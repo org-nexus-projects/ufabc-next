@@ -128,7 +128,47 @@
     </section>
 
     <!-- Results Section -->
-    <section>
+    <section v-if="showOverlay" class="results-section overlay-active">
+      <div class="results-grid">
+        <WhatsappGroupCard
+          v-for="(component, index) in mockGroups"
+          :key="index"
+          :component="component"
+          class="preview-card"
+        />
+      </div>
+
+      <div class="coming-soon-overlay">
+        <div class="coming-soon-content">
+          <h2>Quase lá! 🛠️</h2>
+          <p>
+            Estamos deixando tudo pronto para 2026.1. <br />
+            Em poucos dias, você poderá acessar todos os grupos de WhatsApp das
+            suas disciplinas.
+            <br />
+            <br />
+            Enquanto isso, atualize seu histórico para garantir acesso aos
+            grupos assim que estiverem disponíveis.
+          </p>
+          <div class="not-synced__actions">
+            <button class="not-synced__button" @click="handleExtension">
+              <v-icon size="20"> mdi-link-variant </v-icon>
+              Baixar extensão
+            </button>
+            <button
+              class="not-synced__button secondary"
+              @click="handleSyncHistory"
+            >
+              <v-icon size="20"> mdi-sync </v-icon>
+              Sincronizar histórico
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Normal results when overlay is not active -->
+    <section v-else>
       <div v-if="currentLoading" class="results-grid">
         <v-skeleton-loader
           v-for="(i, index) in Array.from({ length: 6 })"
@@ -284,6 +324,7 @@ import WhatsappGroupCard from '@/components/WhatsappGroupCard/WhatsappGroupCard.
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
+import { extensionURL, studentRecordURL } from '@/utils/consts';
 import { normalizeText } from '@/utils/normalizeTextSearch';
 import { SearchCourseItem } from '@ufabc-next/types';
 
@@ -313,6 +354,54 @@ const shouldFetchGroupsByCourse = ref(false);
 const selectedSearchType = ref<SearchType>('ra');
 
 const resultsPage = ref(1);
+const showOverlay = ref(false); // FLAG PARA MOSTRAR O OVERLAY
+
+const mockGroups = ref([
+  {
+    season: '2026:1',
+    groupURL: 'https://chat.whatsapp.com/example1',
+    codigo: 'BCJ0205-15',
+    campus: 'sa' as const,
+    turma: 'B1',
+    turno: 'noturno',
+    subject: 'Fenômenos Térmicos',
+    teoria: 'Eduardo De Moraes Gregores',
+    pratica: 'Marcos De Abreu Avila',
+  },
+  {
+    season: '2026:1',
+    groupURL: 'https://chat.whatsapp.com/example2',
+    codigo: 'BCM0506-15',
+    campus: 'sa' as const,
+    turma: 'A2',
+    turno: 'matutino',
+    subject: 'Comunicação e Redes',
+    teoria: 'Maria Silva Santos',
+    pratica: 'João Pedro Oliveira',
+  },
+  {
+    season: '2026:1',
+    groupURL: 'https://chat.whatsapp.com/example3',
+    codigo: 'BCN0404-15',
+    campus: 'sa' as const,
+    turma: 'C1',
+    turno: 'matutino',
+    subject: 'Geometria Analítica',
+    teoria: 'Ana Carolina Lima',
+    pratica: 'Roberto Carlos Souza',
+  },
+  {
+    season: '2026:1',
+    groupURL: 'https://chat.whatsapp.com/example4',
+    codigo: 'BCS0001-15',
+    campus: 'sbc' as const,
+    turma: 'B3',
+    turno: 'noturno',
+    subject: 'Base Experimental das Ciências Naturais',
+    teoria: 'Pedro Henrique Costa',
+    pratica: 'Fernanda Rodrigues',
+  },
+]);
 
 const debouncedRaSearch = useDebounceFn((raValue: number) => {
   if (raValue && String(raValue).length >= 8) {
@@ -566,6 +655,14 @@ const openWhatsappGroup = (url: string) => {
   window.open(url, '_blank');
 };
 
+const handleExtension = () => {
+  window.open(extensionURL, '_blank');
+};
+
+const handleSyncHistory = () => {
+  window.open(studentRecordURL, '_blank');
+};
+
 const createAccount = () => {
   eventTracker.track(WebEvent.CREATE_ACCOUNT_CLICKED, {
     source: 'whatsapp_groups_dialog',
@@ -705,7 +802,6 @@ onMounted(() => {
   position: relative;
   padding: 32px 16px;
   max-width: 1200px;
-  margin: 0 auto;
   min-height: 400px;
 }
 
@@ -820,6 +916,11 @@ onMounted(() => {
 
 .preview-card {
   animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.results-section.overlay-active .preview-card {
+  filter: blur(1px);
+  pointer-events: none;
 }
 
 .not-synced__button {
