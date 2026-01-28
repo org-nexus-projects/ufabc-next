@@ -10,14 +10,14 @@ export class BaseRequester {
   protected readonly requester: ReturnType<typeof ofetch.create>;
   protected readonly baseURL?: string;
 
-  constructor(baseURL?: string) {
+  constructor(baseURL?: string, globalTraceId?: string) {
     this.baseURL = baseURL;
     this.requester = ofetch.create({
       baseURL,
       onRequest: ({ request, options }) => {
         const logger =
           this.getLogger() ?? defaultLogger.child({ connector: true });
-        const traceId = this.getTraceId();
+        const traceId = globalTraceId || this.getTraceId();
 
         const existingHeaders =
           options.headers instanceof Headers
