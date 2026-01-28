@@ -120,8 +120,8 @@ type SyncStudentParams = {
 };
 
 export class UfabcParserConnector extends BaseRequester {
-  constructor() {
-    super(process.env.UFABC_PARSER_URL);
+  constructor(globalTraceId?: string) {
+    super(process.env.UFABC_PARSER_URL, globalTraceId);
   }
 
   async getHistory(sessionId: string, viewState: string) {

@@ -11,7 +11,6 @@ import { StudentModel } from '@/models/Student.js';
 const CACHE_TTL = 1000 * 60 * 60 * 24; // 1 day
 
 export const studentsController: FastifyPluginAsyncZod = async (app) => {
-  const connector = new UfabcParserConnector();
   
   app.route({
     method: 'PUT',
@@ -122,6 +121,7 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
     },
     preHandler: [sigaaSession],
     handler: async (request, reply) => {
+      const connector = new UfabcParserConnector(request.id);
       const { ra, login } = request.body;
       const { sessionId, viewId } = request.sigaaSession;
       const cacheKey = `http:students:sigaa:${ra}`;
