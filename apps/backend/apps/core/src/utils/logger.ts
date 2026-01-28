@@ -31,13 +31,6 @@ const axiomOptions = {
   token: process.env.AXIOM_TOKEN as string,
 } satisfies AxiomOptions;
 
-const SENSITIVE_KEYS = [
-  'authorization',
-  'cookie',
-  'x-api-key',
-  'password',
-  'token',
-];
 
 const commonConfig = {
   level: process.env.LOG_LEVEL ?? 'info',
