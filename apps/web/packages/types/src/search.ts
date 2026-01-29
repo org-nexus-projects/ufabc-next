@@ -27,6 +27,7 @@ export type SearchComponentItem = {
   subject: string;
   teoria: string;
   pratica: string;
+  uf_cod_turma: string;
 };
 
 export type SearchCourseItem = {

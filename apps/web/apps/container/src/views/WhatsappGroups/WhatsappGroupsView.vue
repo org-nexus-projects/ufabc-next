@@ -530,6 +530,9 @@ const {
   queryKey: ['disciplinaComponents'],
   queryFn: () => Whatsapp.searchComponentsBySeason('2026:1'),
   gcTime: 1000 * 60 * 60 * 24,  // add cache de 24hrs
+  refetchOnMount: false, 
+  refetchOnWindowFocus: false, 
+
 });
 
 
@@ -604,7 +607,7 @@ const filteredAndSearchedCourseComponents = computed(() => {
   
   // Enriquece os componentes com dados de professores do componentsByCode
   const enrichedComponents = courseFiltered.map((component, index) => {
-    const teachersData = componentsByCode.value[component.codigo];
+    const teachersData = componentsByCode.value[component.uf_cod_turma];
     const enriched = {
       ...component,
       teoria: teachersData?.teoria || component.teoria || '',
@@ -652,7 +655,7 @@ const componentsByCode = computed(() => {
     const teoria = capitalizeName(teoriaRaw);
     const pratica = capitalizeName(praticaRaw);
 
-    grouped[component.ufComponentCode] = {
+    grouped[component.ufClassroomCode] = {
       teoria,
       pratica,
     };
