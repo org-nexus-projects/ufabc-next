@@ -16,6 +16,11 @@ export const api = axios.create({
   baseURL: resolveEndpoint(import.meta.env.VITE_APP_ENV),
 });
 
+// todo: improve this later
+export const apiParser = axios.create({
+  baseURL: 'https://ufabc-parser.com/v2',
+});
+
 api.interceptors.request.use(async (config) => {
   const token = getToken();
   if (token) {

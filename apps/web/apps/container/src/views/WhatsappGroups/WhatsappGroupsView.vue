@@ -204,7 +204,7 @@
               @open-group="openWhatsappGroup"
             />
           </div>
-          
+
           <div v-if="hasMoreResults" class="load-more-section">
             <v-btn
               color="primary"
@@ -213,7 +213,8 @@
               @click="loadMoreResults"
             >
               <v-icon start>mdi-chevron-down</v-icon>
-              Carregar mais ({{ currentGroups.length - paginatedGroups.length }} restantes)
+              Carregar mais ({{ currentGroups.length - paginatedGroups.length }}
+              restantes)
             </v-btn>
           </div>
         </div>
@@ -315,6 +316,7 @@
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
 import { Whatsapp } from '@ufabc-next/services';
+import { SearchCourseItem } from '@ufabc-next/types';
 import { useDebounceFn } from '@vueuse/core';
 import { computed, onMounted, ref, toValue, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -326,7 +328,6 @@ import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
 import { extensionURL, studentRecordURL } from '@/utils/consts';
 import { normalizeText } from '@/utils/normalizeTextSearch';
-import { SearchCourseItem } from '@ufabc-next/types';
 
 type SearchType = 'ra' | 'component' | 'course';
 
@@ -345,6 +346,8 @@ const isRaValid = computed(() => {
     searchRaQuery.value !== null && String(searchRaQuery.value).length >= 8
   );
 });
+
+const newFeatureDialog = ref(false);
 const searchComponentQuery = ref('');
 const searchCourseQuery = ref<number | null>(null);
 const searchCourseFilterQuery = ref('');
@@ -362,7 +365,7 @@ const capitalizeName = (name: string): string => {
   return name
     .toLowerCase()
     .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 };
 
@@ -377,6 +380,7 @@ const mockGroups = ref([
     subject: 'Fenômenos Térmicos',
     teoria: 'Eduardo De Moraes Gregores',
     pratica: 'Marcos De Abreu Avila',
+    uf_cod_turma: 'BCJ0205-15',
   },
   {
     season: '2026:1',
@@ -388,6 +392,7 @@ const mockGroups = ref([
     subject: 'Comunicação e Redes',
     teoria: 'Maria Silva Santos',
     pratica: 'João Pedro Oliveira',
+    uf_cod_turma: 'BCM0506-15',
   },
   {
     season: '2026:1',
@@ -399,6 +404,7 @@ const mockGroups = ref([
     subject: 'Geometria Analítica',
     teoria: 'Ana Carolina Lima',
     pratica: 'Roberto Carlos Souza',
+    uf_cod_turma: 'BCN0404-15',
   },
   {
     season: '2026:1',
@@ -410,6 +416,7 @@ const mockGroups = ref([
     subject: 'Base Experimental das Ciências Naturais',
     teoria: 'Pedro Henrique Costa',
     pratica: 'Fernanda Rodrigues',
+    uf_cod_turma: 'BCS0001-15',
   },
 ]);
 
@@ -517,10 +524,11 @@ const {
 } = useQuery({
   queryKey: ['whatsappGroups', 'components'],
   queryFn: () => Whatsapp.searchComponents(''),
-  enabled: computed(() => shouldFetchComponents.value || shouldFetchGroupsByCourse.value),
+  enabled: computed(
+    () => shouldFetchComponents.value || shouldFetchGroupsByCourse.value,
+  ),
   staleTime: 1000 * 60 * 5,
 });
-
 
 const {
   data: subjectComponents,
@@ -529,12 +537,10 @@ const {
 } = useQuery({
   queryKey: ['disciplinaComponents'],
   queryFn: () => Whatsapp.searchComponentsBySeason('2026:1'),
-  gcTime: 1000 * 60 * 60 * 24,  // add cache de 24hrs
-  refetchOnMount: false, 
-  refetchOnWindowFocus: false, 
-
+  gcTime: 1000 * 60 * 60 * 24, // add cache de 24hrs
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
 });
-
 
 const {
   data: coursesData,
@@ -573,7 +579,9 @@ const coursesList = computed(() => {
   if (!coursesData.value) return [];
   return coursesData.value
     .filter((course: SearchCourseItem) => course.name && course.name.trim())
-    .sort((a: SearchCourseItem, b: SearchCourseItem) => a.name.localeCompare(b.name));
+    .sort((a: SearchCourseItem, b: SearchCourseItem) =>
+      a.name.localeCompare(b.name),
+    );
 });
 
 const filteredComponentsByCourse = computed(() => {
@@ -582,14 +590,12 @@ const filteredComponentsByCourse = computed(() => {
   }
 
   const selectedCourse = coursesList.value.find(
-    (course: SearchCourseItem) => course.id === searchCourseQuery.value
+    (course: SearchCourseItem) => course.id === searchCourseQuery.value,
   );
 
   if (!selectedCourse) {
     return [];
   }
-  
- 
 
   const filtered = allComponents.value.data.filter((component) => {
     return (
@@ -597,14 +603,13 @@ const filteredComponentsByCourse = computed(() => {
       component.season === '2026:1'
     );
   });
-  
 
   return filtered;
 });
 
 const filteredAndSearchedCourseComponents = computed(() => {
   const courseFiltered = filteredComponentsByCourse.value;
-  
+
   // Enriquece os componentes com dados de professores do componentsByCode
   const enrichedComponents = courseFiltered.map((component, index) => {
     const teachersData = componentsByCode.value[component.uf_cod_turma];
@@ -613,24 +618,22 @@ const filteredAndSearchedCourseComponents = computed(() => {
       teoria: teachersData?.teoria || component.teoria || '',
       pratica: teachersData?.pratica || component.pratica || '',
     };
-    
-    
+
     return enriched;
   });
-  
-  
+
   if (!searchCourseFilterQuery.value?.trim()) {
     return enrichedComponents;
   }
-  
+
   const normalizedQuery = normalizeText(searchCourseFilterQuery.value);
-  
+
   return enrichedComponents.filter((component) => {
     const normalizedSubject = normalizeText(component.subject || '');
     const normalizedCodigo = normalizeText(component.codigo || '');
     const normalizedTeoria = normalizeText(component.teoria || '');
     const normalizedPratica = normalizeText(component.pratica || '');
-    
+
     return (
       normalizedSubject.includes(normalizedQuery) ||
       normalizedCodigo.includes(normalizedQuery) ||
@@ -640,18 +643,18 @@ const filteredAndSearchedCourseComponents = computed(() => {
   });
 });
 
-
-
 const componentsByCode = computed(() => {
   if (!subjectComponents.value) {
     return {};
   }
   const grouped: Record<string, { teoria: string; pratica: string }> = {};
- 
+
   subjectComponents.value.forEach((component, index) => {
-    const teoriaRaw = component.teachers?.find((t: any) => t.role === 'professor')?.name || '';
-    const praticaRaw = component.teachers?.find((t: any) => t.role === 'practice')?.name || '';
-    
+    const teoriaRaw =
+      component.teachers?.find((t: any) => t.role === 'professor')?.name || '';
+    const praticaRaw =
+      component.teachers?.find((t: any) => t.role === 'practice')?.name || '';
+
     const teoria = capitalizeName(teoriaRaw);
     const pratica = capitalizeName(praticaRaw);
 
@@ -659,10 +662,8 @@ const componentsByCode = computed(() => {
       teoria,
       pratica,
     };
-    
-  
   });
-  
+
   return grouped;
 });
 
@@ -670,10 +671,9 @@ const groupsFromRa = computed(() => groupsByRa.value?.data || []);
 const groupsFromComponents = computed(() => filteredComponents.value || []);
 const groupsFromCourse = computed(() => {
   const result = filteredAndSearchedCourseComponents.value || [];
- 
+
   return result;
 });
-
 
 const searchConfig = computed(() => ({
   ra: {
@@ -696,8 +696,8 @@ const searchConfig = computed(() => ({
   },
 }));
 
-const currentGroups = computed(() => 
-  searchConfig.value[selectedSearchType.value]?.groups || []
+const currentGroups = computed(
+  () => searchConfig.value[selectedSearchType.value]?.groups || [],
 );
 
 const paginatedGroups = computed(() => {
@@ -709,12 +709,12 @@ const hasMoreResults = computed(() => {
   return paginatedGroups.value.length < currentGroups.value.length;
 });
 
-const currentLoading = computed(() => 
-  searchConfig.value[selectedSearchType.value]?.loading || false
+const currentLoading = computed(
+  () => searchConfig.value[selectedSearchType.value]?.loading || false,
 );
 
-const currentSuccess = computed(() => 
-  searchConfig.value[selectedSearchType.value]?.success || false
+const currentSuccess = computed(
+  () => searchConfig.value[selectedSearchType.value]?.success || false,
 );
 
 const openWhatsappGroup = (url: string) => {
@@ -853,7 +853,7 @@ onMounted(() => {
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .course-select,
   .course-filter {
     flex: 1;

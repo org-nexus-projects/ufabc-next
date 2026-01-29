@@ -1,7 +1,6 @@
 import { SearchComponentItem, SearchCourseItem } from '@ufabc-next/types';
 
-import { api } from './api';
-
+import { api, apiParser } from './api';
 
 export interface UfabcParserComponent {
   componentKey: string;
@@ -31,8 +30,8 @@ export interface UfabcParserComponent {
     role: 'professor' | 'practice';
     isSecondary: boolean;
   }>;
-  timetable: Timetable[];
-};
+  // timetable: Timetable[]; // Removed for now
+}
 
 export const Whatsapp = {
   searchComponents: async (q: string) =>
@@ -42,19 +41,19 @@ export const Whatsapp = {
       params: { ra, season: '2026:1' },
     }),
   getCourses: async () => {
-    const response = await fetch('https://ufabc-parser.com/v2/components/curriculum/subjects');
-    if (!response.ok) {
-      throw new Error('falha ao chamar o parser para buscar cursos');
-    }
-    return response.json() as Promise<SearchCourseItem[]>;
+    const response = await apiParser.get<SearchCourseItem[]>(
+      '/components/curriculum/subjects',
+    );
+    return response.data;
   },
 
-  searchComponentsBySeason: async (season:string) => {
-    const response = await fetch(`https://ufabc-parser.com/v2/components?season=${season}`);
-    if (!response.ok) {
-      throw new Error('falha ao chamar o parser para buscar cursos');
-    }
-    return response.json() as Promise<UfabcParserComponent[]>;
+  searchComponentsBySeason: async (season: string) => {
+    const response = await apiParser.get<UfabcParserComponent[]>(
+      '/components',
+      {
+        params: { season },
+      },
+    );
+    return response.data;
   },
-
 };
