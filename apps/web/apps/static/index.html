@@ -898,7 +898,7 @@
           window.location.origin.includes('file://');
         if (isLocal) {
           // local backend
-          return 'http://localhost:5000/login/google';
+          return 'http://localhost:5005/login/google';
         } else if (origin.includes('dev')) {
           // staging url
           return 'https://api.v2.ufabcnext.com/login/google';
@@ -1037,15 +1037,15 @@
         localLoginForm.addEventListener('submit', async function (e) {
           e.preventDefault();
           const email = document.getElementById('emailInput').value;
-          const { data: res } = await axios.post(
-            'http://localhost:5000/backoffice/token',
-            { email },
-          );
-          const token = res.token?.replace('Bearer ', '');
+          // const { data: res } = await axios.post(
+          //   'http://localhost:5005/backoffice/token',
+          //   { email },
+          // );
+          // const token = res.token?.replace('Bearer ', '');
 
           $('#localLoginModal').modal('hide');
           localLoginForm.reset();
-          window.location.href = `http://localhost:3000?token=${encodeURIComponent(token)}`;
+          window.location.href = `http://localhost:3000?token=${encodeURIComponent('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MzJiYzYxODE2YTlkNjAwMThiODIzYjciLCJyYSI6MTEyMDIyMzA3NTQsImNvbmZpcm1lZCI6dHJ1ZSwiZW1haWwiOiJtb250ZWlyby5nQGFsdW5vLnVmYWJjLmVkdS5iciIsInBlcm1pc3Npb25zIjpbImFkbWluIl0sImlhdCI6MTc2OTY2MTExOH0.bZdy1ieNZQ0CS7LfEemDmaavaobcgXA3TW2OLD_NtBI')}`;
         });
       });
     </script>

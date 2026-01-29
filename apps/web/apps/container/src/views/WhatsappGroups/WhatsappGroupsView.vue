@@ -2,9 +2,9 @@
   <!-- todo: add animation -->
   <div class="whatsapp-groups-view">
     <UserNotifications
-      title="Acesso aos Grupos de WhatsApp"
-      text="Limitamos o acesso aos grupos apenas para pessoas com conta no UFABC Next. Clique e saiba mais"
-      @click="whatsappRestrictionDialog = true"
+      title="Tem novidade aí! 🎉"
+      text="Agora você pode filtrar os grupos por cursos para facilitar sua busca."
+      @click="newFeatureDialog = true"
     />
     <section>
       <div class="hero-section">
@@ -14,8 +14,8 @@
           fique por dentro de tudo com a sua turma.
         </p>
         <p style="font-size: 14px">
-          Limitamos o acesso aos grupos por pessoas sem conta no UFABC Next.
-          <span class="link-style" @click="whatsappRestrictionDialog = true"
+          Agora você pode filtrar os grupos por cursos para facilitar sua busca.
+          <span class="link-style" @click="newFeatureDialog = true"
             >Saiba mais</span
           >
         </p>
@@ -356,6 +356,16 @@ const selectedSearchType = ref<SearchType>('ra');
 const resultsPage = ref(1);
 const showOverlay = ref(false); // FLAG PARA MOSTRAR O OVERLAY
 
+// helper para atualizar o nome dos professores do parser
+const capitalizeName = (name: string): string => {
+  if (!name) return '';
+  return name
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 const mockGroups = ref([
   {
     season: '2026:1',
@@ -511,6 +521,18 @@ const {
   staleTime: 1000 * 60 * 5,
 });
 
+
+const {
+  data: subjectComponents,
+  isLoading: isSubjectComponentsLoading,
+  isSuccess: isSubjectComponentsSuccess,
+} = useQuery({
+  queryKey: ['disciplinaComponents'],
+  queryFn: () => Whatsapp.searchComponentsBySeason('2026:1'),
+  gcTime: 1000 * 60 * 60 * 24,  // add cache de 24hrs
+});
+
+
 const {
   data: coursesData,
   isLoading: isCoursesLoading,
@@ -560,26 +582,47 @@ const filteredComponentsByCourse = computed(() => {
     (course: SearchCourseItem) => course.id === searchCourseQuery.value
   );
 
-  if (!selectedCourse) return [];
+  if (!selectedCourse) {
+    return [];
+  }
+  
+ 
 
-  return allComponents.value.data.filter((component) => {
+  const filtered = allComponents.value.data.filter((component) => {
     return (
       selectedCourse.ufComponentCodes.includes(component.codigo) &&
       component.season === '2026:1'
     );
   });
+  
+
+  return filtered;
 });
 
 const filteredAndSearchedCourseComponents = computed(() => {
   const courseFiltered = filteredComponentsByCourse.value;
   
+  // Enriquece os componentes com dados de professores do componentsByCode
+  const enrichedComponents = courseFiltered.map((component, index) => {
+    const teachersData = componentsByCode.value[component.codigo];
+    const enriched = {
+      ...component,
+      teoria: teachersData?.teoria || component.teoria || '',
+      pratica: teachersData?.pratica || component.pratica || '',
+    };
+    
+    
+    return enriched;
+  });
+  
+  
   if (!searchCourseFilterQuery.value?.trim()) {
-    return courseFiltered;
+    return enrichedComponents;
   }
   
   const normalizedQuery = normalizeText(searchCourseFilterQuery.value);
   
-  return courseFiltered.filter((component) => {
+  return enrichedComponents.filter((component) => {
     const normalizedSubject = normalizeText(component.subject || '');
     const normalizedCodigo = normalizeText(component.codigo || '');
     const normalizedTeoria = normalizeText(component.teoria || '');
@@ -594,9 +637,40 @@ const filteredAndSearchedCourseComponents = computed(() => {
   });
 });
 
+
+
+const componentsByCode = computed(() => {
+  if (!subjectComponents.value) {
+    return {};
+  }
+  const grouped: Record<string, { teoria: string; pratica: string }> = {};
+ 
+  subjectComponents.value.forEach((component, index) => {
+    const teoriaRaw = component.teachers?.find((t: any) => t.role === 'professor')?.name || '';
+    const praticaRaw = component.teachers?.find((t: any) => t.role === 'practice')?.name || '';
+    
+    const teoria = capitalizeName(teoriaRaw);
+    const pratica = capitalizeName(praticaRaw);
+
+    grouped[component.ufComponentCode] = {
+      teoria,
+      pratica,
+    };
+    
+  
+  });
+  
+  return grouped;
+});
+
 const groupsFromRa = computed(() => groupsByRa.value?.data || []);
 const groupsFromComponents = computed(() => filteredComponents.value || []);
-const groupsFromCourse = computed(() => filteredAndSearchedCourseComponents.value || []);
+const groupsFromCourse = computed(() => {
+  const result = filteredAndSearchedCourseComponents.value || [];
+ 
+  return result;
+});
+
 
 const searchConfig = computed(() => ({
   ra: {
