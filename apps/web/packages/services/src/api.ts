@@ -2,10 +2,10 @@ import axios from 'axios';
 
 const resolveEndpoint = (env?: string) =>
   ({
-    development: 'http://localhost:5005',
+    development: 'http://localhost:5000',
     staging: 'https://api.v2.ufabcnext.com',
     production: 'https://api.v2.ufabcnext.com',
-  })[env!] || 'http://localhost:5005';
+  })[env!] || 'http://localhost:5000';
 
 let getToken: () => string | null = () => null;
 export const setTokenGetter = (fn: () => string | null) => {
