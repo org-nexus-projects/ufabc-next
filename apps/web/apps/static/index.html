@@ -337,7 +337,10 @@
                     </a>
                     <a
                       class="google-button"
-                      onclick="window.location.href = GOOGLE_LINK; return false;"
+                      onclick="
+                        window.location.href = GOOGLE_LINK;
+                        return false;
+                      "
                       id="googleLoginBtn"
                       data-toggle="tooltip"
                       data-placement="right"
@@ -367,21 +370,30 @@
                   alt="Home"
                 />
                 <a
-                  onclick="window.open(EXTENSION_URL,'_blank'); return false;"
+                  onclick="
+                    window.open(EXTENSION_URL, '_blank');
+                    return false;
+                  "
                   target="_blank"
                   ><img
                     src="assets/icons/chromestore.png"
                     class="chromestore-download"
                 /></a>
                 <a
-                  onclick="window.open(FIREFOX_EXTENSION_URL,'_blank'); return false;"
+                  onclick="
+                    window.open(FIREFOX_EXTENSION_URL, '_blank');
+                    return false;
+                  "
                   target="_blank"
                   ><img
                     src="assets/icons/firefox-badge.png"
                     class="chromestore-download"
                 /></a>
                 <a
-                  onclick="window.open(ANDROID_URL,'_blank'); return false;"
+                  onclick="
+                    window.open(ANDROID_URL, '_blank');
+                    return false;
+                  "
                   target="_blank"
                   ><img
                     src="assets/icons/google-play-badge.svg"
@@ -490,7 +502,10 @@
                             Utilizando a nossa
                             <a
                               class="extension-link"
-                              onclick="window.open(EXTENSION_URL,'_blank'); return false;"
+                              onclick="
+                                window.open(EXTENSION_URL, '_blank');
+                                return false;
+                              "
                               target="_blank"
                               >extensão para Google Chrome</a
                             >, deixamos para você o processo de matrícula mais
@@ -562,7 +577,10 @@
                   </p>
                   <a
                     href="#"
-                    onclick="window.open(TEACHER_FORM,'_blank'); return false;"
+                    onclick="
+                      window.open(TEACHER_FORM, '_blank');
+                      return false;
+                    "
                     target="_blank"
                     style="cursor: pointer"
                     class="btn btn-action btn-white"
@@ -642,7 +660,10 @@
                         O UFABC Next tem um portal e uma
                         <a
                           href="#"
-                          onclick="window.open(EXTENSION_URL,'_blank'); return false;"
+                          onclick="
+                            window.open(EXTENSION_URL, '_blank');
+                            return false;
+                          "
                           target="_blank"
                           >extensão para navegador</a
                         >
@@ -681,7 +702,10 @@
                         Recomendamos sempre utilizar a
                         <a
                           href="#"
-                          onclick="window.open(EXTENSION_URL,'_blank'); return false;"
+                          onclick="
+                            window.open(EXTENSION_URL, '_blank');
+                            return false;
+                          "
                           target="_blank"
                           >extensão</a
                         >
@@ -844,7 +868,10 @@
                 <ul class="social">
                   <li>
                     <a
-                      onclick="window.open(EXTENSION_URL,'_blank'); return false;"
+                      onclick="
+                        window.open(EXTENSION_URL, '_blank');
+                        return false;
+                      "
                       target="_blank"
                       style="cursor: pointer"
                       ><img
@@ -889,7 +916,6 @@
     <script src="assets/js/contact.js"></script>
     <script src="assets/js/custom.js"></script>
     <script type="text/javascript">
-
       const resolveEndpoint = () => {
         const isLocal =
           window.location.protocol === 'file:' ||
@@ -898,7 +924,7 @@
           window.location.origin.includes('file://');
         if (isLocal) {
           // local backend
-          return 'http://localhost:5005/login/google';
+          return 'http://localhost:5000/login/google';
         } else if (origin.includes('dev')) {
           // staging url
           return 'https://api.v2.ufabcnext.com/login/google';
@@ -1037,15 +1063,15 @@
         localLoginForm.addEventListener('submit', async function (e) {
           e.preventDefault();
           const email = document.getElementById('emailInput').value;
-          // const { data: res } = await axios.post(
-          //   'http://localhost:5005/backoffice/token',
-          //   { email },
-          // );
-          // const token = res.token?.replace('Bearer ', '');
+          const { data: res } = await axios.post(
+            'http://localhost:5000/backoffice/token',
+            { email },
+          );
+          const token = res.token?.replace('Bearer ', '');
 
           $('#localLoginModal').modal('hide');
           localLoginForm.reset();
-          window.location.href = `http://localhost:3000?token=${encodeURIComponent('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MzJiYzYxODE2YTlkNjAwMThiODIzYjciLCJyYSI6MTEyMDIyMzA3NTQsImNvbmZpcm1lZCI6dHJ1ZSwiZW1haWwiOiJtb250ZWlyby5nQGFsdW5vLnVmYWJjLmVkdS5iciIsInBlcm1pc3Npb25zIjpbImFkbWluIl0sImlhdCI6MTc2OTY2MTExOH0.bZdy1ieNZQ0CS7LfEemDmaavaobcgXA3TW2OLD_NtBI')}`;
+          window.location.href = `http://localhost:3000?token=${encodeURIComponent(token)}`;
         });
       });
     </script>
