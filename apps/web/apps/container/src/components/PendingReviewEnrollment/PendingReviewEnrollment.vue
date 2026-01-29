@@ -1,15 +1,15 @@
 <template>
   <ReviewDialog
     :enrollment="enrollment"
-    :showDialog="showDialog"
+    :show-dialog="showDialog"
     :tags="tags"
-    @update:showDialog="showDialog = $event"
+    @update:show-dialog="showDialog = $event"
   />
   <v-container
-    @click="showDialog = true"
     class="pa-3 bg-secondary rounded-lg"
     style="max-width: none"
     role="button"
+    @click="showDialog = true"
   >
     <v-row class="ma-0">
       <v-col class="d-flex align-center text-primary pa-0 font-weight-bold">
@@ -50,17 +50,20 @@
       </v-col>
       <v-col cols="12" sm="auto" class="d-flex justify-end align-end pa-0">
         AVALIAR
-        <v-icon class="ml-1">mdi-plus-circle-outline</v-icon>
+        <v-icon class="ml-1"> mdi-plus-circle-outline </v-icon>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { PropType, computed, ref } from 'vue';
+import { Enrollment } from '@ufabc-next/types';
+import { computed, PropType, ref } from 'vue';
+
 import { ReviewDialog } from '@/components/ReviewDialog';
-import { checkEAD, conceptsColor, formatSeason } from 'utils';
-import { Enrollment } from 'types';
+import { conceptsColor } from '@/utils/consts';
+import { checkEAD, formatSeason } from '@/utils/season';
+
 const showDialog = ref(false);
 
 const conceptStyle = computed(() => ({

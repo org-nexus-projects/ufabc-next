@@ -2,8 +2,8 @@
   <div class="grading">
     <el-tooltip
       v-for="grade in orderedDistribution"
-      placement="top"
       :key="grade.conceito"
+      placement="top"
       :hide-after="0"
       :content="`
         ${grade.conceito}: ${(
@@ -18,8 +18,7 @@
           background: conceptsColor[grade.conceito],
           width: `${grades[grade.conceito]}%`,
         }"
-      >
-      </span>
+      />
     </el-tooltip>
 
     <span
@@ -31,9 +30,11 @@
 </template>
 
 <script setup lang="ts">
-import { ConceptData, SubjectSpecific } from 'types';
-import { transformConceptDataToObject, conceptsColor } from 'utils';
+import { ConceptData, SubjectSpecific } from '@ufabc-next/types';
 import { computed, PropType } from 'vue';
+
+import { conceptsColor } from '@/utils/consts';
+import { transformConceptDataToObject } from '@/utils/transformConceptDataToObject';
 
 const props = defineProps({
   gradeData: { type: Object as PropType<SubjectSpecific>, required: true },

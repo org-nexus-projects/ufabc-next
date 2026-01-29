@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { authStore } from 'stores';
 
 const resolveEndpoint = (env?: string) =>
   ({
@@ -8,12 +7,17 @@ const resolveEndpoint = (env?: string) =>
     production: 'https://api.v2.ufabcnext.com',
   })[env!] || 'http://localhost:5000';
 
+let getToken: () => string | null = () => null;
+export const setTokenGetter = (fn: () => string | null) => {
+  getToken = fn;
+};
+
 export const api = axios.create({
-  baseURL: resolveEndpoint(process.env.VUE_APP_MF_ENV),
+  baseURL: resolveEndpoint(import.meta.env.VITE_APP_ENV),
 });
 
 api.interceptors.request.use(async (config) => {
-  const { token } = authStore.getState();
+  const token = getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

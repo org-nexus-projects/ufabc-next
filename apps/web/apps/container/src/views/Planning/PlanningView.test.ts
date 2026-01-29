@@ -1,4 +1,5 @@
 import { render, screen } from '@/test-utils';
+
 import { PlanningView } from '.';
 
 describe('<PlanningView />', () => {

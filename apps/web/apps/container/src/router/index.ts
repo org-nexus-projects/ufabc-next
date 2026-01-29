@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import { authStore } from 'stores';
-// import NextClassView from '@/views/Partners/NextClass/NextClassView.vue';
+
+import { useAuthStore } from '@/stores/auth';
+
 const ReviewsView = () => import('@/views/Reviews/ReviewsView.vue');
 const PerformanceView = () => import('@/views/Performance/PerformanceView.vue');
 const PlanningView = () => import('@/views/Planning/PlanningView.vue');
@@ -12,8 +13,11 @@ const SignUpView = () => import('@/views/SignUp/SignUpView.vue');
 const ConfirmationView = () =>
   import('@/views/Confirmation/ConfirmationView.vue');
 const RecoveryView = () => import('@/views/Recovery/RecoveryView.vue');
-const CalengradeView = () => import('@/views/Calengrade/CalengradeView.vue');
 const FacebookView = () => import('@/views/Facebook/FacebookView.vue');
+const CalengradeView = () => import('@/views/Calengrade/CalengradeView.vue');
+const WhatsappGroupsView = () =>
+  import('@/views/WhatsappGroups/WhatsappGroupsView.vue');
+const HelpView = () => import('@/views/Help/HelpView.vue');
 
 const isJWT = (token: string) =>
   /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/=]*$/.test(token);
@@ -79,6 +83,7 @@ const routes: Array<RouteRecordRaw> = [
     component: DonateView,
     meta: {
       title: 'Ajude o Next',
+      layout: 'include-sidebar',
     },
   },
   {
@@ -110,11 +115,21 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
   {
+    path: '/grupos-whatsapp',
+    name: 'whatsapp',
+    component: WhatsappGroupsView,
+    meta: {
+      title: 'Grupos do Whatsapp',
+      layout: 'include-sidebar',
+    },
+  },
+  {
     path: '/calengrade',
     name: 'calengrade',
     component: CalengradeView,
     meta: {
       title: 'Calengrade',
+      layout: 'include-sidebar',
     },
   },
   {
@@ -126,16 +141,15 @@ const routes: Array<RouteRecordRaw> = [
       auth: false,
     },
   },
-  // {
-  //   path: '/partners',
-  //   name: 'Next Class Noc',
-  //   component: NextClassView,
-  //   meta: {
-  //     title: 'Next Class Noc',
-  //     auth: false,
-  //     confirmed: true,
-  //   },
-  // },
+  {
+    path: '/help',
+    name: 'help',
+    component: HelpView,
+    meta: {
+      title: 'Ajuda',
+      layout: 'include-sidebar',
+    },
+  },
   {
     path: '/:pathMatch(.*)*',
     redirect: (to) => {
@@ -157,19 +171,18 @@ const routes: Array<RouteRecordRaw> = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(process.env.VUE_APP_BASE_URL),
+  history: createWebHistory(import.meta.env.VITE_APP_BASE_URL),
   routes,
 });
 
 router.beforeEach(async (to, _from, next) => {
+  const authStore = useAuthStore();
   document.title = (to.meta.title as string) || 'UFABC Next';
 
   const tokenParam = to.query.token;
 
-  const { authenticate } = authStore.getState();
-
   if (isJWT(tokenParam as string)) {
-    authenticate(tokenParam as string);
+    authStore.authenticate(tokenParam as string);
     return next({ query: { token: undefined } });
   }
 
@@ -182,22 +195,20 @@ router.beforeEach(async (to, _from, next) => {
     (record) => record.meta.confirmed === false,
   );
 
-  const { isLoggedIn, user, logOut } = authStore.getState();
-
-  if (isLoggedIn() && user) {
+  if (authStore.isLoggedIn && authStore.user) {
     const expirationPeriod = 1 * 24 * 60 * 60; // 1 day
     const currentTime = Math.floor(Date.now() / 1000);
-    const expirationTime = user.iat + expirationPeriod;
+    const expirationTime = authStore.user.iat + expirationPeriod;
 
     if (expirationTime < currentTime) {
-      logOut();
+      authStore.logOut();
       return next('/');
     }
   }
 
-  const userConfirmed = user?.confirmed;
+  const userConfirmed = authStore.user?.confirmed;
 
-  const isLocal = process.env.VUE_APP_MF_ENV === 'local';
+  const isLocal = import.meta.env.DEV;
 
   const notConfirmedRedirectPath = '/signup';
   const authenticatedRedirectPath = '/reviews';
@@ -205,18 +216,18 @@ router.beforeEach(async (to, _from, next) => {
     isLocal ? next(notConfirmedRedirectPath) : (window.location.pathname = '/');
 
   if (requireAuth) {
-    if (isLoggedIn()) return next();
+    if (authStore.isLoggedIn) return next();
     return notAuthenticatedRedirect();
   }
   if (requireConfirmed) {
-    if (isLoggedIn()) {
+    if (authStore.isLoggedIn) {
       if (userConfirmed) return next();
       return next(notConfirmedRedirectPath);
     }
     return notAuthenticatedRedirect();
   }
   if (notAllowAuth) {
-    if (isLoggedIn()) return next(authenticatedRedirectPath);
+    if (authStore.isLoggedIn) return next(authenticatedRedirectPath);
     return next();
   }
   if (notAllowConfirmed) {

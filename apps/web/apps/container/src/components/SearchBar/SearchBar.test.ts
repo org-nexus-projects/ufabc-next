@@ -1,9 +1,11 @@
-import { render, screen, userEvent } from '@/test-utils';
-import { SearchBar } from '.';
+import { http, HttpResponse } from 'msw';
 import { useRouter } from 'vue-router';
+
 import { subjectSearch, teacherSearch } from '@/mocks/reviews';
 import { server } from '@/mocks/server';
-import { HttpResponse, http } from 'msw';
+import { render, screen, userEvent } from '@/test-utils';
+
+import { SearchBar } from '.';
 
 vi.mock('vue-router', async () => ({
   useRouter: vi.fn(),
@@ -68,7 +70,10 @@ describe('<SearchBar />', () => {
     );
     expect(replaceMock).toHaveBeenCalledWith({
       name: 'reviews',
-      query: { q: teacherSearch.data[0].name, teacherId: teacherSearch.data[0]._id },
+      query: {
+        q: teacherSearch.data[0].name,
+        teacherId: teacherSearch.data[0]._id,
+      },
     });
   });
   test('render SearchBar, type something, and click on subject result', async () => {
@@ -97,13 +102,20 @@ describe('<SearchBar />', () => {
     );
     expect(replaceMock).toHaveBeenCalledWith({
       name: 'reviews',
-      query: { q: subjectSearch.data[0].name, subjectId: subjectSearch.data[0]._id },
+      query: {
+        q: subjectSearch.data[0].name,
+        subjectId: subjectSearch.data[0]._id,
+      },
     });
   });
   test('show Error Teachers and Error Subjects toasters', async () => {
     server.use(
-      http.get(`*/teachers/search`, () => HttpResponse.json(null, { status: 500 })),
-      http.get(`*/subjects/search`, () => HttpResponse.json(null, { status: 500 })),
+      http.get(`*/teachers/search`, () =>
+        HttpResponse.json(null, { status: 500 }),
+      ),
+      http.get(`*/subjects/search`, () =>
+        HttpResponse.json(null, { status: 500 }),
+      ),
     );
     vi.mocked(useRouter).mockReturnValue({
       replace: replaceMock,

@@ -1,9 +1,11 @@
-import { render, screen, userEvent } from '@/test-utils';
-import { RecoveryView } from '.';
+import { http, HttpResponse } from 'msw';
 import { useRouter } from 'vue-router';
-import { user as mockedUser } from '@/mocks/users';
-import { HttpResponse, http } from 'msw';
+
 import { server } from '@/mocks/server';
+import { user as mockedUser } from '@/mocks/users';
+import { render, screen, userEvent } from '@/test-utils';
+
+import { RecoveryView } from '.';
 
 vi.mock('vue-router', async () => ({
   useRouter: vi.fn(),
@@ -24,8 +26,12 @@ describe('<RecoveryView />', () => {
   test('render recovery', () => {
     render(RecoveryView);
     expect(screen.getByAltText(/logo do UFABC Next/i)).toBeInTheDocument();
-    expect(screen.getByAltText(/Imagem minimalista de dois estudantes/i)).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /Insira seu email institucional/i })).toBeInTheDocument();
+    expect(
+      screen.getByAltText(/Imagem minimalista de dois estudantes/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('textbox', { name: /Insira seu email institucional/i }),
+    ).toBeInTheDocument();
   });
   test('click go back button', async () => {
     const user = await userEvent.setup();

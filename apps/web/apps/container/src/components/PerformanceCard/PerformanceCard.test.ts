@@ -1,4 +1,5 @@
 import { render, screen } from '@/test-utils';
+
 import { PerformanceCard } from '.';
 
 describe('<PerformanceCard />', () => {
@@ -7,7 +8,7 @@ describe('<PerformanceCard />', () => {
       props: {
         title: 'title',
         description: 'description',
-        subtitle: 'subtitle',
+        subTitle: 'subtitle',
         color: 'primary',
         icon: 'mdi-trophy-outline',
       },

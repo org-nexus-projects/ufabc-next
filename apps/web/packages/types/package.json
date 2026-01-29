@@ -1,6 +1,6 @@
 {
-  "name": "types",
-  "version": "0.0.0",
+  "name": "@ufabc-next/types",
+  "version": "1.0.0",
   "main": "./index.ts",
   "license": "MIT",
   "type": "module",
@@ -10,8 +10,8 @@
     "tsc": "tsc --noEmit"
   },
   "devDependencies": {
-    "eslint-config-custom": "*",
-    "tsconfig": "*",
-    "typescript": "^5.2.2"
+    "@ufabc-next/eslint-config": "workspace:*",
+    "tsconfig": "workspace:*",
+    "typescript": "^5.9.2"
   }
 }

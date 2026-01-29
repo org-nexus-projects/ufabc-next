@@ -1,12 +1,15 @@
-import { render, screen } from '@/test-utils';
-import { ConceptsHorizontalChart } from '.';
+import { SubjectSpecific } from '@ufabc-next/types';
+
 import { subjectInfo } from '@/mocks/reviews';
+import { render, screen } from '@/test-utils';
+
+import { ConceptsHorizontalChart } from '.';
 
 describe('<ConceptsHorizontalChart />', () => {
   test('render Concepts Horizontal Chart with regular found teacher', async () => {
     render(ConceptsHorizontalChart, {
       props: {
-        gradeData: subjectInfo.specific[2],
+        gradeData: subjectInfo.specific[2] as SubjectSpecific,
       },
     });
 
@@ -29,7 +32,7 @@ describe('<ConceptsHorizontalChart />', () => {
   test('render Concepts Horizontal Chart with untrustable threshold ', async () => {
     render(ConceptsHorizontalChart, {
       props: {
-        gradeData: subjectInfo.specific[1],
+        gradeData: subjectInfo.specific[1] as SubjectSpecific,
       },
     });
     expect(

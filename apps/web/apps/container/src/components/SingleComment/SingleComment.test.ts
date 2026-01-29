@@ -1,8 +1,10 @@
-import { render, screen, userEvent, waitFor } from '@/test-utils';
-import { SingleComment } from '.';
+import { http, HttpResponse } from 'msw';
+
 import { comments } from '@/mocks/reviews';
 import { server } from '@/mocks/server';
-import { HttpResponse, http } from 'msw';
+import { render, screen, userEvent, waitFor } from '@/test-utils';
+
+import { SingleComment } from '.';
 
 describe('<SingleComment />', () => {
   test('render Comment, give like and recommendation, them remove like and recomendation', async () => {
@@ -18,7 +20,11 @@ describe('<SingleComment />', () => {
       props: {
         comment: {
           ...comments.data[0],
-          myReactions: {},
+          myReactions: {
+            like: false,
+            recommendation: false,
+            star: false,
+          },
           reactionsCount: {
             like: 50,
             recommendation: 150,
@@ -167,6 +173,7 @@ describe('<SingleComment />', () => {
           myReactions: {
             like: true,
             recommendation: true,
+            star: false,
           },
           reactionsCount: {
             like: 50,

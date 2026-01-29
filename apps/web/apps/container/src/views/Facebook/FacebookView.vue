@@ -1,33 +1,22 @@
 <script setup lang="ts">
+import { useMutation } from '@tanstack/vue-query';
+import { Users } from '@ufabc-next/services';
+import { toTypedSchema } from '@vee-validate/zod';
+import { ElMessage } from 'element-plus';
+import { useField, useForm } from 'vee-validate';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useMutation } from '@tanstack/vue-query';
-import { z } from 'zod';
-import { toTypedSchema } from '@vee-validate/zod';
-import { useForm, useField } from 'vee-validate';
-import { ElMessage } from 'element-plus';
 
-import { useAuth } from '@/stores/useAuth';
-import { Users } from 'services';
+import { useAuthStore } from '@/stores/auth';
+
+import { facebookValidationSchema } from './facebookValidationSchema';
 
 const facebookNotFound = ref(false);
 
-const { authenticate } = useAuth();
+const authStore = useAuthStore();
 const router = useRouter();
 
-const validationSchema = toTypedSchema(
-  z.object({
-    email: z
-      .string({
-        required_error: 'Este campo é obrigatório',
-        invalid_type_error: 'Digite um email válido',
-      })
-      .email({
-        message: 'Por favor, digite um email válido',
-      }),
-    ra: z.string({ required_error: 'Este campo é obrigatório' }),
-  }),
-);
+const validationSchema = toTypedSchema(facebookValidationSchema as any);
 const { handleSubmit } = useForm({
   validationSchema,
 });
@@ -44,7 +33,7 @@ const { mutate: mutateFacebook, isPending: isPendingSubmit } = useMutation({
       showClose: true,
       duration: 5_000,
     });
-    authenticate.value(data.token);
+    authStore.authenticate(data.token);
     router.push('/partners');
   },
   onError() {
@@ -69,15 +58,26 @@ const onSubmit = handleSubmit(({ email, ra }) =>
     </v-row>
     <v-row class="w-100 h-100 justify-center justify-md-start">
       <v-col cols="12" md="6" class="d-flex align-center justify-center">
-        <img src="@/assets/signup.svg" class="w-100" style="max-width: 400px"
-          alt="Pessoa meditando na frente do computador" />
+        <img
+          src="@/assets/signup.svg"
+          class="w-100"
+          style="max-width: 400px"
+          alt="Pessoa meditando na frente do computador"
+        />
       </v-col>
 
-      <v-col cols="12" md="6" class="mt-6 d-flex flex-column ga-4" v-if="!facebookNotFound">
+      <v-col
+        v-if="!facebookNotFound"
+        cols="12"
+        md="6"
+        class="mt-6 d-flex flex-column ga-4"
+      >
         <div class="d-flex align-center w-100 flex-column">
-          <img style="width: 50px; height: 50px"
+          <img
+            style="width: 50px; height: 50px"
             src="https://upload.wikimedia.org/wikipedia/en/0/04/Facebook_f_logo_%282021%29.svg"
-            alt="Logo do Facebook" />
+            alt="Logo do Facebook"
+          />
           <h1 class="text-center">
             Houve um problema com seu login através do Facebook
           </h1>
@@ -88,24 +88,46 @@ const onSubmit = handleSubmit(({ email, ra }) =>
         </div>
 
         <v-form @submit.prevent="onSubmit">
-          <v-text-field v-model.trim="emailField" label="Insira seu email do Facebook" variant="solo" class="w-100"
-            prepend-inner-icon="mdi-email" :error-messages="emailErrorMessage">
-          </v-text-field>
+          <v-text-field
+            v-model.trim="emailField"
+            label="Insira seu email do Facebook"
+            variant="solo"
+            class="w-100"
+            prepend-inner-icon="mdi-email"
+            :error-messages="emailErrorMessage"
+          />
 
-          <v-text-field v-model="raField" label="Insira seu RA" variant="solo" class="w-100" placeholder="11201911111"
-            prepend-inner-icon="mdi-school" :error-messages="raErrorMessage" />
+          <v-text-field
+            v-model="raField"
+            label="Insira seu RA"
+            variant="solo"
+            class="w-100"
+            placeholder="11201911111"
+            prepend-inner-icon="mdi-school"
+            :error-messages="raErrorMessage"
+          />
           <v-col md="6" class="d-flex justify-center px-0 px-md-2">
-            <v-btn color="primary" type="submit" style="text-transform: unset !important" class="flex-grow-1"
-              size="x-large" :loading="isPendingSubmit">Enviar</v-btn>
+            <v-btn
+              color="primary"
+              type="submit"
+              style="text-transform: unset !important"
+              class="flex-grow-1"
+              size="x-large"
+              :loading="isPendingSubmit"
+            >
+              Enviar
+            </v-btn>
           </v-col>
         </v-form>
       </v-col>
 
       <v-col v-else cols="12" md="6" class="mt-6 d-flex flex-column ga-4">
         <div class="d-flex align-center w-100 flex-column">
-          <img style="width: 50px; height: 50px"
+          <img
+            style="width: 50px; height: 50px"
             src="https://upload.wikimedia.org/wikipedia/en/0/04/Facebook_f_logo_%282021%29.svg"
-            alt="Logo do Facebook" />
+            alt="Logo do Facebook"
+          />
           <h1 class="text-center mb-4">
             Sua conta do UFABC Next não foi encontrada
           </h1>
@@ -117,10 +139,24 @@ const onSubmit = handleSubmit(({ email, ra }) =>
             <strong>Google</strong>.
           </p>
           <div>
-            <v-btn color="white" @click="facebookNotFound = false" style="text-transform: unset !important"
-              class="flex-grow-1 mr-4" size="x-large">Tentar novamente</v-btn>
-            <v-btn color="primary" @click="redirectToHome()" style="text-transform: unset !important"
-              class="flex-grow-1" size="x-large">Voltar para a página inicial</v-btn>
+            <v-btn
+              color="white"
+              style="text-transform: unset !important"
+              class="flex-grow-1 mr-4"
+              size="x-large"
+              @click="facebookNotFound = false"
+            >
+              Tentar novamente
+            </v-btn>
+            <v-btn
+              color="primary"
+              style="text-transform: unset !important"
+              class="flex-grow-1"
+              size="x-large"
+              @click="redirectToHome()"
+            >
+              Voltar para a página inicial
+            </v-btn>
           </div>
         </div>
       </v-col>

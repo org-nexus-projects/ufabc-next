@@ -9,10 +9,10 @@
       <v-row>
         <v-col
           v-for="(enrollment, index) in filteredAndSeparatedEnrollments"
+          :key="enrollment._id"
           cols="12"
           md="6"
           :class="`pa-0 py-2 ${index % 2 === 0 ? '' : 'pl-md-4'}`"
-          :key="enrollment._id"
         >
           <PendingReviewEnrollment :enrollment="enrollment" />
         </v-col>
@@ -22,13 +22,14 @@
 </template>
 
 <script setup lang="ts">
-import { PaperCard } from '@/components/PaperCard';
-import { Enrollments } from 'services';
 import { useQuery } from '@tanstack/vue-query';
-import { PendingReviewEnrollment } from '@/components/PendingReviewEnrollment';
-import { FeedbackAlert } from '@/components/FeedbackAlert';
+import { Enrollments } from '@ufabc-next/services';
+import { Enrollment } from '@ufabc-next/types';
 import { computed } from 'vue';
-import { Enrollment } from 'types';
+
+import { FeedbackAlert } from '@/components/FeedbackAlert';
+import { PaperCard } from '@/components/PaperCard';
+import { PendingReviewEnrollment } from '@/components/PendingReviewEnrollment';
 
 const { data: enrollments, isError: isErrorEnrollment } = useQuery({
   refetchOnWindowFocus: false,

@@ -1,19 +1,23 @@
-import { render, screen, userEvent, waitFor } from '@/test-utils';
-import { AppBar } from '.';
+import { createPinia, setActivePinia } from 'pinia';
+
 import { user as mockedUser } from '@/mocks/users';
-import { useAuth } from '@/stores/useAuth';
+import { useAuthStore } from '@/stores/auth';
+import { render, screen, userEvent, waitFor } from '@/test-utils';
+
+import { AppBar } from '.';
 
 describe('<AppBar />', () => {
-  const originalUseAuthValue = useAuth.getState();
+  let authStore: ReturnType<typeof useAuthStore>;
+
   beforeEach(() => {
-    useAuth.setState({
-      ...originalUseAuthValue,
-      token: 'token',
-      user: mockedUser,
-    });
+    setActivePinia(createPinia());
+    authStore = useAuthStore();
+    authStore.authenticate('mock-token');
+    authStore.user = mockedUser;
   });
+
   afterEach(() => {
-    useAuth.setState(originalUseAuthValue);
+    authStore.logOut();
   });
 
   test('render app bar', () => {
@@ -26,54 +30,41 @@ describe('<AppBar />', () => {
     expect(screen.getByText('Snapshot da Matrícula')).toBeInTheDocument();
     expect(screen.getByText('Grupos no WhatsApp')).toBeInTheDocument();
   });
-  test('render user info in app bar dropdown', async () => {
+  test('render theme toggle button', () => {
+    render(AppBar);
+
+    expect(
+      screen.getByRole('button', { name: 'Toggle theme' }),
+    ).toBeInTheDocument();
+  });
+
+  test('toggle between sun and moon icons', async () => {
     const user = userEvent.setup();
 
     render(AppBar);
 
-    user.click(
-      screen.getByRole('button', { name: 'Expandir menu de usuário' }),
-    );
-    expect(await screen.findByText(/sair/i)).toBeInTheDocument();
-    expect(
-      await screen.findByText(mockedUser.email.replace(/(.*)@.*/, '$1')),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        new RegExp(`^${mockedUser.email[0]}${mockedUser.email[1]}$`, 'i'),
-      ),
-    ).toBeInTheDocument();
+    const toggleButton = screen.getByRole('button', { name: 'Toggle theme' });
+    expect(toggleButton).toBeInTheDocument();
+
+    await user.click(toggleButton);
+    await user.click(toggleButton);
   });
-  test('render user initials if user email has two names', async () => {
-    useAuth.setState({
-      user: {
-        ...mockedUser,
-        email: 'firstName.lastName@aluno.ufabc.edu.br',
-      },
+
+  test('render user menu with settings and sign out options', async () => {
+    const user = userEvent.setup();
+
+    render(AppBar);
+
+    const menuButton = screen.getByRole('button', {
+      name: 'Expandir menu de usuário',
     });
-    const user = userEvent.setup();
+    expect(menuButton).toBeInTheDocument();
 
-    render(AppBar);
+    await user.click(menuButton);
 
-    user.click(
-      screen.getByRole('button', { name: 'Expandir menu de usuário' }),
-    );
-    expect(await screen.findByText(/FL/)).toBeInTheDocument();
-  });
-  test('click on logout button to logout', async () => {
-    const user = userEvent.setup();
-
-    render(AppBar);
-
-    user.click(
-      screen.getByRole('button', { name: 'Expandir menu de usuário' }),
-    );
-    expect(useAuth.getState().token).not.toBeNull();
-    expect(useAuth.getState().user).not.toBeNull();
-    user.click(await screen.findByText(/sair/i));
     await waitFor(() => {
-      expect(useAuth.getState().token).toBeNull();
-      expect(useAuth.getState().user).toBeNull();
+      expect(screen.getByText('Configurações')).toBeInTheDocument();
+      expect(screen.getByText('Sair')).toBeInTheDocument();
     });
   });
 });

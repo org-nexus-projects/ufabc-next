@@ -1,12 +1,12 @@
 <template>
   <VueQueryDevtools v-if="isLocal" />
-  <AppBar>
-    <v-main style="background-color: #f5f5f5">
+  <AppBar :key="authStore.user?.ra">
+    <v-main>
       <v-container
         id="app-container"
         :style="`min-height: calc(100vh${
-          confirmedUser ? '- 64px' : ''
-        }); min-height: calc(100svh${confirmedUser ? '- 64px' : ''})`"
+          confirmedUser || layout === 'include-sidebar' ? '- 64px' : ''
+        }); min-height: calc(100svh- 64px})`"
       >
         <router-view />
       </v-container>
@@ -15,23 +15,32 @@
 </template>
 
 <script setup lang="ts">
-import { authStore } from 'stores';
-import { computed, onMounted } from 'vue';
-import create from 'vue-zustand';
-import { ElMessage } from 'element-plus';
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools';
-
-const isLocal = process.env.VUE_APP_MF_ENV === 'local';
+import { setTokenGetter } from '@ufabc-next/services';
+import { ElMessage } from 'element-plus';
+import { computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { AppBar } from '@/layouts/AppBar';
+import { useAuthStore } from '@/stores/auth';
 
-const useAuth = create(authStore);
-const { user } = useAuth();
+import { eventTracker } from './helpers/EventTracker';
 
-const confirmedUser = computed(() => !!user.value?.confirmed);
+const isLocal = import.meta.env.VITE_APP_ENV === 'local';
+
+const authStore = useAuthStore();
+const router = useRouter();
+const layout = computed(() => router.currentRoute.value.meta.layout ?? null);
+const confirmedUser = computed(() => !!authStore.user?.confirmed);
 
 onMounted(async () => {
   window.Toaster = ElMessage;
+
+  if (authStore.isLoggedIn && authStore.user) {
+    eventTracker.setUserProperties(authStore.user);
+  }
+
+  setTokenGetter(() => authStore.token);
 });
 </script>
 
@@ -43,9 +52,11 @@ onMounted(async () => {
 * {
   font-family: Lato, sans-serif;
 }
+
 html {
   font-family: Lato, sans-serif;
 }
+
 #app {
   font-family: Lato, sans-serif;
 }

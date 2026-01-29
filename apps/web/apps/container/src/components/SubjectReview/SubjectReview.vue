@@ -14,7 +14,7 @@
             color="primary"
             :class="`${index < chips.length && 'mr-2'} mb-2`"
           >
-            <v-icon :icon="chip.icon"></v-icon>
+            <v-icon :icon="chip.icon" />
             {{ chip.value }}
             {{ chip.text }}
           </v-chip>
@@ -25,14 +25,14 @@
             <ConceptsPieChart
               :key="`chart-${subjectData?.data.subject.name}`"
               :grades="generalGrades"
-            ></ConceptsPieChart>
+            />
           </div>
         </v-col>
         <v-col cols="12" md="7" class="px-0 d-flex flex-column align-end">
           <v-menu transition="slide-y-transition">
-            <template v-slot:activator="{ props }">
+            <template #activator="{ props }">
               <button v-bind="props" class="text-body-2 order-button mb-4 mr-2">
-                <span class="font-weight-bold text-black"> Ordenar por: </span>
+                <span class="font-weight-bold"> Ordenar por: </span>
                 {{ orders.find((o) => o.value === selectedOrder)?.title }}
                 <v-icon class="text-ufabcnext-green"> mdi-menu-down </v-icon>
               </button>
@@ -40,8 +40,8 @@
             <v-list>
               <v-list-item
                 v-for="item in orders"
-                @click="selectedOrder = item.value"
                 :key="item.title"
+                @click="selectedOrder = item.value"
               >
                 <v-list-item-title>{{ item.title }}</v-list-item-title>
               </v-list-item>
@@ -66,7 +66,7 @@
                 </th>
               </tr>
             </thead>
-            <tbody v-if="!xs" class="table-body bg-secondary">
+            <tbody v-if="!xs" class="table-body">
               <tr
                 v-for="teacher in shortedSpecifics"
                 :key="teacher._id.mainTeacher + 'row'"
@@ -79,17 +79,19 @@
                   >
                     {{ teacher.teacher?.name }}
                   </router-link>
-                  <p class="text-next-light-grey" v-else>
+                  <p v-else class="text-next-light-grey">
                     Professor não encontrado
                   </p>
                 </td>
                 <td class="w-100 py-5">
                   <ConceptsHorizontalChart :grade-data="teacher" />
                 </td>
-                <td class="text-center">{{ teacher.count }}</td>
+                <td class="text-center">
+                  {{ teacher.count }}
+                </td>
               </tr>
             </tbody>
-            <tbody v-else class="table-body bg-secondary">
+            <tbody v-else class="table-body">
               <tr
                 v-for="teacher in shortedSpecifics"
                 :key="teacher._id.mainTeacher + 'row'"
@@ -133,18 +135,17 @@
 
 <script lang="ts" setup>
 import { useQuery } from '@tanstack/vue-query';
-import { Reviews } from 'services';
-import { Concept, SubjectSpecific } from 'types';
-import { transformConceptDataToObject } from 'utils';
+import { Reviews } from '@ufabc-next/services';
+import { Concept, SubjectSpecific } from '@ufabc-next/types';
+import { ElMessage } from 'element-plus';
 import { computed, ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 
+import { CenteredLoading } from '@/components/CenteredLoading';
 import { ConceptsHorizontalChart } from '@/components/ConceptsHorizontalChart';
 import { ConceptsPieChart } from '@/components/ConceptsPieChart';
-
-import { CenteredLoading } from '@/components/CenteredLoading';
 import { PaperCard } from '@/components/PaperCard';
-import { ElMessage } from 'element-plus';
+import { transformConceptDataToObject } from '@/utils/transformConceptDataToObject';
 
 const props = defineProps({
   subjectId: { type: String, required: true },
@@ -260,17 +261,21 @@ const shortedSpecifics = computed(() => {
   );
 
   if (selectedOrder.value === 'teacherCres') {
-    sorted.sort((a, b) => (a.teacher?.name > b.teacher?.name ? 1 : -1));
+    sorted.sort((a, b) =>
+      (a.teacher?.name ?? '') > (b.teacher?.name ?? '') ? 1 : -1,
+    );
   } else if (selectedOrder.value === 'teacherDecres') {
-    sorted.sort((a, b) => (a.teacher?.name > b.teacher?.name ? -1 : 1));
+    sorted.sort((a, b) =>
+      (a.teacher?.name ?? '') > (b.teacher?.name ?? '') ? -1 : 1,
+    );
   } else if (selectedOrder.value === 'samplesCres') {
     sorted.sort((a, b) => a.count - b.count);
   } else if (selectedOrder.value === 'samplesDecres') {
     sorted.sort((a, b) => b.count - a.count);
   } else if (selectedOrder.value === 'mostApproved') {
-    sorted.sort((a, b) => approveRating(a) - approveRating(b));
-  } else if (selectedOrder.value === 'leastApproved') {
     sorted.sort((a, b) => approveRating(b) - approveRating(a));
+  } else if (selectedOrder.value === 'leastApproved') {
+    sorted.sort((a, b) => approveRating(a) - approveRating(b));
   }
 
   return sorted;
@@ -281,12 +286,13 @@ const shortedSpecifics = computed(() => {
 .title-first-column {
   white-space: nowrap;
 }
+
 .link {
   text-decoration: underline;
 }
 
 td {
-  outline: 1px solid white;
+  outline: 1px solid rgb(var(--v-theme-background));
 }
 
 .order-button:hover {

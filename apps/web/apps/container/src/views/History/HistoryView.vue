@@ -1,19 +1,25 @@
 <template>
   <FeedbackAlert v-if="isErrorEnrollments" />
   <FeedbackAlert v-if="isErrorUser" />
-  <!-- <UserNotifications text="O next está passando por atualizações em seus sistemas e você pode encontrar dados incompatíveis com seu histórico, não se preocupe, em breve estará normalizado!"/> -->
-  <ReviewDialog v-if="showDialog" :enrollment="selectedEnrollment" :showDialog="showDialog" :tags="tags"
-    @update:showDialog="showDialog = $event" />
+  <ReviewDialog
+    v-if="showDialog"
+    :enrollment="selectedEnrollment"
+    :show-dialog="showDialog"
+    :tags="tags"
+    @update:show-dialog="showDialog = $event"
+  />
   <PaperCard title="Ficha individual do aluno" class="text-next-grey">
     <p class="mt-4">
       Esta ficha individual é uma réplica do que você podia encontrar no site do
-      <a href="https://aluno.ufabc.edu.br/">Portal do Aluno</a>, hoje são informações do <a
-        :href="studentRecordURL">Sigaa</a>
+      <a href="https://aluno.ufabc.edu.br/">Portal do Aluno</a>, hoje são
+      informações do <a :href="studentRecordURL">Sigaa</a>
     </p>
     <p class="mt-4">
-      Caso o seu histórico esteja desatualizado, basta acessar o Sigaa
-      novamente utilizando a
-      <a class="text-decoration-none" :href="extensionURL">extensão do UFABC next</a>
+      Caso o seu histórico esteja desatualizado, basta acessar o Sigaa novamente
+      utilizando a
+      <a class="text-decoration-none" :href="extensionURL"
+        >extensão do UFABC next</a
+      >
       e as informações serão atualizadas.
     </p>
     <p class="mt-4">
@@ -34,8 +40,14 @@
         }}
       </div>
       <div class="chip">
-        <v-btn icon="mdi-refresh" @click="handleOpenExtensionDialog" flat variant="text" size="x-small"
-          aria-labelledby="extension-dialog">
+        <v-btn
+          icon="mdi-refresh"
+          flat
+          variant="text"
+          size="x-small"
+          aria-labelledby="extension-dialog"
+          @click="handleOpenExtensionDialog"
+        >
           <v-dialog v-model="extensionDialog" width="360">
             <v-card class="pa-4">
               <v-card-title class="text-h6 px-2">
@@ -47,15 +59,35 @@
                 instalada.
               </v-card-text>
               <v-card-actions class="justify-end">
-                <v-btn color="next-light-gray" class="text-subtitle" target="_blank" :href="extensionURL"
-                  @click="handleCloseExtensionDialog">Não tenho</v-btn>
-                <v-btn color="success" class="text-subtitle" target="_blank" :href="studentRecordURL"
-                  @click="handleCloseExtensionDialog">Já tenho instalado</v-btn>
+                <v-btn
+                  color="next-light-gray"
+                  class="text-subtitle"
+                  target="_blank"
+                  :href="extensionURL"
+                  @click="handleCloseExtensionDialog"
+                >
+                  Não tenho
+                </v-btn>
+                <v-btn
+                  color="success"
+                  class="text-subtitle"
+                  target="_blank"
+                  :href="studentRecordURL"
+                  @click="handleCloseExtensionDialog"
+                >
+                  Já tenho instalado
+                </v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
-          <v-tooltip id="extension-dialog" activator="parent" offset="1" location="bottom center">Atualizar o
-            histórico</v-tooltip>
+          <v-tooltip
+            id="extension-dialog"
+            activator="parent"
+            offset="1"
+            location="bottom center"
+          >
+            Atualizar o histórico
+          </v-tooltip>
           <v-icon size="x-large" />
         </v-btn>
         {{
@@ -73,60 +105,104 @@
     </div>
   </PaperCard>
   <PaperCard class="mt-4">
-    <div v-if="!!enrollmentByDateKeysSorted.length" class="horizontal-scroll-except-first-column">
+    <div
+      v-if="!!enrollmentByDateKeysSorted.length"
+      class="horizontal-scroll-except-first-column"
+    >
       <TableComponent>
         <template #head>
           <tr>
-            <th v-for="item in tableHead" :key="item" :class="`text-white text-caption ${item !== 'Disciplina' ? 'text-center' : ''
-              } text-uppercase`">
+            <th
+              v-for="item in tableHead"
+              :key="item"
+              :class="`text-white text-caption ${
+                item !== 'Disciplina' ? 'text-center' : ''
+              } text-uppercase`"
+            >
               {{ item }}
             </th>
           </tr>
         </template>
         <template #body>
           <template v-for="date in enrollmentByDateKeysSorted" :key="date">
-            <tr class="bg-white">
-              <td style="position: sticky; left: 0" colspan="1" class="text-left">
+            <tr class="quad-header">
+              <td
+                style="position: sticky; left: 0; background-color: rgb(var(--v-theme-appbar)); z-index: 1"
+                colspan="1"
+                class="text-left"
+              >
                 {{ Number(date) % 10 }}
                 de
                 {{ Math.round(Number(date) / 10) }}
               </td>
-              <td :colspan="tableHead.length - 1"></td>
+              <td :colspan="tableHead.length - 1" />
             </tr>
             <tr v-for="item in enrollmentByDate?.[date]" :key="item._id">
-              <td rowspan="1" colspan="1" :class="`bg-secondary text-left text-next-${subjectConceptClass[item.conceito]
-                }`" style="position: sticky; left: 0; z-index: 1">
+              <td
+                rowspan="1"
+                colspan="1"
+                style="position: sticky; left: 0; z-index: 1; background-color: rgb(var(--v-theme-appbar))"
+              >
                 {{ item.disciplina }}
               </td>
               <td rowspan="1" colspan="1" class="px-2" style="max-width: 200px">
-                <div :class="`text-next-light-gray text-caption d-flex align-center ${item.teoria?.name ? 'justify-left' : 'justify-center'
-                  }`">
-                  <v-btn v-if="item.teoria?.name" flat variant="text" icon="mdi-message-draw" class="text-subtitle-2"
-                    size="x-small" @click="handleOpenDialog(item, 'teoria')">
-                    <v-icon :color="item.comments?.includes('teoria')
-                      ? 'ufabcnext-green'
-                      : ''
-                      " />
+                <div
+                  :class="`text-next-light-gray text-caption d-flex align-center ${
+                    item.teoria?.name ? 'justify-left' : 'justify-center'
+                  }`"
+                >
+                  <v-btn
+                    v-if="item.teoria?.name"
+                    flat
+                    variant="text"
+                    icon="mdi-message-draw"
+                    class="text-subtitle-2"
+                    size="x-small"
+                    @click="handleOpenDialog(item, 'teoria')"
+                  >
+                    <v-icon
+                      :color="
+                        item.comments?.includes('teoria')
+                          ? 'ufabcnext-green'
+                          : ''
+                      "
+                    />
                   </v-btn>
-                  <span class="text-truncate">{{
+                  <span class="text-text">{{
                     item.teoria?.name || '-'
-                    }}</span>
+                  }}</span>
                 </div>
               </td>
               <td rowspan="1" colspan="1" class="px-2" style="max-width: 200px">
-                <div :class="`text-next-light-gray text-truncate text-caption d-flex align-center ${item.pratica?.name ? 'justify-left' : 'justify-center'
-                  }`">
-                  <v-btn v-if="item.pratica?.name" flat variant="text" icon="mdi-message-draw" class="text-subtitle-2"
-                    size="x-small" @click="handleOpenDialog(item, 'pratica')">
-                    <v-icon :color="hasCommented(item) ? 'ufabcnext-green' : ''" />
+                <div
+                  :class="`text-next-light-gray text-truncate text-caption d-flex align-center ${
+                    item.pratica?.name ? 'justify-left' : 'justify-center'
+                  }`"
+                >
+                  <v-btn
+                    v-if="item.pratica?.name"
+                    flat
+                    variant="text"
+                    icon="mdi-message-draw"
+                    class="text-subtitle-2"
+                    size="x-small"
+                    @click="handleOpenDialog(item, 'pratica')"
+                  >
+                    <v-icon
+                      :color="hasCommented(item) ? 'ufabcnext-green' : ''"
+                    />
                   </v-btn>
-                  <span class="text-truncate">{{
+                  <span class="text-text">{{
                     item.pratica?.name || '-'
-                    }}</span>
+                  }}</span>
                 </div>
               </td>
-              <td rowspan="1" colspan="1" class="font-weight-bold text-body-1"
-                :style="`color: ${conceptsColor[item.conceito]}`">
+              <td
+                rowspan="1"
+                colspan="1"
+                class="font-weight-bold text-body-1"
+                :style="`color: ${conceptsColor[item.conceito]}`"
+              >
                 {{ item.conceito }}
               </td>
               <td>{{ item.creditos }}</td>
@@ -135,78 +211,45 @@
         </template>
       </TableComponent>
     </div>
-    <div class="mt-5 d-flex justify-center align-center flex-column" v-else-if="!isPendingEnrollments">
+    <div
+      v-else-if="!isPendingEnrollments"
+      class="mt-5 d-flex justify-center align-center flex-column"
+    >
       <h2 class="mb-4">
         Parece que não encontramos os dados do seu histórico :( <br />
         É necessário instalar a
-        <a :href="extensionURL" target="_blank" class="text-decoration-none">extensão</a>
+        <a :href="extensionURL" target="_blank" class="text-decoration-none"
+          >extensão</a
+        >
         e acessar a tela de Consultar Minhas Notas no
-        <a :href="studentRecordURL" target="_blank" class="text-decoration-none">Sigaa.</a>
+        <a :href="studentRecordURL" target="_blank" class="text-decoration-none"
+          >Sigaa.</a
+        >
       </h2>
-      <img src="@/assets/missing_history.svg" width="500" height="400" alt="Histórico não encontrado" />
+      <img
+        src="@/assets/missing_history.svg"
+        width="500"
+        height="400"
+        alt="Histórico não encontrado"
+      />
     </div>
     <CenteredLoading v-if="isPendingEnrollments" />
   </PaperCard>
 </template>
 
-<style scoped lang="scss">
-.chip-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.chip {
-  min-height: 48px;
-  border-radius: 4px;
-  background-color: #f3f6f7;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  padding-left: 12px;
-  column-gap: 8px;
-  padding-right: 8px;
-  font-size: 18px;
-  font-weight: 400;
-  color: rgba(0, 0, 0, 0.75);
-
-  & button {
-    width: var(--v-btn-width);
-    height: var(--v-btn-height);
-  }
-
-  & i {
-    font-size: 20px;
-  }
-
-  & span {
-    font-size: 16px;
-  }
-}
-</style>
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
-import { Enrollments, Users } from 'services';
-import type { Concept, Enrollment } from 'types';
+import { Enrollments, Users } from '@ufabc-next/services';
+import type { Concept, Enrollment } from '@ufabc-next/types';
 import { computed, ref } from 'vue';
-import { ReviewDialog } from '@/components/ReviewDialog';
-import { CenteredLoading } from '@/components/CenteredLoading';
-import { PaperCard } from '@/components/PaperCard';
-import { TableComponent } from '@/components/TableComponent';
-import { FeedbackAlert } from '@/components/FeedbackAlert';
-import {
-  checkEAD,
-  conceptsColor,
-  extensionURL,
-  formatSeason,
-  studentRecordURL,
-} from 'utils';
-import { onMounted } from 'vue';
-import { ElNotification } from 'element-plus';
 
+import { CenteredLoading } from '@/components/CenteredLoading';
+import { FeedbackAlert } from '@/components/FeedbackAlert';
+import { PaperCard } from '@/components/PaperCard';
+import { ReviewDialog } from '@/components/ReviewDialog';
+import { TableComponent } from '@/components/TableComponent';
+import { conceptsColor, extensionURL, studentRecordURL } from '@/utils/consts';
+import { checkEAD, formatSeason } from '@/utils/season';
 
 const showDialog = ref(false);
 const selectedEnrollment = ref<Enrollment>();
@@ -312,16 +355,46 @@ const lastUpdate = computed(() => {
   const date = enrollments.value?.[0]?.updatedAt;
   return date && new Date(date);
 });
-
-
-onMounted(() => {
-  ElNotification({
-    message: "O next está passando por atualizações em seus sistemas e você pode encontrar dados incompatíveis com seu histórico, não se preocupe, em breve estará normalizado!",
-    title: 'Ufabc next informa',
-    type: 'warning',
-    duration: 0, 
-    showClose: true, 
-  });
-});
-
 </script>
+<style scoped lang="scss">
+.quad-header {
+  pointer-events: none;
+}
+
+.chip-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.chip {
+  min-height: 48px;
+  border-radius: 4px;
+  background-color: rgb(var(--v-theme-appbar));
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  padding-left: 12px;
+  column-gap: 8px;
+  padding-right: 8px;
+  font-size: 18px;
+  font-weight: 400;
+  color: rgb(var(--v-theme-on-surface));
+
+  & button {
+    width: var(--v-btn-width);
+    height: var(--v-btn-height);
+  }
+
+  & i {
+    font-size: 20px;
+  }
+
+  & span {
+    font-size: 16px;
+  }
+}
+</style>

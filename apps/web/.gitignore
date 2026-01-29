@@ -11,13 +11,18 @@ coverage
 # misc
 .DS_Store
 dist
+build
+out
+output
 coverage
 *.pem
 
+# IDE and Editor files
+.vscode
+
 # debug
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+pnpm-debug.log*
 
 # local env files
 .env.local

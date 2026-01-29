@@ -3,14 +3,14 @@
     v-if="isFetchingTeacherEnrollmentError || teacherIdError"
     text="Erro ao carregar as informações do professor desta disciplina"
   />
-  <v-dialog v-model="showDialog" maxWidth="1200">
+  <v-dialog v-model="showDialog" max-width="1200">
     <PaperCard>
       <div class="w-100 d-flex justify-end">
         <v-btn
-          @click="showDialog = false"
           variant="tonal"
           icon="mdi-window-close"
           aria-label="Fechar"
+          @click="showDialog = false"
         />
       </div>
       <v-container class="pa-0 my-2" style="max-width: none">
@@ -36,7 +36,7 @@
               >
                 {{ enrollment?.conceito }}
               </div>
-              <span class="font-weight-bold ml-1"></span>
+              <span class="font-weight-bold ml-1" />
             </div>
             <v-chip
               v-for="tag in tags"
@@ -60,10 +60,10 @@
             />
             <div class="w-100 d-flex justify-end">
               <v-btn
-                @click="submit"
                 color="primary"
                 :disabled="disableMutateComment"
                 :loading="isCreatingComment || isUpdatingComment"
+                @click="submit"
               >
                 {{ hasUserComment ? 'Atualizar comentário' : 'Enviar' }}
               </v-btn>
@@ -71,9 +71,9 @@
           </v-col>
           <v-col v-if="teacherId" class="pa-0 pa-sm-3" cols="12" md="7">
             <CommentsList
-              :teacherId="teacherId"
-              :selectedSubject="selectedSubject"
-              @update:selectedSubject="selectedSubject = $event"
+              :teacher-id="teacherId"
+              :selected-subject="selectedSubject"
+              @update:selected-subject="selectedSubject = $event"
             />
           </v-col>
         </v-row>
@@ -83,17 +83,17 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, computed, ref } from 'vue';
-import { Comments, Enrollments } from 'services';
-
-import { PaperCard } from '@/components/PaperCard';
-import { conceptsColor } from 'utils';
-import { CommentsList } from '@/components/CommentsList';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
+import { Comments, Enrollments } from '@ufabc-next/services';
+import type { Enrollment } from '@ufabc-next/types';
 import { ElMessage } from 'element-plus';
+import { computed, PropType, ref, watch } from 'vue';
+
+import { CommentsList } from '@/components/CommentsList';
 import { FeedbackAlert } from '@/components/FeedbackAlert';
-import { watch } from 'vue';
-import type { Enrollment } from 'types';
+import { PaperCard } from '@/components/PaperCard';
+import { conceptsColor } from '@/utils/consts';
+
 const selectedSubject = ref<string>('Todas as matérias');
 
 const props = defineProps({
@@ -174,7 +174,7 @@ const userCommentMessage = computed({
   get: () => {
     const currentComment =
       teacherEnrollmentComment.value[subjectType.value as 'teoria' | 'prática'];
-    return comment.value ? comment.value : currentComment ?? '';
+    return comment.value ? comment.value : (currentComment ?? '');
   },
   set: (value: string) => {
     comment.value = value;

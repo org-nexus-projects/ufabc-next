@@ -1,19 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /// <reference types="vitest" />
-import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue() as any],
   test: {
     globals: true,
     environment: 'jsdom',
     coverage: {
+      provider: 'v8',
       reporter: ['text', 'html'],
       exclude: [
         '**/node_modules/**',
         '**/test-utils.ts',
         '**/mocks/**',
-        '.eslintrc.js',
+        'eslint.config.js',
         'mf.config.js',
         'remotes.hosts.local.js',
         'remotes.hosts.production.js',
@@ -33,10 +35,8 @@ export default defineConfig({
     alias: {
       '@': '/src',
     },
-    server: {
-      deps: {
-        inline: ['vuetify'],
-      },
+    deps: {
+      inline: ['vuetify'],
     },
     setupFiles: ['./setup-tests.ts'],
   },

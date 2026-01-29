@@ -24,4 +24,5 @@ export type User = {
   devices: Device[];
   permissions: string[];
   iat: number;
+  isSynced: boolean;
 };

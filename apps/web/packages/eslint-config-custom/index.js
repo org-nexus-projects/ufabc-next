@@ -1,10 +1,2 @@
-module.exports = {
-  extends: ['turbo', 'prettier'],
-  parserOptions: {
-    sourceType: 'module',
-  },
-  env: {
-    es6: true,
-  },
-  rules: {},
-};
+export { default as base } from './base.js';
+export { default as vue } from './vue.js';

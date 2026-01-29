@@ -17,7 +17,7 @@
           <CenteredLoading />
         </div>
 
-        <div class="text-center" v-else>
+        <div v-else class="text-center">
           <img
             src="@/assets/error-token.svg"
             style="max-width: 260px; width: 100%"
@@ -44,15 +44,17 @@
 
 <script setup lang="ts">
 import { useMutation } from '@tanstack/vue-query';
+import { Users } from '@ufabc-next/services';
+import { RequestError } from '@ufabc-next/types';
+import { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';
 import { onMounted } from 'vue';
-import { Users } from 'services';
-import { AxiosError } from 'axios';
-import { RequestError } from 'types';
-import { CenteredLoading } from '@/components/CenteredLoading';
-import { useAuth } from '@/stores/useAuth';
 import { useRouter } from 'vue-router';
-const { authenticate } = useAuth();
+
+import { CenteredLoading } from '@/components/CenteredLoading';
+import { useAuthStore } from '@/stores/auth';
+
+const authStore = useAuthStore();
 
 const router = useRouter();
 
@@ -65,7 +67,7 @@ const { mutate: mutateConfirmToken, isPending: isPendingConfirmToken } =
         type: 'success',
         showClose: true,
       });
-      authenticate.value(data.data.token);
+      authStore.authenticate(data.data.token);
       router.push('/');
     },
     onError: (error: AxiosError<RequestError>) => {

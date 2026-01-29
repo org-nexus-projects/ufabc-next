@@ -338,6 +338,10 @@
                     <a
                       class="google-button"
                       onclick="window.location.href = GOOGLE_LINK; return false;"
+                      id="googleLoginBtn"
+                      data-toggle="tooltip"
+                      data-placement="right"
+                      title="Use seu e-mail institucional (@aluno.ufabc.edu.br) para acesso imediato, sem precisar confirmar a conta."
                     >
                       <img src="assets/icons/google-logo.png" />
                       Entrar com Google
@@ -885,10 +889,14 @@
     <script src="assets/js/contact.js"></script>
     <script src="assets/js/custom.js"></script>
     <script type="text/javascript">
-      localStorage.clear()
 
-      const resolveEndpoint = (origin) => {
-        if (origin === 'file://') {
+      const resolveEndpoint = () => {
+        const isLocal =
+          window.location.protocol === 'file:' ||
+          window.location.hostname === 'localhost' ||
+          window.location.hostname === '127.0.0.1' ||
+          window.location.origin.includes('file://');
+        if (isLocal) {
           // local backend
           return 'http://localhost:5000/login/google';
         } else if (origin.includes('dev')) {
@@ -914,7 +922,7 @@
         'https://addons.mozilla.org/pt-BR/firefox/addon/ufabc-next/';
       const TEACHER_FORM =
         'https://docs.google.com/forms/d/e/1FAIpQLSfbwaJCw-t4SlHJ4akwQNCMNAEBREDcdfrqHs7ROhkuUUwDRQ/viewform?usp=sf_link';
-      const GOOGLE_LINK = resolveEndpoint(window.location.origin);
+      const GOOGLE_LINK = resolveEndpoint();
       const ANDROID_URL =
         'https://play.google.com/store/apps/details?id=com.ufabcnext';
       const IOS_URL = 'https://apps.apple.com/us/app/id1505243398';
@@ -956,7 +964,12 @@
                         Entrar localmente
                       </a>`;
 
-      const isLocal = window.location.origin.includes('file://');
+      const isLocal =
+        window.location.protocol === 'file:' ||
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1' ||
+        window.location.origin.includes('file://');
+
       if (isLocal) {
         const devLoginContainer = document.querySelector('#dev-login');
         devLoginContainer.insertAdjacentHTML('afterend', devLoginBtn);
@@ -1034,6 +1047,16 @@
           localLoginForm.reset();
           window.location.href = `http://localhost:3000?token=${encodeURIComponent(token)}`;
         });
+      });
+    </script>
+    <script>
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip({ html: true });
+      });
+    </script>
+    <script>
+      $(function () {
+        $('[data-toggle="popover"]').popover();
       });
     </script>
   </body>

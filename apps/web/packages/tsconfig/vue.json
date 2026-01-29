@@ -1,7 +1,8 @@
 {
   "extends": "./base.json",
   "compilerOptions": {
-    "jsx": "preserve",
-    "types": ["webpack-env", "jest", "element-plus/global"]
-  }
+    "moduleResolution": "bundler",
+    "jsx": "preserve"
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
 }

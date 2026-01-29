@@ -15,13 +15,21 @@
     >
       <p>
         {{ description }}
-        <v-btn v-if="tooltip" density="compact" icon="mdi-information-outline" variant="text" class="pa-0 h-auto w-auto">
-          <v-icon/>
-          <v-tooltip open-on-click activator="parent" location="top" >{{tooltip}}</v-tooltip>
+        <v-btn
+          v-if="tooltip"
+          density="compact"
+          icon="mdi-information-outline"
+          variant="text"
+          class="pa-0 h-auto w-auto"
+        >
+          <v-icon />
+          <v-tooltip open-on-click activator="parent" location="top">
+            {{ tooltip }}
+          </v-tooltip>
         </v-btn>
       </p>
       <v-progress-linear
-        :model-value="100 * progressBarValue/progressBarMaxValue"
+        :model-value="(100 * progressBarValue) / progressBarMaxValue"
         :model-total="100"
         height="6"
         :color="color"
