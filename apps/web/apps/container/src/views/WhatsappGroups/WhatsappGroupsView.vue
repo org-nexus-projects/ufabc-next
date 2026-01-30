@@ -4,7 +4,6 @@
     <UserNotifications
       title="Tem novidade aí! 🎉"
       text="Agora você pode filtrar os grupos por cursos para facilitar sua busca."
-      @click="newFeatureDialog = true"
     />
     <section>
       <div class="hero-section">
@@ -15,9 +14,6 @@
         </p>
         <p style="font-size: 14px">
           Agora você pode filtrar os grupos por cursos para facilitar sua busca.
-          <span class="link-style" @click="newFeatureDialog = true"
-            >Saiba mais</span
-          >
         </p>
       </div>
       <div class="search-section">
@@ -330,6 +326,7 @@ import { extensionURL, studentRecordURL } from '@/utils/consts';
 import { normalizeText } from '@/utils/normalizeTextSearch';
 
 type SearchType = 'ra' | 'component' | 'course';
+const WHATSAPP_GROUPS_SEASON = '2026:1';
 
 const router = useRouter();
 const route = useRoute();
@@ -357,7 +354,7 @@ const shouldFetchGroupsByCourse = ref(false);
 const selectedSearchType = ref<SearchType>('ra');
 
 const resultsPage = ref(1);
-const showOverlay = ref(false); // FLAG PARA MOSTRAR O OVERLAY
+const showOverlay = ref(false);
 
 // helper para atualizar o nome dos professores do parser
 const capitalizeName = (name: string): string => {
@@ -371,7 +368,7 @@ const capitalizeName = (name: string): string => {
 
 const mockGroups = ref([
   {
-    season: '2026:1',
+    season: WHATSAPP_GROUPS_SEASON,
     groupURL: 'https://chat.whatsapp.com/example1',
     codigo: 'BCJ0205-15',
     campus: 'sa' as const,
@@ -383,7 +380,7 @@ const mockGroups = ref([
     uf_cod_turma: 'BCJ0205-15',
   },
   {
-    season: '2026:1',
+    season: WHATSAPP_GROUPS_SEASON,
     groupURL: 'https://chat.whatsapp.com/example2',
     codigo: 'BCM0506-15',
     campus: 'sa' as const,
@@ -395,7 +392,7 @@ const mockGroups = ref([
     uf_cod_turma: 'BCM0506-15',
   },
   {
-    season: '2026:1',
+    season: WHATSAPP_GROUPS_SEASON,
     groupURL: 'https://chat.whatsapp.com/example3',
     codigo: 'BCN0404-15',
     campus: 'sa' as const,
@@ -407,7 +404,7 @@ const mockGroups = ref([
     uf_cod_turma: 'BCN0404-15',
   },
   {
-    season: '2026:1',
+    season: WHATSAPP_GROUPS_SEASON,
     groupURL: 'https://chat.whatsapp.com/example4',
     codigo: 'BCS0001-15',
     campus: 'sbc' as const,
@@ -536,7 +533,7 @@ const {
   isSuccess: isSubjectComponentsSuccess,
 } = useQuery({
   queryKey: ['disciplinaComponents'],
-  queryFn: () => Whatsapp.searchComponentsBySeason('2026:1'),
+  queryFn: () => Whatsapp.searchComponentsBySeason(WHATSAPP_GROUPS_SEASON),
   gcTime: 1000 * 60 * 60 * 24, // add cache de 24hrs
   refetchOnMount: false,
   refetchOnWindowFocus: false,
@@ -600,7 +597,7 @@ const filteredComponentsByCourse = computed(() => {
   const filtered = allComponents.value.data.filter((component) => {
     return (
       selectedCourse.ufComponentCodes.includes(component.codigo) &&
-      component.season === '2026:1'
+      component.season === WHATSAPP_GROUPS_SEASON
     );
   });
 
