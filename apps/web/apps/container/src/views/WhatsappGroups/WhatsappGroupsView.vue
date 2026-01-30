@@ -344,7 +344,6 @@ const isRaValid = computed(() => {
   );
 });
 
-const newFeatureDialog = ref(false);
 const searchComponentQuery = ref('');
 const searchCourseQuery = ref<number | null>(null);
 const searchCourseFilterQuery = ref('');
@@ -534,7 +533,7 @@ const {
 } = useQuery({
   queryKey: ['disciplinaComponents'],
   queryFn: () => Whatsapp.searchComponentsBySeason(WHATSAPP_GROUPS_SEASON),
-  gcTime: 1000 * 60 * 60 * 24, // add cache de 24hrs
+  gcTime: 1000 * 60 * 60 * 12, // add cache de 12hrs
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
