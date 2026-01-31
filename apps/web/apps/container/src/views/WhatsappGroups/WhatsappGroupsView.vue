@@ -1,6 +1,10 @@
 <template>
   <!-- todo: add animation -->
   <div class="whatsapp-groups-view">
+    <UserNotifications
+      title="Tem novidade aí! 🎉"
+      text="Agora você pode filtrar os grupos por cursos para facilitar sua busca."
+    />
     <section>
       <div class="hero-section">
         <h1>Encontre seus grupos do <br />Whatsapp</h1>
@@ -9,10 +13,7 @@
           fique por dentro de tudo com a sua turma.
         </p>
         <p style="font-size: 14px">
-          Limitamos o acesso aos grupos por pessoas sem conta no UFABC Next.
-          <span class="link-style" @click="whatsappRestrictionDialog = true"
-            >Saiba mais</span
-          >
+          Agora você pode filtrar os grupos por cursos para facilitar sua busca.
         </p>
       </div>
       <div class="search-section">
@@ -24,7 +25,8 @@
                 v-model="searchRaQuery"
                 placeholder="Digite seu RA (ex: 11202012345)"
                 variant="outlined"
-                :disabled="true"
+                :loading="currentLoading"
+                :disabled="isUserLoggedIn"
                 prepend-inner-icon="mdi-magnify"
                 clearable
                 class="main-search"
@@ -32,16 +34,48 @@
               >
               </v-number-input>
 
+              <div
+                v-else-if="selectedSearchType === 'course'"
+                class="course-search-row"
+              >
+                <v-select
+                  v-model="searchCourseQuery"
+                  :items="coursesList"
+                  item-title="name"
+                  item-value="id"
+                  placeholder="Selecione um curso"
+                  variant="outlined"
+                  size="large"
+                  :loading="currentLoading || isCoursesLoading"
+                  prepend-inner-icon="mdi-school"
+                  class="course-select"
+                >
+                </v-select>
+
+                <v-text-field
+                  v-model="searchCourseFilterQuery"
+                  placeholder="Filtrar disciplinas (ex: Cálculo)"
+                  variant="outlined"
+                  size="large"
+                  :disabled="!searchCourseQuery"
+                  prepend-inner-icon="mdi-magnify"
+                  clearable
+                  class="course-filter"
+                >
+                </v-text-field>
+              </div>
+
               <v-text-field
                 v-else
                 v-model="searchComponentQuery"
                 placeholder="Digite o nome da disciplina (ex: Função de várias variáveis)"
                 variant="outlined"
                 size="large"
-                :disabled="true"
+                :loading="currentLoading"
                 prepend-inner-icon="mdi-magnify"
                 clearable
                 class="main-search"
+                @input="getWhatsappGroupsByComponent"
               >
               </v-text-field>
             </Transition>
@@ -53,10 +87,21 @@
               :variant="selectedSearchType === 'ra' ? 'elevated' : 'tonal'"
               size="large"
               class="search-chip"
-              :disabled="true"
+              @click="selectSearchType('ra')"
             >
               <v-icon start> mdi-account </v-icon>
               Buscar por RA
+            </v-chip>
+
+            <v-chip
+              :color="selectedSearchType === 'course' ? 'primary' : 'default'"
+              :variant="selectedSearchType === 'course' ? 'elevated' : 'tonal'"
+              size="large"
+              class="search-chip"
+              @click="selectSearchType('course')"
+            >
+              <v-icon start> mdi-school </v-icon>
+              Buscar por Curso
             </v-chip>
 
             <v-chip
@@ -68,7 +113,7 @@
               "
               size="large"
               class="search-chip"
-              :disabled="true"
+              @click="selectSearchType('component')"
             >
               <v-icon start> mdi-book </v-icon>
               Buscar por Disciplina
@@ -79,7 +124,7 @@
     </section>
 
     <!-- Results Section -->
-    <section class="results-section">
+    <section v-if="showOverlay" class="results-section overlay-active">
       <div class="results-grid">
         <WhatsappGroupCard
           v-for="(component, index) in mockGroups"
@@ -113,6 +158,60 @@
               <v-icon size="20"> mdi-sync </v-icon>
               Sincronizar histórico
             </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Normal results when overlay is not active -->
+    <section v-else>
+      <div v-if="currentLoading" class="results-grid">
+        <v-skeleton-loader
+          v-for="(i, index) in Array.from({ length: 6 })"
+          :key="index"
+          color="secondary"
+          type="card"
+        ></v-skeleton-loader>
+      </div>
+
+      <div v-else-if="currentSuccess" class="results-success">
+        <div v-if="!currentGroups?.length">
+          <div class="empty-state">
+            <div class="empty-visual">
+              <v-icon size="64" color="grey-darken-1"> mdi-whatsapp </v-icon>
+            </div>
+            <h3>Nenhum grupo encontrado</h3>
+
+            <div class="empty-suggestions">
+              <p class="empty-description">
+                Que tal buscar pelo nome da disciplina ou do seu curso?
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div v-else>
+          <div class="results-grid">
+            <WhatsappGroupCard
+              v-for="(component, index) in paginatedGroups"
+              :key="index"
+              :component="component"
+              class="preview-card"
+              @open-group="openWhatsappGroup"
+            />
+          </div>
+
+          <div v-if="hasMoreResults" class="load-more-section">
+            <v-btn
+              color="primary"
+              variant="outlined"
+              size="large"
+              @click="loadMoreResults"
+            >
+              <v-icon start>mdi-chevron-down</v-icon>
+              Carregar mais ({{ currentGroups.length - paginatedGroups.length }}
+              restantes)
+            </v-btn>
           </div>
         </div>
       </div>
@@ -211,30 +310,64 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useQuery } from '@tanstack/vue-query';
+import { Whatsapp } from '@ufabc-next/services';
+import { SearchCourseItem } from '@ufabc-next/types';
+import { useDebounceFn } from '@vueuse/core';
+import { computed, onMounted, ref, toValue, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
+import UserNotifications from '@/components/UserNotifications.vue';
 import WhatsappGroupCard from '@/components/WhatsappGroupCard/WhatsappGroupCard.vue';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
 import { extensionURL, studentRecordURL } from '@/utils/consts';
+import { normalizeText } from '@/utils/normalizeTextSearch';
 
-type SearchType = 'ra' | 'component';
+type SearchType = 'ra' | 'component' | 'course';
+const WHATSAPP_GROUPS_SEASON = '2026:1';
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
-const userRa = computed(() => authStore.user?.ra || null);
+const userRa = computed(
+  () => authStore.user?.ra || (route.query.ra ? Number(route.query.ra) : null),
+);
 const isUserLoggedIn = computed(() => authStore.isLoggedIn);
 
 const whatsappRestrictionDialog = ref(false);
 const searchRaQuery = ref<number | null>(null);
+const isRaValid = computed(() => {
+  return (
+    searchRaQuery.value !== null && String(searchRaQuery.value).length >= 8
+  );
+});
+
 const searchComponentQuery = ref('');
+const searchCourseQuery = ref<number | null>(null);
+const searchCourseFilterQuery = ref('');
+const shouldFetchGroupsByRa = ref(false);
+const shouldFetchComponents = ref(false);
+const shouldFetchGroupsByCourse = ref(false);
 const selectedSearchType = ref<SearchType>('ra');
+
+const resultsPage = ref(1);
+const showOverlay = ref(false);
+
+// helper para atualizar o nome dos professores do parser
+const capitalizeName = (name: string): string => {
+  if (!name) return '';
+  return name
+    .toLowerCase()
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
 
 const mockGroups = ref([
   {
-    season: '2025:2',
+    season: WHATSAPP_GROUPS_SEASON,
     groupURL: 'https://chat.whatsapp.com/example1',
     codigo: 'BCJ0205-15',
     campus: 'sa' as const,
@@ -243,9 +376,10 @@ const mockGroups = ref([
     subject: 'Fenômenos Térmicos',
     teoria: 'Eduardo De Moraes Gregores',
     pratica: 'Marcos De Abreu Avila',
+    uf_cod_turma: 'BCJ0205-15',
   },
   {
-    season: '2025:2',
+    season: WHATSAPP_GROUPS_SEASON,
     groupURL: 'https://chat.whatsapp.com/example2',
     codigo: 'BCM0506-15',
     campus: 'sa' as const,
@@ -254,9 +388,10 @@ const mockGroups = ref([
     subject: 'Comunicação e Redes',
     teoria: 'Maria Silva Santos',
     pratica: 'João Pedro Oliveira',
+    uf_cod_turma: 'BCM0506-15',
   },
   {
-    season: '2025:2',
+    season: WHATSAPP_GROUPS_SEASON,
     groupURL: 'https://chat.whatsapp.com/example3',
     codigo: 'BCN0404-15',
     campus: 'sa' as const,
@@ -265,9 +400,10 @@ const mockGroups = ref([
     subject: 'Geometria Analítica',
     teoria: 'Ana Carolina Lima',
     pratica: 'Roberto Carlos Souza',
+    uf_cod_turma: 'BCN0404-15',
   },
   {
-    season: '2025:2',
+    season: WHATSAPP_GROUPS_SEASON,
     groupURL: 'https://chat.whatsapp.com/example4',
     codigo: 'BCS0001-15',
     campus: 'sbc' as const,
@@ -276,141 +412,321 @@ const mockGroups = ref([
     subject: 'Base Experimental das Ciências Naturais',
     teoria: 'Pedro Henrique Costa',
     pratica: 'Fernanda Rodrigues',
+    uf_cod_turma: 'BCS0001-15',
   },
 ]);
 
-// API calls and fetches are temporarily disabled while we prepare groups generation
-// const debouncedRaSearch = useDebounceFn((raValue: number) => {
-//   if (raValue && String(raValue).length >= 8) {
-//     eventTracker.track(WebEvent.WHATSAPP_GROUP_SEARCH, {
-//       search_type: 'ra',
-//       search_query: raValue,
-//       user_logged_in: isUserLoggedIn.value,
-//     });
-//
-//     shouldFetchGroupsByRa.value = true;
-//   } else {
-//     shouldFetchGroupsByRa.value = false;
-//   }
-// }, 500);
-//
-// const selectSearchType = (type: SearchType) => {
-//   if (!isUserLoggedIn.value) {
-//     searchRaQuery.value = null;
-//   }
-//
-//   searchComponentQuery.value = '';
-//   selectedSearchType.value = type;
-//   shouldFetchGroupsByRa.value = false;
-//   shouldFetchComponents.value = false;
-//
-//   if (type === 'ra' && isRaValid.value && searchRaQuery.value) {
-//     debouncedRaSearch(searchRaQuery.value);
-//   }
-// };
-//
-// const debouncedComponentSearch = useDebounceFn((query: string) => {
-//   if (query.trim().length >= 2) {
-//     shouldFetchComponents.value = true;
-//   } else {
-//     shouldFetchComponents.value = false;
-//   }
-// }, 300);
-//
-// watch(searchRaQuery, (newRa) => {
-//   if (selectedSearchType.value === 'ra' && newRa !== null) {
-//     debouncedRaSearch(newRa);
-//   } else if (selectedSearchType.value === 'ra') {
-//     shouldFetchGroupsByRa.value = false;
-//   }
-// });
-//
-// const getWhatsappGroupsByComponent = () => {
-//   if (selectedSearchType.value === 'component') {
-//     debouncedComponentSearch(searchComponentQuery.value);
-//   }
-// };
-//
-// const {
-//   data: groupsByRa,
-//   isLoading: isGroupsByRaLoading,
-//   isSuccess: isGroupsByRaSuccess,
-// } = useQuery({
-//   queryKey: ['whatsappGroups', 'byRa', searchRaQuery],
-//   queryFn: () => Whatsapp.getComponentsByUser(searchRaQuery.value ?? 0),
-//   enabled: shouldFetchGroupsByRa,
-// });
-//
-// const {
-//   data: allComponents,
-//   isLoading: isComponentsLoading,
-//   isSuccess: isComponentsSuccess,
-// } = useQuery({
-//   queryKey: ['whatsappGroups', 'components'],
-//   queryFn: () => Whatsapp.searchComponents(''),
-//   enabled: shouldFetchComponents,
-// });
-//
-// const filteredComponents = computed(() => {
-//   if (!allComponents.value?.data || !searchComponentQuery.value?.trim()) {
-//     return [];
-//   }
-//
-//   const normalizedQuery = normalizeText(searchComponentQuery.value);
-//
-//   return allComponents.value.data.filter((component) => {
-//     const normalizedSubject = normalizeText(component.subject || '');
-//     const normalizedCodigo = normalizeText(component.codigo || '');
-//     const normalizedTeoria = normalizeText(component.teoria || '');
-//     const normalizedPratica = normalizeText(component.pratica || '');
-//
-//     return (
-//       normalizedSubject.includes(normalizedQuery) ||
-//       normalizedCodigo.includes(normalizedQuery) ||
-//       normalizedTeoria.includes(normalizedQuery) ||
-//       normalizedPratica.includes(normalizedQuery)
-//     );
-//   });
-// });
-//
-// const groupsFromRa = computed(() => groupsByRa.value?.data || []);
-// const groupsFromComponents = computed(() => filteredComponents.value || []);
-//
-// const currentGroups = computed(() => {
-//   return selectedSearchType.value === 'ra'
-//     ? groupsFromRa.value
-//     : groupsFromComponents.value;
-// });
-//
-// const currentLoading = computed(() => {
-//   return selectedSearchType.value === 'ra'
-//     ? isGroupsByRaLoading.value
-//     : isComponentsLoading.value;
-// });
-//
-// const currentSuccess = computed(() => {
-//   return selectedSearchType.value === 'ra'
-//     ? isGroupsByRaSuccess.value && shouldFetchGroupsByRa.value
-//     : isComponentsSuccess.value && shouldFetchComponents.value;
-// });
+const debouncedRaSearch = useDebounceFn((raValue: number) => {
+  if (raValue && String(raValue).length >= 8) {
+    eventTracker.track(WebEvent.WHATSAPP_GROUP_SEARCH, {
+      search_type: 'ra',
+      search_query: raValue,
+      user_logged_in: isUserLoggedIn.value,
+    });
 
-// const openExtensionUrl = () => {
-//   eventTracker.track(WebEvent.WHATSAPP_GROUP_OPEN_EXTENSION, {
-//     user_ra: userRa.value || null,
-//     user_logged_in: isUserLoggedIn.value,
-//   });
+    shouldFetchGroupsByRa.value = true;
+  } else {
+    shouldFetchGroupsByRa.value = false;
+  }
+}, 500);
 
-//   window.open(extensionURL, '_blank');
-// };
+const selectSearchType = (type: SearchType) => {
+  if (!isUserLoggedIn.value) {
+    searchRaQuery.value = null;
+  }
 
-// const openSyncHistory = () => {
-//   eventTracker.track(WebEvent.WHATSAPP_GROUP_OPEN_SYNC, {
-//     user_ra: userRa.value || null,
-//     user_logged_in: isUserLoggedIn.value,
-//   });
+  searchComponentQuery.value = '';
+  searchCourseQuery.value = null;
+  searchCourseFilterQuery.value = '';
+  selectedSearchType.value = type;
+  shouldFetchGroupsByRa.value = false;
+  shouldFetchComponents.value = false;
+  shouldFetchGroupsByCourse.value = false;
+  resultsPage.value = 1;
 
-//   window.open(studentRecordURL, '_blank');
-// };
+  if (type === 'ra' && isRaValid.value && searchRaQuery.value) {
+    debouncedRaSearch(searchRaQuery.value);
+  }
+};
+
+const loadMoreResults = () => {
+  resultsPage.value += 1;
+};
+
+const debouncedComponentSearch = useDebounceFn((query: string) => {
+  if (query.trim().length >= 2) {
+    shouldFetchComponents.value = true;
+  } else {
+    shouldFetchComponents.value = false;
+  }
+}, 300);
+
+watch(searchRaQuery, (newRa) => {
+  if (selectedSearchType.value === 'ra' && newRa !== null) {
+    debouncedRaSearch(newRa);
+    resultsPage.value = 1;
+  } else if (selectedSearchType.value === 'ra') {
+    shouldFetchGroupsByRa.value = false;
+  }
+});
+
+watch(searchComponentQuery, () => {
+  if (selectedSearchType.value === 'component') {
+    resultsPage.value = 1;
+  }
+});
+
+watch(searchCourseQuery, (newCourseId) => {
+  if (selectedSearchType.value === 'course' && newCourseId !== null) {
+    eventTracker.track(WebEvent.WHATSAPP_GROUP_SEARCH, {
+      search_type: 'course',
+      search_query: newCourseId,
+      user_logged_in: isUserLoggedIn.value,
+    });
+    searchCourseFilterQuery.value = '';
+    resultsPage.value = 1;
+    shouldFetchGroupsByCourse.value = true;
+  } else if (selectedSearchType.value === 'course') {
+    shouldFetchGroupsByCourse.value = false;
+  }
+});
+
+watch(searchCourseFilterQuery, () => {
+  if (selectedSearchType.value === 'course') {
+    resultsPage.value = 1;
+  }
+});
+
+const getWhatsappGroupsByComponent = () => {
+  if (selectedSearchType.value === 'component') {
+    debouncedComponentSearch(searchComponentQuery.value);
+  }
+};
+
+const {
+  data: groupsByRa,
+  isLoading: isGroupsByRaLoading,
+  isSuccess: isGroupsByRaSuccess,
+} = useQuery({
+  queryKey: ['whatsappGroups', 'byRa', searchRaQuery],
+  queryFn: () => Whatsapp.getComponentsByUser(searchRaQuery.value ?? 0),
+  enabled: computed(() => shouldFetchGroupsByRa.value),
+});
+
+const {
+  data: allComponents,
+  isLoading: isComponentsLoading,
+  isSuccess: isComponentsSuccess,
+} = useQuery({
+  queryKey: ['whatsappGroups', 'components'],
+  queryFn: () => Whatsapp.searchComponents(''),
+  enabled: computed(
+    () => shouldFetchComponents.value || shouldFetchGroupsByCourse.value,
+  ),
+  staleTime: 1000 * 60 * 5,
+});
+
+const {
+  data: subjectComponents,
+  isLoading: isSubjectComponentsLoading,
+  isSuccess: isSubjectComponentsSuccess,
+} = useQuery({
+  queryKey: ['disciplinaComponents'],
+  queryFn: () => Whatsapp.searchComponentsBySeason(WHATSAPP_GROUPS_SEASON),
+  gcTime: 1000 * 60 * 60 * 12, // add cache de 12hrs
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+});
+
+const {
+  data: coursesData,
+  isLoading: isCoursesLoading,
+  isSuccess: isCoursesSuccess,
+} = useQuery({
+  queryKey: ['courses'],
+  queryFn: () => Whatsapp.getCourses(),
+  enabled: computed(() => selectedSearchType.value === 'course'),
+  staleTime: 1000 * 60 * 60,
+});
+
+const filteredComponents = computed(() => {
+  if (!allComponents.value?.data || !searchComponentQuery.value?.trim()) {
+    return [];
+  }
+
+  const normalizedQuery = normalizeText(searchComponentQuery.value);
+
+  return allComponents.value.data.filter((component) => {
+    const normalizedSubject = normalizeText(component.subject || '');
+    const normalizedCodigo = normalizeText(component.codigo || '');
+    const normalizedTeoria = normalizeText(component.teoria || '');
+    const normalizedPratica = normalizeText(component.pratica || '');
+
+    return (
+      normalizedSubject.includes(normalizedQuery) ||
+      normalizedCodigo.includes(normalizedQuery) ||
+      normalizedTeoria.includes(normalizedQuery) ||
+      normalizedPratica.includes(normalizedQuery)
+    );
+  });
+});
+
+const coursesList = computed(() => {
+  if (!coursesData.value) return [];
+  return coursesData.value
+    .filter((course: SearchCourseItem) => course.name && course.name.trim())
+    .sort((a: SearchCourseItem, b: SearchCourseItem) =>
+      a.name.localeCompare(b.name),
+    );
+});
+
+const filteredComponentsByCourse = computed(() => {
+  if (!allComponents.value?.data || !searchCourseQuery.value) {
+    return [];
+  }
+
+  const selectedCourse = coursesList.value.find(
+    (course: SearchCourseItem) => course.id === searchCourseQuery.value,
+  );
+
+  if (!selectedCourse) {
+    return [];
+  }
+
+  const filtered = allComponents.value.data.filter((component) => {
+    return (
+      selectedCourse.ufComponentCodes.includes(component.codigo) &&
+      component.season === WHATSAPP_GROUPS_SEASON
+    );
+  });
+
+  return filtered;
+});
+
+const filteredAndSearchedCourseComponents = computed(() => {
+  const courseFiltered = filteredComponentsByCourse.value;
+
+  // Enriquece os componentes com dados de professores do componentsByCode
+  const enrichedComponents = courseFiltered.map((component, index) => {
+    const teachersData = componentsByCode.value[component.uf_cod_turma];
+    const enriched = {
+      ...component,
+      teoria: teachersData?.teoria || component.teoria || '',
+      pratica: teachersData?.pratica || component.pratica || '',
+    };
+
+    return enriched;
+  });
+
+  if (!searchCourseFilterQuery.value?.trim()) {
+    return enrichedComponents;
+  }
+
+  const normalizedQuery = normalizeText(searchCourseFilterQuery.value);
+
+  return enrichedComponents.filter((component) => {
+    const normalizedSubject = normalizeText(component.subject || '');
+    const normalizedCodigo = normalizeText(component.codigo || '');
+    const normalizedTeoria = normalizeText(component.teoria || '');
+    const normalizedPratica = normalizeText(component.pratica || '');
+
+    return (
+      normalizedSubject.includes(normalizedQuery) ||
+      normalizedCodigo.includes(normalizedQuery) ||
+      normalizedTeoria.includes(normalizedQuery) ||
+      normalizedPratica.includes(normalizedQuery)
+    );
+  });
+});
+
+const componentsByCode = computed(() => {
+  if (!subjectComponents.value) {
+    return {};
+  }
+  const grouped: Record<string, { teoria: string; pratica: string }> = {};
+
+  subjectComponents.value.forEach((component, index) => {
+    const teoriaRaw =
+      component.teachers?.find((t: any) => t.role === 'professor')?.name || '';
+    const praticaRaw =
+      component.teachers?.find((t: any) => t.role === 'practice')?.name || '';
+
+    const teoria = capitalizeName(teoriaRaw);
+    const pratica = capitalizeName(praticaRaw);
+
+    grouped[component.ufClassroomCode] = {
+      teoria,
+      pratica,
+    };
+  });
+
+  return grouped;
+});
+
+const groupsFromRa = computed(() => groupsByRa.value?.data || []);
+const groupsFromComponents = computed(() => filteredComponents.value || []);
+const groupsFromCourse = computed(() => {
+  const result = filteredAndSearchedCourseComponents.value || [];
+
+  return result;
+});
+
+const searchConfig = computed(() => ({
+  ra: {
+    groups: groupsFromRa.value,
+    loading: isGroupsByRaLoading.value,
+    success: isGroupsByRaSuccess.value && shouldFetchGroupsByRa.value,
+    query: searchRaQuery.value,
+  },
+  component: {
+    groups: groupsFromComponents.value,
+    loading: isComponentsLoading.value,
+    success: isComponentsSuccess.value && shouldFetchComponents.value,
+    query: searchComponentQuery.value,
+  },
+  course: {
+    groups: groupsFromCourse.value,
+    loading: isComponentsLoading.value,
+    success: isComponentsSuccess.value && shouldFetchGroupsByCourse.value,
+    query: searchCourseQuery.value,
+  },
+}));
+
+const currentGroups = computed(
+  () => searchConfig.value[selectedSearchType.value]?.groups || [],
+);
+
+const paginatedGroups = computed(() => {
+  const endIndex = resultsPage.value * 24;
+  return currentGroups.value.slice(0, endIndex);
+});
+
+const hasMoreResults = computed(() => {
+  return paginatedGroups.value.length < currentGroups.value.length;
+});
+
+const currentLoading = computed(
+  () => searchConfig.value[selectedSearchType.value]?.loading || false,
+);
+
+const currentSuccess = computed(
+  () => searchConfig.value[selectedSearchType.value]?.success || false,
+);
+
+const openWhatsappGroup = (url: string) => {
+  const component = currentGroups.value.find((group) => group.groupURL === url);
+  const searchQuery = searchConfig.value[selectedSearchType.value]?.query;
+
+  eventTracker.track(WebEvent.WHATSAPP_GROUP_JOINED, {
+    whatsapp_url: url,
+    component: component,
+    search_type: selectedSearchType.value,
+    search_query: searchQuery,
+    user_logged_in: isUserLoggedIn.value,
+  });
+
+  window.open(url, '_blank');
+};
 
 const handleExtension = () => {
   window.open(extensionURL, '_blank');
@@ -443,6 +759,13 @@ onMounted(() => {
     user_logged_in: isUserLoggedIn.value,
     user_ra: userRa.value || null,
   });
+
+  if (isUserLoggedIn.value || route.query.ra) {
+    searchRaQuery.value = toValue(userRa);
+    if (searchRaQuery.value !== null) {
+      debouncedRaSearch(searchRaQuery.value);
+    }
+  }
 });
 </script>
 
@@ -493,6 +816,44 @@ onMounted(() => {
 .main-search :deep(.v-field) {
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.course-search-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.course-select {
+  flex: 1.5;
+  min-width: 0;
+}
+
+.course-select :deep(.v-field) {
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.course-filter {
+  flex: 1;
+  min-width: 0;
+}
+
+.course-filter :deep(.v-field) {
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .course-search-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .course-select,
+  .course-filter {
+    flex: 1;
+  }
 }
 
 .option-chips {
@@ -628,6 +989,9 @@ onMounted(() => {
 
 .preview-card {
   animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.results-section.overlay-active .preview-card {
   filter: blur(1px);
   pointer-events: none;
 }
@@ -933,5 +1297,12 @@ span {
 
 .restriction-dialog::-webkit-scrollbar-thumb:hover {
   background: rgba(var(--v-theme-primary), 0.5);
+}
+
+.load-more-section {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+  margin-top: 16px;
 }
 </style>
