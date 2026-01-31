@@ -503,6 +503,32 @@ const getWhatsappGroupsByComponent = () => {
   }
 };
 
+// Query principal - busca todos os componentes (searchComponents retorna dados formatados do backend Next)
+const {
+  data: allComponents,
+  isLoading: isAllComponentsLoading,
+  isSuccess: isAllComponentsSuccess,
+} = useQuery({
+  queryKey: ['whatsappGroups', 'allComponents'],
+  queryFn: () => Whatsapp.searchComponents(''),
+  gcTime: 1000 * 60 * 60 * 12, // cache de 12hrs
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+});
+
+// Query para dados do parser (professores)
+const {
+  data: parserComponents,
+  isLoading: isParserComponentsLoading,
+} = useQuery({
+  queryKey: ['disciplinaComponents', WHATSAPP_GROUPS_SEASON],
+  queryFn: () => Whatsapp.searchComponentsBySeason(WHATSAPP_GROUPS_SEASON),
+  gcTime: 1000 * 60 * 60 * 12,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+});
+
+// Query específica para busca por RA (necessária pois filtra no backend pelo usuário)
 const {
   data: groupsByRa,
   isLoading: isGroupsByRaLoading,
@@ -511,31 +537,6 @@ const {
   queryKey: ['whatsappGroups', 'byRa', searchRaQuery],
   queryFn: () => Whatsapp.getComponentsByUser(searchRaQuery.value ?? 0),
   enabled: computed(() => shouldFetchGroupsByRa.value),
-});
-
-const {
-  data: allComponents,
-  isLoading: isComponentsLoading,
-  isSuccess: isComponentsSuccess,
-} = useQuery({
-  queryKey: ['whatsappGroups', 'components'],
-  queryFn: () => Whatsapp.searchComponents(''),
-  enabled: computed(
-    () => shouldFetchComponents.value || shouldFetchGroupsByCourse.value,
-  ),
-  staleTime: 1000 * 60 * 5,
-});
-
-const {
-  data: subjectComponents,
-  isLoading: isSubjectComponentsLoading,
-  isSuccess: isSubjectComponentsSuccess,
-} = useQuery({
-  queryKey: ['disciplinaComponents'],
-  queryFn: () => Whatsapp.searchComponentsBySeason(WHATSAPP_GROUPS_SEASON),
-  gcTime: 1000 * 60 * 60 * 12, // add cache de 12hrs
-  refetchOnMount: false,
-  refetchOnWindowFocus: false,
 });
 
 const {
@@ -549,26 +550,30 @@ const {
   staleTime: 1000 * 60 * 60,
 });
 
-const filteredComponents = computed(() => {
-  if (!allComponents.value?.data || !searchComponentQuery.value?.trim()) {
+// Componentes filtrados por nome da disciplina (busca por componente)
+const filteredByComponent = computed(() => {
+  if (!allComponentsData.value.length || !searchComponentQuery.value?.trim()) {
     return [];
   }
 
   const normalizedQuery = normalizeText(searchComponentQuery.value);
 
-  return allComponents.value.data.filter((component) => {
-    const normalizedSubject = normalizeText(component.subject || '');
-    const normalizedCodigo = normalizeText(component.codigo || '');
-    const normalizedTeoria = normalizeText(component.teoria || '');
-    const normalizedPratica = normalizeText(component.pratica || '');
+  return allComponentsData.value
+    .map(enrichComponent)
+    .filter((component) => {
+      const normalizedSubject = normalizeText(component.subject || '');
+      const normalizedCodigo = normalizeText(component.codigo || '');
+      const normalizedTeoria = normalizeText(component.teoria || '');
+      const normalizedPratica = normalizeText(component.pratica || '');
+      
 
-    return (
-      normalizedSubject.includes(normalizedQuery) ||
-      normalizedCodigo.includes(normalizedQuery) ||
-      normalizedTeoria.includes(normalizedQuery) ||
-      normalizedPratica.includes(normalizedQuery)
-    );
-  });
+      return (
+        normalizedSubject.includes(normalizedQuery) ||
+        normalizedCodigo.includes(normalizedQuery) ||
+        normalizedTeoria.includes(normalizedQuery) ||
+        normalizedPratica.includes(normalizedQuery)
+      );
+    });
 });
 
 const coursesList = computed(() => {
@@ -580,8 +585,9 @@ const coursesList = computed(() => {
     );
 });
 
-const filteredComponentsByCourse = computed(() => {
-  if (!allComponents.value?.data || !searchCourseQuery.value) {
+// Componentes filtrados por curso
+const filteredByCourse = computed(() => {
+  if (!allComponentsData.value.length || !searchCourseQuery.value) {
     return [];
   }
 
@@ -593,30 +599,20 @@ const filteredComponentsByCourse = computed(() => {
     return [];
   }
 
-  const filtered = allComponents.value.data.filter((component) => {
+  return allComponentsData.value.filter((component) => {
     return (
       selectedCourse.ufComponentCodes.includes(component.codigo) &&
       component.season === WHATSAPP_GROUPS_SEASON
     );
   });
-
-  return filtered;
 });
 
+// Componentes do curso com filtro adicional de texto e enriquecidos
 const filteredAndSearchedCourseComponents = computed(() => {
-  const courseFiltered = filteredComponentsByCourse.value;
+  const courseFiltered = filteredByCourse.value;
 
-  // Enriquece os componentes com dados de professores do componentsByCode
-  const enrichedComponents = courseFiltered.map((component, index) => {
-    const teachersData = componentsByCode.value[component.uf_cod_turma];
-    const enriched = {
-      ...component,
-      teoria: teachersData?.teoria || component.teoria || '',
-      pratica: teachersData?.pratica || component.pratica || '',
-    };
-
-    return enriched;
-  });
+  // Enriquece os componentes com dados de professores
+  const enrichedComponents = courseFiltered.map(enrichComponent);
 
   if (!searchCourseFilterQuery.value?.trim()) {
     return enrichedComponents;
@@ -639,13 +635,17 @@ const filteredAndSearchedCourseComponents = computed(() => {
   });
 });
 
+// Computed para acessar dados do allComponents
+const allComponentsData = computed(() => allComponents.value?.data || []);
+
+// Mapa de componentes com dados de professores normalizados (do parser)
 const componentsByCode = computed(() => {
-  if (!subjectComponents.value) {
+  if (!parserComponents.value) {
     return {};
   }
   const grouped: Record<string, { teoria: string; pratica: string }> = {};
 
-  subjectComponents.value.forEach((component, index) => {
+  parserComponents.value.forEach((component) => {
     const teoriaRaw =
       component.teachers?.find((t: any) => t.role === 'professor')?.name || '';
     const praticaRaw =
@@ -663,11 +663,19 @@ const componentsByCode = computed(() => {
   return grouped;
 });
 
-const groupsFromRa = computed(() => groupsByRa.value?.data || []);
-const groupsFromCourseEnriched = computed(() => {
-  const result = filteredAndSearchedCourseComponents.value || [];
+// Função helper para enriquecer componentes com dados de professores
+const enrichComponent = (component: any) => {
+  const teachersData = componentsByCode.value[component.ufClassroomCode || component.uf_cod_turma];
+  return {
+    ...component,
+    teoria: teachersData?.teoria || component.teoria || '',
+    pratica: teachersData?.pratica || component.pratica || '',
+  };
+};
 
-  return result;
+const groupsFromRa = computed(() => {
+  const groups = groupsByRa.value?.data || [];
+  return groups.map(enrichComponent);
 });
 
 const searchConfig = computed(() => ({
@@ -678,15 +686,15 @@ const searchConfig = computed(() => ({
     query: searchRaQuery.value,
   },
   component: {
-    groups: groupsFromCourseEnriched.value,
-    loading: isComponentsLoading.value,
-    success: isComponentsSuccess.value && shouldFetchComponents.value,
+    groups: filteredByComponent.value,
+    loading: isAllComponentsLoading.value,
+    success: isAllComponentsSuccess.value && shouldFetchComponents.value,
     query: searchComponentQuery.value,
   },
   course: {
-    groups: groupsFromCourseEnriched.value,
-    loading: isComponentsLoading.value,
-    success: isComponentsSuccess.value && shouldFetchGroupsByCourse.value,
+    groups: filteredAndSearchedCourseComponents.value,
+    loading: isAllComponentsLoading.value || isCoursesLoading.value,
+    success: isAllComponentsSuccess.value && shouldFetchGroupsByCourse.value,
     query: searchCourseQuery.value,
   },
 }));
