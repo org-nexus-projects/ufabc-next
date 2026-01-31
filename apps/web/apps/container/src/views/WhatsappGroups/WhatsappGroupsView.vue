@@ -664,8 +664,7 @@ const componentsByCode = computed(() => {
 });
 
 const groupsFromRa = computed(() => groupsByRa.value?.data || []);
-const groupsFromComponents = computed(() => filteredComponents.value || []);
-const groupsFromCourse = computed(() => {
+const groupsFromCourseEnriched = computed(() => {
   const result = filteredAndSearchedCourseComponents.value || [];
 
   return result;
@@ -679,13 +678,13 @@ const searchConfig = computed(() => ({
     query: searchRaQuery.value,
   },
   component: {
-    groups: groupsFromComponents.value,
+    groups: groupsFromCourseEnriched.value,
     loading: isComponentsLoading.value,
     success: isComponentsSuccess.value && shouldFetchComponents.value,
     query: searchComponentQuery.value,
   },
   course: {
-    groups: groupsFromCourse.value,
+    groups: groupsFromCourseEnriched.value,
     loading: isComponentsLoading.value,
     success: isComponentsSuccess.value && shouldFetchGroupsByCourse.value,
     query: searchCourseQuery.value,
