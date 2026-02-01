@@ -399,6 +399,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const { operation } = request.body;
       const { season } = request.query;
 
+      // @ts-expect-error delete later
       const enrolledStudents = await connector.getEnrolledStudents();
 
       const start = Date.now();
