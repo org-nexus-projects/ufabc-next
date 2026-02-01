@@ -187,6 +187,28 @@
                 Que tal buscar pelo nome da disciplina ou do seu curso?
               </p>
             </div>
+
+            <div class="empty-sync">
+              <div class="empty-sync-content">
+                <h4 class="empty-sync-title">
+                  Lembre-se de sincronizar seu histórico
+                </h4>
+                <p>
+                  Para ver os grupos das suas matérias, sincronize seu histórico
+                  de matrícula e mantenha seus dados atualizados.
+                </p>
+                <div class="not-synced__actions">
+                  <button
+                    class="not-synced__button secondary"
+                    :class="{ 'secondary--dark': isDarkMode }"
+                    @click="handleSyncHistory"
+                  >
+                    <v-icon size="20"> mdi-sync </v-icon>
+                    Sincronizar histórico
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -316,6 +338,7 @@ import { SearchCourseItem } from '@ufabc-next/types';
 import { useDebounceFn } from '@vueuse/core';
 import { computed, onMounted, ref, toValue, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useTheme } from 'vuetify';
 
 import UserNotifications from '@/components/UserNotifications.vue';
 import WhatsappGroupCard from '@/components/WhatsappGroupCard/WhatsappGroupCard.vue';
@@ -331,6 +354,8 @@ const WHATSAPP_GROUPS_SEASON = '2026:1';
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+const theme = useTheme();
+const isDarkMode = computed(() => theme.global.current.value.dark);
 const userRa = computed(
   () => authStore.user?.ra || (route.query.ra ? Number(route.query.ra) : null),
 );
@@ -511,7 +536,10 @@ const {
 } = useQuery({
   queryKey: ['whatsappGroups', 'allComponents'],
   queryFn: () => Whatsapp.searchComponents(''),
-  gcTime: 1000 * 60 * 60 * 12, // cache de 12hrs
+  gcTime: 1000 * 60 * 10,
+  enabled: computed(() =>
+    ['component', 'course'].includes(selectedSearchType.value),
+  ),
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
@@ -521,7 +549,10 @@ const { data: parserComponents, isLoading: isParserComponentsLoading } =
   useQuery({
     queryKey: ['disciplinaComponents', WHATSAPP_GROUPS_SEASON],
     queryFn: () => Whatsapp.searchComponentsBySeason(WHATSAPP_GROUPS_SEASON),
-    gcTime: 1000 * 60 * 60 * 12,
+    gcTime: 1000 * 60 * 10,
+    enabled: computed(() =>
+      ['component', 'course'].includes(selectedSearchType.value),
+    ),
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
@@ -717,7 +748,9 @@ const currentSuccess = computed(
 );
 
 const openWhatsappGroup = (url: string) => {
-  const component = currentGroups.value.find((group) => group.groupURL === url);
+  const component = currentGroups.value.find(
+    (group: any) => group.groupURL === url,
+  );
   const searchQuery = searchConfig.value[selectedSearchType.value]?.query;
 
   eventTracker.track(WebEvent.WHATSAPP_GROUP_JOINED, {
@@ -969,6 +1002,40 @@ onMounted(() => {
   margin-right: auto;
 }
 
+.empty-sync {
+  margin: 0 auto;
+  max-width: 600px;
+  padding: 20px 18px;
+  border-radius: 16px;
+  background-color: var(--v-theme-primary);
+  border: 1px solid rgba(var(--v-theme-primary), 0.1);
+}
+
+.empty-sync-content {
+  text-align: center;
+  color: rgb(var(--v-theme-primary));
+}
+
+.empty-sync-content h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: rgb(var(--v-theme-primary));
+}
+
+.empty-sync-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.empty-sync-content p {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: rgb(var(--v-theme-on-surface));
+  margin-bottom: 16px;
+}
+
 .empty-visual {
   margin-bottom: 24px;
 }
@@ -1011,6 +1078,12 @@ onMounted(() => {
 
 .not-synced__button.secondary {
   background-color: white;
+  color: rgb(var(--v-theme-primary));
+  border: 1px solid rgb(var(--v-theme-primary));
+}
+
+.not-synced__button.secondary--dark {
+  background-color: rgb(var(--v-theme-surface));
   color: rgb(var(--v-theme-primary));
   border: 1px solid rgb(var(--v-theme-primary));
 }
