@@ -43,8 +43,10 @@ export const historyProcessingJob = defineJob(JOB_NAMES.HISTORY_PROCESSING)
     const { jobId, webhookData } = jobData;
     const season = currentQuad();
     const db = app.db;
+    // Use payload.ra if available (webhook format), otherwise fall back to student.ra (reprocessing format)
+    const ra = webhookData.payload.ra ?? webhookData.payload.student.ra;
     const studentSync = await db.StudentSync.findOne({
-      ra: webhookData.payload.ra,
+      ra,
       status: {
         $nin: ['completed', 'created'],
       },

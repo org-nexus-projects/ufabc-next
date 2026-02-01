@@ -57,8 +57,8 @@ const CoefficientsSchema = z.object({
 });
 
 export const HistoryWebhookPayloadSchema = z.object({
-  ra: z.string().describe('Student RA for identification'),
-  timestamp: z.string().datetime().describe('Processing timestamp from parser'),
+  ra: z.string().optional().describe('Student RA for identification (optional for reprocessing)'),
+  timestamp: z.string().datetime().optional().describe('Processing timestamp from parser (optional for reprocessing)'),
   processing: z
     .object({
       duration: z.number().describe('Processing duration in milliseconds'),
