@@ -10,7 +10,7 @@
         </h3>
         <div style="display: flex; gap: 16px">
           <p class="info__description">
-            {{ component.codigo }}
+            {{ component.uf_cod_turma }}
           </p>
         </div>
       </div>
