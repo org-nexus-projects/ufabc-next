@@ -4,7 +4,7 @@ const ComponentSchema = z.object({
   UFCode: z.string().describe('UFABC subject code'),
   name: z.string().describe('Subject name'),
   grade: z
-    .enum(['A', 'B', 'C', 'D', 'O', 'F', 'E'])
+    .enum(['A', 'B', 'C', 'D', 'O', 'F', 'E', '-', '--', '0', ''])
     .nullable()
     .describe('Subject grade'),
   status: z.string().describe('Subject status'),

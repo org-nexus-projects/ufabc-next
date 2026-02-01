@@ -143,13 +143,6 @@ export class UfabcParserConnector extends BaseRequester {
     return parsedHistory;
   }
 
-  async getEnrolledStudents() {
-    const response = await this.request<UFProcessorEnrolled>(
-      '/v1/matriculas/ufabc/enrolled'
-    );
-    return response;
-  }
-
   async getComponents() {
     const response = await this.request<UfabcParserComponent[]>(
       '/v1/matriculas/ufabc'
