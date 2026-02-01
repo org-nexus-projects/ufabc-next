@@ -54,7 +54,7 @@
 
                 <v-text-field
                   v-model="searchCourseFilterQuery"
-                  placeholder="Filtrar disciplinas (ex: Cálculo)"
+                  placeholder="Digite a disciplina ou professor"
                   variant="outlined"
                   size="large"
                   :disabled="!searchCourseQuery"
@@ -517,16 +517,14 @@ const {
 });
 
 // Query para dados do parser (professores)
-const {
-  data: parserComponents,
-  isLoading: isParserComponentsLoading,
-} = useQuery({
-  queryKey: ['disciplinaComponents', WHATSAPP_GROUPS_SEASON],
-  queryFn: () => Whatsapp.searchComponentsBySeason(WHATSAPP_GROUPS_SEASON),
-  gcTime: 1000 * 60 * 60 * 12,
-  refetchOnMount: false,
-  refetchOnWindowFocus: false,
-});
+const { data: parserComponents, isLoading: isParserComponentsLoading } =
+  useQuery({
+    queryKey: ['disciplinaComponents', WHATSAPP_GROUPS_SEASON],
+    queryFn: () => Whatsapp.searchComponentsBySeason(WHATSAPP_GROUPS_SEASON),
+    gcTime: 1000 * 60 * 60 * 12,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
 
 // Query específica para busca por RA (necessária pois filtra no backend pelo usuário)
 const {
@@ -558,22 +556,19 @@ const filteredByComponent = computed(() => {
 
   const normalizedQuery = normalizeText(searchComponentQuery.value);
 
-  return allComponentsData.value
-    .map(enrichComponent)
-    .filter((component) => {
-      const normalizedSubject = normalizeText(component.subject || '');
-      const normalizedCodigo = normalizeText(component.codigo || '');
-      const normalizedTeoria = normalizeText(component.teoria || '');
-      const normalizedPratica = normalizeText(component.pratica || '');
-      
+  return allComponentsData.value.map(enrichComponent).filter((component) => {
+    const normalizedSubject = normalizeText(component.subject || '');
+    const normalizedCodigo = normalizeText(component.codigo || '');
+    const normalizedTeoria = normalizeText(component.teoria || '');
+    const normalizedPratica = normalizeText(component.pratica || '');
 
-      return (
-        normalizedSubject.includes(normalizedQuery) ||
-        normalizedCodigo.includes(normalizedQuery) ||
-        normalizedTeoria.includes(normalizedQuery) ||
-        normalizedPratica.includes(normalizedQuery)
-      );
-    });
+    return (
+      normalizedSubject.includes(normalizedQuery) ||
+      normalizedCodigo.includes(normalizedQuery) ||
+      normalizedTeoria.includes(normalizedQuery) ||
+      normalizedPratica.includes(normalizedQuery)
+    );
+  });
 });
 
 const coursesList = computed(() => {
@@ -665,7 +660,8 @@ const componentsByCode = computed(() => {
 
 // Função helper para enriquecer componentes com dados de professores
 const enrichComponent = (component: any) => {
-  const teachersData = componentsByCode.value[component.ufClassroomCode || component.uf_cod_turma];
+  const teachersData =
+    componentsByCode.value[component.ufClassroomCode || component.uf_cod_turma];
   return {
     ...component,
     teoria: teachersData?.teoria || component.teoria || '',
