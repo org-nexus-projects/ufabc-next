@@ -1,7 +1,6 @@
 import type { ConnectionOptions, WorkerOptions } from 'bullmq';
 
 import { processComponentsTeachers } from './jobs/components-teacher.job.js';
-import { processComponent, syncComponents } from './jobs/components.job.js';
 import { sendConfirmationEmail, sendBulkEmail } from './jobs/email.job.js';
 import { processSingleEnrollment } from './jobs/enrollments.job.js';
 import { uploadLogsToS3 } from './jobs/logs.job.js';
@@ -86,15 +85,6 @@ export const JOBS = {
   SendBulkEmail: {
     queue: 'send_email',
     handler: sendBulkEmail,
-  },
-  ComponentsSync: {
-    queue: 'sync_components',
-    handler: syncComponents,
-    every: '1 day',
-  },
-  ProcessSingleComponent: {
-    queue: 'sync_components',
-    handler: processComponent,
   },
   UserEnrollmentsUpdate: {
     queue: 'user_enrollments_update',
