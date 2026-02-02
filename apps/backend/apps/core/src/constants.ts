@@ -31,3 +31,4 @@ export const JOB_NAMES = {
 } as const;
 
 export const HTTP_REDIS_KEY_PREFIX = 'http';
+export const MAX_LOG_SIZE = 600 * 1024;
