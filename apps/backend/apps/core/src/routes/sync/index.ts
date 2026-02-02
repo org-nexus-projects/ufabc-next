@@ -177,11 +177,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       preHandler: (request, reply) => request.isAdmin(reply),
     },
     async (request, reply) => {
-      const { season, hash, ignoreErrors, kind } = request.body;
-      const componentsWithTeachers = await connector.getComponentsFile(
-        season,
-        kind
-      );
+      const { season, hash, ignoreErrors } = request.body;
+      const componentsWithTeachers = await connector.getComponentsV2(season);
 
       const teacherCache = new Map();
       const errors: Array<SyncError> = [];
@@ -198,10 +195,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         const teacher = await TeacherModel.findByFuzzName(normalizedName);
         if (!teacher && normalizedName !== '0') {
           app.log.warn({
-            msg: 'Teacher not found',
             originalName: name,
             normalizedName,
-          });
+          }, 'Teacher not found');
           errors.push({
             original: name,
             parserError: ['Teacher not found in database'],
@@ -222,31 +218,38 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       const components = await Promise.all(
         componentsWithTeachers.map(async (c) => {
+          const professorTeacher = c.teachers.find(
+            (t) => t.role === 'professor' && !t.isSecondary
+          );
+          const practiceTeacher = c.teachers.find(
+            (t) => t.role === 'practice' && !t.isSecondary
+          );
+
           const [teoria, pratica] = await Promise.all([
-            findTeacher(c.teachers?.professor),
-            findTeacher(c.teachers?.practice),
+            findTeacher(professorTeacher?.name ?? null),
+            findTeacher(practiceTeacher?.name ?? null),
           ]);
           const dbComponent = await ComponentModel.findOne({
             season,
             $or: [
-              { uf_cod_turma: c.UFClassroomCode.toUpperCase() },
-              { uf_cod_turma: c.UFClassroomCode },
+              { uf_cod_turma: c.ufClassroomCode.toUpperCase() },
+              { uf_cod_turma: c.ufClassroomCode },
             ],
           }).lean();
           let subjectId = null;
           if (!dbComponent) {
             app.log.warn({
               msg: 'Component not found in database',
-              uf_cod_turma: c.UFClassroomCode,
+              uf_cod_turma: c.ufClassroomCode,
             });
             errors.push({
-              original: c.UFClassroomCode,
+              original: c.ufClassroomCode,
               parserError: ['Component not found in database'],
               type: 'MATCHING_FAILED',
             });
             // Normalize the subject code (strip year, uppercase, etc.)
-            const codeMatch = c.UFComponentCode.match(/^(.*?)-\d{2}$/);
-            const normalizedCode = codeMatch ? codeMatch[1] : c.UFComponentCode;
+            const codeMatch = c.ufComponentCode.match(/^(.*?)-\d{2}$/);
+            const normalizedCode = codeMatch ? codeMatch[1] : c.ufComponentCode;
             const subject = await SubjectModel.findOne({
               uf_subject_code: { $in: [normalizedCode] },
             }).lean();
@@ -266,18 +269,18 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
               disciplina_id: null,
               campus: c.campus,
               disciplina: c.name,
-              turno: c.turno,
-              turma: c.turma,
-              uf_cod_turma: c.UFClassroomCode,
+              turno: c.shift,
+              turma: c.componentClass,
+              uf_cod_turma: c.ufClassroomCode,
               year: Number(season.split(':')[0]),
               quad: Number(season.split(':')[1]),
-              codigo: c.UFComponentCode,
+              codigo: c.ufComponentCode,
               season,
               teoria,
               pratica,
               subject: subjectId,
               after_kick: [],
-              before_kick: [], // added to fix type error
+              before_kick: [],
               alunos_matriculados: [],
               obrigatorias: [],
               ideal_quad: false,
@@ -291,9 +294,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             ...dbComponent,
             campus: c.campus,
             disciplina: c.name,
-            turno: c.turno,
-            turma: c.turma,
-            uf_cod_turma: c.UFClassroomCode,
+            turno: c.shift,
+            turma: c.componentClass,
+            uf_cod_turma: c.ufClassroomCode,
             teoria,
             pratica,
             ignoreErrors,
