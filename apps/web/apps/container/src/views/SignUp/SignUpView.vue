@@ -306,6 +306,7 @@ import { useField, useForm } from 'vee-validate';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDisplay, useTheme } from 'vuetify';
+import { useRoute } from 'vuetify/lib/composables/router.mjs';
 
 import { FeedbackAlert } from '@/components/FeedbackAlert';
 import { useAuthStore } from '@/stores/auth';
@@ -314,12 +315,12 @@ import { SignUpSchema } from './signUpValidationSchema';
 
 const theme = useTheme();
 const router = useRouter();
+const route = useRoute()
 const authStore = useAuthStore();
 
 theme.change('light');
 
-const params = new URLSearchParams(window.location.search);
-const advice = params.get('advice');
+const advice = route.value?.query.advice
 const isAdvice = !!advice;
 
 onMounted(() => {

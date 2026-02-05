@@ -82,11 +82,11 @@ span {
 }
 
 .custom-warn {
-  background: #fff8e6; /* amarelo suave sem parecer "sujo" */
-  border-left: 4px solid #f0a92d; /* barra lateral dá impacto visual imediato */
+  background: #fff8e6;
+  border-left: 4px solid #f0a92d;
   padding: 14px 18px;
   border-radius: 6px;
-  color: #5a4300; /* contraste perfeito */
+  color: #5a4300;
   font-weight: 500;
   font-size: 15px;
   display: flex;
