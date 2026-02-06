@@ -327,7 +327,7 @@ onMounted(() => {
   if (advice === 'true')
     ElMessage({
       message:
-        'Você não tem uma conta no UFABC Next. Para continuar o login no UFABC Cronos, continue criando sua conta aqui.',
+        'Você não tem uma conta no UFABC next. Para continuar o login no UFABC Cronos, continue criando sua conta aqui.',
       type: 'warn',
       duration: 0,
       showClose: true,
