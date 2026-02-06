@@ -3,6 +3,8 @@ import { fastifyPlugin as fp } from 'fastify-plugin';
 
 import type { Auth } from '@/schemas/auth.js';
 
+import { REQUESTERS } from '@/constants.js';
+
 declare module 'fastify' {
   interface FastifyInstance {
     google: OAuth2Namespace;
@@ -45,9 +47,6 @@ export default fp(
         const { requesterKey } = JSON.parse(
           Buffer.from(request.query.state, 'base64url').toString('utf8')
         ) as statePayloadType;
-        console.log(requesterKey);
-
-        const REQUESTERS = ['ufabc-next', 'ufabc-cronos'];
 
         if (!REQUESTERS.includes(requesterKey))
           throw new Error('Invalid requester key');

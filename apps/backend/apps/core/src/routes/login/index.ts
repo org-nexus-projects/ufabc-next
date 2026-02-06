@@ -4,10 +4,12 @@ import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import { Types, type QueryFilter as FilterQuery } from 'mongoose';
 import { ofetch } from 'ofetch';
 
-import type { LegacyGoogleUser } from '@/schemas/login.js';
-
 import { type UserDocument, UserModel, type User } from '@/models/User.js';
 import { statePayloadType } from '@/plugins/external/oauth2.js';
+import {
+  googleCallbackSchema,
+  type LegacyGoogleUser,
+} from '@/schemas/login.js';
 
 export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get('/google', async function (request, reply) {
@@ -29,71 +31,75 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     return reply.redirect(redirectURL.href);
   });
 
-  app.get('/google/callback', async function (request, reply) {
-    try {
-      // @ts-ignore
-      const { requesterKey, userId } = JSON.parse(
-        Buffer.from(request.query.state, 'base64url').toString()
-      ) as statePayloadType;
-      const { token } =
-        await this.google.getAccessTokenFromAuthorizationCodeFlow(
-          request,
-          reply
+  app.get(
+    '/google/callback',
+    { schema: googleCallbackSchema },
+    async function (request, reply) {
+      try {
+        // @ts-ignore
+        const { requesterKey, userId } = JSON.parse(
+          Buffer.from(request.query.state, 'base64url').toString()
+        ) as statePayloadType;
+        const { token } =
+          await this.google.getAccessTokenFromAuthorizationCodeFlow(
+            request,
+            reply
+          );
+        const oauthUser = await getUserDetails(token, request.log);
+        const user = await createOrLogin(oauthUser, userId, request.log);
+        request.log.info(
+          {
+            ufabcEmail: user.email,
+            _id: user._id,
+          },
+          'user logged successfully'
         );
-      const oauthUser = await getUserDetails(token, request.log);
-      const user = await createOrLogin(oauthUser, userId, request.log);
-      request.log.info(
-        {
-          ufabcEmail: user.email,
+        const jwtToken = this.jwt.sign({
           _id: user._id,
-        },
-        'user logged successfully'
-      );
-      const jwtToken = this.jwt.sign({
-        _id: user._id,
-        ra: user.ra,
-        confirmed: user.confirmed,
-        email: user.email,
-        permissions: user.permissions,
-      });
+          ra: user.ra,
+          confirmed: user.confirmed,
+          email: user.email,
+          permissions: user.permissions,
+        });
 
-      let baseUrl = app.config.WEB_URL;
-      let page = 'login';
-      let params = { token: jwtToken };
+        let baseUrl = app.config.WEB_URL;
+        let page = 'login';
+        let params: { token?: string; advice?: boolean } = { token: jwtToken };
 
-      if (requesterKey === 'ufabc-cronos') {
-        if (!user.confirmed) {
-          page = 'signup';
-          //se o user tenta entrar no cronos mas nao tem conta no next, redireciona para o front do next com um aviso
-          params = { advice: true };
-        } else {
-          baseUrl = app.config.CRONOS_URL;
-          page = '/';
+        if (requesterKey === 'ufabc-cronos') {
+          if (!user.confirmed) {
+            page = 'signup';
+            //se o user tenta entrar no cronos mas nao tem conta no next, redireciona para o front do next com um aviso
+            params = { advice: true };
+          } else {
+            baseUrl = app.config.CRONOS_URL;
+            page = '/';
+          }
         }
-      }
 
-      const redirectURL = new URL(page, baseUrl);
+        const redirectURL = new URL(page, baseUrl);
 
-      for (const [key, value] of Object.entries(params))
-        redirectURL.searchParams.append(key, value);
+        for (const [key, value] of Object.entries(params))
+          redirectURL.searchParams.append(key, String(value));
 
-      return reply.redirect(redirectURL.href);
-    } catch (error: any) {
-      if (error?.data?.payload) {
-        reply.log.error(
-          { originalError: error, error: error.data.payload },
-          'Error in oauth2'
+        return reply.redirect(redirectURL.href);
+      } catch (error: any) {
+        if (error?.data?.payload) {
+          reply.log.error(
+            { originalError: error, error: error.data.payload },
+            'Error in oauth2'
+          );
+          return error.data.payload;
+        }
+
+        // Unknwon (probably db) error
+        request.log.error(error, 'deu merda severa');
+        return reply.internalServerError(
+          'Algo de errado aconteceu no seu login, tente novamente'
         );
-        return error.data.payload;
       }
-
-      // Unknwon (probably db) error
-      request.log.error(error, 'deu merda severa');
-      return reply.internalServerError(
-        'Algo de errado aconteceu no seu login, tente novamente'
-      );
     }
-  });
+  );
 };
 
 async function getUserDetails(token: Token, logger: any) {
