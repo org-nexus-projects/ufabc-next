@@ -73,6 +73,7 @@ export const loginSchema = {
 
 export const googleCallbackSchema = {
   querystring: z.object({
-    state: z.enum(REQUESTERS),
+    state: z.string(),
+    code: z.string().min(1),
   }),
 } satisfies FastifyZodOpenApiSchema;
