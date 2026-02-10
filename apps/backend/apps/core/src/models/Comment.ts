@@ -99,9 +99,9 @@ const commentSchema = new Schema(
           .skip(page * limit)
           .limit(limit)
           .sort({
+            createdAt: 'desc',
             'reactionsCount.recommendation': 'desc',
             'reactionsCount.likes': 'desc',
-            createdAt: 'desc',
           });
 
         const commentsReaction = comments.map(async (comment) => {
