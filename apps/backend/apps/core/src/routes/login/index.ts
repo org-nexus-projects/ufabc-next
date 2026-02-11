@@ -36,7 +36,6 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     { schema: googleCallbackSchema },
     async function (request, reply) {
       try {
-        // @ts-ignore
         const { requesterKey, userId } = JSON.parse(
           Buffer.from(request.query.state, 'base64url').toString()
         ) as statePayloadType;
@@ -49,7 +48,7 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         const user = await createOrLogin(oauthUser, userId, request.log);
         request.log.info(
           {
-            ufabcEmail: user.email,
+            email: user.email,
             _id: user._id,
           },
           'user logged successfully'

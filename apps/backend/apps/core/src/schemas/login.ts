@@ -3,7 +3,6 @@ import type { FastifySchema } from 'fastify';
 import { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 import { z } from 'zod';
 import 'zod-openapi/extend';
-import { REQUESTERS } from '@/constants.js';
 
 const SOURCE_TYPE = {
   SOURCE_TYPE_UNSPECIFIED: 'SOURCE_TYPE_UNSPECIFIED',
