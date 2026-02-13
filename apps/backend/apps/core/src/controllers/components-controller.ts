@@ -104,11 +104,47 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
     },
   });
   
-  app.get('/components/top-requests', async (request, reply) => {
-    const requested = await ComponentModel.aggregate([
+  app.route({
+    method: 'GET',
+    url: '/components/pending-group-url',
+    schema: {
+      querystring: z.object({
+        season: z.string(),
+      }),
+      response: {
+        200: z.object({
+          status: z.string(),
+          data: z.any().array(),
+        }),
+      },
+    },
+    handler: async (request, reply) => {
+      const { season } = request.query;
+      
+      const requested = await ComponentModel.aggregate([
+        {
+          $match: {
+            season,$or: [
+      { groupURL: null },
+      { groupURL: { $exists: false } }
+    ]
+
+          }
+        },
       {
-        $match: {
-          season: '2026:1'
+        $lookup: {
+          from: 'teachers',
+          localField: 'teoria',
+          foreignField: '_id',
+          as: 'teoriaTeacher'
+        }
+      },
+      {
+        $lookup: {
+          from: 'teachers',
+          localField: 'pratica',
+          foreignField: '_id',
+          as: 'praticaTeacher'
         }
       },
       {
@@ -134,18 +170,31 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         $project: {
           _id: 0,
           studentsTotalUnique: 1,
-          component: "$data"
+          component: {
+            $mergeObjects: [
+              "$data",
+              {
+                teoria: { 
+                  $arrayElemAt: ["$data.teoriaTeacher.name", 0] 
+                },
+                pratica: { 
+                  $arrayElemAt: ["$data.praticaTeacher.name", 0] 
+                }
+              }
+            ]
+          }
         }
       },
       {
         $sort: { studentsTotalUnique: -1 }
       }
-    ]);
-    return reply.status(200).send({
-      status: 'success',
-      data: requested,
-    });
-  })
+      ]);
+      return reply.status(200).send({
+        status: 'success',
+        data: requested,
+      });
+    },
+  });
 };
 
 export default componentsController;
