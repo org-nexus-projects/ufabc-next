@@ -124,70 +124,81 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       const requested = await ComponentModel.aggregate([
         {
           $match: {
-            season,$or: [
-      { groupURL: null },
-      { groupURL: { $exists: false } }
-    ]
-
-          }
-        },
-      {
-        $lookup: {
-          from: 'teachers',
-          localField: 'teoria',
-          foreignField: '_id',
-          as: 'teoriaTeacher'
-        }
-      },
-      {
-        $lookup: {
-          from: 'teachers',
-          localField: 'pratica',
-          foreignField: '_id',
-          as: 'praticaTeacher'
-        }
-      },
-      {
-        $unwind: "$alunos_matriculados"
-      },
-      {
-        $group: {
-          _id: {
-            codigo: "$codigo",
-            studentId: "$alunos_matriculados"
-          },
-          doc: { $first: "$$ROOT" }
-        }
-      },
-      {
-        $group: {
-          _id: "$_id.codigo",
-          studentsTotalUnique: { $sum: 1 },
-          data: { $first: "$doc" }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          studentsTotalUnique: 1,
-          component: {
-            $mergeObjects: [
-              "$data",
-              {
-                teoria: { 
-                  $arrayElemAt: ["$data.teoriaTeacher.name", 0] 
-                },
-                pratica: { 
-                  $arrayElemAt: ["$data.praticaTeacher.name", 0] 
-                }
-              }
+            season,
+            $or: [
+              { groupURL: null },
+              { groupURL: { $exists: false } }
             ]
           }
+        },
+        {
+          $lookup: {
+            from: 'teachers',
+            localField: 'teoria',
+            foreignField: '_id',
+            as: 'teoriaTeacher'
+          }
+        },
+        {
+          $lookup: {
+            from: 'teachers',
+            localField: 'pratica',
+            foreignField: '_id',
+            as: 'praticaTeacher'
+          }
+        },
+        {
+          $unwind: "$alunos_matriculados"
+        },
+        {
+          $group: {
+            _id: {
+              codigo: "$codigo",
+              uf_cod_turma: "$uf_cod_turma",
+              studentId: "$alunos_matriculados"
+            },
+            doc: { $first: "$$ROOT" }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              codigo: "$_id.codigo",
+              uf_cod_turma: "$_id.uf_cod_turma"
+            },
+            studentsPerTurma: { $sum: 1 },
+            doc: { $first: "$doc" }
+          }
+        },
+        {
+          $group: {
+            _id: "$_id.codigo",
+            studentsTotalUnique: { $sum: "$studentsPerTurma" },
+            components: {
+              $push: {
+                campus: "$doc.campus",
+                disciplina: "$doc.disciplina",
+                groupURL: "$doc.groupURL",
+                uf_cod_turma: "$doc.uf_cod_turma",
+                vagas: "$doc.vagas",
+                teoriaTeacher: "$doc.teoriaTeacher.name",
+                praticaTeacher: "$doc.praticaTeacher.name",
+                studentsEnrolled: "$studentsPerTurma"
+              }
+            }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            codigo: "$_id",
+            studentsTotalUnique: 1,
+            components: 1
+          }
+        },
+        {
+          $sort: { studentsTotalUnique: -1 }
         }
-      },
-      {
-        $sort: { studentsTotalUnique: -1 }
-      }
       ]);
       return reply.status(200).send({
         status: 'success',
