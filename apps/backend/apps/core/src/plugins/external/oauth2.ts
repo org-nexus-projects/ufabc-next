@@ -3,6 +3,8 @@ import { fastifyPlugin as fp } from 'fastify-plugin';
 
 import type { Auth } from '@/schemas/auth.js';
 
+import { REQUESTERS } from '@/constants.js';
+
 declare module 'fastify' {
   interface FastifyInstance {
     google: OAuth2Namespace;
@@ -11,6 +13,11 @@ declare module 'fastify' {
     user: Auth;
   }
 }
+
+export type statePayloadType = {
+  userId: string;
+  requesterKey: 'ufabc-next' | 'ufabc-cronos';
+};
 
 export default fp(
   async (app) => {
@@ -29,9 +36,23 @@ export default fp(
         `${app.config.PROTOCOL}://${req.host}/login/google/callback`,
       generateStateFunction: (request) => {
         // @ts-ignore
-        return request.query.userId;
+        const payload = {
+          userId: (request.query as any).userId ?? null,
+          requesterKey: (request.query as any).requesterKey ?? null,
+        };
+
+        return Buffer.from(JSON.stringify(payload)).toString('base64url');
       },
-      checkStateFunction: () => true,
+      checkStateFunction: (request) => {
+        const { requesterKey } = JSON.parse(
+          Buffer.from((request.query as any).state, 'base64url').toString('utf8')
+        ) as statePayloadType;
+
+        if (!REQUESTERS.includes(requesterKey))
+          throw new Error('Invalid requester key');
+
+        return true;
+      },
     });
 
     app.log.info('[PLUGIN] Oauth');

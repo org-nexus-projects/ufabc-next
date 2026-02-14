@@ -30,5 +30,7 @@ export const JOB_NAMES = {
   PROCESS_COMPONENTS_ENROLLMENTS: 'process_components_enrollments',
 } as const;
 
+export const REQUESTERS = ['ufabc-next', 'ufabc-cronos'] as const;
+
 export const HTTP_REDIS_KEY_PREFIX = 'http';
 export const MAX_LOG_SIZE = 600 * 1024;
