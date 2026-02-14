@@ -80,4 +80,17 @@ span {
 .el-message {
   z-index: 9999999 !important;
 }
+
+.custom-warn {
+  background: #fff8e6;
+  border-left: 4px solid #f0a92d;
+  padding: 14px 18px;
+  border-radius: 6px;
+  color: #5a4300;
+  font-weight: 500;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 </style>

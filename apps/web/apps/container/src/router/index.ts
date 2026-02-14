@@ -179,6 +179,16 @@ router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore();
   document.title = (to.meta.title as string) || 'UFABC Next';
 
+  //EDGE CASE: /signup?advice=true enquanto logado
+  if (
+    to.name === 'signup' &&
+    to.query.advice === 'true' &&
+    authStore.isLoggedIn
+  ) {
+    authStore.logOut(false);
+    return next();
+  }
+
   const tokenParam = to.query.token;
 
   if (isJWT(tokenParam as string)) {

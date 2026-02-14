@@ -6,7 +6,7 @@
         <v-col xs="12" class="d-flex align-center justify-space-between">
           <img height="32" src="@/assets/logo.svg" alt="logo do UFABC Next" />
           <v-btn
-            v-if="!smAndDown"
+            v-if="!smAndDown && !isAdvice"
             prepend-icon="mdi-exit-to-app"
             style="text-transform: unset !important"
             color="ufabcnext-red"
@@ -303,9 +303,10 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';
 import { useField, useForm } from 'vee-validate';
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDisplay, useTheme } from 'vuetify';
+import { useRoute } from 'vuetify/lib/composables/router.mjs';
 
 import { FeedbackAlert } from '@/components/FeedbackAlert';
 import { useAuthStore } from '@/stores/auth';
@@ -314,9 +315,25 @@ import { SignUpSchema } from './signUpValidationSchema';
 
 const theme = useTheme();
 const router = useRouter();
+const route = useRoute()
 const authStore = useAuthStore();
 
 theme.change('light');
+
+const advice = route.value?.query.advice
+const isAdvice = !!advice;
+
+onMounted(() => {
+  if (advice === 'true')
+    ElMessage({
+      message:
+        'Você não tem uma conta no UFABC next. Para continuar o login no UFABC Cronos, continue criando sua conta aqui.',
+      type: 'warn',
+      duration: 0,
+      showClose: true,
+      customClass: 'custom-warn',
+    });
+});
 
 const handleLogout = () => {
   authStore.logOut();
