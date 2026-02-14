@@ -33,9 +33,7 @@ export const createComponentJob = defineJob(JOB_NAMES.CREATE_COMPONENT).handler(
       turno: component.shift === 'morning' ? 'diurno' : 'noturno',
       turma: component.componentClass,
       vagas: component.vacancies,
-      obrigatorias: component.courses
-        .filter((c) => c.category === 'mandatory')
-        .map((c) => c.UFCourseId),
+      obrigatorias: component.courses?.filter((c) => c.category === 'mandatory').map((c) => c.UFCourseId) ?? [],
       uf_cod_turma: component.ufClassroomCode,
       campus: component.campus,
       codigo: component.ufComponentCode,

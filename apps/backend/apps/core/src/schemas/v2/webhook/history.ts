@@ -4,7 +4,7 @@ const ComponentSchema = z.object({
   UFCode: z.string().describe('UFABC subject code'),
   name: z.string().describe('Subject name'),
   grade: z
-    .enum(['A', 'B', 'C', 'D', 'O', 'F', 'E'])
+    .enum(['A', 'B', 'C', 'D', 'O', 'F', 'E', '-', '--', '0', ''])
     .nullable()
     .describe('Subject grade'),
   status: z.string().describe('Subject status'),
@@ -57,8 +57,8 @@ const CoefficientsSchema = z.object({
 });
 
 export const HistoryWebhookPayloadSchema = z.object({
-  ra: z.string().describe('Student RA for identification'),
-  timestamp: z.string().datetime().describe('Processing timestamp from parser'),
+  ra: z.string().optional().describe('Student RA for identification (optional for reprocessing)'),
+  timestamp: z.string().datetime().optional().describe('Processing timestamp from parser (optional for reprocessing)'),
   processing: z
     .object({
       duration: z.number().describe('Processing duration in milliseconds'),
@@ -75,8 +75,8 @@ export const HistoryWebhookPayloadSchema = z.object({
 export type HistoryWebhookPayload = z.infer<typeof HistoryWebhookPayloadSchema>;
 
 export const HistoryErrorWebhookPayloadSchema = z.object({
-  ra: z.string().describe('Student RA that failed processing'),
-  timestamp: z.string().datetime().describe('Error timestamp'),
+  ra: z.string().optional().describe('Student RA that failed processing'),
+  timestamp: z.string().datetime().optional().describe('Error timestamp'),
   error: z.object({
     title: z.string().describe('Error title from UfabcParserError'),
     code: z.string().describe('Error code from UfabcParserError'),
@@ -117,7 +117,7 @@ export const HistoryWebhookResponseSchema = z.object({
   status: z.enum(['accepted', 'rejected', 'processing']),
   jobId: z.string().optional().describe('Background job ID for tracking'),
   message: z.string().describe('Response message'),
-  timestamp: z.string().datetime().describe('Response timestamp'),
+  timestamp: z.string().datetime().optional().describe('Response timestamp'),
 });
 
 export type HistoryWebhookResponse = z.infer<

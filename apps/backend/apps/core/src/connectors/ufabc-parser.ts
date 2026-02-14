@@ -73,19 +73,7 @@ export type UFProcessorComponentFile = {
   hours: Record<string, { periodicity: string; classPeriod: string[] }>[];
 };
 
-type Timetable = {
-  dayOfTheWeek:
-    | 'monday'
-    | 'tuesday'
-    | 'wednesday'
-    | 'thursday'
-    | 'friday'
-    | 'saturday'
-    | 'sunday';
-  periodicty: 'weekly' | 'biweekly';
-  startTime: string;
-  endTime: string;
-};
+
 
 type UfabcParserComponentV2 = {
   componentKey: string;
@@ -93,6 +81,7 @@ type UfabcParserComponentV2 = {
   name: string;
   credits: number;
   ufComponentId: number;
+  alternateUfabcComponentId: number | null;
   ufComponentCode: string;
   campus: 'sbc' | 'sa';
   shift: 'morning' | 'night';
@@ -105,12 +94,25 @@ type UfabcParserComponentV2 = {
     practice: number;
     individual: number;
   };
+  timetable: Array<{
+    dayOfTheWeek: string;
+    startTime: string;
+    endTime: string;
+    periodicity: string;
+    classroomCode: string | null;
+    scheduleType: string | null;
+    frequency: string | null;
+    unparsed: string | null;
+  }>;
   courses: Array<{
-    name: string | '-';
     UFCourseId: number;
     category: 'limited' | 'mandatory';
+  }> | null;
+  teachers: Array<{
+    name: string;
+    role: 'professor' | 'practice';
+    isSecondary: boolean;
   }>;
-  timetable: Timetable[];
 };
 
 type SyncStudentParams = {
@@ -120,8 +122,8 @@ type SyncStudentParams = {
 };
 
 export class UfabcParserConnector extends BaseRequester {
-  constructor() {
-    super(process.env.UFABC_PARSER_URL);
+  constructor(globalTraceId?: string) {
+    super(process.env.UFABC_PARSER_URL, globalTraceId);
   }
 
   async getHistory(sessionId: string, viewState: string) {
@@ -141,13 +143,6 @@ export class UfabcParserConnector extends BaseRequester {
 
     const parsedHistory = sigHistory.safeParse(response.data);
     return parsedHistory;
-  }
-
-  async getEnrolledStudents() {
-    const response = await this.request<UFProcessorEnrolled>(
-      '/v1/matriculas/ufabc/enrolled'
-    );
-    return response;
   }
 
   async getComponents() {
@@ -184,6 +179,19 @@ export class UfabcParserConnector extends BaseRequester {
     );
 
     return componentsFile;
+  }
+
+  async getComponentsV2(season: string) {
+    const components = await this.request<UfabcParserComponentV2[]>(
+      '/v2/components',
+      {
+        query: {
+          season,
+        },
+      }
+    );
+
+    return components;
   }
 
   async getEnrolled(componentId?: number) {
@@ -226,11 +234,11 @@ export class UfabcParserConnector extends BaseRequester {
     });
     return response;
   }
-  
+
   async getStudentHistory(login: string) {
     const headers = new Headers();
     headers.set('requester-key', process.env.UFABC_PARSER_REQUESTER_KEY!);
-    
+
     const response = await this.request<any>(
       `/v2/students/${login}/formatted`,
       {

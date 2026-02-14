@@ -31,13 +31,6 @@ const axiomOptions = {
   token: process.env.AXIOM_TOKEN as string,
 } satisfies AxiomOptions;
 
-const SENSITIVE_KEYS = [
-  'authorization',
-  'cookie',
-  'x-api-key',
-  'password',
-  'token',
-];
 
 const commonConfig = {
   level: process.env.LOG_LEVEL ?? 'info',
@@ -46,16 +39,6 @@ const commonConfig = {
   serializers: {
     error: stdSerializers.err,
     err: stdSerializers.err,
-  },
-  redact: {
-    paths: [
-      'headers.authorization',
-      'headers.cookie',
-      'headers',
-      'body.password',
-      'body.token',
-    ],
-    remove: true,
   },
 } satisfies LoggerOptions;
 
@@ -95,16 +78,6 @@ const loggerSetup = {
       req: (req) => {
         const raw = stdSerializers.req(req);
 
-        if (raw.headers) {
-          const cleanHeaders = { ...raw.headers };
-          for (const key of SENSITIVE_KEYS) {
-            // @ts-expect-error - we want to remove the key
-            cleanHeaders[key] = undefined;
-          }
-
-          // @ts-expect-error - we want to stringify the headers
-          raw.headers = JSON.stringify(cleanHeaders);
-        }
         if (raw.query) {
           // @ts-expect-error - we want to stringify the query
           raw.query = JSON.stringify(raw.query);

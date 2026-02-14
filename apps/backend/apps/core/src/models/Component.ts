@@ -72,6 +72,11 @@ const componentSchema = new Schema(
       default: 'api',
       required: true,
     },
+    priorityOnCreateGroup: {
+      type: Boolean,
+      default: false,
+      required: false,
+    }
   },
   {
     timestamps: true,
