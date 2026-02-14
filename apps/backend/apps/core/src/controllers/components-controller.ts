@@ -103,7 +103,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       });
     },
   });
-  
+
   app.route({
     method: 'GET',
     url: '/components/pending-group-url',
@@ -120,7 +120,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
     },
     handler: async (request, reply) => {
       const { season } = request.query;
-      
+
       const requested = await ComponentModel.aggregate([
         {
           $match: {
@@ -133,57 +133,46 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         },
         {
           $lookup: {
-            from: 'teachers',
-            localField: 'teoria',
-            foreignField: '_id',
-            as: 'teoriaTeacher'
+            from: "teachers",
+            localField: "teoria",
+            foreignField: "_id",
+            as: "teoriaTeacher"
           }
         },
         {
           $lookup: {
-            from: 'teachers',
-            localField: 'pratica',
-            foreignField: '_id',
-            as: 'praticaTeacher'
+            from: "teachers",
+            localField: "pratica",
+            foreignField: "_id",
+            as: "praticaTeacher"
           }
         },
         {
-          $unwind: "$alunos_matriculados"
-        },
-        {
-          $group: {
-            _id: {
-              codigo: "$codigo",
-              uf_cod_turma: "$uf_cod_turma",
-              studentId: "$alunos_matriculados"
-            },
-            doc: { $first: "$$ROOT" }
-          }
-        },
-        {
-          $group: {
-            _id: {
-              codigo: "$_id.codigo",
-              uf_cod_turma: "$_id.uf_cod_turma"
-            },
-            studentsPerTurma: { $sum: 1 },
-            doc: { $first: "$doc" }
+
+          $addFields: {
+            amount_studentsId: {
+              $size: {
+                $ifNull: ["$alunos_matriculados", []]
+              }
+            }
           }
         },
         {
           $group: {
-            _id: "$_id.codigo",
-            studentsTotalUnique: { $sum: "$studentsPerTurma" },
+            _id: "$codigo",
+            // This creates a unique set of all student IDs across all components in the group
+            allStudentsInGroup: { $addToSet: "$alunos_matriculados" },
             components: {
               $push: {
-                campus: "$doc.campus",
-                disciplina: "$doc.disciplina",
-                groupURL: "$doc.groupURL",
-                uf_cod_turma: "$doc.uf_cod_turma",
-                vagas: "$doc.vagas",
-                teoriaTeacher: "$doc.teoriaTeacher.name",
-                praticaTeacher: "$doc.praticaTeacher.name",
-                studentsEnrolled: "$studentsPerTurma"
+                disciplina_id: "$disciplina_id",
+                amount_studentsId: "$$ROOT.quantidade_alunos_matriculados",
+                nome: "$nome",
+                turma: "$turma",
+                vagas: "$vagas",
+                uf_cod_turma: "$uf_cod_turma",
+                // Extract the teacher name immediately during the push
+                teoria: { $arrayElemAt: ["$teoriaTeacher.name", 0] },
+                pratica: { $arrayElemAt: ["$praticaTeacher.name", 0] }
               }
             }
           }
@@ -192,13 +181,21 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
           $project: {
             _id: 0,
             codigo: "$_id",
-            studentsTotalUnique: 1,
+            // $reduce transforms the array of arrays into one flat unique array to count unique students
+            amount_subject_students: {
+              $size: {
+                $reduce: {
+                  input: "$allStudentsInGroup",
+                  initialValue: [],
+                  in: { $setUnion: ["$$value", "$$this"] }
+                }
+              }
+            },
             components: 1
           }
         },
-        {
-          $sort: { studentsTotalUnique: -1 }
-        }
+        { $sort: { amount_subject_students: -1 } }
+
       ]);
       return reply.status(200).send({
         status: 'success',
