@@ -315,17 +315,18 @@ import { SignUpSchema } from './signUpValidationSchema';
 
 const theme = useTheme();
 const router = useRouter();
-const route = useRoute()
+const route = useRoute();
 const authStore = useAuthStore();
 
 theme.change('light');
 
-const advice = route.value?.query.advice
+const advice = route.value?.query.advice;
 const isAdvice = !!advice;
 
 onMounted(() => {
   if (advice === 'true')
     ElMessage({
+      // @ts-expect-error TODO(nic): fix it
       message:
         'Você não tem uma conta no UFABC next. Para continuar o login no UFABC Cronos, continue criando sua conta aqui.',
       type: 'warn',
