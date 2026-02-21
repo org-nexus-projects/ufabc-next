@@ -166,7 +166,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
               $push: {
                 disciplina_id: "$disciplina_id",
                 amount_studentsId: "$$ROOT.quantidade_alunos_matriculados",
-                nome: "$nome",
+                nome: "$disciplina",
                 turma: "$turma",
                 vagas: "$vagas",
                 uf_cod_turma: "$uf_cod_turma",
