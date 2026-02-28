@@ -53,7 +53,17 @@
               :rel="item.url && 'noopener noreferrer'"
             >
               <v-layout>
-                <v-icon :icon="item.icon" class="mr-3" />
+                <v-icon
+                  v-if="isMdiIcon(item.icon)"
+                  :icon="item.icon"
+                  class="mr-3"
+                />
+                <i
+                  v-else
+                  :class="item.icon"
+                  class="mr-3"
+                  style="font-size: 18px"
+                ></i>
                 <p class="font-weight-medium text-caption">
                   {{ item.title }}
                 </p>
@@ -181,6 +191,10 @@ const createAccount = () => {
   router.push('/signup');
 };
 
+function isMdiIcon(icon: string) {
+  return icon.startsWith('mdi');
+}
+
 const drawer = ref(false);
 onMounted(() => {
   drawer.value = window.innerWidth >= 1024;
@@ -259,6 +273,11 @@ const apiURL = api.defaults.baseURL ?? 'https://api.v2.ufabcnext.com';
 
 const externalNavigationItems = [
   {
+    title: 'Discord',
+    icon: 'fa-brands fa-discord',
+    url: 'https://discord.gg/7BBzDwRXSg',
+  },
+  {
     title: 'Snapshot da Matrícula',
     icon: 'mdi-open-in-new',
     url: 'https://ufabc-matricula-snapshot.vercel.app',
@@ -268,6 +287,7 @@ const externalNavigationItems = [
     icon: 'mdi-download',
     url: 'https://chrome.google.com/webstore/detail/ufabc-next/gphjopenfpnlnffmhhhhdiecgdcopmhk',
   },
+
   ...(authStore.user?.permissions?.includes('admin')
     ? [
         {
