@@ -8,7 +8,7 @@
   
   <p>
     <a href="https://github.com/ufabc-next/ufabc-next-web/actions"><img src="https://img.shields.io/github/actions/workflow/status/ufabc-next/ufabc-next-web/integration-deploy.yml?branch=main" alt="Build Status"/></a>
-    <a href="https://github.com/ufabc-next/ufabc-next-web/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ufabc-next/ufabc-next-web" alt="License: MIT"/></a>
+    <a href="https://github.com/ufabc-next/ufabc-next-web/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ufabc-next/ufabc-next-web" alt="License: GNU AGPLv3"/></a>
     <img src="https://img.shields.io/badge/Node-^20.19.6-success?logo=nodedotjs" alt="Node Version"/>
     <img src="https://img.shields.io/badge/pnpm-^10.28.0-yellow?logo=pnpm" alt="pnpm"/>
     <img src="https://img.shields.io/badge/Vue-3.x-42b883?logo=vuedotjs" alt="Vue 3"/>
