@@ -23,9 +23,9 @@ O **UFABC Next** é uma plataforma colaborativa feita por alunos e para alunos. 
 ## ✨ O que você encontra aqui (Features)
 
 - [x] **Avaliações de Professores e Disciplinas**: Confira a opinião de quem já cursou aquela disciplina difícil e escolha a melhor opção para sua matrícula.
-- [x] **Gerador de Grade (Calengrade)**: exporte a sua grade no formato `ics` para o seu app de agenda Google Calendar, Apple Calendar, Notion, etc
+- [x] **Gerador de Grade (Calengrade)**: exporte a sua grade no formato `.ics` para o seu app de agenda Google Calendar, Apple Calendar, Notion, etc.
 - [x] **Dashboard de Histórico e Desempenho**: Gráficos analíticos mostrando seus CRs e performance global atualizada automaticamente com base no seu histórico.
-- [x] **Links para Grupos de WhatsApp**: Encontre os grupos das disciplinas de forma fácil no portal do Next
+- [x] **Links para Grupos de WhatsApp**: Encontre os grupos das disciplinas de forma fácil no portal do Next.
 
 ---
 
