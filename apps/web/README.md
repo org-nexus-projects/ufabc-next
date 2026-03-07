@@ -23,15 +23,9 @@ O **UFABC Next** é uma plataforma colaborativa feita por alunos e para alunos. 
 ## ✨ O que você encontra aqui (Features)
 
 - [x] **Avaliações de Professores e Disciplinas**: Confira a opinião de quem já cursou aquela disciplina difícil e escolha a melhor opção para sua matrícula.
-  > TODO: _(Adicionar Screenshot aqui: Tela de Reviews)_
 - [x] **Gerador de Grade (Calengrade)**: exporte a sua grade no formato `ics` para o seu app de agenda Google Calendar, Apple Calendar, Notion, etc
-  > TODO: _(Adicionar Screenshot aqui: Calengrade)_
 - [x] **Dashboard de Histórico e Desempenho**: Gráficos analíticos mostrando seus CRs e performance global atualizada automaticamente com base no seu histórico.
-
-  > TODO: _(Adicionar Screenshot aqui: Gráficos de Performance)_
-
 - [x] **Links para Grupos de WhatsApp**: Encontre os grupos das disciplinas de forma fácil no portal do Next
-      TODO: add screenshot
 
 ---
 
@@ -81,8 +75,6 @@ ufabc-next-web/
 - **Data Fetching & Cache**: [TanStack Query (Vue Query)](https://tanstack.com/query/latest)
 - **State Management**: [Pinia](https://pinia.vuejs.org/)
 - **Testes**: [Vitest](https://vitest.dev/) e `@testing-library/vue`
-- **Validação de Formulários**: [VeeValidate](https://vee-validate.logaretm.com/v4/) + [Zod](https://zod.dev/)
-- **Gráficos**: [Highcharts](https://www.highcharts.com/)
 
 ---
 
@@ -94,8 +86,11 @@ Fique à vontade para [abrir uma Issue](https://github.com/ufabc-next/ufabc-next
 
 <br />
 
-todo: falar sobre o Nexus
+## Instituto Nexus
+
+O **UFABC Next** é um dos principais projetos desenvolvidos e mantidos pelo **[Instituto Nexus](https://fundacaonexus.com/)**, uma iniciativa criada por e para alunos da UFABC.
+O **Instituto Nexus** atua como um ecossistema de inovação que tem como missão resolver as dores e melhorar a vida acadêmica dos estudantes da UFABC através da tecnologia.
 
 <div align="center">
-  <p>Feito com ❤️ pela comunidade UFABC</p>
+  <p>Feito com ❤️ por alunos da UFABC</p>
 </div>
