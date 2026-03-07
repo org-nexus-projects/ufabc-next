@@ -3,7 +3,7 @@
   <h1>UFABC Next</h1>
   
   <p>
-    <strong>O portal para estudantes da UFABC  consultarem avaliações de professores e disciplinas, planejarem suas grades e acompanharem seu desempenho acadêmico.</strong>
+    <strong>O portal para estudantes da UFABC consultarem avaliações de professores e disciplinas, planejarem suas grades e acompanharem seu desempenho acadêmico.</strong>
   </p>
   
   <p>
