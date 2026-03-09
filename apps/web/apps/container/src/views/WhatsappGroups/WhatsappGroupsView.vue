@@ -138,7 +138,7 @@
         <div class="coming-soon-content">
           <h2>Quase lá! 🛠️</h2>
           <p>
-            Estamos deixando tudo pronto para 2026.1. <br />
+            Estamos deixando tudo pronto para 2026.2. <br />
             Em poucos dias, você poderá acessar todos os grupos de WhatsApp das
             suas disciplinas.
             <br />
@@ -238,96 +238,6 @@
         </div>
       </div>
     </section>
-
-    <v-dialog
-      v-model="whatsappRestrictionDialog"
-      width="auto"
-      max-width="600"
-      scrollable
-      :fullscreen="$vuetify.display.xs"
-    >
-      <v-card class="restriction-dialog">
-        <div class="dialog-header">
-          <v-card-title class="dialog-title">
-            <v-icon color="primary" size="28" class="me-3">
-              mdi-shield-check
-            </v-icon>
-            Acesso Restrito aos Grupos
-          </v-card-title>
-          <v-card-actions class="dialog-close-btn">
-            <v-btn
-              variant="tonal"
-              icon="mdi-window-close"
-              aria-label="Fechar"
-              @click="whatsappRestrictionDialog = false"
-            />
-          </v-card-actions>
-        </div>
-
-        <v-card-text class="dialog-content">
-          <div class="main-message">
-            <p>
-              Por questões de segurança, limitamos o acesso aos grupos de
-              WhatsApp
-              <strong>apenas para usuários cadastrados</strong> na plataforma.
-            </p>
-          </div>
-
-          <div class="info-section">
-            <h4>🤖 O que aconteceu?</h4>
-            <p>
-              Alguns bots causaram transtornos em diversos grupos acadêmicos nas
-              últimas semanas, prejudicando a experiência de todos.
-            </p>
-          </div>
-
-          <div class="recommendation-section">
-            <h4>💡 Nossa recomendação:</h4>
-            <p>
-              Recomendamos fortemente que você
-              <span class="link-style" @click="createAccount"
-                >crie uma conta</span
-              >
-              e utilize a plataforma ao longo da sua jornada acadêmica. Caso
-              tenha algum problema na sincronização do histórico,
-              <span class="link-style" @click="openSupport">
-                entre em contato conosco </span
-              >.
-            </p>
-          </div>
-
-          <div class="recommendations-section">
-            <h4>🛡️ Dicas de segurança:</h4>
-            <ul class="safety-tips">
-              <li>Não clique em links suspeitos ou de números desconhecidos</li>
-              <li>Denuncie perfis duvidosos para o WhatsApp</li>
-              <li>Nunca responda mensagens de golpistas</li>
-            </ul>
-          </div>
-
-          <div class="community-message">
-            <p>
-              O UFABC Next é desenvolvido
-              <strong>de alunos para alunos</strong> 🤝. <br />
-              A faculdade não é fácil, precisamos nos ajudar. Juntos somos mais
-              fortes.
-            </p>
-          </div>
-        </v-card-text>
-
-        <v-card-actions class="dialog-actions">
-          <v-btn
-            class="confirm-btn bg-primary"
-            variant="elevated"
-            size="large"
-            rounded
-            @click="whatsappRestrictionDialog = false"
-          >
-            Entendi
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </div>
 </template>
 
@@ -348,27 +258,35 @@ import { useAuthStore } from '@/stores/auth';
 import { extensionURL, studentRecordURL } from '@/utils/consts';
 import { normalizeText } from '@/utils/normalizeTextSearch';
 
-type SearchType = 'ra' | 'component' | 'course';
+import { getMockedGroups } from './utils/mockedGroups';
+
+// todo: update season dynamically based on current date or config (parser will allow this in future updates)
 const WHATSAPP_GROUPS_SEASON = '2026:1';
+
+type SearchType = 'ra' | 'component' | 'course';
+const MIN_RA_LENGTH = 8;
+
+const showOverlay = ref(false);
+const mockGroups = ref(getMockedGroups(WHATSAPP_GROUPS_SEASON));
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const theme = useTheme();
 const isDarkMode = computed(() => theme.global.current.value.dark);
+
 const userRa = computed(
   () => authStore.user?.ra || (route.query.ra ? Number(route.query.ra) : null),
 );
 const isUserLoggedIn = computed(() => authStore.isLoggedIn);
-
-const whatsappRestrictionDialog = ref(false);
-const searchRaQuery = ref<number | null>(null);
 const isRaValid = computed(() => {
   return (
-    searchRaQuery.value !== null && String(searchRaQuery.value).length >= 8
+    searchRaQuery.value !== null &&
+    String(searchRaQuery.value).length >= MIN_RA_LENGTH
   );
 });
 
+const searchRaQuery = ref<number | null>(null);
 const searchComponentQuery = ref('');
 const searchCourseQuery = ref<number | null>(null);
 const searchCourseFilterQuery = ref('');
@@ -377,8 +295,7 @@ const shouldFetchComponents = ref(false);
 const shouldFetchGroupsByCourse = ref(false);
 const selectedSearchType = ref<SearchType>('ra');
 
-const resultsPage = ref(1);
-const showOverlay = ref(false);
+const queryResultsPage = ref(1);
 
 // helper para atualizar o nome dos professores do parser
 const capitalizeName = (name: string): string => {
@@ -390,59 +307,8 @@ const capitalizeName = (name: string): string => {
     .join(' ');
 };
 
-const mockGroups = ref([
-  {
-    season: WHATSAPP_GROUPS_SEASON,
-    groupURL: 'https://chat.whatsapp.com/example1',
-    codigo: 'BCJ0205-15',
-    campus: 'sa' as const,
-    turma: 'B1',
-    turno: 'noturno',
-    subject: 'Fenômenos Térmicos',
-    teoria: 'Eduardo De Moraes Gregores',
-    pratica: 'Marcos De Abreu Avila',
-    uf_cod_turma: 'BCJ0205-15',
-  },
-  {
-    season: WHATSAPP_GROUPS_SEASON,
-    groupURL: 'https://chat.whatsapp.com/example2',
-    codigo: 'BCM0506-15',
-    campus: 'sa' as const,
-    turma: 'A2',
-    turno: 'matutino',
-    subject: 'Comunicação e Redes',
-    teoria: 'Maria Silva Santos',
-    pratica: 'João Pedro Oliveira',
-    uf_cod_turma: 'BCM0506-15',
-  },
-  {
-    season: WHATSAPP_GROUPS_SEASON,
-    groupURL: 'https://chat.whatsapp.com/example3',
-    codigo: 'BCN0404-15',
-    campus: 'sa' as const,
-    turma: 'C1',
-    turno: 'matutino',
-    subject: 'Geometria Analítica',
-    teoria: 'Ana Carolina Lima',
-    pratica: 'Roberto Carlos Souza',
-    uf_cod_turma: 'BCN0404-15',
-  },
-  {
-    season: WHATSAPP_GROUPS_SEASON,
-    groupURL: 'https://chat.whatsapp.com/example4',
-    codigo: 'BCS0001-15',
-    campus: 'sbc' as const,
-    turma: 'B3',
-    turno: 'noturno',
-    subject: 'Base Experimental das Ciências Naturais',
-    teoria: 'Pedro Henrique Costa',
-    pratica: 'Fernanda Rodrigues',
-    uf_cod_turma: 'BCS0001-15',
-  },
-]);
-
 const debouncedRaSearch = useDebounceFn((raValue: number) => {
-  if (raValue && String(raValue).length >= 8) {
+  if (raValue && String(raValue).length >= MIN_RA_LENGTH) {
     eventTracker.track(WebEvent.WHATSAPP_GROUP_SEARCH, {
       search_type: 'ra',
       search_query: raValue,
@@ -467,7 +333,7 @@ const selectSearchType = (type: SearchType) => {
   shouldFetchGroupsByRa.value = false;
   shouldFetchComponents.value = false;
   shouldFetchGroupsByCourse.value = false;
-  resultsPage.value = 1;
+  queryResultsPage.value = 1;
 
   if (type === 'ra' && isRaValid.value && searchRaQuery.value) {
     debouncedRaSearch(searchRaQuery.value);
@@ -475,7 +341,7 @@ const selectSearchType = (type: SearchType) => {
 };
 
 const loadMoreResults = () => {
-  resultsPage.value += 1;
+  queryResultsPage.value += 1;
 };
 
 const debouncedComponentSearch = useDebounceFn((query: string) => {
@@ -489,7 +355,7 @@ const debouncedComponentSearch = useDebounceFn((query: string) => {
 watch(searchRaQuery, (newRa) => {
   if (selectedSearchType.value === 'ra' && newRa !== null) {
     debouncedRaSearch(newRa);
-    resultsPage.value = 1;
+    queryResultsPage.value = 1;
   } else if (selectedSearchType.value === 'ra') {
     shouldFetchGroupsByRa.value = false;
   }
@@ -497,7 +363,7 @@ watch(searchRaQuery, (newRa) => {
 
 watch(searchComponentQuery, () => {
   if (selectedSearchType.value === 'component') {
-    resultsPage.value = 1;
+    queryResultsPage.value = 1;
   }
 });
 
@@ -509,7 +375,7 @@ watch(searchCourseQuery, (newCourseId) => {
       user_logged_in: isUserLoggedIn.value,
     });
     searchCourseFilterQuery.value = '';
-    resultsPage.value = 1;
+    queryResultsPage.value = 1;
     shouldFetchGroupsByCourse.value = true;
   } else if (selectedSearchType.value === 'course') {
     shouldFetchGroupsByCourse.value = false;
@@ -518,7 +384,7 @@ watch(searchCourseQuery, (newCourseId) => {
 
 watch(searchCourseFilterQuery, () => {
   if (selectedSearchType.value === 'course') {
-    resultsPage.value = 1;
+    queryResultsPage.value = 1;
   }
 });
 
@@ -535,7 +401,7 @@ const {
   isSuccess: isAllComponentsSuccess,
 } = useQuery({
   queryKey: ['whatsappGroups', 'allComponents'],
-  queryFn: () => Whatsapp.searchComponents(''),
+  queryFn: () => Whatsapp.searchComponents(WHATSAPP_GROUPS_SEASON),
   gcTime: 1000 * 60 * 10,
   enabled: computed(() =>
     ['component', 'course'].includes(selectedSearchType.value),
@@ -545,17 +411,16 @@ const {
 });
 
 // Query para dados do parser (professores)
-const { data: parserComponents, isLoading: isParserComponentsLoading } =
-  useQuery({
-    queryKey: ['disciplinaComponents', WHATSAPP_GROUPS_SEASON],
-    queryFn: () => Whatsapp.searchComponentsBySeason(WHATSAPP_GROUPS_SEASON),
-    gcTime: 1000 * 60 * 10,
-    enabled: computed(() =>
-      ['component', 'course'].includes(selectedSearchType.value),
-    ),
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-  });
+const { data: parserComponents } = useQuery({
+  queryKey: ['disciplinaComponents', WHATSAPP_GROUPS_SEASON],
+  queryFn: () => Whatsapp.searchComponentsBySeason(WHATSAPP_GROUPS_SEASON),
+  gcTime: 1000 * 60 * 10,
+  enabled: computed(() =>
+    ['component', 'course'].includes(selectedSearchType.value),
+  ),
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+});
 
 // Query específica para busca por RA (necessária pois filtra no backend pelo usuário)
 const {
@@ -564,15 +429,15 @@ const {
   isSuccess: isGroupsByRaSuccess,
 } = useQuery({
   queryKey: ['whatsappGroups', 'byRa', searchRaQuery],
-  queryFn: () => Whatsapp.getComponentsByUser(searchRaQuery.value ?? 0),
+  queryFn: () =>
+    Whatsapp.getComponentsByUser({
+      ra: searchRaQuery.value ?? 0,
+      season: WHATSAPP_GROUPS_SEASON,
+    }),
   enabled: computed(() => shouldFetchGroupsByRa.value),
 });
 
-const {
-  data: coursesData,
-  isLoading: isCoursesLoading,
-  isSuccess: isCoursesSuccess,
-} = useQuery({
+const { data: coursesData, isLoading: isCoursesLoading } = useQuery({
   queryKey: ['courses'],
   queryFn: () => Whatsapp.getCourses(),
   enabled: computed(() => selectedSearchType.value === 'course'),
@@ -731,7 +596,7 @@ const currentGroups = computed(
 );
 
 const paginatedGroups = computed(() => {
-  const endIndex = resultsPage.value * 24;
+  const endIndex = queryResultsPage.value * 24;
   return currentGroups.value.slice(0, endIndex);
 });
 
