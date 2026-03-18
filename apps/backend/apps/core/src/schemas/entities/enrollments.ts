@@ -17,6 +17,7 @@ const enrollmentsListSchema = z.object({
   creditos: z.number().int().nullish(),
   identifier: z.string().optional(),
   season: z.string().optional(),
+  uf_cod_turma: z.string().optional(),
   subject: z
     .object({
       _id: z.coerce.string(),
