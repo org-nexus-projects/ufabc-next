@@ -258,7 +258,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       );
 
       if (result.matchedCount === 0) {
-        app.log.info({ disciplinaId, season: seasonToUse }, 'No matching component found');
+        app.log.info(
+          { disciplinaId, season: seasonToUse },
+          'No matching component found'
+        );
         return reply.status(404).send({
           error: 'No matching component found',
           disciplinaId,
@@ -267,7 +270,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       }
 
       if (result.modifiedCount === 0) {
-        app.log.info({ disciplinaId, season: seasonToUse }, 'Component found but not modified (same groupURL)');
+        app.log.info(
+          { disciplinaId, season: seasonToUse },
+          'Component found but not modified (same groupURL)'
+        );
         return reply.send({
           message: 'Component found but groupURL was already set to this value',
           disciplinaId,
@@ -277,7 +283,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       }
 
       app.log.info(
-        { disciplinaId, season: seasonToUse, modifiedCount: result.modifiedCount },
+        {
+          disciplinaId,
+          season: seasonToUse,
+          modifiedCount: result.modifiedCount,
+        },
         'GroupURL updated successfully'
       );
 
