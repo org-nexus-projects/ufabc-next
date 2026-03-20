@@ -4,7 +4,6 @@ import { createHash } from 'node:crypto';
 
 import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { ComponentModel, type Component } from '@/models/Component.js';
-import { syncComponentsSchema } from '@/schemas/sync/components.js';
 import { syncEnrolledSchema } from '@/schemas/sync/enrolled.js';
 import { syncEnrollmentsSchema } from '@/schemas/sync/enrollments.js';
 
