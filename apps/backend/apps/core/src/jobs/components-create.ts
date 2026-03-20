@@ -1,12 +1,49 @@
+import type { Types } from 'mongoose';
+
 import { defineJob } from '@next/queues/client';
 
 import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { JOB_NAMES } from '@/constants.js';
 import { ComponentModel, type Component } from '@/models/Component.js';
+import { TeacherModel } from '@/models/Teacher.js';
 
 import { findOrCreateSubject } from './utils/subject-resolution.js';
 
 const connector = new UfabcParserConnector();
+
+const teacherCache = new Map<string, Types.ObjectId | null>();
+
+async function findTeacher(
+  name: string | null
+): Promise<Types.ObjectId | null> {
+  if (!name) return null;
+
+  const normalizedName = name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  if (teacherCache.has(normalizedName)) {
+    return teacherCache.get(normalizedName)!;
+  }
+
+  const teacher = await TeacherModel.findByFuzzName(normalizedName);
+
+  if (!teacher && normalizedName !== '0') {
+    teacherCache.set(normalizedName, null);
+    return null;
+  }
+
+  if (teacher && !teacher.alias.includes(normalizedName)) {
+    await TeacherModel.findByIdAndUpdate(teacher._id, {
+      $addToSet: { alias: [normalizedName, name.toLowerCase()] },
+    });
+  }
+
+  const teacherId = teacher?._id ?? null;
+  teacherCache.set(normalizedName, teacherId);
+  return teacherId;
+}
 
 export const createComponentJob = defineJob(JOB_NAMES.CREATE_COMPONENT).handler(
   async ({ job }) => {
@@ -24,6 +61,18 @@ export const createComponentJob = defineJob(JOB_NAMES.CREATE_COMPONENT).handler(
       subjectCode
     );
 
+    const professorTeacher = component.teachers?.find(
+      (t) => t.role === 'professor' && !t.isSecondary
+    );
+    const practiceTeacher = component.teachers?.find(
+      (t) => t.role === 'practice' && !t.isSecondary
+    );
+
+    const [teoria, pratica] = await Promise.all([
+      findTeacher(professorTeacher?.name ?? null),
+      findTeacher(practiceTeacher?.name ?? null),
+    ]);
+
     const dbComponent = {
       after_kick: [],
       before_kick: [],
@@ -33,7 +82,10 @@ export const createComponentJob = defineJob(JOB_NAMES.CREATE_COMPONENT).handler(
       turno: component.shift === 'morning' ? 'diurno' : 'noturno',
       turma: component.componentClass,
       vagas: component.vacancies,
-      obrigatorias: component.courses?.filter((c) => c.category === 'mandatory').map((c) => c.UFCourseId) ?? [],
+      obrigatorias:
+        component.courses
+          ?.filter((c) => c.category === 'mandatory')
+          .map((c) => c.UFCourseId) ?? [],
       uf_cod_turma: component.ufClassroomCode,
       campus: component.campus,
       codigo: component.ufComponentCode,
@@ -48,6 +100,8 @@ export const createComponentJob = defineJob(JOB_NAMES.CREATE_COMPONENT).handler(
       year: Number(component.season.split(':')[0]),
       quad: Number(component.season.split(':')[1]),
       season: component.season,
+      teoria,
+      pratica,
     } satisfies Omit<Component, 'createdAt' | 'updatedAt'>;
 
     const createdComponent = await ComponentModel.findOneAndUpdate(
