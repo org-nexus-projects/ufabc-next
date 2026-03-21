@@ -27,8 +27,8 @@ const jobSchema = z.object({
       status: z.string(),
       credits: z.number(),
       category: z.string(),
-      grade: z.string(),
-      class: z.string(),
+      grade: z.string().nullable(),
+      class: z.string().optional(),
       teachers: z.array(z.any()).optional(),
     })
     .array(),

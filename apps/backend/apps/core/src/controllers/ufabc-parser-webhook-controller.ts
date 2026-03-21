@@ -16,7 +16,7 @@ const UfabcParserIncomingWebhookController: FastifyPluginAsyncZod = async (
     url: '/webhooks/ufabc-parser',
     schema: {
       headers: z.object({
-        'x-webhook-signature': z.string().describe('HMAC-SHA256 signature'),
+        'x-api-key': z.string().describe('API key for authentication'),
         'x-webhook-event': z
           .enum(PARSER_WEBHOOK_SUPPORTED_EVENTS)
           .describe('Event type'),
