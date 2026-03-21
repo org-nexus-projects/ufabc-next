@@ -8,17 +8,13 @@ declare module '@fastify/request-context' {
   }
 }
 
-
 export const matriculaSession: preHandlerAsyncHookHandler = async (
   request,
   reply
 ) => {
   const { 'session-id': sessionId } = request.headers;
 
-  if (
-    !sessionId ||
-    typeof sessionId !== 'string'
-  ) {
+  if (!sessionId || typeof sessionId !== 'string') {
     return reply.unauthorized('Missing Session');
   }
 
@@ -39,11 +35,7 @@ export const matriculaSession: preHandlerAsyncHookHandler = async (
     return reply.forbidden();
   }
 
-  await request.redisService.setJSON(
-    sessionKey,
-    { sessionId },
-    '20 minutes'
-  );
+  await request.redisService.setJSON(sessionKey, { sessionId }, '20 minutes');
   request.requestContext.set('matriculaSession', {
     sessionId,
   });
@@ -51,10 +43,10 @@ export const matriculaSession: preHandlerAsyncHookHandler = async (
 
 async function validateToken(sessionId: string) {
   if (!sessionId) {
-    return false
+    return false;
   }
   // const connector = new UfabcMatriculaConnector();
   // const response = await connector.validateToken(sessionId);
   // TODO: finish
-  return true
+  return true;
 }

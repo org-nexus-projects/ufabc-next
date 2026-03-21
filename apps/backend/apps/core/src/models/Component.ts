@@ -76,7 +76,7 @@ const componentSchema = new Schema(
       type: Boolean,
       default: false,
       required: false,
-    }
+    },
   },
   {
     timestamps: true,

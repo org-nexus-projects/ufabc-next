@@ -45,7 +45,9 @@ export default fp(
       },
       checkStateFunction: (request) => {
         const { requesterKey } = JSON.parse(
-          Buffer.from((request.query as any).state, 'base64url').toString('utf8')
+          Buffer.from((request.query as any).state, 'base64url').toString(
+            'utf8'
+          )
         ) as statePayloadType;
 
         if (!REQUESTERS.includes(requesterKey))

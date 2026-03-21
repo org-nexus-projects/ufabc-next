@@ -12,7 +12,7 @@ export class SigaaConnector extends BaseRequester {
       headers,
       retry: 3,
       retryStatusCodes: [429],
-      retryDelay: 1000
+      retryDelay: 1000,
     });
     return response;
   }

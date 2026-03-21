@@ -73,8 +73,6 @@ export type UFProcessorComponentFile = {
   hours: Record<string, { periodicity: string; classPeriod: string[] }>[];
 };
 
-
-
 type UfabcParserComponentV2 = {
   componentKey: string;
   subjectKey: string;

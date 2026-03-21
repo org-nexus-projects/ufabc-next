@@ -103,14 +103,17 @@ export async function processComponentsTeachers(ctx: QueueContext<JobData>) {
     }
 
     // Log the action
-    ctx.app.log.info({
-      disciplina: component.disciplina,
-      UFCode: component.codigo,
-      class: component.turma,
-      practice: component.pratica,
-      teory: component.teoria,
-      action: result?.isNew ? 'inserted' : 'updated',
-    }, 'Component processed');
+    ctx.app.log.info(
+      {
+        disciplina: component.disciplina,
+        UFCode: component.codigo,
+        class: component.turma,
+        practice: component.pratica,
+        teory: component.teoria,
+        action: result?.isNew ? 'inserted' : 'updated',
+      },
+      'Component processed'
+    );
   } catch (error) {
     ctx.app.log.error({
       msg: 'Error processing component',

@@ -31,7 +31,6 @@ const axiomOptions = {
   token: process.env.AXIOM_TOKEN as string,
 } satisfies AxiomOptions;
 
-
 const commonConfig = {
   level: process.env.LOG_LEVEL ?? 'info',
   timestamp: pino.stdTimeFunctions.isoTime,

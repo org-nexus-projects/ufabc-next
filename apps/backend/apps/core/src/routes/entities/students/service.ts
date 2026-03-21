@@ -143,7 +143,7 @@ export async function update({
   graduationId,
 }: UpdateStudent): Promise<UpdatedStudent | null> {
   const season = currentQuad();
-  logger.info({ ra, login, studentId, graduationId });  
+  logger.info({ ra, login, studentId, graduationId });
   const student = await StudentModel.findOne({
     login,
     season,

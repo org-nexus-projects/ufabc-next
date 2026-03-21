@@ -141,12 +141,12 @@ export class JobManager<
         connection: this.redisConnection,
         removeOnComplete: {
           count: 150,
-          age: 1000 * 60 * 60 * 24 * 7 // 7 days
+          age: 1000 * 60 * 60 * 24 * 7, // 7 days
         },
         removeOnFail: {
           count: 150,
-          age: 1000 * 60 * 60 * 24 * 14 // 14 days
-        }
+          age: 1000 * 60 * 60 * 24 * 14, // 14 days
+        },
       }
     );
 
