@@ -1,12 +1,8 @@
 {
-  "extends": [
-    "//"
-  ],
+  "extends": ["//"],
   "tasks": {
     "dev": {
-      "dependsOn": [
-        "@next/db#build"
-      ]
+      "dependsOn": ["@next/db#build"]
     }
   }
 }

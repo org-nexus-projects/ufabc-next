@@ -13,7 +13,7 @@ import { join } from 'node:path';
 import backofficeController from './controllers/backoffice-controller.js';
 import componentsController from './controllers/components-controller.js';
 import studentsController from './controllers/students-controller.js';
-import webhookController from './controllers/webhook-controller.js';
+import ufabcParserWebhookController from './controllers/ufabc-parser-webhook-controller.js';
 import { authenticateBoard } from './hooks/board-authenticate.js';
 import awsV2Plugin from './plugins/v2/aws.js';
 import queueV2Plugin from './plugins/v2/queue.js';
@@ -31,8 +31,8 @@ declare module 'fastify' {
 const routesV2 = [
   componentsController,
   backofficeController,
-  webhookController,
   studentsController,
+  ufabcParserWebhookController,
 ];
 
 export async function buildApp(
@@ -124,23 +124,21 @@ export async function buildApp(
     }
   });
 
-  app.setNotFoundHandler(
-    (request, reply) => {
-      request.log.warn(
-        {
-          request: {
-            method: request.method,
-            url: request.url,
-            query: request.query,
-            params: request.params,
-          },
+  app.setNotFoundHandler((request, reply) => {
+    request.log.warn(
+      {
+        request: {
+          method: request.method,
+          url: request.url,
+          query: request.query,
+          params: request.params,
         },
-        'Resource not found'
-      );
+      },
+      'Resource not found'
+    );
 
-      reply.code(404);
+    reply.code(404);
 
-      return { message: 'Not Found' };
-    }
-  );
+    return { message: 'Not Found' };
+  });
 }

@@ -28,9 +28,20 @@ export const JOB_NAMES = {
   HISTORY_PROCESSING_RETRY: 'history_processing_retry',
   USER_ENROLLMENTS_UPDATE: 'user_enrollments_update',
   PROCESS_COMPONENTS_ENROLLMENTS: 'process_components_enrollments',
+  UFABC_PARSER_WEBHOOK_PROCESSING: 'ufabc_parser_webhook_processing',
 } as const;
 
 export const REQUESTERS = ['ufabc-next', 'ufabc-cronos'] as const;
 
 export const HTTP_REDIS_KEY_PREFIX = 'http';
 export const MAX_LOG_SIZE = 600 * 1024;
+
+export const PARSER_WEBHOOK_EVENTS = {
+  STUDENT_SYNCED: 'student.synced',
+  STUDENT_FAILED: 'student.failed',
+} as const;
+
+export const PARSER_WEBHOOK_SUPPORTED_EVENTS = [
+  PARSER_WEBHOOK_EVENTS.STUDENT_SYNCED,
+  PARSER_WEBHOOK_EVENTS.STUDENT_FAILED,
+] as const;

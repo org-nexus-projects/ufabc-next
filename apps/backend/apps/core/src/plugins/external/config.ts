@@ -50,6 +50,7 @@ const configSchema = z.object({
   NOTION_DATABASE_ID: z.string().default('notion_database_id'),
   UFABC_PARSER_REQUESTER_KEY: z.string(),
   WEBHOOK_API_KEY: z.string().default('webhook-api-key'),
+  UFABC_PARSER_WEBHOOK_SECRET: z.string().optional(),
 });
 
 const schema = zodToJsonSchema(configSchema);
