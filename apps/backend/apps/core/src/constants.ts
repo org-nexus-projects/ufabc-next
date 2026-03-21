@@ -24,8 +24,6 @@ export const JOB_NAMES = {
   ENROLLED_STUDENTS: 'enrolled_students',
   PROCESS_ENROLLED_STUDENTS: 'process_enrolled_students',
   CREATE_COMPONENT: 'create_component',
-  HISTORY_PROCESSING: 'history_processing',
-  HISTORY_PROCESSING_RETRY: 'history_processing_retry',
   USER_ENROLLMENTS_UPDATE: 'user_enrollments_update',
   PROCESS_COMPONENTS_ENROLLMENTS: 'process_components_enrollments',
   UFABC_PARSER_WEBHOOK_PROCESSING: 'ufabc_parser_webhook_processing',
