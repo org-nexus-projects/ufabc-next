@@ -67,7 +67,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         turno: 1,
         disciplina_id: 1,
         season: 1,
-        groupURL: 1,
       }
     )
       .populate<{
@@ -87,7 +86,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       subjectId: component.subject?._id.toString(),
       teoriaId: component.teoria?._id.toString(),
       praticaId: component.pratica?._id.toString(),
-      groupURL: component.groupURL ?? '',
     }));
 
     // componentsListCache.set(cacheKey, nonPaginatedComponents);
