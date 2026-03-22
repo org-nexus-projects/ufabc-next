@@ -4,8 +4,8 @@ Repositório que contém todo o código que se refere ao backend que mantém o s
 
 ## Ferramentas necessárias para rodar o projeto
 
-- Runtime: [Nodejs](https://nodejs.org/en), v22
-- Package Manager: [pnpm](https://pnpm.io/) v8
+- Runtime: [Nodejs](https://nodejs.org/en), v24
+- Package Manager: [pnpm](https://pnpm.io/) v9
 - Conteinerização: [Docker](https://www.docker.com/) v24 e [Docker Compose](https://docs.docker.com/engine/reference/commandline/compose/) v2
 - Sistema Operacional: Pode usar o que preferir, garanto suporte a MacOS, Linux e WSL. Caso enfrente algum problema com Windows, clique [aqui](https://github.com/ufabc-next/ufabc-next-backend/issues/new) e descreva seu problema, para que possamos te auxiliar :)
 
