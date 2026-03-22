@@ -41,35 +41,6 @@ export type NonPaginatedComponents = z.infer<
   typeof NonPaginatedComponentsSchema
 >;
 
-export const listComponentsSchema = {
-  tags: ['Components'],
-  querystring: z.object({
-    season: z
-      .string()
-      .default(() => currentQuad())
-      .refine(
-        (val) => {
-          const [year, quad] = val.split(':');
-
-          if (!year || !quad) {
-            return false;
-          }
-
-          return true;
-        },
-        { message: 'Season deve seguir o padrão ano:quadrimestre' }
-      ),
-  }),
-  response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: NonPaginatedComponentsSchema.array(),
-        },
-      },
-    },
-  },
-} satisfies FastifyZodOpenApiSchema;
 
 export const listKickedSchema = {
   params: z.object({

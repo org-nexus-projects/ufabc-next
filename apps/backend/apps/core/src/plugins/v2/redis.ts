@@ -32,7 +32,7 @@ export default fp(
       const result = await app.redis.set(
         lockKey,
         new Date().toISOString(),
-        'EX',
+        'PX',
         ttlInMs,
         'NX'
       );
