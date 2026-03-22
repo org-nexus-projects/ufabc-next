@@ -3,7 +3,11 @@ import { requestContext } from '@fastify/request-context';
 import { randomUUID } from 'node:crypto';
 import { type FetchOptions, type FetchRequest, ofetch } from 'ofetch';
 
-import { MAX_LOG_SIZE, TRACING_DIRECTION, TRACING_MESSAGES } from '@/constants.js';
+import {
+  MAX_LOG_SIZE,
+  TRACING_DIRECTION,
+  TRACING_MESSAGES,
+} from '@/constants.js';
 import { logger as defaultLogger } from '@/utils/logger.js';
 
 export class BaseRequester {
@@ -89,7 +93,6 @@ export class BaseRequester {
         const logger =
           this.getLogger() ?? defaultLogger.child({ connector: true });
 
-        
         logger.error(
           {
             direction: TRACING_DIRECTION.INCOMING,
@@ -129,19 +132,19 @@ export class BaseRequester {
   protected getTraceId() {
     return requestContext.get('traceId') ?? randomUUID();
   }
-  
+
   protected truncateForLogging(data: unknown): unknown {
     if (data === null || data === undefined) {
       return data;
     }
-  
+
     const stringified = typeof data === 'string' ? data : JSON.stringify(data);
     const sizeInBytes = Buffer.byteLength(stringified, 'utf8');
-  
+
     if (sizeInBytes > MAX_LOG_SIZE) {
       return `[Data truncated: ${(sizeInBytes / 1024).toFixed(2)}KB exceeds 600KB limit]`;
     }
-  
+
     return data;
   }
 }

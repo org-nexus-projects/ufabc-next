@@ -26,9 +26,7 @@ const listMatriculaStudentSchema = z.object({
 const updatedStudentSchema = z.object({
   ra: z.number().nullable(),
   studentId: z.number().nullish(),
-  graduations: z
-    .any()
-    .array(),
+  graduations: z.any().array(),
 });
 
 export type UpdatedStudent = z.infer<typeof updatedStudentSchema>;

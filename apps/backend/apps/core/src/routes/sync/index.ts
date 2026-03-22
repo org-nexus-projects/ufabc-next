@@ -167,7 +167,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     }
   );
 
-
   app.put(
     '/enrolled',
     {

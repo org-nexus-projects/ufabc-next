@@ -6,10 +6,10 @@ import { MoodleConnector } from '@/connectors/moodle.js';
 import { JOB_NAMES } from '@/constants.js';
 import { jwtVerifyHook } from '@/hooks/jwt-verify.js';
 import { moodleSession } from '@/hooks/moodle-session.js';
-import { getComponentArchives } from '@/services/components-service.js';
 import { ComponentModel } from '@/models/Component.js';
+import { getComponentArchives } from '@/services/components-service.js';
 import { currentQuad } from '@next/common';
-import { ListComponent, listComponentsSchema, PopulatedComponent } from '@/schemas/v2/components.js'
+import { ListComponent, listComponentsSchema, PopulatedComponent } from '@/schemas/v2/components.js';
 
 const moodleConnector = new MoodleConnector();
 
@@ -128,77 +128,72 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         {
           $match: {
             season,
-            $or: [
-              { groupURL: null },
-              { groupURL: { $exists: false } }
-            ]
-          }
+            $or: [{ groupURL: null }, { groupURL: { $exists: false } }],
+          },
         },
         {
           $lookup: {
-            from: "teachers",
-            localField: "teoria",
-            foreignField: "_id",
-            as: "teoriaTeacher"
-          }
+            from: 'teachers',
+            localField: 'teoria',
+            foreignField: '_id',
+            as: 'teoriaTeacher',
+          },
         },
         {
           $lookup: {
-            from: "teachers",
-            localField: "pratica",
-            foreignField: "_id",
-            as: "praticaTeacher"
-          }
+            from: 'teachers',
+            localField: 'pratica',
+            foreignField: '_id',
+            as: 'praticaTeacher',
+          },
         },
         {
-
           $addFields: {
             amount_studentsId: {
               $size: {
-                $ifNull: ["$alunos_matriculados", []]
-              }
-            }
-          }
+                $ifNull: ['$alunos_matriculados', []],
+              },
+            },
+          },
         },
         {
           $group: {
-            _id: "$codigo",
+            _id: '$codigo',
             // This creates a unique set of all student IDs across all components in the group
-            allStudentsInGroup: { $addToSet: "$alunos_matriculados" },
+            allStudentsInGroup: { $addToSet: '$alunos_matriculados' },
             components: {
               $push: {
-                disciplina_id: "$disciplina_id",
-                amount_studentsId: "$$ROOT.quantidade_alunos_matriculados",
-                nome: "$disciplina",
-                turma: "$turma",
-                vagas: "$vagas",
-                uf_cod_turma: "$uf_cod_turma",
+                disciplina_id: '$disciplina_id',
+                amount_studentsId: '$$ROOT.quantidade_alunos_matriculados',
+                nome: '$disciplina',
+                turma: '$turma',
+                vagas: '$vagas',
+                uf_cod_turma: '$uf_cod_turma',
                 // Extract the teacher name immediately during the push
-                teoria: { $arrayElemAt: ["$teoriaTeacher.name", 0] },
-                pratica: { $arrayElemAt: ["$praticaTeacher.name", 0] }
-              }
-            }
-          }
+                teoria: { $arrayElemAt: ['$teoriaTeacher.name', 0] },
+                pratica: { $arrayElemAt: ['$praticaTeacher.name', 0] },
+              },
+            },
+          },
         },
         {
           $project: {
             _id: 0,
-            codigo: "$_id",
+            codigo: '$_id',
             // $reduce transforms the array of arrays into one flat unique array to count unique students
             amount_subject_students: {
               $size: {
                 $reduce: {
-                  input: "$allStudentsInGroup",
+                  input: '$allStudentsInGroup',
                   initialValue: [],
-                  in: { $setUnion: ["$$value", "$$this"] }
-                }
-              }
+                  in: { $setUnion: ['$$value', '$$this'] },
+                },
+              },
             },
-            components: 1
-          }
+            components: 1,
+          },
         },
-        { $sort: { amount_subject_students: -1 } }
-
+        { $sort: { amount_subject_students: -1 } },
       ]);
       return reply.status(200).send({
         status: 'success',
