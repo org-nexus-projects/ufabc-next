@@ -50,3 +50,4 @@ logs
 scripts/docker/localstack
 .cursor/
 !*.secret
+.agents/
