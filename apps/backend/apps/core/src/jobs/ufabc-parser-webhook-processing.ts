@@ -83,6 +83,14 @@ export const ufabcParserWebhookProcessingJob = defineJob(
           note: 'Processing student data',
         });
 
+        const studentSync = await db.StudentSync.findOne({ ra: syncedData.ra });
+        if (studentSync) {
+          await studentSync.transition('processing', {
+            source: 'webhook',
+            note: 'Processing student data from webhook',
+          });
+        }
+
         await upsertStudentRecord(syncedData, season);
         await createHistoryRecord(syncedData);
 
@@ -90,7 +98,13 @@ export const ufabcParserWebhookProcessingJob = defineJob(
           note: 'Student history processed successfully',
         });
 
-     
+        if (studentSync) {
+          await studentSync.transition('completed', {
+            source: 'webhook',
+            note: 'Student data processed successfully',
+          });
+        }
+
         await app.manager.dispatch(JOB_NAMES.PROCESS_COMPONENTS_ENROLLMENTS, {
           ra: Number(syncedData.ra),
           historyJobId: processingJob._id.toString(),
@@ -132,7 +146,14 @@ export const ufabcParserWebhookProcessingJob = defineJob(
           { source: 'webhook' }
         );
 
-        // TODO: Implement additional business logic for student.failed event
+        const studentSync = await db.StudentSync.findOne({ ra: failedData.ra });
+        if (studentSync) {
+          await studentSync.markFailed(failedData.error.description, {
+            source: 'webhook',
+            errorCode: failedData.error.code,
+            errorDetails: failedData.error.additionalData,
+          });
+        }
       }
 
       return {
@@ -154,7 +175,6 @@ export const ufabcParserWebhookProcessingJob = defineJob(
         'Failed to process webhook'
       );
 
-      // Mark the job as failed
       await processingJob.markFailed(
         {
           code: 'PROCESSING_ERROR',
@@ -163,6 +183,14 @@ export const ufabcParserWebhookProcessingJob = defineJob(
         },
         { source: 'webhook' }
       );
+
+      const studentSync = await db.StudentSync.findOne({ ra: data.ra });
+      if (studentSync) {
+        await studentSync.markFailed(processingError.message, {
+          source: 'webhook',
+          errorCode: 'PROCESSING_ERROR',
+        });
+      }
 
       throw processingError;
     }
@@ -215,7 +243,8 @@ async function createHistoryRecord(
       curso: student.course.toLowerCase(),
       grade: student.campus,
       disciplinas: components.map(transformComponentToHistory),
-      [`coefficients.${currentYear}.${currentQuad}`]: currentQuarterCoefficients,
+      [`coefficients.${currentYear}.${currentQuad}`]:
+        currentQuarterCoefficients,
     },
   };
 
