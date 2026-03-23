@@ -35,7 +35,7 @@ export interface UfabcParserComponent {
 
 export const Whatsapp = {
   searchComponents: async (season: string) =>
-    api.get<SearchComponentItem[]>('entities/components', {
+    api.get<SearchComponentItem[]>('v2/components', {
       params: { season },
     }),
   getComponentsByUser: async ({ ra, season }: { ra: number; season: string }) =>
