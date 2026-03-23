@@ -645,17 +645,14 @@ const searchConfig = computed(() => ({
     groups: filteredByComponent.value,
     loading: isAllComponentsLoading.value,
     success: isAllComponentsSuccess.value && shouldFetchComponents.value,
-    error: isAllComponentsError.value || isParserComponentsError.value,
+    error: isAllComponentsError.value,
     query: searchComponentQuery.value,
   },
   course: {
     groups: filteredAndSearchedCourseComponents.value,
     loading: isAllComponentsLoading.value || isCoursesLoading.value,
     success: isAllComponentsSuccess.value && shouldFetchGroupsByCourse.value,
-    error:
-      isAllComponentsError.value ||
-      isCoursesError.value ||
-      isParserComponentsError.value,
+    error: isAllComponentsError.value || isCoursesError.value,
     query: searchCourseQuery.value,
   },
 }));

@@ -84,10 +84,12 @@ const emit = defineEmits<{
 }>();
 
 const handleClick = () => {
-  if (!isGroupAvailable.value) {
+  const groupURL = props.component.groupURL;
+  if (!groupURL) {
     return;
   }
-  emit('openGroup', props.component.groupURL);
+
+  emit('openGroup', groupURL);
 };
 </script>
 
