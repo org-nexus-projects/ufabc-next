@@ -19,14 +19,14 @@ export type SearchSubjectItem = {
 
 export type SearchComponentItem = {
   season: string;
-  groupURL: string;
+  groupURL: string | null;
   codigo: string;
   campus?: 'sa' | 'sbc';
   turma?: string;
   turno?: string;
   subject: string;
-  teoria: string;
-  pratica: string;
+  teoria: string | null;
+  pratica: string | null;
   uf_cod_turma: string;
 };
 
