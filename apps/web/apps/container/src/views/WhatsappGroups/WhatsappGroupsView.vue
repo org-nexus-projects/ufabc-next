@@ -26,7 +26,7 @@
                 placeholder="Digite seu RA (ex: 11202012345)"
                 variant="outlined"
                 :loading="currentLoading"
-                :disabled="isUserLoggedIn"
+                :disabled="!isUserLoggedIn"
                 prepend-inner-icon="mdi-magnify"
                 clearable
                 class="main-search"
@@ -46,6 +46,7 @@
                   placeholder="Selecione um curso"
                   variant="outlined"
                   size="large"
+                  :disabled="!isUserLoggedIn"
                   :loading="currentLoading || isCoursesLoading"
                   prepend-inner-icon="mdi-school"
                   class="course-select"
@@ -57,7 +58,7 @@
                   placeholder="Digite a disciplina ou professor"
                   variant="outlined"
                   size="large"
-                  :disabled="!searchCourseQuery"
+                  :disabled="!isUserLoggedIn || !searchCourseQuery"
                   prepend-inner-icon="mdi-magnify"
                   clearable
                   class="course-filter"
@@ -71,6 +72,7 @@
                 placeholder="Digite o nome da disciplina (ex: Função de várias variáveis)"
                 variant="outlined"
                 size="large"
+                :disabled="!isUserLoggedIn"
                 :loading="currentLoading"
                 prepend-inner-icon="mdi-magnify"
                 clearable
@@ -163,15 +165,59 @@
       </div>
     </section>
 
-    <!-- Normal results when overlay is not active -->
+    <!--  overlay if is not logged -->
     <section v-else>
-      <div v-if="currentLoading" class="results-grid">
+      <div v-if="!isUserLoggedIn" class="results-success">
+        <div class="auth-required-state">
+          <div class="auth-required-visual">
+            <v-icon size="56" color="primary">mdi-lock-outline</v-icon>
+          </div>
+          <h3>Faça login para acessar os grupos de WhatsApp</h3>
+          <p>
+            Por segurança, os links dos grupos estão disponíveis apenas para
+            usuários autenticados.
+          </p>
+          <div class="not-synced__actions auth-required-actions">
+            <button class="not-synced__button" @click="createAccount">
+              <v-icon size="20"> mdi-account-plus </v-icon>
+              Criar conta
+            </button>
+            <button
+              class="not-synced__button secondary"
+              @click="handleSyncHistory"
+            >
+              <v-icon size="20"> mdi-sync </v-icon>
+              Sincronizar histórico
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div v-else-if="currentLoading" class="results-grid">
         <v-skeleton-loader
           v-for="(i, index) in Array.from({ length: 6 })"
           :key="index"
           color="secondary"
           type="card"
         ></v-skeleton-loader>
+      </div>
+
+      <div v-else-if="currentError" class="results-success">
+        <div class="auth-required-state">
+          <div class="auth-required-visual">
+            <v-icon size="56" color="warning">mdi-alert-circle-outline</v-icon>
+          </div>
+          <h3>Não foi possível carregar os grupos</h3>
+          <p>
+            Sua sessão pode ter expirado. Faça login novamente para continuar.
+          </p>
+          <div class="not-synced__actions">
+            <button class="not-synced__button" @click="authStore.logOut()">
+              <v-icon size="20"> mdi-login </v-icon>
+              Fazer login novamente
+            </button>
+          </div>
+        </div>
       </div>
 
       <div v-else-if="currentSuccess" class="results-success">
@@ -308,6 +354,11 @@ const capitalizeName = (name: string): string => {
 };
 
 const debouncedRaSearch = useDebounceFn((raValue: number) => {
+  if (!isUserLoggedIn.value) {
+    shouldFetchGroupsByRa.value = false;
+    return;
+  }
+
   if (raValue && String(raValue).length >= MIN_RA_LENGTH) {
     eventTracker.track(WebEvent.WHATSAPP_GROUP_SEARCH, {
       search_type: 'ra',
@@ -399,24 +450,29 @@ const {
   data: allComponents,
   isLoading: isAllComponentsLoading,
   isSuccess: isAllComponentsSuccess,
+  isError: isAllComponentsError,
 } = useQuery({
   queryKey: ['whatsappGroups', 'allComponents'],
   queryFn: () => Whatsapp.searchComponents(WHATSAPP_GROUPS_SEASON),
   gcTime: 1000 * 60 * 10,
-  enabled: computed(() =>
-    ['component', 'course'].includes(selectedSearchType.value),
+  enabled: computed(
+    () =>
+      isUserLoggedIn.value &&
+      ['component', 'course'].includes(selectedSearchType.value),
   ),
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
 
 // Query para dados do parser (professores)
-const { data: parserComponents } = useQuery({
+const { data: parserComponents, isError: isParserComponentsError } = useQuery({
   queryKey: ['disciplinaComponents', WHATSAPP_GROUPS_SEASON],
   queryFn: () => Whatsapp.searchComponentsBySeason(WHATSAPP_GROUPS_SEASON),
   gcTime: 1000 * 60 * 10,
-  enabled: computed(() =>
-    ['component', 'course'].includes(selectedSearchType.value),
+  enabled: computed(
+    () =>
+      isUserLoggedIn.value &&
+      ['component', 'course'].includes(selectedSearchType.value),
   ),
   refetchOnMount: false,
   refetchOnWindowFocus: false,
@@ -427,6 +483,7 @@ const {
   data: groupsByRa,
   isLoading: isGroupsByRaLoading,
   isSuccess: isGroupsByRaSuccess,
+  isError: isGroupsByRaError,
 } = useQuery({
   queryKey: ['whatsappGroups', 'byRa', searchRaQuery],
   queryFn: () =>
@@ -434,13 +491,19 @@ const {
       ra: searchRaQuery.value ?? 0,
       season: WHATSAPP_GROUPS_SEASON,
     }),
-  enabled: computed(() => shouldFetchGroupsByRa.value),
+  enabled: computed(() => isUserLoggedIn.value && shouldFetchGroupsByRa.value),
 });
 
-const { data: coursesData, isLoading: isCoursesLoading } = useQuery({
+const {
+  data: coursesData,
+  isLoading: isCoursesLoading,
+  isError: isCoursesError,
+} = useQuery({
   queryKey: ['courses'],
   queryFn: () => Whatsapp.getCourses(),
-  enabled: computed(() => selectedSearchType.value === 'course'),
+  enabled: computed(
+    () => isUserLoggedIn.value && selectedSearchType.value === 'course',
+  ),
   staleTime: 1000 * 60 * 60,
 });
 
@@ -575,18 +638,24 @@ const searchConfig = computed(() => ({
     groups: groupsFromRa.value,
     loading: isGroupsByRaLoading.value,
     success: isGroupsByRaSuccess.value && shouldFetchGroupsByRa.value,
+    error: isGroupsByRaError.value,
     query: searchRaQuery.value,
   },
   component: {
     groups: filteredByComponent.value,
     loading: isAllComponentsLoading.value,
     success: isAllComponentsSuccess.value && shouldFetchComponents.value,
+    error: isAllComponentsError.value || isParserComponentsError.value,
     query: searchComponentQuery.value,
   },
   course: {
     groups: filteredAndSearchedCourseComponents.value,
     loading: isAllComponentsLoading.value || isCoursesLoading.value,
     success: isAllComponentsSuccess.value && shouldFetchGroupsByCourse.value,
+    error:
+      isAllComponentsError.value ||
+      isCoursesError.value ||
+      isParserComponentsError.value,
     query: searchCourseQuery.value,
   },
 }));
@@ -612,7 +681,15 @@ const currentSuccess = computed(
   () => searchConfig.value[selectedSearchType.value]?.success || false,
 );
 
+const currentError = computed(
+  () => searchConfig.value[selectedSearchType.value]?.error || false,
+);
+
 const openWhatsappGroup = (url: string) => {
+  if (!isUserLoggedIn.value || !url) {
+    return;
+  }
+
   const component = currentGroups.value.find(
     (group: any) => group.groupURL === url,
   );
@@ -661,7 +738,7 @@ onMounted(() => {
     user_ra: userRa.value || null,
   });
 
-  if (isUserLoggedIn.value || route.query.ra) {
+  if (isUserLoggedIn.value) {
     searchRaQuery.value = toValue(userRa);
     if (searchRaQuery.value !== null) {
       debouncedRaSearch(searchRaQuery.value);
@@ -784,6 +861,26 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   min-height: 400px;
+}
+
+.auth-required-state {
+  margin: 0 auto;
+  max-width: 640px;
+  text-align: center;
+  padding: 16px;
+}
+
+.auth-required-visual {
+  margin-bottom: 16px;
+}
+
+.auth-required-state h3 {
+  margin-bottom: 12px;
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.auth-required-state p {
+  margin-bottom: 20px;
 }
 
 .coming-soon-overlay {
@@ -956,6 +1053,10 @@ onMounted(() => {
 .not-synced__button:hover {
   transform: translateY(-4px);
   transition: all 0.2s ease;
+}
+
+.auth-required-actions .not-synced__button:hover {
+  transform: translateY(-1px);
 }
 
 /* vue transition */
