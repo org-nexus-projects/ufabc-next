@@ -421,7 +421,7 @@ watch(
 
     selectedSearchType.value = 'component';
     searchComponentQuery.value = String(newComponent);
-    resultsPage.value = 1;
+    queryResultsPage.value = 1;
     debouncedComponentSearch(String(newComponent));
   },
   { immediate: true },
