@@ -63,57 +63,77 @@
         -webkit-box-shadow: 0 9px 68px 0 rgba(62, 57, 107, 0.2);
         box-shadow: 0 9px 68px 0 rgba(62, 57, 107, 0.2);
       }
-      .facebook-button {
-        background-color: #4267b2;
-        box-shadow: none;
-        color: #fff !important;
-        border-radius: 3px;
-        font-size: 16px;
-        font-weight: bold;
-        height: 50px;
-        margin-bottom: 12px;
-        padding: 18px 22px 16px 60px;
-        position: relative;
-        transition: all 0.3s;
-        width: 263px;
-        cursor: pointer;
-        font-family: Montserrat;
-        text-decoration: none !important;
-        display: inline-block;
+
+      .ufabc-icon {
+        width: fit-content!important;
       }
-      .facebook-button > i {
-        position: absolute;
-        top: calc(50% - 0.5em);
-        font-size: 24px;
-        left: 23px;
-      }
+      
       .google-button {
-        background-color: white;
-        box-shadow: 1px 1px 1px 2px #d2d2d0;
-        color: #777777 !important;
-        border-radius: 3px;
-        font-size: 16px;
-        font-weight: bold;
-        height: 50px;
+        background: linear-gradient(to right, #0f5a3d 0%, #0f5a3d 3px, white 3px, white calc(100% - 3px), #0f5a3d calc(100% - 3px), #0f5a3d 100%);
+        box-shadow: 0 2px 8px rgba(15, 90, 61, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08);
+        color: #2c3e50 !important;
+        border-radius: 8px;
+        border: 1px solid rgba(15, 90, 61, 0.12);
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        height: 56px;
         margin-bottom: 12px;
-        padding: 18px 22px 16px 60px;
+        padding: 16px 24px 16px 90px;
         position: relative;
-        transition: all 0.3s;
+        transition: all 0.2s ease;
         width: 263px;
         cursor: pointer;
-        display: inline-block;
-        font-family: Montserrat;
+        display: inline-flex;
+        align-items: center;
+        font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         text-decoration: none !important;
+        overflow: hidden;
       }
-      .google-button > img {
-        left: 13px;
+      .google-button:hover {
+        box-shadow: 0 4px 12px rgba(15, 90, 61, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+        border-color: rgba(15, 90, 61, 0.2);
+      }
+      .google-button:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 4px rgba(15, 90, 61, 0.15);
+      }
+      .google-button-icon-container {
+        margin-right: 5px;
+      }
+      .google-button-icon-wrapper {
         position: absolute;
-        top: calc(50% - 1em);
-        width: 32px;
-        margin-top: 0px !important;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        gap: 6px;
       }
-      .google-button:hover,
-      .facebook-button:hover,
+      .google-button-icon {
+        width: 22px;
+        height: 22px;
+        margin: 0 !important;
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+      }
+      .google-button-separator {
+        color: #0f5a3d;
+        font-weight: 600;
+        font-size: 12px;
+        opacity: 0.7;
+      }
+      .google-button-text-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        line-height: 1.3;
+      }
+      .google-button-text {
+        white-space: nowrap;
+      }
       .local-login-button:hover {
         transform: scale(1.05, 1.05);
       }
@@ -167,9 +187,7 @@
         top: 50%;
       }
       .recovery-button:hover,
-      .facebook-button:hover {
-        transform: scale(1.05, 1.05);
-      }
+      
       .chromestore-download {
         max-height: 64px;
         background: #fff;
@@ -242,6 +260,109 @@
       }
       .hidden {
         display: none;
+      }
+
+      .mobile-info-toast {
+        display: none;
+      }
+
+      .mobile-info-toast.notification-dark {
+        background: #1e1e1e !important;
+        border-color: #2d2d2d !important;
+        color: #ffffff !important;
+        cursor: pointer !important;
+      }
+
+      .mobile-info-toast.notification-dark .mobile-info-toast__title {
+        color: #ffffff !important;
+      }
+
+      .mobile-info-toast.notification-dark .mobile-info-toast__content {
+        color: rgba(255, 255, 255, 0.87) !important;
+      }
+
+      .mobile-info-toast.notification-light {
+        background: #ffffff !important;
+        border-color: #e0e0e0 !important;
+        color: #000000 !important;
+        cursor: pointer !important;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease !important;
+      }
+
+      .mobile-info-toast.notification-light:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+      }
+
+      .mobile-info-toast.notification-light .mobile-info-toast__title {
+        color: #000000 !important;
+      }
+
+      .mobile-info-toast.notification-light .mobile-info-toast__content {
+        color: rgba(0, 0, 0, 0.87) !important;
+      }
+
+      @media only screen and (max-width: 768px) {
+        .mobile-info-toast {
+          position: fixed;
+          left: 12px;
+          right: 12px;
+          bottom: 14px;
+          z-index: 1200;
+          border-radius: 14px;
+          padding: 12px 14px;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+        }
+
+        .mobile-info-toast.is-visible {
+          display: flex;
+        }
+
+        .mobile-info-toast__icon {
+          flex: 0 0 auto;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: #2E7EED;
+          color: #fff;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 14px;
+          margin-top: 0;
+        }
+
+        .mobile-info-toast__title {
+          font-weight: 600;
+          font-size: 14px;
+          margin: 0 0 4px 0;
+        }
+
+        .mobile-info-toast__content {
+          flex: 1;
+          font-size: 13px;
+          line-height: 1.4;
+          text-align: center;
+        }
+
+        .mobile-info-toast__close {
+          flex: 0 0 auto;
+          border: 0;
+          background: transparent;
+          color: inherit;
+          font-size: 24px;
+          line-height: 1;
+          padding: 0;
+          margin: -4px -2px -2px 0;
+          cursor: pointer;
+        }
+
+
       }
     </style>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -331,10 +452,7 @@
                     class="subform subform-alt wow fadeInDown"
                     data-wow-delay="0.3s"
                   >
-                    <a class="facebook-button" href="/app/autenticar-facebook">
-                      <i class="fab fa-facebook"></i>
-                      Entrar com Facebook
-                    </a>
+                   
                     <a
                       class="google-button"
                       onclick="
@@ -346,8 +464,21 @@
                       data-placement="right"
                       title="Use seu e-mail institucional (@aluno.ufabc.edu.br) para acesso imediato, sem precisar confirmar a conta."
                     >
-                      <img src="assets/icons/google-logo.png" />
-                      Entrar com Google
+                      
+                    <div class="google-button-icon-container">
+                         <span class="google-button-icon-wrapper">
+                        <img src="assets/icons/google-logo.png" class="google-button-icon" alt="Logo do Google" />
+                        <span class="google-button-separator">+</span>
+                        <img src="assets/icons/ufabc.png" class="google-button-icon ufabc-icon" />
+                      </span>
+                    </div>
+                     
+
+                      <div class="google-button-text-container">
+                        <span class="google-button-text">Login</span>
+                        <span class="google-button-text">institucional</span>
+                      </div>
+
                     </a>
                     <div id="dev-login"></div>
                     <a
@@ -358,9 +489,7 @@
                       Já tenho conta mas estou com problemas para acessar
                     </a>
                   </div>
-                  <div class="form-note">
-                    <p>O acesso está limitado somente à alunos por enquanto</p>
-                  </div>
+                
                 </div>
               </div>
               <div class="col-md-12 col-lg-7 text-center">
@@ -1085,6 +1214,42 @@
       $(function () {
         $('[data-toggle="popover"]').popover();
       });
+    </script>
+    <script>
+      (function () {
+        const mobileMedia = window.matchMedia('(max-width: 768px)');
+
+        if (!mobileMedia.matches) {
+          return;
+        }
+
+        const prefersDark = window.matchMedia(
+          '(prefers-color-scheme: dark)',
+        ).matches;
+        const toastThemeClass = 'notification-light';
+
+        const toast = document.createElement('div');
+        toast.className = `mobile-info-toast is-visible ${toastThemeClass}`;
+        toast.setAttribute('role', 'status');
+        toast.setAttribute('aria-live', 'polite');
+        toast.innerHTML = `
+          <span class="mobile-info-toast__icon" aria-hidden="true">i</span>
+          <div class="mobile-info-toast__content">
+              Para melhor experiência, todas as contas foram migradas para acesso via e-mail institucional vinculado ao Google.
+          </div>
+          <button class="mobile-info-toast__close" type="button" aria-label="Fechar aviso">&times;</button>
+        `;
+
+        const closeToast = () => {
+          toast.remove();
+        };
+
+        toast
+          .querySelector('.mobile-info-toast__close')
+          .addEventListener('click', closeToast);
+
+        document.body.appendChild(toast);
+      })();
     </script>
   </body>
 </html>

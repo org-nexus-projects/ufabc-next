@@ -13,7 +13,6 @@ const SignUpView = () => import('@/views/SignUp/SignUpView.vue');
 const ConfirmationView = () =>
   import('@/views/Confirmation/ConfirmationView.vue');
 const RecoveryView = () => import('@/views/Recovery/RecoveryView.vue');
-const FacebookView = () => import('@/views/Facebook/FacebookView.vue');
 const CalengradeView = () => import('@/views/Calengrade/CalengradeView.vue');
 const WhatsappGroupsView = () =>
   import('@/views/WhatsappGroups/WhatsappGroupsView.vue');
@@ -132,15 +131,7 @@ const routes: Array<RouteRecordRaw> = [
       layout: 'include-sidebar',
     },
   },
-  {
-    path: '/autenticar-facebook',
-    name: 'Autenticar Facebook',
-    component: FacebookView,
-    meta: {
-      title: 'Autenticar Facebook',
-      auth: false,
-    },
-  },
+
   {
     path: '/help',
     name: 'help',
