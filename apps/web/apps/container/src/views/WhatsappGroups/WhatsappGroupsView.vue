@@ -324,6 +324,15 @@ const isDarkMode = computed(() => theme.global.current.value.dark);
 const userRa = computed(
   () => authStore.user?.ra || (route.query.ra ? Number(route.query.ra) : null),
 );
+const componentSelectedByQueryUrl = computed(() => {
+  const componentQuery = route.query.component;
+
+  if (Array.isArray(componentQuery)) {
+    return componentQuery[0] ?? '';
+  }
+
+  return componentQuery ?? '';
+});
 const isUserLoggedIn = computed(() => authStore.isLoggedIn);
 const isRaValid = computed(() => {
   return (
@@ -402,6 +411,21 @@ const debouncedComponentSearch = useDebounceFn((query: string) => {
     shouldFetchComponents.value = false;
   }
 }, 300);
+
+watch(
+  componentSelectedByQueryUrl,
+  (newComponent) => {
+    if (!newComponent) {
+      return;
+    }
+
+    selectedSearchType.value = 'component';
+    searchComponentQuery.value = String(newComponent);
+    resultsPage.value = 1;
+    debouncedComponentSearch(String(newComponent));
+  },
+  { immediate: true },
+);
 
 watch(searchRaQuery, (newRa) => {
   if (selectedSearchType.value === 'ra' && newRa !== null) {
@@ -516,6 +540,7 @@ const filteredByComponent = computed(() => {
   const normalizedQuery = normalizeText(searchComponentQuery.value);
 
   return allComponentsData.value.map(enrichComponent).filter((component) => {
+    const normalizedComponentCode = normalizeText(component.uf_cod_turma || '');
     const normalizedSubject = normalizeText(component.subject || '');
     const normalizedCodigo = normalizeText(component.codigo || '');
     const normalizedTeoria = normalizeText(component.teoria || '');
@@ -525,7 +550,8 @@ const filteredByComponent = computed(() => {
       normalizedSubject.includes(normalizedQuery) ||
       normalizedCodigo.includes(normalizedQuery) ||
       normalizedTeoria.includes(normalizedQuery) ||
-      normalizedPratica.includes(normalizedQuery)
+      normalizedPratica.includes(normalizedQuery) ||
+      normalizedComponentCode.includes(normalizedQuery)
     );
   });
 });
