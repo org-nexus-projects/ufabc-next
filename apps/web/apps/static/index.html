@@ -65,12 +65,24 @@
       }
 
       .ufabc-icon {
-        width: fit-content!important;
+        width: auto !important;
+        height: 22px !important;
+        object-fit: contain;
       }
-      
+
       .google-button {
-        background: linear-gradient(to right, #0f5a3d 0%, #0f5a3d 3px, white 3px, white calc(100% - 3px), #0f5a3d calc(100% - 3px), #0f5a3d 100%);
-        box-shadow: 0 2px 8px rgba(15, 90, 61, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08);
+        background: linear-gradient(
+          to right,
+          #0f5a3d 0%,
+          #0f5a3d 3px,
+          white 3px,
+          white calc(100% - 3px),
+          #0f5a3d calc(100% - 3px),
+          #0f5a3d 100%
+        );
+        box-shadow:
+          0 2px 8px rgba(15, 90, 61, 0.15),
+          0 1px 3px rgba(0, 0, 0, 0.08);
         color: #2c3e50 !important;
         border-radius: 8px;
         border: 1px solid rgba(15, 90, 61, 0.12);
@@ -86,12 +98,19 @@
         cursor: pointer;
         display: inline-flex;
         align-items: center;
-        font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-family:
+          'Montserrat',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
         text-decoration: none !important;
         overflow: hidden;
       }
       .google-button:hover {
-        box-shadow: 0 4px 12px rgba(15, 90, 61, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow:
+          0 4px 12px rgba(15, 90, 61, 0.2),
+          0 2px 4px rgba(0, 0, 0, 0.1);
         transform: translateY(-1px);
         border-color: rgba(15, 90, 61, 0.2);
       }
@@ -115,7 +134,7 @@
         width: 22px;
         height: 22px;
         margin: 0 !important;
-        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
       }
       .google-button-separator {
         color: #0f5a3d;
@@ -338,7 +357,7 @@
           width: 24px;
           height: 24px;
           border-radius: 50%;
-          background: #2E7EED;
+          background: #2e7eed;
           color: #fff;
           display: inline-flex;
           align-items: center;
@@ -372,8 +391,6 @@
           margin: -4px -2px -2px 0;
           cursor: pointer;
         }
-
-
       }
     </style>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -463,7 +480,6 @@
                     class="subform subform-alt wow fadeInDown"
                     data-wow-delay="0.3s"
                   >
-                   
                     <a
                       class="google-button"
                       onclick="
@@ -475,21 +491,25 @@
                       data-placement="right"
                       title="Use seu e-mail institucional (@aluno.ufabc.edu.br) para acesso imediato, sem precisar confirmar a conta."
                     >
-                      
-                    <div class="google-button-icon-container">
-                         <span class="google-button-icon-wrapper">
-                        <img src="assets/icons/google-logo.png" class="google-button-icon" alt="Logo do Google" />
-                        <span class="google-button-separator">+</span>
-                        <img src="assets/icons/ufabc.png" class="google-button-icon ufabc-icon" />
-                      </span>
-                    </div>
-                     
+                      <div class="google-button-icon-container">
+                        <span class="google-button-icon-wrapper">
+                          <img
+                            src="assets/icons/google-logo.png"
+                            class="google-button-icon"
+                            alt="Logo do Google"
+                          />
+                          <span class="google-button-separator">+</span>
+                          <img
+                            src="assets/icons/ufabc.png"
+                            class="google-button-icon ufabc-icon"
+                          />
+                        </span>
+                      </div>
 
                       <div class="google-button-text-container">
                         <span class="google-button-text">Login</span>
                         <span class="google-button-text">institucional</span>
                       </div>
-
                     </a>
                     <div id="dev-login"></div>
                     <a
@@ -500,7 +520,6 @@
                       Já tenho conta mas estou com problemas para acessar
                     </a>
                   </div>
-                
                 </div>
               </div>
               <div class="col-md-12 col-lg-7 text-center">
