@@ -187,7 +187,18 @@
         top: 50%;
       }
       .recovery-button:hover,
-      
+      .recovery-button:focus {
+        text-decoration: none !important;
+      }
+
+      .download-badges {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
       .chromestore-download {
         max-height: 64px;
         background: #fff;
@@ -498,36 +509,28 @@
                   src="assets/images/reviews.png"
                   alt="Home"
                 />
-                <a
-                  onclick="
-                    window.open(EXTENSION_URL, '_blank');
-                    return false;
-                  "
-                  target="_blank"
-                  ><img
-                    src="assets/icons/chromestore.png"
-                    class="chromestore-download"
-                /></a>
-                <a
-                  onclick="
-                    window.open(FIREFOX_EXTENSION_URL, '_blank');
-                    return false;
-                  "
-                  target="_blank"
-                  ><img
-                    src="assets/icons/firefox-badge.png"
-                    class="chromestore-download"
-                /></a>
-                <a
-                  onclick="
-                    window.open(ANDROID_URL, '_blank');
-                    return false;
-                  "
-                  target="_blank"
-                  ><img
-                    src="assets/icons/google-play-badge.svg"
-                    class="store-button"
-                /></a>
+                <div class="download-badges">
+                  <a
+                    onclick="
+                      window.open(EXTENSION_URL, '_blank');
+                      return false;
+                    "
+                    target="_blank"
+                    ><img
+                      src="assets/icons/chromestore.png"
+                      class="chromestore-download"
+                  /></a>
+                  <a
+                    onclick="
+                      window.open(FIREFOX_EXTENSION_URL, '_blank');
+                      return false;
+                    "
+                    target="_blank"
+                    ><img
+                      src="assets/icons/firefox-badge.png"
+                      class="chromestore-download"
+                  /></a>
+                </div>
                 <!-- <a onclick="window.open(IOS_URL,'_blank'); return false;" target="_blank"><img src="assets/icons/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" class="store-button" /></a> -->
               </div>
             </div>
