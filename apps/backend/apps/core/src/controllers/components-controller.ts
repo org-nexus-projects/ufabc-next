@@ -169,6 +169,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
                 turma: '$turma',
                 vagas: '$vagas',
                 uf_cod_turma: '$uf_cod_turma',
+                component_code: '$codigo',
                 // Extract the teacher name immediately during the push
                 teoria: { $arrayElemAt: ['$teoriaTeacher.name', 0] },
                 pratica: { $arrayElemAt: ['$praticaTeacher.name', 0] },
