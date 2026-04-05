@@ -23,6 +23,7 @@ const enrollmentsListSchema = z.object({
       _id: z.coerce.string(),
       name: z.string(),
       search: z.string(),
+      uf_subject_code: z.array(z.string()).nullish(),
       creditos: z.number().nullish(),
     })
     .nullish(),
