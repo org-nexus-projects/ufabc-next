@@ -5,11 +5,10 @@ import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { JOB_NAMES } from '@/constants.js';
 import { ComponentModel } from '@/models/Component.js';
 
-const connector = new UfabcParserConnector();
-
 export const enrolledStudentsJob = defineJob(JOB_NAMES.ENROLLED_STUDENTS)
   .handler(async ({ manager, app }) => {
     const tenant = currentQuad();
+    const connector = new UfabcParserConnector();
     const enrollments = await connector.getEnrolled();
 
     const enrollmentTasks = Object.entries(enrollments).map(
@@ -50,7 +49,7 @@ export const enrolledStudentsJob = defineJob(JOB_NAMES.ENROLLED_STUDENTS)
 
 export const processEnrollmentJob = defineJob(
   JOB_NAMES.PROCESS_ENROLLED_STUDENTS
-).handler(async ({ job, manager }) => {
+).handler(async ({ job, app }) => {
   const { tenant, componentId, students } = job.data;
   const component = await ComponentModel.findOneAndUpdate(
     {
@@ -65,9 +64,7 @@ export const processEnrollmentJob = defineJob(
   );
 
   if (!component) {
-    await manager.dispatch(JOB_NAMES.CREATE_COMPONENT, {
-      componentId,
-    });
+    app.log.warn({ componentId, tenant }, 'component not found');
     return;
   }
 

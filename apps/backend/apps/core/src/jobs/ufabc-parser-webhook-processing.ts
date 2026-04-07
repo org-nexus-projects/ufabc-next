@@ -45,8 +45,8 @@ export const ufabcParserWebhookProcessingJob = defineJob(
         event,
         deliveryId,
       };
-    } 
-    
+    }
+
     if (event === 'component.created' || event === 'component.updated') {
       await app.manager.dispatch(JOB_NAMES.COMPONENTS_PROCESSING, {
         deliveryId,
@@ -61,5 +61,5 @@ export const ufabcParserWebhookProcessingJob = defineJob(
       };
     }
 
-    throw new Error(`Unsupported event: ${event}`)
+    throw new Error(`Unsupported event: ${event}`);
   });

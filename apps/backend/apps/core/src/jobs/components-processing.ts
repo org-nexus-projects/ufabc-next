@@ -11,7 +11,6 @@ import { ComponentSateSchema } from '@/schemas/v2/webhook/ufabc-parser.js';
 
 import { findOrCreateSubject } from './utils/subject-resolution.js';
 
-
 const teacherCache = new Map<string, Types.ObjectId | null>();
 
 async function findTeacher(
@@ -58,8 +57,9 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
   .handler(async ({ job }) => {
     const { globalTraceId, data } = job.data;
     const { componentKey } = data;
-    const ufabcParserConnector = new UfabcParserConnector(globalTraceId)
-    const component = await ufabcParserConnector.getComponentByKey(componentKey);
+    const ufabcParserConnector = new UfabcParserConnector(globalTraceId);
+    const component =
+      await ufabcParserConnector.getComponentByKey(componentKey);
 
     if (!component) {
       throw new Error('Component not found');
