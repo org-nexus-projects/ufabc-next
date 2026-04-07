@@ -6,7 +6,7 @@ import { JOB_NAMES, PARSER_WEBHOOK_SUPPORTED_EVENTS } from '@/constants.js';
 import { createUfabcParserWebhookAuthHook } from '../hooks/ufabc-parser-webhook-auth.js';
 import { UfabcParserWebhookSchema } from '../schemas/v2/webhook/ufabc-parser.js';
 
-const UfabcParserIncomingWebhookController: FastifyPluginAsyncZod = async (
+export const UfabcParserIncomingWebhookController: FastifyPluginAsyncZod = async (
   app
 ) => {
   const webhookAuthHook = createUfabcParserWebhookAuthHook(app);
@@ -82,10 +82,7 @@ const UfabcParserIncomingWebhookController: FastifyPluginAsyncZod = async (
       return reply.send({
         received: true,
         deliveryId,
-        timestamp: new Date().toISOString(),
       });
     },
   });
 };
-
-export default UfabcParserIncomingWebhookController;

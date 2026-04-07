@@ -27,6 +27,7 @@ export const JOB_NAMES = {
   USER_ENROLLMENTS_UPDATE: 'user_enrollments_update',
   PROCESS_COMPONENTS_ENROLLMENTS: 'process_components_enrollments',
   UFABC_PARSER_WEBHOOK_PROCESSING: 'ufabc_parser_webhook_processing',
+  STUDENT_SYNC_PROCESSING: 'student_sync_processing',
 } as const;
 
 export const REQUESTERS = ['ufabc-next', 'ufabc-cronos'] as const;

@@ -10,6 +10,7 @@ import {
   processEnrollmentJob,
 } from './enrolled-students.js';
 import { enrollmentsProcessingJob } from './enrollments-processing.js';
+import { studentSyncProcessingJob } from './student-sync-processing.js';
 import { ufabcParserWebhookProcessingJob } from './ufabc-parser-webhook-processing.js';
 
 export const jobRegistry = {
@@ -21,6 +22,7 @@ export const jobRegistry = {
   [JOB_NAMES.CREATE_COMPONENT]: createComponentJob,
   [JOB_NAMES.PROCESS_COMPONENTS_ENROLLMENTS]: enrollmentsProcessingJob,
   [JOB_NAMES.UFABC_PARSER_WEBHOOK_PROCESSING]: ufabcParserWebhookProcessingJob,
+  [JOB_NAMES.STUDENT_SYNC_PROCESSING]: studentSyncProcessingJob,
 } as const;
 
 export type JobRegistry = typeof jobRegistry;
