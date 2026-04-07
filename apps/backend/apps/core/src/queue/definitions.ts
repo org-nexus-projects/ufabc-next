@@ -1,11 +1,9 @@
 import type { ConnectionOptions, WorkerOptions } from 'bullmq';
 
-import { processComponentsTeachers } from './jobs/components-teacher.job.js';
 import { sendConfirmationEmail, sendBulkEmail } from './jobs/email.job.js';
 import { processSingleEnrollment } from './jobs/enrollments.job.js';
 import { uploadLogsToS3 } from './jobs/logs.job.js';
 import { postInfoIntoNotionDB } from './jobs/notion-help.job.js';
-import { updateTeachers } from './jobs/teacher-update.job.js';
 import {
   processComponentEnrollment,
   userEnrollmentsUpdate,
@@ -14,10 +12,8 @@ import {
 type JobNames =
   | 'send_email'
   | 'enrollments_update'
-  | 'teacher_update_enrollments'
   | 'sync_components'
   | 'user_enrollments_update'
-  | 'sync_components_teachers'
   | 'logs_upload'
   | 'notion_insert';
 
@@ -50,19 +46,11 @@ export const QUEUE_JOBS: Record<JobNames, WorkerOptions> = {
     removeOnFail: { count: 500, age: 24 * 60 * 60 },
     limiter: { max: 50, duration: 1_000 },
   }),
-  teacher_update_enrollments: withConnection({
-    concurrency: 5,
-  }),
   user_enrollments_update: withConnection({
     concurrency: 5,
     removeOnComplete: { count: 400, age: 0 },
   }),
   sync_components: withConnection({
-    concurrency: 10,
-    removeOnComplete: { count: 1000, age: 24 * 60 * 60 },
-    limiter: { max: 50, duration: 1000 },
-  }),
-  sync_components_teachers: withConnection({
     concurrency: 10,
     removeOnComplete: { count: 1000, age: 24 * 60 * 60 },
     limiter: { max: 50, duration: 1000 },
@@ -94,17 +82,9 @@ export const JOBS = {
     queue: 'user_enrollments_update',
     handler: processComponentEnrollment,
   },
-  TeacherUpdate: {
-    queue: 'teacher_update_enrollments',
-    handler: updateTeachers,
-  },
   EnrollmentSync: {
     queue: 'enrollments_update',
     handler: processSingleEnrollment,
-  },
-  ComponentsTeachersSync: {
-    queue: 'sync_components_teachers',
-    handler: processComponentsTeachers,
   },
   LogsUpload: {
     queue: 'logs_upload',
