@@ -1,5 +1,3 @@
-import { currentQuad } from '@next/common';
-
 import { BaseRequester } from './base-requester.js';
 
 type ComponentId = number;
@@ -18,7 +16,7 @@ type StudentComponent = {
 };
 type UFProcessorEnrollment = Record<StudentRA, StudentComponent[]>;
 
-type UfabcParserComponentV2 = {
+type UfabcParserComponent = {
   componentKey: string;
   subjectKey: string;
   name: string;
@@ -95,14 +93,12 @@ export class UfabcParserConnector extends BaseRequester {
     return response;
   }
 
-  async getComponent(ufComponentId: number) {
-    const season = currentQuad();
-    const response = await this.request<UfabcParserComponentV2[]>(
+  async getComponentByKey(componentKey: string) {
+    const response = await this.request<UfabcParserComponent>(
       '/v2/components',
       {
         query: {
-          ufComponentId,
-          season,
+          componentKey,
         },
       }
     );

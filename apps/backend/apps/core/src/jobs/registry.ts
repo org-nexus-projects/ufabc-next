@@ -4,7 +4,7 @@ import {
   pdfDownloadJob,
   archivesSummaryJob,
 } from './components-archive-processing-flow.js';
-import { createComponentJob } from './components-create.js';
+import { createComponentJob } from './components-processing.js';
 import {
   enrolledStudentsJob,
   processEnrollmentJob,

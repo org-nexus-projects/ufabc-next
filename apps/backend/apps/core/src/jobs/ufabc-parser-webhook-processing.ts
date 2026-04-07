@@ -46,11 +46,20 @@ export const ufabcParserWebhookProcessingJob = defineJob(
         deliveryId,
       };
     } 
+    
+    if (event === 'component.created' || event === 'component.updated') {
+      await app.manager.dispatch(JOB_NAMES.COMPONENTS_PROCESSING, {
+        deliveryId,
+        event,
+        timestamp,
+        data,
+      });
+      return {
+        success: true,
+        event,
+        deliveryId,
+      };
+    }
 
-    return {
-      success: true,
-      event,
-      deliveryId,
-      routedAt: new Date().toISOString(),
-    };
+    throw new Error(`Unsupported event: ${event}`)
   });

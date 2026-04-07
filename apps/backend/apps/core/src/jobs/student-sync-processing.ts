@@ -16,16 +16,19 @@ import {
 const studentSyncedDataSchema = StudentSyncedEventSchema.shape.data;
 const studentFailedDataSchema = StudentFailedEventSchema.shape.data;
 
-
 export const studentSyncProcessingJob = defineJob(
   JOB_NAMES.STUDENT_SYNC_PROCESSING
 )
-  .input(z.object({
-    deliveryId: z.string().uuid().describe('Unique webhook delivery ID'),
-    event: z.enum(['student.synced', 'student.failed']).describe('Event type'),
-    timestamp: z.string().describe('Event timestamp'),
-    data: z.union([studentSyncedDataSchema, studentFailedDataSchema]),
-  }))
+  .input(
+    z.object({
+      deliveryId: z.string().uuid().describe('Unique webhook delivery ID'),
+      event: z
+        .enum(['student.synced', 'student.failed'])
+        .describe('Event type'),
+      timestamp: z.string().describe('Event timestamp'),
+      data: z.union([studentSyncedDataSchema, studentFailedDataSchema]),
+    })
+  )
   .handler(async ({ job, app }) => {
     const { deliveryId, event, data } = job.data;
     const db = app.db;

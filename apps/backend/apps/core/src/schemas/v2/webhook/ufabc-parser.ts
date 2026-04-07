@@ -104,13 +104,27 @@ export const StudentFailedEventSchema = z.object({
   }),
 });
 
+export const ComponentSateSchema = z.object({
+  event: z.union([
+    z.literal('component.created'),
+    z.literal('component.updated'),
+  ]),
+  timestamp: z.string().datetime(),
+  deliveryId: z.string().uuid(),
+  data: z.object({
+    componentKey: z.string().uuid(),
+  }),
+});
+
 export const UfabcParserWebhookSchema = z.discriminatedUnion('event', [
   StudentSyncedEventSchema,
   StudentFailedEventSchema,
+  ComponentSateSchema,
 ]);
 
 export type StudentSyncedEvent = z.infer<typeof StudentSyncedEventSchema>;
 export type StudentFailedEvent = z.infer<typeof StudentFailedEventSchema>;
+export type ComponentStateEvent = z.infer<typeof ComponentSateSchema>;
 export type UfabcParserWebhook = z.infer<typeof UfabcParserWebhookSchema>;
 
 export type ComponentData = z.infer<typeof ComponentSchema>;

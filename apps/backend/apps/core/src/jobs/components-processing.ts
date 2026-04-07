@@ -1,15 +1,16 @@
 import type { Types } from 'mongoose';
 
 import { defineJob } from '@next/queues/client';
+import z from 'zod';
 
 import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
-import { JOB_NAMES } from '@/constants.js';
+import { JOB_NAMES, PARSER_WEBHOOK_SUPPORTED_EVENTS } from '@/constants.js';
 import { ComponentModel, type Component } from '@/models/Component.js';
 import { TeacherModel } from '@/models/Teacher.js';
+import { ComponentSateSchema } from '@/schemas/v2/webhook/ufabc-parser.js';
 
 import { findOrCreateSubject } from './utils/subject-resolution.js';
 
-const connector = new UfabcParserConnector();
 
 const teacherCache = new Map<string, Types.ObjectId | null>();
 
@@ -45,10 +46,20 @@ async function findTeacher(
   return teacherId;
 }
 
-export const createComponentJob = defineJob(JOB_NAMES.CREATE_COMPONENT).handler(
-  async ({ job }) => {
-    const { componentId } = job.data;
-    const [component] = await connector.getComponent(componentId);
+export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
+  .input(
+    z.object({
+      deliveryId: z.string().uuid().describe('Unique webhook delivery ID'),
+      event: z.enum(PARSER_WEBHOOK_SUPPORTED_EVENTS),
+      timestamp: z.string().describe('Event timestamp'),
+      data: ComponentSateSchema.shape.data,
+    })
+  )
+  .handler(async ({ job }) => {
+    const { globalTraceId, data } = job.data;
+    const { componentKey } = data;
+    const ufabcParserConnector = new UfabcParserConnector(globalTraceId)
+    const component = await ufabcParserConnector.getComponentByKey(componentKey);
 
     if (!component) {
       throw new Error('Component not found');
@@ -113,5 +124,4 @@ export const createComponentJob = defineJob(JOB_NAMES.CREATE_COMPONENT).handler(
       success: true,
       component: createdComponent._id,
     };
-  }
-);
+  });
