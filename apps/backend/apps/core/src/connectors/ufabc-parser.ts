@@ -1,4 +1,5 @@
 import { currentQuad } from '@next/common';
+
 import { BaseRequester } from './base-requester.js';
 
 type ComponentId = number;

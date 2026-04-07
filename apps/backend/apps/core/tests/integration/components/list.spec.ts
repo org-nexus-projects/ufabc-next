@@ -5,8 +5,8 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 
 import { buildApp } from '../../../src/app.js';
 import { ComponentModel } from '../../../src/models/Component.js';
-import { TeacherModel } from '../../../src/models/Teacher.js';
 import { SubjectModel } from '../../../src/models/Subject.js';
+import { TeacherModel } from '../../../src/models/Teacher.js';
 
 describe('GET /v2/components', () => {
   let stack: TestStack;

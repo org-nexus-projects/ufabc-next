@@ -1,5 +1,6 @@
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 
+import { currentQuad } from '@next/common';
 import { z } from 'zod';
 
 import { MoodleConnector } from '@/connectors/moodle.js';
@@ -7,9 +8,12 @@ import { JOB_NAMES } from '@/constants.js';
 import { jwtVerifyHook } from '@/hooks/jwt-verify.js';
 import { moodleSession } from '@/hooks/moodle-session.js';
 import { ComponentModel } from '@/models/Component.js';
+import {
+  ListComponent,
+  listComponentsSchema,
+  PopulatedComponent,
+} from '@/schemas/v2/components.js';
 import { getComponentArchives } from '@/services/components-service.js';
-import { currentQuad } from '@next/common';
-import { ListComponent, listComponentsSchema, PopulatedComponent } from '@/schemas/v2/components.js';
 
 const moodleConnector = new MoodleConnector();
 
@@ -202,55 +206,62 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       });
     },
   });
-  
+
   app.route({
     method: 'GET',
     url: '/components',
     preHandler: [jwtVerifyHook],
     schema: {
       querystring: z.object({
-        season: z.string().default(currentQuad())
+        season: z.string().default(currentQuad()),
       }),
       response: {
-        200: listComponentsSchema
-      }
+        200: listComponentsSchema,
+      },
     },
     handler: async (request, reply) => {
       const { season } = request.query;
       const cacheKey = `list:components:${season}`;
-      
-      const cached = await request.redisService.getJSON<ListComponent[]>(cacheKey);
+
+      const cached =
+        await request.redisService.getJSON<ListComponent[]>(cacheKey);
       if (cached) {
         return reply.status(200).send(cached);
       }
-      
+
       const components = await ComponentModel.find({ season })
         .populate<{ teoria: PopulatedComponent['teoria'] }>('teoria', 'name')
         .populate<{ pratica: PopulatedComponent['pratica'] }>('pratica', 'name')
         .populate<{ subject: PopulatedComponent['subject'] }>('subject', 'name')
         .lean<PopulatedComponent[]>({ defaults: false });
-      
-      const mappedComponents = components.map((component): ListComponent => ({
-        subject: component.subject?.name ?? '',
-        turma: component.turma,
-        turno: component.turno,
-        vagas: component.vagas,
-        campus: component.campus,
-        season: component.season,
-        uf_cod_turma: component.uf_cod_turma,
-        identifier: component.identifier ?? null,
-        disciplina_id: component.disciplina_id ?? null,
-        requisicoes: component.alunos_matriculados?.length ?? 0,
-        teoria: component.teoria?.name ?? null,
-        pratica: component.pratica?.name ?? null,
-        teoriaId: component.teoria?._id?.toString() ?? null,
-        praticaId: component.pratica?._id?.toString() ?? null,
-        groupURL: component.groupURL ?? null,
-        subjectId: component.subject?._id?.toString() ?? '',
-      }));
-      
-      await request.redisService.setJSON(cacheKey, mappedComponents as ListComponent[], '1h');
-      
+
+      const mappedComponents = components.map(
+        (component): ListComponent => ({
+          subject: component.subject?.name ?? '',
+          turma: component.turma,
+          turno: component.turno,
+          vagas: component.vagas,
+          campus: component.campus,
+          season: component.season,
+          uf_cod_turma: component.uf_cod_turma,
+          identifier: component.identifier ?? null,
+          disciplina_id: component.disciplina_id ?? null,
+          requisicoes: component.alunos_matriculados?.length ?? 0,
+          teoria: component.teoria?.name ?? null,
+          pratica: component.pratica?.name ?? null,
+          teoriaId: component.teoria?._id?.toString() ?? null,
+          praticaId: component.pratica?._id?.toString() ?? null,
+          groupURL: component.groupURL ?? null,
+          subjectId: component.subject?._id?.toString() ?? '',
+        })
+      );
+
+      await request.redisService.setJSON(
+        cacheKey,
+        mappedComponents as ListComponent[],
+        '1h'
+      );
+
       return reply.status(200).send(mappedComponents);
     },
   });
