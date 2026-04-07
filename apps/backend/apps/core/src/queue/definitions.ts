@@ -1,7 +1,6 @@
 import type { ConnectionOptions, WorkerOptions } from 'bullmq';
 
 import { sendConfirmationEmail, sendBulkEmail } from './jobs/email.job.js';
-import { processSingleEnrollment } from './jobs/enrollments.job.js';
 import { uploadLogsToS3 } from './jobs/logs.job.js';
 import { postInfoIntoNotionDB } from './jobs/notion-help.job.js';
 import {
@@ -11,7 +10,6 @@ import {
 
 type JobNames =
   | 'send_email'
-  | 'enrollments_update'
   | 'sync_components'
   | 'user_enrollments_update'
   | 'logs_upload'
@@ -39,12 +37,6 @@ function withConnection(
 export const QUEUE_JOBS: Record<JobNames, WorkerOptions> = {
   send_email: withConnection({
     removeOnComplete: { age: MONTH },
-  }),
-  enrollments_update: withConnection({
-    concurrency: 10,
-    removeOnComplete: { count: 1000, age: 24 * 60 * 60 },
-    removeOnFail: { count: 500, age: 24 * 60 * 60 },
-    limiter: { max: 50, duration: 1_000 },
   }),
   user_enrollments_update: withConnection({
     concurrency: 5,
@@ -81,10 +73,6 @@ export const JOBS = {
   ProcessComponentsEnrollments: {
     queue: 'user_enrollments_update',
     handler: processComponentEnrollment,
-  },
-  EnrollmentSync: {
-    queue: 'enrollments_update',
-    handler: processSingleEnrollment,
   },
   LogsUpload: {
     queue: 'logs_upload',
