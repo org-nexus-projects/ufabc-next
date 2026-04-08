@@ -41,7 +41,6 @@ export type NonPaginatedComponents = z.infer<
   typeof NonPaginatedComponentsSchema
 >;
 
-
 export const listKickedSchema = {
   params: z.object({
     componentId: z.coerce.number().int(),

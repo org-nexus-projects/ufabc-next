@@ -2,6 +2,8 @@ import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
 import { currentQuad } from '@next/common';
 
+import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
+import { UfabcParserError } from '@/errors/ufabc-parser.js';
 import { StudentModel } from '@/models/Student.js';
 import { UserModel, type User } from '@/models/User.js';
 import { completeUserSchema, type Auth } from '@/schemas/auth.js';
@@ -13,8 +15,6 @@ import {
   sendRecoveryEmailSchema,
   validateUserEmailSchema,
 } from '@/schemas/user.js';
-import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
-import { UfabcParserError } from '@/errors/ufabc-parser.js';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   const usersCache = app.cache<Auth>();
@@ -138,15 +138,19 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       try {
         const student = await ufabcParserConnector.getStudent(ra);
-        const hasUfabcContract = await ufabcParserConnector.getTeacher(ra);
+        const hasUfabcContract = await ufabcParserConnector.getTeacher(
+          student.login
+        );
         if (hasUfabcContract) {
-          return reply.forbidden(
-            'O aluno não pode ter contrato com a UFABC.'
-          );
+          return reply.forbidden('O aluno não pode ter contrato com a UFABC.');
         }
-        const emailFromStudent = student.email.find(e => e.includes('@aluno.ufabc.edu.br'));
+        const emailFromStudent = student.email.find((e) =>
+          e.includes('@aluno.ufabc.edu.br')
+        );
         if (emailFromStudent !== email) {
-          return reply.forbidden('O email fornecido não corresponde ao email do aluno.');
+          return reply.forbidden(
+            'O email fornecido não corresponde ao email do aluno.'
+          );
         }
       } catch (error: unknown) {
         if (error instanceof UfabcParserError) {
@@ -275,21 +279,25 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const { ra } = request.query;
 
       try {
-        const student = await ufabcParserConnector.getStudent(ra);  
-        await ufabcParserConnector.getTeacher(student.login)
-        const email = student.email.find(e => e.includes('@aluno.ufabc.edu.br'));
+        const student = await ufabcParserConnector.getStudent(ra);
+        await ufabcParserConnector.getTeacher(student.login);
+        const email = student.email.find((e) =>
+          e.includes('@aluno.ufabc.edu.br')
+        );
         return reply.send({ email: email! });
       } catch (error) {
         if (error instanceof UfabcParserError) {
           if (error.code === 'UFP0015') {
-            return reply.badRequest('O RA digitado não existe. Por favor, tente novamente');
+            return reply.badRequest(
+              'O RA digitado não existe. Por favor, tente novamente'
+            );
           }
-          
+
           if (error.code === 'UFP0031') {
             return reply.forbidden(
               'O aluno não pode ter contrato de trabalho com a UFABC'
             );
-          }  
+          }
         }
         return reply.internalServerError();
       }
