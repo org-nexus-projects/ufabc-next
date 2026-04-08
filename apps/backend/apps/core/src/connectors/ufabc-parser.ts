@@ -119,4 +119,22 @@ export class UfabcParserConnector extends BaseRequester {
     });
     return response;
   }
+  
+  async getTeacher(teacherKey: string) {
+    const response = await this.request<{
+      teacherKey: string;
+      name: string;
+      email: string;
+      room: string
+      metadata: Record<string, unknown>;
+    }>(
+      '/v2/teachers',
+      {
+        query: {
+          teacherKey,
+        },
+      }
+    );
+    return response;
+  }
 }

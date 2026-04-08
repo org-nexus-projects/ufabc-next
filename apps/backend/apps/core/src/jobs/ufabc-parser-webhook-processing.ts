@@ -7,11 +7,13 @@ import {
   ComponentSateSchema,
   StudentFailedEventSchema,
   StudentSyncedEventSchema,
+  TeacherCreatedEventSchema,
 } from '../schemas/v2/webhook/ufabc-parser.js';
 
 const studentSyncedDataSchema = StudentSyncedEventSchema.shape.data;
 const studentFailedDataSchema = StudentFailedEventSchema.shape.data;
 const componentStateDataSchema = ComponentSateSchema.shape.data;
+const teacherCreatedDataSchema = TeacherCreatedEventSchema.shape.data;
 
 const webhookJobSchema = z.object({
   deliveryId: z.string().uuid().describe('Unique webhook delivery ID'),
@@ -21,6 +23,7 @@ const webhookJobSchema = z.object({
     studentSyncedDataSchema,
     studentFailedDataSchema,
     componentStateDataSchema,
+    teacherCreatedDataSchema,
   ]),
 });
 
@@ -61,6 +64,20 @@ export const ufabcParserWebhookProcessingJob = defineJob(
         event,
         timestamp,
         data: data as z.infer<typeof componentStateDataSchema>,
+      });
+      return {
+        success: true,
+        event,
+        deliveryId,
+      };
+    }
+    
+    if (event === 'teacher.created') {
+      await app.manager.dispatch(JOB_NAMES.TEACHER_CREATED, {
+        deliveryId,
+        event,
+        timestamp,
+        data: data as z.infer<typeof teacherCreatedDataSchema>,
       });
       return {
         success: true,
