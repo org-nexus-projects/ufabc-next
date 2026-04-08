@@ -1,5 +1,6 @@
 import { currentQuad } from '@next/common';
 
+import { UfabcParserError } from '@/errors/ufabc-parser.js';
 import { sigHistory, type SigHistory } from '@/schemas/history.js';
 
 import { BaseRequester } from './base-requester.js';
@@ -244,5 +245,65 @@ export class UfabcParserConnector extends BaseRequester {
       }
     );
     return response;
+  }
+
+  async getStudent(ra: string) {
+    const headers = new Headers();
+    headers.set('requester-key', process.env.UFABC_PARSER_REQUESTER_KEY!);
+
+    try {
+      const response = await this.request<{
+        studentKey: string;
+        login: string;
+        email: string[];
+        metadata: Record<string, unknown>;
+        ra: string;
+      }>(`/v2/students/${ra}`, {
+        headers,
+      });
+      return response;
+    } catch (error: any) {
+      if (error.status === 404) {
+        throw new UfabcParserError({
+          status: 404,
+          code: 'UFP0015',
+          title: 'Student not found',
+          description: 'O RA digitado não existe.',
+        });
+      }
+      if (error.status === 403) {
+        throw new UfabcParserError({
+          status: 403,
+          code: 'UFP0031',
+          title: 'Teacher contract',
+          description: 'O aluno não pode ter contrato com a UFABC.',
+        });
+      }
+      throw error;
+    }
+  }
+
+  async getTeacher(login: string) {
+    const headers = new Headers();
+    headers.set('requester-key', process.env.UFABC_PARSER_REQUESTER_KEY!);
+
+    try {
+      const response = await this.request<{
+        teacherKey: string;
+        name: string;
+        aliases: string[];
+        email: string[];
+        room: string | null;
+        metadata: Record<string, unknown>;
+      }>(`/v2/teachers/login/${login}`, {
+        headers,
+      });
+      return response;
+    } catch (error: any) {
+      if (error.status === 404) {
+        return null;
+      }
+      throw error;
+    }
   }
 }
