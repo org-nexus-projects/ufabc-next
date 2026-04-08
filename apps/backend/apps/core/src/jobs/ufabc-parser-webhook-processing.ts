@@ -4,18 +4,24 @@ import { z } from 'zod';
 import { JOB_NAMES, PARSER_WEBHOOK_SUPPORTED_EVENTS } from '@/constants.js';
 
 import {
+  ComponentSateSchema,
   StudentFailedEventSchema,
   StudentSyncedEventSchema,
 } from '../schemas/v2/webhook/ufabc-parser.js';
 
 const studentSyncedDataSchema = StudentSyncedEventSchema.shape.data;
 const studentFailedDataSchema = StudentFailedEventSchema.shape.data;
+const componentStateDataSchema = ComponentSateSchema.shape.data;
 
 const webhookJobSchema = z.object({
   deliveryId: z.string().uuid().describe('Unique webhook delivery ID'),
   event: z.enum(PARSER_WEBHOOK_SUPPORTED_EVENTS).describe('Event type'),
   timestamp: z.string().describe('Event timestamp'),
-  data: z.union([studentSyncedDataSchema, studentFailedDataSchema]),
+  data: z.union([
+    studentSyncedDataSchema,
+    studentFailedDataSchema,
+    componentStateDataSchema,
+  ]),
 });
 
 export const ufabcParserWebhookProcessingJob = defineJob(
@@ -38,7 +44,9 @@ export const ufabcParserWebhookProcessingJob = defineJob(
         deliveryId,
         event,
         timestamp,
-        data,
+        data: data as
+          | z.infer<typeof studentSyncedDataSchema>
+          | z.infer<typeof studentFailedDataSchema>,
       });
       return {
         success: true,
@@ -52,7 +60,7 @@ export const ufabcParserWebhookProcessingJob = defineJob(
         deliveryId,
         event,
         timestamp,
-        data,
+        data: data as z.infer<typeof componentStateDataSchema>,
       });
       return {
         success: true,

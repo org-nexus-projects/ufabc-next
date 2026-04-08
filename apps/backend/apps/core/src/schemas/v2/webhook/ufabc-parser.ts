@@ -116,7 +116,7 @@ export const ComponentSateSchema = z.object({
   }),
 });
 
-export const UfabcParserWebhookSchema = z.discriminatedUnion('event', [
+export const UfabcParserWebhookSchema = z.union([
   StudentSyncedEventSchema,
   StudentFailedEventSchema,
   ComponentSateSchema,

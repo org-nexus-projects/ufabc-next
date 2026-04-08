@@ -19,7 +19,7 @@ export const jobRegistry = {
   [JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_SUMMARY]: archivesSummaryJob,
   [JOB_NAMES.ENROLLED_STUDENTS]: enrolledStudentsJob,
   [JOB_NAMES.PROCESS_ENROLLED_STUDENTS]: processEnrollmentJob,
-  [JOB_NAMES.CREATE_COMPONENT]: createComponentJob,
+  [JOB_NAMES.COMPONENTS_PROCESSING]: createComponentJob,
   [JOB_NAMES.PROCESS_COMPONENTS_ENROLLMENTS]: enrollmentsProcessingJob,
   [JOB_NAMES.UFABC_PARSER_WEBHOOK_PROCESSING]: ufabcParserWebhookProcessingJob,
   [JOB_NAMES.STUDENT_SYNC_PROCESSING]: studentSyncProcessingJob,
