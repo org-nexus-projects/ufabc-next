@@ -260,6 +260,9 @@ export class UfabcParserConnector extends BaseRequester {
         ra: string;
       }>(`/v2/students/${ra}`, {
         headers,
+        query: {
+          simplified: true
+        }
       });
       return response;
     } catch (error: any) {
