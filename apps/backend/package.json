@@ -12,7 +12,11 @@
     "start:watch": "turbo run start:watch",
     "test": "turbo run test",
     "lint": "pnpm dlx ultracite fix",
-    "deps-check": "pnpm dlx taze -r"
+    "deps-check": "pnpm dlx taze -r",
+    "db:teachers:preview": "cd apps/core && tsx src/scripts/db/maintenance/deduplicate-teachers-preview.ts",
+    "db:teachers:backup": "cd apps/core && tsx src/scripts/db/maintenance/backup-teachers.ts",
+    "db:teachers:deduplicate": "cd apps/core && tsx src/scripts/db/maintenance/deduplicate-teachers.ts",
+    "db:teachers:rollback": "cd apps/core && tsx src/scripts/db/maintenance/rollback-teachers.ts"
   },
   "devDependencies": {
     "oxfmt": "^0.22.0",
