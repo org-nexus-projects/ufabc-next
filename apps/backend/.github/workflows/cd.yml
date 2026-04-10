@@ -68,6 +68,10 @@ jobs:
             docker stop unext-backend
             docker rm unext-backend
             docker run --restart unless-stopped -d --name unext-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.AWS_ACCOUNT_ID }}.${{ secrets.ECR_REGISTRY }}/unext-backend-ecr:${{ github.sha }}
+            docker container prune -f
+            docker image prune -af
+            docker builder prune -af
+
       - name: 🏗️ Revoke runner ip address
         if: ${{ always() && steps.whitelist-ip.conclusion == 'success' }}
         run: |
