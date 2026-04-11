@@ -51,3 +51,4 @@ scripts/docker/localstack
 .cursor/
 !*.secret
 .agents/
+.scripts

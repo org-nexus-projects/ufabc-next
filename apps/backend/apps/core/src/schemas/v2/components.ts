@@ -1,6 +1,7 @@
-import { Component } from '@/models/Component.js';
 import { Types } from 'mongoose';
 import { z } from 'zod';
+
+import { Component } from '@/models/Component.js';
 
 export const componentArchiveSchema = z
   .object({
@@ -10,7 +11,10 @@ export const componentArchiveSchema = z
   })
   .array();
 
-export interface PopulatedComponent extends Omit<Component, 'teoria' | 'pratica' | 'subject'> {
+export interface PopulatedComponent extends Omit<
+  Component,
+  'teoria' | 'pratica' | 'subject'
+> {
   teoria: { _id: Types.ObjectId; name: string } | null;
   pratica: { _id: Types.ObjectId; name: string } | null;
   subject: { _id: Types.ObjectId; name: string } | null;

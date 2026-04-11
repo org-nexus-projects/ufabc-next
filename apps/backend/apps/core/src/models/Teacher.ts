@@ -1,87 +1,76 @@
 import { type InferSchemaType, Schema, model } from 'mongoose';
-import stringSimilarity from 'string-similarity';
 
-const normalizeName = (str: string) => {
+export function normalizeName(str: string): string {
   return str
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // remove accents
-    .replace(/\s+/g, ' ') // normalize spaces
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
     .trim();
-};
+}
+
+function levenshteinDistance(a: string, b: string): number {
+  const matrix: number[][] = [];
+
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+  }
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
+
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+
+  return matrix[b.length][a.length];
+}
+
+export function findBestLevenshteinMatch(
+  name: string,
+  candidates: TeacherDocument[],
+  threshold = 7
+): TeacherDocument | null {
+  const normalizedName = normalizeName(name);
+  let bestMatch: TeacherDocument | null = null;
+  let bestDistance = Infinity;
+
+  for (const teacher of candidates) {
+    const teacherNorm = normalizeName(teacher.name);
+    const distance = levenshteinDistance(normalizedName, teacherNorm);
+    if (distance <= threshold && distance < bestDistance) {
+      bestDistance = distance;
+      bestMatch = teacher;
+    }
+  }
+
+  return bestMatch;
+}
 
 const teacherSchema = new Schema(
   {
     name: { type: String, required: true },
     alias: { type: [String], default: [] },
+    siape: { type: String, required: false },
+    externalKey: { type: String, required: false },
   },
   {
     timestamps: true,
-    statics: {
-      findByFuzzName: async function (name: string) {
-        const normalizedName = normalizeName(name);
-
-        // First try exact match
-        const exactMatch = await this.findOne({
-          $or: [{ name: normalizedName }, { alias: normalizedName }],
-        });
-
-        if (exactMatch) {
-          return exactMatch;
-        }
-
-        // Then try text search with normalized name parts
-        const nameParts = normalizedName.split(' ').filter(Boolean);
-        const textSearchResults = await this.find(
-          { $text: { $search: nameParts.join(' ') } },
-          { score: { $meta: 'textScore' } }
-        )
-          .sort({ score: { $meta: 'textScore' } })
-          .limit(5); // Get top 5 matches
-
-        if (textSearchResults.length === 0) {
-          return null;
-        }
-
-        // Compare normalized forms for best match
-        const bestMatch = textSearchResults.reduce<any>(
-          (best, teacher) => {
-            const teacherNormalizedName = normalizeName(teacher.name);
-            const similarity = stringSimilarity.compareTwoStrings(
-              normalizedName,
-              teacherNormalizedName
-            );
-
-            // Also check aliases
-            const aliasSimilarity = teacher.alias.reduce((max, alias) => {
-              const aliasSim = stringSimilarity.compareTwoStrings(
-                normalizedName,
-                normalizeName(alias)
-              );
-              return Math.max(max, aliasSim);
-            }, 0);
-
-            const maxSimilarity = Math.max(similarity, aliasSimilarity);
-            return maxSimilarity > best.similarity
-              ? { teacher, similarity: maxSimilarity }
-              : best;
-          },
-          { teacher: null, similarity: 0 }
-        );
-
-        // Lower threshold since we're already filtering via text search
-        if (bestMatch.similarity > 0.6) {
-          return bestMatch.teacher;
-        }
-
-        return null;
-      },
-    },
   }
 );
 
-teacherSchema.pre('save', function (next) {
-  if (this.isNew) {
+teacherSchema.pre('save', function () {
+  if (this.isNew || this.isModified('name')) {
     this.name = this.name.toLowerCase();
   }
 });
@@ -93,11 +82,20 @@ teacherSchema.index(
   },
   {
     weights: {
-      name: 10, // Name matches are more important
-      alias: 5, // Alias matches are less important
+      name: 10,
+      alias: 5,
     },
     name: 'TeacherTextSearch',
   }
+);
+
+teacherSchema.index(
+  { siape: 1 },
+  { unique: true, name: 'TeacherSiapeIndex', sparse: true }
+);
+teacherSchema.index(
+  { externalKey: 1 },
+  { unique: true, name: 'TeacherExternalKeyIndex', sparse: true }
 );
 
 export type Teacher = InferSchemaType<typeof teacherSchema>;

@@ -23,10 +23,12 @@ export const JOB_NAMES = {
   COMPONENTS_ARCHIVES_PROCESSING_PDF: 'components_archives_processing_pdf',
   ENROLLED_STUDENTS: 'enrolled_students',
   PROCESS_ENROLLED_STUDENTS: 'process_enrolled_students',
-  CREATE_COMPONENT: 'create_component',
+  COMPONENTS_PROCESSING: 'components_processing',
   USER_ENROLLMENTS_UPDATE: 'user_enrollments_update',
   PROCESS_COMPONENTS_ENROLLMENTS: 'process_components_enrollments',
   UFABC_PARSER_WEBHOOK_PROCESSING: 'ufabc_parser_webhook_processing',
+  STUDENT_SYNC_PROCESSING: 'student_sync_processing',
+  TEACHER_CREATED: 'teacher_created',
 } as const;
 
 export const REQUESTERS = ['ufabc-next', 'ufabc-cronos'] as const;
@@ -37,9 +39,15 @@ export const MAX_LOG_SIZE = 600 * 1024;
 export const PARSER_WEBHOOK_EVENTS = {
   STUDENT_SYNCED: 'student.synced',
   STUDENT_FAILED: 'student.failed',
+  COMPONENT_CREATED: 'component.created',
+  COMPONENT_UPDATED: 'component.updated',
+  TEACHER_CREATED: 'teacher.created',
 } as const;
 
 export const PARSER_WEBHOOK_SUPPORTED_EVENTS = [
   PARSER_WEBHOOK_EVENTS.STUDENT_SYNCED,
   PARSER_WEBHOOK_EVENTS.STUDENT_FAILED,
+  PARSER_WEBHOOK_EVENTS.COMPONENT_CREATED,
+  PARSER_WEBHOOK_EVENTS.COMPONENT_UPDATED,
+  PARSER_WEBHOOK_EVENTS.TEACHER_CREATED,
 ] as const;

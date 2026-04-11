@@ -14,7 +14,10 @@
     "start": "node --env-file=.env.prod dist/server.js",
     "start:local": "pnpm build && node --env-file=.env.prod dist/server.js",
     "test": "vitest",
-    "test:watch": "vitest watch"
+    "test:watch": "vitest watch",
+    "db:deduplicate:preview": "tsx src/scripts/db/maintenance/deduplicate-preview.ts",
+    "db:deduplicate:backup": "tsx src/scripts/db/maintenance/backup-pre-deduplication.ts",
+    "db:deduplicate": "tsx src/scripts/db/maintenance/deduplicate.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
@@ -52,7 +55,6 @@
     "ms": "catalog:",
     "ofetch": "catalog:",
     "pino": "catalog:",
-    "string-similarity": "catalog:",
     "ulidx": "catalog:",
     "zod": "catalog:",
     "zod-openapi": "catalog:",
@@ -66,7 +68,6 @@
     "@types/lodash-es": "catalog:",
     "@types/ms": "catalog:",
     "@types/node": "catalog:",
-    "@types/string-similarity": "catalog:",
     "fastify-tsconfig": "catalog:",
     "pino-pretty": "catalog:",
     "rimraf": "catalog:",
