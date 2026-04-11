@@ -5,7 +5,7 @@ import z from 'zod';
 
 import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { JOB_NAMES, PARSER_WEBHOOK_SUPPORTED_EVENTS } from '@/constants.js';
-import { ComponentModel, type Component } from '@/models/Component.js';
+import { ComponentModel } from '@/models/Component.js';
 import { TeacherModel, findBestLevenshteinMatch, normalizeName } from '@/models/Teacher.js';
 import { ComponentSateSchema } from '@/schemas/v2/webhook/ufabc-parser.js';
 
@@ -75,25 +75,24 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
 
     const subjectCode = component.ufComponentCode.split('-')[0];
     const subject = await findOrCreateSubject(
-      component.subjectKey,
+      component.name,
+      component.credits,
       subjectCode,
-      component.name
     );
 
-    const teoriaTeacherId = await findTeacher(component.teachers.professor);
-    const praticaTeacherId = await findTeacher(component.teachers.practice);
+    const main = component.teachers.find((teacher) => teacher.role === 'professor');
+    const practice = component.teachers.find((teacher) => teacher.role === 'practice');
+  
+    const teoriaTeacherId = await findTeacher(main?.name ?? null);
+    const praticaTeacherId = await findTeacher(practice?.name ?? null);
 
-    const identifier = `${component.season}-${component.ufClassroomCode}`;
-
-    const existingComponent = await ComponentModel.findOne({ identifier });
+    const existingComponent = await ComponentModel.findOne({ uf_cod_turma: component.ufClassroomCode });
 
     if (existingComponent) {
       const updated = await existingComponent.updateOne({
         $set: {
-          name: component.name,
+          disciplina: subject.name,
           credits: component.credits,
-          year: component.year,
-          quad: component.quad,
           turno: component.shift,
           turma: component.componentClass,
           vagas: component.vacancies,
@@ -102,26 +101,24 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
           pratica: praticaTeacherId ?? undefined,
           tpi: [component.tpi.theory, component.tpi.practice, component.tpi.individual],
           campus: component.campus,
-          season: component.season,
           kind: 'api',
         },
       });
 
-      return { component: existingComponent, updated };
+      return { componentId: updated._id, message: 'Component updated successfully' };
     }
 
+    const [year, quad] = component.season.split(':').map(Number);
     const newComponent = await ComponentModel.create({
-      identifier,
       uf_cod_turma: component.ufClassroomCode,
-      year: component.year,
-      quad: component.quad,
+      year,
+      quad,
       subject: subject._id,
-      name: component.name,
-      credits: component.credits,
+      disciplina: subject.name ?? component.name,
       turno: component.shift,
       turma: component.componentClass,
       vagas: component.vacancies,
-      obrigatorias: [],
+      obrigatorias: component.courses?.filter(c => c.category === 'mandatory').map(c => c.UFCourseId) ?? [],
       codigo: component.ufComponentCode,
       teoria: teoriaTeacherId ?? undefined,
       pratica: praticaTeacherId ?? undefined,
