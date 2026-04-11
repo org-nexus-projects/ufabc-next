@@ -123,7 +123,7 @@ export const TeacherCreatedEventSchema = z.object({
   data: z.object({
     teacherKey: z.string().uuid(),
     name: z.string(),
-    siape: z.string()
+    siape: z.string(),
   }),
 });
 
@@ -131,7 +131,7 @@ export const UfabcParserWebhookSchema = z.union([
   StudentSyncedEventSchema,
   StudentFailedEventSchema,
   ComponentSateSchema,
-  TeacherCreatedEventSchema
+  TeacherCreatedEventSchema,
 ]);
 
 export type StudentSyncedEvent = z.infer<typeof StudentSyncedEventSchema>;

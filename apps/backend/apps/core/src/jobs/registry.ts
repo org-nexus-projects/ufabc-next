@@ -11,8 +11,8 @@ import {
 } from './enrolled-students.js';
 import { enrollmentsProcessingJob } from './enrollments-processing.js';
 import { studentSyncProcessingJob } from './student-sync-processing.js';
-import { ufabcParserWebhookProcessingJob } from './ufabc-parser-webhook-processing.js';
 import { teacherCreatedJob } from './teacher-created.js';
+import { ufabcParserWebhookProcessingJob } from './ufabc-parser-webhook-processing.js';
 
 export const jobRegistry = {
   [JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING]: componentsArchivesProcessingJob,

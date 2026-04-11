@@ -89,8 +89,14 @@ teacherSchema.index(
   }
 );
 
-teacherSchema.index({ siape: 1 }, { unique: true, name: 'TeacherSiapeIndex', sparse: true });
-teacherSchema.index({ externalKey: 1 }, { unique: true, name: 'TeacherExternalKeyIndex', sparse: true });
+teacherSchema.index(
+  { siape: 1 },
+  { unique: true, name: 'TeacherSiapeIndex', sparse: true }
+);
+teacherSchema.index(
+  { externalKey: 1 },
+  { unique: true, name: 'TeacherExternalKeyIndex', sparse: true }
+);
 
 export type Teacher = InferSchemaType<typeof teacherSchema>;
 export type TeacherDocument = ReturnType<(typeof TeacherModel)['hydrate']>;

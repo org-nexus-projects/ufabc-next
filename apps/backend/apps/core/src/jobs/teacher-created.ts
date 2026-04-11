@@ -1,8 +1,14 @@
-import { JOB_NAMES, PARSER_WEBHOOK_SUPPORTED_EVENTS } from '@/constants.js';
-import { TeacherModel, normalizeName, findBestLevenshteinMatch, type TeacherDocument } from '@/models/Teacher.js';
-import { TeacherCreatedEventSchema } from '@/schemas/v2/webhook/ufabc-parser.js';
 import { defineJob } from '@next/queues/client';
 import z from 'zod';
+
+import { JOB_NAMES, PARSER_WEBHOOK_SUPPORTED_EVENTS } from '@/constants.js';
+import {
+  TeacherModel,
+  normalizeName,
+  findBestLevenshteinMatch,
+  type TeacherDocument,
+} from '@/models/Teacher.js';
+import { TeacherCreatedEventSchema } from '@/schemas/v2/webhook/ufabc-parser.js';
 
 async function updateTeacherAndLink(
   teacher: TeacherDocument,
@@ -22,7 +28,9 @@ async function updateTeacherAndLink(
 
   await teacher.updateOne({
     $set: updates,
-    $addToSet: { alias: { $each: [normalizeName(data.name), data.name.toLowerCase()] } },
+    $addToSet: {
+      alias: { $each: [normalizeName(data.name), data.name.toLowerCase()] },
+    },
   });
   return teacher;
 }
@@ -45,7 +53,9 @@ export const teacherCreatedJob = defineJob(JOB_NAMES.TEACHER_CREATED)
       app.log.info({ teacherKey }, 'Updating teacher by externalKey');
       await teacher.updateOne({
         $set: { name, siape },
-        $addToSet: { alias: { $each: [normalizeName(name), name.toLowerCase()] } },
+        $addToSet: {
+          alias: { $each: [normalizeName(name), name.toLowerCase()] },
+        },
       });
       return { teacher };
     }
@@ -67,7 +77,10 @@ export const teacherCreatedJob = defineJob(JOB_NAMES.TEACHER_CREATED)
     const allTeachers = await TeacherModel.find({});
     const levMatch = findBestLevenshteinMatch(name, allTeachers);
     if (levMatch) {
-      app.log.info({ name, matchId: levMatch._id }, 'Updating teacher by Levenshtein match');
+      app.log.info(
+        { name, matchId: levMatch._id },
+        'Updating teacher by Levenshtein match'
+      );
       await updateTeacherAndLink(levMatch, { name, siape, teacherKey });
       return { teacher: levMatch };
     }

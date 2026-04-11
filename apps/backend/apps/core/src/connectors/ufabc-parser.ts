@@ -1,4 +1,5 @@
 import { UfabcParserError } from '@/errors/ufabc-parser.js';
+
 import { BaseRequester } from './base-requester.js';
 
 type ComponentId = number;
@@ -120,7 +121,7 @@ export class UfabcParserConnector extends BaseRequester {
     });
     return response;
   }
-  
+
   async getStudent(ra: string) {
     const headers = new Headers();
     headers.set('requester-key', process.env.UFABC_PARSER_REQUESTER_KEY!);
@@ -135,8 +136,8 @@ export class UfabcParserConnector extends BaseRequester {
       }>(`/v2/students/${ra}`, {
         headers,
         query: {
-          simplified: true
-        }
+          simplified: true,
+        },
       });
       return response;
     } catch (error: any) {

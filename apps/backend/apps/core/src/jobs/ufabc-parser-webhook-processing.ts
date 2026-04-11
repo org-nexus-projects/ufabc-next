@@ -71,7 +71,7 @@ export const ufabcParserWebhookProcessingJob = defineJob(
         deliveryId,
       };
     }
-    
+
     if (event === 'teacher.created') {
       await app.manager.dispatch(JOB_NAMES.TEACHER_CREATED, {
         deliveryId,
