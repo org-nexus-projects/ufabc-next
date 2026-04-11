@@ -87,9 +87,6 @@ catalogs:
     '@types/node':
       specifier: ^22.19.3
       version: 22.19.3
-    '@types/string-similarity':
-      specifier: ^4.0.2
-      version: 4.0.2
     bullmq:
       specifier: ^5.66.2
       version: 5.66.2
@@ -147,9 +144,6 @@ catalogs:
     rimraf:
       specifier: ^6.1.2
       version: 6.1.2
-    string-similarity:
-      specifier: ^4.0.4
-      version: 4.0.4
     testcontainers:
       specifier: ^10.28.0
       version: 10.28.0
@@ -320,9 +314,6 @@ importers:
       pino:
         specifier: 'catalog:'
         version: 10.1.0
-      string-similarity:
-        specifier: 'catalog:'
-        version: 4.0.4
       ulidx:
         specifier: 'catalog:'
         version: 2.4.1
@@ -357,9 +348,6 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.3
-      '@types/string-similarity':
-        specifier: 'catalog:'
-        version: 4.0.2
       fastify-tsconfig:
         specifier: 'catalog:'
         version: 2.0.0
@@ -1663,9 +1651,6 @@ packages:
 
   '@types/statuses@2.0.6':
     resolution: {integrity: sha512-xMAgYwceFhRA2zY+XbEA7mxYbA093wdiW8Vu6gZPGWy9cmOyU9XesH1tNcEWsKFd5Vzrqx5T3D38PWx1FIIXkA==}
-
-  '@types/string-similarity@4.0.2':
-    resolution: {integrity: sha512-LkJQ/jsXtCVMK+sKYAmX/8zEq+/46f1PTQw7YtmQwb74jemS1SlNLmARM2Zml9DgdDTWKAtc5L13WorpHPDjDA==}
 
   '@types/webidl-conversions@7.0.3':
     resolution: {integrity: sha512-CiJJvcRtIgzadHCYXw7dqEnMNRjhGZlYK05Mj9OyktqV8uVT8fD2BFOB7S1uwBE3Kj2Z+4UyPmFw/Ixgw/LAlA==}
@@ -3161,10 +3146,6 @@ packages:
 
   strict-event-emitter@0.5.1:
     resolution: {integrity: sha512-vMgjE/GGEPEFnhFub6pa4FmJBRBVOLpIII2hvCZ8Kzb7K0hlHo7mQv6xYrBvCL2LtAIBwFUK8wvuJgTVSQ5MFQ==}
-
-  string-similarity@4.0.4:
-    resolution: {integrity: sha512-/q/8Q4Bl4ZKAPjj8WerIBJWALKkaPRfrvhfF8k/B23i4nzrlRj2/go1m90In7nG/3XDSbOo0+pu6RvCTM9RGMQ==}
-    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   string-width@4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}
@@ -5227,8 +5208,6 @@ snapshots:
   '@types/statuses@2.0.6':
     optional: true
 
-  '@types/string-similarity@4.0.2': {}
-
   '@types/webidl-conversions@7.0.3': {}
 
   '@types/whatwg-url@13.0.0':
@@ -6818,8 +6797,6 @@ snapshots:
       - bare-abort-controller
 
   strict-event-emitter@0.5.1: {}
-
-  string-similarity@4.0.4: {}
 
   string-width@4.2.3:
     dependencies:
