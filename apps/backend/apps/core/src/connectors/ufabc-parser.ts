@@ -183,4 +183,19 @@ export class UfabcParserConnector extends BaseRequester {
       throw error;
     }
   }
+
+  async sendTeachers(teachers: string[]) {
+    const headers = new Headers();
+    headers.set('requester-key', process.env.UFABC_PARSER_REQUESTER_KEY!);
+
+    try {
+      await this.request(`/v2/teachers/routines/configure/manual`, {
+        headers,
+        method: 'POST',
+        body: teachers,
+      });
+    } catch (error: any) {
+      throw error;
+    }
+  }
 }

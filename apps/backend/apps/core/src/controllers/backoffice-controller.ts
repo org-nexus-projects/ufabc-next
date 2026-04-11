@@ -3,6 +3,8 @@ import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 
 import { adminHook } from '@/hooks/admin.js';
+import { TeacherModel } from '@/models/Teacher.js';
+import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 
 const backofficeController: FastifyPluginAsyncZod = async (app) => {
   app.route({
@@ -45,6 +47,17 @@ const backofficeController: FastifyPluginAsyncZod = async (app) => {
       await app.redis.del(key);
       return reply.status(200).send({ message: 'Key deleted' });
     },
+  });
+  
+  app.post('/teachers/repopulate', async (request, reply) => {
+    const teachersModel = await TeacherModel.find()
+    const teachers = teachersModel.map(teacher => teacher.name)
+    const ufabcParserConnector = new UfabcParserConnector(request.id)
+    await ufabcParserConnector.sendTeachers(teachers)
+    return reply.status(200).send({
+      count: teachers.length,
+    message: 'starting repopulate'
+    })
   });
 };
 
