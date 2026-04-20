@@ -42,6 +42,28 @@
       ],
       "cache": false,
       "persistent": true
+    },
+    "dev:staging": {
+      "env": [
+        "VITE_APP_ENV",
+        "VITE_APP_BASE_URL",
+        "VITE_API_BASE_URL",
+        "VITE_PARSER_API_BASE_URL",
+        "VITE_MIXPANEL_TOKEN"
+      ],
+      "cache": false,
+      "persistent": true
+    },
+    "dev:prod": {
+      "env": [
+        "VITE_APP_ENV",
+        "VITE_APP_BASE_URL",
+        "VITE_API_BASE_URL",
+        "VITE_PARSER_API_BASE_URL",
+        "VITE_MIXPANEL_TOKEN"
+      ],
+      "cache": false,
+      "persistent": true
     }
   }
 }
