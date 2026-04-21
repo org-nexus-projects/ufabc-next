@@ -21,7 +21,7 @@ import {
 } from './stats';
 import { user, userGrades } from './users';
 
-const baseUrl = 'https://api.v2.ufabcnext.com';
+const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
 export const handlers = [
   http.get(`${baseUrl}/users/info`, () => HttpResponse.json(user)),
@@ -61,10 +61,10 @@ export const handlers = [
   http.get(`${baseUrl}/subjects/search`, () =>
     HttpResponse.json(subjectSearch),
   ),
-  http.delete(`${baseUrl}/users/me/delete`, () => HttpResponse.json({})),
-  http.post(`${baseUrl}/account/confirm`, () => HttpResponse.json({})),
-  http.post(`${baseUrl}/users/me/recover`, () => HttpResponse.json({})),
-  http.post(`${baseUrl}/users/me/resend`, () => HttpResponse.json({})),
+  http.delete(`${baseUrl}/users/remove`, () => HttpResponse.json({})),
+  http.post(`${baseUrl}/users/confirm`, () => HttpResponse.json({})),
+  http.post(`${baseUrl}/users/recover`, () => HttpResponse.json({})),
+  http.post(`${baseUrl}/users/resend`, () => HttpResponse.json({})),
   http.put(`${baseUrl}/users/complete`, () => HttpResponse.json({})),
   http.post(`${baseUrl}/comments`, () => HttpResponse.json({})),
   http.put(`${baseUrl}/comments/*`, () => HttpResponse.json({})),
