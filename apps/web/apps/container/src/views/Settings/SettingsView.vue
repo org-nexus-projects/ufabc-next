@@ -128,7 +128,7 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery } from '@tanstack/vue-query';
-import { api, Users } from '@ufabc-next/services';
+import { Users } from '@ufabc-next/services';
 import { ElMessage } from 'element-plus';
 import { computed, ref } from 'vue';
 
@@ -136,6 +136,7 @@ import { CenteredLoading } from '@/components/CenteredLoading';
 import { PaperCard } from '@/components/PaperCard';
 import { useAuthStore } from '@/stores/auth';
 import { useAliasInitials } from '@/utils/composables/aliasInitials';
+import { buildGoogleLoginUrl } from '@/utils/runtimeConfig';
 
 const authStore = useAuthStore();
 
@@ -154,7 +155,7 @@ const userLogin = computed(() => {
 });
 
 const addGoogleAccount = computed(() => {
-  return `${api.defaults.baseURL}/login/google?userId=${user.value?._id}`;
+  return buildGoogleLoginUrl({ userId: user.value?._id });
 });
 
 const createdAt = computed(() => {
