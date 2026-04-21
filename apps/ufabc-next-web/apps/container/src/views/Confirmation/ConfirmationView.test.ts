@@ -59,7 +59,7 @@ describe('<ConfirmationView />', () => {
   test('show error when validating and confirmation fails', async () => {
     const message = 'Ocorreu um erro';
     server.use(
-      http.post(/.*\/account\/confirm/, () =>
+      http.post(/.*\/users\/confirm/, () =>
         HttpResponse.json({ error: message }, { status: 500 }),
       ),
     );
