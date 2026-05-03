@@ -3,9 +3,17 @@
   "ui": "tui",
   "globalDependencies": [".env"],
   "tasks": {
+    "up": {
+      "cache": false
+    },
     "dev": {
+      "dependsOn": ["@next/docker-infra#up", "docker:build"],
       "cache": false,
       "persistent": true
+    },
+    "docker:build": {
+      "dependsOn": ["@next/docker-infra#up", "^build"],
+      "cache": false
     },
     "build": {
       "env": ["NODE_ENV"],

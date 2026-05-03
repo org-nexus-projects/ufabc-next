@@ -1,2 +1,16 @@
 npm-debug.log
 node_modules
+.git
+dist
+coverage
+test
+*.md
+.env.*.local
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+.turbo
+.vscode
+*.log
+logs
+.DS_Store

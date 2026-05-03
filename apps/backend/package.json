@@ -4,7 +4,8 @@
   "private": false,
   "type": "module",
   "scripts": {
-    "dev": "turbo run dev --parallel",
+    "dev": "turbo run dev --continue",
+    "docker:build": "turbo run docker:build",
     "services:up": "docker compose up -d",
     "build": "turbo run build",
     "tsc": "turbo run tsc --parallel",
@@ -24,7 +25,7 @@
   },
   "engines": {
     "node": "^24",
-    "pnpm": "^9"
+    "pnpm": "^10"
   },
-  "packageManager": "pnpm@9.15.9"
+  "packageManager": "pnpm@10.33.2"
 }
