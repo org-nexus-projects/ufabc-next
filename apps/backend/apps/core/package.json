@@ -8,7 +8,11 @@
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch --env-file=.env.dev src/server.ts",
+    "dev": "pnpm docker:up && pnpm docker:logs",
+    "dev:local": "tsx watch --env-file=.env.dev src/server.ts",
+    "docker:build": "docker compose -f ../../docker-compose.yml build core",
+    "docker:up": "docker compose -f ../../docker-compose.yml up -d core",
+    "docker:logs": "docker compose -f ../../docker-compose.yml logs -f core",
     "build": "rimraf dist && tspc",
     "tsc": "tsc",
     "start": "node --env-file=.env.prod dist/server.js",
