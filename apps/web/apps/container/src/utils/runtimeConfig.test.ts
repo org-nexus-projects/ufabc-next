@@ -1,5 +1,5 @@
 import {
-  buildGoogleLoginUrl,
+  buildGoogleAuthUrl,
   isLocalAppSession,
   isLocalHost,
   runtimeConfig,
@@ -19,13 +19,13 @@ describe('runtimeConfig', () => {
   });
 
   test('builds google login url from api base url', () => {
-    expect(buildGoogleLoginUrl({ requesterKey: 'ufabc-next' })).toBe(
+    expect(buildGoogleAuthUrl({ requesterKey: 'ufabc-next' })).toBe(
       `${runtimeConfig.apiBaseUrl}/login/google?requesterKey=ufabc-next`,
     );
   });
 
   test('builds google account association url', () => {
-    expect(buildGoogleLoginUrl({ userId: 'user-123' })).toBe(
+    expect(buildGoogleAuthUrl({ userId: 'user-123' })).toBe(
       `${runtimeConfig.apiBaseUrl}/login/google?userId=user-123`,
     );
   });

@@ -4,7 +4,7 @@ type RequiredEnvKey =
   | 'VITE_API_BASE_URL'
   | 'VITE_PARSER_API_BASE_URL';
 
-type GoogleLoginUrlOptions = {
+type GoogleAuthUrlOptions = {
   requesterKey?: string;
   userId?: string;
 };
@@ -35,10 +35,10 @@ export const isLocalHost = (hostname: string) =>
 export const isLocalAppSession = (hostname = window.location.hostname) =>
   isLocalHost(hostname);
 
-export const buildGoogleLoginUrl = ({
+export const buildGoogleAuthUrl = ({
   requesterKey,
   userId,
-}: GoogleLoginUrlOptions = {}) => {
+}: GoogleAuthUrlOptions = {}) => {
   const url = new URL(
     'login/google',
     normalizeBaseUrl(runtimeConfig.apiBaseUrl),

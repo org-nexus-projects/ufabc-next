@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { buildGoogleLoginUrl, runtimeConfig } from '@/utils/runtimeConfig';
+import { buildGoogleAuthUrl, runtimeConfig } from '@/utils/runtimeConfig';
 
 const environmentLabels = {
   local: 'Local',
@@ -15,8 +15,8 @@ const environmentLabel = computed(() => {
   ];
 });
 
-const googleLoginUrl = computed(() =>
-  buildGoogleLoginUrl({ requesterKey: 'ufabc-next' }),
+const googleAuthUrl = computed(() =>
+  buildGoogleAuthUrl({ requesterKey: 'ufabc-next' }),
 );
 </script>
 
@@ -43,7 +43,7 @@ const googleLoginUrl = computed(() =>
           size="x-large"
           rounded="lg"
           tag="a"
-          :href="googleLoginUrl"
+          :href="googleAuthUrl"
         >
           Entrar com Google
         </v-btn>
