@@ -3,18 +3,11 @@ import '@testing-library/jest-dom/vitest';
 import { server } from '@/mocks/server';
 
 class ResizeObserverStub {
-  observe() {
-    // do nothing
-  }
-  unobserve() {
-    // do nothing
-  }
-  disconnect() {
-    // do nothing
-  }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
 }
 
-// todo: check this later
 class VisualViewportStub {
   height = 768;
   width = 1024;
@@ -23,12 +16,8 @@ class VisualViewportStub {
   pageLeft = 0;
   pageTop = 0;
   scale = 1;
-  addEventListener() {
-    // do nothing
-  }
-  removeEventListener() {
-    // do nothing
-  }
+  addEventListener() {}
+  removeEventListener() {}
   dispatchEvent() {
     return true;
   }
