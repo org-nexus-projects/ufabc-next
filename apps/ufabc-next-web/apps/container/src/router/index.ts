@@ -194,12 +194,6 @@ router.beforeEach(async (to, _from, next) => {
 
   const redirectUnauthenticatedUser = () => {
     const redirectPath = getUnauthenticatedRedirectPath(hostname);
-
-    if (redirectPath === LANDING_PAGE_PATH) {
-      redirectToLandingPage();
-      return;
-    }
-
     next(redirectPath);
   };
 
