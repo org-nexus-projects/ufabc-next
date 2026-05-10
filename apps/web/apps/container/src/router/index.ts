@@ -98,7 +98,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'login',
     component: LoginView,
     meta: {
-      title: 'Entrar',
+      title: 'Entrar no Next',
       auth: false,
     },
   },
