@@ -6,7 +6,7 @@ import {
   LANDING_PAGE_PATH,
   shouldUseLocalLogin,
   SIGN_UP_PATH,
-} from '@/router/authRouting';
+} from '@/router/auth/authConfig';
 import { useAuthStore } from '@/stores/auth';
 
 const ReviewsView = () => import('@/views/Reviews/ReviewsView.vue');
