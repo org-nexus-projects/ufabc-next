@@ -5,7 +5,7 @@ import {
   LOCAL_DEV_LOGIN_PATH,
   shouldUseLocalLogin,
   SIGN_UP_PATH,
-} from './authRouting';
+} from './authConfig';
 
 describe('authRouting', () => {
   test('keeps local login enabled for localhost sessions', () => {
