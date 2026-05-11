@@ -62,7 +62,7 @@ export class BaseRequester {
           method: options.method || 'GET',
           url: response.url,
           status: response.status,
-          headers: response.headers,
+          headers: BaseRequester.redactHeaders(response.headers),
           responseType: options.responseType || 'json',
           body: this.truncateForLogging(response._data),
         };
