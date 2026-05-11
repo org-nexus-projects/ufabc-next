@@ -154,7 +154,6 @@ export class MoodleConnector extends BaseRequester {
       contentType = response.headers.get('Content-Type');
 
       const isPdf =
-        // @ts-expect-error - contentType is a string
         contentType?.includes('application/pdf') ||
         finalUrl.toLowerCase().endsWith('.pdf');
 
@@ -184,7 +183,6 @@ export class MoodleConnector extends BaseRequester {
         contentType = response.headers.get('Content-Type');
 
         const isPdf =
-          // @ts-expect-error - contentType is a string
           contentType?.includes('application/pdf') ||
           finalUrl.toLowerCase().endsWith('.pdf');
 
