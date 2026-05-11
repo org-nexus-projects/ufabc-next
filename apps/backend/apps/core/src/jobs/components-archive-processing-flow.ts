@@ -36,7 +36,8 @@ export const componentsArchivesProcessingJob = defineJob(
     const pdfs = await extractPDFsFromComponent(
       component.viewurl,
       session.sessionId,
-      component.id
+      component.id,
+      session.sessKey
     );
 
     if (pdfs.length === 0) {
@@ -139,7 +140,8 @@ export const archivesSummaryJob = defineJob(
 async function extractPDFsFromComponent(
   viewurl: string,
   sessionId: string,
-  componentId: number
+  componentId: number,
+  sessionKey: string
 ) {
   const url = new URL(viewurl);
   const page = await connector.getComponentContentsPage(
@@ -179,7 +181,8 @@ async function extractPDFsFromComponent(
   const validationPromises = potentialLinks.map(async ({ href, name }) => {
     const { isPdf, finalUrl } = await connector.validatePdfLink(
       href,
-      sessionId
+      sessionId,
+      sessionKey
     );
 
     if (!isPdf) {

@@ -1,5 +1,4 @@
 import { setTimeout as sleep } from 'node:timers/promises';
-import { ofetch } from 'ofetch';
 
 import { BaseRequester } from './base-requester.js';
 
@@ -133,31 +132,28 @@ export class MoodleConnector extends BaseRequester {
     this.lastRequestTime = Date.now();
   }
 
-  async validatePdfLink(url: string, sessionId: string) {
+  async validatePdfLink(url: string, sessionId: string, sessionKey: string) {
     await this.rateLimit();
 
     try {
-      // Use ofetch directly with native response to get headers and final URL
       let finalUrl = url;
       let contentType: string | null = null;
 
-      await ofetch.raw(url, {
+      const response = await this.requestRaw(url, {
         method: 'HEAD',
         headers: {
           Cookie: `MoodleSession=${sessionId}`,
+          sesskey: sessionKey,
         },
         retry: 1,
         retryDelay: 500,
         timeout: 10000,
-        onResponse({ response }) {
-          // Capture the final URL after redirects
-          finalUrl = response.url || url;
-          contentType = response.headers.get('content-type');
-        },
       });
 
+      finalUrl = response.url || url;
+      contentType = response.headers.get('Content-Type');
+
       const isPdf =
-        // @ts-expect-error - contentType is a string
         contentType?.includes('application/pdf') ||
         finalUrl.toLowerCase().endsWith('.pdf');
 
@@ -171,22 +167,22 @@ export class MoodleConnector extends BaseRequester {
         let finalUrl = url;
         let contentType: string | null = null;
 
-        await ofetch.raw(url, {
+        const response = await this.requestRaw(url, {
           method: 'GET',
+          credentials: 'include',
           headers: {
             Cookie: `MoodleSession=${sessionId}`,
+            sesskey: sessionKey,
             Range: 'bytes=0-0', // Only get first byte
           },
           retry: 0,
           timeout: 10000,
-          onResponse({ response }) {
-            finalUrl = response.url || url;
-            contentType = response.headers.get('content-type');
-          },
         });
 
+        finalUrl = response.url || url;
+        contentType = response.headers.get('Content-Type');
+
         const isPdf =
-          // @ts-expect-error - contentType is a string
           contentType?.includes('application/pdf') ||
           finalUrl.toLowerCase().endsWith('.pdf');
 
