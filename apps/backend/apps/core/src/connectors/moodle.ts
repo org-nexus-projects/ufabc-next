@@ -174,6 +174,7 @@ export class MoodleConnector extends BaseRequester {
           credentials: 'include',
           headers: {
             Cookie: `MoodleSession=${sessionId}`,
+            sesskey: sessionKey,
             Range: 'bytes=0-0', // Only get first byte
           },
           retry: 0,
