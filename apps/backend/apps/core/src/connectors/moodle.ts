@@ -136,7 +136,6 @@ export class MoodleConnector extends BaseRequester {
     await this.rateLimit();
 
     try {
-      // Use requestRaw with native response to get headers and final URL
       let finalUrl = url;
       let contentType: string | null = null;
 
