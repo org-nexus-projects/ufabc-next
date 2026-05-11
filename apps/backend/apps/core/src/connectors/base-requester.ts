@@ -10,19 +10,84 @@ import {
 } from '@/constants.js';
 import { logger as defaultLogger } from '@/utils/logger.js';
 
+interface RequestConfig {
+  headers: Record<string, string>;
+  fullUrl: string;
+}
+
+function configRequest(
+  request: FetchRequest,
+  options: FetchOptions | undefined,
+  baseURL: string | undefined,
+  logger: ReturnType<typeof defaultLogger.child>,
+  traceId: string,
+  additionalData?: Record<string, unknown>
+): RequestConfig {
+  // Merge headers with global trace ID
+  const existingHeaders =
+    options?.headers instanceof Headers
+      ? Object.fromEntries(options.headers.entries())
+      : options?.headers || {};
+
+  const headers = {
+    ...existingHeaders,
+    'global-trace-id': traceId,
+  } as Record<string, string>;
+
+  // Build full URL
+  const requestPath =
+    typeof request === 'string'
+      ? request
+      : request instanceof Request
+        ? request.url
+        : '';
+
+  const fullUrl =
+    baseURL && requestPath
+      ? `${baseURL}${requestPath.startsWith('/') ? '' : '/'}${requestPath}`
+      : baseURL || requestPath || '';
+
+  // Log outgoing request
+  logger.info(
+    {
+      globalTraceId: traceId,
+      direction: TRACING_DIRECTION.OUTGOING,
+      method: options?.method || 'GET',
+      url: fullUrl,
+      baseURL,
+      path: requestPath,
+      headers,
+      ...additionalData,
+    },
+    TRACING_MESSAGES.OUTGOING_REQUEST
+  );
+
+  return { headers, fullUrl };
+}
+
 export class BaseRequester {
   protected readonly requester: ReturnType<typeof ofetch.create>;
   protected readonly baseURL?: string;
 
   constructor(baseURL?: string, globalTraceId?: string) {
     this.baseURL = baseURL;
-    this.requester = ofetch.create({
+    this.requester = this.createRequester(baseURL, globalTraceId);
+  }
+
+  private createRequester(baseURL?: string, globalTraceId?: string) {
+    return ofetch.create({
       baseURL,
       onRequest: ({ request, options }) => {
         const logger =
           this.getLogger() ?? defaultLogger.child({ connector: true });
         const traceId = globalTraceId || this.getTraceId();
 
+        configRequest(request, options, this.baseURL, logger, traceId, {
+          responseType: options?.responseType,
+          body: options?.body,
+        });
+
+        // Update options with merged headers
         const existingHeaders =
           options.headers instanceof Headers
             ? Object.fromEntries(options.headers.entries())
@@ -32,32 +97,6 @@ export class BaseRequester {
           ...existingHeaders,
           'global-trace-id': traceId,
         };
-
-        const requestPath =
-          typeof request === 'string'
-            ? request
-            : request instanceof Request
-              ? request.url
-              : '';
-        const fullUrl =
-          this.baseURL && requestPath
-            ? `${this.baseURL}${requestPath.startsWith('/') ? '' : '/'}${requestPath}`
-            : this.baseURL || requestPath || '';
-
-        logger.info(
-          {
-            globalTraceId: traceId,
-            direction: TRACING_DIRECTION.OUTGOING,
-            method: options.method || 'GET',
-            url: fullUrl,
-            baseURL: this.baseURL,
-            path: requestPath,
-            headers: options.headers,
-            responseType: options.responseType,
-            body: options.body,
-          },
-          TRACING_MESSAGES.OUTGOING_REQUEST
-        );
       },
       onResponse: ({ response, options }) => {
         const logger =
@@ -123,6 +162,52 @@ export class BaseRequester {
     options?: FetchOptions
   ): Promise<T> {
     return this.requester(url, options) as Promise<T>;
+  }
+
+  protected async requestRaw(
+    url: FetchRequest,
+    options?: FetchOptions
+  ): Promise<Response> {
+    const traceId = this.getTraceId();
+    const logger = this.getLogger() ?? defaultLogger.child({ connector: true });
+
+    const { headers, fullUrl } = configRequest(
+      url,
+      options,
+      this.baseURL,
+      logger,
+      traceId
+    );
+
+    try {
+      const response = await ofetch.raw(url, {
+        ...options,
+        headers,
+      });
+
+      logger.info(
+        {
+          globalTraceId: traceId,
+          direction: TRACING_DIRECTION.INCOMING,
+          method: options?.method || 'GET',
+          url: response.url,
+          status: response.status,
+          headers: response.headers,
+        },
+        TRACING_MESSAGES.INCOMING_RESPONSE
+      );
+
+      return response;
+    } catch (error) {
+      logger.error(
+        {
+          direction: TRACING_DIRECTION.OUTGOING,
+          error,
+        },
+        TRACING_MESSAGES.OUTGOING_REQUEST_FAILED
+      );
+      throw error;
+    }
   }
 
   protected getLogger() {
