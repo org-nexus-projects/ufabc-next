@@ -136,7 +136,6 @@ export class MoodleConnector extends BaseRequester {
     await this.rateLimit();
 
     try {
-      // Use requestRaw with native response to get headers and final URL
       let finalUrl = url;
       let contentType: string | null = null;
 
@@ -152,7 +151,7 @@ export class MoodleConnector extends BaseRequester {
       });
 
       finalUrl = response.url || url;
-      contentType = response.headers.get('content-type');
+      contentType = response.headers.get('Content-Type');
 
       const isPdf =
         // @ts-expect-error - contentType is a string
@@ -182,7 +181,7 @@ export class MoodleConnector extends BaseRequester {
         });
 
         finalUrl = response.url || url;
-        contentType = response.headers.get('content-type');
+        contentType = response.headers.get('Content-Type');
 
         const isPdf =
           // @ts-expect-error - contentType is a string

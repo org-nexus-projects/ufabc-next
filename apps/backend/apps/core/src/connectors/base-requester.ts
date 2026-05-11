@@ -17,77 +17,10 @@ const SENSITIVE_HEADER_NAMES = new Set([
   'set-cookie',
 ]);
 
-function redactHeaders(
-  headers: Headers | Record<string, string>
-): Record<string, string> {
-  const entries =
-    headers instanceof Headers
-      ? [...headers.entries()]
-      : Object.entries(headers);
-
-  const redacted: Record<string, string> = {};
-  for (const [key, value] of entries) {
-    redacted[key] = SENSITIVE_HEADER_NAMES.has(key.toLowerCase())
-      ? '[REDACTED]'
-      : value;
-  }
-  return redacted;
-}
-
-interface RequestConfig {
+type RequestConfig = {
   headers: Record<string, string>;
   fullUrl: string;
-}
-
-function configRequest(
-  request: FetchRequest,
-  options: FetchOptions | undefined,
-  baseURL: string | undefined,
-  logger: ReturnType<typeof defaultLogger.child>,
-  traceId: string,
-  additionalData?: Record<string, unknown>
-): RequestConfig {
-  // Merge headers with global trace ID
-  const existingHeaders =
-    options?.headers instanceof Headers
-      ? Object.fromEntries(options.headers.entries())
-      : options?.headers || {};
-
-  const headers = {
-    ...existingHeaders,
-    'global-trace-id': traceId,
-  } as Record<string, string>;
-
-  // Build full URL
-  const requestPath =
-    typeof request === 'string'
-      ? request
-      : request instanceof Request
-        ? request.url
-        : '';
-
-  const fullUrl =
-    baseURL && requestPath
-      ? `${baseURL}${requestPath.startsWith('/') ? '' : '/'}${requestPath}`
-      : baseURL || requestPath || '';
-
-  // Log outgoing request
-  logger.info(
-    {
-      globalTraceId: traceId,
-      direction: TRACING_DIRECTION.OUTGOING,
-      method: options?.method || 'GET',
-      url: fullUrl,
-      baseURL,
-      path: requestPath,
-      headers: redactHeaders(headers),
-      ...additionalData,
-    },
-    TRACING_MESSAGES.OUTGOING_REQUEST
-  );
-
-  return { headers, fullUrl };
-}
+};
 
 export class BaseRequester {
   protected readonly requester: ReturnType<typeof ofetch.create>;
@@ -98,6 +31,71 @@ export class BaseRequester {
     this.requester = this.createRequester(baseURL, globalTraceId);
   }
 
+  private static redactHeaders(
+    headers: Headers | Record<string, string>
+  ): Record<string, string> {
+    const entries =
+      headers instanceof Headers
+        ? [...headers.entries()]
+        : Object.entries(headers);
+
+    const redacted: Record<string, string> = {};
+    for (const [key, value] of entries) {
+      redacted[key] = SENSITIVE_HEADER_NAMES.has(key.toLowerCase())
+        ? '[REDACTED]'
+        : value;
+    }
+    return redacted;
+  }
+
+  private configRequest(params: {
+    request: FetchRequest;
+    options: FetchOptions | undefined;
+    logger: ReturnType<typeof defaultLogger.child>;
+    traceId: string;
+    additionalData?: Record<string, unknown>;
+  }): RequestConfig {
+    const { request, options, logger, traceId, additionalData } = params;
+
+    const existingHeaders =
+      options?.headers instanceof Headers
+        ? Object.fromEntries(options.headers.entries())
+        : options?.headers || {};
+
+    const headers = {
+      ...existingHeaders,
+      'global-trace-id': traceId,
+    } as Record<string, string>;
+
+    const requestPath =
+      typeof request === 'string'
+        ? request
+        : request instanceof Request
+          ? request.url
+          : '';
+
+    const fullUrl =
+      this.baseURL && requestPath
+        ? `${this.baseURL}${requestPath.startsWith('/') ? '' : '/'}${requestPath}`
+        : this.baseURL || requestPath || '';
+
+    logger.info(
+      {
+        globalTraceId: traceId,
+        direction: TRACING_DIRECTION.OUTGOING,
+        method: options?.method || 'GET',
+        url: fullUrl,
+        baseURL: this.baseURL,
+        path: requestPath,
+        headers: BaseRequester.redactHeaders(headers),
+        ...additionalData,
+      },
+      TRACING_MESSAGES.OUTGOING_REQUEST
+    );
+
+    return { headers, fullUrl };
+  }
+
   private createRequester(baseURL?: string, globalTraceId?: string) {
     return ofetch.create({
       baseURL,
@@ -106,9 +104,15 @@ export class BaseRequester {
           this.getLogger() ?? defaultLogger.child({ connector: true });
         const traceId = globalTraceId || this.getTraceId();
 
-        configRequest(request, options, this.baseURL, logger, traceId, {
-          responseType: options?.responseType,
-          body: options?.body,
+        this.configRequest({
+          request,
+          options,
+          logger,
+          traceId,
+          additionalData: {
+            responseType: options?.responseType,
+            body: options?.body,
+          },
         });
 
         // Update options with merged headers
@@ -133,7 +137,7 @@ export class BaseRequester {
           method: options.method || 'GET',
           url: response.url,
           status: response.status,
-          headers: redactHeaders(response.headers),
+          headers: BaseRequester.redactHeaders(response.headers),
           responseType: options.responseType || 'json',
           body: this.truncateForLogging(response._data),
         };
