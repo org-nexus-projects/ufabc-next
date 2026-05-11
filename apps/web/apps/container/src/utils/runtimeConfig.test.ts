@@ -2,6 +2,7 @@ import {
   buildGoogleAuthUrl,
   isLocalAppSession,
   isLocalHost,
+  isRemoteApiSession,
   runtimeConfig,
 } from './runtimeConfig';
 
@@ -18,9 +19,26 @@ describe('runtimeConfig', () => {
     expect(isLocalAppSession('app.ufabcnext.com')).toBe(false);
   });
 
+  test('detects remote api sessions', () => {
+    expect(isRemoteApiSession('http://localhost:5000')).toBe(false);
+    expect(isRemoteApiSession('https://api.ufabcnext.com')).toBe(true);
+  });
+
   test('builds google login url from api base url', () => {
     expect(buildGoogleAuthUrl({ requesterKey: 'ufabc-next' })).toBe(
       `${runtimeConfig.apiBaseUrl}/login/google?requesterKey=ufabc-next`,
+    );
+  });
+
+  test('adds redirect target when app is local and api is remote', () => {
+    expect(
+      buildGoogleAuthUrl({
+        requesterKey: 'ufabc-next',
+        appHostname: 'localhost',
+        apiBaseUrl: 'https://api.ufabcnext.com',
+      }),
+    ).toBe(
+      'https://api.ufabcnext.com/login/google?requesterKey=ufabc-next&redirectTarget=web-local',
     );
   });
 

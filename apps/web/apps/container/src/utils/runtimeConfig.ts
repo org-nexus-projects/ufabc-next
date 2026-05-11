@@ -7,6 +7,8 @@ type RequiredEnvKey =
 type GoogleAuthUrlOptions = {
   requesterKey?: string;
   userId?: string;
+  appHostname?: string;
+  apiBaseUrl?: string;
 };
 
 const getRequiredEnv = <TKey extends RequiredEnvKey>(key: TKey) => {
@@ -35,14 +37,18 @@ export const isLocalHost = (hostname: string) =>
 export const isLocalAppSession = (hostname = window.location.hostname) =>
   isLocalHost(hostname);
 
+export const isRemoteApiSession = (apiBaseUrl = runtimeConfig.apiBaseUrl) => {
+  const apiHostname = new URL(apiBaseUrl).hostname;
+  return !isLocalHost(apiHostname);
+};
+
 export const buildGoogleAuthUrl = ({
   requesterKey,
   userId,
+  appHostname = window.location.hostname,
+  apiBaseUrl = runtimeConfig.apiBaseUrl,
 }: GoogleAuthUrlOptions = {}) => {
-  const url = new URL(
-    'login/google',
-    normalizeBaseUrl(runtimeConfig.apiBaseUrl),
-  );
+  const url = new URL('login/google', normalizeBaseUrl(apiBaseUrl));
 
   if (requesterKey) {
     url.searchParams.set('requesterKey', requesterKey);
@@ -50,6 +56,14 @@ export const buildGoogleAuthUrl = ({
 
   if (userId) {
     url.searchParams.set('userId', userId);
+  }
+
+  if (
+    requesterKey === 'ufabc-next' &&
+    isLocalAppSession(appHostname) &&
+    isRemoteApiSession(apiBaseUrl)
+  ) {
+    url.searchParams.set('redirectTarget', 'web-local');
   }
 
   return url.toString();
