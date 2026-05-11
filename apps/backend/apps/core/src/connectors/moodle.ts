@@ -152,7 +152,7 @@ export class MoodleConnector extends BaseRequester {
       });
 
       finalUrl = response.url || url;
-      contentType = response.headers.get('content-type');
+      contentType = response.headers.get('Content-Type');
 
       const isPdf =
         // @ts-expect-error - contentType is a string
@@ -182,7 +182,7 @@ export class MoodleConnector extends BaseRequester {
         });
 
         finalUrl = response.url || url;
-        contentType = response.headers.get('content-type');
+        contentType = response.headers.get('Content-Type');
 
         const isPdf =
           // @ts-expect-error - contentType is a string

@@ -181,7 +181,7 @@ async function extractPDFsFromComponent(
   const validationPromises = potentialLinks.map(async ({ href, name }) => {
     const { isPdf, finalUrl } = await connector.validatePdfLink(
       href,
-      sessionId, 
+      sessionId,
       sessionKey
     );
 
