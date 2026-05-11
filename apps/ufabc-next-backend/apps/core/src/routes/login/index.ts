@@ -12,31 +12,34 @@ import {
 } from '@/schemas/login.js';
 
 export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
-  app.get('/google', async function (request, reply) {
-    const validatedURI = await this.google.generateAuthorizationUri(
-      request,
-      reply
-    );
-    const redirectURL = new URL(validatedURI);
-    redirectURL.searchParams.append('prompt', 'select_account');
+  app.get(
+    '/google',
+    async function (request, reply) {
+      const validatedURI = await this.google.generateAuthorizationUri(
+        request,
+        reply
+      );
+      const redirectURL = new URL(validatedURI);
+      redirectURL.searchParams.append('prompt', 'select_account');
 
-    app.log.debug(
-      {
-        url: redirectURL.hostname,
-        query: redirectURL.search.split('&'),
-        port: request.hostname,
-      },
-      '[OAUTH] start'
-    );
-    return reply.redirect(redirectURL.href);
-  });
+      app.log.debug(
+        {
+          url: redirectURL.hostname,
+          query: redirectURL.search.split('&'),
+          port: request.hostname,
+        },
+        '[OAUTH] start'
+      );
+      return reply.redirect(redirectURL.href);
+    }
+  );
 
   app.get(
     '/google/callback',
     { schema: googleCallbackSchema },
     async function (request, reply) {
       try {
-        const { requesterKey, userId } = JSON.parse(
+        const { requesterKey, userId, redirectTarget } = JSON.parse(
           Buffer.from(request.query.state, 'base64url').toString()
         ) as statePayloadType;
         const { token } =
@@ -61,7 +64,10 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           permissions: user.permissions,
         });
 
-        let baseUrl = app.config.WEB_URL;
+        let baseUrl =
+          requesterKey === 'ufabc-next' && redirectTarget === 'web-local'
+            ? 'http://localhost:3000'
+            : app.config.WEB_URL;
         let page = 'login';
         let params: { token?: string; advice?: boolean } = { token: jwtToken };
 
