@@ -10,6 +10,30 @@ import {
 } from '@/constants.js';
 import { logger as defaultLogger } from '@/utils/logger.js';
 
+const SENSITIVE_HEADER_NAMES = new Set([
+  'cookie',
+  'authorization',
+  'sesskey',
+  'set-cookie',
+]);
+
+function redactHeaders(
+  headers: Headers | Record<string, string>
+): Record<string, string> {
+  const entries =
+    headers instanceof Headers
+      ? [...headers.entries()]
+      : Object.entries(headers);
+
+  const redacted: Record<string, string> = {};
+  for (const [key, value] of entries) {
+    redacted[key] = SENSITIVE_HEADER_NAMES.has(key.toLowerCase())
+      ? '[REDACTED]'
+      : value;
+  }
+  return redacted;
+}
+
 interface RequestConfig {
   headers: Record<string, string>;
   fullUrl: string;
@@ -56,7 +80,7 @@ function configRequest(
       url: fullUrl,
       baseURL,
       path: requestPath,
-      headers,
+      headers: redactHeaders(headers),
       ...additionalData,
     },
     TRACING_MESSAGES.OUTGOING_REQUEST
@@ -109,7 +133,7 @@ export class BaseRequester {
           method: options.method || 'GET',
           url: response.url,
           status: response.status,
-          headers: response.headers,
+          headers: redactHeaders(response.headers),
           responseType: options.responseType || 'json',
           body: this.truncateForLogging(response._data),
         };
@@ -169,45 +193,21 @@ export class BaseRequester {
     options?: FetchOptions
   ): Promise<Response> {
     const traceId = this.getTraceId();
-    const logger = this.getLogger() ?? defaultLogger.child({ connector: true });
+    const existingHeaders: Record<string, string> =
+      options?.headers instanceof Headers
+        ? Object.fromEntries(options.headers.entries())
+        : Array.isArray(options?.headers)
+          ? Object.fromEntries(options.headers as [string, string][])
+          : (options?.headers ?? {}) as Record<string, string>;
 
-    const { headers, fullUrl } = configRequest(
-      url,
-      options,
-      this.baseURL,
-      logger,
-      traceId
-    );
-
-    try {
-      const response = await ofetch.raw(url, {
-        ...options,
-        headers,
-      });
-
-      logger.info(
-        {
-          globalTraceId: traceId,
-          direction: TRACING_DIRECTION.INCOMING,
-          method: options?.method || 'GET',
-          url: response.url,
-          status: response.status,
-          headers: response.headers,
-        },
-        TRACING_MESSAGES.INCOMING_RESPONSE
-      );
-
-      return response;
-    } catch (error) {
-      logger.error(
-        {
-          direction: TRACING_DIRECTION.OUTGOING,
-          error,
-        },
-        TRACING_MESSAGES.OUTGOING_REQUEST_FAILED
-      );
-      throw error;
-    }
+    return ofetch.raw(url, {
+      ...options,
+      baseURL: this.baseURL,
+      headers: {
+        ...existingHeaders,
+        'global-trace-id': traceId,
+      },
+    });
   }
 
   protected getLogger() {
