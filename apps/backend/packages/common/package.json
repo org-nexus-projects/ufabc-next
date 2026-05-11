@@ -14,6 +14,7 @@
     "import": "./dist/index.js"
   },
   "scripts": {
+    "dev": "tsup index.ts --dts --format=esm --watch",
     "build": "tsup index.ts --dts --format=esm --clean",
     "tsc": "tsc",
     "test": "node --import=tsx --test lib/*.spec.ts",

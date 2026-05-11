@@ -58,30 +58,12 @@ export async function buildApp(
   });
   await app.register(awsV2Plugin);
 
-  app.register(fastifyAutoload, {
-    dir: join(import.meta.dirname, 'routes'),
-    autoHooks: true,
-    cascadeHooks: true,
-    ignorePattern: /^.*(?:test|spec|service|sync).(ts|js)$/,
-    options: { ...opts },
-  });
-
-  await app.register(testUtilsPlugin);
-
-  await app.manager.start();
-  await app.manager.board({ authenticate: authenticateBoard });
-
-  app.worker.setup();
-  await app.job.setup();
-
-  app.get('/health', (request, reply) => {
-    return reply.status(200).send({ message: 'OK' });
-  });
-
   app.setSchemaErrorFormatter((errors, dataVar) => {
     let message = `${dataVar}:`;
     for (const error of errors) {
       if (error instanceof RequestValidationError) {
+        message += ` ${error.instancePath} ${error.keyword}`;
+      } else if (error.instancePath && error.keyword) {
         message += ` ${error.instancePath} ${error.keyword}`;
       }
     }
@@ -93,11 +75,45 @@ export async function buildApp(
     reply.error = error as Error;
 
     if (error instanceof ResponseSerializationError) {
-      return reply.status(422).send({
+      reply.status(422);
+      reply.send({
         zodIssues: error.validation?.map((err) => err.params.issue) ?? [],
         originalError: error.validation?.[0]?.params.error ?? null,
       });
+      return;
     }
+
+    if (
+      error &&
+      typeof error === 'object' &&
+      'validation' in error &&
+      error.validation
+    ) {
+      const validationError = error as Error & { validation: unknown[] };
+
+      request.log.warn(
+        {
+          error: validationError,
+          request: {
+            method: request.method,
+            url: request.url,
+            query: request.query,
+            params: request.params,
+          },
+        },
+        validationError.message
+      );
+
+      reply.status(400);
+      reply.send({
+        statusCode: 400,
+        error: 'Bad Request',
+        message: validationError.message,
+        validation: validationError.validation,
+      });
+      return;
+    }
+
     if (error instanceof Error) {
       request.log.error(
         {
@@ -112,11 +128,13 @@ export async function buildApp(
         error.message
       );
 
-      return reply.status(500).send({
+      reply.status(500);
+      reply.send({
         error: error.name,
         statusCode: 500,
         message: error.message,
       });
+      return;
     }
 
     if (!error) {
@@ -140,5 +158,25 @@ export async function buildApp(
     reply.code(404);
 
     return { message: 'Not Found' };
+  });
+
+  app.register(fastifyAutoload, {
+    dir: join(import.meta.dirname, 'routes'),
+    autoHooks: true,
+    cascadeHooks: true,
+    ignorePattern: /^.*(?:test|spec|service|sync).(ts|js)$/,
+    options: { ...opts },
+  });
+
+  await app.register(testUtilsPlugin);
+
+  await app.manager.start();
+  await app.manager.board({ authenticate: authenticateBoard });
+
+  app.worker.setup();
+  await app.job.setup();
+
+  app.get('/health', (request, reply) => {
+    return reply.status(200).send({ message: 'OK' });
   });
 }

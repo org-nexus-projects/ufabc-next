@@ -7,6 +7,14 @@ services:
     volumes:
       - ./scripts/docker/mongo/initdb.d:/docker-entrypoint-initdb.d:ro
       - next-db-data:/data/db/
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - next-network
 
   next-redis:
     image: redis:latest
@@ -17,13 +25,21 @@ services:
       REDIS_USER: default
       REDIS_PORT: 6379
       REDIS_PASSWORD: qj6wGxXINcQyWXdN
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks:
+      - next-network
 
   localstack:
     image: localstack/localstack:latest
     container_name: localstack
     ports:
-      - '4566:4566' # LocalStack gateway
-      - '4571:4571' # Alternative API gateway
+      - '4567:4566' # LocalStack gateway
+      - '4572:4571' # Alternative API gateway
     environment:
       SERVICES: 's3,lambda,dynamodb,sqs,sns,ses'
       AWS_ACCESS_KEY_ID: 'AWS_ACCESS_KEY_ID_LOCALSTACK'
@@ -32,6 +48,54 @@ services:
     volumes:
       - './scripts/docker/localstack:/var/lib/localstack'
       - './scripts/init-localstack.sh:/etc/localstack/init/ready.d/init.sh'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - next-network
+
+  core:
+    container_name: next-core
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./apps/core/.env.dev
+    environment:
+      # Docker network overrides — service hostnames instead of localhost
+      - MONGODB_CONNECTION_URL=mongodb://next-db:27017/ufabc-matricula
+      - REDIS_CONNECTION_URL=redis://default:qj6wGxXINcQyWXdN@next-redis:6379
+      - LOCALSTACK_ENDPOINT=http://localstack:4566
+    volumes:
+      - ./apps/core/src:/workspace/apps/core/src:ro
+      - ./packages/common/src:/workspace/packages/common/src:ro
+      - ./packages/common/dist:/workspace/packages/common/dist:ro
+      - ./packages/db/src:/workspace/packages/db/src:ro
+      - ./packages/db/dist:/workspace/packages/db/dist:ro
+      - ./packages/queues/src:/workspace/packages/queues/src:ro
+      - ./packages/queues/dist:/workspace/packages/queues/dist:ro
+      - ./packages/testing/src:/workspace/packages/testing/src:ro
+      - ./packages/testing/dist:/workspace/packages/testing/dist:ro
+      - ./packages/tsconfig:/workspace/packages/tsconfig:ro
+    depends_on:
+      next-db:
+        condition: service_healthy
+      next-redis:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    networks:
+      - next-network
+
+networks:
+  next-network:
+    driver: bridge
 
 volumes:
   next-db-data:
