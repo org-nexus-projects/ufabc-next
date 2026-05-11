@@ -71,7 +71,6 @@ function configRequest(
       ? `${baseURL}${requestPath.startsWith('/') ? '' : '/'}${requestPath}`
       : baseURL || requestPath || '';
 
-  // Log outgoing request
   logger.info(
     {
       globalTraceId: traceId,
