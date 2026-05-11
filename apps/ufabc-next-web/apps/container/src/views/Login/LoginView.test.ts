@@ -13,7 +13,7 @@ describe('<LoginView />', () => {
     expect(screen.getByAltText(/logo do UFABC Next/i)).toBeInTheDocument();
     expect(
       screen.getByRole('heading', {
-        name: /Entre no UFABC Next com a conta institucional/i,
+        name: /Bem-vindo\(a\)!/i,
       }),
     ).toBeInTheDocument();
     expect(
@@ -22,7 +22,11 @@ describe('<LoginView />', () => {
       'href',
       'http://localhost:5000/login/google?requesterKey=ufabc-next',
     );
-    expect(document.querySelector('router-link-stub[to="/signup"]')).not.toBeNull();
-    expect(document.querySelector('router-link-stub[to="/recovery"]')).not.toBeNull();
+    expect(
+      document.querySelector('router-link-stub[to="/signup"]'),
+    ).not.toBeNull();
+    expect(
+      document.querySelector('router-link-stub[to="/recovery"]'),
+    ).not.toBeNull();
   });
 });
