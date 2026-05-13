@@ -2,8 +2,8 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 import {
   AUTHENTICATED_REDIRECT_PATH,
-  getUnauthenticatedRedirectPath,
   LANDING_PAGE_PATH,
+  LOCAL_DEV_LOGIN_PATH,
   shouldUseLocalLogin,
   SIGN_UP_PATH,
 } from '@/router/auth/authConfig';
@@ -189,12 +189,16 @@ router.beforeEach(async (to, _from, next) => {
   const hostname = window.location.hostname;
 
   const redirectToLandingPage = () => {
-    window.location.pathname = LANDING_PAGE_PATH;
+    window.location.assign(LANDING_PAGE_PATH);
   };
 
   const redirectUnauthenticatedUser = () => {
-    const redirectPath = getUnauthenticatedRedirectPath(hostname);
-    next(redirectPath);
+    if (shouldUseLocalLogin(hostname)) {
+      next(LOCAL_DEV_LOGIN_PATH);
+      return;
+    }
+
+    redirectToLandingPage();
   };
 
   //EDGE CASE: /signup?advice=true enquanto logado
