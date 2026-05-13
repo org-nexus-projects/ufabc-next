@@ -64,10 +64,11 @@ export default fp(
             throw new Error('Invalid redirect target');
         }
 
-        if (redirectTarget === 'web-local' && requesterKey !== 'ufabc-next')
-          throw new Error(
-            'Redirect target web-local is only allowed for ufabc-next'
-          );
+        if (redirectTarget === 'web-local' && requesterKey !== 'ufabc-next') {
+            throw new Error(
+              'Redirect target web-local is only allowed for ufabc-next'
+            );
+        }
 
         return true;
       },
