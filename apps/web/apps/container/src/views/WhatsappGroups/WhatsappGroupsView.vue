@@ -381,7 +381,7 @@ const isRaValid = computed(() => {
 
 const searchRaQuery = ref<number | null>(null);
 const searchComponentQuery = ref('');
-const searchCourseQuery = ref<number | null>(null);
+const searchCourseQuery = ref<number | string | null>(null);
 const searchCourseFilterQuery = ref('');
 const routeSeason = computed(() => {
   const seasonQuery = route.query.season;
@@ -664,14 +664,39 @@ const normalizeCourseCode = (code: string | null | undefined) =>
     .trim()
     .toUpperCase();
 
+const getBaseCourseCode = (code: string | null | undefined) =>
+  normalizeCourseCode(code).split('-')[0] ?? '';
+
+const normalizeSeasonToken = (season: string | null | undefined) =>
+  String(season ?? '')
+    .trim()
+    .replace('.', ':');
+
+const extractComponentCodeFromUfClassroom = (ufClassroomCode: string) => {
+  const match = ufClassroomCode.match(/[A-Z]{3}\d{4}-\d{2}/i);
+  return match ? normalizeCourseCode(match[0]) : '';
+};
+
 // Componentes filtrados por curso
 const filteredByCourse = computed(() => {
   if (!allComponentsData.value.length || searchCourseQuery.value == null) {
     return [];
   }
 
+  const selectedCourseRaw = searchCourseQuery.value as
+    | number
+    | string
+    | { id?: number | string }
+    | null;
+  const selectedCourseId =
+    selectedCourseRaw &&
+    typeof selectedCourseRaw === 'object' &&
+    'id' in selectedCourseRaw
+      ? String(selectedCourseRaw.id ?? '').trim()
+      : String(selectedCourseRaw ?? '').trim();
   const selectedCourse = coursesList.value.find(
-    (course: SearchCourseItem) => course.id === searchCourseQuery.value,
+    (course: SearchCourseItem) =>
+      String(course.id).trim() === selectedCourseId,
   );
 
   if (!selectedCourse) {
@@ -681,12 +706,32 @@ const filteredByCourse = computed(() => {
   const courseCodes = new Set(
     selectedCourse.ufComponentCodes.map((code) => normalizeCourseCode(code)),
   );
-
-  return allComponentsData.value.filter(
-    (component) =>
-      courseCodes.has(normalizeCourseCode(component.codigo)) &&
-      component.season === selectedSeason.value,
+  const baseCourseCodes = new Set(
+    selectedCourse.ufComponentCodes.map((code) => getBaseCourseCode(code)),
   );
+
+  const filtered = allComponentsData.value.filter((component) => {
+    const codigo = normalizeCourseCode(component.codigo);
+    const codigoBase = getBaseCourseCode(component.codigo);
+    const classroomCode = extractComponentCodeFromUfClassroom(
+      component.uf_cod_turma || '',
+    );
+    const classroomCodeBase = getBaseCourseCode(classroomCode);
+
+    const matchesCourse =
+      courseCodes.has(codigo) ||
+      baseCourseCodes.has(codigoBase) ||
+      courseCodes.has(classroomCode) ||
+      baseCourseCodes.has(classroomCodeBase);
+
+    const matchesSeason =
+      normalizeSeasonToken(component.season) ===
+      normalizeSeasonToken(selectedSeason.value);
+
+    return matchesCourse && matchesSeason;
+  });
+
+  return filtered;
 });
 
 // Componentes do curso com filtro adicional de texto e enriquecidos
@@ -1076,7 +1121,8 @@ onMounted(() => {
 .season-warning {
   margin-top: -4px;
   margin-bottom: 16px;
-  color: rgb(var(--v-theme-on-surface-variant));
+  color: #b45309;
+  font-weight: 500;
 }
 
 .coming-soon-overlay {
