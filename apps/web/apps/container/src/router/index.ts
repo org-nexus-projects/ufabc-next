@@ -189,7 +189,8 @@ router.beforeEach(async (to, _from, next) => {
   const hostname = window.location.hostname;
 
   const redirectToLandingPage = () => {
-    window.location.assign(LANDING_PAGE_PATH);
+    const landingPageUrl = new URL(LANDING_PAGE_PATH, window.location.origin);
+    window.location.assign(landingPageUrl.toString());
   };
 
   const redirectUnauthenticatedUser = () => {
