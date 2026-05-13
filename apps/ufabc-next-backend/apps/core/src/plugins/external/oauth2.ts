@@ -60,8 +60,9 @@ export default fp(
         if (!REQUESTERS.includes(requesterKey))
           throw new Error('Invalid requester key');
 
-        if (redirectTarget && !REDIRECT_TARGETS.includes(redirectTarget))
-          throw new Error('Invalid redirect target');
+        if (redirectTarget && !REDIRECT_TARGETS.includes(redirectTarget)) {
+            throw new Error('Invalid redirect target');
+        }
 
         if (redirectTarget === 'web-local' && requesterKey !== 'ufabc-next')
           throw new Error(
