@@ -11,6 +11,12 @@ import {
   type LegacyGoogleUser,
 } from '@/schemas/login.js';
 
+type RequestersUrls = {
+  next: string;
+  nextLocal: string;
+  cronos: string;
+};
+
 export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get(
     '/google',
@@ -64,28 +70,19 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           permissions: user.permissions,
         });
 
-        let baseUrl =
-          requesterKey === 'ufabc-next' && redirectTarget === 'web-local'
-            ? 'http://localhost:3000'
-            : app.config.WEB_URL;
-        let page = 'login';
-        let params: { token?: string; advice?: boolean } = { token: jwtToken };
+        const DEFAULT_REQUESTERS_URLS: RequestersUrls = {
+          next: app.config.WEB_URL,
+          nextLocal: 'http://localhost:3000',
+          cronos: app.config.CRONOS_URL,
+        };
 
-        if (requesterKey === 'ufabc-cronos') {
-          if (!user.confirmed) {
-            page = 'signup';
-            //se o user tenta entrar no cronos mas nao tem conta no next, redireciona para o front do next com um aviso
-            params = { advice: true };
-          } else {
-            baseUrl = app.config.CRONOS_URL;
-            page = '/';
-          }
-        }
-
-        const redirectURL = new URL(page, baseUrl);
-
-        for (const [key, value] of Object.entries(params))
-          redirectURL.searchParams.append(key, String(value));
+        const redirectURL = buildRedirectURL({
+          requesterKey,
+          redirectTarget,
+          jwtToken,
+          isUserConfirmed: user.confirmed,
+          requestersUrls: DEFAULT_REQUESTERS_URLS,
+        });
 
         return reply.redirect(redirectURL.href);
       } catch (error: any) {
@@ -210,6 +207,74 @@ async function createOrLogin(
   } catch (error) {
     logger.error({ error, oauthUser }, 'Error in createOrLogin');
     throw error;
+  }
+}
+
+function buildRedirectURL({
+  requesterKey,
+  redirectTarget,
+  jwtToken,
+  isUserConfirmed,
+  requestersUrls,
+}: {
+  requesterKey: 'ufabc-next' | 'ufabc-cronos';
+    redirectTarget?: 'web' | 'web-local';
+    jwtToken: string;
+    isUserConfirmed: boolean;
+    requestersUrls: RequestersUrls;
+  }) {
+  const { baseUrl, page, params } = requesterKey === 'ufabc-cronos'
+    ? getUfabcCronosUrlDefaults({ jwtToken, isUserConfirmed, requestersUrls })
+    : getUfabcNextUrlDefaults({ jwtToken, redirectTarget, requestersUrls });
+  
+  
+  const redirectURL = new URL(page, baseUrl);
+
+  for (const [key, value] of Object.entries(params))
+    redirectURL.searchParams.append(key, String(value));
+
+  return redirectURL;
+}
+
+function getUfabcCronosUrlDefaults({
+  jwtToken,
+  isUserConfirmed,
+  requestersUrls,
+}: {
+  jwtToken: string;
+  isUserConfirmed: boolean;
+  requestersUrls: RequestersUrls;
+  }) {
+  if (isUserConfirmed) { 
+    return {
+      baseUrl: requestersUrls.cronos,
+      page: '/',
+      params: { token: jwtToken },
+    }
+  }
+  
+  // se o user tenta entrar no cronos mas nao tem conta no next, 
+  // redireciona para o front do next com um aviso
+  return {
+    baseUrl: requestersUrls.next,
+    page: 'signup',
+    params: { advice: true },
+  }
+}
+
+function getUfabcNextUrlDefaults({
+  jwtToken,
+  redirectTarget,
+  requestersUrls,
+}: {
+  jwtToken: string;
+  redirectTarget?: 'web' | 'web-local';
+  requestersUrls: RequestersUrls;
+  }) { 
+  return {
+    baseUrl: redirectTarget === 'web-local' ? requestersUrls.nextLocal : requestersUrls.next,
+    page: 'login',
+    params: { token: jwtToken },
   }
 }
 
