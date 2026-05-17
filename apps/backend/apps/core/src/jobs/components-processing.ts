@@ -70,7 +70,7 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
     const { globalTraceId, data } = job.data;
     const { componentKey } = data;
     const ufabcParserConnector = new UfabcParserConnector(globalTraceId);
-    const component =
+    const [component] =
       await ufabcParserConnector.getComponentByKey(componentKey);
 
     if (!component) {
