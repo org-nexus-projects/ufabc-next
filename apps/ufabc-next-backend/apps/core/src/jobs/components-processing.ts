@@ -103,7 +103,7 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
         $set: {
           disciplina: subject.name,
           credits: component.credits,
-          turno: component.shift,
+          turno: component.shift === 'morning' ? 'diurno' : 'noturno',
           turma: component.componentClass,
           vagas: component.vacancies,
           subject: subject._id,
