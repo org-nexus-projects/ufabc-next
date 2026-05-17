@@ -132,7 +132,7 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
       quad,
       subject: subject._id,
       disciplina: subject.name ?? component.name,
-      turno: component.shift,
+      turno: component.shift === 'morning' ? 'diurno' : 'noturno',
       turma: component.componentClass,
       vagas: component.vacancies,
       obrigatorias:
