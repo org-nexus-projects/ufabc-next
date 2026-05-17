@@ -96,7 +96,7 @@ export class UfabcParserConnector extends BaseRequester {
   }
 
   async getComponentByKey(componentKey: string) {
-    const response = await this.request<UfabcParserComponent>(
+    const response = await this.request<UfabcParserComponent[]>(
       '/v2/components',
       {
         query: {
