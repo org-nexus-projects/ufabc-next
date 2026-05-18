@@ -17,7 +17,7 @@
         <v-row class="ma-0">
           <v-col class="pa-0 pb-5 pa-sm-3" cols="12" md="5">
             <p class="text-h4 font-weight-bold text-primary mb-2">
-              {{ teacherName }}
+              {{ capitalizeName(teacherName) }}
             </p>
             <p>
               <span class="item-name"> Disciplina:</span>
@@ -93,6 +93,7 @@ import { CommentsList } from '@/components/CommentsList';
 import { FeedbackAlert } from '@/components/FeedbackAlert';
 import { PaperCard } from '@/components/PaperCard';
 import { conceptsColor } from '@/utils/consts';
+import { capitalizeName } from '@/utils/capitalizeName';
 
 const selectedSubject = ref<string>('Todas as matérias');
 
