@@ -371,7 +371,7 @@ const { mutate: mutateSignUp, isPending: isPendingSubmit } = useMutation({
   onError: (error: AxiosError<RequestError>) => {
     const message =
       error.status === 500
-        ? 'Você já possui uma conta no UFABC Next. Faça login com a sua conta Google cadastrada'
+        ? 'Seu login falhou, tente novamente com o email institucional @aluno.ufabc.edu.br'
         : error.response?.data.message;
     ElMessage({
       message,
