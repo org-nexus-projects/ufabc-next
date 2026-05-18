@@ -345,6 +345,7 @@ import { normalizeText } from '@/utils/normalizeTextSearch';
 import { formatSeason } from '@/utils/season';
 
 import { getMockedGroups } from './utils/mockedGroups';
+import { capitalizeName } from '@/utils/capitalizeName';
 
 type SearchType = 'ra' | 'component' | 'course';
 const MIN_RA_LENGTH = 8;
@@ -414,15 +415,7 @@ const selectedSeasonLabel = computed(() => {
   return formatSeason(selectedSeason.value);
 });
 
-// helper para atualizar o nome dos professores do parser
-const capitalizeName = (name: string): string => {
-  if (!name) return '';
-  return name
-    .toLowerCase()
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-};
+
 
 const debouncedRaSearch = useDebounceFn((raValue: number) => {
   if (!isUserLoggedIn.value) {
