@@ -143,7 +143,7 @@
                 colspan="1"
                 style="position: sticky; left: 0; z-index: 1; background-color: rgb(var(--v-theme-appbar))"
               >
-                {{ item.disciplina }}
+                {{ capitalizeName(item.disciplina) }}
               </td>
               <td rowspan="1" colspan="1" class="px-2" style="max-width: 200px">
                 <div
@@ -169,7 +169,7 @@
                     />
                   </v-btn>
                   <span class="text-text">{{
-                    item.teoria?.name || '-'
+                    capitalizeName(item.teoria?.name) || '-'
                   }}</span>
                 </div>
               </td>
