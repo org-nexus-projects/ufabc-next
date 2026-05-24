@@ -182,9 +182,7 @@ router.beforeEach(async (to, _from, next) => {
   }
 
   const tokenParam = to.query.token;
-
-  // Handle WhatsApp auth tokens (non-JWT base64 tokens from external service).
-  // Runs on ANY route so it works even if the URL has a wrong base path.
+  
   if (tokenParam && !isJWT(tokenParam as string)) {
     try {
       const response = await api.post('/v2/auth/whatsapp-token', {
