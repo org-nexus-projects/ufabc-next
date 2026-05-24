@@ -1,3 +1,4 @@
+import { api } from '@ufabc-next/services';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 import { useAuthStore } from '@/stores/auth';
@@ -182,9 +183,30 @@ router.beforeEach(async (to, _from, next) => {
 
   const tokenParam = to.query.token;
 
+  // Handle WhatsApp auth tokens (non-JWT base64 tokens from external service).
+  // Runs on ANY route so it works even if the URL has a wrong base path.
+  if (tokenParam && !isJWT(tokenParam as string)) {
+    try {
+      const response = await api.post('/v2/auth/whatsapp-token', {
+        component: to.query.component,
+        token: tokenParam,
+      });
+      authStore.authenticate(response.data.token);
+    } catch (error) {
+      console.error('Failed to authenticate with WhatsApp token', error);
+    }
+    return next({
+      path: '/grupos-whatsapp',
+      query: { component: to.query.component },
+    });
+  }
+
   if (isJWT(tokenParam as string)) {
     authStore.authenticate(tokenParam as string);
-    return next({ query: { token: undefined } });
+    return next({
+      path: to.path,
+      query: { ...to.query, token: undefined },
+    });
   }
 
   const requireAuth = to.matched.some((record) => record.meta.auth === true);
