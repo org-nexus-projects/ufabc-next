@@ -14,6 +14,7 @@ import backofficeController from './controllers/backoffice-controller.js';
 import componentsController from './controllers/components-controller.js';
 import studentsController from './controllers/students-controller.js';
 import { UfabcParserIncomingWebhookController } from './controllers/ufabc-parser-webhook-controller.js';
+import { authenticationController } from './controllers/authentication-controller.js';
 import { authenticateBoard } from './hooks/board-authenticate.js';
 import awsV2Plugin from './plugins/v2/aws.js';
 import queueV2Plugin from './plugins/v2/queue.js';
@@ -33,6 +34,7 @@ const routesV2 = [
   backofficeController,
   studentsController,
   UfabcParserIncomingWebhookController,
+  authenticationController,
 ];
 
 export async function buildApp(
