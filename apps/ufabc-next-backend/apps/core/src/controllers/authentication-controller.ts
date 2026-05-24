@@ -95,7 +95,7 @@ export const authenticationController: FastifyPluginAsyncZod = async (app) => {
 
       const season = currentQuad();
       const componentDoc = await ComponentModel.findOne({
-        codigo: component,
+        uf_cod_turma: component,
         season,
       }).lean();
 
