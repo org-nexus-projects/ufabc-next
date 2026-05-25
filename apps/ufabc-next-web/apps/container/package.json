@@ -6,8 +6,6 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "dev:staging": "vite --mode staging",
-    "dev:prod": "vite --mode production",
     "type-check": "vue-tsc --noEmit",
     "build": "pnpm type-check && vite build",
     "build:staging": "pnpm type-check && vite build --mode staging",
@@ -62,7 +60,7 @@
     "tsconfig": "workspace:*",
     "typescript": "5.9.3",
     "vite": "^6.3.5",
-    "vitest": "3.2.4",
+    "vitest": "0.34.6",
     "vue-tsc": "^3.0.6"
   },
   "gitHooks": {
