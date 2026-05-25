@@ -19,6 +19,7 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     );
     const redirectURL = new URL(validatedURI);
     redirectURL.searchParams.append('prompt', 'select_account');
+    redirectURL.searchParams.append('hd', 'ufabc.edu.br');
 
     app.log.debug(
       {
@@ -45,6 +46,11 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             reply
           );
         const oauthUser = await getUserDetails(token, request.log);
+
+        if (!oauthUser.email.endsWith('@ufabc.edu.br')) {
+          return reply.forbidden('Apenas e-mails @ufabc.edu.br são permitidos');
+        }
+
         const user = await createOrLogin(oauthUser, userId, request.log);
         request.log.info(
           {
