@@ -70,7 +70,7 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
     const { globalTraceId, data } = job.data;
     const { componentKey } = data;
     const ufabcParserConnector = new UfabcParserConnector(globalTraceId);
-    const component =
+    const [component] =
       await ufabcParserConnector.getComponentByKey(componentKey);
 
     if (!component) {
@@ -103,7 +103,7 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
         $set: {
           disciplina: subject.name,
           credits: component.credits,
-          turno: component.shift,
+          turno: component.shift === 'morning' ? 'diurno' : 'noturno',
           turma: component.componentClass,
           vagas: component.vacancies,
           subject: subject._id,
@@ -132,7 +132,7 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
       quad,
       subject: subject._id,
       disciplina: subject.name ?? component.name,
-      turno: component.shift,
+      turno: component.shift === 'morning' ? 'diurno' : 'noturno',
       turma: component.componentClass,
       vagas: component.vacancies,
       obrigatorias:

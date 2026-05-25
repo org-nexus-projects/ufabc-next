@@ -11,6 +11,12 @@ import {
   type LegacyGoogleUser,
 } from '@/schemas/login.js';
 
+type RequesterUrls = {
+  next: string;
+  nextLocal: string;
+  cronos: string;
+};
+
 export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   app.get('/google', async function (request, reply) {
     const validatedURI = await this.google.generateAuthorizationUri(
@@ -37,7 +43,7 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     { schema: googleCallbackSchema },
     async function (request, reply) {
       try {
-        const { requesterKey, userId } = JSON.parse(
+        const { requesterKey, userId, redirectTarget } = JSON.parse(
           Buffer.from(request.query.state, 'base64url').toString()
         ) as statePayloadType;
         const { token } =
@@ -67,25 +73,19 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           permissions: user.permissions,
         });
 
-        let baseUrl = app.config.WEB_URL;
-        let page = 'login';
-        let params: { token?: string; advice?: boolean } = { token: jwtToken };
+        const requesterUrls: RequesterUrls = {
+          next: app.config.WEB_URL,
+          nextLocal: 'http://localhost:3000',
+          cronos: app.config.CRONOS_URL,
+        };
 
-        if (requesterKey === 'ufabc-cronos') {
-          if (!user.confirmed) {
-            page = 'signup';
-            //se o user tenta entrar no cronos mas nao tem conta no next, redireciona para o front do next com um aviso
-            params = { advice: true };
-          } else {
-            baseUrl = app.config.CRONOS_URL;
-            page = '/';
-          }
-        }
-
-        const redirectURL = new URL(page, baseUrl);
-
-        for (const [key, value] of Object.entries(params))
-          redirectURL.searchParams.append(key, String(value));
+        const redirectURL = buildRedirectURL({
+          requesterKey,
+          redirectTarget,
+          jwtToken,
+          isUserConfirmed: user.confirmed,
+          requesterUrls,
+        });
 
         return reply.redirect(redirectURL.href);
       } catch (error: any) {
@@ -211,6 +211,78 @@ async function createOrLogin(
     logger.error({ error, oauthUser }, 'Error in createOrLogin');
     throw error;
   }
+}
+
+function buildRedirectURL({
+  requesterKey,
+  redirectTarget,
+  jwtToken,
+  isUserConfirmed,
+  requesterUrls,
+}: {
+  requesterKey: 'ufabc-next' | 'ufabc-cronos';
+  redirectTarget?: 'web' | 'web-local';
+  jwtToken: string;
+  isUserConfirmed: boolean;
+  requesterUrls: RequesterUrls;
+}) {
+  const { baseUrl, path, params } =
+    requesterKey === 'ufabc-cronos'
+      ? getUfabcCronosRedirect({ jwtToken, isUserConfirmed, requesterUrls })
+      : getUfabcNextRedirect({ jwtToken, redirectTarget, requesterUrls });
+
+  const redirectURL = new URL(path, baseUrl);
+
+  for (const [key, value] of Object.entries(params)) {
+    redirectURL.searchParams.set(key, value);
+  }
+
+  return redirectURL;
+}
+
+function getUfabcCronosRedirect({
+  jwtToken,
+  isUserConfirmed,
+  requesterUrls,
+}: {
+  jwtToken: string;
+  isUserConfirmed: boolean;
+  requesterUrls: RequesterUrls;
+}) {
+  if (isUserConfirmed) {
+    return {
+      baseUrl: requesterUrls.cronos,
+      path: '/',
+      params: { token: jwtToken },
+    };
+  }
+
+  // If a user logs in through Cronos without a UFABC Next account,
+  // redirect to UFABC Next signup with an advisory message.
+  return {
+    baseUrl: requesterUrls.next,
+    path: '/signup',
+    params: { advice: 'true' },
+  };
+}
+
+function getUfabcNextRedirect({
+  jwtToken,
+  redirectTarget,
+  requesterUrls,
+}: {
+  jwtToken: string;
+  redirectTarget?: 'web' | 'web-local';
+  requesterUrls: RequesterUrls;
+}) {
+  return {
+    baseUrl:
+      redirectTarget === 'web-local'
+        ? requesterUrls.nextLocal
+        : requesterUrls.next,
+    path: '/login',
+    params: { token: jwtToken },
+  };
 }
 
 export default plugin;
