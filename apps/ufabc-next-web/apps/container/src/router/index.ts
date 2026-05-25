@@ -1,5 +1,12 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
+import {
+  AUTHENTICATED_REDIRECT_PATH,
+  LANDING_PAGE_PATH,
+  LOCAL_DEV_LOGIN_PATH,
+  shouldUseLocalLogin,
+  SIGN_UP_PATH,
+} from '@/router/auth/authConfig';
 import { useAuthStore } from '@/stores/auth';
 
 const ReviewsView = () => import('@/views/Reviews/ReviewsView.vue');
@@ -13,6 +20,7 @@ const SignUpView = () => import('@/views/SignUp/SignUpView.vue');
 const ConfirmationView = () =>
   import('@/views/Confirmation/ConfirmationView.vue');
 const RecoveryView = () => import('@/views/Recovery/RecoveryView.vue');
+const LoginView = () => import('@/views/Login/LoginView.vue');
 const CalengradeView = () => import('@/views/Calengrade/CalengradeView.vue');
 const WhatsappGroupsView = () =>
   import('@/views/WhatsappGroups/WhatsappGroupsView.vue');
@@ -83,6 +91,15 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       title: 'Ajude o Next',
       layout: 'include-sidebar',
+    },
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: LoginView,
+    meta: {
+      title: 'Entrar no Next',
+      auth: false,
     },
   },
   {
@@ -169,6 +186,21 @@ const router = createRouter({
 router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore();
   document.title = (to.meta.title as string) || 'UFABC Next';
+  const hostname = window.location.hostname;
+
+  const redirectToLandingPage = () => {
+    const landingPageUrl = new URL(LANDING_PAGE_PATH, window.location.origin);
+    window.location.assign(landingPageUrl.toString());
+  };
+
+  const redirectUnauthenticatedUser = () => {
+    if (shouldUseLocalLogin(hostname)) {
+      next(LOCAL_DEV_LOGIN_PATH);
+      return;
+    }
+
+    redirectToLandingPage();
+  };
 
   //EDGE CASE: /signup?advice=true enquanto logado
   if (
@@ -184,7 +216,14 @@ router.beforeEach(async (to, _from, next) => {
 
   if (isJWT(tokenParam as string)) {
     authStore.authenticate(tokenParam as string);
-    return next({ query: { token: undefined } });
+    return next({
+      hash: to.hash,
+      path: to.path,
+      query: {
+        ...to.query,
+        token: undefined,
+      },
+    });
   }
 
   const requireAuth = to.matched.some((record) => record.meta.auth === true);
@@ -202,30 +241,30 @@ router.beforeEach(async (to, _from, next) => {
     const expirationTime = authStore.user.iat + expirationPeriod;
 
     if (expirationTime < currentTime) {
-      authStore.logOut();
-      return next('/');
+      authStore.logOut(false);
+      return redirectUnauthenticatedUser();
     }
   }
 
   const userConfirmed = authStore.user?.confirmed;
+  const notConfirmedRedirectPath = SIGN_UP_PATH;
+  const authenticatedRedirectPath = AUTHENTICATED_REDIRECT_PATH;
 
-  const isLocal = import.meta.env.DEV;
-
-  const notConfirmedRedirectPath = '/signup';
-  const authenticatedRedirectPath = '/reviews';
-  const notAuthenticatedRedirect = () =>
-    isLocal ? next(notConfirmedRedirectPath) : (window.location.pathname = '/');
+  if (to.name === 'login' && !shouldUseLocalLogin(hostname)) {
+    redirectToLandingPage();
+    return;
+  }
 
   if (requireAuth) {
     if (authStore.isLoggedIn) return next();
-    return notAuthenticatedRedirect();
+    return redirectUnauthenticatedUser();
   }
   if (requireConfirmed) {
     if (authStore.isLoggedIn) {
       if (userConfirmed) return next();
       return next(notConfirmedRedirectPath);
     }
-    return notAuthenticatedRedirect();
+    return redirectUnauthenticatedUser();
   }
   if (notAllowAuth) {
     if (authStore.isLoggedIn) return next(authenticatedRedirectPath);
