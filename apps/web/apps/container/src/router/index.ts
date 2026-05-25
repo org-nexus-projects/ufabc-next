@@ -1,3 +1,4 @@
+import { api } from '@ufabc-next/services';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 import {
@@ -213,6 +214,22 @@ router.beforeEach(async (to, _from, next) => {
   }
 
   const tokenParam = to.query.token;
+
+  if (tokenParam && !isJWT(tokenParam as string)) {
+    try {
+      const response = await api.post('/v2/auth/whatsapp-token', {
+        component: to.query.component,
+        token: tokenParam,
+      });
+      authStore.authenticate(response.data.token);
+    } catch (error) {
+      console.error('Failed to authenticate with WhatsApp token', error);
+    }
+    return next({
+      path: '/grupos-whatsapp',
+      query: { component: to.query.component },
+    });
+  }
 
   if (isJWT(tokenParam as string)) {
     authStore.authenticate(tokenParam as string);
