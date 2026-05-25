@@ -15,7 +15,7 @@ describe('<SignUpView />', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     authStore = useAuthStore();
-    authStore.authenticate('token');
+    authStore.token = 'token';
     authStore.user = mockedUser;
   });
 
