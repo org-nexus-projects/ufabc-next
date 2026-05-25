@@ -16,6 +16,7 @@ const PUBLIC_ROUTES = [
   '/users/recover',
   '/users/validate',
   '/entities/enrollments/wpp',
+  '/v2/auth/whatsapp-token',
 ];
 
 const EXTENSION_ROUTES = [
