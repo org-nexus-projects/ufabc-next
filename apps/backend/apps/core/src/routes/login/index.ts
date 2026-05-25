@@ -18,27 +18,25 @@ type RequesterUrls = {
 };
 
 export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
-  app.get(
-    '/google',
-    async function (request, reply) {
-      const validatedURI = await this.google.generateAuthorizationUri(
-        request,
-        reply
-      );
-      const redirectURL = new URL(validatedURI);
-      redirectURL.searchParams.append('prompt', 'select_account');
+  app.get('/google', async function (request, reply) {
+    const validatedURI = await this.google.generateAuthorizationUri(
+      request,
+      reply
+    );
+    const redirectURL = new URL(validatedURI);
+    redirectURL.searchParams.append('prompt', 'select_account');
+    redirectURL.searchParams.append('hd', 'ufabc.edu.br');
 
-      app.log.debug(
-        {
-          url: redirectURL.hostname,
-          query: redirectURL.search.split('&'),
-          port: request.hostname,
-        },
-        '[OAUTH] start'
-      );
-      return reply.redirect(redirectURL.href);
-    }
-  );
+    app.log.debug(
+      {
+        url: redirectURL.hostname,
+        query: redirectURL.search.split('&'),
+        port: request.hostname,
+      },
+      '[OAUTH] start'
+    );
+    return reply.redirect(redirectURL.href);
+  });
 
   app.get(
     '/google/callback',
@@ -54,6 +52,11 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
             reply
           );
         const oauthUser = await getUserDetails(token, request.log);
+
+        if (!oauthUser.email.endsWith('@ufabc.edu.br')) {
+          return reply.forbidden('Apenas e-mails @ufabc.edu.br são permitidos');
+        }
+
         const user = await createOrLogin(oauthUser, userId, request.log);
         request.log.info(
           {
