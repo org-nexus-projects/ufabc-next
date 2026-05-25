@@ -170,6 +170,7 @@ import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
 import { applyChartsTheme } from '@/theme';
+import { runtimeConfig } from '@/utils/runtimeConfig';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -269,7 +270,7 @@ const internalNavigationItems = [
   },
 ];
 
-const apiURL = api.defaults.baseURL ?? 'https://api.v2.ufabcnext.com';
+const apiURL = api.defaults.baseURL ?? runtimeConfig.apiBaseUrl;
 
 const externalNavigationItems = [
   {
