@@ -23,7 +23,7 @@ describe('<UserMenu />', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     authStore = useAuthStore();
-    authStore.token = 'mock-token';
+    authStore.authenticate('mock-token');
     authStore.user = mockedUser;
 
     vi.mocked(useRouter).mockReturnValue({
