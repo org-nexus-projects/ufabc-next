@@ -15,7 +15,7 @@ describe('<SignUpView />', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     authStore = useAuthStore();
-    authStore.token = 'token';
+    authStore.authenticate('token');
     authStore.user = mockedUser;
   });
 
@@ -207,7 +207,7 @@ describe('<SignUpView />', () => {
   });
   test('fill form as student and get error to resend email', async () => {
     server.use(
-      http.post('*/users/resend', () =>
+      http.post('*/users/me/resend', () =>
         HttpResponse.json({ error: 'Erro ao reenviar email' }, { status: 500 }),
       ),
     );
