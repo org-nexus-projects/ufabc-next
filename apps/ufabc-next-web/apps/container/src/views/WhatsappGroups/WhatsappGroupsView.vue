@@ -345,9 +345,11 @@ import { normalizeText } from '@/utils/normalizeTextSearch';
 import { formatSeason } from '@/utils/season';
 
 import { getMockedGroups } from './utils/mockedGroups';
+import { capitalizeName } from '@/utils/capitalizeName';
 
 type SearchType = 'ra' | 'component' | 'course';
 const MIN_RA_LENGTH = 8;
+const DEFAULT_COURSE_NAME = 'Bacharelado em Ciências e Tecnologia';
 
 const showOverlay = ref(false);
 const defaultSeason = getCurrentAcademicSeason();
@@ -414,15 +416,7 @@ const selectedSeasonLabel = computed(() => {
   return formatSeason(selectedSeason.value);
 });
 
-// helper para atualizar o nome dos professores do parser
-const capitalizeName = (name: string): string => {
-  if (!name) return '';
-  return name
-    .toLowerCase()
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-};
+
 
 const debouncedRaSearch = useDebounceFn((raValue: number) => {
   if (!isUserLoggedIn.value) {
@@ -443,7 +437,30 @@ const debouncedRaSearch = useDebounceFn((raValue: number) => {
   }
 }, 500);
 
-const selectSearchType = (type: SearchType) => {
+const applyDefaultCourseSelection = () => {
+  if (!coursesList.value.length) {
+    return;
+  }
+
+  if (searchCourseQuery.value !== null && String(searchCourseQuery.value).trim()) {
+    return;
+  }
+
+  const normalizedDefault = normalizeText(DEFAULT_COURSE_NAME);
+  const defaultCourse = coursesList.value.find(
+    (course: SearchCourseItem) =>
+      normalizeText(course.name) === normalizedDefault,
+  );
+
+  if (!defaultCourse) {
+    return;
+  }
+
+  searchCourseQuery.value = defaultCourse.id;
+};
+
+const selectSearchType = (type: SearchType | null) => {
+  const normalizedType = type ?? 'course';
   if (!isUserLoggedIn.value) {
     searchRaQuery.value = null;
   }
@@ -451,13 +468,17 @@ const selectSearchType = (type: SearchType) => {
   searchComponentQuery.value = '';
   searchCourseQuery.value = null;
   searchCourseFilterQuery.value = '';
-  selectedSearchType.value = type;
+  selectedSearchType.value = normalizedType;
   shouldFetchGroupsByRa.value = false;
   shouldFetchComponents.value = false;
   shouldFetchGroupsByCourse.value = false;
   queryResultsPage.value = 1;
 
-  if (type === 'ra' && isRaValid.value && searchRaQuery.value) {
+  if (normalizedType === 'course') {
+    applyDefaultCourseSelection();
+  }
+
+  if (normalizedType === 'ra' && isRaValid.value && searchRaQuery.value) {
     debouncedRaSearch(searchRaQuery.value);
   }
 };
@@ -522,6 +543,17 @@ watch(searchCourseQuery, (newCourseId) => {
 watch(searchCourseFilterQuery, () => {
   if (selectedSearchType.value === 'course') {
     queryResultsPage.value = 1;
+  }
+});
+
+watch(selectedSearchType, (newType) => {
+  if (!newType) {
+    selectSearchType('course');
+    return;
+  }
+
+  if (newType === 'course') {
+    applyDefaultCourseSelection();
   }
 });
 
@@ -657,6 +689,12 @@ const coursesList = computed(() => {
     .sort((a: SearchCourseItem, b: SearchCourseItem) =>
       a.name.localeCompare(b.name),
     );
+});
+
+watch(coursesList, () => {
+  if (selectedSearchType.value === 'course') {
+    applyDefaultCourseSelection();
+  }
 });
 
 const normalizeCourseCode = (code: string | null | undefined) =>
@@ -853,6 +891,19 @@ const currentSuccess = computed(
 
 const currentError = computed(
   () => searchConfig.value[selectedSearchType.value]?.error || false,
+);
+
+watch(
+  [selectedSearchType, currentSuccess, currentLoading, currentGroups],
+  ([type, success, loading, groups]) => {
+    if (type !== 'ra' || loading || !success) {
+      return;
+    }
+
+    if (groups.length === 0) {
+      selectSearchType('course');
+    }
+  },
 );
 
 const openWhatsappGroup = (url: string) => {

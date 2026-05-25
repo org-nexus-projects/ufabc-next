@@ -143,12 +143,12 @@
                 colspan="1"
                 style="position: sticky; left: 0; z-index: 1; background-color: rgb(var(--v-theme-appbar))"
               >
-                {{ item.disciplina }}
+                {{ capitalizeName(item.disciplina) }}
               </td>
               <td rowspan="1" colspan="1" class="px-2" style="max-width: 200px">
                 <div
                   :class="`text-next-light-gray text-caption d-flex align-center ${
-                    item.teoria?.name ? 'justify-left' : 'justify-center'
+                    capitalizeName(item.teoria?.name) ? 'justify-left' : 'justify-center'
                   }`"
                 >
                   <v-btn
@@ -169,18 +169,18 @@
                     />
                   </v-btn>
                   <span class="text-text">{{
-                    item.teoria?.name || '-'
+                    capitalizeName(item.teoria?.name) || '-'
                   }}</span>
                 </div>
               </td>
               <td rowspan="1" colspan="1" class="px-2" style="max-width: 200px">
                 <div
                   :class="`text-next-light-gray text-truncate text-caption d-flex align-center ${
-                    item.pratica?.name ? 'justify-left' : 'justify-center'
+                    capitalizeName(item.pratica?.name) ? 'justify-left' : 'justify-center'
                   }`"
                 >
                   <v-btn
-                    v-if="item.pratica?.name"
+                    v-if="capitalizeName(item.pratica?.name)"
                     flat
                     variant="text"
                     icon="mdi-message-draw"
@@ -193,7 +193,7 @@
                     />
                   </v-btn>
                   <span class="text-text">{{
-                    item.pratica?.name || '-'
+                    capitalizeName(item.pratica?.name) || '-'
                   }}</span>
                 </div>
               </td>
@@ -250,6 +250,7 @@ import { ReviewDialog } from '@/components/ReviewDialog';
 import { TableComponent } from '@/components/TableComponent';
 import { conceptsColor, extensionURL, studentRecordURL } from '@/utils/consts';
 import { checkEAD, formatSeason } from '@/utils/season';
+import { capitalizeName } from '@/utils/capitalizeName';
 
 const showDialog = ref(false);
 const selectedEnrollment = ref<Enrollment>();
