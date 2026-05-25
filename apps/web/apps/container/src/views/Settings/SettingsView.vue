@@ -55,13 +55,12 @@
               <div class="links-container">
                 <div
                   v-if="user?.oauth?.facebook"
-                  href="#"
                   class="links-settings"
                 >
                   <v-icon color="ufabcnext-green">mdi-check</v-icon>
                   Conta do Facebook associada
                 </div>
-                <div v-if="user?.oauth?.google" href="#" class="links-settings">
+                <div v-if="user?.oauth?.google" class="links-settings">
                   <v-icon color="ufabcnext-green">mdi-check</v-icon>
                   Conta do Google associada
                 </div>
