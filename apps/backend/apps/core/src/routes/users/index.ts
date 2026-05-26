@@ -143,13 +143,15 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         );
         if (hasUfabcContract) {
           return reply.forbidden('O aluno não pode ter contrato com a UFABC.');
+
         }
+        // Now accepting both aluno and general UFABC emails, as some students might have only the general one
         const emailFromStudent = student.email.find((e) =>
-          e.includes('@aluno.ufabc.edu.br')
+          e.includes('@ufabc.edu.br') 
         );
         if (emailFromStudent !== email) {
           return reply.forbidden(
-            'O email fornecido não corresponde ao email do aluno.'
+            'O email fornecido não corresponde ao domínio UFABC.'
           );
         }
       } catch (error: unknown) {
