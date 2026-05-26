@@ -209,9 +209,9 @@
             usuários autenticados.
           </p>
           <div class="not-synced__actions auth-required-actions">
-            <button class="not-synced__button" @click="createAccount">
+            <button class="not-synced__button" @click="loginAccount">
               <v-icon size="20"> mdi-account-plus </v-icon>
-              Criar conta
+              Login na conta
             </button>
             <button
               class="not-synced__button secondary"
@@ -935,12 +935,11 @@ const handleSyncHistory = () => {
   window.open(studentRecordURL, '_blank');
 };
 
-const createAccount = () => {
-  eventTracker.track(WebEvent.CREATE_ACCOUNT_CLICKED, {
+const loginAccount = () => {
+  eventTracker.track(WebEvent.LOGIN_ACCOUNT_CLICKED, {
     source: 'whatsapp_groups_dialog',
   });
-
-  router.push('/signup');
+  window.location.href = `${window.location.origin}/`;
 };
 
 const openSupport = () => {
