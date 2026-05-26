@@ -1,20 +1,21 @@
-import type { DatabaseModels } from '@next/db/models';
-import type { FastifyInstance, FastifyServerOptions } from 'fastify';
-import type { Mongoose } from 'mongoose';
+import { join } from 'node:path';
 
 import { fastifyAutoload } from '@fastify/autoload';
 import dbPlugin from '@next/db/client';
+import type { DatabaseModels } from '@next/db/models';
+import type { FastifyInstance, FastifyServerOptions } from 'fastify';
 import {
   RequestValidationError,
   ResponseSerializationError,
 } from 'fastify-zod-openapi';
-import { join } from 'node:path';
+import type { Mongoose } from 'mongoose';
 
+import { authenticationController } from './controllers/authentication-controller.js';
 import backofficeController from './controllers/backoffice-controller.js';
 import componentsController from './controllers/components-controller.js';
+import { proxyController } from './controllers/proxy-controller.js';
 import studentsController from './controllers/students-controller.js';
 import { UfabcParserIncomingWebhookController } from './controllers/ufabc-parser-webhook-controller.js';
-import { authenticationController } from './controllers/authentication-controller.js';
 import { authenticateBoard } from './hooks/board-authenticate.js';
 import awsV2Plugin from './plugins/v2/aws.js';
 import queueV2Plugin from './plugins/v2/queue.js';
@@ -35,6 +36,7 @@ const routesV2 = [
   studentsController,
   UfabcParserIncomingWebhookController,
   authenticationController,
+  proxyController,
 ];
 
 export async function buildApp(
