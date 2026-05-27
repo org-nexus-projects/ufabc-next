@@ -1,6 +1,6 @@
 import { BaseRequester } from './base-requester.js';
 
-type SendAnnouncementInput = {
+type SendAnnouncementParams = {
   courseIdentifier: number;
   season: string;
   text: string;
@@ -16,9 +16,9 @@ export class CommunicationsConnector extends BaseRequester {
   }
 
   async sendAnnouncement(
-    input: SendAnnouncementInput
+    params: SendAnnouncementParams
   ): Promise<SendAnnouncementResponse> {
-    const { courseIdentifier, season, text } = input;
+    const { courseIdentifier, season, text } = params;
 
     return this.request<SendAnnouncementResponse>('/groups/announcements', {
       method: 'POST',
