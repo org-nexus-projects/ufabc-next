@@ -2,55 +2,38 @@ import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 
 import { CommunicationsConnector } from '@/connectors/communications.js';
+import { verifyPermissionHook } from '@/hooks/verify-permission.js';
 
-const announcementBodySchema = z.object({
-  courseIdentifier: z.number().int(),
-  season: z.string().min(1),
-  text: z.string().min(1),
-});
-
-const announcementResponseSchema = z.object({
-  message: z.string(),
-});
-
-const errorResponseSchema = z.object({
-  message: z.string(),
-});
+const ALLOWED_ANNOUNCEMENT_PERMISSIONS = [
+  'admin',
+  'announcements',
+  'announcements-bcc',
+] as const;
 
 export const proxyController: FastifyPluginAsyncZod = async (app) => {
   app.route({
     method: 'POST',
     url: '/announcement',
     schema: {
-      body: announcementBodySchema,
+      body: z.object({
+        courseIdentifier: z.number().int(),
+        season: z.string().min(1),
+        text: z.string().min(1),
+      }),
       response: {
-        202: announcementResponseSchema,
-        502: errorResponseSchema,
+        202: z.object({ message: z.string() }),
+        502: z.object({ message: z.string() }),
       },
     },
+    preHandler: [verifyPermissionHook(ALLOWED_ANNOUNCEMENT_PERMISSIONS)],
     handler: async (request, reply) => {
       const communications = new CommunicationsConnector(
         app.config.COMMUNICATIONS_API_URL,
         request.id
       );
+      const response = await communications.sendAnnouncement(request.body);
 
-      try {
-        const response = await communications.sendAnnouncement(request.body);
-
-        return reply.status(202).send(response);
-      } catch (error) {
-        request.log.error(
-          {
-            error,
-            target: 'communications',
-          },
-          'Failed to proxy announcement request'
-        );
-
-        return reply.status(502).send({
-          message: 'Failed to send announcement',
-        });
-      }
+      return reply.status(202).send(response);
     },
   });
 };
