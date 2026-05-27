@@ -649,8 +649,8 @@ const {
   isLoading: isCoursesLoading,
   isError: isCoursesError,
 } = useQuery({
-  queryKey: ['courses'],
-  queryFn: () => Whatsapp.getCourses(),
+  queryKey: ['courses', selectedSeason],
+  queryFn: () => Whatsapp.getCourses(selectedSeason.value),
   enabled: computed(
     () => isUserLoggedIn.value && selectedSearchType.value === 'course',
   ),
