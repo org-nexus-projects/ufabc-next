@@ -22,6 +22,7 @@ export interface PopulatedComponent extends Omit<
 
 export const listComponentItemSchema = z.object({
   identifier: z.string().nullable(),
+  codigo: z.string().nullable(),
   disciplina_id: z.number().nullable(),
   subject: z.string(),
   turma: z.string(),
