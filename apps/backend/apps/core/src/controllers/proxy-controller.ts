@@ -3,12 +3,7 @@ import { z } from 'zod';
 
 import { CommunicationsConnector } from '@/connectors/communications.js';
 import { verifyPermissionHook } from '@/hooks/verify-permission.js';
-
-const ALLOWED_ANNOUNCEMENT_PERMISSIONS = [
-  'admin',
-  'announcements',
-  'announcements-bcc',
-] as const;
+import { ALLOWED_ANNOUNCEMENT_PERMISSIONS } from '@/constants.js';
 
 export const proxyController: FastifyPluginAsyncZod = async (app) => {
   app.route({
@@ -18,7 +13,7 @@ export const proxyController: FastifyPluginAsyncZod = async (app) => {
       body: z.object({
         courseIdentifier: z.number().int(),
         season: z.string().min(1),
-        text: z.string().min(1),
+        message: z.string().min(1),
       }),
       response: {
         202: z.object({ message: z.string() }),

@@ -3,7 +3,7 @@ import { BaseRequester } from './base-requester.js';
 type SendAnnouncementParams = {
   courseIdentifier: number;
   season: string;
-  text: string;
+  message: string;
 };
 
 type SendAnnouncementResponse = {
@@ -17,15 +17,15 @@ export class CommunicationsConnector extends BaseRequester {
 
   async sendAnnouncement(
     params: SendAnnouncementParams
-  ): Promise<SendAnnouncementResponse> {
-    const { courseIdentifier, season, text } = params;
+  ) {
+    const { courseIdentifier, season, message } = params;
 
     return this.request<SendAnnouncementResponse>('/groups/announcements', {
       method: 'POST',
       body: {
         courseIdentifier,
         season,
-        message: text,
+        message,
       },
     });
   }

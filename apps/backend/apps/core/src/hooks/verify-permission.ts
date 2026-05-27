@@ -1,10 +1,8 @@
 import type { preHandlerAsyncHookHandler } from 'fastify';
 
 export const verifyPermissionHook = (
-  permissions: readonly string[]
+  allowedPermissions: readonly string[]
 ): preHandlerAsyncHookHandler => {
-  const allowedPermissions = new Set(permissions);
-
   return async (request, reply) => {
     try {
       await request.jwtVerify();
@@ -15,7 +13,7 @@ export const verifyPermissionHook = (
     }
 
     const hasPermission = request.user.permissions.some((permission) =>
-      allowedPermissions.has(permission)
+      allowedPermissions.includes(permission)
     );
 
     if (!hasPermission) {
