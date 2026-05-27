@@ -1,6 +1,6 @@
 import type { preHandlerAsyncHookHandler } from 'fastify';
 
-export const verifyPermissionHook = (
+export const permissionVerifyHook = (
   allowedPermissions: readonly string[]
 ): preHandlerAsyncHookHandler => {
   return async (request, reply) => {

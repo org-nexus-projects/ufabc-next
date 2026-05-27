@@ -2,7 +2,7 @@ import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 
 import { CommunicationsConnector } from '@/connectors/communications.js';
-import { verifyPermissionHook } from '@/hooks/verify-permission.js';
+import { permissionVerifyHook } from '@/hooks/permission-verify.js';
 import { ALLOWED_ANNOUNCEMENT_PERMISSIONS } from '@/constants.js';
 
 export const proxyController: FastifyPluginAsyncZod = async (app) => {
@@ -20,7 +20,7 @@ export const proxyController: FastifyPluginAsyncZod = async (app) => {
         502: z.object({ message: z.string() }),
       },
     },
-    preHandler: [verifyPermissionHook(ALLOWED_ANNOUNCEMENT_PERMISSIONS)],
+    preHandler: [permissionVerifyHook(ALLOWED_ANNOUNCEMENT_PERMISSIONS)],
     handler: async (request, reply) => {
       const communications = new CommunicationsConnector(
         app.config.COMMUNICATIONS_API_URL,
