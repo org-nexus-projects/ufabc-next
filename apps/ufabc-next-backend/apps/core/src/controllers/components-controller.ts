@@ -238,6 +238,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       const mappedComponents = components.map(
         (component): ListComponent => ({
           subject: component.subject?.name ?? '',
+          codigo: component.codigo ?? '',
           turma: component.turma,
           turno: component.turno,
           vagas: component.vagas,
