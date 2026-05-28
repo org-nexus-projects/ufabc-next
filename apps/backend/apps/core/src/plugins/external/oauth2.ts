@@ -52,22 +52,23 @@ export default fp(
         return Buffer.from(JSON.stringify(payload)).toString('base64url');
       },
       checkStateFunction: (request) => {
-
         const { requesterKey, redirectTarget } = JSON.parse(
-          Buffer.from((request.query as any).state, 'base64url').toString('utf8')
+          Buffer.from((request.query as any).state, 'base64url').toString(
+            'utf8'
+          )
         ) as statePayloadType;
 
         if (!REQUESTERS.includes(requesterKey))
           throw new Error('Invalid requester key');
 
         if (redirectTarget && !REDIRECT_TARGETS.includes(redirectTarget)) {
-            throw new Error('Invalid redirect target');
+          throw new Error('Invalid redirect target');
         }
 
         if (redirectTarget === 'web-local' && requesterKey !== 'ufabc-next') {
-            throw new Error(
-              'Redirect target web-local is only allowed for ufabc-next'
-            );
+          throw new Error(
+            'Redirect target web-local is only allowed for ufabc-next'
+          );
         }
 
         return true;

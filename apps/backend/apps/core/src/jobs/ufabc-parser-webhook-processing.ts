@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { JOB_NAMES, PARSER_WEBHOOK_SUPPORTED_EVENTS } from '@/constants.js';
 
 import {
+  ClassSettledEventSchema,
   ComponentSateSchema,
   StudentFailedEventSchema,
   StudentSyncedEventSchema,
@@ -14,6 +15,7 @@ const studentSyncedDataSchema = StudentSyncedEventSchema.shape.data;
 const studentFailedDataSchema = StudentFailedEventSchema.shape.data;
 const componentStateDataSchema = ComponentSateSchema.shape.data;
 const teacherCreatedDataSchema = TeacherCreatedEventSchema.shape.data;
+const classSettledDataSchema = ClassSettledEventSchema.shape.data;
 
 const webhookJobSchema = z.object({
   deliveryId: z.string().uuid().describe('Unique webhook delivery ID'),
@@ -24,6 +26,7 @@ const webhookJobSchema = z.object({
     studentFailedDataSchema,
     componentStateDataSchema,
     teacherCreatedDataSchema,
+    classSettledDataSchema,
   ]),
 });
 
@@ -78,6 +81,20 @@ export const ufabcParserWebhookProcessingJob = defineJob(
         event,
         timestamp,
         data: data as z.infer<typeof teacherCreatedDataSchema>,
+      });
+      return {
+        success: true,
+        event,
+        deliveryId,
+      };
+    }
+
+    if (event === 'class.settled') {
+      await app.manager.dispatch(JOB_NAMES.PROCESS_SETTLED_ENROLLMENTS, {
+        deliveryId,
+        event,
+        timestamp,
+        data: data as z.infer<typeof classSettledDataSchema>,
       });
       return {
         success: true,

@@ -142,7 +142,10 @@ export class BaseRequester {
   }
 
   private buildFullUrl(requestPath: string): string {
-    if (requestPath.startsWith('http://') || requestPath.startsWith('https://')) {
+    if (
+      requestPath.startsWith('http://') ||
+      requestPath.startsWith('https://')
+    ) {
       return requestPath;
     }
 

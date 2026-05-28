@@ -33,7 +33,7 @@ export const authenticationController: FastifyPluginAsyncZod = async (app) => {
         }
 
         const components = JSON.parse(
-          Buffer.from(token, 'base64').toString('utf8'),
+          Buffer.from(token, 'base64').toString('utf8')
         ) as {
           iv: string;
           data: string;
@@ -44,7 +44,7 @@ export const authenticationController: FastifyPluginAsyncZod = async (app) => {
         const decipher = createDecipheriv(
           'aes-256-gcm',
           key,
-          Buffer.from(components.iv, 'base64'),
+          Buffer.from(components.iv, 'base64')
         );
 
         decipher.setAuthTag(Buffer.from(components.tag, 'base64'));
@@ -113,7 +113,7 @@ export const authenticationController: FastifyPluginAsyncZod = async (app) => {
 
       request.log.info(
         { userId: user._id, ra: user.ra },
-        'WhatsApp auth token validated successfully',
+        'WhatsApp auth token validated successfully'
       );
 
       return reply.status(200).send({ token: jwtToken });
