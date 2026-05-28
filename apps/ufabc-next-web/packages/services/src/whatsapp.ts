@@ -42,12 +42,9 @@ export const Whatsapp = {
     api.get<SearchComponentItem[]>('entities/enrollments/wpp', {
       params: { ra, season },
     }),
-  getCourses: async (season: string) => {
+  getCourses: async () => {
     const response = await apiParser.get<SearchCourseItem[]>(
       '/components/curriculum/subjects',
-      {
-        params: { season },
-      },
     );
     return response.data;
   },
