@@ -209,9 +209,9 @@
             usuários autenticados.
           </p>
           <div class="not-synced__actions auth-required-actions">
-            <button class="not-synced__button" @click="createAccount">
+            <button class="not-synced__button" @click="loginAccount">
               <v-icon size="20"> mdi-account-plus </v-icon>
-              Criar conta
+              Login na conta
             </button>
             <button
               class="not-synced__button secondary"
@@ -649,8 +649,8 @@ const {
   isLoading: isCoursesLoading,
   isError: isCoursesError,
 } = useQuery({
-  queryKey: ['courses'],
-  queryFn: () => Whatsapp.getCourses(),
+  queryKey: ['courses', selectedSeason],
+  queryFn: () => Whatsapp.getCourses(selectedSeason.value),
   enabled: computed(
     () => isUserLoggedIn.value && selectedSearchType.value === 'course',
   ),
@@ -710,9 +710,20 @@ const normalizeSeasonToken = (season: string | null | undefined) =>
     .trim()
     .replace('.', ':');
 
-const extractComponentCodeFromUfClassroom = (ufClassroomCode: string) => {
-  const match = ufClassroomCode.match(/[A-Z]{3}\d{4}-\d{2}/i);
-  return match ? normalizeCourseCode(match[0]) : '';
+const containsAnyCourseCode = (
+  ufClassroomCode: string | null | undefined,
+  courseCodes: Set<string>,
+) => {
+  const normalizedUfClassroomCode = normalizeCourseCode(ufClassroomCode);
+
+  if (!normalizedUfClassroomCode) {
+    return false;
+  }
+
+  return [...courseCodes].some(
+    (courseCode) =>
+      courseCode && normalizedUfClassroomCode.includes(courseCode),
+  );
 };
 
 // Componentes filtrados por curso
@@ -751,16 +762,13 @@ const filteredByCourse = computed(() => {
   const filtered = allComponentsData.value.filter((component) => {
     const codigo = normalizeCourseCode(component.codigo);
     const codigoBase = getBaseCourseCode(component.codigo);
-    const classroomCode = extractComponentCodeFromUfClassroom(
-      component.uf_cod_turma || '',
-    );
-    const classroomCodeBase = getBaseCourseCode(classroomCode);
+    const matchesCodigo =
+      courseCodes.has(codigo) || baseCourseCodes.has(codigoBase);
+    const matchesUfClassroomCode =
+      containsAnyCourseCode(component.uf_cod_turma, courseCodes) ||
+      containsAnyCourseCode(component.uf_cod_turma, baseCourseCodes);
 
-    const matchesCourse =
-      courseCodes.has(codigo) ||
-      baseCourseCodes.has(codigoBase) ||
-      courseCodes.has(classroomCode) ||
-      baseCourseCodes.has(classroomCodeBase);
+    const matchesCourse = matchesCodigo || matchesUfClassroomCode;
 
     const matchesSeason =
       normalizeSeasonToken(component.season) ===
@@ -935,12 +943,11 @@ const handleSyncHistory = () => {
   window.open(studentRecordURL, '_blank');
 };
 
-const createAccount = () => {
-  eventTracker.track(WebEvent.CREATE_ACCOUNT_CLICKED, {
+const loginAccount = () => {
+  eventTracker.track(WebEvent.LOGIN_ACCOUNT_CLICKED, {
     source: 'whatsapp_groups_dialog',
   });
-
-  router.push('/signup');
+  window.location.href = `${window.location.origin}/`;
 };
 
 const openSupport = () => {
