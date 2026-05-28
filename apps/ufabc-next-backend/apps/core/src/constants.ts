@@ -29,6 +29,7 @@ export const JOB_NAMES = {
   UFABC_PARSER_WEBHOOK_PROCESSING: 'ufabc_parser_webhook_processing',
   STUDENT_SYNC_PROCESSING: 'student_sync_processing',
   TEACHER_CREATED: 'teacher_created',
+  PROCESS_SETTLED_ENROLLMENTS: 'process_settled_enrollments',
 } as const;
 
 export const REQUESTERS = ['ufabc-next', 'ufabc-cronos'] as const;
@@ -43,6 +44,7 @@ export const PARSER_WEBHOOK_EVENTS = {
   COMPONENT_CREATED: 'component.created',
   COMPONENT_UPDATED: 'component.updated',
   TEACHER_CREATED: 'teacher.created',
+  CLASS_SETTLED: 'class.settled',
 } as const;
 
 export const PARSER_WEBHOOK_SUPPORTED_EVENTS = [
@@ -51,6 +53,7 @@ export const PARSER_WEBHOOK_SUPPORTED_EVENTS = [
   PARSER_WEBHOOK_EVENTS.COMPONENT_CREATED,
   PARSER_WEBHOOK_EVENTS.COMPONENT_UPDATED,
   PARSER_WEBHOOK_EVENTS.TEACHER_CREATED,
+  PARSER_WEBHOOK_EVENTS.CLASS_SETTLED,
 ] as const;
 
 export const PERMISSIONS = {

@@ -1,15 +1,14 @@
-import type { QueryFilter as FilterQuery } from 'mongoose';
-
 import { defineJob } from '@next/queues/client';
 import { FastifyBaseLogger } from 'fastify';
 import { z } from 'zod';
 
+import type { Enrollment } from '@/models/Enrollment.js';
 import type { SubjectDocument } from '@/models/Subject.js';
 
 import { JOB_NAMES } from '@/constants.js';
 import { ComponentModel } from '@/models/Component.js';
-import { EnrollmentModel, type Enrollment } from '@/models/Enrollment.js';
 
+import { upsertEnrollment } from './utils/enrollment-upsert.js';
 import { findOrCreateSubject } from './utils/subject-resolution.js';
 
 const jobSchema = z.object({
@@ -141,15 +140,6 @@ function transformComponentToEnrollment(component: Component) {
     uf_cod_turma: component.class,
     teachers: component.teachers || [],
   };
-}
-
-function normalizeText(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .trim();
 }
 
 function getCampusFromTurma(turma: string | null | undefined): string | null {
@@ -383,80 +373,4 @@ function mapSubjects(
       (e): e is Partial<Enrollment> =>
         e.disciplina !== '' && e.disciplina != null
     );
-}
-
-async function upsertEnrollment(
-  enrollmentData: Partial<Enrollment>,
-  log: FastifyBaseLogger
-): Promise<string | null> {
-  // @ts-ignore - Mongoose FilterQuery type
-  const base: FilterQuery<Enrollment> = {
-    ra: enrollmentData.ra,
-    season: enrollmentData.season,
-  };
-
-  let query = { ...base, uf_cod_turma: enrollmentData.uf_cod_turma };
-  let enrollment = await EnrollmentModel.findOneAndUpdate(
-    query,
-    { $set: enrollmentData },
-    { new: true }
-  );
-
-  if (!enrollment && enrollmentData.disciplina_id) {
-    // @ts-ignore - Mongoose FilterQuery type
-    query = { ...base, disciplina_id: enrollmentData.disciplina_id };
-    enrollment = await EnrollmentModel.findOneAndUpdate(
-      query,
-      { $set: enrollmentData },
-      { new: true }
-    );
-  }
-
-  if (!enrollment && enrollmentData.subject) {
-    // @ts-ignore - Mongoose FilterQuery type
-    query = { ...base, subject: enrollmentData.subject };
-    enrollment = await EnrollmentModel.findOneAndUpdate(
-      query,
-      { $set: enrollmentData },
-      { new: true }
-    );
-  }
-
-  if (!enrollment && enrollmentData.disciplina) {
-    const normalizedDisciplina = normalizeText(enrollmentData.disciplina);
-    // @ts-ignore - Mongoose FilterQuery type
-    query = {
-      ...base,
-      disciplina: { $regex: normalizedDisciplina, $options: 'i' },
-    } as FilterQuery<Enrollment>;
-    enrollment = await EnrollmentModel.findOneAndUpdate(
-      query,
-      { $set: enrollmentData },
-      { new: true }
-    );
-  }
-
-  if (!enrollment) {
-    enrollment = await EnrollmentModel.create(enrollmentData);
-    log.debug({
-      enrollmentId: enrollment?.identifier,
-      ra: enrollment?.ra,
-      disciplina: enrollment?.disciplina,
-      uf_cod_turma: enrollment?.uf_cod_turma,
-      season: enrollment?.season,
-    });
-  } else {
-    log.debug(
-      {
-        enrollmentId: enrollment?.identifier,
-        ra: enrollment?.ra,
-        disciplina: enrollment?.disciplina,
-        uf_cod_turma: enrollment?.uf_cod_turma,
-        season: enrollment?.season,
-      },
-      'Enrollment updated'
-    );
-  }
-
-  return enrollment?._id?.toString() || null;
 }

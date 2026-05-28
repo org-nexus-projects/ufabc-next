@@ -127,11 +127,27 @@ export const TeacherCreatedEventSchema = z.object({
   }),
 });
 
+export const ClassSettledEventSchema = z.object({
+  event: z.literal('class.settled'),
+  timestamp: z.string().datetime(),
+  deliveryId: z.string().uuid(),
+  data: z.object({
+    ra: z.string().describe('Student ID'),
+    season: z.string().describe('Season (e.g., 2024:2)'),
+    tenantId: z.number().describe('Tenant ID'),
+    classes: z
+      .array(z.string())
+      .describe('Array of class codes (uf_cod_turma)'),
+    referenceKey: z.string().describe('Reference key for deduplication'),
+  }),
+});
+
 export const UfabcParserWebhookSchema = z.union([
   StudentSyncedEventSchema,
   StudentFailedEventSchema,
   ComponentSateSchema,
   TeacherCreatedEventSchema,
+  ClassSettledEventSchema,
 ]);
 
 export type StudentSyncedEvent = z.infer<typeof StudentSyncedEventSchema>;
