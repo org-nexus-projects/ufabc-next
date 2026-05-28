@@ -649,8 +649,8 @@ const {
   isLoading: isCoursesLoading,
   isError: isCoursesError,
 } = useQuery({
-  queryKey: ['courses', selectedSeason],
-  queryFn: () => Whatsapp.getCourses(selectedSeason.value),
+  queryKey: ['courses'],
+  queryFn: () => Whatsapp.getCourses(),
   enabled: computed(
     () => isUserLoggedIn.value && selectedSearchType.value === 'course',
   ),
@@ -710,20 +710,9 @@ const normalizeSeasonToken = (season: string | null | undefined) =>
     .trim()
     .replace('.', ':');
 
-const containsAnyCourseCode = (
-  ufClassroomCode: string | null | undefined,
-  courseCodes: Set<string>,
-) => {
-  const normalizedUfClassroomCode = normalizeCourseCode(ufClassroomCode);
-
-  if (!normalizedUfClassroomCode) {
-    return false;
-  }
-
-  return [...courseCodes].some(
-    (courseCode) =>
-      courseCode && normalizedUfClassroomCode.includes(courseCode),
-  );
+const extractComponentCodeFromUfClassroom = (ufClassroomCode: string) => {
+  const match = ufClassroomCode.match(/[A-Z]{3}\d{4}-\d{2}/i);
+  return match ? normalizeCourseCode(match[0]) : '';
 };
 
 // Componentes filtrados por curso
@@ -762,13 +751,16 @@ const filteredByCourse = computed(() => {
   const filtered = allComponentsData.value.filter((component) => {
     const codigo = normalizeCourseCode(component.codigo);
     const codigoBase = getBaseCourseCode(component.codigo);
-    const matchesCodigo =
-      courseCodes.has(codigo) || baseCourseCodes.has(codigoBase);
-    const matchesUfClassroomCode =
-      containsAnyCourseCode(component.uf_cod_turma, courseCodes) ||
-      containsAnyCourseCode(component.uf_cod_turma, baseCourseCodes);
+    const classroomCode = extractComponentCodeFromUfClassroom(
+      component.uf_cod_turma || '',
+    );
+    const classroomCodeBase = getBaseCourseCode(classroomCode);
 
-    const matchesCourse = matchesCodigo || matchesUfClassroomCode;
+    const matchesCourse =
+      courseCodes.has(codigo) ||
+      baseCourseCodes.has(codigoBase) ||
+      courseCodes.has(classroomCode) ||
+      baseCourseCodes.has(classroomCodeBase);
 
     const matchesSeason =
       normalizeSeasonToken(component.season) ===

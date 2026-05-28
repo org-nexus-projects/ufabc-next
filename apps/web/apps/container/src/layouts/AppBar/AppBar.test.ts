@@ -12,7 +12,7 @@ describe('<AppBar />', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     authStore = useAuthStore();
-    authStore.token = 'mock-token';
+    authStore.authenticate('mock-token');
     authStore.user = mockedUser;
   });
 
