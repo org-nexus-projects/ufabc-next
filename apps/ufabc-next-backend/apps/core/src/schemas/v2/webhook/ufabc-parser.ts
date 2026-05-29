@@ -138,7 +138,7 @@ export const ClassSettledEventSchema = z.object({
     classes: z
       .array(z.string())
       .describe('Array of class codes (uf_cod_turma)'),
-    referenceKey: z.string().describe('Reference key for deduplication'),
+    referenceKey: z.string().optional().describe('Reference key for deduplication'),
   }),
 });
 
