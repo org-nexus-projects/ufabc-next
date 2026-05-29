@@ -13,7 +13,7 @@ const settledEnrollmentsDataSchema = z.object({
   season: z.string().describe('Season (e.g., 2024:2)'),
   tenantId: z.number().describe('Tenant ID'),
   classes: z.array(z.string()).describe('Array of class codes (uf_cod_turma)'),
-  referenceKey: z.string().describe('Reference key for deduplication'),
+  referenceKey: z.string().optional().describe('Reference key for deduplication'),
 });
 
 export const settledEnrollmentsProcessingJob = defineJob(
