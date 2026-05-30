@@ -14,6 +14,14 @@ const router = useRouter();
 
 const redirectToHome = () => (window.location.pathname = '/');
 
+const outlookDomain = computed(() => {
+  const userEmail = email.value.value;
+  if (userEmail?.includes('@aluno.ufabc.edu.br')) {
+    return 'aluno.ufabc.edu.br';
+  }
+  return 'ufabc.edu.br';
+});
+
 const validationSchema = toTypedSchema(recoverySchema as any);
 
 const { handleSubmit, meta } = useForm({
@@ -219,7 +227,7 @@ const onSubmit = handleSubmit(({ email }) =>
           </h1>
           <p class="mb-4">
             Você recebeu um email para recuperar sua conta,
-            <a href="https://www.outlook.com/aluno.ufabc.edu.br" target="_blank"
+            <a :href="`https://www.outlook.com/${outlookDomain}`" target="_blank"
               >clique aqui</a
             >
             para acessar seu email institucional.
