@@ -371,7 +371,7 @@ const { mutate: mutateSignUp, isPending: isPendingSubmit } = useMutation({
   onError: (error: AxiosError<RequestError>) => {
     const message =
       error.status === 500
-        ? 'Seu login falhou, tente novamente com o email institucional @aluno.ufabc.edu.br'
+        ? 'Seu login falhou, tente novamente com o email institucional (@aluno.ufabc.edu.br ou @ufabc.edu.br)'
         : error.response?.data.message;
     ElMessage({
       message,
@@ -468,7 +468,7 @@ watch(
     if (user.value?.ra && user.value?.email) {
       step.value = 3;
       setValues({
-        email: user.value.email.replace('@aluno.ufabc.edu.br', ''),
+        email: user.value.email.replace(/@(aluno\.)?ufabc\.edu\.br$/, ''),
         ra: {
           ra: user.value.ra.toString(),
           confirm: user.value.ra.toString(),
