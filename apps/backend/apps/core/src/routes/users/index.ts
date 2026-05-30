@@ -1,6 +1,5 @@
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-
 import { currentQuad } from '@next/common';
+import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
 import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { UfabcParserError } from '@/errors/ufabc-parser.js';
@@ -137,8 +136,6 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const ufabcParserConnector = new UfabcParserConnector(request.id);
 
       try {
-        
-        // Now accepting both aluno and general UFABC emails @aluno.ufabc and @ufabc.edu
         const student = await ufabcParserConnector.getStudent(ra);
         const hasUfabcContract = await ufabcParserConnector.getTeacher(
           student.login
@@ -146,20 +143,15 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
         if (hasUfabcContract) {
           return reply.forbidden('O aluno não pode ter contrato com a UFABC.');
-
         }
 
         if (student.email.length > 1) {
-          request.log.warn(
-            {
-              msg: 'User has multiple emails due to employment contract with UFABC or post graduation',
-              ra,
-              emails: student.email,
-            }
-          );
+          request.log.warn({
+            msg: 'User has multiple emails due to employment contract with UFABC or post graduation',
+            ra,
+            emails: student.email,
+          });
         }
-
-       
       } catch (error: unknown) {
         if (error instanceof UfabcParserError) {
           if (error.code === 'UFP0015') {
@@ -289,9 +281,9 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       try {
         const student = await ufabcParserConnector.getStudent(ra);
         await ufabcParserConnector.getTeacher(student.login);
-        const email = student.email.find((e) =>
-          e.includes('@aluno.ufabc.edu.br')
-        );
+        const email =
+          student.email.find((e) => e.endsWith('@aluno.ufabc.edu.br')) ??
+          student.email.find((e) => e.endsWith('@ufabc.edu.br'));
         return reply.send({ email: email! });
       } catch (error) {
         if (error instanceof UfabcParserError) {
