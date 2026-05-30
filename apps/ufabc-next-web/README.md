@@ -63,7 +63,6 @@ ufabc-next-web/
 └── packages/
     ├── services/         # Funções para realizar Fetch/Mutations na API (Axios).
     ├── types/            # Definições (Interfaces) do TypeScript para toda a plataforma.
-    ├── utils/            # Funções utilitárias puras.
     └── eslint-config-custom/ # Regras de linting padronizadas do projeto.
 ```
 
