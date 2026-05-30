@@ -145,6 +145,16 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           return reply.forbidden('O aluno não pode ter contrato com a UFABC.');
         }
 
+        const normalizedEmail = email.toLowerCase();
+        const emailMatch = student.email.find(
+          (e) => e.toLowerCase() === normalizedEmail
+        );
+        if (!emailMatch) {
+          return reply.badRequest(
+            'O email informado não corresponde ao email institucional vinculado ao RA.'
+          );
+        }
+
         if (student.email.length > 1) {
           request.log.warn({
             msg: 'User has multiple emails due to employment contract with UFABC or post graduation',
