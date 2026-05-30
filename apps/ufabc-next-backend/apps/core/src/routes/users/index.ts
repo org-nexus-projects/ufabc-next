@@ -145,6 +145,17 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           return reply.forbidden('O aluno não pode ter contrato com a UFABC.');
         }
 
+        if (!Array.isArray(student.email)) {
+          request.log.error({
+            msg: 'student.email is not an array',
+            ra,
+            studentEmail: student.email,
+          });
+          return reply.internalServerError(
+            'Dados do aluno inválidos. Tente novamente mais tarde.'
+          );
+        }
+
         const normalizedEmail = email.toLowerCase();
         const emailMatch = student.email.find(
           (e) => e.toLowerCase() === normalizedEmail
@@ -292,6 +303,18 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       try {
         const student = await ufabcParserConnector.getStudent(ra);
         await ufabcParserConnector.getTeacher(student.login);
+
+        if (!Array.isArray(student.email)) {
+          request.log.error({
+            msg: 'student.email is not an array',
+            ra,
+            studentEmail: student.email,
+          });
+          return reply.internalServerError(
+            'Dados do aluno inválidos. Tente novamente mais tarde.'
+          );
+        }
+
         const email =
           student.email.find((e) => e.endsWith('@aluno.ufabc.edu.br')) ??
           student.email.find((e) => e.endsWith('@ufabc.edu.br'));
