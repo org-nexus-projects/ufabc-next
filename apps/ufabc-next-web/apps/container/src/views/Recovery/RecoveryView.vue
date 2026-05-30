@@ -28,7 +28,7 @@ const { handleSubmit, meta } = useForm({
   validationSchema,
 });
 
-const email = useField('email');
+const email = useField<string>('email');
 const ra = useField<string>('ra.ra');
 const raConfirm = useField('ra.confirm');
 
