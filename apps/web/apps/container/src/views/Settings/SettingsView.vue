@@ -150,7 +150,7 @@ const {
 });
 
 const userLogin = computed(() => {
-  return user.value?.email?.replace('@aluno.ufabc.edu.br', '');
+  return user.value?.email?.replace(/@(aluno\.)?ufabc\.edu\.br$/, '');
 });
 
 const addGoogleAccount = computed(() => {

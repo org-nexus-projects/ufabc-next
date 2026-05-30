@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const UFABC_EMAIL_REGEX = /^[A-Za-z0-9._%+-]+@aluno\.ufabc\.edu\.br$/;
+const UFABC_EMAIL_REGEX = /^[A-Za-z0-9._%+-]+@(aluno\.)?ufabc\.edu\.br$/;
 
 export const recoverySchema = z.object({
   email: z
@@ -11,6 +11,6 @@ export const recoverySchema = z.object({
     .email('Formato de email inválido')
     .refine(
       (email) => UFABC_EMAIL_REGEX.test(email),
-      'Digite um email UFABC válido (domínio @aluno.ufabc.edu.br)',
+      'Digite um email UFABC válido (domínios @aluno.ufabc.edu.br ou @ufabc.edu.br)',
     ),
 });
