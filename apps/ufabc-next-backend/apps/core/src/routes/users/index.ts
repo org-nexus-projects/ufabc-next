@@ -163,6 +163,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           });
         }
       } catch (error: unknown) {
+        request.log.error({ msg: 'error validating student', error });
         if (error instanceof UfabcParserError) {
           if (error.code === 'UFP0015') {
             return reply.badRequest('O RA digitado não existe.');
@@ -296,6 +297,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           student.email.find((e) => e.endsWith('@ufabc.edu.br'));
         return reply.send({ email: email! });
       } catch (error) {
+        request.log.error({ msg: 'error checking email', error });
         if (error instanceof UfabcParserError) {
           if (error.code === 'UFP0015') {
             return reply.badRequest(
