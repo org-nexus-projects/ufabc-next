@@ -1,4 +1,4 @@
-import { User } from '@ufabc-next/types';
+import type { User } from '@ufabc-next/services';
 import { describe, expect, test } from 'vitest';
 
 import { createMockJwt } from '@/mocks/jwt';

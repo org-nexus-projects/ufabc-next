@@ -1,4 +1,4 @@
-import { Enrollment } from '@ufabc-next/types';
+import type { Enrollment } from '@ufabc-next/services';
 
 export const enrollments: Enrollment[] = [
   {

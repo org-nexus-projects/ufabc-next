@@ -1,4 +1,4 @@
-import { User } from '@ufabc-next/types';
+import type { User } from '@ufabc-next/services';
 import { defineStore } from 'pinia';
 
 import { parseJwt } from '@/utils/jwt';

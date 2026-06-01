@@ -1,9 +1,10 @@
 import { Auth } from '@ufabc-next/services';
+import type {
+  RouteLocationNormalized,
+  RouteRecordRaw} from 'vue-router';
 import {
   createRouter,
-  createWebHistory,
-  RouteLocationNormalized,
-  RouteRecordRaw,
+  createWebHistory
 } from 'vue-router';
 
 import {
@@ -250,8 +251,8 @@ async function validateWhatsappAuth({
   const authStore = useAuthStore();
 
   try {
-    const { data } = await Auth.getWhatsappToken(token, component);
-    authStore.authenticate(data.token);
+    const response = await Auth.getWhatsappToken(token, component);
+    authStore.authenticate(response.token);
   } catch (error) {
     console.error('Failed to authenticate with WhatsApp token', error);
     return { name: 'signup' };

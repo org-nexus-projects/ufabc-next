@@ -328,8 +328,7 @@
 
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
-import { Whatsapp } from '@ufabc-next/services';
-import { SearchCourseItem } from '@ufabc-next/types';
+import { SearchCourseItem,Whatsapp  } from '@ufabc-next/services';
 import { useDebounceFn } from '@vueuse/core';
 import { computed, onMounted, ref, toValue, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -812,7 +811,7 @@ const filteredAndSearchedCourseComponents = computed(() => {
 });
 
 // Computed para acessar dados do allComponents
-const allComponentsData = computed(() => allComponents.value?.data || []);
+const allComponentsData = computed(() => allComponents.value || []);
 
 // Mapa de componentes com dados de professores normalizados (do parser)
 const componentsByCode = computed(() => {
@@ -851,7 +850,7 @@ const enrichComponent = (component: any) => {
 };
 
 const groupsFromRa = computed(() => {
-  const groups = groupsByRa.value?.data || [];
+  const groups = groupsByRa.value || [];
   return groups.map(enrichComponent);
 });
 

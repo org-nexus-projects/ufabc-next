@@ -144,13 +144,14 @@
 
 <script setup lang="ts">
 import { useInfiniteQuery, useQuery } from '@tanstack/vue-query';
-import { type StatsParams, StatsSubjects } from '@ufabc-next/services';
 import type {
   PageableReturn,
   StatsClass,
   StatsCourse,
+  StatsParams,
   StatsSubject,
-} from '@ufabc-next/types';
+} from '@ufabc-next/services';
+import { StatsSubjects } from '@ufabc-next/services';
 import { computed, ref } from 'vue';
 
 import { CenteredLoading } from '@/components/CenteredLoading';
@@ -233,17 +234,14 @@ const subjects = useInfiniteQuery({
     orderBy,
     filterByPeriod,
   ],
-  getNextPageParam: (
-    lastPage: { data: PageableReturn<StatsSubject> },
-    allPages,
-  ) => {
-    if (lastPage.data.total >= allPages.length * 10) {
+  getNextPageParam: (lastPage: PageableReturn<StatsSubject>, allPages) => {
+    if (lastPage.total >= allPages.length * 10) {
       return allPages.length;
     }
   },
   initialPageParam: 0,
   enabled: isSubjectsTab,
-  select: ({ pages }) => pages.flatMap((page) => page.data),
+  select: ({ pages }) => pages,
 });
 
 const courses = useInfiniteQuery({
@@ -257,17 +255,14 @@ const courses = useInfiniteQuery({
     orderBy,
     filterByPeriod,
   ],
-  getNextPageParam: (
-    lastPage: { data: PageableReturn<StatsCourse> },
-    allPages,
-  ) => {
-    if (lastPage.data.total >= allPages.length * 10) {
+  getNextPageParam: (lastPage: PageableReturn<StatsCourse>, allPages) => {
+    if (lastPage.total >= allPages.length * 10) {
       return allPages.length;
     }
   },
   initialPageParam: 0,
   enabled: isCoursesTab,
-  select: ({ pages }) => pages.flatMap((page) => page.data),
+  select: ({ pages }) => pages,
 });
 
 const classes = useInfiniteQuery({
@@ -281,23 +276,19 @@ const classes = useInfiniteQuery({
     orderBy,
     filterByPeriod,
   ],
-  getNextPageParam: (
-    lastPage: { data: PageableReturn<StatsClass> },
-    allPages,
-  ) => {
-    if (lastPage.data.total >= allPages.length * 10) {
+  getNextPageParam: (lastPage: PageableReturn<StatsClass>, allPages) => {
+    if (lastPage.total >= allPages.length * 10) {
       return allPages.length;
     }
   },
   initialPageParam: 0,
   enabled: isClassesTab,
-  select: ({ pages }) => pages.flatMap((page) => page.data),
+  select: ({ pages }) => pages,
 });
 
 const { data: coursesNames } = useQuery({
   queryFn: StatsSubjects.getAllCoursesNames,
   queryKey: ['histories', 'courses'],
-  select: ({ data }) => data,
 });
 
 const queriesData = computed(() => ({
@@ -360,13 +351,12 @@ const matriculaNameLabel = (data: StatsClass | StatsSubject | StatsCourse) => {
 const { data: deficit, isPending: isPendingDeficit } = useQuery({
   queryFn: () => StatsSubjects.getOverview({ season: selectedSeason.value }),
   queryKey: ['stats', 'disciplinas', 'overview'],
-  select: ({ data }) => -data.data[0]?.deficit,
+  select: (data) => -data.data[0]?.deficit,
 });
 
 const { data: usage, isPending: isPendingUsage } = useQuery({
   queryFn: () => StatsSubjects.getUsage({ season: selectedSeason.value }),
   queryKey: ['stats', 'usage'],
-  select: ({ data }) => data,
 });
 
 const currentAlunosPercentage = computed(() =>

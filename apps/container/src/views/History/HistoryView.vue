@@ -239,8 +239,8 @@
 
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
+import type { Concept, Enrollment } from '@ufabc-next/services';
 import { Enrollments, Users } from '@ufabc-next/services';
-import type { Concept, Enrollment } from '@ufabc-next/types';
 import { computed, ref } from 'vue';
 
 import { CenteredLoading } from '@/components/CenteredLoading';
@@ -320,13 +320,11 @@ const {
 } = useQuery({
   queryKey: ['enrollments', 'list'],
   queryFn: Enrollments.list,
-  select: (response) => response.data,
 });
 
 const { data: user, isError: isErrorUser } = useQuery({
   queryKey: ['users', 'info'],
   queryFn: Users.info,
-  select: (response) => response.data,
 });
 
 const enrollmentByDate = computed(() => {

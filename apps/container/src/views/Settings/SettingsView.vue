@@ -154,7 +154,6 @@ const {
 } = useQuery({
   queryKey: ['users', 'info'],
   queryFn: Users.info,
-  select: (response) => response.data,
 });
 
 const userLogin = computed(() => {
