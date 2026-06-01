@@ -58,10 +58,8 @@ export default fp(
           )
         ) as statePayloadType;
 
-        if (!REQUESTERS.includes(requesterKey)) {
+        if (!REQUESTERS.includes(requesterKey))
           throw new Error('Invalid requester key');
-        }
-          
 
         if (redirectTarget && !REDIRECT_TARGETS.includes(redirectTarget)) {
           throw new Error('Invalid redirect target');
