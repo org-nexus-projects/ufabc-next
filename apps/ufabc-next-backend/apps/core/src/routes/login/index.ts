@@ -148,10 +148,10 @@ async function createOrLogin(
     const findUserQuery: FilterQuery<UserDocument>[] = [];
 
     if (oauthUser?.email) {
-      // CACHORRADA
-      findUserQuery.push({ email: { $or: [oauthUser.email, /@aluno\.ufabc\.edu\.br/] }, confirmed: true });
+      findUserQuery.push({ email: oauthUser.email, confirmed: true });
     }
 
+    // Add user ID if provided and valid
     if (userId && userId !== 'undefined') {
       try {
         findUserQuery.push({ _id: new Types.ObjectId(userId) });
@@ -160,7 +160,6 @@ async function createOrLogin(
       }
     }
 
-    
     // Find existing user or create a new one
     let user =
       findUserQuery.length > 0
