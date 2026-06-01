@@ -233,10 +233,7 @@ async function handleAuthValidationIfNeeded(to: RouteLocationNormalized) {
 
   if (isValidJwtFormat(token)) {
     validateJwtAuth(token);
-    return {
-      path: to.path,
-      query: { ...to.query, token: undefined },
-    };
+    return { path: AUTHENTICATED_REDIRECT_PATH };
   }
 
   return validateWhatsappAuth({ token, component });
