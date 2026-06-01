@@ -166,6 +166,14 @@ async function createOrLogin(
         ? await UserModel.findOne({ $or: findUserQuery })
         : null;
 
+    if (!user && oauthUser?.email) {
+      const login = oauthUser.email.split('@')[0];
+      user = await UserModel.findOne({
+        email: new RegExp(`^${login}@aluno\\.ufabc\\.edu\\.br$`, 'i'),
+        confirmed: true,
+      });
+    }
+
     // If no user found, create a new one
     if (!user) {
       const ttlHours = 1;
