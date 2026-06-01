@@ -15,7 +15,6 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@ufabc-next/types": "workspace:*",
     "axios": "1.13.2"
   }
 }
