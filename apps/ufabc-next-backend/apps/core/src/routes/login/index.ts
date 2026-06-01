@@ -151,10 +151,6 @@ async function createOrLogin(
       findUserQuery.push({ email: oauthUser.email, confirmed: true });
     }
 
-    if (oauthUser?.google) {
-      findUserQuery.push({ 'oauth.google': oauthUser.google });
-    }
-
     // Add user ID if provided and valid
     if (userId && userId !== 'undefined') {
       try {
