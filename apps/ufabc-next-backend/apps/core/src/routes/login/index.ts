@@ -146,15 +146,10 @@ async function createOrLogin(
 ) {
   try {
     const findUserQuery: FilterQuery<UserDocument>[] = [];
-    
+
     if (oauthUser?.email) {
-      findUserQuery.push({
-        confirmed: true,
-        $or: [
-          { email: oauthUser.email },
-          { email: /@aluno\.ufabc\.edu\.br/ },
-        ],
-      });
+      // CACHORRADA
+      findUserQuery.push({ email: { $or: [oauthUser.email, /@aluno\.ufabc\.edu\.br/] }, confirmed: true });
     }
 
     if (userId && userId !== 'undefined') {
