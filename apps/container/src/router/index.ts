@@ -6,6 +6,13 @@ import {
   RouteRecordRaw,
 } from 'vue-router';
 
+import {
+  AUTHENTICATED_REDIRECT_PATH,
+  getUnauthenticatedRedirectPath,
+  LANDING_PAGE_PATH,
+  LOCAL_DEV_LOGIN_PATH,
+  shouldUseLocalLogin,
+} from '@/router/auth/authConfig';
 import { useAuthStore } from '@/stores/auth';
 import { isUserTokenExpired, isValidJwtFormat } from '@/utils/jwt';
 
@@ -20,6 +27,7 @@ const SignUpView = () => import('@/views/SignUp/SignUpView.vue');
 const ConfirmationView = () =>
   import('@/views/Confirmation/ConfirmationView.vue');
 const RecoveryView = () => import('@/views/Recovery/RecoveryView.vue');
+const LoginView = () => import('@/views/Login/LoginView.vue');
 const CalengradeView = () => import('@/views/Calengrade/CalengradeView.vue');
 const WhatsappGroupsView = () =>
   import('@/views/WhatsappGroups/WhatsappGroupsView.vue');
@@ -120,6 +128,15 @@ const routes: Array<RouteRecordRaw> = [
     component: RecoveryView,
     meta: {
       title: 'Recuperar conta',
+      guestOnly: true,
+    },
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: LoginView,
+    meta: {
+      title: 'Entrar no Next',
       guestOnly: true,
     },
   },
@@ -266,14 +283,25 @@ function handleAuthStatus() {
   }
 
   authStore.logOut();
-  return { name: 'signup' };
+  return {
+    path: getUnauthenticatedRedirectPath(window.location.hostname),
+  };
 }
 
 // todo: não gosto dessa quantidade de condicionais, ver melhor depois
 function resolveRouteAccess(to: RouteLocationNormalized) {
+  const hostname = window.location.hostname;
+
+  if (to.name === 'login' && !shouldUseLocalLogin(hostname)) {
+    const landingPageUrl = new URL(LANDING_PAGE_PATH, window.location.origin);
+    window.location.assign(landingPageUrl.toString());
+    return false;
+  }
+
   const authStore = useAuthStore();
   const isLoggedIn = authStore.isLoggedIn;
   const isConfirmed = authStore.user?.confirmed ?? false;
+  const authenticatedRedirectPath = AUTHENTICATED_REDIRECT_PATH;
 
   const requiresAuth = to.matched.some(
     (record) => record.meta.requiresAuth === true,
@@ -298,24 +326,27 @@ function resolveRouteAccess(to: RouteLocationNormalized) {
   }
 
   if (guestOnly) {
-    if (isLoggedIn) return { name: 'reviews' };
+    if (isLoggedIn) return { name: authenticatedRedirectPath };
     return;
   }
 
   if (unconfirmedOnly) {
-    if (isConfirmed) return { name: 'reviews' };
+    if (isConfirmed) return { name: authenticatedRedirectPath };
     return;
   }
 }
 
 function redirectToStaticRootIfProduction() {
-  if (import.meta.env.VITE_APP_ENV === 'local') {
-    return { name: 'signup' };
+  const hostname = window.location.hostname;
+
+  if (shouldUseLocalLogin(hostname)) {
+    return { path: LOCAL_DEV_LOGIN_PATH };
   }
 
   // In production, force a full-page reload to the static site root.
   // Returning false cancels Vue Router navigation; the browser reload takes over.
-  window.location.pathname = '/';
+  const landingPageUrl = new URL(LANDING_PAGE_PATH, window.location.origin);
+  window.location.assign(landingPageUrl.toString());
   return false;
 }
 
