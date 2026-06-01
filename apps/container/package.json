@@ -6,6 +6,8 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "dev:staging": "vite --mode staging",
+    "dev:prod": "vite --mode production",
     "type-check": "vue-tsc --noEmit",
     "build": "pnpm type-check && vite build",
     "build:staging": "pnpm type-check && vite build --mode staging",
