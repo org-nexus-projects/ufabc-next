@@ -1,23 +1,31 @@
-import {
+import type {
   SearchSubject,
   SearchTeacher,
   SubjectInfo,
   TeacherReview,
-} from '@ufabc-next/types';
+} from './types';
 
 import { api } from './api';
 
 export const Reviews = {
-  searchTeachers: async (q: string) =>
-    api.get<SearchTeacher>('/entities/teachers/search', {
+  searchTeachers: async (q: string) => {
+    const { data } = await api.get('/entities/teachers/search', {
       params: { q },
-    }),
-  searchSubjects: async (q: string) =>
-    api.get<SearchSubject>('/entities/subjects/search', {
+    });
+    return data as SearchTeacher;
+  },
+  searchSubjects: async (q: string) => {
+    const { data } = await api.get('/entities/subjects/search', {
       params: { q },
-    }),
-  getTeacher: async (id: string) =>
-    api.get<TeacherReview>(`/entities/teachers/reviews/${id}`),
-  getSubject: async (id: string) =>
-    api.get<SubjectInfo>(`/entities/subjects/reviews/${id}`),
+    });
+    return data as SearchSubject;
+  },
+  getTeacher: async (id: string) => {
+    const { data } = await api.get(`/entities/teachers/reviews/${id}`);
+    return data as TeacherReview;
+  },
+  getSubject: async (id: string) => {
+    const { data } = await api.get(`/entities/subjects/reviews/${id}`);
+    return data as SubjectInfo;
+  },
 };

@@ -1,4 +1,4 @@
-import { SearchComponentItem, SearchCourseItem } from '@ufabc-next/types';
+import type { SearchComponentItem, SearchCourseItem } from './types';
 
 import { api, apiParser } from './api';
 
@@ -34,28 +34,27 @@ export interface UfabcParserComponent {
 }
 
 export const Whatsapp = {
-  searchComponents: async (season: string) =>
-    api.get<SearchComponentItem[]>('v2/components', {
+  searchComponents: async (season: string) => {
+    const { data } = await api.get('v2/components', {
       params: { season },
-    }),
-  getComponentsByUser: async ({ ra, season }: { ra: number; season: string }) =>
-    api.get<SearchComponentItem[]>('entities/enrollments/wpp', {
+    });
+    return data as SearchComponentItem[];
+  },
+  getComponentsByUser: async ({ ra, season }: { ra: number; season: string }) => {
+    const { data } = await api.get('entities/enrollments/wpp', {
       params: { ra, season },
-    }),
+    });
+    return data as SearchComponentItem[];
+  },
   getCourses: async () => {
-    const response = await apiParser.get<SearchCourseItem[]>(
-      '/components/curriculum/subjects',
-    );
-    return response.data;
+    const response = await apiParser.get('/components/curriculum/subjects');
+    return response.data as SearchCourseItem[];
   },
 
   searchComponentsBySeason: async (season: string) => {
-    const response = await apiParser.get<UfabcParserComponent[]>(
-      '/components',
-      {
-        params: { season },
-      },
-    );
+    const response = await apiParser.get<UfabcParserComponent[]>('/components', {
+      params: { season },
+    });
     return response.data;
   },
 };
