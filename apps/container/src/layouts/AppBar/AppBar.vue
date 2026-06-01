@@ -171,6 +171,11 @@ import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
 import { applyChartsTheme } from '@/theme';
 
+import {
+  getExternalNavigationItems,
+  internalNavigationItems as baseInternalItems,
+} from './navigation';
+
 const router = useRouter();
 const authStore = useAuthStore();
 const theme = useTheme();
@@ -181,6 +186,7 @@ const layout = computed(() => router.currentRoute.value.meta.layout ?? null);
 
 const handleLogout = () => {
   authStore.logOut();
+  window.location.href = '/';
 };
 
 const createAccount = () => {
@@ -216,97 +222,22 @@ const toggleTheme = () => {
   updateHighchartsThemeClass(newTheme === 'dark');
 };
 
-const internalNavigationItems = [
-  {
-    title: 'Reviews',
-    icon: 'mdi-message-draw',
-    route: '/reviews',
-    locked: !authStore.user?.confirmed,
-  },
-  {
-    title: 'Meu histórico',
-    icon: 'mdi-history',
-    route: '/history',
-    locked: !authStore.user?.confirmed,
-  },
-  {
-    title: 'Performance',
-    icon: 'mdi-google-analytics',
-    route: '/performance',
-    locked: !authStore.user?.confirmed,
-  },
-  {
-    title: 'Dados da Matrícula',
-    icon: 'mdi-book-multiple',
-    route: '/stats',
-    locked: !authStore.user?.confirmed,
-  },
-  {
-    title: 'Grupos no WhatsApp',
-    icon: 'mdi-whatsapp',
-    route: '/grupos-whatsapp',
-    releaseDate: dayjs('07/10/2025'),
-    locked: false,
-  },
-  {
-    title: 'Calengrade',
-    icon: 'mdi-calendar',
-    route: '/calengrade',
-    releaseDate: dayjs('11/25/2023'),
-    locked: false,
-  },
-  {
-    title: 'Apoie o UFABC next',
-    icon: 'mdi-bank',
-    route: '/donate',
-    locked: false,
-  },
-  {
-    title: 'Ajuda',
-    icon: 'mdi-help-circle',
-    route: '/help',
-    locked: false,
-  },
-];
-
 const apiURL = api.defaults.baseURL ?? 'https://api.v2.ufabcnext.com';
 
-const externalNavigationItems = [
-  {
-    title: 'Discord',
-    icon: 'fa-brands fa-discord',
-    url: 'https://discord.gg/7BBzDwRXSg',
-  },
-  {
-    title: 'Snapshot da Matrícula',
-    icon: 'mdi-open-in-new',
-    url: 'https://ufabc-matricula-snapshot.vercel.app',
-  },
-  {
-    title: 'Use a Extensão',
-    icon: 'mdi-download',
-    url: 'https://chrome.google.com/webstore/detail/ufabc-next/gphjopenfpnlnffmhhhhdiecgdcopmhk',
-  },
+const internalNavigationItems = computed(() =>
+  baseInternalItems.map((item) => ({
+    ...item,
+    locked: item.locked(Boolean(authStore.user?.confirmed)),
+  })),
+);
 
-  ...(authStore.user?.permissions?.includes('admin')
-    ? [
-        {
-          title: 'Monitoramento de Jobs',
-          icon: 'mdi-open-in-new',
-          url: `${apiURL}/board/ui?token=${authStore.token}`,
-        },
-      ]
-    : []),
-  ...(authStore.user?.permissions?.includes('admin')
-    ? [
-        {
-          title: 'Monitoramento de Jobs V2',
-          icon: 'mdi-open-in-new',
-          url: `${apiURL}/v2/board/ui?token=${authStore.token}`,
-        },
-      ]
-    : []),
-];
+const externalNavigationItems = computed(() =>
+  getExternalNavigationItems({
+    apiURL,
+    token: authStore.token,
+    permissions: authStore.user?.permissions ?? [],
+  }),
+);
 </script>
 <style scoped lang="scss">
 .v-list-item {

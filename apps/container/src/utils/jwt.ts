@@ -18,8 +18,8 @@ export function isValidJwtFormat(token: string): boolean {
 
 const TOKEN_EXPIRATION_SECONDS = 7 * 24 * 60 * 60; // 7 days
 
-export function isTokenExpired(payload: { iat: number }): boolean {
+export function isUserTokenExpired(user: User): boolean {
   const currentTime = Math.floor(Date.now() / 1000);
-  const expirationTime = payload.iat + TOKEN_EXPIRATION_SECONDS;
+  const expirationTime = user.iat + TOKEN_EXPIRATION_SECONDS;
   return expirationTime < currentTime;
 }

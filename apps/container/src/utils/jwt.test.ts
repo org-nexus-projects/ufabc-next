@@ -1,7 +1,8 @@
+import { User } from '@ufabc-next/types';
 import { describe, expect, test } from 'vitest';
 
 import { createMockJwt } from '@/mocks/jwt';
-import { isTokenExpired, isValidJwtFormat, parseJwt } from '@/utils/jwt';
+import { isUserTokenExpired, isValidJwtFormat, parseJwt } from '@/utils/jwt';
 
 describe('jwt utilities', () => {
   describe('parseJwt', () => {
@@ -42,17 +43,17 @@ describe('jwt utilities', () => {
     });
   });
 
-  describe('isTokenExpired', () => {
+  describe('isUserTokenExpired', () => {
     test('returns false for a token issued within the last day', () => {
-      const user = { iat: Math.floor(Date.now() / 1000) - 60 * 60 };
-      expect(isTokenExpired(user)).toBe(false);
+      const user = { iat: Math.floor(Date.now() / 1000) - 60 * 60 } as User;
+      expect(isUserTokenExpired(user)).toBe(false);
     });
 
     test('returns true for a token issued more than 7 days ago', () => {
       const user = {
         iat: Math.floor(Date.now() / 1000) - 8 * 24 * 60 * 60,
-      };
-      expect(isTokenExpired(user)).toBe(true);
+      } as User;
+      expect(isUserTokenExpired(user)).toBe(true);
     });
   });
 });

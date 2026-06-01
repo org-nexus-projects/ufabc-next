@@ -173,6 +173,7 @@ const dialog = ref(false);
 
 const handleLogout = () => {
   authStore.logOut();
+  window.location.href = '/';
 };
 
 const { mutate: removeUser } = useMutation({

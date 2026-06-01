@@ -35,7 +35,10 @@
                 >
                 </v-number-input>
 
-                <div v-else-if="selectedSearchType === 'course'" class="course-search-row">
+                <div
+                  v-else-if="selectedSearchType === 'course'"
+                  class="course-search-row"
+                >
                   <v-select
                     v-model="searchCourseQuery"
                     :items="coursesList"
@@ -64,7 +67,9 @@
                     >
                     </v-text-field>
 
-                    <div class="season-select-wrapper season-select-wrapper--course">
+                    <div
+                      class="season-select-wrapper season-select-wrapper--course"
+                    >
                       <v-select
                         v-model="selectedSeason"
                         :items="seasonOptions"
@@ -243,7 +248,7 @@
             Sua sessão pode ter expirado. Faça login novamente para continuar.
           </p>
           <div class="not-synced__actions">
-            <button class="not-synced__button" @click="authStore.logOut()">
+            <button class="not-synced__button" @click="handleLoginAgain">
               <v-icon size="20"> mdi-login </v-icon>
               Fazer login novamente
             </button>
@@ -358,6 +363,12 @@ const mockGroups = ref(getMockedGroups(defaultSeason));
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+
+const handleLoginAgain = () => {
+  authStore.logOut();
+  window.location.href = '/';
+};
+
 const theme = useTheme();
 const isDarkMode = computed(() => theme.global.current.value.dark);
 
@@ -416,8 +427,6 @@ const selectedSeasonLabel = computed(() => {
   return formatSeason(selectedSeason.value);
 });
 
-
-
 const debouncedRaSearch = useDebounceFn((raValue: number) => {
   if (!isUserLoggedIn.value) {
     shouldFetchGroupsByRa.value = false;
@@ -442,7 +451,10 @@ const applyDefaultCourseSelection = () => {
     return;
   }
 
-  if (searchCourseQuery.value !== null && String(searchCourseQuery.value).trim()) {
+  if (
+    searchCourseQuery.value !== null &&
+    String(searchCourseQuery.value).trim()
+  ) {
     return;
   }
 
@@ -733,8 +745,7 @@ const filteredByCourse = computed(() => {
       ? String(selectedCourseRaw.id ?? '').trim()
       : String(selectedCourseRaw ?? '').trim();
   const selectedCourse = coursesList.value.find(
-    (course: SearchCourseItem) =>
-      String(course.id).trim() === selectedCourseId,
+    (course: SearchCourseItem) => String(course.id).trim() === selectedCourseId,
   );
 
   if (!selectedCourse) {

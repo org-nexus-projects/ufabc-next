@@ -338,6 +338,7 @@ onMounted(() => {
 
 const handleLogout = () => {
   authStore.logOut();
+  window.location.href = '/';
 };
 
 const { smAndDown } = useDisplay();

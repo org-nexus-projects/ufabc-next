@@ -28,11 +28,9 @@ export const useAuthStore = defineStore('auth', {
       this.token = token;
       this.user = user;
     },
-    logOut(redirect = true) {
+    logOut() {
       this.user = null;
       this.token = null;
-
-      if (redirect) window.location.href = '/';
     },
   },
 });

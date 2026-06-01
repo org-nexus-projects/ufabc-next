@@ -41,7 +41,7 @@ describe('useAuthStore', () => {
     const payload = { _id: 'user-1', ra: 12345 };
     authStore.authenticate(createMockJwt(payload));
 
-    authStore.logOut(false);
+    authStore.logOut();
 
     expect(authStore.isLoggedIn).toBe(false);
     expect(authStore.token).toBeNull();
