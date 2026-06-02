@@ -6,5 +6,6 @@ export * from './help';
 export * from './performance';
 export * from './reviews';
 export * from './stats';
+export * from './types/index';
 export * from './users';
 export * from './whatsapp';

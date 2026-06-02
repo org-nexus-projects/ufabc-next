@@ -1,4 +1,4 @@
-import { SubjectSpecific } from '@ufabc-next/types';
+import type { SubjectSpecific } from '@ufabc-next/services';
 
 import { subjectInfo } from '@/mocks/reviews';
 import { render, screen } from '@/test-utils';

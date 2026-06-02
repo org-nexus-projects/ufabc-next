@@ -60,8 +60,16 @@ type HistoriesGraduations = {
 };
 
 export const Performance = {
-  getCrHistory: () => api.get<QuadInformation[]>('courseStats/history'),
-  getCrDistribution: () => api.get<CrDistributionData[]>('courseStats/grades'),
-  getHistoriesGraduations: () =>
-    api.get<HistoriesGraduations>('/courseStats/user/grades'),
+  getCrHistory: async () => {
+    const { data } = await api.get<QuadInformation[]>('courseStats/history');
+    return data;
+  },
+  getCrDistribution: async () => {
+    const { data } = await api.get<CrDistributionData[]>('courseStats/grades');
+    return data;
+  },
+  getHistoriesGraduations: async () => {
+    const { data } = await api.get<HistoriesGraduations>('/courseStats/user/grades');
+    return data;
+  },
 };

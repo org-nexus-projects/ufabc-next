@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { SearchComponentItem } from '@ufabc-next/types';
+import { SearchComponentItem } from '@ufabc-next/services';
 import { computed } from 'vue';
 
 type WhatsappGroupCardProps = {

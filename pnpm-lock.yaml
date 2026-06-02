@@ -130,9 +130,6 @@ importers:
       '@types/node':
         specifier: ^24.2.1
         version: 24.10.7
-      '@ufabc-next/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       '@vitejs/plugin-vue':
         specifier: ^6.0.7
         version: 6.0.7(vite@6.4.1(@types/node@24.10.7)(jiti@2.6.1)(sass@1.100.0))(vue@3.5.35(typescript@5.9.3))
@@ -229,9 +226,6 @@ importers:
 
   packages/services:
     dependencies:
-      '@ufabc-next/types':
-        specifier: workspace:*
-        version: link:../types
       axios:
         specifier: 1.13.2
         version: 1.13.2
@@ -247,18 +241,6 @@ importers:
         version: 5.9.3
 
   packages/tsconfig: {}
-
-  packages/types:
-    devDependencies:
-      '@ufabc-next/eslint-config':
-        specifier: workspace:*
-        version: link:../eslint-config-custom
-      tsconfig:
-        specifier: workspace:*
-        version: link:../tsconfig
-      typescript:
-        specifier: ^5.9.2
-        version: 5.9.3
 
 packages:
 
