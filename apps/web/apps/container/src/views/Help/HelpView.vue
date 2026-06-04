@@ -107,8 +107,7 @@
 
 <script setup lang="ts">
 import { useMutation } from '@tanstack/vue-query';
-import { sendHelpForm } from '@ufabc-next/services';
-import { RequestError } from '@ufabc-next/types';
+import { RequestError,sendHelpForm  } from '@ufabc-next/services';
 import { toTypedSchema } from '@vee-validate/zod';
 import { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';

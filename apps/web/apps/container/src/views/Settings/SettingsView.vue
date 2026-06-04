@@ -32,7 +32,11 @@
               :size="80"
               color="primary"
               class="white--text"
-              style="font-size: 32px; font-weight: bold; text-transform: uppercase"
+              style="
+                font-size: 32px;
+                font-weight: bold;
+                text-transform: uppercase;
+              "
             >
               {{ userInitials }}
             </v-avatar>
@@ -49,11 +53,14 @@
                 Usuário desde {{ createdAt }}
               </div>
               <div class="links-container">
-                <div v-if="user?.oauth?.facebook" href="#" class="links-settings">
+                <div
+                  v-if="user?.oauth?.facebook"
+                  class="links-settings"
+                >
                   <v-icon color="ufabcnext-green">mdi-check</v-icon>
                   Conta do Facebook associada
                 </div>
-                <div v-if="user?.oauth?.google" href="#" class="links-settings">
+                <div v-if="user?.oauth?.google" class="links-settings">
                   <v-icon color="ufabcnext-green">mdi-check</v-icon>
                   Conta do Google associada
                 </div>
@@ -128,7 +135,7 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery } from '@tanstack/vue-query';
-import { api, Users } from '@ufabc-next/services';
+import { Users } from '@ufabc-next/services';
 import { ElMessage } from 'element-plus';
 import { computed, ref } from 'vue';
 
@@ -136,6 +143,7 @@ import { CenteredLoading } from '@/components/CenteredLoading';
 import { PaperCard } from '@/components/PaperCard';
 import { useAuthStore } from '@/stores/auth';
 import { useAliasInitials } from '@/utils/composables/aliasInitials';
+import { buildGoogleAuthUrl } from '@/utils/runtimeConfig';
 
 const authStore = useAuthStore();
 
@@ -146,7 +154,6 @@ const {
 } = useQuery({
   queryKey: ['users', 'info'],
   queryFn: Users.info,
-  select: (response) => response.data,
 });
 
 const userLogin = computed(() => {
@@ -154,7 +161,7 @@ const userLogin = computed(() => {
 });
 
 const addGoogleAccount = computed(() => {
-  return `${api.defaults.baseURL}/login/google?userId=${user.value?._id}`;
+  return buildGoogleAuthUrl({ userId: user.value?._id });
 });
 
 const createdAt = computed(() => {
@@ -173,6 +180,7 @@ const dialog = ref(false);
 
 const handleLogout = () => {
   authStore.logOut();
+  window.location.href = '/';
 };
 
 const { mutate: removeUser } = useMutation({

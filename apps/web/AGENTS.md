@@ -4,7 +4,7 @@
 
 These instructions apply to the whole `ufabc-next-web` repository.
 
-This is a pnpm/Turborepo monorepo. The main app is `apps/container`, a Vue 3 SPA built with Vite. Shared API clients live in `packages/services`, shared TypeScript contracts live in `packages/types`, and shared lint rules live in `packages/eslint-config-custom`.
+This is a pnpm/Turborepo monorepo. The main app is `apps/container`, a Vue 3 SPA built with Vite. Shared API clients live in `packages/services`, shared lint rules live in `packages/eslint-config-custom`.
 
 ## Commands
 
@@ -23,8 +23,7 @@ This is a pnpm/Turborepo monorepo. The main app is `apps/container`, a Vue 3 SPA
 - For package-only work, use the package scripts that actually exist:
   - `pnpm --filter @ufabc-next/services lint`
   - `pnpm --filter @ufabc-next/services tsc`
-  - `pnpm --filter @ufabc-next/types lint`
-  - `pnpm --filter @ufabc-next/types tsc`
+
 - If you add or read new environment variables, update the relevant `turbo.json` task `env` list for `build`, `build:staging`, and/or `dev`. Code currently reads Vite-style variables such as `VITE_APP_ENV`, `VITE_APP_BASE_URL`, and `VITE_MIXPANEL_TOKEN`; do not copy stale `VUE_APP_*` names into new code.
 
 ## Repository Patterns

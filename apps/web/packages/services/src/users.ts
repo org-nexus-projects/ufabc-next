@@ -1,4 +1,4 @@
-import type { User } from '@ufabc-next/types';
+import type { User } from './types';
 
 import { api } from './api';
 
@@ -26,15 +26,27 @@ export type EmailResponse = {
 };
 
 export const Users = {
-  completeSignup: (params: UserSignup) => api.put('/users/complete', params),
-  confirmSignup: (token: string) =>
-    api.post<UserConfirmResponse>('/users/confirm', { token }),
+  completeSignup: async (params: UserSignup) => {
+    const { data } = await api.put('/users/complete', params);
+    return data as UserConfirmResponse;
+  },
+  confirmSignup: async (token: string) => {
+    const { data } = await api.post('/users/confirm', { token });
+    return data as UserConfirmResponse;
+  },
   resendEmail: () => api.post('/users/resend'),
   recovery: (email: string) => api.post('/users/recover', { email }),
   delete: () => api.delete('/users/remove'),
-  info: () => api.get<User>('/users/info'),
-  facebookAuth: (params: FacebookAuth) =>
-    api.post<FacebookConfirmResponse>('/users/facebook', params),
-  getEmail: (ra: string) =>
-    api.get<EmailResponse>('/users/check-email', { params: { ra } }),
+  info: async () => {
+    const { data } = await api.get('/users/info');
+    return data as User;
+  },
+  facebookAuth: async (params: FacebookAuth) => {
+    const { data } = await api.post('/users/facebook', params);
+    return data as FacebookConfirmResponse;
+  },
+  getEmail: async (ra: string) => {
+    const { data } = await api.get('/users/check-email', { params: { ra } });
+    return data as EmailResponse;
+  },
 };

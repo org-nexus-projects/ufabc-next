@@ -1,7 +1,7 @@
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query';
 import { render, screen, waitFor, within } from '@testing-library/vue';
 import elementPlus from 'element-plus';
-import { Plugin } from 'vue';
+import type { Plugin } from 'vue';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';

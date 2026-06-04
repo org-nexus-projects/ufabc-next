@@ -1,5 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia';
 
+import { createMockJwt } from '@/mocks/jwt';
 import { user as mockedUser } from '@/mocks/users';
 import { useAuthStore } from '@/stores/auth';
 import { render, screen, userEvent, waitFor } from '@/test-utils';
@@ -12,8 +13,7 @@ describe('<AppBar />', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     authStore = useAuthStore();
-    authStore.authenticate('mock-token');
-    authStore.user = mockedUser;
+    authStore.authenticate(createMockJwt(mockedUser));
   });
 
   afterEach(() => {
