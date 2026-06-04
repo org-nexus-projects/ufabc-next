@@ -57,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { Enrollment } from '@ufabc-next/types';
+import { Enrollment } from '@ufabc-next/services';
 import { computed, PropType, ref } from 'vue';
 
 import { ReviewDialog } from '@/components/ReviewDialog';

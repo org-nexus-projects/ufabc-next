@@ -1,19 +1,23 @@
-import {
+import type {
   Comment,
   CreateCommentRequest,
   GetCommentResponse,
   UpdateCommentRequest,
-} from '@ufabc-next/types';
+} from './types';
 
 import { api } from './api';
 
 export const Comments = {
-  get: (teacherId: string, subjectId: string, pageParam = 0) =>
-    api.get<GetCommentResponse>(`/comments/${teacherId}/${subjectId}`, {
+  get: async (teacherId: string, subjectId: string, pageParam = 0) => {
+    const { data } = await api.get(`/comments/${teacherId}/${subjectId}`, {
       params: { page: pageParam, limit: 10 },
-    }),
-  getUserComment: (enrollmentId: string) =>
-    api.get<Comment>(`/comments/enrollment/${enrollmentId}`),
+    });
+    return data as GetCommentResponse;
+  },
+  getUserComment: async (enrollmentId: string) => {
+    const { data } = await api.get(`/comments/enrollment/${enrollmentId}`);
+    return data as Comment;
+  },
   create: (data: CreateCommentRequest) => api.post('/comments/', data),
   update: ({ id, comment }: UpdateCommentRequest) =>
     api.put(`/comments/${id}`, { comment }),
