@@ -104,7 +104,7 @@ const {
 
 const selectedSubjectId = computed(
   () =>
-    teacherData.value?.data.specific
+    teacherData.value?.specific
       .filter((subject) => subject._id)
       .find((subject) => subject._id.name === selectedSubject.value)?._id._id ||
     '',
@@ -124,7 +124,7 @@ const {
   refetchOnWindowFocus: false,
   enabled: !!teacherId.value,
   getNextPageParam: (lastPage, allPages) => {
-    if (lastPage.data.total >= allPages.length * 10) {
+    if (lastPage.total >= allPages.length * 10) {
       return allPages.length;
     }
   },
@@ -134,8 +134,8 @@ const {
 const commentsData = computed(() => {
   if (!commentsDataPageable.value) return;
   return {
-    data: commentsDataPageable.value.pages.map((page) => page.data.data).flat(),
-    total: commentsDataPageable.value.pages[0].data.total,
+    data: commentsDataPageable.value.pages.map((page) => page.data).flat(),
+    total: commentsDataPageable.value.pages[0].total,
   };
 });
 
@@ -167,10 +167,10 @@ watch(
 );
 
 const subjects = computed(() => {
-  if (!teacherData.value?.data) return [];
+  if (!teacherData.value) return [];
   return [
     'Todas as matérias',
-    ...teacherData.value.data.specific
+    ...teacherData.value.specific
       .filter((subject) => subject._id)
       .map((subject) => subject._id.name)
       .sort(),
