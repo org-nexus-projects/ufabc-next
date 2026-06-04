@@ -1,4 +1,4 @@
-import {
+import type {
   CreateCommentRequest,
   GetCommentResponse,
   SearchSubject,
@@ -6,7 +6,7 @@ import {
   SubjectInfo,
   TeacherReview,
   UpdateCommentRequest,
-} from '@ufabc-next/types';
+} from '@ufabc-next/services';
 
 export const subjectInfo = {
   subject: {
@@ -34,6 +34,7 @@ export const subjectInfo = {
         amount: 49,
         numeric: 115.65828514050936,
         numericWeight: 49,
+        eadCount: 0,
       },
       {
         conceito: 'F',
@@ -43,6 +44,7 @@ export const subjectInfo = {
         amount: 69,
         numeric: 141.85589383349466,
         numericWeight: 0,
+        eadCount: 0,
       },
       {
         conceito: 'C',
@@ -52,6 +54,7 @@ export const subjectInfo = {
         amount: 67,
         numeric: 176.64754964184814,
         numericWeight: 134,
+        eadCount: 0,
       },
       {
         conceito: 'B',
@@ -61,6 +64,7 @@ export const subjectInfo = {
         amount: 37,
         numeric: 111.20053013822738,
         numericWeight: 111,
+        eadCount: 0,
       },
       {
         conceito: 'O',
@@ -70,6 +74,7 @@ export const subjectInfo = {
         amount: 51,
         numeric: 82.36670902530517,
         numericWeight: 0,
+        eadCount: 0,
       },
       {
         conceito: 'A',
@@ -79,6 +84,7 @@ export const subjectInfo = {
         amount: 132,
         numeric: 347.1690364267896,
         numericWeight: 528,
+        eadCount: 0,
       },
     ],
   },

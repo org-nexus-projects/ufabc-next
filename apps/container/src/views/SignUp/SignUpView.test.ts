@@ -2,6 +2,7 @@ import { http, HttpResponse } from 'msw';
 import { createPinia, setActivePinia } from 'pinia';
 import * as vuetify from 'vuetify';
 
+import { createMockJwt } from '@/mocks/jwt';
 import { server } from '@/mocks/server';
 import { user as mockedUser } from '@/mocks/users';
 import { useAuthStore } from '@/stores/auth';
@@ -15,8 +16,7 @@ describe('<SignUpView />', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     authStore = useAuthStore();
-    authStore.authenticate('token');
-    authStore.user = mockedUser;
+    authStore.authenticate(createMockJwt(mockedUser));
   });
 
   afterEach(() => {
@@ -207,7 +207,7 @@ describe('<SignUpView />', () => {
   });
   test('fill form as student and get error to resend email', async () => {
     server.use(
-      http.post('*/users/me/resend', () =>
+      http.post('*/users/resend', () =>
         HttpResponse.json({ error: 'Erro ao reenviar email' }, { status: 500 }),
       ),
     );

@@ -6,10 +6,10 @@
   <CenteredLoading v-if="isFetchingTeacher" class="mt-10" />
   <PaperCard v-else class="w-100">
     <v-container style="max-width: none">
-      <v-row v-if="Number(teacherData?.data.general.count) > 0" class="pa-0">
+      <v-row v-if="Number(teacherData?.general.count) > 0" class="pa-0">
         <v-col cols="12" md="5">
           <p class="text-h4 font-weight-bold text-primary mb-2">
-            {{ teacherData?.data.teacher.name }}
+            {{ teacherData?.teacher.name }}
           </p>
           <v-chip
             v-for="(chip, index) in chips"
@@ -68,8 +68,7 @@
 
 <script lang="ts" setup>
 import { useQuery } from '@tanstack/vue-query';
-import { Reviews } from '@ufabc-next/services';
-import { TeacherReview, TeacherReviewSubject } from '@ufabc-next/types';
+import { Reviews , TeacherReview, TeacherReviewSubject } from '@ufabc-next/services';
 import { computed, ref } from 'vue';
 import { useDisplay } from 'vuetify';
 
@@ -120,10 +119,10 @@ function calculateGradeCount(
 }
 
 const chips = computed(() => {
-  if (!teacherData.value?.data) {
+  if (!teacherData.value) {
     return [];
   }
-  const { general, specific } = teacherData.value.data;
+  const { general, specific } = teacherData.value;
   const specificValid = specific.filter((subject) => subject._id);
   const specificValidSelected = specificValid.find(
     (subject) => subject._id.name === selectedSubject.value,
@@ -155,14 +154,14 @@ const chips = computed(() => {
 });
 
 const grades = computed(() => {
-  if (!teacherData.value?.data) return {};
+  if (!teacherData.value) return {};
   if (selectedSubject.value === 'Todas as matérias') {
     return transformConceptDataToObject(
-      teacherData.value.data.general.distribution,
+      teacherData.value.general.distribution,
       eadFilter.value,
     );
   }
-  const data = teacherData.value.data.specific
+  const data = teacherData.value.specific
     .filter((subject) => subject._id)
     .find((subject) => subject._id.name === selectedSubject.value);
   return transformConceptDataToObject(
@@ -172,8 +171,8 @@ const grades = computed(() => {
 });
 
 const demandsAttendance = computed(() => {
-  if (!teacherData.value?.data) return false;
-  return teacherData.value.data.general.distribution.some(
+  if (!teacherData.value) return false;
+  return teacherData.value.general.distribution.some(
     (grade) => grade.conceito === 'O',
   );
 });
