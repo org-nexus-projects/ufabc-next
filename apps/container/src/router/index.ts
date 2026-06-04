@@ -1,11 +1,6 @@
 import { Auth } from '@ufabc-next/services';
-import type {
-  RouteLocationNormalized,
-  RouteRecordRaw} from 'vue-router';
-import {
-  createRouter,
-  createWebHistory
-} from 'vue-router';
+import type { RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 
 import {
   AUTHENTICATED_REDIRECT_PATH,
@@ -288,14 +283,6 @@ function handleAuthStatus() {
 
 // todo: não gosto dessa quantidade de condicionais, ver melhor depois
 function resolveRouteAccess(to: RouteLocationNormalized) {
-  const hostname = window.location.hostname;
-
-  if (to.name === 'login' && !shouldUseLocalLogin(hostname)) {
-    const landingPageUrl = new URL(LANDING_PAGE_PATH, window.location.origin);
-    window.location.assign(landingPageUrl.toString());
-    return false;
-  }
-
   const authStore = useAuthStore();
   const isLoggedIn = authStore.isLoggedIn;
   const isConfirmed = authStore.user?.confirmed ?? false;

@@ -23,9 +23,6 @@ describe('<LoginView />', () => {
       'http://localhost:5000/login/google?requesterKey=ufabc-next',
     );
     expect(
-      document.querySelector('router-link-stub[to="/signup"]'),
-    ).not.toBeNull();
-    expect(
       document.querySelector('router-link-stub[to="/recovery"]'),
     ).not.toBeNull();
   });

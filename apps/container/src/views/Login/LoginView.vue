@@ -40,15 +40,6 @@ const googleAuthUrl = computed(() =>
             </span>
             <span>Entrar com Google</span>
           </v-btn>
-
-          <div class="auth-links">
-            <router-link class="auth-link" to="/signup">
-              Criar conta
-            </router-link>
-            <router-link class="auth-link" to="/recovery">
-              Recuperar conta
-            </router-link>
-          </div>
         </div>
       </div>
     </section>
