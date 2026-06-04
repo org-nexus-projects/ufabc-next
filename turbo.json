@@ -1,27 +1,15 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
-  "globalDependencies": [".env", "**/.env", "**/.env.*"],
+  "globalDependencies": ["**/.env.*local", ".env"],
   "tasks": {
     "build": {
-      "env": [
-        "VITE_APP_ENV",
-        "VITE_APP_BASE_URL",
-        "VITE_API_BASE_URL",
-        "VITE_PARSER_API_BASE_URL",
-        "VITE_MIXPANEL_TOKEN"
-      ],
+      "env": ["VITE_APP_ENV", "VITE_APP_BASE_URL", "VITE_MIXPANEL_TOKEN"],
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
     "build:staging": {
-      "env": [
-        "VITE_APP_ENV",
-        "VITE_APP_BASE_URL",
-        "VITE_API_BASE_URL",
-        "VITE_PARSER_API_BASE_URL",
-        "VITE_MIXPANEL_TOKEN"
-      ],
+      "env": ["VITE_APP_ENV", "VITE_APP_BASE_URL", "VITE_MIXPANEL_TOKEN"],
       "dependsOn": ["^build:staging"],
       "outputs": ["dist/**"]
     },
@@ -33,35 +21,7 @@
       "cache": false
     },
     "dev": {
-      "env": [
-        "VITE_APP_ENV",
-        "VITE_APP_BASE_URL",
-        "VITE_API_BASE_URL",
-        "VITE_PARSER_API_BASE_URL",
-        "VITE_MIXPANEL_TOKEN"
-      ],
-      "cache": false,
-      "persistent": true
-    },
-    "dev:staging": {
-      "env": [
-        "VITE_APP_ENV",
-        "VITE_APP_BASE_URL",
-        "VITE_API_BASE_URL",
-        "VITE_PARSER_API_BASE_URL",
-        "VITE_MIXPANEL_TOKEN"
-      ],
-      "cache": false,
-      "persistent": true
-    },
-    "dev:prod": {
-      "env": [
-        "VITE_APP_ENV",
-        "VITE_APP_BASE_URL",
-        "VITE_API_BASE_URL",
-        "VITE_PARSER_API_BASE_URL",
-        "VITE_MIXPANEL_TOKEN"
-      ],
+      "env": ["VUE_APP_MF_ENV", "VUE_APP_BASE_URL", "VITE_MIXPANEL_TOKEN"],
       "cache": false,
       "persistent": true
     }

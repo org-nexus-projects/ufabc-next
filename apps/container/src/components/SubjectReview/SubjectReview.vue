@@ -2,10 +2,10 @@
   <CenteredLoading v-if="isFetchingSubject" class="mt-10" />
   <PaperCard v-else class="w-100">
     <v-container style="max-width: none">
-      <v-row v-if="Number(subjectData?.general.count) > 0">
+      <v-row v-if="Number(subjectData?.data.general.count) > 0">
         <v-col cols="12" md="5">
           <p class="text-h4 font-weight-bold text-primary mb-2">
-            {{ subjectData?.subject.name }}
+            {{ subjectData?.data.subject.name }}
           </p>
           <v-chip
             v-for="(chip, index) in chips"
@@ -23,7 +23,7 @@
             :style="`${xs && 'margin: 0 -24px'}`"
           >
             <ConceptsPieChart
-              :key="`chart-${subjectData?.subject.name}`"
+              :key="`chart-${subjectData?.data.subject.name}`"
               :grades="generalGrades"
             />
           </div>
@@ -135,7 +135,8 @@
 
 <script lang="ts" setup>
 import { useQuery } from '@tanstack/vue-query';
-import { Concept, Reviews , SubjectSpecific } from '@ufabc-next/services';
+import { Reviews } from '@ufabc-next/services';
+import { Concept, SubjectSpecific } from '@ufabc-next/types';
 import { ElMessage } from 'element-plus';
 import { computed, ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
@@ -180,20 +181,20 @@ watch(
 );
 
 const chips = computed(() => {
-  if (!subjectData.value) {
+  if (!subjectData.value?.data) {
     return [];
   }
   return [
     {
-      value: subjectData.value?.general.count,
+      value: subjectData.value?.data.general.count,
       text:
-        subjectData.value?.general.count == 1 ? 'conceito' : 'conceitos',
+        subjectData.value?.data.general.count == 1 ? 'conceito' : 'conceitos',
       icon: 'mdi-message-text-outline',
     },
     {
-      value: subjectData.value.specific.length,
+      value: subjectData.value.data.specific.length,
       text:
-        subjectData.value.specific.length == 1
+        subjectData.value.data.specific.length == 1
           ? 'professor'
           : 'professores',
       icon: 'mdi-human-male-board',
@@ -202,9 +203,9 @@ const chips = computed(() => {
 });
 
 const generalGrades = computed(() => {
-  if (!subjectData.value) return {};
+  if (!subjectData.value?.data) return {};
   return transformConceptDataToObject(
-    subjectData.value.general.distribution,
+    subjectData.value.data.general.distribution,
   );
 });
 
@@ -254,9 +255,9 @@ const approveRating = (subject: SubjectSpecific) => {
 };
 
 const shortedSpecifics = computed(() => {
-  if (!subjectData.value?.specific) return [];
+  if (!subjectData.value?.data.specific) return [];
   const sorted: SubjectSpecific[] = JSON.parse(
-    JSON.stringify(subjectData.value.specific),
+    JSON.stringify(subjectData.value.data.specific),
   );
 
   if (selectedOrder.value === 'teacherCres') {

@@ -1,17 +1,10 @@
 import { http, HttpResponse } from 'msw';
 import { createPinia, setActivePinia } from 'pinia';
 
-import { createMockJwt } from '@/mocks/jwt';
 import { server } from '@/mocks/server';
 import { user as mockedUser } from '@/mocks/users';
 import { useAuthStore } from '@/stores/auth';
-import {
-  expectToasterToHaveText,
-  render,
-  screen,
-  userEvent,
-  waitFor,
-} from '@/test-utils';
+import { render, screen, userEvent, waitFor } from '@/test-utils';
 
 import { SettingsView } from '.';
 
@@ -21,7 +14,8 @@ describe('<SettingsView />', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     authStore = useAuthStore();
-    authStore.authenticate(createMockJwt(mockedUser));
+    authStore.authenticate('token');
+    authStore.user = mockedUser;
   });
 
   afterEach(() => {
@@ -60,53 +54,56 @@ describe('<SettingsView />', () => {
       ),
     );
     render(SettingsView);
-    const googleLink = await screen.findByRole('link', {
-      name: 'Associar à uma conta do Google',
-    });
-
-    expect(googleLink).toBeInTheDocument();
-    expect(googleLink).toHaveAttribute(
-      'href',
-      `http://localhost:5000/login/google?userId=${mockedUser._id}`,
-    );
+    expect(
+      await screen.findByText('Associar à uma conta do Facebook'),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText('Associar à uma conta do Google'),
+    ).toBeInTheDocument();
   });
   test('deactivate user', async () => {
     const user = userEvent.setup();
 
     render(SettingsView);
 
-    await user.click(await screen.findByText('Desativar Conta'));
+    user.click(await screen.findByText('Desativar Conta'));
     expect(await screen.findAllByText('Excluir conta')).toHaveLength(2);
 
     expect(authStore.token).not.toBeNull();
     expect(authStore.user).not.toBeNull();
-    await user.click(screen.getByRole('button', { name: 'Excluir conta' }));
+    user.click(screen.getByRole('button', { name: 'Excluir conta' }));
     await waitFor(() => {
       expect(authStore.token).toBeNull();
       expect(authStore.user).toBeNull();
     });
   });
   test('show toast if error when deactivate user', async () => {
+    const user = userEvent.setup();
+
+    render(SettingsView);
+
+    user.click(await screen.findByText('Desativar Conta'));
+    expect(await screen.findAllByText('Excluir conta')).toHaveLength(2);
+
+    expect(authStore.token).not.toBeNull();
+    expect(authStore.user).not.toBeNull();
+    user.click(screen.getByRole('button', { name: 'Excluir conta' }));
+  });
+  test('show toast if error when deactivate user', async () => {
     server.use(
-      http.delete(/.*\/users\/remove/, () => HttpResponse.error()),
+      http.delete(/.*\/users\/me\/delete/, () => HttpResponse.error()),
     );
 
     const user = userEvent.setup();
 
     render(SettingsView);
 
-    await user.click(await screen.findByText('Desativar Conta'));
+    user.click(await screen.findByText('Desativar Conta'));
     expect(await screen.findAllByText('Excluir conta')).toHaveLength(2);
 
-    expect(authStore.token).not.toBeNull();
-    expect(authStore.user).not.toBeNull();
-
-    await user.click(screen.getByRole('button', { name: 'Excluir conta' }));
-
-    await expectToasterToHaveText(
-      'Ocorreu um erro ao tentar excluir sua conta',
+    user.click(screen.getByRole('button', { name: 'Excluir conta' }));
+    expect(
+      await screen.findByText('Ocorreu um erro ao tentar excluir sua conta'),
     );
-    expect(authStore.token).not.toBeNull();
-    expect(authStore.user).not.toBeNull();
   });
 });

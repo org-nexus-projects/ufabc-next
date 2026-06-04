@@ -1,4 +1,4 @@
-import type { Concept } from './concepts';
+import { Concept } from './concepts';
 
 export type Comment = {
   _id: string;
@@ -26,10 +26,7 @@ export type Comment = {
     search: string;
     updatedAt: string;
   };
-  reactionsCount?: {
-    like?: number;
-    recommendation?: number;
-  };
+  reactionsCount?: { like?: number; recommendation?: number };
   teacher: string;
   updatedAt: string;
 };

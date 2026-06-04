@@ -77,7 +77,7 @@ watch(
   () => verifiedEmail.value,
   (newEmail) => {
     if (newEmail) {
-      email.value.value = newEmail.email;
+      email.value.value = newEmail.data.email;
     }
   },
 );

@@ -1,7 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { useRouter } from 'vue-router';
 
-import { createMockJwt } from '@/mocks/jwt';
 import { user as mockedUser } from '@/mocks/users';
 import { useAuthStore } from '@/stores/auth';
 import { render, screen, userEvent, waitFor } from '@/test-utils';
@@ -24,7 +23,8 @@ describe('<UserMenu />', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     authStore = useAuthStore();
-    authStore.authenticate(createMockJwt(mockedUser));
+    authStore.authenticate('mock-token');
+    authStore.user = mockedUser;
 
     vi.mocked(useRouter).mockReturnValue({
       go: vi.fn(),
