@@ -297,7 +297,8 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery } from '@tanstack/vue-query';
-import { RequestError,Users  } from '@ufabc-next/services';
+import { Users } from '@ufabc-next/services';
+import { RequestError } from '@ufabc-next/types';
 import { toTypedSchema } from '@vee-validate/zod';
 import { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';
@@ -337,7 +338,6 @@ onMounted(() => {
 
 const handleLogout = () => {
   authStore.logOut();
-  window.location.href = '/';
 };
 
 const { smAndDown } = useDisplay();
@@ -363,8 +363,8 @@ const check = useField('check');
 const { mutate: mutateSignUp, isPending: isPendingSubmit } = useMutation({
   mutationFn: Users.completeSignup,
   onSuccess: (data: any) => {
-    if (data?.token) {
-      authStore.authenticate(data.token);
+    if (data?.data?.token) {
+      authStore.authenticate(data.data.token);
       router.push('/');
     } else step.value = 3;
   },
@@ -431,7 +431,7 @@ watch(
   () => verifiedEmail.value,
   (newEmail) => {
     if (newEmail) {
-      email.value.value = newEmail.email;
+      email.value.value = newEmail.data.email;
     }
   },
 );
@@ -459,6 +459,7 @@ const { mutate: mutateResendEmail, isPending: isPendingResendEmail } =
 const { data: user } = useQuery({
   queryKey: ['users', 'info'],
   queryFn: Users.info,
+  select: (response) => response.data,
 });
 
 watch(

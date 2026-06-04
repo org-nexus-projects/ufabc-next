@@ -239,8 +239,8 @@
 
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
-import type { Concept, Enrollment } from '@ufabc-next/services';
 import { Enrollments, Users } from '@ufabc-next/services';
+import type { Concept, Enrollment } from '@ufabc-next/types';
 import { computed, ref } from 'vue';
 
 import { CenteredLoading } from '@/components/CenteredLoading';
@@ -248,9 +248,9 @@ import { FeedbackAlert } from '@/components/FeedbackAlert';
 import { PaperCard } from '@/components/PaperCard';
 import { ReviewDialog } from '@/components/ReviewDialog';
 import { TableComponent } from '@/components/TableComponent';
-import { capitalizeName } from '@/utils/capitalizeName';
 import { conceptsColor, extensionURL, studentRecordURL } from '@/utils/consts';
 import { checkEAD, formatSeason } from '@/utils/season';
+import { capitalizeName } from '@/utils/capitalizeName';
 
 const showDialog = ref(false);
 const selectedEnrollment = ref<Enrollment>();
@@ -320,11 +320,13 @@ const {
 } = useQuery({
   queryKey: ['enrollments', 'list'],
   queryFn: Enrollments.list,
+  select: (response) => response.data,
 });
 
 const { data: user, isError: isErrorUser } = useQuery({
   queryKey: ['users', 'info'],
   queryFn: Users.info,
+  select: (response) => response.data,
 });
 
 const enrollmentByDate = computed(() => {

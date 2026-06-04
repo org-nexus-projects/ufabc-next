@@ -153,6 +153,33 @@
       .google-button-text {
         white-space: nowrap;
       }
+      .local-login-button:hover {
+        transform: scale(1.05, 1.05);
+      }
+      .local-login-button {
+        background-color: #6fc276;
+        color: white !important;
+        border-radius: 3px;
+        font-size: 16px;
+        font-weight: bold;
+        height: 50px;
+        margin-bottom: 12px;
+        padding: 18px 22px 16px 60px;
+        position: relative;
+        transition: all 0.3s;
+        width: 263px;
+        cursor: pointer;
+        display: inline-block;
+        font-family: Montserrat;
+        text-decoration: none !important;
+      }
+      .local-login-button > svg {
+        left: 13px;
+        position: absolute;
+        top: calc(50% - 1em);
+        width: 32px;
+        margin-top: 5px !important;
+      }
       .recovery-button {
         background-color: #777777 !important;
         box-shadow: 1px 1px 1px 2px #868686;
@@ -459,7 +486,7 @@
                         window.location.href = GOOGLE_LINK;
                         return false;
                       "
-                      id="googleAuthBtn"
+                      id="googleLoginBtn"
                       data-toggle="tooltip"
                       data-placement="right"
                       title="Use seu e-mail institucional (@aluno.ufabc.edu.br ou @ufabc.edu.br) para acesso imediato, sem precisar confirmar a conta."
@@ -484,6 +511,7 @@
                         <span class="google-button-text">institucional</span>
                       </div>
                     </a>
+                    <div id="dev-login"></div>
                     <a
                       class="recovery-button"
                       href="https://ufabcnext.com/app/recovery"
@@ -1040,16 +1068,23 @@
     <script src="assets/js/custom.js"></script>
     <script type="text/javascript">
       const requesterKey = 'ufabc-next';
-      const isLocalEnvironment = () =>
-        window.location.protocol === 'file:' ||
-        window.location.hostname === 'localhost' ||
-        window.location.hostname === '127.0.0.1' ||
-        window.location.origin.includes('file://');
-
-      const resolveEndpoint = () =>
-        isLocalEnvironment()
-          ? `http://localhost:5000/login/google?requesterKey=${requesterKey}`
-          : `https://api.v2.ufabcnext.com/login/google?requesterKey=${requesterKey}`;
+      const resolveEndpoint = () => {
+        const isLocal =
+          window.location.protocol === 'file:' ||
+          window.location.hostname === 'localhost' ||
+          window.location.hostname === '127.0.0.1' ||
+          window.location.origin.includes('file://');
+        if (isLocal) {
+          // local backend
+          return `http://localhost:5000/login/google?requesterKey=${requesterKey}`;
+        } else if (origin.includes('dev')) {
+          // staging url
+          return `https://api.v2.ufabcnext.com/login/google?requesterKey=${requesterKey}`;
+        } else {
+          // production url
+          return `https://api.v2.ufabcnext.com/login/google?requesterKey=${requesterKey}`;
+        }
+      };
       var template = $('#stats-counter').html();
       Mustache.parse(template);
       var rendered = Mustache.render(template, {
@@ -1086,6 +1121,37 @@
           console.log(err);
         });
 
+      const devLoginBtn = `<a
+                        class="local-login-button"
+                        data-toggle="modal"
+                        data-target="#localLoginModal"
+                      >
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="avatar-icon"
+                        >
+                          <circle cx="12" cy="8" r="4" fill="white" />
+                          <path
+                            d="M20 19v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6z"
+                            fill="white"
+                          />
+                        </svg>
+                        Entrar localmente
+                      </a>`;
+
+      const isLocal =
+        window.location.protocol === 'file:' ||
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1' ||
+        window.location.origin.includes('file://');
+
+      if (isLocal) {
+        const devLoginContainer = document.querySelector('#dev-login');
+        devLoginContainer.insertAdjacentHTML('afterend', devLoginBtn);
+      }
     </script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script
@@ -1102,7 +1168,65 @@
       gtag('config', 'UA-138205557-1');
     </script>
 
+    <div
+      class="modal fade"
+      id="localLoginModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="localLoginModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="localLoginModalLabel">Local Login</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="localLoginForm">
+              <div class="form-group">
+                <input
+                  type="email"
+                  class="form-control"
+                  id="emailInput"
+                  aria-describedby="emailHelp"
+                  placeholder="Enter email"
+                  required
+                />
+              </div>
+              <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const localLoginForm = document.getElementById('localLoginForm');
+
+        localLoginForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          const email = document.getElementById('emailInput').value;
+          const { data: res } = await axios.post(
+            'http://localhost:5000/backoffice/token',
+            { email },
+          );
+          const token = res.token?.replace('Bearer ', '');
+
+          $('#localLoginModal').modal('hide');
+          localLoginForm.reset();
+          window.location.href = `http://localhost:3000?token=${encodeURIComponent(token)}`;
+        });
+      });
+    </script>
     <script>
       $(function () {
         $('[data-toggle="tooltip"]').tooltip({ html: true });
@@ -1121,6 +1245,9 @@
           return;
         }
 
+        const prefersDark = window.matchMedia(
+          '(prefers-color-scheme: dark)',
+        ).matches;
         const toastThemeClass = 'notification-light';
 
         const toast = document.createElement('div');

@@ -36,8 +36,8 @@ describe('<ReviewDialog />', () => {
           return HttpResponse.json({
             ...enrollment,
             comments: [],
-            teoria: null,
-            pratica: null,
+            teoria: {},
+            pratica: {},
             [subjectType]: {
               ...enrollment[subjectType as 'teoria' | 'pratica'],
               comment: undefined,
@@ -77,8 +77,8 @@ describe('<ReviewDialog />', () => {
           return HttpResponse.json({
             ...enrollment,
             comments: commentAvaliable,
-            teoria: null,
-            pratica: null,
+            teoria: {},
+            pratica: {},
             [commentAvaliable[0]]: {
               ...enrollment[commentAvaliable[0] as 'teoria' | 'pratica'],
               comment: {
@@ -212,8 +212,8 @@ describe('<ReviewDialog />', () => {
         return HttpResponse.json({
           ...enrollment,
           comments: [],
-          teoria: null,
-          pratica: null,
+          teoria: {},
+          pratica: {},
         });
       }),
       http.post(`*/comments/*`, () => HttpResponse.json(null, { status: 500 })),
@@ -242,7 +242,7 @@ describe('<ReviewDialog />', () => {
           ...enrollment,
           comments: ['teoria'],
 
-          pratica: null,
+          pratica: {},
           teoria: {
             ...enrollment.teoria,
             comment: {

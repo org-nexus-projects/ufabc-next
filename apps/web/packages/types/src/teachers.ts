@@ -1,5 +1,5 @@
-import type { Concept } from './concepts';
-import type { SearchTeacherItem } from './search';
+import { SearchTeacherItem } from '.';
+import { Concept } from './concepts';
 
 export type ConceptData = {
   conceito: Concept;

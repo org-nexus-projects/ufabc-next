@@ -44,7 +44,8 @@
 
 <script setup lang="ts">
 import { useMutation } from '@tanstack/vue-query';
-import { RequestError,Users  } from '@ufabc-next/services';
+import { Users } from '@ufabc-next/services';
+import { RequestError } from '@ufabc-next/types';
 import { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';
 import { onMounted } from 'vue';
@@ -66,7 +67,7 @@ const { mutate: mutateConfirmToken, isPending: isPendingConfirmToken } =
         type: 'success',
         showClose: true,
       });
-      authStore.authenticate(data.token);
+      authStore.authenticate(data.data.token);
       router.push('/');
     },
     onError: (error: AxiosError<RequestError>) => {
