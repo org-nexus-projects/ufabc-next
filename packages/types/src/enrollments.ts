@@ -1,4 +1,6 @@
-export type EnrollmentTeacherComment = {
+import { Concept } from './concepts';
+
+type EnrollmentTeacherComment = {
   _id: string;
   comment: string;
   viewers: number;
@@ -11,13 +13,10 @@ export type EnrollmentTeacherComment = {
   updatedAt: string;
   createdAt: string;
   __v: number;
-  reactionsCount?: {
-    like?: number;
-    recommendation?: number;
-  };
+  reactionsCount?: { like?: number; recommendation?: number };
 };
 
-export type EnrollmentTeacher = {
+type EnrollmentTeacher = {
   _id: string;
   name: string;
   updatedAt: string;
@@ -36,8 +35,6 @@ export type Subject = {
   __v: number;
   creditos?: number;
 };
-
-import type { Concept } from './concepts';
 
 export type Enrollment = {
   _id: string;

@@ -84,16 +84,16 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
-import type { Enrollment } from '@ufabc-next/services';
 import { Comments, Enrollments } from '@ufabc-next/services';
+import type { Enrollment } from '@ufabc-next/types';
 import { ElMessage } from 'element-plus';
 import { computed, PropType, ref, watch } from 'vue';
 
 import { CommentsList } from '@/components/CommentsList';
 import { FeedbackAlert } from '@/components/FeedbackAlert';
 import { PaperCard } from '@/components/PaperCard';
-import { capitalizeName } from '@/utils/capitalizeName';
 import { conceptsColor } from '@/utils/consts';
+import { capitalizeName } from '@/utils/capitalizeName';
 
 const selectedSubject = ref<string>('Todas as matérias');
 
@@ -167,8 +167,8 @@ const {
 
 const comment = ref<string>('');
 const teacherEnrollmentComment = computed(() => ({
-  teoria: teacherEnrollment.value?.teoria?.comment?.comment,
-  prática: teacherEnrollment.value?.pratica?.comment?.comment,
+  teoria: teacherEnrollment.value?.data.teoria?.comment?.comment,
+  prática: teacherEnrollment.value?.data.pratica?.comment?.comment,
 }));
 
 const userCommentMessage = computed({
@@ -230,8 +230,8 @@ const { mutate: mutateUpdate, isPending: isUpdatingComment } = useMutation({
   mutationFn: () =>
     Comments.update({
       id:
-        teacherEnrollment.value?.teoria?.comment?._id ??
-        teacherEnrollment.value?.pratica?.comment?._id ??
+        teacherEnrollment.value?.data.teoria?.comment?._id ??
+        teacherEnrollment.value?.data.pratica?.comment?._id ??
         '',
       comment: comment.value,
     }),

@@ -1,7 +1,5 @@
-import type { User } from '@ufabc-next/services';
+import { User } from '@ufabc-next/types';
 import { defineStore } from 'pinia';
-
-import { parseJwt } from '@/utils/jwt';
 
 type AuthState = {
   user: User | null;
@@ -21,16 +19,18 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     authenticate(token: string) {
-      const { user, error } = parseJwt(token);
-      if (error || !user) {
-        return;
+      if (token) {
+        const user = JSON.parse(atob(token.split('.')[1])) as User;
+        this.token = token;
+        this.user = user;
       }
-      this.token = token;
-      this.user = user;
     },
-    logOut() {
+    logOut(redirect = true) {
+      localStorage.removeItem('auth');
       this.user = null;
       this.token = null;
+
+      if (redirect) window.location.href = '/';
     },
   },
 });

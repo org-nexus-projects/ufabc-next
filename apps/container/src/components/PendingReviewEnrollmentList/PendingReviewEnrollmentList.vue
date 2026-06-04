@@ -23,7 +23,8 @@
 
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
-import { Enrollment,Enrollments  } from '@ufabc-next/services';
+import { Enrollments } from '@ufabc-next/services';
+import { Enrollment } from '@ufabc-next/types';
 import { computed } from 'vue';
 
 import { FeedbackAlert } from '@/components/FeedbackAlert';
@@ -34,6 +35,7 @@ const { data: enrollments, isError: isErrorEnrollment } = useQuery({
   refetchOnWindowFocus: false,
   queryKey: ['enrollments', 'list'],
   queryFn: Enrollments.list,
+  select: (response) => response.data,
 });
 
 const filteredAndSeparatedEnrollments = computed(() => {

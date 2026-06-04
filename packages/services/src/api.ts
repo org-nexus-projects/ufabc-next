@@ -1,16 +1,11 @@
 import axios from 'axios';
 
-const getRequiredEnv = (
-  key: 'VITE_API_BASE_URL' | 'VITE_PARSER_API_BASE_URL',
-) => {
-  const value = import.meta.env[key];
-
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${key}`);
-  }
-
-  return value;
-};
+const resolveEndpoint = (env?: string) =>
+  ({
+    development: 'http://localhost:5000',
+    staging: 'https://api.v2.ufabcnext.com',
+    production: 'https://api.v2.ufabcnext.com',
+  })[env!] || 'http://localhost:5000';
 
 let getToken: () => string | null = () => null;
 export const setTokenGetter = (fn: () => string | null) => {
@@ -18,11 +13,12 @@ export const setTokenGetter = (fn: () => string | null) => {
 };
 
 export const api = axios.create({
-  baseURL: getRequiredEnv('VITE_API_BASE_URL'),
+  baseURL: resolveEndpoint(import.meta.env.VITE_APP_ENV),
 });
 
+// todo: improve this later
 export const apiParser = axios.create({
-  baseURL: getRequiredEnv('VITE_PARSER_API_BASE_URL'),
+  baseURL: 'https://ufabc-parser.com/v2',
 });
 
 api.interceptors.request.use(async (config) => {
