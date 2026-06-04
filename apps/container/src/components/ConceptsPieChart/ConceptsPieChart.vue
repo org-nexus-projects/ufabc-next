@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { Concept } from '@ufabc-next/types';
+import { Concept } from '@ufabc-next/services';
 import { Chart } from 'highcharts-vue';
 import { computed, PropType, ref, watch } from 'vue';
 import { useTheme } from 'vuetify';

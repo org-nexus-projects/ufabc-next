@@ -1,7 +1,7 @@
-import { User } from '@ufabc-next/types';
+import type { User } from '@ufabc-next/services';
 import mixpanel from 'mixpanel-browser';
 
-import { WebEvent } from './WebEvent';
+import type { WebEvent } from './WebEvent';
 
 // todo: improve error handling
 const MIXPANEL_TOKEN = import.meta.env.VITE_MIXPANEL_TOKEN || '';

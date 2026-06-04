@@ -46,8 +46,11 @@ cd ufabc-next-web
 # 2. Instale as dependências através do Root (Monorepo)
 pnpm install
 
-# 3. Inicie o servidor de desenvolvimento
+# 3. Inicie todos os apps com script de desenvolvimento
 pnpm dev
+
+# 4. Ou inicie apenas o app principal
+pnpm dev:app
 ```
 
 E pronto!

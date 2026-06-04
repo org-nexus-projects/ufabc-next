@@ -1,11 +1,11 @@
-import {
+import type {
   CourseName,
   PageableReturn,
   StatsClass,
   StatsCourse,
   StatsOverview,
   StatsSubject,
-} from '@ufabc-next/types';
+} from '@ufabc-next/services';
 
 export const classes: PageableReturn<StatsClass> = {
   total: 1022,

@@ -62,7 +62,7 @@ describe('<RecoveryView />', () => {
   });
   test('should submit and show error', async () => {
     server.use(
-      http.post(`*/users/me/recover`, () =>
+      http.post(`*/users/recover`, () =>
         HttpResponse.json({ error: 'error' }, { status: 500 }),
       ),
     );
