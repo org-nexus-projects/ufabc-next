@@ -67,9 +67,9 @@ import { Comments, Reviews } from '@ufabc-next/services';
 import { computed, ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 
-import { CenteredLoading } from '@/components/CenteredLoading';
-import { FeedbackAlert } from '@/components/FeedbackAlert';
 import { SingleComment } from '@/components/SingleComment';
+import { CenteredLoading } from '@/components/ui/CenteredLoading';
+import { FeedbackAlert } from '@/components/ui/FeedbackAlert';
 import { checkEAD } from '@/utils/season';
 
 const { smAndDown } = useDisplay();

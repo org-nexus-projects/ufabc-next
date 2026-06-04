@@ -140,10 +140,10 @@ import { ElMessage } from 'element-plus';
 import { computed, ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 
-import { CenteredLoading } from '@/components/CenteredLoading';
 import { ConceptsHorizontalChart } from '@/components/ConceptsHorizontalChart';
 import { ConceptsPieChart } from '@/components/ConceptsPieChart';
-import { PaperCard } from '@/components/PaperCard';
+import { CenteredLoading } from '@/components/ui/CenteredLoading';
+import { PaperCard } from '@/components/ui/PaperCard';
 import { transformConceptDataToObject } from '@/features/reviews/utils/transformConceptDataToObject';
 
 const props = defineProps({

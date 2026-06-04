@@ -154,9 +154,9 @@ import type {
 import { StatsSubjects } from '@ufabc-next/services';
 import { computed, ref } from 'vue';
 
-import { CenteredLoading } from '@/components/CenteredLoading';
-import { PaperCard } from '@/components/PaperCard';
-import { PerformanceCard } from '@/components/PerformanceCard';
+import { CenteredLoading } from '@/components/ui/CenteredLoading';
+import { PaperCard } from '@/components/ui/PaperCard';
+import { PerformanceCard } from '@/components/ui/PerformanceCard';
 import { getElapsedSeasons, getSeason, prettifySeason } from '@/utils/season';
 
 type Tab = 'classes' | 'courses' | 'subjects';

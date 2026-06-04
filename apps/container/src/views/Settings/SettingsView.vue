@@ -139,8 +139,8 @@ import { Users } from '@ufabc-next/services';
 import { ElMessage } from 'element-plus';
 import { computed, ref } from 'vue';
 
-import { CenteredLoading } from '@/components/CenteredLoading';
-import { PaperCard } from '@/components/PaperCard';
+import { CenteredLoading } from '@/components/ui/CenteredLoading';
+import { PaperCard } from '@/components/ui/PaperCard';
 import { useAuthStore } from '@/stores/auth';
 import { useAliasInitials } from '@/utils/composables/aliasInitials';
 import { buildGoogleAuthUrl } from '@/utils/runtimeConfig';

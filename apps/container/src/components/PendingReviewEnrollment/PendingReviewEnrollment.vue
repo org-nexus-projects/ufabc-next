@@ -60,7 +60,7 @@
 import { Enrollment } from '@ufabc-next/services';
 import { computed, PropType, ref } from 'vue';
 
-import { ReviewDialog } from '@/components/ReviewDialog';
+import { ReviewDialog } from '@/components/ui/ReviewDialog';
 import { conceptsColor } from '@/utils/consts';
 import { checkEAD, formatSeason } from '@/utils/season';
 

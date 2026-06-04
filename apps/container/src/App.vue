@@ -21,7 +21,7 @@ import { ElMessage } from 'element-plus';
 import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { AppBar } from '@/layouts/AppBar';
+import { AppBar } from '@/components/layout/AppBar';
 import { useAuthStore } from '@/stores/auth';
 
 import { eventTracker } from './helpers/EventTracker';

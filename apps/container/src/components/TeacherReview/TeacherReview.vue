@@ -72,11 +72,11 @@ import { Reviews , TeacherReview, TeacherReviewSubject } from '@ufabc-next/servi
 import { computed, ref } from 'vue';
 import { useDisplay } from 'vuetify';
 
-import { CenteredLoading } from '@/components/CenteredLoading';
 import { CommentsList } from '@/components/CommentsList';
 import { ConceptsPieChart } from '@/components/ConceptsPieChart';
-import { FeedbackAlert } from '@/components/FeedbackAlert';
-import { PaperCard } from '@/components/PaperCard';
+import { CenteredLoading } from '@/components/ui/CenteredLoading';
+import { FeedbackAlert } from '@/components/ui/FeedbackAlert';
+import { PaperCard } from '@/components/ui/PaperCard';
 import { transformConceptDataToObject } from '@/features/reviews/utils/transformConceptDataToObject';
 
 const props = defineProps({

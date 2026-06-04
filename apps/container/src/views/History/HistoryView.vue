@@ -243,11 +243,11 @@ import type { Concept, Enrollment } from '@ufabc-next/services';
 import { Enrollments, Users } from '@ufabc-next/services';
 import { computed, ref } from 'vue';
 
-import { CenteredLoading } from '@/components/CenteredLoading';
-import { FeedbackAlert } from '@/components/FeedbackAlert';
-import { PaperCard } from '@/components/PaperCard';
-import { ReviewDialog } from '@/components/ReviewDialog';
-import { TableComponent } from '@/components/TableComponent';
+import { CenteredLoading } from '@/components/ui/CenteredLoading';
+import { FeedbackAlert } from '@/components/ui/FeedbackAlert';
+import { PaperCard } from '@/components/ui/PaperCard';
+import { ReviewDialog } from '@/components/ui/ReviewDialog';
+import { TableComponent } from '@/components/ui/TableComponent';
 import { capitalizeName } from '@/utils/capitalizeName';
 import { conceptsColor, extensionURL, studentRecordURL } from '@/utils/consts';
 import { checkEAD, formatSeason } from '@/utils/season';
