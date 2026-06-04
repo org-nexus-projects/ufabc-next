@@ -57,8 +57,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
-import { definedQuarters } from '../../../utils/quarters';
-import { CalengradeSteps, Quarter } from '../types';
+import { CalengradeSteps, Quarter } from '@/features/calengrade/types';
+import { definedQuarters } from '@/features/calengrade/utils/quarters';
 
 const props = defineProps<{
   selectedQuarter: Quarter;

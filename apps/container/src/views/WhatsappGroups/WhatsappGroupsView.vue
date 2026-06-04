@@ -336,6 +336,8 @@ import { useTheme } from 'vuetify';
 
 import UserNotifications from '@/components/UserNotifications.vue';
 import WhatsappGroupCard from '@/components/WhatsappGroupCard/WhatsappGroupCard.vue';
+import { getMockedGroups } from '@/features/whatsapp/utils/mockedWhatsappGroups';
+import { normalizeText } from '@/features/whatsapp/utils/normalizeTextSearch';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
@@ -346,10 +348,7 @@ import {
   getSelectableAcademicSeasons,
   isValidAcademicSeason,
 } from '@/utils/currentQuarter';
-import { normalizeText } from '@/utils/normalizeTextSearch';
 import { formatSeason } from '@/utils/season';
-
-import { getMockedGroups } from './utils/mockedGroups';
 
 type SearchType = 'ra' | 'component' | 'course';
 const MIN_RA_LENGTH = 8;

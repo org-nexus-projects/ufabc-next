@@ -1,4 +1,4 @@
-import type { Quarter } from '@/views/Calengrade/types';
+import type { Quarter } from '../types';
 
 export const definedQuarters: Quarter[] = [
   {

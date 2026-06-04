@@ -144,7 +144,7 @@ import { CenteredLoading } from '@/components/CenteredLoading';
 import { ConceptsHorizontalChart } from '@/components/ConceptsHorizontalChart';
 import { ConceptsPieChart } from '@/components/ConceptsPieChart';
 import { PaperCard } from '@/components/PaperCard';
-import { transformConceptDataToObject } from '@/utils/transformConceptDataToObject';
+import { transformConceptDataToObject } from '@/features/reviews/utils/transformConceptDataToObject';
 
 const props = defineProps({
   subjectId: { type: String, required: true },

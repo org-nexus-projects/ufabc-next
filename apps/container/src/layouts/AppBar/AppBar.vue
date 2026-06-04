@@ -166,10 +166,10 @@ import sunIcon from '@/assets/icons/sun.svg';
 import logoDark from '@/assets/logo.svg';
 import logoLight from '@/assets/logo_white.svg';
 import { UserMenu } from '@/components/UserMenu';
+import { applyChartsTheme } from '@/config/highcharts';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
-import { applyChartsTheme } from '@/theme';
 import { runtimeConfig } from '@/utils/runtimeConfig';
 
 import {

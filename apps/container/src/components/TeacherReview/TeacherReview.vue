@@ -77,7 +77,7 @@ import { CommentsList } from '@/components/CommentsList';
 import { ConceptsPieChart } from '@/components/ConceptsPieChart';
 import { FeedbackAlert } from '@/components/FeedbackAlert';
 import { PaperCard } from '@/components/PaperCard';
-import { transformConceptDataToObject } from '@/utils/transformConceptDataToObject';
+import { transformConceptDataToObject } from '@/features/reviews/utils/transformConceptDataToObject';
 
 const props = defineProps({
   teacherId: { type: String, required: true },
