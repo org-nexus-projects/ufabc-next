@@ -1,4 +1,4 @@
-import type { Classes } from '../views/Calengrade/types';
+import type { Classes } from '../types';
 
 const CLASSES_CODES_REGES = /[A-Z0-9]{7}[-][0-9]{2}/gi;
 const TITLE_REGEX = /(?<=[\d-]\s-\s)(.+?)(?=\s\w{1,2}-|$)/gi;
@@ -48,7 +48,7 @@ export const handleSummary = (summary: string): Classes => {
   // Split the classes by end of line
   const splittedClasses = classes.map((c) =>
     c
-      .replace(/\s*<br\s*\/?>\s*/gi, '\n')
+      .replace(/\s*<<br\s*\/?>\s*/gi, '\n')
       .split(/\n+/gi)
       .map((line) => line.trim())
       .filter((line) => line.length > 0),

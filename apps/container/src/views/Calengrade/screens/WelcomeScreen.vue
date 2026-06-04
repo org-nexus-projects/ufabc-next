@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { CalengradeSteps } from '../types';
+import { CalengradeSteps } from '@/features/calengrade/types';
 
 const emit = defineEmits<{
   (e: 'nextStep', step: CalengradeSteps): boolean;

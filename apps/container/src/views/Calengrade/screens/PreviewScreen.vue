@@ -40,8 +40,8 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 
-import { handleCalendar } from '../../../utils/calendar';
-import { CalengradeInfo, CalengradeSteps } from '../types';
+import { CalengradeInfo, CalengradeSteps } from '@/features/calengrade/types';
+import { handleCalendar } from '@/features/calengrade/utils/calendar';
 
 const props = defineProps<{
   calengrade: CalengradeInfo;

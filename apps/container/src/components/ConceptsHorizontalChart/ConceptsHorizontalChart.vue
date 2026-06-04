@@ -33,8 +33,8 @@
 import { ConceptData, SubjectSpecific } from '@ufabc-next/services';
 import { computed, PropType } from 'vue';
 
+import { transformConceptDataToObject } from '@/features/reviews/utils/transformConceptDataToObject';
 import { conceptsColor } from '@/utils/consts';
-import { transformConceptDataToObject } from '@/utils/transformConceptDataToObject';
 
 const props = defineProps({
   gradeData: { type: Object as PropType<SubjectSpecific>, required: true },

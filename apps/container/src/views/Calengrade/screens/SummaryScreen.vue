@@ -51,8 +51,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import { handleSummary } from '../../../utils/summary';
-import { CalengradeSteps, Classes, Quarter } from '../types';
+import { CalengradeSteps, Classes, Quarter } from '@/features/calengrade/types';
+import { handleSummary } from '@/features/calengrade/utils/summary';
 
 const props = defineProps<{
   selectedQuarter: Quarter;

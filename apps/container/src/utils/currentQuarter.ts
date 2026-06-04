@@ -1,4 +1,4 @@
-import { definedQuarters } from '@/utils/quarters';
+import { definedQuarters } from '@/features/calengrade/utils/quarters';
 
 type QuarterRange = {
   season: string;
