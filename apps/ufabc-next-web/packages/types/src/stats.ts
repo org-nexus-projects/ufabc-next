@@ -27,10 +27,23 @@ export type StatsSubject = {
   _id: string;
 };
 
+export type PageableReturn<T> = {
+  data: T[];
+  page: number;
+  total: number;
+};
+
 export type CourseName = {
   curso_id: number;
   name: string;
 };
+
+export type StatsOverview = PageableReturn<{
+  _id: number;
+  vagas: number;
+  requisicoes: number;
+  deficit: number;
+}>;
 
 export type StatsUsage = {
   teachers: number;
@@ -41,16 +54,3 @@ export type StatsUsage = {
   comments: number;
   enrollments: number;
 };
-
-export type PageableReturn<T> = {
-  data: T[];
-  page: number;
-  total: number;
-};
-
-export type StatsOverview = PageableReturn<{
-  _id: number;
-  vagas: number;
-  requisicoes: number;
-  deficit: number;
-}>;

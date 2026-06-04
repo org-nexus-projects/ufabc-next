@@ -93,6 +93,7 @@ const areaGraphOptions = computed(() => ({
 const { data: crHistoryData, isPending: isPendingCrHistory } = useQuery({
   queryKey: ['users', 'me', 'grades'],
   queryFn: Performance.getCrHistory,
+  select: (response) => response.data,
 });
 
 const crHistorySeries = computed(() => {
@@ -139,8 +140,8 @@ const { data: cpHistoryData, isPending: isPendingCpHistory } = useQuery({
   queryKey: ['historiesGraduations'],
   queryFn: Performance.getHistoriesGraduations,
   select: (response) => {
-    currentCpCourse.value = response.docs[0];
-    return response.docs;
+    currentCpCourse.value = response.data.docs[0];
+    return response.data.docs;
   },
 });
 
@@ -190,6 +191,7 @@ const { data: crDistributionData, isPending: isPendingCrDistributionData } =
   useQuery({
     queryKey: ['stats', 'grades'],
     queryFn: Performance.getCrDistribution,
+    select: (response) => response.data,
   });
 
 const crDistributionSeries = computed(() => {

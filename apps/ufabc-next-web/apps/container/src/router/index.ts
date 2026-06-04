@@ -1,21 +1,7 @@
-import { Auth } from '@ufabc-next/services';
-import type {
-  RouteLocationNormalized,
-  RouteRecordRaw} from 'vue-router';
-import {
-  createRouter,
-  createWebHistory
-} from 'vue-router';
+import { api } from '@ufabc-next/services';
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
-import {
-  AUTHENTICATED_REDIRECT_PATH,
-  getUnauthenticatedRedirectPath,
-  LANDING_PAGE_PATH,
-  LOCAL_DEV_LOGIN_PATH,
-  shouldUseLocalLogin,
-} from '@/router/auth/authConfig';
 import { useAuthStore } from '@/stores/auth';
-import { isUserTokenExpired, isValidJwtFormat } from '@/utils/jwt';
 
 const ReviewsView = () => import('@/views/Reviews/ReviewsView.vue');
 const PerformanceView = () => import('@/views/Performance/PerformanceView.vue');
@@ -28,11 +14,13 @@ const SignUpView = () => import('@/views/SignUp/SignUpView.vue');
 const ConfirmationView = () =>
   import('@/views/Confirmation/ConfirmationView.vue');
 const RecoveryView = () => import('@/views/Recovery/RecoveryView.vue');
-const LoginView = () => import('@/views/Login/LoginView.vue');
 const CalengradeView = () => import('@/views/Calengrade/CalengradeView.vue');
 const WhatsappGroupsView = () =>
   import('@/views/WhatsappGroups/WhatsappGroupsView.vue');
 const HelpView = () => import('@/views/Help/HelpView.vue');
+
+const isJWT = (token: string) =>
+  /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/=]*$/.test(token);
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -41,8 +29,7 @@ const routes: Array<RouteRecordRaw> = [
     component: ReviewsView,
     meta: {
       title: 'Reviews',
-      requiresAuth: true,
-      requiresConfirmed: true,
+      confirmed: true,
     },
   },
   {
@@ -51,8 +38,7 @@ const routes: Array<RouteRecordRaw> = [
     component: PerformanceView,
     meta: {
       title: 'Performance',
-      requiresAuth: true,
-      requiresConfirmed: true,
+      confirmed: true,
     },
   },
   {
@@ -61,8 +47,7 @@ const routes: Array<RouteRecordRaw> = [
     component: PlanningView,
     meta: {
       title: 'Planejamento',
-      requiresAuth: true,
-      requiresConfirmed: true,
+      confirmed: true,
     },
   },
   {
@@ -71,8 +56,7 @@ const routes: Array<RouteRecordRaw> = [
     component: HistoryView,
     meta: {
       title: 'Meu Histórico',
-      requiresAuth: true,
-      requiresConfirmed: true,
+      confirmed: true,
     },
   },
   {
@@ -81,8 +65,7 @@ const routes: Array<RouteRecordRaw> = [
     component: StatsView,
     meta: {
       title: 'Dados da Matrícula',
-      requiresAuth: true,
-      requiresConfirmed: true,
+      confirmed: true,
     },
   },
   {
@@ -91,8 +74,7 @@ const routes: Array<RouteRecordRaw> = [
     component: SettingsView,
     meta: {
       title: 'Configurações',
-      requiresAuth: true,
-      requiresConfirmed: true,
+      confirmed: true,
     },
   },
   {
@@ -110,7 +92,7 @@ const routes: Array<RouteRecordRaw> = [
     component: SignUpView,
     meta: {
       title: 'Cadastro',
-      unconfirmedOnly: true,
+      confirmed: false,
     },
     props: true,
   },
@@ -120,7 +102,7 @@ const routes: Array<RouteRecordRaw> = [
     component: ConfirmationView,
     meta: {
       title: 'Confirmação da conta',
-      unconfirmedOnly: true,
+      confirmed: false,
     },
   },
   {
@@ -129,16 +111,7 @@ const routes: Array<RouteRecordRaw> = [
     component: RecoveryView,
     meta: {
       title: 'Recuperar conta',
-      guestOnly: true,
-    },
-  },
-  {
-    path: '/login',
-    name: 'login',
-    component: LoginView,
-    meta: {
-      title: 'Entrar no Next',
-      guestOnly: true,
+      auth: false,
     },
   },
   {
@@ -194,158 +167,95 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach(async (to) => {
-  updateDocumentTitle(to.meta.title as string | undefined);
-
-  handleSignupAdviceIfNeeded(to);
-
-  const tokenRedirect = await handleAuthValidationIfNeeded(to);
-  if (tokenRedirect) return tokenRedirect;
-
-  const authStatusRedirect = handleAuthStatus();
-  if (authStatusRedirect) return authStatusRedirect;
-
-  return resolveRouteAccess(to);
-});
-
-function updateDocumentTitle(title: string | undefined) {
-  document.title = title || 'UFABC Next';
-}
-
-function handleSignupAdviceIfNeeded(to: RouteLocationNormalized) {
+router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore();
+  document.title = (to.meta.title as string) || 'UFABC Next';
 
-  // Edge case: /signup?advice=true enquanto logado
-  // TODO: esse caso ainda é necessário?
+  //EDGE CASE: /signup?advice=true enquanto logado
   if (
     to.name === 'signup' &&
     to.query.advice === 'true' &&
     authStore.isLoggedIn
   ) {
-    authStore.logOut();
-  }
-}
-
-async function handleAuthValidationIfNeeded(to: RouteLocationNormalized) {
-  const token = to.query.token as string | undefined;
-  const component = to.query.component as string | undefined;
-
-  if (!token) return;
-
-  if (isValidJwtFormat(token)) {
-    validateJwtAuth(token);
-    return { path: AUTHENTICATED_REDIRECT_PATH };
+    authStore.logOut(false);
+    return next();
   }
 
-  return validateWhatsappAuth({ token, component });
-}
-
-// TODO: melhorar esse guard, talvez seja algo só pra rota de grupos do whatsapp mesmo, e não um guard global
-async function validateWhatsappAuth({
-  token,
-  component,
-}: {
-  token: string;
-  component?: string;
-}) {
-  const authStore = useAuthStore();
-
-  try {
-    const response = await Auth.getWhatsappToken(token, component);
-    authStore.authenticate(response.token);
-  } catch (error) {
-    console.error('Failed to authenticate with WhatsApp token', error);
-    return { name: 'signup' };
+  const tokenParam = to.query.token;
+  
+  if (tokenParam && !isJWT(tokenParam as string)) {
+    try {
+      const response = await api.post('/v2/auth/whatsapp-token', {
+        component: to.query.component,
+        token: tokenParam,
+      });
+      authStore.authenticate(response.data.token);
+    } catch (error) {
+      console.error('Failed to authenticate with WhatsApp token', error);
+    }
+    return next({
+      path: '/grupos-whatsapp',
+      query: { component: to.query.component },
+    });
   }
 
-  return {
-    path: '/grupos-whatsapp',
-    query: { component },
-  };
-}
-
-function validateJwtAuth(token: string) {
-  const authStore = useAuthStore();
-  authStore.authenticate(token);
-}
-
-function handleAuthStatus() {
-  const authStore = useAuthStore();
-
-  if (!authStore.isLoggedIn || !authStore.user) {
-    return;
+  if (isJWT(tokenParam as string)) {
+    authStore.authenticate(tokenParam as string);
+    return next({
+      path: to.path,
+      query: { ...to.query, token: undefined },
+    });
   }
 
-  if (!isUserTokenExpired(authStore.user)) {
-    return;
-  }
-
-  authStore.logOut();
-  return {
-    path: getUnauthenticatedRedirectPath(window.location.hostname),
-  };
-}
-
-// todo: não gosto dessa quantidade de condicionais, ver melhor depois
-function resolveRouteAccess(to: RouteLocationNormalized) {
-  const hostname = window.location.hostname;
-
-  if (to.name === 'login' && !shouldUseLocalLogin(hostname)) {
-    const landingPageUrl = new URL(LANDING_PAGE_PATH, window.location.origin);
-    window.location.assign(landingPageUrl.toString());
-    return false;
-  }
-
-  const authStore = useAuthStore();
-  const isLoggedIn = authStore.isLoggedIn;
-  const isConfirmed = authStore.user?.confirmed ?? false;
-  const authenticatedRedirectPath = AUTHENTICATED_REDIRECT_PATH;
-
-  const requiresAuth = to.matched.some(
-    (record) => record.meta.requiresAuth === true,
+  const requireAuth = to.matched.some((record) => record.meta.auth === true);
+  const requireConfirmed = to.matched.some(
+    (record) => record.meta.confirmed === true,
   );
-  const requiresConfirmed = to.matched.some(
-    (record) => record.meta.requiresConfirmed === true,
-  );
-  const guestOnly = to.matched.some((record) => record.meta.guestOnly === true);
-  const unconfirmedOnly = to.matched.some(
-    (record) => record.meta.unconfirmedOnly === true,
+  const notAllowAuth = to.matched.some((record) => record.meta.auth === false);
+  const notAllowConfirmed = to.matched.some(
+    (record) => record.meta.confirmed === false,
   );
 
-  if (requiresConfirmed) {
-    if (!isLoggedIn) return redirectToStaticRootIfProduction();
-    if (!isConfirmed) return { name: 'signup' };
-    return;
+  if (authStore.isLoggedIn && authStore.user) {
+    const expirationPeriod = 1 * 24 * 60 * 60; // 1 day
+    const currentTime = Math.floor(Date.now() / 1000);
+    const expirationTime = authStore.user.iat + expirationPeriod;
+
+    if (expirationTime < currentTime) {
+      authStore.logOut();
+      return next('/');
+    }
   }
 
-  if (requiresAuth) {
-    if (!isLoggedIn) return redirectToStaticRootIfProduction();
-    return;
+  const userConfirmed = authStore.user?.confirmed;
+
+  const isLocal = import.meta.env.DEV;
+
+  const notConfirmedRedirectPath = '/signup';
+  const authenticatedRedirectPath = '/reviews';
+  const notAuthenticatedRedirect = () =>
+    isLocal ? next(notConfirmedRedirectPath) : (window.location.pathname = '/');
+
+  if (requireAuth) {
+    if (authStore.isLoggedIn) return next();
+    return notAuthenticatedRedirect();
   }
-
-  if (guestOnly) {
-    if (isLoggedIn) return { name: authenticatedRedirectPath };
-    return;
+  if (requireConfirmed) {
+    if (authStore.isLoggedIn) {
+      if (userConfirmed) return next();
+      return next(notConfirmedRedirectPath);
+    }
+    return notAuthenticatedRedirect();
   }
-
-  if (unconfirmedOnly) {
-    if (isConfirmed) return { name: authenticatedRedirectPath };
-    return;
+  if (notAllowAuth) {
+    if (authStore.isLoggedIn) return next(authenticatedRedirectPath);
+    return next();
   }
-}
-
-function redirectToStaticRootIfProduction() {
-  const hostname = window.location.hostname;
-
-  if (shouldUseLocalLogin(hostname)) {
-    return { path: LOCAL_DEV_LOGIN_PATH };
+  if (notAllowConfirmed) {
+    if (userConfirmed) return next(authenticatedRedirectPath);
+    return next();
   }
-
-  // In production, force a full-page reload to the static site root.
-  // Returning false cancels Vue Router navigation; the browser reload takes over.
-  const landingPageUrl = new URL(LANDING_PAGE_PATH, window.location.origin);
-  window.location.assign(landingPageUrl.toString());
-  return false;
-}
+  return next();
+});
 
 export default router;

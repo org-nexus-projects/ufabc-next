@@ -59,7 +59,7 @@ enum generatingCalendarMessages {
 
 const step = ref(0);
 const generatingCalendarMessage = ref(generatingCalendarMessages.GENERATING);
-const calendar = ref<string | null>();
+const calendar = ref<string>();
 
 const downloadTimer = ref<NodeJS.Timeout>();
 onMounted(() => {

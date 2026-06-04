@@ -2,13 +2,12 @@ import 'vuetify/styles';
 import 'element-plus/dist/index.css';
 import '@mdi/font/css/materialdesignicons.css';
 
-import type { QueryClient } from '@tanstack/query-core';
+import { QueryClient } from '@tanstack/query-core';
 import {
   QueryClient as QueryClientVue,
   VueQueryPlugin,
 } from '@tanstack/vue-query';
-import type { ElMessage } from 'element-plus';
-import elementPlus from 'element-plus';
+import elementPlus, { ElMessage } from 'element-plus';
 import Highcharts from 'highcharts';
 import accessibility from 'highcharts/modules/accessibility';
 import annotationsInit from 'highcharts/modules/annotations';

@@ -1,5 +1,5 @@
-import type { SearchSubjectItem } from './search';
-import type { ConceptData } from './teachers';
+import { SearchSubjectItem } from '.';
+import { ConceptData } from './teachers';
 
 export type SubjectSpecific = {
   _id: { mainTeacher: string | null };
@@ -11,7 +11,7 @@ export type SubjectSpecific = {
   eadCount: number;
   cr_professor: number;
   teacher: {
-    alias: string[];
+    alias: [];
     _id: string;
     name: string;
     updatedAt: string;
