@@ -1,17 +1,17 @@
-type OAuth = {
-  email: string;
-  facebook: string;
-  picture: string;
-  emailFacebook: string;
-  google: string;
-  emailGoogle: string;
-};
-
-type Device = {
+export type Device = {
   _id: string;
   deviceId: string;
   token: string;
   phone: string;
+};
+
+export type OAuth = {
+  email: string;
+  facebook?: string;
+  picture?: string;
+  emailFacebook?: string;
+  google?: string;
+  emailGoogle?: string;
 };
 
 export type User = {
