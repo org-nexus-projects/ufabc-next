@@ -307,7 +307,7 @@ import { useRouter } from 'vue-router';
 import { useDisplay, useTheme } from 'vuetify';
 import { useRoute } from 'vuetify/lib/composables/router.mjs';
 
-import { FeedbackAlert } from '@/components/FeedbackAlert';
+import { FeedbackAlert } from '@/components/ui/FeedbackAlert';
 import { useAuthStore } from '@/stores/auth';
 
 import { SignUpSchema } from './signUpValidationSchema';

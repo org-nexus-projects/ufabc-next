@@ -50,9 +50,9 @@ import { Chart } from 'highcharts-vue';
 import { computed, ref, watch } from 'vue';
 import { useTheme } from 'vuetify';
 
-import { CenteredLoading } from '@/components/CenteredLoading';
-import { PaperCard } from '@/components/PaperCard';
-import { PerformanceCard } from '@/components/PerformanceCard';
+import { CenteredLoading } from '@/components/ui/CenteredLoading';
+import { PaperCard } from '@/components/ui/PaperCard';
+import { PerformanceCard } from '@/components/ui/PerformanceCard';
 import { formatSeason } from '@/utils/season';
 
 const theme = useTheme();

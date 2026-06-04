@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
-import { PaperCard } from '@/components/PaperCard';
+import { PaperCard } from '@/components/ui/PaperCard';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
 

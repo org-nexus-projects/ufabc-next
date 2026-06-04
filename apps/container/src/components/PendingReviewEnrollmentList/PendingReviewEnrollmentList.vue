@@ -26,9 +26,9 @@ import { useQuery } from '@tanstack/vue-query';
 import { Enrollment,Enrollments  } from '@ufabc-next/services';
 import { computed } from 'vue';
 
-import { FeedbackAlert } from '@/components/FeedbackAlert';
-import { PaperCard } from '@/components/PaperCard';
 import { PendingReviewEnrollment } from '@/components/PendingReviewEnrollment';
+import { FeedbackAlert } from '@/components/ui/FeedbackAlert';
+import { PaperCard } from '@/components/ui/PaperCard';
 
 const { data: enrollments, isError: isErrorEnrollment } = useQuery({
   refetchOnWindowFocus: false,

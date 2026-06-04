@@ -50,7 +50,7 @@ import debounce from 'lodash.debounce';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { FeedbackAlert } from '@/components/FeedbackAlert';
+import { FeedbackAlert } from '@/components/ui/FeedbackAlert';
 import { capitalizeName } from '@/utils/capitalizeName';
 
 const router = useRouter();

@@ -50,7 +50,7 @@ import { ElMessage } from 'element-plus';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { CenteredLoading } from '@/components/CenteredLoading';
+import { CenteredLoading } from '@/components/ui/CenteredLoading';
 import { useAuthStore } from '@/stores/auth';
 
 const authStore = useAuthStore();

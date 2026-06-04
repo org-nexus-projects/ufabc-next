@@ -114,7 +114,7 @@ import { ElMessage } from 'element-plus';
 import { useField, useForm } from 'vee-validate';
 import { computed, nextTick, onMounted, ref } from 'vue';
 
-import { PaperCard } from '@/components/PaperCard';
+import { PaperCard } from '@/components/ui/PaperCard';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
