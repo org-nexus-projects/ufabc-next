@@ -308,9 +308,8 @@ import { useDisplay, useTheme } from 'vuetify';
 import { useRoute } from 'vuetify/lib/composables/router.mjs';
 
 import { FeedbackAlert } from '@/components/ui/FeedbackAlert';
+import { SignUpSchema } from '@/features/auth/utils/signUpValidationSchema';
 import { useAuthStore } from '@/stores/auth';
-
-import { SignUpSchema } from './signUpValidationSchema';
 
 const theme = useTheme();
 const router = useRouter();

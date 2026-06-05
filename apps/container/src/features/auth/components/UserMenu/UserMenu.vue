@@ -61,9 +61,9 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
+import { useAliasInitials } from '@/composables/aliasInitials';
+import { useCleanUsername } from '@/composables/cleanUsername';
 import { useAuthStore } from '@/stores/auth';
-import { useAliasInitials } from '@/utils/composables/aliasInitials';
-import { useCleanUsername } from '@/utils/composables/cleanUsername';
 
 const emit = defineEmits<{
   logout: [];
