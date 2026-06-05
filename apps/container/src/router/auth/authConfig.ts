@@ -1,4 +1,4 @@
-import { isLocalHost } from '@/utils/runtimeConfig';
+import { isLocalHost } from '@/helpers/utils/runtimeConfig';
 
 export const AUTHENTICATED_REDIRECT_PATH = '/reviews';
 export const LANDING_PAGE_PATH = '/';

@@ -21,11 +21,13 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { VFileUpload } from 'vuetify/labs/VFileUpload';
 
+import { applyChartsTheme } from '@/config/highcharts';
+import { darkTheme, lightTheme } from '@/config/theme';
+
 import App from './App.vue';
 import { eventTracker } from './helpers/EventTracker';
 import client from './queryClient';
 import router from './router';
-import { applyChartsTheme, darkTheme, lightTheme } from './theme';
 
 interface Device {
   cordova: string;
