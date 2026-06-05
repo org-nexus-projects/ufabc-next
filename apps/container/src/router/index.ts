@@ -12,28 +12,28 @@ import {
 import { useAuthStore } from '@/stores/auth';
 import { isUserTokenExpired, isValidJwtFormat } from '@/utils/jwt';
 
-const ReviewsView = () => import('@/views/Reviews/ReviewsView.vue');
-const PerformanceView = () => import('@/views/Performance/PerformanceView.vue');
-const PlanningView = () => import('@/views/Planning/PlanningView.vue');
-const HistoryView = () => import('@/views/History/HistoryView.vue');
-const StatsView = () => import('@/views/Stats/StatsView.vue');
-const SettingsView = () => import('@/views/Settings/SettingsView.vue');
-const DonateView = () => import('@/views/Donate/DonateView.vue');
-const SignUpView = () => import('@/views/SignUp/SignUpView.vue');
-const ConfirmationView = () =>
-  import('@/views/Confirmation/ConfirmationView.vue');
-const RecoveryView = () => import('@/views/Recovery/RecoveryView.vue');
-const LoginView = () => import('@/views/Login/LoginView.vue');
-const CalengradeView = () => import('@/views/Calengrade/CalengradeView.vue');
-const WhatsappGroupsView = () =>
-  import('@/views/WhatsappGroups/WhatsappGroupsView.vue');
-const HelpView = () => import('@/views/Help/HelpView.vue');
+const ReviewsPage = () => import('@/pages/Reviews/ReviewsPage.vue');
+const PerformancePage = () => import('@/pages/Performance/PerformancePage.vue');
+const PlanningPage = () => import('@/pages/Planning/PlanningPage.vue');
+const HistoryPage = () => import('@/pages/History/HistoryPage.vue');
+const StatsPage = () => import('@/pages/Stats/StatsPage.vue');
+const SettingsPage = () => import('@/pages/Settings/SettingsPage.vue');
+const DonatePage = () => import('@/pages/Donate/DonatePage.vue');
+const SignUpPage = () => import('@/pages/SignUp/SignUpPage.vue');
+const ConfirmationPage = () =>
+  import('@/pages/Confirmation/ConfirmationPage.vue');
+const RecoveryPage = () => import('@/pages/Recovery/RecoveryPage.vue');
+const LoginPage = () => import('@/pages/Login/LoginPage.vue');
+const CalengradePage = () => import('@/pages/Calengrade/CalengradePage.vue');
+const WhatsappGroupsPage = () =>
+  import('@/pages/WhatsappGroups/WhatsappGroupsPage.vue');
+const HelpPage = () => import('@/pages/Help/HelpPage.vue');
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/reviews',
     name: 'reviews',
-    component: ReviewsView,
+    component: ReviewsPage,
     meta: {
       title: 'Reviews',
       requiresAuth: true,
@@ -43,7 +43,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/performance',
     name: 'performance',
-    component: PerformanceView,
+    component: PerformancePage,
     meta: {
       title: 'Performance',
       requiresAuth: true,
@@ -53,7 +53,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/planning',
     name: 'planning',
-    component: PlanningView,
+    component: PlanningPage,
     meta: {
       title: 'Planejamento',
       requiresAuth: true,
@@ -63,7 +63,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/history',
     name: 'history',
-    component: HistoryView,
+    component: HistoryPage,
     meta: {
       title: 'Meu Histórico',
       requiresAuth: true,
@@ -73,7 +73,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/stats',
     name: 'stats',
-    component: StatsView,
+    component: StatsPage,
     meta: {
       title: 'Dados da Matrícula',
       requiresAuth: true,
@@ -83,7 +83,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/settings',
     name: 'settings',
-    component: SettingsView,
+    component: SettingsPage,
     meta: {
       title: 'Configurações',
       requiresAuth: true,
@@ -93,7 +93,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/donate',
     name: 'donate',
-    component: DonateView,
+    component: DonatePage,
     meta: {
       title: 'Ajude o Next',
       layout: 'include-sidebar',
@@ -102,7 +102,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     name: 'signup',
     path: '/signup',
-    component: SignUpView,
+    component: SignUpPage,
     meta: {
       title: 'Cadastro',
       unconfirmedOnly: true,
@@ -112,7 +112,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     name: 'confirm',
     path: '/confirm',
-    component: ConfirmationView,
+    component: ConfirmationPage,
     meta: {
       title: 'Confirmação da conta',
       unconfirmedOnly: true,
@@ -121,7 +121,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/recovery',
     name: 'recovery',
-    component: RecoveryView,
+    component: RecoveryPage,
     meta: {
       title: 'Recuperar conta',
       guestOnly: true,
@@ -130,7 +130,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
     name: 'login',
-    component: LoginView,
+    component: LoginPage,
     meta: {
       title: 'Entrar no Next',
       guestOnly: true,
@@ -139,7 +139,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/grupos-whatsapp',
     name: 'whatsapp',
-    component: WhatsappGroupsView,
+    component: WhatsappGroupsPage,
     meta: {
       title: 'Grupos do Whatsapp',
       layout: 'include-sidebar',
@@ -148,7 +148,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/calengrade',
     name: 'calengrade',
-    component: CalengradeView,
+    component: CalengradePage,
     meta: {
       title: 'Calengrade',
       layout: 'include-sidebar',
@@ -158,7 +158,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/help',
     name: 'help',
-    component: HelpView,
+    component: HelpPage,
     meta: {
       title: 'Ajuda',
       layout: 'include-sidebar',
