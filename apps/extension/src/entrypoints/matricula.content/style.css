@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* Classes for the filters  */
+.notAndre {
+  display: none;
+}
+
+.notBernardo {
+  display: none;
+}
+
+.notMatutino {
+  display: none;
+}
+
+.notNoturno {
+  display: none;
+}

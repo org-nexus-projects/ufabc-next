@@ -1,0 +1,109 @@
+import "./style.css";
+import { getUFEnrolled } from "@/services/ufabc-parser";
+import UFABCMatricula from "@/entrypoints/matricula.content/UFABC-Matricula.vue";
+import HighchartsVue from "highcharts-vue";
+import { VueQueryPlugin } from "@tanstack/vue-query";
+import { sendMessage } from "@/messaging";
+import type { ContentScriptContext } from "wxt/client";
+import { getStudent } from "@/services/next";
+
+export type UFABCMatriculaStudent = {
+  studentId: number;
+  graduationId: string;
+};
+
+export default defineContentScript({
+  async main(ctx) {
+    const sessionId = await getToken();
+    const $topInfo = document.querySelector("#usuario_top > b");
+    const login = $topInfo?.textContent?.trim().split(" ")[0];
+
+    const ui = await mountUFABCMatriculaFilters(ctx, sessionId, login);
+    ui.mount();
+
+    const $meio = document.querySelector<HTMLDivElement>("#meio");
+    const $mountedUi = $meio?.firstChild as unknown as HTMLDivElement;
+
+    $mountedUi.style.position = "sticky";
+    $mountedUi.style.top = "0px";
+    $mountedUi.style.zIndex = "9";
+
+    const URLS_TO_CHECK = [
+      "http://localhost:3003",
+      "https://ufabc-matricula-snapshot.vercel.app",
+      "https://matricula.ufabc.edu.br",
+    ];
+    const origin = new URL(document.location.href).origin;
+    if (URLS_TO_CHECK.includes(origin)) {
+      const fullStudent = await getStudent(login!, sessionId!);
+      await storage.setItem("local:fullStudent", fullStudent);
+      document.dispatchEvent(
+        new CustomEvent("student-info", {
+          detail: {
+            ra: fullStudent.ra,
+            login,
+            hasStudent: !!fullStudent,
+          },
+        }),
+      );
+    }
+    return;
+  },
+  runAt: "document_end",
+  cssInjectionMode: "ui",
+  matches: [
+    "http://localhost/*",
+    "https://ufabc-matricula-snapshot.vercel.app/*",
+    "https://matricula.ufabc.edu.br/matricula/*",
+  ],
+});
+
+async function mountUFABCMatriculaFilters(ctx: ContentScriptContext, sessionId: string | null, login: string) {
+  return createShadowRootUi(ctx, {
+    name: "matriculas-filter",
+    position: "inline",
+    anchor: "#meio",
+    append: "first",
+    async onMount(container, _shadow, _shadowhost) {
+      const wrapper = document.createElement("div");
+      container.append(wrapper);
+
+      const matriculas = await getUFEnrolled();
+      window.matriculas = matriculas;
+      window.sessionId = sessionId;
+
+      const app = createApp(UFABCMatricula);
+      app.provide("matriculas", window.matriculas);
+      app.provide("sessionId", window.sessionId);
+      app.provide("login", login);
+
+      app.use(HighchartsVue);
+      app.use(VueQueryPlugin);
+
+      app.mount(wrapper);
+      return { app, wrapper };
+    },
+    async onRemove(mounted) {
+      const resolvedMounted = await mounted;
+      resolvedMounted?.app.unmount();
+      resolvedMounted?.wrapper.remove();
+    },
+  });
+}
+
+async function getToken() {
+  try {
+    const token = await sendMessage("getTokenMatricula", {
+      action: "getTokenMatricula",
+      pageURL: document.URL,
+    });
+    if (!token) {
+      console.error("Could not retrieve token, please try again");
+      return null;
+    }
+    return token.value;
+  } catch (error) {
+    console.error("Failed to get matricula_rails_session from background script:", error);
+    return null;
+  }
+}
