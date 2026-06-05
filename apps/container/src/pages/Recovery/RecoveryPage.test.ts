@@ -1,0 +1,84 @@
+import { http, HttpResponse } from 'msw';
+import { useRouter } from 'vue-router';
+
+import { server } from '@/mocks/server';
+import { user as mockedUser } from '@/mocks/users';
+import { render, screen, userEvent } from '@/test-utils';
+
+import { RecoveryPage } from '.';
+
+vi.mock('vue-router', async () => ({
+  useRouter: vi.fn(),
+  createRouter: vi.fn(() => ({
+    beforeEach: vi.fn(),
+  })),
+  createWebHistory: vi.fn(),
+}));
+
+describe('<RecoveryPage />', () => {
+  beforeEach(() => {
+    vi.mocked(useRouter).mockReturnValue({
+      go: vi.fn(),
+      push: vi.fn(),
+    } as unknown as ReturnType<typeof useRouter>);
+  });
+
+  test('render recovery', () => {
+    render(RecoveryPage);
+    expect(screen.getByAltText(/logo do UFABC Next/i)).toBeInTheDocument();
+    expect(
+      screen.getByAltText(/Imagem minimalista de dois estudantes/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('textbox', { name: /Insira seu email institucional/i }),
+    ).toBeInTheDocument();
+  });
+  test('click go back button', async () => {
+    const user = await userEvent.setup();
+    render(RecoveryPage);
+
+    await user.click(screen.getByRole('button', { name: /Anterior/i }));
+
+    expect(useRouter().go).toHaveBeenCalledWith(-1);
+  });
+  test('should submit recovery form', async () => {
+    const user = await userEvent.setup();
+    render(RecoveryPage);
+
+    await user.type(
+      screen.getByRole('textbox', { name: /Insira seu email institucional/i }),
+      mockedUser.email,
+    );
+
+    await user.click(screen.getByRole('button', { name: /Próximo/i }));
+
+    expect(
+      await screen.findByText(/Sua conta será recuperada.*/i),
+    ).toBeInTheDocument();
+
+    await user.click(await screen.findByText('Voltar para a home'));
+
+    expect(window.location.pathname).toBe('/');
+  });
+  test('should submit and show error', async () => {
+    server.use(
+      http.post(`*/users/recover`, () =>
+        HttpResponse.json({ error: 'error' }, { status: 500 }),
+      ),
+    );
+
+    const user = await userEvent.setup();
+    render(RecoveryPage);
+
+    await user.type(
+      screen.getByRole('textbox', { name: /Insira seu email institucional/i }),
+      mockedUser.email,
+    );
+
+    await user.click(screen.getByRole('button', { name: /Próximo/i }));
+
+    expect(
+      await screen.findByText(/Não foi possível recuperar sua conta.*/i),
+    ).toBeInTheDocument();
+  });
+});
