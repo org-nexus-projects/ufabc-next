@@ -50,15 +50,14 @@
 import { onMounted, reactive, ref, watch } from 'vue';
 import { useTheme } from 'vuetify';
 
+import ChangeQuarterScreen from '@/features/calengrade/components/ChangeQuarterScreen.vue';
+import PreviewScreen from '@/features/calengrade/components/PreviewScreen.vue';
+import SummaryScreen from '@/features/calengrade/components/SummaryScreen.vue';
+import WelcomeScreen from '@/features/calengrade/components/WelcomeScreen.vue';
 import { CalengradeInfo, CalengradeSteps, Classes } from '@/features/calengrade/types';
 import { definedQuarters } from '@/features/calengrade/utils/quarters';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
-
-import ChangeQuarterScreen from './screens/ChangeQuarterScreen.vue';
-import PreviewScreen from './screens/PreviewScreen.vue';
-import SummaryScreen from './screens/SummaryScreen.vue';
-import WelcomeScreen from './screens/WelcomeScreen.vue';
 
 const currentStepName = ref<CalengradeSteps>(CalengradeSteps.Welcome);
 

@@ -334,8 +334,8 @@ import { computed, onMounted, ref, toValue, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTheme } from 'vuetify';
 
-import UserNotifications from '@/components/UserNotifications.vue';
-import WhatsappGroupCard from '@/components/WhatsappGroupCard/WhatsappGroupCard.vue';
+import UserNotifications from '@/features/whatsapp/components/UserNotifications.vue';
+import { WhatsappGroupCard } from '@/features/whatsapp/components/WhatsappGroupCard';
 import { getMockedGroups } from '@/features/whatsapp/utils/mockedWhatsappGroups';
 import { normalizeText } from '@/features/whatsapp/utils/normalizeTextSearch';
 import { eventTracker } from '@/helpers/EventTracker';
