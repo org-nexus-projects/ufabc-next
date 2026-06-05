@@ -31,11 +31,55 @@ This is a pnpm/Turborepo monorepo. The main app is `apps/container`, a Vue 3 SPA
 - Keep application code in English. User-facing product copy is mostly Portuguese and should stay natural for UFABC students.
 - Prefer existing project libraries before adding new dependencies: Vue 3, Vuetify 3, Element Plus, TanStack Vue Query, Pinia, vee-validate, zod, VueUse, dayjs, Highcharts/highcharts-vue, amCharts, `ics`, Mixpanel, `lodash.debounce`, Testing Library, Vitest, and MSW.
 - Use `@/` for imports inside `apps/container/src`.
+- The `apps/container/src/` folder follows a **feature-based architecture** with these layers:
+  - `pages/` — thin page entry points (renamed from `views/`). Each page lives in its own folder.
+  - `features/` — vertical slices by domain. Domain components, types, and utilities belong here.
+  - `components/ui/` — truly shared UI primitives used by 2+ features (e.g., `PaperCard`, `FeedbackAlert`).
+  - `components/layout/` — layout-specific components (e.g., `AppBar`).
+  - `composables/` — cross-cutting composables shared across the app.
+  - `config/` — third-party library configuration (e.g., Vuetify themes, Highcharts).
+  - `helpers/` — generic pure functions and event tracking.
+  - `utils/` — ONLY generic, pure utility functions (no domain logic).
+  - `stores/` — Pinia stores for global/session state.
 - Keep API calls out of Vue components. Add or adjust endpoint wrappers in `packages/services/src`, and add shared response/request types in `packages/types/src` when they are reused across the app. When adding new modules, update the matching barrel export in `packages/services/src/index.ts` or `packages/types/src/index.ts`.
 - Do not create frontend mock backends when the real backend owns the endpoint. Link the backend PR/API route and adapt the frontend to that contract.
 - Treat `apps/static` as static HTML/assets. Do not assume Vue components, composables, or Vuetify are available there.
 - Preserve Vite routing assumptions: local dev runs at port `3000`, production app assets are served under `/app`, and router history uses `import.meta.env.VITE_APP_BASE_URL`.
 - Route changes must preserve the existing auth conventions: route meta uses `confirmed`, `auth`, and `layout: 'include-sidebar'`; token auth can arrive through `?token=`; unauthenticated redirects intentionally differ between local dev and production.
+
+## Architecture Rules
+
+These rules govern how code is organized in the feature-based folder structure.
+
+### Feature Isolation
+
+**Features never import from other features.** If a component/composable/utility is used by 2+ features, it must be promoted to a shared layer (`components/ui/`, `composables/`, `helpers/`, or `utils/`).
+
+### Page Orchestration
+
+**Pages may import from features.** Pages are thin coordinators that compose features. They can import from any feature. Pages may also import from `components/ui/`, `composables/`, `helpers/`, `utils/`, and `stores/`.
+
+### Auth is Infrastructure
+
+`features/auth/` is treated as infrastructure, not a business domain. Pages may import from `features/auth/` (e.g., `UserMenu`, validation schemas). Business features (`reviews`, `whatsapp`, `calengrade`) **must not** import from `features/auth/`. They access auth state via the global `stores/auth.ts` Pinia store.
+
+### Import Conventions
+
+- **Inside the same feature:** use relative paths (`../SearchBar` or `./Foo`).
+- **Outside a feature:** use absolute paths via `@/` (`@/features/reviews/components/SearchBar`).
+- **Global/shared imports:** use `@/components/ui/PaperCard`, `@/composables/aliasInitials`, `@/stores/auth`, etc.
+
+### Barrel Exports
+
+Every component folder has an `index.ts` that re-exports the `.vue` file:
+
+```ts
+export { default as ComponentName } from './ComponentName.vue';
+```
+
+### Domain Utilities Belong to Features
+
+If a utility function is used by a single feature, it lives inside that feature's `utils/` folder. Generic utilities stay in `src/utils/`.
 
 ## Vue And TypeScript
 
@@ -49,7 +93,7 @@ This is a pnpm/Turborepo monorepo. The main app is `apps/container`, a Vue 3 SPA
 - Prefer `computed` for derived, read-only state. Use `ref` for mutable local state, and `shallowRef` for large or external objects when deep reactivity is unnecessary.
 - Keep route state idiomatic. Use `useRoute` and `useRouter` from `vue-router` instead of reading route params/query from `window.location`.
 - When state depends on route query or another narrow source, name it specifically. For example, prefer names like `componentSelectedByQueryUrl` over generic names like `selectedComponent`.
-- Extract reusable cross-component behavior into composables under `apps/container/src/utils/composables` when logic spans components, especially theme/localStorage interactions or repeated formatting. Name composables as `useXxx`; when they return derived read-only state, prefer `computed`/readonly values over mutable refs.
+- Extract reusable cross-component behavior into composables under `apps/container/src/composables` when logic spans components, especially theme/localStorage interactions or repeated formatting. Name composables as `useXxx`; when they return derived read-only state, prefer `computed`/readonly values over mutable refs.
 - Keep watchers narrow and intentional. Prefer `computed` when a value can be derived without side effects. Async watchers/effects must clean up cancellable requests, timers, and subscriptions with Vue watcher cleanup APIs.
 - Use Vue built-ins intentionally: `<Transition>`/`<TransitionGroup>` for Vue-managed animation, `<Teleport>` for out-of-tree UI when Vuetify is not handling it, `<Suspense>` only for async setup/top-level await, `<KeepAlive>` only when preserving component state is intentional, and `v-memo`/`v-once` only for measured render pressure.
 - Avoid leaving temporary comments, debug logs, or TODOs unless they describe a real follow-up that cannot be solved in the current change.
