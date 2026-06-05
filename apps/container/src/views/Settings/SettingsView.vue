@@ -141,8 +141,8 @@ import { computed, ref } from 'vue';
 
 import { CenteredLoading } from '@/components/ui/CenteredLoading';
 import { PaperCard } from '@/components/ui/PaperCard';
+import { useAliasInitials } from '@/composables/aliasInitials';
 import { useAuthStore } from '@/stores/auth';
-import { useAliasInitials } from '@/utils/composables/aliasInitials';
 import { buildGoogleAuthUrl } from '@/utils/runtimeConfig';
 
 const authStore = useAuthStore();

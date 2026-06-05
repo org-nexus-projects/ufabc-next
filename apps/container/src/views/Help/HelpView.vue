@@ -115,11 +115,10 @@ import { useField, useForm } from 'vee-validate';
 import { computed, nextTick, onMounted, ref } from 'vue';
 
 import { PaperCard } from '@/components/ui/PaperCard';
+import { helpFormSchema } from '@/features/help/utils/helpValidationSchema';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
-
-import { helpFormSchema } from './helpValidationSchema';
 
 const authStore = useAuthStore();
 const successMessage = ref<string>('');

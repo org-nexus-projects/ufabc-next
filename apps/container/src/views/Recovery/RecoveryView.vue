@@ -7,8 +7,7 @@ import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { FeedbackAlert } from '@/components/ui/FeedbackAlert';
-
-import { recoverySchema } from './recoveryValidationSchema';
+import { recoverySchema } from '@/features/auth/utils/recoveryValidationSchema';
 
 const router = useRouter();
 
