@@ -1,0 +1,10 @@
+{
+  "name": "@next/docker-infra",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "up": "docker compose -f ../../docker-compose.yml up -d next-db next-redis localstack && ./wait-for-healthy.sh",
+    "down": "docker compose -f ../../docker-compose.yml down",
+    "logs": "docker compose -f ../../docker-compose.yml logs -f next-db next-redis localstack"
+  }
+}

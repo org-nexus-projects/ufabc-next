@@ -1,0 +1,68 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "globalDependencies": [".env"],
+  "tasks": {
+    "up": {
+      "cache": false
+    },
+    "dev": {
+      "dependsOn": ["@next/docker-infra#up", "docker:build"],
+      "cache": false,
+      "persistent": true
+    },
+    "docker:build": {
+      "dependsOn": ["@next/docker-infra#up", "^build"],
+      "cache": false
+    },
+    "build": {
+      "env": ["NODE_ENV"],
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
+      "cache": true
+    },
+    "tsc": {
+      "dependsOn": ["^build"],
+      "cache": true,
+      "outputLogs": "errors-only"
+    },
+    "start": {
+      "cache": true
+    },
+    "start:watch": {
+      "cache": true,
+      "persistent": true
+    },
+    "lint": {
+      "outputLogs": "errors-only"
+    },
+    "lint:fix": {
+      "outputLogs": "errors-only"
+    },
+    "test": {
+      "cache": true,
+      "inputs": ["src/**/*.ts", "test/**/*.ts"],
+      "env": [
+        "NODE_ENV",
+        "ALLOWED_ORIGINS",
+        "UFABC_PARSER_URL",
+        "AWS_REGION",
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY",
+        "OAUTH_GOOGLE_CLIENT_ID",
+        "OAUTH_GOOGLE_SECRET",
+        "JWT_SECRET",
+        "MONGODB_CONNECTION_URL",
+        "REDIS_CONNECTION_URL"
+      ]
+    },
+    "test:watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:coverage": {
+      "dependsOn": ["^test"],
+      "cache": true
+    }
+  }
+}

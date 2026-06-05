@@ -1,0 +1,20 @@
+{
+  "sourceMap": true,
+  "extends": ["fastify-tsconfig"],
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "skipLibCheck": true,
+    "plugins": [
+      {
+        "transform": "typescript-transform-paths"
+      }
+    ],
+    "outDir": "dist",
+    "rootDir": "src",
+    "strictNullChecks": true
+  },
+  "include": ["src/**/*.ts", "esbuild.ts", "test/**/*.ts", "runTests.ts"],
+  "exclude": ["node_modules/**/*"]
+}

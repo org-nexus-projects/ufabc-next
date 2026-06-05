@@ -1,0 +1,186 @@
+import { join } from 'node:path';
+
+import { fastifyAutoload } from '@fastify/autoload';
+import dbPlugin from '@next/db/client';
+import type { DatabaseModels } from '@next/db/models';
+import type { FastifyInstance, FastifyServerOptions } from 'fastify';
+import {
+  RequestValidationError,
+  ResponseSerializationError,
+} from 'fastify-zod-openapi';
+import type { Mongoose } from 'mongoose';
+
+import { authenticationController } from './controllers/authentication-controller.js';
+import backofficeController from './controllers/backoffice-controller.js';
+import componentsController from './controllers/components-controller.js';
+import { proxyController } from './controllers/proxy-controller.js';
+import studentsController from './controllers/students-controller.js';
+import { UfabcParserIncomingWebhookController } from './controllers/ufabc-parser-webhook-controller.js';
+import { authenticateBoard } from './hooks/board-authenticate.js';
+import awsV2Plugin from './plugins/v2/aws.js';
+import queueV2Plugin from './plugins/v2/queue.js';
+import redisV2Plugin from './plugins/v2/redis.js';
+import { setupV2Routes } from './plugins/v2/setup.js';
+import testUtilsPlugin from './plugins/v2/test-utils.js';
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    db: DatabaseModels;
+    rawMongoose: Mongoose;
+  }
+}
+
+const routesV2 = [
+  componentsController,
+  backofficeController,
+  studentsController,
+  UfabcParserIncomingWebhookController,
+  authenticationController,
+  proxyController,
+];
+
+export async function buildApp(
+  app: FastifyInstance,
+  opts: FastifyServerOptions = {}
+) {
+  await setupV2Routes(app, routesV2);
+
+  await app.register(fastifyAutoload, {
+    dir: join(import.meta.dirname, 'plugins/external'),
+    options: { ...opts },
+  });
+
+  await app.register(fastifyAutoload, {
+    dir: join(import.meta.dirname, 'plugins/custom'),
+    options: { ...opts },
+  });
+
+  await app.register(redisV2Plugin);
+  await app.register(dbPlugin);
+  await app.register(queueV2Plugin, {
+    redisURL: new URL(app.config.REDIS_CONNECTION_URL),
+  });
+  await app.register(awsV2Plugin);
+
+  app.setSchemaErrorFormatter((errors, dataVar) => {
+    let message = `${dataVar}:`;
+    for (const error of errors) {
+      if (error instanceof RequestValidationError) {
+        message += ` ${error.instancePath} ${error.keyword}`;
+      } else if (error.instancePath && error.keyword) {
+        message += ` ${error.instancePath} ${error.keyword}`;
+      }
+    }
+
+    return new Error(message);
+  });
+
+  app.setErrorHandler((error, request, reply) => {
+    reply.error = error as Error;
+
+    if (error instanceof ResponseSerializationError) {
+      reply.status(422);
+      reply.send({
+        zodIssues: error.validation?.map((err) => err.params.issue) ?? [],
+        originalError: error.validation?.[0]?.params.error ?? null,
+      });
+      return;
+    }
+
+    if (
+      error &&
+      typeof error === 'object' &&
+      'validation' in error &&
+      error.validation
+    ) {
+      const validationError = error as Error & { validation: unknown[] };
+
+      request.log.warn(
+        {
+          error: validationError,
+          request: {
+            method: request.method,
+            url: request.url,
+            query: request.query,
+            params: request.params,
+          },
+        },
+        validationError.message
+      );
+
+      reply.status(400);
+      reply.send({
+        statusCode: 400,
+        error: 'Bad Request',
+        message: validationError.message,
+        validation: validationError.validation,
+      });
+      return;
+    }
+
+    if (error instanceof Error) {
+      request.log.error(
+        {
+          error,
+          request: {
+            method: request.method,
+            url: request.url,
+            query: request.query,
+            params: request.params,
+          },
+        },
+        error.message
+      );
+
+      reply.status(500);
+      reply.send({
+        error: error.name,
+        statusCode: 500,
+        message: error.message,
+      });
+      return;
+    }
+
+    if (!error) {
+      return;
+    }
+  });
+
+  app.setNotFoundHandler((request, reply) => {
+    request.log.warn(
+      {
+        request: {
+          method: request.method,
+          url: request.url,
+          query: request.query,
+          params: request.params,
+        },
+      },
+      'Resource not found'
+    );
+
+    reply.code(404);
+
+    return { message: 'Not Found' };
+  });
+
+  app.register(fastifyAutoload, {
+    dir: join(import.meta.dirname, 'routes'),
+    autoHooks: true,
+    cascadeHooks: true,
+    ignorePattern: /^.*(?:test|spec|service|sync).(ts|js)$/,
+    options: { ...opts },
+  });
+
+  await app.register(testUtilsPlugin);
+
+  await app.manager.start();
+  await app.manager.board({ authenticate: authenticateBoard });
+
+  app.worker.setup();
+  await app.job.setup();
+
+  app.get('/health', (request, reply) => {
+    return reply.status(200).send({ message: 'OK' });
+  });
+}
