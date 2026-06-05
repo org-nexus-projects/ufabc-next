@@ -1,0 +1,31 @@
+{
+  "name": "ufabc-next-backend",
+  "version": "0.0.1",
+  "private": false,
+  "type": "module",
+  "scripts": {
+    "dev": "turbo run dev --continue",
+    "docker:build": "turbo run docker:build",
+    "services:up": "docker compose up -d",
+    "build": "turbo run build",
+    "tsc": "turbo run tsc --parallel",
+    "start": "turbo run start",
+    "start:watch": "turbo run start:watch",
+    "test": "turbo run test",
+    "lint": "pnpm dlx ultracite fix",
+    "deps-check": "pnpm dlx taze -r"
+  },
+  "devDependencies": {
+    "oxfmt": "^0.22.0",
+    "oxlint": "^1.37.0",
+    "oxlint-tsgolint": "catalog:",
+    "tsx": "catalog:",
+    "turbo": "catalog:",
+    "ultracite": "^7.0.4"
+  },
+  "engines": {
+    "node": "^24",
+    "pnpm": "^10"
+  },
+  "packageManager": "pnpm@10.33.2"
+}

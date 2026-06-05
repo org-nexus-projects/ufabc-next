@@ -1,0 +1,33 @@
+{
+  "name": "@next/queues",
+  "version": "1.0.0",
+  "description": "Queues for the backend",
+  "keywords": [],
+  "license": "ISC",
+  "author": "Joabe Varjao <joabevarjao123@gmail.com>",
+  "type": "module",
+  "exports": {
+    "./client": "./dist/builder.js",
+    "./manager": "./dist/manager.js"
+  },
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc",
+    "check-types": "tsc --noEmit",
+    "clean": "git clean -xdf .cache .turbo dist node_modules"
+  },
+  "dependencies": {
+    "@bull-board/api": "catalog:",
+    "@bull-board/fastify": "catalog:",
+    "bullmq": "catalog:",
+    "ms": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@next/tsconfig": "workspace:*",
+    "@types/ms": "catalog:",
+    "@types/node": "catalog:",
+    "fastify": "catalog:",
+    "typescript": "catalog:"
+  }
+}
