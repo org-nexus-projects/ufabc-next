@@ -140,11 +140,12 @@ import { ElMessage } from 'element-plus';
 import { computed, ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 
-import { ConceptsHorizontalChart } from '@/components/ConceptsHorizontalChart';
-import { ConceptsPieChart } from '@/components/ConceptsPieChart';
 import { CenteredLoading } from '@/components/ui/CenteredLoading';
 import { PaperCard } from '@/components/ui/PaperCard';
-import { transformConceptDataToObject } from '@/features/reviews/utils/transformConceptDataToObject';
+
+import { transformConceptDataToObject } from '../../utils/transformConceptDataToObject';
+import { ConceptsHorizontalChart } from '../ConceptsHorizontalChart';
+import { ConceptsPieChart } from '../ConceptsPieChart';
 
 const props = defineProps({
   subjectId: { type: String, required: true },

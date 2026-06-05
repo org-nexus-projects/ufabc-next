@@ -72,12 +72,13 @@ import { Reviews , TeacherReview, TeacherReviewSubject } from '@ufabc-next/servi
 import { computed, ref } from 'vue';
 import { useDisplay } from 'vuetify';
 
-import { CommentsList } from '@/components/CommentsList';
-import { ConceptsPieChart } from '@/components/ConceptsPieChart';
 import { CenteredLoading } from '@/components/ui/CenteredLoading';
 import { FeedbackAlert } from '@/components/ui/FeedbackAlert';
 import { PaperCard } from '@/components/ui/PaperCard';
-import { transformConceptDataToObject } from '@/features/reviews/utils/transformConceptDataToObject';
+
+import { transformConceptDataToObject } from '../../utils/transformConceptDataToObject';
+import { CommentsList } from '../CommentsList';
+import { ConceptsPieChart } from '../ConceptsPieChart';
 
 const props = defineProps({
   teacherId: { type: String, required: true },
