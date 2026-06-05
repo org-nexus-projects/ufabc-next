@@ -157,7 +157,7 @@ import { computed, ref } from 'vue';
 import { CenteredLoading } from '@/components/ui/CenteredLoading';
 import { PaperCard } from '@/components/ui/PaperCard';
 import { PerformanceCard } from '@/components/ui/PerformanceCard';
-import { getElapsedSeasons, getSeason, prettifySeason } from '@/utils/season';
+import { getElapsedSeasons, getSeason, prettifySeason } from '@/helpers/utils/season';
 
 type Tab = 'classes' | 'courses' | 'subjects';
 type OrderBy = 'deficit' | 'ratio' | 'vagas' | 'requisicoes';

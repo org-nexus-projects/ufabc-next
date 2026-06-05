@@ -92,8 +92,8 @@ import { computed, PropType, ref, watch } from 'vue';
 import { FeedbackAlert } from '@/components/ui/FeedbackAlert';
 import { PaperCard } from '@/components/ui/PaperCard';
 import { CommentsList } from '@/features/reviews/components/CommentsList';
-import { capitalizeName } from '@/utils/capitalizeName';
-import { conceptsColor } from '@/utils/consts';
+import { capitalizeName } from '@/helpers/utils/capitalizeName';
+import { conceptsColor } from '@/helpers/utils/consts';
 
 const selectedSubject = ref<string>('Todas as matérias');
 

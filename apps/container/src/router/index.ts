@@ -2,6 +2,7 @@ import { Auth } from '@ufabc-next/services';
 import type { RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
 import { createRouter, createWebHistory } from 'vue-router';
 
+import { isUserTokenExpired, isValidJwtFormat } from '@/helpers/utils/jwt';
 import {
   AUTHENTICATED_REDIRECT_PATH,
   getUnauthenticatedRedirectPath,
@@ -10,7 +11,6 @@ import {
   shouldUseLocalLogin,
 } from '@/router/auth/authConfig';
 import { useAuthStore } from '@/stores/auth';
-import { isUserTokenExpired, isValidJwtFormat } from '@/utils/jwt';
 
 const ReviewsPage = () => import('@/pages/Reviews/ReviewsPage.vue');
 const PerformancePage = () => import('@/pages/Performance/PerformancePage.vue');

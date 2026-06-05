@@ -1,7 +1,7 @@
 import type { User } from '@ufabc-next/services';
 import { defineStore } from 'pinia';
 
-import { parseJwt } from '@/utils/jwt';
+import { parseJwt } from '@/helpers/utils/jwt';
 
 type AuthState = {
   user: User | null;

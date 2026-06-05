@@ -51,7 +51,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { FeedbackAlert } from '@/components/ui/FeedbackAlert';
-import { capitalizeName } from '@/utils/capitalizeName';
+import { capitalizeName } from '@/helpers/utils/capitalizeName';
 
 const router = useRouter();
 const query = computed({

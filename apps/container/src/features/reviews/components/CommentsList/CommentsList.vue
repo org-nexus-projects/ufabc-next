@@ -69,7 +69,7 @@ import { useDisplay } from 'vuetify';
 
 import { CenteredLoading } from '@/components/ui/CenteredLoading';
 import { FeedbackAlert } from '@/components/ui/FeedbackAlert';
-import { checkEAD } from '@/utils/season';
+import { checkEAD } from '@/helpers/utils/season';
 
 import { SingleComment } from '../SingleComment';
 

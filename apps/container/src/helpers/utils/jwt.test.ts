@@ -2,7 +2,8 @@ import type { User } from '@ufabc-next/services';
 import { describe, expect, test } from 'vitest';
 
 import { createMockJwt } from '@/mocks/jwt';
-import { isUserTokenExpired, isValidJwtFormat, parseJwt } from '@/utils/jwt';
+
+import { isUserTokenExpired, isValidJwtFormat, parseJwt } from './jwt';
 
 describe('jwt utilities', () => {
   describe('parseJwt', () => {

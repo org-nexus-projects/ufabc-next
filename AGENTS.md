@@ -39,7 +39,7 @@ This is a pnpm/Turborepo monorepo. The main app is `apps/container`, a Vue 3 SPA
   - `composables/` — cross-cutting composables shared across the app.
   - `config/` — third-party library configuration (e.g., Vuetify themes, Highcharts).
   - `helpers/` — generic pure functions and event tracking.
-  - `utils/` — ONLY generic, pure utility functions (no domain logic).
+  - `helpers/utils/` — ONLY generic, pure utility functions (no domain logic).
   - `stores/` — Pinia stores for global/session state.
 - Keep API calls out of Vue components. Add or adjust endpoint wrappers in `packages/services/src`, and add shared response/request types in `packages/types/src` when they are reused across the app. When adding new modules, update the matching barrel export in `packages/services/src/index.ts` or `packages/types/src/index.ts`.
 - Do not create frontend mock backends when the real backend owns the endpoint. Link the backend PR/API route and adapt the frontend to that contract.
@@ -79,7 +79,7 @@ export { default as ComponentName } from './ComponentName.vue';
 
 ### Domain Utilities Belong to Features
 
-If a utility function is used by a single feature, it lives inside that feature's `utils/` folder. Generic utilities stay in `src/utils/`.
+If a utility function is used by a single feature, it lives inside that feature's `utils/` folder. Generic utilities stay in `src/helpers/utils/`.
 
 ## Vue And TypeScript
 

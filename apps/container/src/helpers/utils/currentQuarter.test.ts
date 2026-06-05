@@ -5,7 +5,7 @@ import {
   getCurrentAcademicSeason,
   getSelectableAcademicSeasons,
   isValidAcademicSeason,
-} from '@/utils/currentQuarter';
+} from './currentQuarter';
 
 describe('currentQuarter helpers', () => {
   test('returns season that matches the official date ranges', () => {

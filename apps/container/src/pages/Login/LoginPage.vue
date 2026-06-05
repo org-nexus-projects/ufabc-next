@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { buildGoogleAuthUrl, isLocalAppSession } from '@/utils/runtimeConfig';
+import { buildGoogleAuthUrl, isLocalAppSession } from '@/helpers/utils/runtimeConfig';
 
 const googleAuthUrl = computed(() =>
   buildGoogleAuthUrl({ requesterKey: 'ufabc-next' }),

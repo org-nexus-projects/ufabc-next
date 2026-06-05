@@ -248,9 +248,9 @@ import { FeedbackAlert } from '@/components/ui/FeedbackAlert';
 import { PaperCard } from '@/components/ui/PaperCard';
 import { ReviewDialog } from '@/components/ui/ReviewDialog';
 import { TableComponent } from '@/components/ui/TableComponent';
-import { capitalizeName } from '@/utils/capitalizeName';
-import { conceptsColor, extensionURL, studentRecordURL } from '@/utils/consts';
-import { checkEAD, formatSeason } from '@/utils/season';
+import { capitalizeName } from '@/helpers/utils/capitalizeName';
+import { conceptsColor, extensionURL, studentRecordURL } from '@/helpers/utils/consts';
+import { checkEAD, formatSeason } from '@/helpers/utils/season';
 
 const showDialog = ref(false);
 const selectedEnrollment = ref<Enrollment>();

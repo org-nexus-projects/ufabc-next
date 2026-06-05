@@ -1,3 +1,4 @@
+import { getSeason, prettifySeason } from '@/helpers/utils/season';
 import {
   classes,
   classesPage1,
@@ -8,7 +9,6 @@ import {
   usage,
 } from '@/mocks/stats';
 import { render, screen, userEvent } from '@/test-utils';
-import { getSeason, prettifySeason } from '@/utils/season';
 
 import { StatsPage } from '.';
 

@@ -1,6 +1,7 @@
 import { ElMessage } from 'element-plus';
 import { http, HttpResponse } from 'msw';
 
+import { formatSeason } from '@/helpers/utils/season';
 import { enrollment } from '@/mocks/enrollments';
 import { userCreateComment, userUpdateComment } from '@/mocks/reviews';
 import { server } from '@/mocks/server';
@@ -11,7 +12,6 @@ import {
   userEvent,
   waitFor,
 } from '@/test-utils';
-import { formatSeason } from '@/utils/season';
 
 import { ReviewDialog } from '.';
 

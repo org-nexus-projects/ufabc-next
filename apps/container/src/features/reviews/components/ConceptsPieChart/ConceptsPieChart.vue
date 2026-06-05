@@ -10,7 +10,7 @@ import { Chart } from 'highcharts-vue';
 import { computed, PropType, ref, watch } from 'vue';
 import { useTheme } from 'vuetify';
 
-import { conceptsColor } from '@/utils/consts';
+import { conceptsColor } from '@/helpers/utils/consts';
 
 const theme = useTheme();
 const chartKey = ref(0);

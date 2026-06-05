@@ -168,9 +168,9 @@ import logoLight from '@/assets/logo_white.svg';
 import { applyChartsTheme } from '@/config/highcharts';
 import { UserMenu } from '@/features/auth/components/UserMenu';
 import { eventTracker } from '@/helpers/EventTracker';
+import { runtimeConfig } from '@/helpers/utils/runtimeConfig';
 import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
-import { runtimeConfig } from '@/utils/runtimeConfig';
 
 import {
   getExternalNavigationItems,

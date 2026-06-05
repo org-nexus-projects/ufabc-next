@@ -33,7 +33,7 @@
 import { ConceptData, SubjectSpecific } from '@ufabc-next/services';
 import { computed, PropType } from 'vue';
 
-import { conceptsColor } from '@/utils/consts';
+import { conceptsColor } from '@/helpers/utils/consts';
 
 import { transformConceptDataToObject } from '../../utils/transformConceptDataToObject';
 

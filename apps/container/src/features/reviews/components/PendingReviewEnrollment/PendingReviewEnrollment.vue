@@ -61,8 +61,8 @@ import { Enrollment } from '@ufabc-next/services';
 import { computed, PropType, ref } from 'vue';
 
 import { ReviewDialog } from '@/components/ui/ReviewDialog';
-import { conceptsColor } from '@/utils/consts';
-import { checkEAD, formatSeason } from '@/utils/season';
+import { conceptsColor } from '@/helpers/utils/consts';
+import { checkEAD, formatSeason } from '@/helpers/utils/season';
 
 const showDialog = ref(false);
 

@@ -104,9 +104,9 @@ import { ElMessage } from 'element-plus';
 import { computed, onMounted, PropType, ref } from 'vue';
 import { useDisplay } from 'vuetify';
 
-import { conceptsColor } from '@/utils/consts';
-import { dateToTimeAgo } from '@/utils/dateToTimeAgo';
-import { checkEAD, formatSeason } from '@/utils/season';
+import { conceptsColor } from '@/helpers/utils/consts';
+import { dateToTimeAgo } from '@/helpers/utils/dateToTimeAgo';
+import { checkEAD, formatSeason } from '@/helpers/utils/season';
 
 const { smAndDown } = useDisplay();
 const props = defineProps({

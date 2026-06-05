@@ -339,16 +339,16 @@ import { WhatsappGroupCard } from '@/features/whatsapp/components/WhatsappGroupC
 import { getMockedGroups } from '@/features/whatsapp/utils/mockedWhatsappGroups';
 import { normalizeText } from '@/features/whatsapp/utils/normalizeTextSearch';
 import { eventTracker } from '@/helpers/EventTracker';
-import { WebEvent } from '@/helpers/WebEvent';
-import { useAuthStore } from '@/stores/auth';
-import { capitalizeName } from '@/utils/capitalizeName';
-import { extensionURL, studentRecordURL } from '@/utils/consts';
+import { capitalizeName } from '@/helpers/utils/capitalizeName';
+import { extensionURL, studentRecordURL } from '@/helpers/utils/consts';
 import {
   getCurrentAcademicSeason,
   getSelectableAcademicSeasons,
   isValidAcademicSeason,
-} from '@/utils/currentQuarter';
-import { formatSeason } from '@/utils/season';
+} from '@/helpers/utils/currentQuarter';
+import { formatSeason } from '@/helpers/utils/season';
+import { WebEvent } from '@/helpers/WebEvent';
+import { useAuthStore } from '@/stores/auth';
 
 type SearchType = 'ra' | 'component' | 'course';
 const MIN_RA_LENGTH = 8;
