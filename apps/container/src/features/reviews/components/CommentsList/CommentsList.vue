@@ -67,10 +67,11 @@ import { Comments, Reviews } from '@ufabc-next/services';
 import { computed, ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 
-import { SingleComment } from '@/components/SingleComment';
 import { CenteredLoading } from '@/components/ui/CenteredLoading';
 import { FeedbackAlert } from '@/components/ui/FeedbackAlert';
 import { checkEAD } from '@/utils/season';
+
+import { SingleComment } from '../SingleComment';
 
 const { smAndDown } = useDisplay();
 const props = defineProps({

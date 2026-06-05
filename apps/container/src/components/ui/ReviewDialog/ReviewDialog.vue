@@ -89,9 +89,9 @@ import { Comments, Enrollments } from '@ufabc-next/services';
 import { ElMessage } from 'element-plus';
 import { computed, PropType, ref, watch } from 'vue';
 
-import { CommentsList } from '@/components/CommentsList';
 import { FeedbackAlert } from '@/components/ui/FeedbackAlert';
 import { PaperCard } from '@/components/ui/PaperCard';
+import { CommentsList } from '@/features/reviews/components/CommentsList';
 import { capitalizeName } from '@/utils/capitalizeName';
 import { conceptsColor } from '@/utils/consts';
 

@@ -21,11 +21,11 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 
-import { PendingReviewEnrollmentList } from '@/components/PendingReviewEnrollmentList';
-import { SearchBar } from '@/components/SearchBar';
-import { SubjectReview } from '@/components/SubjectReview';
-import { TeacherReview } from '@/components/TeacherReview';
-import { WelcomeMessage } from '@/components/WelcomeMessage';
+import { PendingReviewEnrollmentList } from '@/features/reviews/components/PendingReviewEnrollmentList';
+import { SearchBar } from '@/features/reviews/components/SearchBar';
+import { SubjectReview } from '@/features/reviews/components/SubjectReview';
+import { TeacherReview } from '@/features/reviews/components/TeacherReview';
+import { WelcomeMessage } from '@/features/reviews/components/WelcomeMessage';
 
 const router = useRouter();
 </script>
