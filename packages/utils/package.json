@@ -1,0 +1,34 @@
+{
+  "name": "@next/utils",
+  "version": "1.0.0",
+  "description": "Common functions for the backend",
+  "keywords": [],
+  "license": "ISC",
+  "author": "Joabe Varjao <joabevarjao123@gmail.com>",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "require": "./dist/index.js",
+    "import": "./dist/index.js"
+  },
+  "scripts": {
+    "dev": "tsup index.ts --dts --format=esm --watch",
+    "build": "tsup index.ts --dts --format=esm --clean",
+    "tsc": "tsgo",
+    "test": "node --import=tsx --test lib/*.spec.ts",
+    "test:watch": "node --import=tsx --watch --test lib/*.spec.ts",
+    "test:coverage": "c8 --all --src=lib node --test --import=tsx lib/*.spec.ts"
+  },
+  "devDependencies": {
+    "@next/config": "workspace:*",
+    "@types/lodash-es": "catalog:",
+    "@types/node": "catalog:",
+    "c8": "catalog:",
+    "lodash-es": "catalog:",
+    "tsup": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}
