@@ -12,7 +12,8 @@
         "^build"
       ],
       "outputs": [
-        "dist/**"
+        "dist/**",
+        ".output/**"
       ],
       "cache": true
     },
@@ -26,6 +27,9 @@
     "lint": {},
     "lint:fix": {},
     "test": {},
+    "up": {
+      "cache": false
+    },
     "tsc": {
       "cache": true,
       "outputLogs": "errors-only"
