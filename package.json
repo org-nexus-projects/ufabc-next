@@ -1,6 +1,7 @@
 {
   "name": "@next/workspace",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@10.33.2",
   "scripts": {
     "build": "turbo run build --continue",
@@ -17,6 +18,7 @@
     "oxlint-tsgolint": "^0.23.0",
     "turbo": "^2.7.1",
     "typescript": "^5.9.3",
+    "ultracite": "catalog:",
     "vue-tsgo": "^0.2.2"
   },
   "engines": {

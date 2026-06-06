@@ -3,13 +3,6 @@ packages:
   - packages/*
   - tools/*
 
-onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - esbuild
-  - msw
-  - unrs-resolver
-  - vue-demi
-
 allowBuilds:
   cpu-features: true
   esbuild: true
@@ -76,7 +69,7 @@ catalog:
   typescript: ^5.9.3
   typescript-transform-paths: ^3.5.5
   ulidx: ^2.4.1
-  ultracite: latest
+  ultracite: ^7.8.1
   vite-tsconfig-paths: ^6.0.3
   vitest: ^4.0.16
   zod: ^3.25.76
@@ -84,3 +77,10 @@ catalog:
   zod-to-json-schema: ^3.25.0
 
 injectWorkspacePackages: true
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - esbuild
+  - msw
+  - unrs-resolver
+  - vue-demi
