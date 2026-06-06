@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'apps/extension/**'
+      - 'packages/services/**'
+      - 'packages/utils/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/release.yml'
   workflow_dispatch:
 
 jobs:
@@ -20,9 +26,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Zip extensions
-        run: |
-          pnpm zip
+      - name: Build extension
+        run: pnpm turbo run build --filter=@next/extension
+
+      - name: Zip extension
+        run: pnpm turbo run zip --filter=@next/extension
 
       - name: Submit to stores
         run: |

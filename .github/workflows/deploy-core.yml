@@ -1,23 +1,32 @@
-name: CD
+name: Deploy Core
 
 on:
   push:
     branches:
       - main
+    paths:
+      - 'apps/core/**'
+      - 'packages/db/**'
+      - 'packages/queues/**'
+      - 'packages/utils/**'
+      - 'Dockerfile'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/deploy-core.yml'
   workflow_dispatch:
 
 jobs:
   deploy:
-    name: 🚀 CD Workflow
+    name: Deploy Core
     runs-on: ubuntu-latest
     env:
       AWS_INSTANCE_SG_ID: ${{ secrets.SECURITY_GROUP_ID }}
-    timeout-minutes: 5
+    timeout-minutes: 30
     steps:
-      - name: 📦 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: ⚙️ Configure AWS credentials
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
@@ -28,7 +37,7 @@ jobs:
         id: ip
         uses: candidob/get-runner-ip@v1.0.0
 
-      - name: ⚙️ Whitelist runner ip address
+      - name: Whitelist runner ip address
         id: whitelist-ip
         run: |
           aws ec2 authorize-security-group-ingress \
@@ -37,11 +46,11 @@ jobs:
             --port 22 \
             --cidr ${{ steps.ip.outputs.ipv4}}/32
 
-      - name: 🔐 Login to Amazon ECR
+      - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: 🏗️ Build, tag and push Image to Amazon ECR
+      - name: Build, tag and push Image to Amazon ECR
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: unext-backend-ecr
@@ -55,9 +64,8 @@ jobs:
           --no-cache --progress=plain .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
-      - name: 🚀 Deploy and start container
+      - name: Deploy and start container
         uses: appleboy/ssh-action@v1.0.3
-
         with:
           host: ${{ secrets.HOSTNAME }}
           username: ${{ secrets.USERNAME }}
@@ -72,7 +80,7 @@ jobs:
             docker image prune -af
             docker builder prune -af
 
-      - name: 🏗️ Revoke runner ip address
+      - name: Revoke runner ip address
         if: ${{ always() && steps.whitelist-ip.conclusion == 'success' }}
         run: |
           aws ec2 revoke-security-group-ingress \

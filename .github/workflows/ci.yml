@@ -9,7 +9,7 @@ on:
 
 jobs:
   ci:
-    name: 🔄 CI Workflow
+    name: CI
     runs-on: ubuntu-latest
     env:
       NODE_ENV: test
@@ -28,13 +28,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: 24.x
-
-      - uses: pnpm/action-setup@v4
 
       - name: setup pnpm store cache
         shell: bash
@@ -48,14 +48,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - name: 📦 Install dependencies
+      - name: Install dependencies
         run: pnpm i
 
-      - name: 🛠 Build
-        run: pnpm build
+      - name: Build (all)
+        if: github.event_name != 'pull_request'
+        run: pnpm turbo run build lint tsc
 
-      - name: 💪 Lint
-        run: pnpm lint
-
-      - name: 💼 Type Check
-        run: pnpm tsc
+      - name: Build (affected only)
+        if: github.event_name == 'pull_request'
+        run: pnpm turbo run build lint tsc --filter=...[origin/${{ github.base_ref }}]
