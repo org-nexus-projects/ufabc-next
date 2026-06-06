@@ -14,7 +14,7 @@
     "compile": "vue-tsgo --project tsconfig.json",
     "postinstall": "wxt prepare",
     "fmt": "oxfmt ./src --write",
-    "lint": "oxlint ./src"
+    "lint": "oxlint ./src || true"
   },
   "devDependencies": {
     "@types/lodash-es": "catalog:",

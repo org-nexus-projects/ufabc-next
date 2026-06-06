@@ -1,9 +1,9 @@
-export * from './comments';
-export * from './concepts';
-export * from './enrollments';
-export * from './request-error';
-export * from './search';
-export * from './stats';
-export * from './subjects';
-export * from './teachers';
-export * from './users';
+export type * from './comments';
+export type * from './concepts';
+export type * from './enrollments';
+export type * from './request-error';
+export type * from './search';
+export type * from './stats';
+export type * from './subjects';
+export type * from './teachers';
+export type * from './users';

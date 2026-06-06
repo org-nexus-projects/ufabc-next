@@ -3,6 +3,14 @@ import { defineConfig } from "oxlint";
 
 export default defineConfig({
   extends: [core],
+  rules: {
+    complexity: ['error', 25],
+    'eslint/complexity': ['error', { max: 35 }],
+    'func-style': ['error', 'declaration'],
+    'import/consistent-type-specifier-style': ['error'],
+    'typescript/array-type': ['error', { default: 'array-simple' }],
+    'typescript/consistent-type-definitions': ['error', 'type'],
+  },
   ignorePatterns: [
     ...(core.ignorePatterns ?? []),
     "**/tmp",
