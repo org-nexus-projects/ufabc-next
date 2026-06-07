@@ -7,13 +7,13 @@
   "author": "Joabe Varjao <joabevarjao123@gmail.com>",
   "type": "module",
   "exports": {
-    "./client": "./dist/builder.js",
-    "./manager": "./dist/manager.js"
+    "./client": "./src/builder.ts",
+    "./manager": "./src/manager.ts"
   },
   "scripts": {
     "dev": "tsgo --watch",
     "build": "tsgo",
-    "check-types": "tsgo --noEmit",
+    "tsc": "tsgo --noEmit",
     "clean": "git clean -xdf .cache .turbo dist node_modules"
   },
   "dependencies": {

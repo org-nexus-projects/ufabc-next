@@ -6,17 +6,16 @@
   "license": "ISC",
   "author": "Joabe Varjao <joabevarjao123@gmail.com>",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./index.ts",
+  "types": "./index.ts",
   "exports": {
-    "types": "./dist/index.d.ts",
-    "require": "./dist/index.js",
-    "import": "./dist/index.js"
+    "types": "./index.ts",
+    "import": "./index.ts"
   },
   "scripts": {
-    "dev": "tsup index.ts --dts --format=esm --watch",
-    "build": "tsup index.ts --dts --format=esm --clean",
-    "tsc": "tsgo",
+    "build": "tsgo",
+    "tsc": "tsgo --noEmit",
+    "dev": "tsgo --watch",
     "test": "node --import=tsx --test lib/*.spec.ts",
     "test:watch": "node --import=tsx --watch --test lib/*.spec.ts",
     "test:coverage": "c8 --all --src=lib node --test --import=tsx lib/*.spec.ts"
@@ -27,7 +26,6 @@
     "@types/node": "catalog:",
     "c8": "catalog:",
     "lodash-es": "catalog:",
-    "tsup": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:"
   }
