@@ -61,3 +61,4 @@ components.d.ts
 # project specific
 apps/extension/.env.submit
 apps/extension/.env.*
+.opencode
