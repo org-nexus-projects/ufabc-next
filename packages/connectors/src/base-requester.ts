@@ -1,81 +1,93 @@
-import { randomUUID } from 'node:crypto';
 import { type FetchOptions, type FetchRequest, ofetch } from 'ofetch';
 
 import { MAX_LOG_SIZE, TRACING_DIRECTION, TRACING_MESSAGES } from './constants.js';
 
 type LogFn = (obj: unknown, msg?: string) => void;
 
-export interface Logger {
+type Logger = {
   info: LogFn;
   warn: LogFn;
   error: LogFn;
   child: (bindings: Record<string, unknown>) => Logger;
-}
+};
 
-export interface TraceProvider {
-  getTraceId: () => string;
-  getLogger: () => Logger | undefined;
-}
+export type TraceContext = {
+  globalTraceId: string;
+  component?: string;
+  module?: string;
+};
 
-const noopLogger: Logger = {
-  info: () => {},
-  warn: () => {},
-  error: () => {},
-  child: () => noopLogger,
+export type RequesterOptions = {
+  baseURL?: string;
+  globalTraceId?: string;
+  component?: string;
+  module?: string;
+  timeout?: number;
 };
 
 export class BaseRequester {
-  protected readonly requester: ReturnType<typeof ofetch.create>;
-  protected readonly baseURL?: string;
-  protected readonly traceProvider?: TraceProvider;
+  private static _rootLogger: Logger | undefined;
 
-  constructor(baseURL?: string, traceProvider?: TraceProvider) {
+  protected readonly requester: ReturnType<typeof ofetch.create>;
+  protected readonly traceContext: TraceContext;
+  protected readonly baseURL?: string;
+  private logger: Logger | undefined;
+  private loggerPromise: Promise<Logger>;
+
+  constructor(options?: RequesterOptions) {
+    const { baseURL, globalTraceId, component, module, timeout } = options ?? {};
     this.baseURL = baseURL;
-    this.traceProvider = traceProvider;
+
+    this.traceContext = {
+      globalTraceId: globalTraceId ?? globalThis.crypto.randomUUID(),
+      component,
+      module,
+    };
+
+    this.loggerPromise = this.resolveLogger();
     this.requester = ofetch.create({
       baseURL,
-      onRequest: ({ request, options }) => {
-        const logger = this.getLogger() ?? noopLogger;
-        const traceId = this.getTraceId();
+      timeout,
+      onRequest: async ({ request, options: requestOptions }) => {
+        const logger = await this.loggerPromise;
 
         const existingHeaders =
-          options.headers instanceof Headers
-            ? Object.fromEntries(options.headers.entries())
-            : options.headers || {};
+          requestOptions.headers instanceof Headers
+            ? Object.fromEntries(requestOptions.headers.entries())
+            : (requestOptions.headers as Record<string, string>) || {};
 
         // @ts-ignore - ofetch allows custom headers
-        options.headers = { ...existingHeaders, 'global-trace-id': traceId } as any;
+        requestOptions.headers = { ...existingHeaders, 'global-trace-id': this.traceContext.globalTraceId } as any;
 
         const requestPath = this.getRequestPath(request);
         const fullUrl = this.buildFullUrl(requestPath);
 
         logger.info(
           {
-            globalTraceId: traceId,
+            globalTraceId: this.traceContext.globalTraceId,
             direction: TRACING_DIRECTION.OUTGOING,
-            method: options.method || 'GET',
+            method: requestOptions.method || 'GET',
             url: fullUrl,
-            baseURL: this.baseURL,
+            baseURL,
             path: requestPath,
-            headers: options.headers,
-            responseType: options.responseType,
-            body: options.body,
+            headers: requestOptions.headers,
+            responseType: requestOptions.responseType,
+            body: requestOptions.body,
           },
           TRACING_MESSAGES.OUTGOING_REQUEST
         );
       },
-      onResponse: ({ response, options }) => {
-        const logger = this.getLogger() ?? noopLogger;
-        const traceId = this.getTraceId();
+      onResponse: async ({ response, options: requestOptions }) => {
+        const logger = await this.loggerPromise;
 
         const logData = {
-          globalTraceId: traceId,
+          globalTraceId: this.traceContext.globalTraceId,
           direction: TRACING_DIRECTION.INCOMING,
-          method: options.method || 'GET',
+          method: requestOptions.method || 'GET',
           url: response.url,
           status: response.status,
           headers: response.headers,
-          responseType: options.responseType || 'json',
+          responseType: requestOptions.responseType || 'json',
           body: this.truncateForLogging(response._data),
         };
 
@@ -97,8 +109,8 @@ export class BaseRequester {
 
         logger.info(logData, TRACING_MESSAGES.INCOMING_RESPONSE);
       },
-      onResponseError: ({ response }) => {
-        const logger = this.getLogger() ?? noopLogger;
+      onResponseError: async ({ response }) => {
+        const logger = await this.loggerPromise;
 
         logger.error(
           {
@@ -110,8 +122,8 @@ export class BaseRequester {
           TRACING_MESSAGES.INCOMING_REQUEST_FAILED
         );
       },
-      onRequestError: ({ error }) => {
-        const logger = this.getLogger() ?? noopLogger;
+      onRequestError: async ({ error }) => {
+        const logger = await this.loggerPromise;
 
         logger.error(
           {
@@ -124,6 +136,41 @@ export class BaseRequester {
     });
   }
 
+  private async getRootLogger(): Promise<Logger> {
+    if (BaseRequester._rootLogger) return BaseRequester._rootLogger;
+
+    const nodeEnv = this.getNodeEnv();
+    const env = nodeEnv === 'production' ? 'production' : 'dev';
+
+    if (this.isBrowser()) {
+      const { createBrowserLogger } = await import('@next/logger/browser');
+      BaseRequester._rootLogger = createBrowserLogger(env) as unknown as Logger;
+    } else {
+      const { createServerLogger } = await import('@next/logger/server');
+      BaseRequester._rootLogger = createServerLogger(
+        env,
+        this.getLogLevel()
+      ) as unknown as Logger;
+    }
+
+    return BaseRequester._rootLogger;
+  }
+
+  private async resolveLogger(): Promise<Logger> {
+    if (this.logger) return this.logger;
+
+    const root = await this.getRootLogger();
+
+    const bindings: Record<string, unknown> = {
+      globalTraceId: this.traceContext.globalTraceId,
+    };
+    if (this.traceContext.component) bindings.component = this.traceContext.component;
+    if (this.traceContext.module) bindings.module = this.traceContext.module;
+
+    this.logger = root.child(bindings);
+    return this.logger;
+  }
+
   protected async request<T = unknown>(
     url: FetchRequest,
     options?: FetchOptions
@@ -131,77 +178,18 @@ export class BaseRequester {
     return this.requester(url, options) as Promise<T>;
   }
 
-  protected getLogger(): Logger | undefined {
-    return this.traceProvider?.getLogger();
-  }
-
-  protected getTraceId(): string {
-    return this.traceProvider?.getTraceId() ?? randomUUID();
-  }
-
-  private getRequestPath(request: FetchRequest): string {
-    if (typeof request === 'string') {
-      return request;
-    }
-
-    if (request instanceof Request) {
-      return request.url;
-    }
-
-    return '';
-  }
-
-  private buildFullUrl(requestPath: string): string {
-    if (
-      requestPath.startsWith('http://') ||
-      requestPath.startsWith('https://')
-    ) {
-      return requestPath;
-    }
-
-    if (!this.baseURL) {
-      return requestPath;
-    }
-
-    if (!requestPath) {
-      return this.baseURL;
-    }
-
-    if (requestPath.startsWith('/')) {
-      return `${this.baseURL}${requestPath}`;
-    }
-
-    return `${this.baseURL}/${requestPath}`;
-  }
-
-  private buildRequestHeaders(
-    headers: FetchOptions['headers'],
-    traceId: string
-  ) {
-    const existingHeaders =
-      headers instanceof Headers
-        ? Object.fromEntries(headers.entries())
-        : headers || {};
-
-    return {
-      ...existingHeaders,
-      'global-trace-id': traceId,
-    };
-  }
-
   protected async requestRaw(
     url: FetchRequest,
     options?: FetchOptions
   ): Promise<Response> {
-    const traceId = this.getTraceId();
-    const logger = this.getLogger() ?? noopLogger;
+    const logger = await this.loggerPromise;
     const requestPath = this.getRequestPath(url);
     const fullUrl = this.buildFullUrl(requestPath);
-    const headers = this.buildRequestHeaders(options?.headers, traceId);
+    const headers = this.buildRequestHeaders(options?.headers);
 
     logger.info(
       {
-        globalTraceId: traceId,
+        globalTraceId: this.traceContext.globalTraceId,
         direction: TRACING_DIRECTION.OUTGOING,
         method: options?.method || 'GET',
         url: fullUrl,
@@ -222,7 +210,7 @@ export class BaseRequester {
 
       logger.info(
         {
-          globalTraceId: traceId,
+          globalTraceId: this.traceContext.globalTraceId,
           direction: TRACING_DIRECTION.INCOMING,
           method: options?.method || 'GET',
           url: response.url,
@@ -245,13 +233,74 @@ export class BaseRequester {
     }
   }
 
-  protected truncateForLogging(data: unknown): unknown {
-    if (data === null || data === undefined) {
-      return data;
+  private isBrowser(): boolean {
+    try {
+      return (
+        typeof (globalThis as any).window !== 'undefined' &&
+        typeof (globalThis as any).document !== 'undefined'
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  private getNodeEnv(): string {
+    try {
+      return (process.env.NODE_ENV as string) || 'dev';
+    } catch {
+      return 'dev';
+    }
+  }
+
+  private getLogLevel(): string | undefined {
+    try {
+      return process.env.LOG_LEVEL as string | undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  private getRequestPath(request: FetchRequest): string {
+    if (typeof request === 'string') return request;
+    if (request instanceof Request) return request.url;
+    return '';
+  }
+
+  private buildFullUrl(requestPath: string): string {
+    if (
+      requestPath.startsWith('http://') ||
+      requestPath.startsWith('https://')
+    ) {
+      return requestPath;
     }
 
+    const baseURL = this.baseURL;
+
+    if (!baseURL) return requestPath;
+    if (!requestPath) return baseURL;
+
+    if (requestPath.startsWith('/')) return `${baseURL}${requestPath}`;
+
+    return `${baseURL}/${requestPath}`;
+  }
+
+  private buildRequestHeaders(headers: FetchOptions['headers']) {
+    const existingHeaders =
+      headers instanceof Headers
+        ? Object.fromEntries(headers.entries())
+        : headers || {};
+
+    return {
+      ...existingHeaders,
+      'global-trace-id': this.traceContext.globalTraceId,
+    } as Record<string, string>;
+  }
+
+  private truncateForLogging(data: unknown): unknown {
+    if (data === null || data === undefined) return data;
+
     const stringified = typeof data === 'string' ? data : JSON.stringify(data);
-    const sizeInBytes = Buffer.byteLength(stringified, 'utf8');
+    const sizeInBytes = new TextEncoder().encode(stringified).length;
 
     if (sizeInBytes > MAX_LOG_SIZE) {
       return `[Data truncated: ${(sizeInBytes / 1024).toFixed(2)}KB exceeds 600KB limit]`;

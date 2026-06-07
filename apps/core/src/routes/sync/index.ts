@@ -5,7 +5,7 @@ import { ComponentModel } from '@/models/Component.js';
 import { syncEnrolledSchema } from '@/schemas/sync/enrolled.js';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
-  const connector = new UfabcParserConnector();
+  const connector = new UfabcParserConnector(app.config.UFABC_PARSER_URL, app.config.UFABC_PARSER_REQUESTER_KEY);
 
   app.put(
     '/enrolled',

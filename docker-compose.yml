@@ -65,6 +65,8 @@ services:
       target: dev
     ports:
       - '5000:5000'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     env_file:
       - ./apps/core/.env
     environment:
@@ -72,6 +74,7 @@ services:
       - MONGODB_CONNECTION_URL=mongodb://next-db:27017/ufabc-matricula
       - REDIS_CONNECTION_URL=redis://default:qj6wGxXINcQyWXdN@next-redis:6379
       - LOCALSTACK_ENDPOINT=http://localstack:4566
+      - UFABC_PARSER_URL=http://host.docker.internal:5001
     volumes:
       - ./apps/core/src:/workspace/apps/core/src:ro
       - ./packages/common/src:/workspace/packages/common/src:ro

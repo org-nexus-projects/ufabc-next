@@ -786,6 +786,9 @@ importers:
       '@aws-sdk/client-s3':
         specifier: 'catalog:'
         version: 3.1063.0
+      '@next/logger':
+        specifier: workspace:*
+        version: link:../logger
       ofetch:
         specifier: 'catalog:'
         version: 1.5.1

@@ -1,6 +1,6 @@
 import { setTimeout as sleep } from 'node:timers/promises';
 
-import { BaseRequester, type TraceProvider } from './base-requester.js';
+import { BaseRequester } from './base-requester.js';
 
 type MoodleResponse = {
   error: boolean;
@@ -39,12 +39,19 @@ export type MoodleComponent = {
   };
 };
 
+let moodleConnectorInstance: MoodleConnector | null = null;
+
 export class MoodleConnector extends BaseRequester {
   private lastRequestTime = 0;
   private readonly minRequestInterval = 300;
 
-  constructor(traceProvider?: TraceProvider) {
-    super('https://moodle.ufabc.edu.br', traceProvider);
+  constructor(traceId?: string) {
+    if (moodleConnectorInstance) {
+      return moodleConnectorInstance;
+    }
+
+    super({ baseURL: 'https://moodle.ufabc.edu.br', globalTraceId: traceId });
+    moodleConnectorInstance = this;
   }
 
   async validateToken(sessionId: string, sessKey: string) {

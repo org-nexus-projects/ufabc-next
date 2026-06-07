@@ -1,5 +1,5 @@
 import { UfabcParserError } from './errors/ufabc-parser.js';
-import { BaseRequester, type TraceProvider } from './base-requester.js';
+import { BaseRequester } from './base-requester.js';
 
 type ComponentId = number;
 type StudentIds = number;
@@ -63,9 +63,19 @@ type SyncStudentParams = {
   requesterKey: string;
 };
 
+let ufabcParserConnectorInstance: UfabcParserConnector | null = null;
+
 export class UfabcParserConnector extends BaseRequester {
-  constructor(traceProvider?: TraceProvider) {
-    super(process.env.UFABC_PARSER_URL, traceProvider);
+  private readonly requesterKey!: string;
+
+  constructor(baseUrl: string, requesterKey: string, traceId?: string) {
+    if (ufabcParserConnectorInstance) {
+      return ufabcParserConnectorInstance;
+    }
+
+    super({ baseURL: baseUrl, globalTraceId: traceId });
+    this.requesterKey = requesterKey;
+    ufabcParserConnectorInstance = this;
   }
 
   async getEnrollments(kind: string, season: string) {
@@ -123,7 +133,7 @@ export class UfabcParserConnector extends BaseRequester {
 
   async getStudent(ra: string) {
     const headers = new Headers();
-    headers.set('requester-key', process.env.UFABC_PARSER_REQUESTER_KEY!);
+    headers.set('requester-key', this.requesterKey);
 
     try {
       const response = await this.request<{
@@ -162,7 +172,7 @@ export class UfabcParserConnector extends BaseRequester {
 
   async getTeacher(login: string) {
     const headers = new Headers();
-    headers.set('requester-key', process.env.UFABC_PARSER_REQUESTER_KEY!);
+    headers.set('requester-key', this.requesterKey);
 
     try {
       const response = await this.request<{
@@ -186,7 +196,7 @@ export class UfabcParserConnector extends BaseRequester {
 
   async sendTeachers(teachers: string[]) {
     const headers = new Headers();
-    headers.set('requester-key', process.env.UFABC_PARSER_REQUESTER_KEY!);
+    headers.set('requester-key', this.requesterKey);
 
     try {
       await this.request(`/v2/teachers/routines/configure/manual`, {
