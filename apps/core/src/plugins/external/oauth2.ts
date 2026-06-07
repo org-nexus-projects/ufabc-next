@@ -29,6 +29,7 @@ type GoogleAuthorizationQuery = {
 
 export default fp(
   async (app: FastifyInstance) => {
+    // @ts-expect-error Fix later after usign full.ts imports
     await app.register(fastifyOauth2, {
       name: 'google',
       userAgent: 'UFABC next (2.0.0)',
