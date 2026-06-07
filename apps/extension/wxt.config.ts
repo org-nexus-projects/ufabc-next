@@ -26,10 +26,13 @@ export default defineConfig({
 				resolvers: [ElementPlusResolver({ importStyle: 'css' })],
 			}),
 		],
+		resolve: {
+			dedupe: ['@vue/shared'],
+		},
 	}),
   dev: {
     server: {
       port: 3002,
     }
-  }
+  },
 });
