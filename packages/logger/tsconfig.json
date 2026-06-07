@@ -1,0 +1,7 @@
+{
+  "extends": "@next/config/libs.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["src"]
+}

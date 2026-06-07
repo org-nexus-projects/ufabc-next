@@ -3,7 +3,7 @@ import type { Client } from '@aws-sdk/types';
 import { requestContext } from '@fastify/request-context';
 import { randomUUID } from 'node:crypto';
 
-import { logger as defaultLogger } from '@/utils/logger.js';
+import { logger as defaultLogger } from '@/logger.js';
 
 export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
   protected readonly client: TClient;

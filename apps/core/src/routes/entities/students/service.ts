@@ -7,7 +7,7 @@ import type { UpdatedStudent } from '@/schemas/entities/students.js';
 import { ComponentModel } from '@/models/Component.js';
 import { HistoryModel } from '@/models/History.js';
 import { StudentModel, type Student } from '@/models/Student.js';
-import { logger } from '@/utils/logger.js';
+import { logger } from '@/logger.js';
 
 export async function getComponentsStudentsStats(
   season: string,
