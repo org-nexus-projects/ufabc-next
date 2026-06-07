@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getStudent, getTeacherReviews, type TeacherReview, type Grade } from '@/services/next';
 import { type ChartProps, Chart } from 'highcharts-vue';
+import { logger } from '@/utils/logger';
 import { sortBy } from 'lodash-es';
 import { useStorage } from '@/composables/useStorage'
 import { resolveColorForConcept } from '@/utils/grades-colors'
@@ -150,7 +151,7 @@ async function setupTeacherReviewStats() {
       })
     }
   } catch (err) {
-    console.log(err)
+    logger.error({ err }, 'Teacher review error')
     closeDialog()
   } finally {
     loading.value = false

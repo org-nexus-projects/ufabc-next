@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import * as ics from 'ics';
 
 import type { Calendar } from '../views/Calengrade/types';
+import { logger } from '@/utils/logger';
 
 const dayOfWeekReturnMappings = {
   Domingo: {
@@ -138,7 +139,7 @@ export const handleCalendar = ({ classes, startDate, endDate }: Calendar) => {
   const { error, value } = ics.createEvents(calendar);
 
   if (error) {
-    console.log('ERROR: ', error);
+    logger.error({ error }, 'Calendar creation error');
     return undefined;
   } else {
     // Add UTF-8 header to the ICS file

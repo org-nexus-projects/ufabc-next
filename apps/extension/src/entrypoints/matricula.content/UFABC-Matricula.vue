@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import SubjectReview from "@/components/SubjectReview.vue";
 import { useMutation } from "@tanstack/vue-query";
+import { logger } from "@/utils/logger";
 import { toast, Toaster } from "vue-sonner";
 import { useStorage } from "@/composables/useStorage";
 import { getStudentCourseId, getStudentId } from "@/utils/ufabc-matricula-student";
@@ -52,7 +53,7 @@ const sessionMutation = useMutation({
     return result;
   },
   onError: (error) => {
-    console.error("Failed to sync session:", error);
+    logger.error({ error }, "Failed to sync session");
     toast.error("Failed to sync session data");
   },
   onSuccess: () => {
@@ -105,7 +106,7 @@ function changeSelected() {
   }
 
   if (!matriculaStudent.value) {
-    console.log("show some message to the user");
+    logger.info("show some message to the user");
     return;
   }
 
@@ -184,7 +185,7 @@ watch(
       try {
         await sessionMutation.mutateAsync();
       } catch (error) {
-        console.error("Watch effect error:", error);
+        logger.error({ error }, "Watch effect error");
       }
     }
   },

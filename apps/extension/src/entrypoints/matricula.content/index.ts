@@ -4,6 +4,7 @@ import UFABCMatricula from "@/entrypoints/matricula.content/UFABC-Matricula.vue"
 import HighchartsVue from "highcharts-vue";
 import { VueQueryPlugin } from "@tanstack/vue-query";
 import { sendMessage } from "@/messaging";
+import { logger } from "@/utils/logger";
 import type { ContentScriptContext } from "wxt/client";
 import { getStudent } from "@/services/next";
 
@@ -98,12 +99,12 @@ async function getToken() {
       pageURL: document.URL,
     });
     if (!token) {
-      console.error("Could not retrieve token, please try again");
+      logger.error("Could not retrieve token, please try again");
       return null;
     }
     return token.value;
   } catch (error) {
-    console.error("Failed to get matricula_rails_session from background script:", error);
+    logger.error({ error }, "Failed to get matricula_rails_session from background script");
     return null;
   }
 }
