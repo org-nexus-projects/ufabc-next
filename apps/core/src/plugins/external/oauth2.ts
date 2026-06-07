@@ -1,3 +1,4 @@
+import type { FastifyInstance } from 'fastify';
 import { fastifyOauth2, type OAuth2Namespace } from '@fastify/oauth2';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 
@@ -27,7 +28,8 @@ type GoogleAuthorizationQuery = {
 };
 
 export default fp(
-  async (app) => {
+  async (app: FastifyInstance) => {
+    // @ts-expect-error - Missing types for fastify-oauth2 plugin
     await app.register(fastifyOauth2, {
       name: 'google',
       userAgent: 'UFABC next (2.0.0)',
@@ -39,9 +41,9 @@ export default fp(
         auth: fastifyOauth2.GOOGLE_CONFIGURATION,
       },
       scope: ['profile', 'email'],
-      callbackUri: (req) =>
+      callbackUri: (req: any) =>
         `${app.config.PROTOCOL}://${req.host}/login/google/callback`,
-      generateStateFunction: (request) => {
+      generateStateFunction: (request: any) => {
         const query = request.query as GoogleAuthorizationQuery;
         const payload = {
           userId: query.userId ?? '',
@@ -51,7 +53,7 @@ export default fp(
 
         return Buffer.from(JSON.stringify(payload)).toString('base64url');
       },
-      checkStateFunction: (request) => {
+      checkStateFunction: (request: any) => {
         const { requesterKey, redirectTarget } = JSON.parse(
           Buffer.from((request.query as any).state, 'base64url').toString(
             'utf8'

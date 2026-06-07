@@ -4,13 +4,6 @@ import { fastifyPlugin as fp } from 'fastify-plugin';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
-declare module 'fastify' {
-  export interface FastifyInstance {
-    // @ts-ignore - For now, after executing TS with node directly will be fixed
-    config: Config;
-  }
-}
-
 const NEXT_WEB_LOCAL = 'http://localhost:3000' as const;
 const JWT_SECRET = 'LWp9YJMiUtfQxoepoTL7RkWJi6W5C6ED';
 

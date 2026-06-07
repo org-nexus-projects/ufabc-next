@@ -1,3 +1,4 @@
+import { Config } from '@/plugins/external/config.ts';
 import type { Redis } from 'ioredis';
 
 declare module 'fastify' {
@@ -16,6 +17,7 @@ declare module 'fastify' {
       decode(token: string, options?: object): object;
     };
     redis: Redis;
+    config: Config;
   }
 
   interface FastifyRequest {
