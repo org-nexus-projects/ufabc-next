@@ -34,7 +34,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       }),
     },
     handler: async (request, reply) => {
-      const session = request.requestContext.get<{ sessionId: string; sessKey: string }>('moodleSession')!;
+      const session = request.requestContext.get('moodleSession')! as { sessionId: string; sessKey: string };
       const hasLock = await request.acquireLock(session.sessionId, '24h');
 
       if (!hasLock) {
@@ -87,7 +87,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       },
     },
     handler: async (request, reply) => {
-      const session = request.requestContext.get<{ sessionId: string; sessKey: string }>('moodleSession')!;
+      const session = request.requestContext.get('moodleSession')! as { sessionId: string; sessKey: string };
       const components = await moodleConnector.getComponents(
         session.sessionId,
         session.sessKey
