@@ -1,3 +1,4 @@
+import type { FastifyInstance } from 'fastify';
 import fastifyCookie from '@fastify/cookie';
 import fp from 'fastify-plugin';
 
@@ -15,7 +16,7 @@ declare module 'fastify' {
  * @see {@link https://github.com/fastify/fastify-cookie}
  */
 export default fp(
-  async (app) => {
+  async (app: FastifyInstance) => {
     app.register(fastifyCookie);
   },
   {

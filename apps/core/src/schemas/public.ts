@@ -56,7 +56,7 @@ export const listComponentsResume = {
   }),
   querystring: z.object({
     season: z.string().optional().default(currentQuad()),
-    turno: z.string().optional(),
+    turno: z.enum(['diurno', 'noturno']).optional(),
     courseId: z.coerce.number().int().optional(),
     ratio: z.coerce.number().optional(),
     limit: z.coerce.number().optional().default(10),

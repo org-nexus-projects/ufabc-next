@@ -115,7 +115,7 @@ function verifyToken(token: string, config: FastifyInstance['config']): string {
 }
 
 export default fp(
-  async (app) => {
+  async (app: FastifyInstance) => {
     app.decorate('createToken', createToken);
     app.decorate('verifyToken', verifyToken);
 

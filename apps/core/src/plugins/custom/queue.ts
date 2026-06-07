@@ -1,4 +1,4 @@
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyPluginOptions } from 'fastify';
 
 import { fastifyPlugin as fp } from 'fastify-plugin';
 
@@ -19,7 +19,7 @@ export const autoConfig = (app: FastifyInstance) => {
 };
 
 export default fp(
-  async (app, opts: { redisURL: URL }) => {
+  async (app: FastifyInstance, opts: FastifyPluginOptions & { redisURL: URL }) => {
     const worker = new QueueWorker(app, opts.redisURL);
     const jobs = new Jobs(app, opts.redisURL);
 

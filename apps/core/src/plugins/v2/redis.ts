@@ -3,6 +3,7 @@ import { fastifyPlugin as fp } from 'fastify-plugin';
 import ms from 'ms';
 
 import { HTTP_REDIS_KEY_PREFIX } from '@/constants.js';
+import { FastifyInstance } from 'fastify';
 
 type RedisService = {
   acquireLock: (key: string, ttl: string) => Promise<boolean>;
@@ -20,7 +21,7 @@ declare module 'fastify' {
 }
 
 export default fp(
-  async (app) => {
+  async (app: FastifyInstance) => {
     await app.register(fastifyRedis, {
       url: app.config.REDIS_CONNECTION_URL,
       closeClient: true,

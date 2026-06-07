@@ -208,7 +208,6 @@ export class Jobs implements JobImpl {
         try {
           if (query.token) {
             await request.jwtVerify({
-              //@ts-expect-error extractToken property not well defined in jwt type definitions
               extractToken: (req: any) => req.query.token,
             });
             request.isAdmin(reply);
@@ -222,7 +221,6 @@ export class Jobs implements JobImpl {
             return reply.redirect('/board/ui/', 303);
           }
           await request.jwtVerify({
-            //@ts-expect-error extractToken property not well defined in jwt type definitions
             extractToken: (req: any) => req.cookies.token,
           });
           request.isAdmin(reply);
@@ -237,7 +235,6 @@ export class Jobs implements JobImpl {
         }
       });
 
-      // @ts-expect-error Library types are not compatible with FastifyAdapter
       app.register(bullBoard.registerPlugin(), {
         prefix: boardUiPath,
         basePath: boardUiPath,

@@ -1,4 +1,4 @@
-import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 import fp from 'fastify-plugin';
 
@@ -42,7 +42,7 @@ function isAdmin(this: FastifyRequest, reply: FastifyReply) {
  * @see {@link https://github.com/fastify/fastify-plugin}
  */
 export default fp(
-  async (app) => {
+  async (app: FastifyInstance) => {
     app.decorateRequest('verifyAccess', verifyAccess);
     app.decorateRequest('isAdmin', isAdmin);
     app.decorateRequest('isStudent', isStudent);

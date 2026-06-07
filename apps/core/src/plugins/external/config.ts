@@ -1,3 +1,4 @@
+import type { FastifyInstance } from 'fastify';
 import env, { type FastifyEnvOptions } from '@fastify/env';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 import { z } from 'zod';
@@ -71,7 +72,7 @@ export const autoConfig = {
  * @see {@link https://github.com/fastify/fastify-env}
  */
 export default fp(
-  async (app) => {
+  async (app: FastifyInstance) => {
     await app.register(env, autoConfig);
   },
   { name: 'config' }

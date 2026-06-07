@@ -1,4 +1,4 @@
-import type { FastifyBaseLogger } from 'fastify';
+import type { FastifyBaseLogger, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 import { fastifyPlugin as fp } from 'fastify-plugin';
 
@@ -17,8 +17,8 @@ declare module 'fastify' {
   }
 }
 
-export default fp(async (app) => {
-  app.addHook('onRequest', async (request) => {
+export default fp(async (app: FastifyInstance) => {
+  app.addHook('onRequest', async (request: FastifyRequest) => {
     request.requestContext.set('log', request.log);
     request.requestContext.set('traceId', request.id);
 
@@ -34,7 +34,7 @@ export default fp(async (app) => {
     );
   });
 
-  app.addHook('onResponse', async (request, reply) => {
+  app.addHook('onResponse', async (request: FastifyRequest, reply: FastifyReply) => {
     const status = reply.statusCode;
 
     const logData = {

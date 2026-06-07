@@ -4,7 +4,7 @@ import type { Component } from '@/models/Component.js';
 
 export function resolveStep(
   action: 'overview' | 'component' | 'courses',
-  turno?: string,
+  turno?: 'diurno' | 'noturno',
   courseId?: number
 ) {
   switch (action) {
@@ -55,7 +55,8 @@ function getDisciplineSteps() {
   ];
 }
 
-function getCourseSteps(turno?: string, courseId?: number) {
+
+function getCourseSteps(turno?: 'diurno' | 'noturno', courseId?: number) {
   const match: FilterQuery<Component> = {};
 
   if (turno) {
