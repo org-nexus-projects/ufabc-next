@@ -239,7 +239,7 @@ export class Jobs implements JobImpl {
         prefix: boardUiPath,
         basePath: boardUiPath,
         logLevel: 'silent',
-      });
+      } as any);
     });
   }
 }
