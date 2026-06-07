@@ -11,12 +11,6 @@ declare module '@fastify/request-context' {
   }
 }
 
-declare module 'fastify' {
-  interface FastifyReply {
-    error: Error;
-  }
-}
-
 export default fp(async (app: FastifyInstance) => {
   app.addHook('onRequest', async (request: FastifyRequest) => {
     request.requestContext.set('log', request.log);

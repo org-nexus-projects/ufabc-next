@@ -29,7 +29,6 @@ type GoogleAuthorizationQuery = {
 
 export default fp(
   async (app: FastifyInstance) => {
-    // @ts-expect-error - Missing types for fastify-oauth2 plugin
     await app.register(fastifyOauth2, {
       name: 'google',
       userAgent: 'UFABC next (2.0.0)',

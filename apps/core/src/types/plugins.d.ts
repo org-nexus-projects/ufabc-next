@@ -63,6 +63,7 @@ declare module 'fastify' {
   }
 
   interface FastifyReply {
+    error: Error;
     badRequest(message?: string): FastifyReply;
     unauthorized(message?: string): FastifyReply;
     forbidden(message?: string): FastifyReply;
