@@ -4,3 +4,5 @@
 *.html text eol=lf
 *.py text eol=lf
 *.ts text eol=lf
+*.jpg binary
+*.data binary

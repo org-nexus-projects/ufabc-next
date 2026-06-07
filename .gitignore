@@ -19,9 +19,7 @@ pnpm-debug.log*
 .env.local
 .env.prod
 .env.staging
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*.local
 
 # IDE and Editor files
 .vscode
