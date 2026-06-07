@@ -13,15 +13,12 @@
     "docker:build": "docker compose -f ../../docker-compose.yml build core",
     "docker:up": "docker compose -f ../../docker-compose.yml up -d core",
     "docker:logs": "docker compose -f ../../docker-compose.yml logs -f core",
-    "build": "rimraf dist && NODE_PATH=./node_modules:$NODE_PATH tspc || true",
+    "build": "rimraf dist && NODE_PATH=./node_modules:$NODE_PATH tspc",
     "tsc": "tsgo",
     "start": "node --env-file=.env.prod dist/server.js",
     "start:local": "pnpm build && node --env-file=.env.prod dist/server.js",
     "test": "vitest",
-    "test:watch": "vitest watch",
-    "db:deduplicate:preview": "tsx src/scripts/db/maintenance/deduplicate-preview.ts",
-    "db:deduplicate:backup": "tsx src/scripts/db/maintenance/backup-pre-deduplication.ts",
-    "db:deduplicate": "tsx src/scripts/db/maintenance/deduplicate.ts"
+    "test:watch": "vitest watch"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
@@ -42,6 +39,7 @@
     "@fastify/sensible": "catalog:",
     "@fastify/swagger": "catalog:",
     "@fastify/swagger-ui": "catalog:",
+    "@next/logger": "workspace:*",
     "@next/utils": "workspace:*",
     "@next/db": "workspace:*",
     "@next/queues": "workspace:*",

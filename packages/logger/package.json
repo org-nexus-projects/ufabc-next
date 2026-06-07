@@ -1,0 +1,34 @@
+{
+  "name": "@next/logger",
+  "version": "1.0.0",
+  "description": "Shared logger for server and browser",
+  "type": "module",
+  "exports": {
+    "./server": {
+      "types": "./dist/server.d.mts",
+      "default": "./dist/server.mjs"
+    },
+    "./browser": {
+      "types": "./dist/browser.d.mts",
+      "default": "./dist/browser.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "tsc": "tsgo --noEmit",
+    "dev": "tsdown --watch",
+    "clean": "git clean -xdf .cache .turbo dist node_modules"
+  },
+  "dependencies": {
+    "@axiomhq/js": "catalog:",
+    "@axiomhq/pino": "catalog:",
+    "pino": "catalog:",
+    "pino-pretty": "catalog:"
+  },
+  "devDependencies": {
+    "@next/config": "workspace:*",
+    "@types/node": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:"
+  }
+}

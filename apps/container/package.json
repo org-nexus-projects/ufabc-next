@@ -20,6 +20,7 @@
   "dependencies": {
     "@amcharts/amcharts5": "catalog:",
     "@mdi/font": "catalog:",
+    "@next/logger": "workspace:*",
     "@next/services": "workspace:*",
     "@tanstack/query-core": "catalog:",
     "@tanstack/vue-query": "5.92.5",

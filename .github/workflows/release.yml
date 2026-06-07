@@ -28,6 +28,9 @@ jobs:
 
       - name: Build extension
         run: pnpm turbo run build --filter=@next/extension
+        env:
+          VITE_AXIOM_TOKEN: ${{ secrets.EXTENSION_AXIOM_INGEST_TOKEN }}
+          VITE_AXIOM_DATASET: ${{ secrets.EXTENSION_AXIOM_DATASET }}
 
       - name: Zip extension
         run: pnpm turbo run zip --filter=@next/extension

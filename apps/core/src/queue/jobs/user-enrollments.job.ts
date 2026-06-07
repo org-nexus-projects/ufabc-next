@@ -15,7 +15,7 @@ import {
   HistoryModel,
 } from '@/models/History.js';
 import { SubjectModel, type SubjectDocument } from '@/models/Subject.js';
-import { logger } from '@/utils/logger.js';
+import { logger } from '@/logger.js';
 
 import type { QueueContext } from '../types.js';
 
