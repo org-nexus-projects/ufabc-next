@@ -1,4 +1,4 @@
-import type { MoodleComponent } from '@/connectors/moodle.js';
+import type { MoodleComponent } from '@next/connectors/moodle';
 
 import { componentArchiveSchema } from '@/schemas/v2/components.js';
 

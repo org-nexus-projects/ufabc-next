@@ -1,8 +1,8 @@
-import { BaseRequester } from './base-requester.js';
+import { BaseRequester, type TraceProvider } from './base-requester.js';
 
 export class SigaaConnector extends BaseRequester {
-  constructor(globalTraceId?: string) {
-    super('https://sig.ufabc.edu.br', globalTraceId);
+  constructor(traceProvider?: TraceProvider) {
+    super('https://sig.ufabc.edu.br', traceProvider);
   }
 
   async validateToken(sessionId: string) {

@@ -1,4 +1,4 @@
-import { BaseRequester } from './base-requester.js';
+import { BaseRequester, type TraceProvider } from './base-requester.js';
 
 type Files = {
   url: string;
@@ -8,9 +8,10 @@ type Files = {
 export class AIProxyConnector extends BaseRequester {
   constructor(
     baseUrl: string,
-    private readonly serviceHeader: string
+    private readonly serviceHeader: string,
+    traceProvider?: TraceProvider
   ) {
-    super(baseUrl);
+    super(baseUrl, traceProvider);
   }
 
   async filterFiles(course: string, files: Files[]) {

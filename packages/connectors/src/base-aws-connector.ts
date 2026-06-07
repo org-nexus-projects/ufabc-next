@@ -1,15 +1,23 @@
 import type { Client } from '@aws-sdk/types';
 
-import { requestContext } from '@fastify/request-context';
 import { randomUUID } from 'node:crypto';
 
-import { logger as defaultLogger } from '@/logger.js';
+import type { Logger, TraceProvider } from './base-requester.js';
+
+const noopLogger: Logger = {
+  info: () => {},
+  warn: () => {},
+  error: () => {},
+  child: () => noopLogger,
+};
 
 export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
   protected readonly client: TClient;
+  protected readonly traceProvider?: TraceProvider;
 
-  constructor(client: TClient) {
+  constructor(client: TClient, traceProvider?: TraceProvider) {
     this.client = client;
+    this.traceProvider = traceProvider;
     this.setupMiddleware();
   }
 
@@ -60,11 +68,11 @@ export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
     );
   }
 
-  protected getLogger() {
-    return requestContext.get('log') ?? defaultLogger.child({ aws: true });
+  protected getLogger(): Logger {
+    return this.traceProvider?.getLogger() ?? noopLogger.child({ aws: true });
   }
 
-  protected getTraceId() {
-    return requestContext.get('traceId') ?? randomUUID();
+  protected getTraceId(): string {
+    return this.traceProvider?.getTraceId() ?? randomUUID();
   }
 }

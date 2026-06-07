@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import { S3Client } from '@aws-sdk/client-s3';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 
-import { S3Connector } from '@/connectors/s3-connector.js';
+import { S3Connector } from '@next/connectors/s3';
 import { getAWSClientOptions } from '@/utils/aws-client-options.js';
 
 declare module 'fastify' {

@@ -1,8 +1,9 @@
 import { currentQuad } from '@next/utils';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
-import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
-import { UfabcParserError } from '@/errors/ufabc-parser.js';
+import { UfabcParserConnector } from '@next/connectors/ufabc-parser';
+import { UfabcParserError } from '@next/connectors/errors';
+import { fastifyTraceProvider } from '@/connectors/fastify-trace-provider.js';
 import { StudentModel } from '@/models/Student.js';
 import { UserModel, type User } from '@/models/User.js';
 import { completeUserSchema, type Auth } from '@/schemas/auth.js';
@@ -133,7 +134,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     // @ts-ignore
     async (request, reply) => {
       const { email, ra } = request.body;
-      const ufabcParserConnector = new UfabcParserConnector(request.id);
+      const ufabcParserConnector = new UfabcParserConnector(fastifyTraceProvider);
 
       try {
         const student = await ufabcParserConnector.getStudent(ra);
@@ -297,7 +298,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     { schema: validateUserEmailSchema },
     // @ts-ignore
     async (request, reply) => {
-      const ufabcParserConnector = new UfabcParserConnector(request.id);
+      const ufabcParserConnector = new UfabcParserConnector(fastifyTraceProvider);
       const { ra } = request.query;
 
       try {

@@ -1,7 +1,8 @@
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 
-import { CommunicationsConnector } from '@/connectors/communications.js';
+import { CommunicationsConnector } from '@next/connectors/communications';
+import { fastifyTraceProvider } from '@/connectors/fastify-trace-provider.js';
 import { permissionVerifyHook } from '@/hooks/permission-verify.js';
 import { ALLOWED_ANNOUNCEMENT_PERMISSIONS } from '@/constants.js';
 
@@ -24,7 +25,7 @@ export const proxyController: FastifyPluginAsyncZod = async (app) => {
     handler: async (request, reply) => {
       const communications = new CommunicationsConnector(
         app.config.COMMUNICATIONS_API_URL,
-        request.id
+        fastifyTraceProvider
       );
       const response = await communications.sendAnnouncement(request.body);
 

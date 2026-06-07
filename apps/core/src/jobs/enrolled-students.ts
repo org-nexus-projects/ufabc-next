@@ -1,7 +1,7 @@
 import { currentQuad } from '@next/utils';
 import { defineJob } from '@next/queues/client';
 
-import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
+import { UfabcParserConnector } from '@next/connectors/ufabc-parser';
 import { JOB_NAMES } from '@/constants.js';
 import { ComponentModel } from '@/models/Component.js';
 

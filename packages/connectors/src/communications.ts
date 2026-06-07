@@ -1,4 +1,4 @@
-import { BaseRequester } from './base-requester.js';
+import { BaseRequester, type TraceProvider } from './base-requester.js';
 
 type SendAnnouncementParams = {
   courseIdentifier: number;
@@ -11,8 +11,8 @@ type SendAnnouncementResponse = {
 };
 
 export class CommunicationsConnector extends BaseRequester {
-  constructor(baseURL: string, globalTraceId?: string) {
-    super(baseURL, globalTraceId);
+  constructor(baseURL: string, traceProvider?: TraceProvider) {
+    super(baseURL, traceProvider);
   }
 
   async sendAnnouncement(

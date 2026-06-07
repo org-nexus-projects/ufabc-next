@@ -562,6 +562,9 @@ importers:
       '@fastify/swagger-ui':
         specifier: 'catalog:'
         version: 5.2.6
+      '@next/connectors':
+        specifier: workspace:*
+        version: link:../../packages/connectors
       '@next/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -777,6 +780,28 @@ importers:
       wxt:
         specifier: 'catalog:'
         version: 0.19.29(@types/node@24.13.1)(rollup@4.61.1)(sass@1.100.0)(tsx@4.22.4)(yaml@2.9.0)
+
+  packages/connectors:
+    dependencies:
+      '@aws-sdk/client-s3':
+        specifier: 'catalog:'
+        version: 3.1063.0
+      ofetch:
+        specifier: 'catalog:'
+        version: 1.5.1
+    devDependencies:
+      '@aws-sdk/types':
+        specifier: 'catalog:'
+        version: 3.973.11
+      '@next/config':
+        specifier: workspace:*
+        version: link:../../tools/tsconfig
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.13.1
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
 
   packages/db:
     dependencies:

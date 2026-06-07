@@ -3,7 +3,7 @@ import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { currentQuad } from '@next/utils';
 import { z } from 'zod';
 
-import { MoodleConnector } from '@/connectors/moodle.js';
+import { MoodleConnector } from '@next/connectors/moodle';
 import { JOB_NAMES } from '@/constants.js';
 import { jwtVerifyHook } from '@/hooks/jwt-verify.js';
 import { moodleSession } from '@/hooks/moodle-session.js';

@@ -1,6 +1,6 @@
 import { setTimeout as sleep } from 'node:timers/promises';
 
-import { BaseRequester } from './base-requester.js';
+import { BaseRequester, type TraceProvider } from './base-requester.js';
 
 type MoodleResponse = {
   error: boolean;
@@ -43,8 +43,8 @@ export class MoodleConnector extends BaseRequester {
   private lastRequestTime = 0;
   private readonly minRequestInterval = 300;
 
-  constructor() {
-    super('https://moodle.ufabc.edu.br');
+  constructor(traceProvider?: TraceProvider) {
+    super('https://moodle.ufabc.edu.br', traceProvider);
   }
 
   async validateToken(sessionId: string, sessKey: string) {

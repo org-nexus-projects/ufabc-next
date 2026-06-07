@@ -43,6 +43,7 @@
     "@next/utils": "workspace:*",
     "@next/db": "workspace:*",
     "@next/queues": "workspace:*",
+    "@next/connectors": "workspace:*",
     "@notionhq/client": "catalog:",
     "bullmq": "catalog:",
     "cheerio": "catalog:",

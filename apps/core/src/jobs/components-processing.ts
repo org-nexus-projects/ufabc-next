@@ -3,7 +3,7 @@ import type { Types } from 'mongoose';
 import { defineJob } from '@next/queues/client';
 import z from 'zod';
 
-import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
+import { UfabcParserConnector } from '@next/connectors/ufabc-parser';
 import { JOB_NAMES, PARSER_WEBHOOK_SUPPORTED_EVENTS } from '@/constants.js';
 import { ComponentModel } from '@/models/Component.js';
 import {
@@ -67,9 +67,9 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
     })
   )
   .handler(async ({ job }) => {
-    const { globalTraceId, data } = job.data;
+    const { data } = job.data;
     const { componentKey } = data;
-    const ufabcParserConnector = new UfabcParserConnector(globalTraceId);
+    const ufabcParserConnector = new UfabcParserConnector();
     const [component] =
       await ufabcParserConnector.getComponentByKey(componentKey);
 

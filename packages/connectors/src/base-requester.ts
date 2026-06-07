@@ -1,37 +1,50 @@
-// @ts-nocheck only for the logger
-import { requestContext } from '@fastify/request-context';
 import { randomUUID } from 'node:crypto';
 import { type FetchOptions, type FetchRequest, ofetch } from 'ofetch';
 
-import {
-  MAX_LOG_SIZE,
-  TRACING_DIRECTION,
-  TRACING_MESSAGES,
-} from '@/constants.js';
-import { logger as defaultLogger } from '@/logger.js';
+import { MAX_LOG_SIZE, TRACING_DIRECTION, TRACING_MESSAGES } from './constants.js';
+
+type LogFn = (obj: unknown, msg?: string) => void;
+
+export interface Logger {
+  info: LogFn;
+  warn: LogFn;
+  error: LogFn;
+  child: (bindings: Record<string, unknown>) => Logger;
+}
+
+export interface TraceProvider {
+  getTraceId: () => string;
+  getLogger: () => Logger | undefined;
+}
+
+const noopLogger: Logger = {
+  info: () => {},
+  warn: () => {},
+  error: () => {},
+  child: () => noopLogger,
+};
 
 export class BaseRequester {
   protected readonly requester: ReturnType<typeof ofetch.create>;
   protected readonly baseURL?: string;
+  protected readonly traceProvider?: TraceProvider;
 
-  constructor(baseURL?: string, globalTraceId?: string) {
+  constructor(baseURL?: string, traceProvider?: TraceProvider) {
     this.baseURL = baseURL;
+    this.traceProvider = traceProvider;
     this.requester = ofetch.create({
       baseURL,
       onRequest: ({ request, options }) => {
-        const logger =
-          this.getLogger() ?? defaultLogger.child({ connector: true });
-        const traceId = globalTraceId || this.getTraceId();
+        const logger = this.getLogger() ?? noopLogger;
+        const traceId = this.getTraceId();
 
         const existingHeaders =
           options.headers instanceof Headers
             ? Object.fromEntries(options.headers.entries())
             : options.headers || {};
 
-        options.headers = {
-          ...existingHeaders,
-          'global-trace-id': traceId,
-        };
+        // @ts-ignore - ofetch allows custom headers
+        options.headers = { ...existingHeaders, 'global-trace-id': traceId } as any;
 
         const requestPath = this.getRequestPath(request);
         const fullUrl = this.buildFullUrl(requestPath);
@@ -52,8 +65,7 @@ export class BaseRequester {
         );
       },
       onResponse: ({ response, options }) => {
-        const logger =
-          this.getLogger() ?? defaultLogger.child({ connector: true });
+        const logger = this.getLogger() ?? noopLogger;
         const traceId = this.getTraceId();
 
         const logData = {
@@ -86,8 +98,7 @@ export class BaseRequester {
         logger.info(logData, TRACING_MESSAGES.INCOMING_RESPONSE);
       },
       onResponseError: ({ response }) => {
-        const logger =
-          this.getLogger() ?? defaultLogger.child({ connector: true });
+        const logger = this.getLogger() ?? noopLogger;
 
         logger.error(
           {
@@ -100,8 +111,7 @@ export class BaseRequester {
         );
       },
       onRequestError: ({ error }) => {
-        const logger =
-          this.getLogger() ?? defaultLogger.child({ connector: true });
+        const logger = this.getLogger() ?? noopLogger;
 
         logger.error(
           {
@@ -121,12 +131,12 @@ export class BaseRequester {
     return this.requester(url, options) as Promise<T>;
   }
 
-  protected getLogger() {
-    return requestContext.get('log');
+  protected getLogger(): Logger | undefined {
+    return this.traceProvider?.getLogger();
   }
 
-  protected getTraceId() {
-    return requestContext.get('traceId') ?? randomUUID();
+  protected getTraceId(): string {
+    return this.traceProvider?.getTraceId() ?? randomUUID();
   }
 
   private getRequestPath(request: FetchRequest): string {
@@ -184,7 +194,7 @@ export class BaseRequester {
     options?: FetchOptions
   ): Promise<Response> {
     const traceId = this.getTraceId();
-    const logger = this.getLogger() ?? defaultLogger.child({ connector: true });
+    const logger = this.getLogger() ?? noopLogger;
     const requestPath = this.getRequestPath(url);
     const fullUrl = this.buildFullUrl(requestPath);
     const headers = this.buildRequestHeaders(options?.headers, traceId);

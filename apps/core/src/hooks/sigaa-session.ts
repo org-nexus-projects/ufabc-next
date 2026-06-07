@@ -2,7 +2,8 @@ import type { preHandlerAsyncHookHandler } from 'fastify';
 
 import { load } from 'cheerio';
 
-import { SigaaConnector } from '@/connectors/sigaa.js';
+import { SigaaConnector } from '@next/connectors/sigaa';
+import { fastifyTraceProvider } from '@/connectors/fastify-trace-provider.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -51,8 +52,8 @@ export const sigaaSession: preHandlerAsyncHookHandler = async (
   request.sigaaSession = { sessionId, viewId };
 };
 
-async function validateToken(sessionId: string, traceId: string) {
-  const connector = new SigaaConnector(traceId);
+async function validateToken(sessionId: string, _traceId: string) {
+  const connector = new SigaaConnector(fastifyTraceProvider);
   const response = await connector.validateToken(sessionId);
   const $ = load(response);
   const hasLogout = $('#info-sistema > div > span.sair-sistema > a').length > 0;

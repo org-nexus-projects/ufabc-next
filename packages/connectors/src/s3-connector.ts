@@ -5,8 +5,13 @@ import {
 } from '@aws-sdk/client-s3';
 
 import { BaseAWSConnector } from './base-aws-connector.js';
+import type { TraceProvider } from './base-requester.js';
 
 export class S3Connector extends BaseAWSConnector<S3Client> {
+  constructor(client: S3Client, traceProvider?: TraceProvider) {
+    super(client, traceProvider);
+  }
+
   async upload(
     bucket: string,
     key: string,

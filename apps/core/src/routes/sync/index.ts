@@ -1,6 +1,6 @@
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
-import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
+import { UfabcParserConnector } from '@next/connectors/ufabc-parser';
 import { ComponentModel } from '@/models/Component.js';
 import { syncEnrolledSchema } from '@/schemas/sync/enrolled.js';
 
