@@ -2,6 +2,12 @@ packages:
   - apps/*
   - packages/*
   - tools/*
+engineStrict: true
+strictPeerDependencies: false
+dedupePeerDependents: false
+publicHoistPattern:
+  - fastify
+  - '@fastify/*'
 allowBuilds:
   cpu-features: true
   esbuild: true

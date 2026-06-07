@@ -17,6 +17,7 @@
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
     "turbo": "catalog:",
+    "fastify": "catalog:",
     "typescript": "^5.9.3",
     "ultracite": "catalog:",
     "vue-tsgo": "catalog:"

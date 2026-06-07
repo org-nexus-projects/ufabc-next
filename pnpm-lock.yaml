@@ -339,6 +339,9 @@ importers:
       '@typescript/native-preview':
         specifier: 'catalog:'
         version: 7.0.0-dev.20260606.1
+      fastify:
+        specifier: 'catalog:'
+        version: 5.8.5
       oxfmt:
         specifier: 'catalog:'
         version: 0.22.0
