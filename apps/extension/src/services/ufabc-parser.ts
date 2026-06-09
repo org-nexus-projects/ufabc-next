@@ -1,4 +1,5 @@
-import { ofetch } from "ofetch";
+import { configureConnectors } from '@next/connectors/config';
+import { UfabcParserConnector, type UFSeasonComponents } from '@next/connectors/ufabc-parser';
 
 export type UFComponent = {
 	name: string;
@@ -7,25 +8,11 @@ export type UFComponent = {
 	credits: number;
 };
 
-export type UFSeasonComponents = {
-	UFComponentId: number
-	UFComponentCode: string;
-	name: string
-	campus: 'sbc' | 'sa'
-	turma: string
-	turno: 'diurno' | 'noturno'
-	credits: number
-	vacancies: number
-	courses: Array<{ name: string; UFCourseId: number; category: 'limited' | 'mandatory' }>
-	hours: unknown
-}
-
-type Action = 'history' | 'student-report' | 'student'
-
 export type Student = ShallowStudent & {
   sessionId: string
 }
 
+type Course = string;
 
 export type ShallowStudent = {
 	name: string;
@@ -40,19 +27,35 @@ export type ShallowStudent = {
 	startedAt: string;
 };
 
+try {
+	const baseURL =
+		typeof import.meta !== 'undefined'
+			? (import.meta as any).env?.VITE_UFABC_PARSER_URL
+			: undefined;
 
-const ufParserService = ofetch.create({
-	baseURL: "https://ufabc-parser.com",
-});
+	configureConnectors({
+		ufabcParser: {
+			baseURL: baseURL || "https://ufabc-parser.com",
+			requesterKey: "ufabc-next",
+		},
+	});
+} catch {
+	configureConnectors({
+		ufabcParser: {
+			baseURL: "https://ufabc-parser.com",
+			requesterKey: "ufabc-next",
+		},
+	});
+}
 
+const parser = new UfabcParserConnector();
 
 export async function getUFEnrolled() {
-	const enrolled =
-		await ufParserService<Record<string, Array<number>>>("/enrolled");
+	const enrolled = await parser.getEnrolledLegacy();
 
 	const result: Record<number, string[]> = {};
 	for (const componentId in enrolled) {
-		const studentIds = enrolled[Number(componentId)];
+		const studentIds = enrolled[componentId];
 
 		for (const studentId of studentIds) {
 			if (!result[studentId]) {
@@ -66,6 +69,5 @@ export async function getUFEnrolled() {
 }
 
 export async function getUFComponents() {
-	const ufComponents = await ufParserService<UFSeasonComponents[]>("/components");
-	return ufComponents
+	return parser.getAllComponents();
 }

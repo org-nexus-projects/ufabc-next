@@ -686,6 +686,9 @@ importers:
 
   apps/extension:
     dependencies:
+      '@next/connectors':
+        specifier: workspace:*
+        version: link:../../packages/connectors
       '@next/logger':
         specifier: workspace:*
         version: link:../../packages/logger

@@ -112,6 +112,7 @@
 <script setup lang="ts">
 import { getKicksInfo, MatriculaStudent } from '@/services/next';
 import { getUFComponents, type UFSeasonComponents } from '@/services/ufabc-parser';
+import { UfabcParserConnector } from '@next/connectors/ufabc-parser'
 import { findIdeais, findSeasonKey } from '@/utils/season';
 import { orderBy } from 'lodash-es';
 import { Info } from 'lucide-vue-next'
@@ -174,9 +175,10 @@ const matriculas = inject<typeof window.matriculas>('matriculas')
 
 const component = ref({} as UFSeasonComponents)
 
+const ufabcParser = new UfabcParserConnector();
 const { data: ufabcComponents } = useQuery({
   queryKey: ['ufabcComponents'],
-  queryFn: getUFComponents,
+  queryFn: ufabcParser.getAllComponents,
   staleTime: 1000 * 60 * 5,
   gcTime: 1000 * 60 * 30,
   enabled: computed(() => props.isOpen)

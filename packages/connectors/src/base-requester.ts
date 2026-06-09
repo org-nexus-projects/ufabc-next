@@ -246,7 +246,8 @@ export class BaseRequester {
 
   private getNodeEnv(): string {
     try {
-      return (process.env.NODE_ENV as string) || 'dev';
+      const nodeEnv = (globalThis as any).process?.env?.NODE_ENV as string | undefined;
+      return nodeEnv || 'dev';
     } catch {
       return 'dev';
     }
@@ -254,7 +255,7 @@ export class BaseRequester {
 
   private getLogLevel(): string | undefined {
     try {
-      return process.env.LOG_LEVEL as string | undefined;
+      return (globalThis as any).process?.env?.LOG_LEVEL as string | undefined;
     } catch {
       return undefined;
     }

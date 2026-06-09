@@ -1,5 +1,6 @@
 import { UfabcParserError } from './errors/ufabc-parser.js';
 import { BaseRequester } from './base-requester.js';
+import { getConnectorConfig } from './config.js';
 
 type ComponentId = number;
 type StudentIds = number;
@@ -63,18 +64,32 @@ type SyncStudentParams = {
   requesterKey: string;
 };
 
+export type UFSeasonComponents = {
+  UFComponentId: number
+  UFComponentCode: string;
+  name: string
+  campus: 'sbc' | 'sa'
+  turma: string
+  turno: 'diurno' | 'noturno'
+  credits: number
+  vacancies: number
+  courses: Array<{ name: string; UFCourseId: number; category: 'limited' | 'mandatory' }>
+  hours: unknown
+}
+
 let ufabcParserConnectorInstance: UfabcParserConnector | null = null;
 
 export class UfabcParserConnector extends BaseRequester {
   private readonly requesterKey!: string;
 
-  constructor(baseUrl: string, requesterKey: string, traceId?: string) {
+  constructor(traceId?: string) {
     if (ufabcParserConnectorInstance) {
       return ufabcParserConnectorInstance;
     }
 
-    super({ baseURL: baseUrl, globalTraceId: traceId });
-    this.requesterKey = requesterKey;
+    const config = getConnectorConfig('ufabcParser');
+    super({ baseURL: config.baseURL, globalTraceId: traceId, component: 'ufabc-parser' });
+    this.requesterKey = config.requesterKey ?? '';
     ufabcParserConnectorInstance = this;
   }
 
@@ -104,7 +119,14 @@ export class UfabcParserConnector extends BaseRequester {
     return response;
   }
 
-  async getComponentByKey(componentKey: string) {
+  async getComponents(componentKey?: string) {
+    if (!componentKey) { 
+      const response = await this.request<UfabcParserComponent[]>(
+        '/v2/components',
+      );
+      return response;
+    }
+    
     const response = await this.request<UfabcParserComponent[]>(
       '/v2/components',
       {

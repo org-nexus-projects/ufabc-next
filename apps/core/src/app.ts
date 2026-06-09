@@ -10,6 +10,7 @@ import {
 } from 'fastify-zod-openapi';
 import type { Mongoose } from 'mongoose';
 
+import { configureConnectors } from '@next/connectors/config';
 import { authenticationController } from './controllers/authentication-controller.js';
 import backofficeController from './controllers/backoffice-controller.js';
 import componentsController from './controllers/components-controller.js';
@@ -48,6 +49,13 @@ export async function buildApp(
   await app.register(fastifyAutoload, {
     dir: join(import.meta.dirname, 'plugins/external'),
     options: { ...opts },
+  });
+
+  configureConnectors({
+    ufabcParser: {
+      baseURL: app.config.UFABC_PARSER_URL,
+      requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
+    },
   });
 
   await app.register(fastifyAutoload, {

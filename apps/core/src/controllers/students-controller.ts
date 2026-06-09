@@ -131,7 +131,7 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
     },
     preHandler: [sigaaSession],
     handler: async (request, reply) => {
-      const connector = new UfabcParserConnector(app.config.UFABC_PARSER_URL, app.config.UFABC_PARSER_REQUESTER_KEY, request.id);
+      const connector = new UfabcParserConnector(request.id);
       const { ra, login } = request.body;
       const { sessionId, viewId } = request.sigaaSession;
       const cacheKey = `http:students:sigaa:${ra}`;

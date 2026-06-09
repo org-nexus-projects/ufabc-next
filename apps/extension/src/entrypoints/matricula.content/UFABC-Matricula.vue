@@ -3,7 +3,6 @@ import SubjectReview from "@/components/SubjectReview.vue";
 import { useMutation } from "@tanstack/vue-query";
 import { logger } from "@/utils/logger";
 import { toast, Toaster } from "vue-sonner";
-import { useStorage } from "@/composables/useStorage";
 import { getStudentCourseId, getStudentId } from "@/utils/ufabc-matricula-student";
 import { useFilters } from "@/composables/useFilters";
 import { useModals } from "@/composables/useModals";

@@ -6,6 +6,7 @@
   "exports": {
     "./base-requester": "./src/base-requester.ts",
     "./base-aws-connector": "./src/base-aws-connector.ts",
+    "./config": "./src/config.ts",
     "./errors": "./src/errors/index.ts",
     "./ufabc-parser": "./src/ufabc-parser.ts",
     "./ufabc-matricula": "./src/ufabc-matricula.ts",

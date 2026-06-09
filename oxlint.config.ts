@@ -7,9 +7,10 @@ export default defineConfig({
     complexity: ['error', 25],
     'eslint/complexity': ['error', { max: 35 }],
     'func-style': ['error', 'declaration'],
-    'import/consistent-type-specifier-style': ['error'],
+    'import/consistent-type-specifier-style': ['error', { default: 'prefer-top-level' }],
     'typescript/array-type': ['error', { default: 'array-simple' }],
     'typescript/consistent-type-definitions': ['error', 'type'],
+    
   },
   ignorePatterns: [
     ...(core.ignorePatterns ?? []),
