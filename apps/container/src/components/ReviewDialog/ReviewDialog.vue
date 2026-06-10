@@ -17,7 +17,7 @@
         <v-row class="ma-0">
           <v-col class="pa-0 pb-5 pa-sm-3" cols="12" md="5">
             <p class="text-h4 font-weight-bold text-primary mb-2">
-              {{ teacherName }}
+              {{ capitalizeName(teacherName) }}
             </p>
             <p>
               <span class="item-name"> Disciplina:</span>
@@ -84,14 +84,15 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
+import type { Enrollment } from '@ufabc-next/services';
 import { Comments, Enrollments } from '@ufabc-next/services';
-import type { Enrollment } from '@ufabc-next/types';
 import { ElMessage } from 'element-plus';
 import { computed, PropType, ref, watch } from 'vue';
 
 import { CommentsList } from '@/components/CommentsList';
 import { FeedbackAlert } from '@/components/FeedbackAlert';
 import { PaperCard } from '@/components/PaperCard';
+import { capitalizeName } from '@/utils/capitalizeName';
 import { conceptsColor } from '@/utils/consts';
 
 const selectedSubject = ref<string>('Todas as matérias');
@@ -166,8 +167,8 @@ const {
 
 const comment = ref<string>('');
 const teacherEnrollmentComment = computed(() => ({
-  teoria: teacherEnrollment.value?.data.teoria?.comment?.comment,
-  prática: teacherEnrollment.value?.data.pratica?.comment?.comment,
+  teoria: teacherEnrollment.value?.teoria?.comment?.comment,
+  prática: teacherEnrollment.value?.pratica?.comment?.comment,
 }));
 
 const userCommentMessage = computed({
@@ -229,8 +230,8 @@ const { mutate: mutateUpdate, isPending: isUpdatingComment } = useMutation({
   mutationFn: () =>
     Comments.update({
       id:
-        teacherEnrollment.value?.data.teoria?.comment?._id ??
-        teacherEnrollment.value?.data.pratica?.comment?._id ??
+        teacherEnrollment.value?.teoria?.comment?._id ??
+        teacherEnrollment.value?.pratica?.comment?._id ??
         '',
       comment: comment.value,
     }),

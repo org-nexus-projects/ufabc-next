@@ -20,7 +20,7 @@
 
 O **UFABC Next** é uma plataforma colaborativa feita por alunos e para alunos. Nosso principal objetivo é reunir dados da universidade e oferecer ferramentas que facilitam a vida de quem passa pela UFABC, desde a incerteza durante as matrículas até o acompanhamento histórico do curso.
 
-## ✨ O que você encontra aqui (Features)
+## ✨ O que você encontra aqui
 
 - **Avaliações de Professores e Disciplinas**: Confira a opinião de quem já cursou aquela disciplina difícil e escolha a melhor opção para sua matrícula.
 - **Gerador de Grade (Calengrade)**: exporte a sua grade no formato `.ics` para o seu app de agenda Google Calendar, Apple Calendar, Notion, etc.
@@ -29,7 +29,7 @@ O **UFABC Next** é uma plataforma colaborativa feita por alunos e para alunos. 
 
 ---
 
-## 🚀 Como Iniciar (Setup Local)
+## 🚀 Como Iniciar - Setup Local
 
 ### Pré-requisitos
 
@@ -46,8 +46,11 @@ cd ufabc-next-web
 # 2. Instale as dependências através do Root (Monorepo)
 pnpm install
 
-# 3. Inicie o servidor de desenvolvimento
+# 3. Inicie todos os apps com script de desenvolvimento
 pnpm dev
+
+# 4. Ou inicie apenas o app principal
+pnpm dev:app
 ```
 
 E pronto!
@@ -63,7 +66,6 @@ ufabc-next-web/
 └── packages/
     ├── services/         # Funções para realizar Fetch/Mutations na API (Axios).
     ├── types/            # Definições (Interfaces) do TypeScript para toda a plataforma.
-    ├── utils/            # Funções utilitárias puras.
     └── eslint-config-custom/ # Regras de linting padronizadas do projeto.
 ```
 

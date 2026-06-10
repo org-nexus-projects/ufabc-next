@@ -16,6 +16,7 @@ out
 output
 coverage
 *.pem
+*.tsbuildinfo
 
 # IDE and Editor files
 .vscode

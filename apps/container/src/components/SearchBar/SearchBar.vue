@@ -36,7 +36,7 @@
           :icon="item.type === 'teacher' ? 'mdi-account' : 'mdi-book'"
           class="mr-3"
         />
-        {{ item.name }}
+        {{ capitalizeName(item.name) }}
       </v-list-item>
     </v-list>
   </div>
@@ -44,13 +44,14 @@
 
 <script lang="ts" setup>
 import { useQuery } from '@tanstack/vue-query';
+import type { SearchSubjectItem, SearchTeacherItem } from '@ufabc-next/services';
 import { Reviews } from '@ufabc-next/services';
-import type { SearchSubjectItem, SearchTeacherItem } from '@ufabc-next/types';
 import debounce from 'lodash.debounce';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { FeedbackAlert } from '@/components/FeedbackAlert';
+import { capitalizeName } from '@/utils/capitalizeName';
 
 const router = useRouter();
 const query = computed({
@@ -125,14 +126,14 @@ const mapSearchResults = (
   results?: (SearchTeacherItem | SearchSubjectItem)[],
 ) =>
   results?.map((result) => ({
-    name: result.name,
+    name: result.name || '',
     id: result._id,
     type: type,
   })) || [];
 
 const processedResults = computed(() => [
-  ...mapSearchResults('teacher', searchResultsTeachers.value?.data.data),
-  ...mapSearchResults('subject', searchResultsSubjects.value?.data.data),
+  ...mapSearchResults('teacher', searchResultsTeachers.value?.data),
+  ...mapSearchResults('subject', searchResultsSubjects.value?.data),
 ]);
 </script>
 

@@ -136,29 +136,14 @@ const newRa = ref('');
 const newName = ref('');
 const isAddingRa = ref(false);
 
-// --- MOCK DATA EXATAMENTE COMO VEIO DA API ---
-const rawEnrollmentsMock = [
+const teamMembers = [
+ 
   {
-    ra: '11202200001',
-    name: 'Membro 1 (Noturno)',
-    items: [
-      {"season":"2026:2","groupURL":"https://chat.whatsapp.com/KQXc2GaZMMDCxm98E096Sa","codigo":"NHZ3077-15","campus":"sa","turma":"A","turno":"noturno","subject":"mecânica quântica iii","teoria":"FAGNER MURUCI DE PAULA","pratica":"N/A"},
-      {"season":"2026:2","groupURL":"https://chat.whatsapp.com/CTuXR47Js4G1Ard5l1BeGT","codigo":"MCTB019-17","campus":"sa","turma":"A1","turno":"noturno","subject":"matemática discreta","teoria":"JAIR DONADELLI JUNIOR","pratica":"N/A"},
-      {"season":"2026:2","groupURL":"https://chat.whatsapp.com/IyL7C3DzpX38pSa1gVN5Y1","codigo":"BCN0405-15","campus":"sa","turma":"A3","turno":"noturno","subject":"introdução às equações diferenciais ordinárias","teoria":"NORBERTO ANIBAL MAIDANA","pratica":"N/A"},
-      {"season":"2026:2","groupURL":"https://chat.whatsapp.com/Dhwa9ueiKnn4Xngk4C8fvJ","codigo":"BCJ0203-15","campus":"sbc","turma":"A3","turno":"noturno","subject":"fenômenos eletromagnéticos","teoria":"VITOR HUGO PASCHOAL","pratica":"N/A"}
-    ]
+    "nome": "Igor Santos",
+    "ra": null
   },
-  {
-    ra: '11202200002',
-    name: 'Membro 2 (Diurno)',
-    items: [
-      {"season":"2026:2","groupURL":"https://chat.whatsapp.com/KUQyAwHVofQLx3uvxhcTVi","codigo":"ESTO005-17","campus":"sbc","turma":"B1","turno":"diurno","subject":"introdução às engenharias","teoria":"ILKA TIEMY KATO PRATES","pratica":"N/A"},
-      {"season":"2026:2","groupURL":"https://chat.whatsapp.com/KV9HtjYTFMI2MU2iAWgb2J","codigo":"BCJ0203-15","campus":"sa","turma":"A6","turno":"diurno","subject":"fenômenos eletromagnéticos","teoria":"EDUARDO PERES NOVAIS DE SA","pratica":"EDUARDO PERES NOVAIS DE SA"},
-      {"season":"2026:2","groupURL":"https://chat.whatsapp.com/HhzmXt98Q027FyOlS8uGVm","codigo":"BCN0407-15","campus":"sbc","turma":"A1","turno":"diurno","subject":"funções de várias variáveis","teoria":"vinicius cifu lopes","pratica":"N/A"}
-    ]
-  }
-];
-
+ 
+]
 function buildUfClassroomCode(item: any) {
   const turnoStr = item.turno === 'diurno' ? 'D' : 'N';
   const campusStr = item.campus === 'sbc' ? 'SB' : 'SA';
@@ -211,11 +196,20 @@ onMounted(async () => {
     const res = await fetch('https://ufabc-parser.com/v2/components?season=2026:2');
     ufComponents.value = await res.json();
 
-    if (import.meta.env.DEV) {
-      teamSchedules.value = rawEnrollmentsMock.map(student => mapStudentEnrollments(student, ufComponents.value));
-    } else {
-      teamSchedules.value = [];
-    }
+    const validMembers = teamMembers.filter(m => m.ra);
+    const results = await Promise.allSettled(
+      validMembers.map(async (member) => {
+        const r = await fetch(`https://api.v2.ufabcnext.com/entities/enrollments/wpp?ra=${member.ra}&season=2026:2`);
+        if (!r.ok) throw new Error(`Falha ao buscar RA ${member.ra}`);
+        const items = await r.json();
+        if (!items || items.length === 0) return null;
+        return mapStudentEnrollments({ ra: member.ra, name: member.nome, items }, ufComponents.value);
+      })
+    );
+
+    teamSchedules.value = results
+      .filter((r): r is PromiseFulfilledResult<StudentSchedule> => r.status === 'fulfilled' && r.value !== null)
+      .map(r => r.value);
   } catch (error) {
     console.error("Erro ao carregar componentes: ", error);
   } finally {
