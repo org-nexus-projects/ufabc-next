@@ -214,9 +214,9 @@
             usuários autenticados.
           </p>
           <div class="not-synced__actions auth-required-actions">
-            <button class="not-synced__button" @click="loginAccount">
+            <button class="not-synced__button" @click="createAccount">
               <v-icon size="20"> mdi-account-plus </v-icon>
-              Login na conta
+              Criar conta
             </button>
             <button
               class="not-synced__button secondary"
@@ -248,7 +248,7 @@
             Sua sessão pode ter expirado. Faça login novamente para continuar.
           </p>
           <div class="not-synced__actions">
-            <button class="not-synced__button" @click="authStore.logOut()">
+            <button class="not-synced__button" @click="handleLoginAgain">
               <v-icon size="20"> mdi-login </v-icon>
               Fazer login novamente
             </button>
@@ -328,8 +328,7 @@
 
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
-import { Whatsapp } from '@ufabc-next/services';
-import { SearchCourseItem } from '@ufabc-next/types';
+import { SearchCourseItem,Whatsapp  } from '@ufabc-next/services';
 import { useDebounceFn } from '@vueuse/core';
 import { computed, onMounted, ref, toValue, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -363,6 +362,12 @@ const mockGroups = ref(getMockedGroups(defaultSeason));
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+
+const handleLoginAgain = () => {
+  authStore.logOut();
+  window.location.href = '/';
+};
+
 const theme = useTheme();
 const isDarkMode = computed(() => theme.global.current.value.dark);
 
@@ -806,7 +811,7 @@ const filteredAndSearchedCourseComponents = computed(() => {
 });
 
 // Computed para acessar dados do allComponents
-const allComponentsData = computed(() => allComponents.value?.data || []);
+const allComponentsData = computed(() => allComponents.value || []);
 
 // Mapa de componentes com dados de professores normalizados (do parser)
 const componentsByCode = computed(() => {
@@ -845,7 +850,7 @@ const enrichComponent = (component: any) => {
 };
 
 const groupsFromRa = computed(() => {
-  const groups = groupsByRa.value?.data || [];
+  const groups = groupsByRa.value || [];
   return groups.map(enrichComponent);
 });
 
@@ -940,11 +945,12 @@ const handleSyncHistory = () => {
   window.open(studentRecordURL, '_blank');
 };
 
-const loginAccount = () => {
-  eventTracker.track(WebEvent.LOGIN_ACCOUNT_CLICKED, {
+const createAccount = () => {
+  eventTracker.track(WebEvent.CREATE_ACCOUNT_CLICKED, {
     source: 'whatsapp_groups_dialog',
   });
-  window.location.href = `${window.location.origin}/`;
+
+  router.push('/signup');
 };
 
 const openSupport = () => {

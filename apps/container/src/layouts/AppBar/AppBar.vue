@@ -170,7 +170,12 @@ import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
 import { applyChartsTheme } from '@/theme';
-import { PERMISSIONS } from '@/utils/consts';
+import { runtimeConfig } from '@/utils/runtimeConfig';
+
+import {
+  getExternalNavigationItems,
+  getInternalNavigationItems,
+} from './navigation';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -182,6 +187,7 @@ const layout = computed(() => router.currentRoute.value.meta.layout ?? null);
 
 const handleLogout = () => {
   authStore.logOut();
+  window.location.href = '/';
 };
 
 const createAccount = () => {
@@ -217,119 +223,26 @@ const toggleTheme = () => {
   updateHighchartsThemeClass(newTheme === 'dark');
 };
 
+const apiURL = api.defaults.baseURL ?? runtimeConfig.apiBaseUrl;
+
 const permissions = computed(() => authStore.user?.permissions ?? []);
-const hasAdminPermission = computed(() =>
-  permissions.value.includes(PERMISSIONS.ADMIN),
+
+const internalNavigationItems = computed(() =>
+  getInternalNavigationItems({
+    permissions: permissions.value,
+  }).map((item) => ({
+    ...item,
+    locked: item.locked(Boolean(authStore.user?.confirmed)),
+  })),
 );
-const hasAccessToAnnouncements = computed(
-  () =>
-    hasAdminPermission.value ||
-    permissions.value.some((permission) =>
-      permission.includes(PERMISSIONS.ANNOUNCEMENTS),
-    ),
+
+const externalNavigationItems = computed(() =>
+  getExternalNavigationItems({
+    apiURL,
+    token: authStore.token,
+    permissions: permissions.value,
+  }),
 );
-
-const internalNavigationItems = [
-  {
-    title: 'Reviews',
-    icon: 'mdi-message-draw',
-    route: '/reviews',
-    locked: !authStore.user?.confirmed,
-  },
-  {
-    title: 'Meu histórico',
-    icon: 'mdi-history',
-    route: '/history',
-    locked: !authStore.user?.confirmed,
-  },
-  {
-    title: 'Performance',
-    icon: 'mdi-google-analytics',
-    route: '/performance',
-    locked: !authStore.user?.confirmed,
-  },
-  {
-    title: 'Dados da Matrícula',
-    icon: 'mdi-book-multiple',
-    route: '/stats',
-    locked: !authStore.user?.confirmed,
-  },
-  {
-    title: 'Grupos no WhatsApp',
-    icon: 'mdi-whatsapp',
-    route: '/grupos-whatsapp',
-    releaseDate: dayjs('07/10/2025'),
-    locked: false,
-  },
-  ...(hasAccessToAnnouncements.value
-    ? [
-        {
-          title: 'Anúncios',
-          icon: 'mdi-bullhorn',
-          route: `/announcements`,
-          locked: !hasAccessToAnnouncements.value,
-        },
-      ]
-    : []),
-  {
-    title: 'Calengrade',
-    icon: 'mdi-calendar',
-    route: '/calengrade',
-    releaseDate: dayjs('11/25/2023'),
-    locked: false,
-  },
-  {
-    title: 'Apoie o UFABC next',
-    icon: 'mdi-bank',
-    route: '/donate',
-    locked: false,
-  },
-  {
-    title: 'Ajuda',
-    icon: 'mdi-help-circle',
-    route: '/help',
-    locked: false,
-  },
-];
-
-const apiURL = api.defaults.baseURL ?? 'https://api.v2.ufabcnext.com';
-
-const externalNavigationItems = [
-  {
-    title: 'Discord',
-    icon: 'fa-brands fa-discord',
-    url: 'https://discord.gg/7BBzDwRXSg',
-  },
-  {
-    title: 'Snapshot da Matrícula',
-    icon: 'mdi-open-in-new',
-    url: 'https://ufabc-matricula-snapshot.vercel.app',
-  },
-  {
-    title: 'Use a Extensão',
-    icon: 'mdi-download',
-    url: 'https://chrome.google.com/webstore/detail/ufabc-next/gphjopenfpnlnffmhhhhdiecgdcopmhk',
-  },
-
-  ...(hasAdminPermission.value
-    ? [
-        {
-          title: 'Monitoramento de Jobs',
-          icon: 'mdi-open-in-new',
-          url: `${apiURL}/board/ui?token=${authStore.token}`,
-        },
-      ]
-    : []),
-  ...(hasAdminPermission.value
-    ? [
-        {
-          title: 'Monitoramento de Jobs V2',
-          icon: 'mdi-open-in-new',
-          url: `${apiURL}/v2/board/ui?token=${authStore.token}`,
-        },
-      ]
-    : []),
-];
 </script>
 <style scoped lang="scss">
 .v-list-item {

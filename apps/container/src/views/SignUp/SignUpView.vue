@@ -297,8 +297,7 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery } from '@tanstack/vue-query';
-import { Users } from '@ufabc-next/services';
-import { RequestError } from '@ufabc-next/types';
+import { RequestError,Users  } from '@ufabc-next/services';
 import { toTypedSchema } from '@vee-validate/zod';
 import { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';
@@ -338,6 +337,7 @@ onMounted(() => {
 
 const handleLogout = () => {
   authStore.logOut();
+  window.location.href = '/';
 };
 
 const { smAndDown } = useDisplay();
@@ -363,15 +363,15 @@ const check = useField('check');
 const { mutate: mutateSignUp, isPending: isPendingSubmit } = useMutation({
   mutationFn: Users.completeSignup,
   onSuccess: (data: any) => {
-    if (data?.data?.token) {
-      authStore.authenticate(data.data.token);
+    if (data?.token) {
+      authStore.authenticate(data.token);
       router.push('/');
     } else step.value = 3;
   },
   onError: (error: AxiosError<RequestError>) => {
     const message =
       error.status === 500
-        ? 'Seu login falhou, tente novamente com o email institucional @aluno.ufabc.edu.br'
+        ? 'Seu login falhou, tente novamente com o email institucional (@aluno.ufabc.edu.br ou @ufabc.edu.br)'
         : error.response?.data.message;
     ElMessage({
       message,
@@ -431,7 +431,7 @@ watch(
   () => verifiedEmail.value,
   (newEmail) => {
     if (newEmail) {
-      email.value.value = newEmail.data.email;
+      email.value.value = newEmail.email;
     }
   },
 );
@@ -459,7 +459,6 @@ const { mutate: mutateResendEmail, isPending: isPendingResendEmail } =
 const { data: user } = useQuery({
   queryKey: ['users', 'info'],
   queryFn: Users.info,
-  select: (response) => response.data,
 });
 
 watch(
@@ -468,7 +467,7 @@ watch(
     if (user.value?.ra && user.value?.email) {
       step.value = 3;
       setValues({
-        email: user.value.email.replace('@aluno.ufabc.edu.br', ''),
+        email: user.value.email.replace(/@(aluno\.)?ufabc\.edu\.br$/, ''),
         ra: {
           ra: user.value.ra.toString(),
           confirm: user.value.ra.toString(),

@@ -6,7 +6,7 @@ import type {
   StatsOverview,
   StatsSubject,
   StatsUsage,
-} from '@ufabc-next/types';
+} from './types';
 
 import { api } from './api';
 
@@ -21,19 +21,28 @@ export type StatsParams = {
 };
 
 export const StatsSubjects = {
-  getAllClasses: (params: StatsParams) =>
-    api.get<PageableReturn<StatsClass>>('public/stats/components', { params }),
-  getAllCourses: (params: StatsParams) =>
-    api.get<PageableReturn<StatsCourse>>('public/stats/components/courses', {
-      params,
-    }),
-  getAllSubjects: (params: StatsParams) =>
-    api.get<PageableReturn<StatsSubject>>('public/stats/components/component', {
-      params,
-    }),
-  getAllCoursesNames: () => api.get<CourseName[]>('/histories/courses'),
-  getOverview: (params: Pick<StatsParams, 'season'>) =>
-    api.get<StatsOverview>('public/stats/components/overview', { params }),
-  getUsage: (params: Pick<StatsParams, 'season'>) =>
-    api.get<StatsUsage>('public/stats/usage', { params }),
+  getAllClasses: async (params: StatsParams) => {
+    const { data } = await api.get('public/stats/components', { params });
+    return data as PageableReturn<StatsClass>;
+  },
+  getAllCourses: async (params: StatsParams) => {
+    const { data } = await api.get('public/stats/components/courses', { params });
+    return data as PageableReturn<StatsCourse>;
+  },
+  getAllSubjects: async (params: StatsParams) => {
+    const { data } = await api.get('public/stats/components/component', { params });
+    return data as PageableReturn<StatsSubject>;
+  },
+  getAllCoursesNames: async () => {
+    const { data } = await api.get('/histories/courses');
+    return data as CourseName[];
+  },
+  getOverview: async (params: Pick<StatsParams, 'season'>) => {
+    const { data } = await api.get('public/stats/components/overview', { params });
+    return data as StatsOverview;
+  },
+  getUsage: async (params: Pick<StatsParams, 'season'>) => {
+    const { data } = await api.get('public/stats/usage', { params });
+    return data as StatsUsage;
+  },
 };

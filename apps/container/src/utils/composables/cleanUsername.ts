@@ -6,7 +6,7 @@ export function useCleanUsername() {
   const authStore = useAuthStore();
 
   const userCleanUsername = computed(
-    () => authStore.user?.email?.replace('@aluno.ufabc.edu.br', '') || '',
+    () => authStore.user?.email?.replace(/@(aluno\.)?ufabc\.edu\.br$/, '') || '',
   );
   return userCleanUsername;
 }
