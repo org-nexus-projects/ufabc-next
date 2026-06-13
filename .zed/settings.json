@@ -2,7 +2,11 @@
   "languages": {
     "TypeScript": {
       "format_on_save": "on",
-      "language_servers": ["vtsls"],
+      "language_servers": [
+        "tsgo",
+        "!vtsls",
+        "!typescript-language-server"
+      ],
       "formatter": {
         "language_server": {
           "name": "oxfmt"
