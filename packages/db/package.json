@@ -1,0 +1,28 @@
+{
+  "name": "@next/db",
+  "version": "1.0.0",
+  "description": "Database models and queries for UFABC Next backend",
+  "type": "module",
+  "exports": {
+    "./models": "./src/models.ts",
+    "./queries": "./src/queries.ts",
+    "./client": "./src/client.ts"
+  },
+  "scripts": {
+    "build": "tsgo",
+    "tsc": "tsgo --noEmit",
+    "dev": "tsgo --watch",
+    "clean": "git clean -xdf .cache .turbo dist node_modules"
+  },
+  "dependencies": {
+    "fastify": "catalog:",
+    "mongoose": "catalog:"
+  },
+  "devDependencies": {
+    "@next/config": "workspace:*",
+    "@types/node": "catalog:",
+    "fastify": "catalog:",
+    "fastify-plugin": "catalog:",
+    "typescript": "catalog:"
+  }
+}

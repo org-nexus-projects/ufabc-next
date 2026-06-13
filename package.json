@@ -1,0 +1,29 @@
+{
+  "name": "@next/workspace",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.33.2",
+  "scripts": {
+    "build": "turbo run build --continue",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "test": "turbo run test",
+    "tsc": "turbo run tsc --parallel"
+  },
+  "devDependencies": {
+    "@typescript/native-preview": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "turbo": "catalog:",
+    "fastify": "catalog:",
+    "typescript": "^5.9.3",
+    "ultracite": "catalog:",
+    "vue-tsgo": "catalog:"
+  },
+  "engines": {
+    "node": "^24",
+    "pnpm": "^10"
+  }
+}
