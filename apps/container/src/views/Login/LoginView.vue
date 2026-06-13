@@ -2,16 +2,10 @@
 import { computed } from 'vue';
 
 import { buildGoogleAuthUrl, isLocalAppSession } from '@/utils/runtimeConfig';
-import { logger } from '@/utils/logger'
 
 const googleAuthUrl = computed(() =>
   buildGoogleAuthUrl({ requesterKey: 'ufabc-next' }),
 );
-
-logger.info({
-  data: googleAuthUrl.value,
-  me: 'Joabe',
-}, 'user is starting loggin in dev env')
 </script>
 
 <template>
