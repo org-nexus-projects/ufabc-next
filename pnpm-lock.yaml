@@ -783,6 +783,9 @@ importers:
       wxt:
         specifier: 'catalog:'
         version: 0.19.29(@types/node@24.13.1)(rollup@4.61.1)(sass@1.100.0)(tsx@4.22.4)(yaml@2.9.0)
+      zod:
+        specifier: 'catalog:'
+        version: 3.25.76
 
   packages/connectors:
     dependencies:
@@ -795,6 +798,9 @@ importers:
       ofetch:
         specifier: 'catalog:'
         version: 1.5.1
+      zod:
+        specifier: 'catalog:'
+        version: 3.25.76
     devDependencies:
       '@aws-sdk/types':
         specifier: 'catalog:'

@@ -1,6 +1,3 @@
-# Run with `docker build --secret id=env,src=.env -f ./Dockerfile . -t teste-docker:0.0.2 --no-cache`
-# see a way to use this later --mount=type=secret,id=env,required=true,target=/workspace/.env
-
 ARG NODE_VERSION="24.12.0"
 
 FROM node:${NODE_VERSION}-alpine AS runtime
@@ -51,10 +48,25 @@ RUN pnpm --filter ${APP_NAME} deploy --prod --ignore-scripts ./out
 
 FROM runtime AS dev
 WORKDIR /workspace
-COPY pnpm*.yaml ./
-RUN pnpm fetch --ignore-scripts
-COPY . .
-RUN pnpm install --frozen-lockfile
+
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+
+COPY apps/core/package.json apps/core/package.json
+COPY apps/core/tsconfig.json apps/core/tsconfig.json
+COPY apps/container/package.json apps/container/package.json
+COPY apps/extension/package.json apps/extension/package.json
+COPY packages/connectors/package.json packages/connectors/package.json
+COPY packages/db/package.json packages/db/package.json
+COPY packages/logger/package.json packages/logger/package.json
+COPY packages/queues/package.json packages/queues/package.json
+COPY packages/services/package.json packages/services/package.json
+COPY packages/testing/package.json packages/testing/package.json
+COPY packages/utils/package.json packages/utils/package.json
+COPY tools/docker-infra/package.json tools/docker-infra/package.json
+COPY tools/tsconfig/package.json tools/tsconfig/package.json
+
+RUN pnpm install --frozen-lockfile --ignore-scripts
+
 CMD ["pnpm", "--filter", "@next/core", "run", "dev:local"]
 
 FROM runtime as runner
