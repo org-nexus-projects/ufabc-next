@@ -10,7 +10,6 @@ import {
 } from 'fastify-zod-openapi';
 import type { Mongoose } from 'mongoose';
 
-import { configureConnectors } from '@next/connectors/config';
 import { authenticationController } from './controllers/authentication-controller.js';
 import backofficeController from './controllers/backoffice-controller.js';
 import componentsController from './controllers/components-controller.js';
@@ -44,18 +43,9 @@ export async function buildApp(
   app: FastifyInstance,
   opts: FastifyServerOptions = {}
 ) {
-  await setupV2Routes(app, routesV2);
-
   await app.register(fastifyAutoload, {
     dir: join(import.meta.dirname, 'plugins/external'),
     options: { ...opts },
-  });
-
-  configureConnectors({
-    ufabcParser: {
-      baseURL: app.config.UFABC_PARSER_URL,
-      requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
-    },
   });
 
   await app.register(fastifyAutoload, {
@@ -69,6 +59,8 @@ export async function buildApp(
     redisURL: new URL(app.config.REDIS_CONNECTION_URL),
   });
   await app.register(awsV2Plugin);
+
+  await setupV2Routes(app, routesV2);
 
   app.setSchemaErrorFormatter((errors, dataVar) => {
     let message = `${dataVar}:`;
