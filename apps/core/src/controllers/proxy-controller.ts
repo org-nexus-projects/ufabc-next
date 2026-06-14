@@ -22,10 +22,10 @@ export const proxyController: FastifyPluginAsyncZod = async (app) => {
     },
     preHandler: [permissionVerifyHook(ALLOWED_ANNOUNCEMENT_PERMISSIONS)],
     handler: async (request, reply) => {
-      const communications = new CommunicationsConnector(
-        app.config.COMMUNICATIONS_API_URL,
-        request.id
-      );
+      const communications = new CommunicationsConnector({
+        baseURL: app.config.COMMUNICATIONS_API_URL,
+        globalTraceId: request.id,
+      });
       const response = await communications.sendAnnouncement(request.body);
 
       return reply.status(202).send(response);
