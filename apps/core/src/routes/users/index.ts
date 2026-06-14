@@ -133,7 +133,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     // @ts-ignore
     async (request, reply) => {
       const { email, ra } = request.body;
-      const ufabcParserConnector = new UfabcParserConnector(request.id);
+      const ufabcParserConnector = new UfabcParserConnector({
+        baseURL: app.config.UFABC_PARSER_URL,
+        requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
+        globalTraceId: request.id,
+      });
 
       try {
         const student = await ufabcParserConnector.getStudent(ra);
@@ -297,7 +301,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     { schema: validateUserEmailSchema },
     // @ts-ignore
     async (request, reply) => {
-      const ufabcParserConnector = new UfabcParserConnector(request.id);
+      const ufabcParserConnector = new UfabcParserConnector({
+        baseURL: app.config.UFABC_PARSER_URL,
+        requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
+        globalTraceId: request.id,
+      });
       const { ra } = request.query;
 
       try {
