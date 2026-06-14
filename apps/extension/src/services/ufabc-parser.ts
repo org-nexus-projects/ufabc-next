@@ -1,4 +1,3 @@
-import { configureConnectors } from '@next/connectors/config';
 import { UfabcParserConnector, type UFSeasonComponents } from '@next/connectors/ufabc-parser';
 
 export type UFComponent = {
@@ -27,31 +26,15 @@ export type ShallowStudent = {
 	startedAt: string;
 };
 
-try {
-	const baseURL =
-		typeof import.meta !== 'undefined'
-			? (import.meta as any).env?.VITE_UFABC_PARSER_URL
-			: undefined;
+const baseURL = (import.meta as any).env.VITE_UFABC_PARSER_URL as string;
 
-	configureConnectors({
-		ufabcParser: {
-			baseURL: baseURL || "https://ufabc-parser.com",
-			requesterKey: "ufabc-next",
-		},
-	});
-} catch {
-	configureConnectors({
-		ufabcParser: {
-			baseURL: "https://ufabc-parser.com",
-			requesterKey: "ufabc-next",
-		},
-	});
-}
-
-const parser = new UfabcParserConnector();
+const parser = new UfabcParserConnector({
+	baseURL,
+	requesterKey: "ufabc-next",
+});
 
 export async function getUFEnrolled() {
-	const enrolled = await parser.getEnrolledLegacy();
+	const enrolled = await parser.getEnrolled();
 
 	const result: Record<number, string[]> = {};
 	for (const componentId in enrolled) {

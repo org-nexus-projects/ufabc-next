@@ -28,7 +28,8 @@
     "unplugin-auto-import": "catalog:",
     "unplugin-vue-components": "catalog:",
     "vue-router": "^4.5.0",
-    "wxt": "catalog:"
+    "wxt": "catalog:",
+    "zod": "catalog:"
   },
   "dependencies": {
     "@next/connectors": "workspace:*",

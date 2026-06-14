@@ -69,7 +69,10 @@ async function mountUFABCMatriculaFilters(ctx: ContentScriptContext, sessionId: 
       const wrapper = document.createElement("div");
       container.append(wrapper);
 
-      const ufabcParserConnector = new UfabcParserConnector();
+      const ufabcParserConnector = new UfabcParserConnector({
+        baseURL: import.meta.env.VITE_UFABC_PARSER_URL as string,
+        requesterKey: "ufabc-next",
+      });
       const matriculas = await ufabcParserConnector.getEnrolled();
       window.matriculas = matriculas;
       window.sessionId = sessionId;
