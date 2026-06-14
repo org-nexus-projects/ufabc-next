@@ -69,7 +69,11 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
   .handler(async ({ job, app }) => {
     const { globalTraceId, data } = job.data;
     const { componentKey } = data;
-    const ufabcParserConnector = new UfabcParserConnector(globalTraceId);
+    const ufabcParserConnector = new UfabcParserConnector({
+      baseURL: app.config.UFABC_PARSER_URL,
+      requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
+      globalTraceId,
+    });
     const [component] =
       await ufabcParserConnector.getComponents(componentKey);
 

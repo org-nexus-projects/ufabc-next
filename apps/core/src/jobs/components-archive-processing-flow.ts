@@ -6,7 +6,7 @@ import z from 'zod';
 import { MoodleConnector } from '@next/connectors/moodle';
 import { JOB_NAMES } from '@/constants.js';
 
-const connector = new MoodleConnector();
+
 
 const componentSchema = z.object({
   viewurl: z.string().url(),
@@ -32,8 +32,13 @@ export const componentsArchivesProcessingJob = defineJob(
   .handler(async ({ job, app, manager }) => {
     const { component, session } = job.data;
     const globalTraceId = job.data.globalTraceId;
+    const connector = new MoodleConnector({
+      baseURL: app.config.MOODLE_URL,
+      globalTraceId,
+    });
 
     const pdfs = await extractPDFsFromComponent(
+      connector,
       component.viewurl,
       session.sessionId,
       component.id,
@@ -138,6 +143,7 @@ export const archivesSummaryJob = defineJob(
   });
 
 async function extractPDFsFromComponent(
+  connector: MoodleConnector,
   viewurl: string,
   sessionId: string,
   componentId: number,

@@ -8,7 +8,10 @@ import { ComponentModel } from '@/models/Component.js';
 export const enrolledStudentsJob = defineJob(JOB_NAMES.ENROLLED_STUDENTS)
   .handler(async ({ manager, app }) => {
     const tenant = currentQuad();
-    const connector = new UfabcParserConnector();
+    const connector = new UfabcParserConnector({
+      baseURL: app.config.UFABC_PARSER_URL,
+      requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
+    });
     const enrollments = await connector.getEnrolled();
 
     const enrollmentTasks = Object.entries(enrollments).map(
