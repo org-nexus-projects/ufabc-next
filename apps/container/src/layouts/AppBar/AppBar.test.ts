@@ -4,6 +4,7 @@ import { createMockJwt } from '@/mocks/jwt';
 import { user as mockedUser } from '@/mocks/users';
 import { useAuthStore } from '@/stores/auth';
 import { render, screen, userEvent, waitFor } from '@/test-utils';
+import { PERMISSIONS } from '@/utils/consts';
 
 import { AppBar } from '.';
 
@@ -30,6 +31,26 @@ describe('<AppBar />', () => {
     expect(screen.getByText('Snapshot da Matrícula')).toBeInTheDocument();
     expect(screen.getByText('Grupos no WhatsApp')).toBeInTheDocument();
   });
+
+  test('renders announcements navigation item for users with announcements permission', () => {
+    authStore.authenticate(
+      createMockJwt({
+        ...mockedUser,
+        permissions: [PERMISSIONS.ANNOUNCEMENTS],
+      }),
+    );
+
+    render(AppBar);
+
+    expect(screen.getByText('Anúncios')).toBeInTheDocument();
+  });
+
+  test('does not render announcements navigation item without announcements permission', () => {
+    render(AppBar);
+
+    expect(screen.queryByText('Anúncios')).not.toBeInTheDocument();
+  });
+
   test('render theme toggle button', () => {
     render(AppBar);
 

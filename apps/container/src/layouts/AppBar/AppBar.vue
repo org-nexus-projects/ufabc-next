@@ -174,7 +174,7 @@ import { runtimeConfig } from '@/utils/runtimeConfig';
 
 import {
   getExternalNavigationItems,
-  internalNavigationItems as baseInternalItems,
+  getInternalNavigationItems,
 } from './navigation';
 
 const router = useRouter();
@@ -225,8 +225,12 @@ const toggleTheme = () => {
 
 const apiURL = api.defaults.baseURL ?? runtimeConfig.apiBaseUrl;
 
+const permissions = computed(() => authStore.user?.permissions ?? []);
+
 const internalNavigationItems = computed(() =>
-  baseInternalItems.map((item) => ({
+  getInternalNavigationItems({
+    permissions: permissions.value,
+  }).map((item) => ({
     ...item,
     locked: item.locked(Boolean(authStore.user?.confirmed)),
   })),
@@ -236,7 +240,7 @@ const externalNavigationItems = computed(() =>
   getExternalNavigationItems({
     apiURL,
     token: authStore.token,
-    permissions: authStore.user?.permissions ?? [],
+    permissions: permissions.value,
   }),
 );
 </script>

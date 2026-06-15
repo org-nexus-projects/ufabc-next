@@ -10,6 +10,7 @@ import {
   shouldUseLocalLogin,
 } from '@/router/auth/authConfig';
 import { useAuthStore } from '@/stores/auth';
+import { PERMISSIONS } from '@/utils/consts';
 import { isUserTokenExpired, isValidJwtFormat } from '@/utils/jwt';
 
 const ReviewsView = () => import('@/views/Reviews/ReviewsView.vue');
@@ -27,7 +28,17 @@ const LoginView = () => import('@/views/Login/LoginView.vue');
 const CalengradeView = () => import('@/views/Calengrade/CalengradeView.vue');
 const WhatsappGroupsView = () =>
   import('@/views/WhatsappGroups/WhatsappGroupsView.vue');
+const AnnouncementsView = () =>
+  import('@/views/Announcements/AnnouncementsView.vue');
 const HelpView = () => import('@/views/Help/HelpView.vue');
+
+const hasAnyPermission = (
+  userPermissions: string[] | undefined,
+  requiredPermissions: string[],
+) =>
+  requiredPermissions.some((permission) =>
+    userPermissions?.includes(permission),
+  );
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -143,6 +154,22 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       title: 'Grupos do Whatsapp',
       layout: 'include-sidebar',
+    },
+  },
+  {
+    path: '/announcements',
+    name: 'announcements',
+    component: AnnouncementsView,
+    meta: {
+      title: 'Anúncios',
+      layout: 'include-sidebar',
+      requiresAuth: true,
+      requiresConfirmed: true,
+      permissions: [
+        PERMISSIONS.ADMIN,
+        PERMISSIONS.ANNOUNCEMENTS,
+        PERMISSIONS.ANNOUNCEMENTS_BCC,
+      ],
     },
   },
   {
@@ -298,15 +325,27 @@ function resolveRouteAccess(to: RouteLocationNormalized) {
   const unconfirmedOnly = to.matched.some(
     (record) => record.meta.unconfirmedOnly === true,
   );
+  const requiredPermissions = to.matched.flatMap(
+    (record) => record.meta.permissions ?? [],
+  );
+  const requiresPermission = requiredPermissions.length > 0;
 
-  if (requiresConfirmed) {
+  if (requiresConfirmed || requiresAuth || requiresPermission) {
     if (!isLoggedIn) return redirectToStaticRootIfProduction();
-    if (!isConfirmed) return { name: 'signup' };
-    return;
   }
 
-  if (requiresAuth) {
-    if (!isLoggedIn) return redirectToStaticRootIfProduction();
+  if (requiresConfirmed && !isConfirmed) {
+    return { name: 'signup' };
+  }
+
+  if (
+    requiresPermission &&
+    !hasAnyPermission(authStore.user?.permissions, requiredPermissions)
+  ) {
+    return { path: authenticatedRedirectPath };
+  }
+
+  if (requiresConfirmed || requiresAuth || requiresPermission) {
     return;
   }
 

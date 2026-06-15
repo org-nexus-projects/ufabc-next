@@ -15,3 +15,9 @@ export const extensionURL =
 
 export const studentRecordURL =
   'https://sig.ufabc.edu.br/sigaa/portais/discente/discente.jsf';
+
+export const PERMISSIONS = {
+  ADMIN: 'admin',
+  ANNOUNCEMENTS: 'announcements',
+  ANNOUNCEMENTS_BCC: 'announcements-bcc',
+};

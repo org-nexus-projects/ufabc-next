@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
 
+import { PERMISSIONS } from '@/utils/consts';
+
 export type InternalNavItem = {
   title: string;
   icon: string;
@@ -13,6 +15,15 @@ export type ExternalNavItem = {
   icon: string;
   url: string;
 };
+
+const hasAdminPermission = (permissions: string[]) =>
+  permissions.includes(PERMISSIONS.ADMIN);
+
+const hasAccessToAnnouncements = (permissions: string[]) =>
+  hasAdminPermission(permissions) ||
+  permissions.some((permission) =>
+    permission.includes(PERMISSIONS.ANNOUNCEMENTS),
+  );
 
 export const internalNavigationItems: InternalNavItem[] = [
   {
@@ -67,6 +78,25 @@ export const internalNavigationItems: InternalNavItem[] = [
   },
 ];
 
+export const getInternalNavigationItems = ({
+  permissions,
+}: {
+  permissions: string[];
+}): InternalNavItem[] => [
+  ...internalNavigationItems.slice(0, 5),
+  ...(hasAccessToAnnouncements(permissions)
+    ? [
+        {
+          title: 'Anúncios',
+          icon: 'mdi-bullhorn',
+          route: '/announcements',
+          locked: () => false,
+        },
+      ]
+    : []),
+  ...internalNavigationItems.slice(5),
+];
+
 export const getExternalNavigationItems = ({
   apiURL,
   token,
@@ -91,7 +121,7 @@ export const getExternalNavigationItems = ({
     icon: 'mdi-download',
     url: 'https://chrome.google.com/webstore/detail/ufabc-next/gphjopenfpnlnffmhhhhdiecgdcopmhk',
   },
-  ...(permissions.includes('admin')
+  ...(hasAdminPermission(permissions)
     ? [
         {
           title: 'Monitoramento de Jobs',
@@ -100,7 +130,7 @@ export const getExternalNavigationItems = ({
         },
       ]
     : []),
-  ...(permissions.includes('admin')
+  ...(hasAdminPermission(permissions)
     ? [
         {
           title: 'Monitoramento de Jobs V2',
