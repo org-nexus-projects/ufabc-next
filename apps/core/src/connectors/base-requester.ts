@@ -8,7 +8,7 @@ import {
   TRACING_DIRECTION,
   TRACING_MESSAGES,
 } from '@/constants.js';
-import { logger as defaultLogger } from '@/logger.js';
+import { logger as defaultLogger } from '@/utils/logger.js';
 
 export class BaseRequester {
   protected readonly requester: ReturnType<typeof ofetch.create>;
