@@ -16,24 +16,25 @@ export class CommunicationsConnector extends BaseRequester {
   constructor(baseURL: string, traceId?: string) {
     if (communicationsConnectorInstance) {
       return communicationsConnectorInstance;
-    };
+    }
 
     super({ baseURL, globalTraceId: traceId });
     communicationsConnectorInstance = this;
   }
 
-  async sendAnnouncement(
-    params: SendAnnouncementParams
-  ) {
+  async sendAnnouncement(params: SendAnnouncementParams) {
     const { courseIdentifier, season, message } = params;
 
-    return this.request<SendAnnouncementResponse>('/groups/announcements', {
-      method: 'POST',
-      body: {
-        courseIdentifier,
-        season,
-        message,
-      },
-    });
+    return await this.request<SendAnnouncementResponse>(
+      '/groups/announcements',
+      {
+        body: {
+          courseIdentifier,
+          message,
+          season,
+        },
+        method: 'POST',
+      }
+    );
   }
 }

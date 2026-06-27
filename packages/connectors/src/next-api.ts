@@ -2,7 +2,6 @@ import { BaseRequester } from './base-requester.ts';
 import type {
   Comment,
   Component,
-  CourseInformation,
   CourseName,
   CrDistributionData,
   EmailResponse,
@@ -44,121 +43,121 @@ export class NextApiConnector extends BaseRequester {
     super({ ...options, component: 'next-api' });
   }
 
-  completeSignup(data: { email: string; ra: number }) {
-    return this.request<UserConfirmResponse>('/users/complete', {
+   async completeSignup(data: { email: string; ra: number }) {
+    return await this.request<UserConfirmResponse>('/users/complete', {
+      body: data,
       method: 'PUT',
-      body: data,
     });
   }
 
-  confirmSignup(token: string) {
-    return this.request<UserConfirmResponse>('/users/confirm', {
-      method: 'POST',
+   async confirmSignup(token: string) {
+    return await this.request<UserConfirmResponse>('/users/confirm', {
       body: { token },
+      method: 'POST',
     });
   }
 
-  resendEmail() {
-    return this.request('/users/resend', { method: 'POST' });
+   async resendEmail() {
+    return await this.request('/users/resend', { method: 'POST' });
   }
 
-  recovery(email: string) {
-    return this.request('/users/recover', {
-      method: 'POST',
+   async recovery(email: string) {
+    return await this.request('/users/recover', {
       body: { email },
-    });
-  }
-
-  deleteUser() {
-    return this.request('/users/remove', { method: 'DELETE' });
-  }
-
-  getUserInfo() {
-    return this.request<User>('/users/info');
-  }
-
-  facebookAuth(data: FacebookAuth) {
-    return this.request<UserConfirmResponse>('/users/facebook', {
       method: 'POST',
-      body: data,
     });
   }
 
-  getEmail(ra: string) {
-    return this.request<EmailResponse>('/users/check-email', {
+   async deleteUser() {
+    return await this.request('/users/remove', { method: 'DELETE' });
+  }
+
+   async getUserInfo() {
+    return await this.request<User>('/users/info');
+  }
+
+   async facebookAuth(data: FacebookAuth) {
+    return await this.request<UserConfirmResponse>('/users/facebook', {
+      body: data,
+      method: 'POST',
+    });
+  }
+
+   async getEmail(ra: string) {
+    return await this.request<EmailResponse>('/users/check-email', {
       query: { ra },
     });
   }
 
-  getWhatsappToken(token: string, component?: string | string[]) {
-    return this.request<WhatsappTokenResponse>('/v2/auth/whatsapp-token', {
+   async getWhatsappToken(token: string, component?: string | string[]) {
+    return await this.request<WhatsappTokenResponse>('/v2/auth/whatsapp-token', {
+      body: { component, token },
       method: 'POST',
-      body: { token, component },
     });
   }
 
-  getComments(teacherId: string, subjectId: string, pageParam = 0) {
-    return this.request<GetCommentResponse>(`/comments/${teacherId}/${subjectId}`, {
-      query: { page: pageParam, limit: 10 },
+   async getComments(teacherId: string, subjectId: string, pageParam = 0) {
+    return await this.request<GetCommentResponse>(`/comments/${teacherId}/${subjectId}`, {
+      query: { limit: 10, page: pageParam },
     });
   }
 
-  getUserComment(enrollmentId: string) {
-    return this.request<Comment>(`/comments/enrollment/${enrollmentId}`);
+   async getUserComment(enrollmentId: string) {
+    return await this.request<Comment>(`/comments/enrollment/${enrollmentId}`);
   }
 
-  createComment(data: { comment: string; enrollment: string; type: string }) {
-    return this.request<Comment>('/comments/', {
-      method: 'POST',
+   async createComment(data: { comment: string; enrollment: string; type: string }) {
+    return await this.request<Comment>('/comments/', {
       body: data,
-    });
-  }
-
-  updateComment(id: string, comment: string) {
-    return this.request<Comment>(`/comments/${id}`, {
-      method: 'PUT',
-      body: { comment },
-    });
-  }
-
-  deleteComment(id: string) {
-    return this.request(`/comments/${id}`, { method: 'DELETE' });
-  }
-
-  createReaction(commentId: string, kind: ReactionKind) {
-    return this.request(`/comments/reactions/${commentId}`, {
       method: 'POST',
-      body: { kind },
     });
   }
 
-  deleteReaction(commentId: string, kind: ReactionKind) {
-    return this.request(`/comments/reactions/${commentId}/${kind}`, {
+   async updateComment(id: string, comment: string) {
+    return await this.request<Comment>(`/comments/${id}`, {
+      body: { comment },
+      method: 'PUT',
+    });
+  }
+
+   async deleteComment(id: string) {
+    return await this.request(`/comments/${id}`, { method: 'DELETE' });
+  }
+
+   async createReaction(commentId: string, kind: ReactionKind) {
+    return await this.request(`/comments/reactions/${commentId}`, {
+      body: { kind },
+      method: 'POST',
+    });
+  }
+
+   async deleteReaction(commentId: string, kind: ReactionKind) {
+    return await this.request(`/comments/reactions/${commentId}/${kind}`, {
       method: 'DELETE',
     });
   }
 
-  listEnrollments() {
-    return this.request<Enrollment[]>('/entities/enrollments');
+   async listEnrollments() {
+    return await this.request<Enrollment[]>('/entities/enrollments');
   }
 
-  getEnrollment(id: string) {
-    return this.request<Enrollment>(`/entities/enrollments/${id}`);
+   async getEnrollment(id: string) {
+    return await this.request<Enrollment>(`/entities/enrollments/${id}`);
   }
 
-  getEnrollmentsWithWhatsapp(params?: { ra?: number; season?: string }) {
-    return this.request<Enrollment[]>('/entities/enrollments/wpp', {
+   async getEnrollmentsWithWhatsapp(params?: { ra?: number; season?: string }) {
+    return await this.request<Enrollment[]>('/entities/enrollments/wpp', {
       query: params,
     });
   }
 
-  getStudent(login: string, sessionId: string) {
-    return this.request<MatriculaStudent>('/v2/students', {
+   async getStudent(login: string, sessionId: string) {
+    return await this.request<MatriculaStudent>('/v2/students', {
       headers: { login, 'session-id': sessionId },
     });
   }
 
-  syncMatriculaStudent(
+   async syncMatriculaStudent(
     sessionId: string,
     data: {
       login?: string;
@@ -166,14 +165,14 @@ export class NextApiConnector extends BaseRequester {
       graduationId?: number;
     }
   ) {
-    return this.request('/v2/students', {
-      method: 'PUT',
+    return await this.request('/v2/students', {
       body: data,
       headers: { 'session-id': sessionId },
+      method: 'PUT',
     });
   }
 
-  updateStudent(
+   async updateStudent(
     data: {
       login: string;
       ra: string;
@@ -182,112 +181,116 @@ export class NextApiConnector extends BaseRequester {
     },
     sessionId: string
   ) {
-    return this.request<UpdatedStudent>('/entities/students', {
-      method: 'PUT',
+    return await this.request<UpdatedStudent>('/entities/students', {
       body: data,
       headers: { 'session-id': sessionId },
+      method: 'PUT',
     });
   }
 
-  syncSigaaStudent(
+   async syncSigaaStudent(
     data: { login: string; ra: number },
     sessionId: string,
     viewId: string
   ) {
-    return this.request('/v2/students/sigaa', {
-      method: 'POST',
+    return await this.request('/v2/students/sigaa', {
       body: data,
       headers: { 'session-id': sessionId, 'view-id': viewId },
+      method: 'POST',
     });
   }
 
-  getSigStudent(data: SigStudent, sessionId: string) {
-    return this.request('/entities/students/sig', {
-      method: 'POST',
+   async getSigStudent(data: SigStudent, sessionId: string) {
+    return await this.request('/entities/students/sig', {
       body: data,
       headers: { 'session-id': sessionId },
+      method: 'POST',
     });
   }
 
-  searchComponents(season?: string) {
-    return this.request<SearchComponentItem[]>('/v2/components', {
-      query: season ? { season } : undefined,
+   async searchComponents(season?: string) {
+     const query: Record<string, string> = {}
+     if (season != undefined) {
+      query.season = season
+     }
+     return await this.request<SearchComponentItem[]>('/v2/components', {
+      query,
     });
   }
 
-  getEntityComponents() {
-    return this.request<Component[]>('/entities/components');
+   async getEntityComponents() {
+    return await this.request<Component[]>('/entities/components');
   }
 
-  getComponentKicks(
+   async getComponentKicks(
     componentId: string,
     params?: { sort?: string; season?: string; studentId?: number }
   ) {
-    return this.request(`/entities/components/${componentId}/kicks`, {
+    return await this.request(`/entities/components/${componentId}/kicks`, {
       query: params,
     });
   }
 
-  getComponentArchives(sessionId: string, sessKey: string) {
-    return this.request('/v2/components/archives', {
-      headers: { 'session-id': sessionId, 'sess-key': sessKey },
+   async getComponentArchives(sessionId: string, sessKey: string) {
+    return await this.request('/v2/components/archives', {
+      headers: { 'sess-key': sessKey, 'session-id': sessionId },
     });
   }
 
-  triggerComponentArchiveProcessing(sessionId: string, sessKey: string) {
-    return this.request('/v2/components/archives', {
+   async triggerComponentArchiveProcessing(sessionId: string, sessKey: string) {
+    return await this.request('/v2/components/archives', {
+      headers: { 'sess-key': sessKey, 'session-id': sessionId },
       method: 'POST',
-      headers: { 'session-id': sessionId, 'sess-key': sessKey },
     });
   }
 
-  getComponentUploads() {
-    return this.request('/v2/components/archives/uploads');
+   async getComponentUploads() {
+    return await this.request('/v2/components/archives/uploads');
   }
 
-  getTeachers() {
-    return this.request<Array<{ name: string; alias: string[] }>>('/entities/teachers/');
+   async getTeachers() {
+    return await this.request<Array<{ name: string; alias: string[] }>>('/entities/teachers/');
   }
 
-  createTeachers(names: string[]) {
-    return this.request('/entities/teachers/', {
-      method: 'POST',
+   async createTeachers(names: string[]) {
+    return await this.request('/entities/teachers/', {
       body: { names },
+      method: 'POST',
     });
   }
 
-  updateTeacher(teacherId: string, alias: string) {
-    return this.request(`/entities/teachers/${teacherId}`, {
-      method: 'PUT',
+   async updateTeacher(teacherId: string, alias: string) {
+    return await this.request(`/entities/teachers/${teacherId}`, {
       body: { alias },
+      method: 'PUT',
     });
   }
 
-  searchTeachers(q: string) {
-    return this.request<SearchTeacher>('/entities/teachers/search', {
+   async searchTeachers(q: string) {
+    return await this.request<SearchTeacher>('/entities/teachers/search', {
       query: { q },
     });
   }
 
-  getTeacherReviews(teacherId: string) {
-    return this.request<TeacherReview>(`/entities/teachers/reviews/${teacherId}`);
+   async getTeacherReviews(teacherId: string) {
+    return await this.request<TeacherReview>(`/entities/teachers/reviews/${teacherId}`);
   }
 
-  getSubjects(params: { limit: number; page: number }) {
-    return this.request('/entities/subjects/', { query: params });
+   async getSubjects(params: { limit: number; page: number }) {
+    return await this.request('/entities/subjects/', { query: params });
   }
 
-  searchSubjects(q: string) {
-    return this.request<SearchSubject>('/entities/subjects/search', {
+   async searchSubjects(q: string) {
+    return await this.request<SearchSubject>('/entities/subjects/search', {
       query: { q },
     });
   }
 
-  getSubjectReviews(subjectId: string) {
-    return this.request<SubjectInfo>(`/entities/subjects/reviews/${subjectId}`);
+   async getSubjectReviews(subjectId: string) {
+    return await this.request<SubjectInfo>(`/entities/subjects/reviews/${subjectId}`);
   }
 
-  getStatsClasses(params: {
+   async getStatsClasses(params: {
     season: string;
     page?: number;
     deficit?: number;
@@ -296,90 +299,90 @@ export class NextApiConnector extends BaseRequester {
     requisicoes?: number;
     turno?: string;
   }) {
-    return this.request<StatsClass[]>('public/stats/components', {
+    return await this.request<StatsClass[]>('public/stats/components', {
       query: params,
     });
   }
 
-  getStatsCourses(params: { season: string; page?: number }) {
-    return this.request<StatsCourse[]>('public/stats/components/courses', {
+   async getStatsCourses(params: { season: string; page?: number }) {
+    return await this.request<StatsCourse[]>('public/stats/components/courses', {
       query: params,
     });
   }
 
-  getStatsSubjects(params: { season: string; page?: number }) {
-    return this.request<StatsSubject[]>('public/stats/components/component', {
+   async getStatsSubjects(params: { season: string; page?: number }) {
+    return await this.request<StatsSubject[]>('public/stats/components/component', {
       query: params,
     });
   }
 
-  getStatsCourseNames() {
-    return this.request<CourseName[]>('/histories/courses');
+   async getStatsCourseNames() {
+    return await this.request<CourseName[]>('/histories/courses');
   }
 
-  getStatsOverview(params: { season: string }) {
-    return this.request<StatsOverview>('public/stats/components/overview', {
+   async getStatsOverview(params: { season: string }) {
+    return await this.request<StatsOverview>('public/stats/components/overview', {
       query: params,
     });
   }
 
-  getStatsUsage(params: { season: string }) {
-    return this.request<StatsUsage>('public/stats/usage', {
+   async getStatsUsage(params: { season: string }) {
+    return await this.request<StatsUsage>('public/stats/usage', {
       query: params,
     });
   }
 
-  getCrHistory() {
-    return this.request<QuadInformation[]>('courseStats/history');
+   async getCrHistory() {
+    return await this.request<QuadInformation[]>('courseStats/history');
   }
 
-  getCrDistribution() {
-    return this.request<CrDistributionData[]>('courseStats/grades');
+   async getCrDistribution() {
+    return await this.request<CrDistributionData[]>('courseStats/grades');
   }
 
-  getHistoriesGraduations() {
-    return this.request<HistoriesGraduations>('/courseStats/user/grades');
+   async getHistoriesGraduations() {
+    return await this.request<HistoriesGraduations>('/courseStats/user/grades');
   }
 
-  syncHistory(
+   async syncHistory(
     sessionId: string,
     viewState: string,
     data: { login: string; ra: string }
   ) {
-    return this.request('/histories', {
-      method: 'POST',
+    return await this.request('/histories', {
       body: data,
       headers: { 'session-id': sessionId, 'view-state': viewState },
+      method: 'POST',
     });
   }
 
-  sendResults(sessionId: string, sessKey: string) {
-    return this.request<{ msg: string }>('/v2/components/archives', {
+   async sendResults(sessionId: string, sessKey: string) {
+    return await this.request<{ msg: string }>('/v2/components/archives', {
+      headers: { 'sess-key': sessKey, 'session-id': sessionId },
       method: 'POST',
-      headers: { 'session-id': sessionId, 'sess-key': sessKey },
     });
   }
 
-  sendHelpForm(formData: FormData) {
-    return this.request<HelpFormResult>('/help/form', {
-      method: 'POST',
+   async sendHelpForm(formData: FormData) {
+    return await this.request<HelpFormResult>('/help/form', {
       body: formData,
+      method: 'POST',
     });
   }
 
-  searchWhatsappComponents(season: string) {
-    return this.request<SearchComponentItem[]>('v2/components', {
+   async searchWhatsappComponents(season: string) {
+    return await this.request<SearchComponentItem[]>('v2/components', {
       query: { season },
     });
   }
 
-  getWhatsappComponentsByUser(params: { ra?: number; season?: string }) {
-    return this.request<SearchComponentItem[]>('entities/enrollments/wpp', {
+   async getWhatsappComponentsByUser(params: { ra?: number; season?: string }) {
+    return await this.request<SearchComponentItem[]>('entities/enrollments/wpp', {
       query: params,
     });
   }
 
-  getWhatsappCourses() {
-    return this.request<SearchCourseItem[]>('/components/curriculum/subjects');
+   async getWhatsappCourses() {
+    return await this.request<SearchCourseItem[]>('/components/curriculum/subjects');
   }
 }

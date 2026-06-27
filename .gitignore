@@ -60,3 +60,5 @@ components.d.ts
 apps/extension/.env.submit
 apps/extension/.env.*
 .opencode
+
+skills-lock.json
