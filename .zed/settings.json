@@ -7,6 +7,7 @@
       },
       "language_servers": [
         "tsgo",
+        "oxlint",
         "!vtsls",
         "!typescript-language-server"
       ],
@@ -150,6 +151,10 @@
       "prettier": {
         "allowed": false
       },
+      "language_servers": [
+        "vtsls",
+        "oxlint"
+      ],
       "formatter": {
         "language_server": {
           "name": "oxfmt"
@@ -166,7 +171,8 @@
         "allowed": false
       },
       "language_servers": [
-        "vtsls"
+        "vtsls",
+        "oxlint"
       ],
       "formatter": {
         "language_server": {

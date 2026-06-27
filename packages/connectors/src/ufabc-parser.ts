@@ -80,11 +80,15 @@ export class UfabcParserConnector extends BaseRequester {
   private readonly requesterKey: string;
 
   constructor(
-    baseURL: string,
-    requesterKey: string,
-    traceId?: string
+    {
+      baseURL, traceId, requesterKey
+    }: {
+      baseURL: string;
+      traceId: string;
+      requesterKey: string;
+    }
   ) {
-    super({ baseURL, globalTraceId: traceId, component: 'ufabc-parser' });
+    super({ baseURL, component: 'ufabc-parser', globalTraceId: traceId });
     this.requesterKey = requesterKey;
   }
 
@@ -93,9 +97,9 @@ export class UfabcParserConnector extends BaseRequester {
       '/enrollments',
       {
         query: {
+          granted: true,
           kind,
           season,
-          granted: true,
         },
       }
     );
@@ -142,8 +146,8 @@ export class UfabcParserConnector extends BaseRequester {
     const response = await this.request<{
       message: string;
     }>('/v2/students', {
-      method: 'POST',
       headers,
+      method: 'POST',
     });
     return response;
   }
@@ -169,18 +173,18 @@ export class UfabcParserConnector extends BaseRequester {
     } catch (error: any) {
       if (error.status === 404) {
         throw new UfabcParserError({
-          status: 404,
           code: 'UFP0015',
-          title: 'Student not found',
           description: 'O RA digitado não existe.',
+          status: 404,
+          title: 'Student not found',
         });
       }
       if (error.status === 403) {
         throw new UfabcParserError({
-          status: 403,
           code: 'UFP0031',
-          title: 'Teacher contract',
           description: 'O aluno não pode ter contrato com a UFABC.',
+          status: 403,
+          title: 'Teacher contract',
         });
       }
       throw error;
@@ -217,9 +221,9 @@ export class UfabcParserConnector extends BaseRequester {
 
     try {
       await this.request(`/v2/teachers/routines/configure/manual`, {
+        body: teachers,
         headers,
         method: 'POST',
-        body: teachers,
       });
     } catch (error: any) {
       throw error;
