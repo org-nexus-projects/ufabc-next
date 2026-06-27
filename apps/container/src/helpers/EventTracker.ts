@@ -2,6 +2,7 @@ import type { User } from '@next/services';
 import mixpanel from 'mixpanel-browser';
 
 import type { WebEvent } from './WebEvent';
+import { logger } from '@/utils/logger';
 
 // todo: improve error handling
 const MIXPANEL_TOKEN = import.meta.env.VITE_MIXPANEL_TOKEN || '';
@@ -11,7 +12,7 @@ class EventTracker {
 
   public init() {
     if (!MIXPANEL_TOKEN) {
-      console.warn('Mixpanel token not found or invalid. Tracking disabled.');
+      logger.warn('Mixpanel token not found or invalid. Tracking disabled.');
       return;
     }
 

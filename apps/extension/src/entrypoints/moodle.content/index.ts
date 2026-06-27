@@ -1,5 +1,6 @@
 import { sendResults } from '@/services/next';
 import { sendMessage } from '@/messaging';
+import { logger } from '@/utils/logger';
 
 export default defineContentScript({
   async main() {
@@ -15,7 +16,7 @@ export default defineContentScript({
       await sendResults(results);
 
     } catch (error) {
-      console.error('[Moodle] Erro ao fazer scraping:', error);
+      logger.error({ error }, '[Moodle] Erro ao fazer scraping');
     }
   },
 
@@ -30,12 +31,12 @@ async function getToken() {
       pageURL: document.URL
     })
     if (!token) {
-      console.error('Could not retrieve token, please try again')
+      logger.error('Could not retrieve token, please try again')
       return null
     }
     return token.value;
   } catch (error) {
-    console.error("Failed to get MoodleSession from background script:", error);
+    logger.error({ error }, "Failed to get MoodleSession from background script");
     return null;
   }
 }
@@ -48,7 +49,7 @@ async function getSessKey(): Promise<string | null> {
 
     return typeof sesskey === 'undefined' ? null : sesskey;
   } catch (error) {
-    console.error('Erro ao extrair sesskey do HTML:', error);
+    logger.error({ error }, 'Erro ao extrair sesskey do HTML');
     return null;
   }
 }

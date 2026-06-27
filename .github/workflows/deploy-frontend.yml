@@ -19,6 +19,8 @@ jobs:
     env:
       MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
       VITE_MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
+      VITE_AXIOM_TOKEN: ${{ secrets.WEB_AXIOM_INGEST_TOKEN }}
+      VITE_AXIOM_DATASET: ${{ secrets.WEB_AXIOM_DATASET }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: us-east-1

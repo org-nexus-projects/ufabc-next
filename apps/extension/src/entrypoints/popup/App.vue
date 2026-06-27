@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { Loader2 } from 'lucide-vue-next'
 import { useStorage } from '@/composables/useStorage'
+import { logger } from '@/utils/logger'
 import { useQuery } from '@tanstack/vue-query'
 import { getStudent, type MatriculaStudent } from '@/services/next'
 
 const { state: student, isLoading: loading, error } = useStorage<{ ra: string; login: string }>('local:student')
 
-console.log(student.value)
+logger.info({ student: student.value }, 'Popup student loaded')
 
 const {
   data: studentCoefficients,

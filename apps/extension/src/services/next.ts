@@ -1,5 +1,6 @@
 import { ofetch } from "ofetch";
 import type { Student } from "./ufabc-parser";
+import { logger } from "@/utils/logger";
 
 export type SigHistory = {
   ra: string;
@@ -188,7 +189,7 @@ export async function syncHistoryV2(data: SyncHistory) {
 
 export async function sendResults(results: { sessionToken: string | null; sessKey: string | null }) {
   if (!results.sessionToken || !results.sessKey) {
-    console.warn("[sendResults] Token de sessão ou sessKey inválido(s), abortando envio.");
+    logger.warn(results, "[sendResults] Token de sessão ou sessKey inválido(s), abortando envio.");
     return;
   }
 
@@ -203,7 +204,7 @@ export async function sendResults(results: { sessionToken: string | null; sessKe
     });
     return response;
   } catch (error) {
-    console.error("[sendResults] Erro ao enviar dados:", error);
+    logger.error({ error }, "[sendResults] Erro ao enviar dados");
   }
 }
 

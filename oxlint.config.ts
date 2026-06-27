@@ -41,12 +41,18 @@ export default defineConfig({
       env: {
         browser: true,
       },
+      rules: {
+        "unicorn/filename-case": "off",
+      },
     },
     {
       files: ["apps/extension/**/*.ts", "apps/extension/**/*.vue"],
       env: {
         webextensions: true,
         browser: true,
+      },
+      rules: {
+        "unicorn/filename-case": "off",
       },
     },
     {

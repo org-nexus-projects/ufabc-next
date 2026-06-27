@@ -5,6 +5,7 @@ import { scrapeMenu } from "@/scripts/sig/homepage";
 import { syncHistoryV2 } from "@/services/next";
 import { processingToast, errorToast, successToast } from "@/utils/toasts";
 import { sendMessage } from "@/messaging";
+import { logger } from "@/utils/logger";
 
 export default defineContentScript({
   async main() {
@@ -42,7 +43,7 @@ export default defineContentScript({
         });
         successToast.showToast();
       } catch (error) {
-        console.error("Student data processing failed:", error);
+        logger.error({ error }, "Student data processing failed");
         errorToast.showToast();
       } finally {
         processingToast.hideToast();
@@ -60,12 +61,12 @@ async function getToken() {
       pageURL: document.URL,
     });
     if (!token) {
-      console.error("Could not retrieve token, please try again");
+      logger.error("Could not retrieve token, please try again");
       return null;
     }
     return token.value;
   } catch (error) {
-    console.error("Failed to get JSESSIONID from background script:", error);
+    logger.error({ error }, "Failed to get JSESSIONID from background script");
     return null;
   }
 }

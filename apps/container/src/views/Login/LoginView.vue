@@ -12,11 +12,7 @@ const googleAuthUrl = computed(() =>
   <v-container fluid class="login-view pa-4 pa-md-8">
     <section class="login-card" aria-label="Login UFABC Next">
       <div class="brand-panel">
-        <img
-          class="brand-logo"
-          src="@/assets/logo.svg"
-          alt="logo do UFABC Next"
-        />
+        <img class="brand-logo" src="@/assets/logo.svg" alt="logo do UFABC Next" />
         <div class="brand-curves" aria-hidden="true" />
       </div>
 
@@ -26,15 +22,8 @@ const googleAuthUrl = computed(() =>
           <h1 class="auth-title">Bem-vindo(a)!</h1>
           <p class="auth-subtitle">Entre com sua conta institucional</p>
 
-          <v-btn
-            class="google-login-button"
-            color="primary"
-            rounded="lg"
-            size="x-large"
-            tag="a"
-            :href="googleAuthUrl"
-            aria-label="Entrar com Google"
-          >
+          <v-btn class="google-login-button" color="primary" rounded="lg" size="x-large" tag="a" :href="googleAuthUrl"
+            aria-label="Entrar com Google">
             <span class="google-icon-chip" aria-hidden="true">
               <img class="google-icon" src="@/assets/google-logo.png" alt="" />
             </span>
@@ -87,13 +76,11 @@ const googleAuthUrl = computed(() =>
   width: 78%;
   aspect-ratio: 1 / 1;
   opacity: 0.8;
-  background: repeating-radial-gradient(
-    circle at 0% 100%,
-    transparent 0,
-    transparent 24px,
-    rgba(59, 130, 246, 0.12) 24px,
-    rgba(59, 130, 246, 0.12) 26px
-  );
+  background: repeating-radial-gradient(circle at 0% 100%,
+      transparent 0,
+      transparent 24px,
+      rgba(59, 130, 246, 0.12) 24px,
+      rgba(59, 130, 246, 0.12) 26px);
   clip-path: inset(0 0 0 0 round 0 100% 0 0);
   pointer-events: none;
 }
