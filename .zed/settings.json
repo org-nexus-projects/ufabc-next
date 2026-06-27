@@ -8,6 +8,7 @@
       "language_servers": [
         "tsgo",
         "oxlint",
+        "oxfmt",
         "!vtsls",
         "!typescript-language-server"
       ],
@@ -153,7 +154,8 @@
       },
       "language_servers": [
         "vtsls",
-        "oxlint"
+        "oxlint",
+        "oxfmt"
       ],
       "formatter": {
         "language_server": {
@@ -172,7 +174,8 @@
       },
       "language_servers": [
         "vtsls",
-        "oxlint"
+        "oxlint",
+        "oxfmt"
       ],
       "formatter": {
         "language_server": {
@@ -235,9 +238,7 @@
       "initialization_options": {
         "settings": {
           "fmt.configPath": null,
-          "fmt.experimental": true,
-          "run": "onSave",
-          "typeAware": true
+          "run": "onSave"
         }
       }
     }

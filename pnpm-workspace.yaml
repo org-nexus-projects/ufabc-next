@@ -101,8 +101,8 @@ catalog:
   mustache: ^4.2.0
   nock: ^14.0.10
   ofetch: ^1.4.0
-  oxfmt: ^0.22.0
-  oxlint: ^1.37.0
+  oxfmt: ^0.56.0
+  oxlint: ^1.71.0
   oxlint-tsgolint: ^0.23.0
   pinia: ^3.0.3
   pinia-plugin-persistedstate: ^4.5.0
