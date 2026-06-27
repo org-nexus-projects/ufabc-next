@@ -1,4 +1,4 @@
-import { BaseRequester } from './base-requester.js';
+import { BaseRequester } from './base-requester.ts';
 import type {
   Comment,
   Component,
@@ -30,7 +30,7 @@ import type {
   User,
   UserConfirmResponse,
   WhatsappTokenResponse,
-} from './schemas/next-api.js';
+} from './schemas/next-api.ts';
 
 export type NextApiConnectorOptions = {
   baseURL: string;

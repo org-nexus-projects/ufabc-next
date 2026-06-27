@@ -1,6 +1,6 @@
 import { type FetchOptions, type FetchRequest, ofetch } from 'ofetch';
 
-import { MAX_LOG_SIZE, TRACING_DIRECTION, TRACING_MESSAGES } from './constants.js';
+import { MAX_LOG_SIZE, TRACING_DIRECTION, TRACING_MESSAGES } from './constants.ts';
 
 type LogFn = (obj: unknown, msg?: string) => void;
 

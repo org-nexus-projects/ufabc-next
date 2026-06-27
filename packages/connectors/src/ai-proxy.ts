@@ -1,4 +1,4 @@
-import { BaseRequester } from './base-requester.js';
+import { BaseRequester } from './base-requester.ts';
 
 type Files = {
   url: string;

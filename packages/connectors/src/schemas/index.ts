@@ -1,3 +1,3 @@
-export * from './next-api.js';
-export * from './ufabc-parser.js';
-export * from './moodle.js';
+export * from './next-api.ts';
+export * from './ufabc-parser.ts';
+export * from './moodle.ts';

@@ -4,7 +4,7 @@ import {
   type S3Client,
 } from '@aws-sdk/client-s3';
 
-import { BaseAWSConnector } from './base-aws-connector.js';
+import { BaseAWSConnector } from './base-aws-connector.ts';
 
 let s3ConnectorInstance: S3Connector | null = null;
 

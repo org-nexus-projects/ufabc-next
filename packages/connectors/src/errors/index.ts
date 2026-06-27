@@ -1,1 +1,1 @@
-export { UfabcParserError } from './ufabc-parser.js';
+export { UfabcParserError } from './ufabc-parser.ts';
