@@ -1,9 +1,8 @@
-import { onMessage } from "@/messaging";
+import { onMessage } from '@/messaging';
 
 export default defineBackground(() => {
-	// @ts-expect-error: setAccessLevel not typed
 	browser.storage.session.setAccessLevel({
-		accessLevel: "TRUSTED_AND_UNTRUSTED_CONTEXTS",
+		accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS',
 	});
 
   onMessage('getToken', async ({ data }) => {

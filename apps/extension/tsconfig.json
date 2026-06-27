@@ -1,16 +1,3 @@
 {
   "extends": "./.wxt/tsconfig.json",
-  "compilerOptions": {
-    "strictNullChecks": true
-  },
-  "include": [
-    "../src/**/*",
-    "../../packages/connectors/src/**/*",
-    "../.wxt/wxt.d.ts"
-  ],
-  "exclude": [
-    "../../packages/connectors/src/base-aws-connector.ts",
-    "../../packages/connectors/src/s3-connector.ts",
-    "../../packages/connectors/src/moodle.ts"
-  ]
 }

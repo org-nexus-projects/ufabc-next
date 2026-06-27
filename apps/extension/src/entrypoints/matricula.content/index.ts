@@ -5,7 +5,7 @@ import HighchartsVue from "highcharts-vue";
 import { VueQueryPlugin } from "@tanstack/vue-query";
 import { sendMessage } from "@/messaging";
 import { logger } from "@/utils/logger";
-import type { ContentScriptContext } from "wxt/client";
+import type { ContentScriptContext } from 'wxt/utils/content-script-context';
 import { getStudent } from "@/services/next";
 
 export type UFABCMatriculaStudent = {
@@ -70,7 +70,7 @@ async function mountUFABCMatriculaFilters(ctx: ContentScriptContext, sessionId: 
       container.append(wrapper);
 
       const ufabcParserConnector = new UfabcParserConnector({
-        baseURL: import.meta.env.VITE_UFABC_PARSER_URL as string,
+        baseURL: import.meta.env.WXT_UFABC_PARSER_URL,
         requesterKey: "ufabc-next",
       });
       const matriculas = await ufabcParserConnector.getEnrolled();

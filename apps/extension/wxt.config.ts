@@ -5,7 +5,10 @@ import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 
 export default defineConfig({
   srcDir: 'src',
-	modules: ["@wxt-dev/module-vue"],
+  modules: ['@wxt-dev/module-vue'],
+  webExt: {
+    disabled: true,
+  },
 	manifest: {
 		permissions: ['storage', 'cookies'],
 		host_permissions: [

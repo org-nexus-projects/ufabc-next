@@ -176,7 +176,7 @@ const matriculas = inject<typeof window.matriculas>('matriculas')
 const component = ref({} as UFSeasonComponents)
 
 const ufabcParser = new UfabcParserConnector({
-  baseURL: import.meta.env.VITE_UFABC_PARSER_URL as string,
+  baseURL: import.meta.env.WXT_UFABC_PARSER_URL,
   requesterKey: "ufabc-next",
 });
 const { data: ufabcComponents } = useQuery({
