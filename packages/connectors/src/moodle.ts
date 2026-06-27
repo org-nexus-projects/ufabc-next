@@ -39,19 +39,12 @@ export type MoodleComponent = {
   };
 };
 
-let moodleConnectorInstance: MoodleConnector | null = null;
-
 export class MoodleConnector extends BaseRequester {
   private lastRequestTime = 0;
   private readonly minRequestInterval = 300;
 
-  constructor(traceId?: string) {
-    if (moodleConnectorInstance) {
-      return moodleConnectorInstance;
-    }
-
-    super({ baseURL: 'https://moodle.ufabc.edu.br', globalTraceId: traceId });
-    moodleConnectorInstance = this;
+  constructor(baseURL: string, traceId?: string) {
+    super({ baseURL, globalTraceId: traceId });
   }
 
   async validateToken(sessionId: string, sessKey: string) {

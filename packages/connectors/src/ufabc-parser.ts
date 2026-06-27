@@ -1,6 +1,5 @@
 import { UfabcParserError } from './errors/ufabc-parser.ts';
 import { BaseRequester } from './base-requester.ts';
-import { getConnectorConfig } from './config.ts';
 
 type ComponentId = number;
 type StudentIds = number;
@@ -77,20 +76,16 @@ export type UFSeasonComponents = {
   hours: unknown
 }
 
-let ufabcParserConnectorInstance: UfabcParserConnector | null = null;
-
 export class UfabcParserConnector extends BaseRequester {
-  private readonly requesterKey!: string;
+  private readonly requesterKey: string;
 
-  constructor(traceId?: string) {
-    if (ufabcParserConnectorInstance) {
-      return ufabcParserConnectorInstance;
-    }
-
-    const config = getConnectorConfig('ufabcParser');
-    super({ baseURL: config.baseURL, globalTraceId: traceId, component: 'ufabc-parser' });
-    this.requesterKey = config.requesterKey ?? '';
-    ufabcParserConnectorInstance = this;
+  constructor(
+    baseURL: string,
+    requesterKey: string,
+    traceId?: string
+  ) {
+    super({ baseURL, globalTraceId: traceId, component: 'ufabc-parser' });
+    this.requesterKey = requesterKey;
   }
 
   async getEnrollments(kind: string, season: string) {

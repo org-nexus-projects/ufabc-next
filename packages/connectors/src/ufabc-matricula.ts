@@ -1,15 +1,8 @@
 import { BaseRequester } from './base-requester.ts';
 
-let ufabcMatriculaConnectorInstance: UfabcMatriculaConnector | null = null;
-
 export class UfabcMatriculaConnector extends BaseRequester {
-  constructor(traceId?: string) {
-    if (ufabcMatriculaConnectorInstance) {
-      return ufabcMatriculaConnectorInstance;
-    }
-
-    super({ baseURL: 'https://matricula.ufabc.edu.br', globalTraceId: traceId });
-    ufabcMatriculaConnectorInstance = this;
+  constructor(baseURL: string, traceId?: string) {
+    super({ baseURL, globalTraceId: traceId });
   }
 
   async validateToken(sessionId: string) {
