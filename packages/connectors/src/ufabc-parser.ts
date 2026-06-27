@@ -84,7 +84,7 @@ export class UfabcParserConnector extends BaseRequester {
       baseURL, traceId, requesterKey
     }: {
       baseURL: string;
-      traceId: string;
+      traceId?: string;
       requesterKey: string;
     }
   ) {

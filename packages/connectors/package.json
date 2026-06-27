@@ -14,6 +14,7 @@
     "./communications": "./src/communications.ts",
     "./moodle": "./src/moodle.ts",
     "./s3": "./src/s3-connector.ts",
+    "./next-api": "./src/next-api.ts",
     "./schemas/next-api": "./src/schemas/next-api.ts",
     "./schemas/ufabc-parser": "./src/schemas/ufabc-parser.ts",
     "./schemas/moodle": "./src/schemas/moodle.ts"
