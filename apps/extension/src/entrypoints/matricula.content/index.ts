@@ -5,7 +5,7 @@ import HighchartsVue from "highcharts-vue";
 import { VueQueryPlugin } from "@tanstack/vue-query";
 import { sendMessage } from "@/messaging";
 import { logger } from "@/utils/logger";
-import type { ContentScriptContext } from 'wxt/utils/content-script-context';
+import type { ContentScriptContext } from "wxt/client";
 import { getStudent } from "@/services/next";
 
 export type UFABCMatriculaStudent = {
