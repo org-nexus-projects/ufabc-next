@@ -1,7 +1,5 @@
 import type { Client } from '@aws-sdk/types';
 
-import { randomUUID } from 'node:crypto';
-
 export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
   protected readonly client: TClient;
   protected readonly traceId?: string;
@@ -12,6 +10,6 @@ export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
   }
 
   protected getTraceId(): string {
-    return this.traceId ?? randomUUID();
+    return this.traceId ?? globalThis.crypto.randomUUID();
   }
 }

@@ -1,5 +1,3 @@
-import { setTimeout as sleep } from 'node:timers/promises';
-
 import { BaseRequester } from './base-requester.ts';
 
 type MoodleResponse = {
@@ -126,7 +124,7 @@ export class MoodleConnector extends BaseRequester {
 
     if (timeSinceLastRequest < this.minRequestInterval) {
       const delay = this.minRequestInterval - timeSinceLastRequest;
-      await sleep(delay);
+      await new Promise((resolve) => globalThis.setTimeout(resolve, delay));
     }
 
     this.lastRequestTime = Date.now();
