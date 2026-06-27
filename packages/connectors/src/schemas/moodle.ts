@@ -28,7 +28,6 @@ export const moodleResponseSchema = z.object({
   error: z.boolean(),
   exception: z.record(z.unknown()).optional(),
 });
-export type MoodleResponse = z.infer<typeof moodleResponseSchema>;
 
 export const moodleComponentSchema = z.object({
   data: z.object({
@@ -37,4 +36,6 @@ export const moodleComponentSchema = z.object({
   }),
   error: z.boolean(),
 });
+
 export type MoodleComponent = z.infer<typeof moodleComponentSchema>;
+export type MoodleResponse = z.infer<typeof moodleResponseSchema>;
