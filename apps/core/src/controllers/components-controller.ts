@@ -3,7 +3,7 @@ import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { currentQuad } from '@next/utils';
 import { z } from 'zod';
 
-import { MoodleConnector } from '@next/connectors/moodle';
+import { MoodleConnector } from '@/connectors/moodle.js';
 import { JOB_NAMES } from '@/constants.js';
 import { jwtVerifyHook } from '@/hooks/jwt-verify.js';
 import { moodleSession } from '@/hooks/moodle-session.js';
@@ -14,6 +14,8 @@ import {
   PopulatedComponent,
 } from '@/schemas/v2/components.js';
 import { getComponentArchives } from '@/services/components-service.js';
+
+const moodleConnector = new MoodleConnector();
 
 const componentsController: FastifyPluginAsyncZod = async (app) => {
   app.route({
@@ -32,7 +34,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       }),
     },
     handler: async (request, reply) => {
-      const session = request.requestContext.get<{ sessionId: string; sessKey: string }>('moodleSession')!;
+      const session = request.requestContext.get('moodleSession')! as { sessionId: string; sessKey: string };
       const hasLock = await request.acquireLock(session.sessionId, '24h');
 
       if (!hasLock) {
@@ -44,12 +46,11 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       }
 
       try {
-        const moodleConnector = new MoodleConnector({
-          baseURL: app.config.MOODLE_URL,
-          globalTraceId: request.id,
-        });
-        const courses = await moodleConnector.getComponents(session.sessionId, session.sessKey);
-        
+        const courses = await moodleConnector.getComponents(
+          session.sessionId,
+          session.sessKey
+        );
+
         const componentArchives = await getComponentArchives(courses[0]);
         if (componentArchives.error || !componentArchives.data) {
           await request.releaseLock(session.sessionId);
@@ -86,12 +87,11 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       },
     },
     handler: async (request, reply) => {
-      const session = request.requestContext.get<{ sessionId: string; sessKey: string }>('moodleSession')!;
-      const moodleConnector = new MoodleConnector({
-        baseURL: app.config.MOODLE_URL,
-        globalTraceId: request.id,
-      });
-      const components = await moodleConnector.getComponents(session.sessionId, session.sessKey)
+      const session = request.requestContext.get('moodleSession')! as { sessionId: string; sessKey: string };
+      const components = await moodleConnector.getComponents(
+        session.sessionId,
+        session.sessKey
+      );
       return reply.status(200).send({
         status: 'success',
         data: components,

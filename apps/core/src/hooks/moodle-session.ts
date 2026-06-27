@@ -2,7 +2,7 @@ import type { preHandlerAsyncHookHandler } from 'fastify';
 
 import LRUWeakCache from 'lru-weak-cache';
 
-import { MoodleConnector } from '@next/connectors/moodle';
+import { MoodleConnector } from '@/connectors/moodle.js';
 
 declare module '@fastify/request-context' {
   interface RequestContextData {
@@ -27,10 +27,6 @@ export const moodleSession: preHandlerAsyncHookHandler = async (
   request,
   reply
 ) => {
-  const moodleConnector = new MoodleConnector({
-    baseURL: request.server.config.MOODLE_URL,
-    globalTraceId: request.id,
-  });
   const { 'session-id': sessionId, 'sess-key': sessKey } = request.headers;
 
   if (
@@ -40,7 +36,7 @@ export const moodleSession: preHandlerAsyncHookHandler = async (
     typeof sessKey !== 'string'
   ) {
     // should never happen, cause the schema validation runs before this hook
-    return reply.unauthorized();
+    return reply.unauthorized('Missing Session');
   }
 
   if (sessionCache.has(sessionId)) {
@@ -52,7 +48,7 @@ export const moodleSession: preHandlerAsyncHookHandler = async (
     return;
   }
 
-  const isTokenValid = await moodleConnector.validateToken(sessionId, sessKey);
+  const isTokenValid = await validateToken(sessionId, sessKey);
   request.log.debug({ isTokenValid }, 'Token validated');
   if (!isTokenValid) {
     return reply.forbidden('Invalid Session');
@@ -65,3 +61,16 @@ export const moodleSession: preHandlerAsyncHookHandler = async (
     sessKey,
   });
 };
+
+async function validateToken(sessionId: string, sessKey: string) {
+  const connector = new MoodleConnector();
+  const response = await connector.validateToken(sessionId, sessKey);
+  const hasError = response.some((item) => item.error);
+  const hasException = response.some((item) => item.exception);
+
+  if (hasError || hasException) {
+    return false;
+  }
+
+  return true;
+}

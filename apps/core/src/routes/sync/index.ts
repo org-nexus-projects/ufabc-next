@@ -1,10 +1,12 @@
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
-import { UfabcParserConnector } from '@next/connectors/ufabc-parser';
+import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { ComponentModel } from '@/models/Component.js';
 import { syncEnrolledSchema } from '@/schemas/sync/enrolled.js';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
+  const connector = new UfabcParserConnector();
+
   app.put(
     '/enrolled',
     {
@@ -15,11 +17,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const { operation } = request.body;
       const { season } = request.query;
 
-      const enrolledStudents = await new UfabcParserConnector({
-        baseURL: app.config.UFABC_PARSER_URL,
-        requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
-        globalTraceId: request.id,
-      }).getEnrolled();
+      // @ts-expect-error delete later
+      const enrolledStudents = await connector.getEnrolledStudents();
 
       const start = Date.now();
 

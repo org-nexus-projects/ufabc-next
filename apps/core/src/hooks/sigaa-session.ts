@@ -2,7 +2,7 @@ import type { preHandlerAsyncHookHandler } from 'fastify';
 
 import { load } from 'cheerio';
 
-import { SigaaConnector } from '@next/connectors/sigaa';
+import { SigaaConnector } from '@/connectors/sigaa.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -17,10 +17,6 @@ export const sigaaSession: preHandlerAsyncHookHandler = async (
   reply
 ) => {
   const { 'session-id': sessionId, 'view-id': viewId } = request.headers;
-  const sigaaConnector = new SigaaConnector({
-    baseURL: request.server.config.SIGAA_URL,
-    globalTraceId: request.id,
-  });
 
   if (
     !sessionId ||
@@ -28,7 +24,7 @@ export const sigaaSession: preHandlerAsyncHookHandler = async (
     typeof sessionId !== 'string' ||
     typeof viewId !== 'string'
   ) {
-    return reply.unauthorized();
+    return reply.unauthorized('Missing Session');
   }
 
   const sessionKey = `sigaa:session:${sessionId}`;
@@ -42,10 +38,8 @@ export const sigaaSession: preHandlerAsyncHookHandler = async (
     return;
   }
 
-  const authPage = await sigaaConnector.validateToken(sessionId);
-  const $ = load(authPage);
-  const hasLogout = $('#info-sistema > div > span.sair-sistema > a').length > 0;
-  if (!hasLogout) {
+  const isValid = await validateToken(sessionId, request.id);
+  if (!isValid) {
     return reply.forbidden();
   }
 
@@ -56,3 +50,11 @@ export const sigaaSession: preHandlerAsyncHookHandler = async (
   );
   request.sigaaSession = { sessionId, viewId };
 };
+
+async function validateToken(sessionId: string, traceId: string) {
+  const connector = new SigaaConnector(traceId);
+  const response = await connector.validateToken(sessionId);
+  const $ = load(response);
+  const hasLogout = $('#info-sistema > div > span.sair-sistema > a').length > 0;
+  return hasLogout;
+}

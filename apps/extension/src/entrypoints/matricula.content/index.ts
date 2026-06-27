@@ -1,5 +1,5 @@
 import "./style.css";
-import { UfabcParserConnector } from '@next/connectors/ufabc-parser';
+import { getUFEnrolled } from "@/services/ufabc-parser";
 import UFABCMatricula from "@/entrypoints/matricula.content/UFABC-Matricula.vue";
 import HighchartsVue from "highcharts-vue";
 import { VueQueryPlugin } from "@tanstack/vue-query";
@@ -69,11 +69,7 @@ async function mountUFABCMatriculaFilters(ctx: ContentScriptContext, sessionId: 
       const wrapper = document.createElement("div");
       container.append(wrapper);
 
-      const ufabcParserConnector = new UfabcParserConnector({
-        baseURL: import.meta.env.WXT_UFABC_PARSER_URL,
-        requesterKey: "ufabc-next",
-      });
-      const matriculas = await ufabcParserConnector.getEnrolled();
+      const matriculas = await getUFEnrolled();
       window.matriculas = matriculas;
       window.sessionId = sessionId;
 

@@ -32,7 +32,6 @@
     "zod": "catalog:"
   },
   "dependencies": {
-"@next/connectors": "workspace:*",
     "@next/logger": "workspace:*",
     "@tanstack/vue-query": "^5.66.0",
     "@vueuse/core": "^11.1.0",

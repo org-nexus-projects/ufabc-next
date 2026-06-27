@@ -1,8 +1,8 @@
 import { currentQuad } from '@next/utils';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
-import { UfabcParserConnector } from '@next/connectors/ufabc-parser';
-import { UfabcParserError } from '@next/connectors/errors';
+import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
+import { UfabcParserError } from '@/errors/ufabc-parser.js';
 import { StudentModel } from '@/models/Student.js';
 import { UserModel, type User } from '@/models/User.js';
 import { completeUserSchema, type Auth } from '@/schemas/auth.js';
@@ -133,11 +133,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     // @ts-ignore
     async (request, reply) => {
       const { email, ra } = request.body;
-      const ufabcParserConnector = new UfabcParserConnector({
-        baseURL: app.config.UFABC_PARSER_URL,
-        requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
-        globalTraceId: request.id,
-      });
+      const ufabcParserConnector = new UfabcParserConnector(request.id);
 
       try {
         const student = await ufabcParserConnector.getStudent(ra);
@@ -301,11 +297,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     { schema: validateUserEmailSchema },
     // @ts-ignore
     async (request, reply) => {
-      const ufabcParserConnector = new UfabcParserConnector({
-        baseURL: app.config.UFABC_PARSER_URL,
-        requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
-        globalTraceId: request.id,
-      });
+      const ufabcParserConnector = new UfabcParserConnector(request.id);
       const { ra } = request.query;
 
       try {

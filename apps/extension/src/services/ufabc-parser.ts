@@ -1,4 +1,4 @@
-import { UfabcParserConnector, type UFSeasonComponents } from '@next/connectors/ufabc-parser';
+import { ofetch } from "ofetch";
 
 export type UFComponent = {
 	name: string;
@@ -7,11 +7,25 @@ export type UFComponent = {
 	credits: number;
 };
 
+export type UFSeasonComponents = {
+	UFComponentId: number
+	UFComponentCode: string;
+	name: string
+	campus: 'sbc' | 'sa'
+	turma: string
+	turno: 'diurno' | 'noturno'
+	credits: number
+	vacancies: number
+	courses: Array<{ name: string; UFCourseId: number; category: 'limited' | 'mandatory' }>
+	hours: unknown
+}
+
+type Action = 'history' | 'student-report' | 'student'
+
 export type Student = ShallowStudent & {
   sessionId: string
 }
 
-type Course = string;
 
 export type ShallowStudent = {
 	name: string;
@@ -26,19 +40,19 @@ export type ShallowStudent = {
 	startedAt: string;
 };
 
-const baseURL = (import.meta as any).env.VITE_UFABC_PARSER_URL as string;
 
-const parser = new UfabcParserConnector({
-	baseURL,
-	requesterKey: "ufabc-next",
+const ufParserService = ofetch.create({
+	baseURL: "https://ufabc-parser.com",
 });
 
+
 export async function getUFEnrolled() {
-	const enrolled = await parser.getEnrolled();
+	const enrolled =
+		await ufParserService<Record<string, Array<number>>>("/enrolled");
 
 	const result: Record<number, string[]> = {};
 	for (const componentId in enrolled) {
-		const studentIds = enrolled[componentId];
+		const studentIds = enrolled[Number(componentId)];
 
 		for (const studentId of studentIds) {
 			if (!result[studentId]) {
@@ -52,5 +66,6 @@ export async function getUFEnrolled() {
 }
 
 export async function getUFComponents() {
-	return parser.getAllComponents();
+	const ufComponents = await ufParserService<UFSeasonComponents[]>("/components");
+	return ufComponents
 }

@@ -3,7 +3,7 @@ import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { currentQuad } from '@next/utils';
 import { z } from 'zod';
 
-import { UfabcParserConnector } from '@next/connectors/ufabc-parser';
+import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { matriculaSession } from '@/hooks/matricula-session.js';
 import { sigaaSession } from '@/hooks/sigaa-session.js';
 import { StudentModel } from '@/models/Student.js';
@@ -131,11 +131,7 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
     },
     preHandler: [sigaaSession],
     handler: async (request, reply) => {
-      const ufabcParserConnector = new UfabcParserConnector({
-        baseURL: app.config.UFABC_PARSER_URL,
-        requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
-        globalTraceId: request.id,
-      });
+      const connector = new UfabcParserConnector(request.id);
       const { ra, login } = request.body;
       const { sessionId, viewId } = request.sigaaSession;
       const cacheKey = `http:students:sigaa:${ra}`;
@@ -164,7 +160,7 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
         });
       }
 
-      await ufabcParserConnector.syncStudent({
+      await connector.syncStudent({
         sessionId,
         viewId,
         requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,

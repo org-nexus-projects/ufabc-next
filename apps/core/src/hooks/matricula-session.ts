@@ -1,7 +1,5 @@
 import type { preHandlerAsyncHookHandler } from 'fastify';
 
-import { UfabcMatriculaConnector } from '@next/connectors/ufabc-matricula';
-
 declare module '@fastify/request-context' {
   interface RequestContextData {
     matriculaSession: {
@@ -14,14 +12,10 @@ export const matriculaSession: preHandlerAsyncHookHandler = async (
   request,
   reply
 ) => {
-  const ufabcMatriculaConnector = new UfabcMatriculaConnector({
-    baseURL: request.server.config.UFABC_MATRICULA_URL,
-    globalTraceId: request.id,
-  })
   const { 'session-id': sessionId } = request.headers;
 
   if (!sessionId || typeof sessionId !== 'string') {
-    return reply.unauthorized();
+    return reply.unauthorized('Missing Session');
   }
 
   const sessionKey = `matricula:session:${sessionId}`;
@@ -36,7 +30,7 @@ export const matriculaSession: preHandlerAsyncHookHandler = async (
     return;
   }
 
-  const isValid = await ufabcMatriculaConnector.validateToken(sessionId);
+  const isValid = await validateToken(sessionId);
   if (!isValid) {
     return reply.forbidden();
   }
@@ -46,3 +40,13 @@ export const matriculaSession: preHandlerAsyncHookHandler = async (
     sessionId,
   });
 };
+
+async function validateToken(sessionId: string) {
+  if (!sessionId) {
+    return false;
+  }
+  // const connector = new UfabcMatriculaConnector();
+  // const response = await connector.validateToken(sessionId);
+  // TODO: finish
+  return true;
+}

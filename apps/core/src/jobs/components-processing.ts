@@ -3,7 +3,7 @@ import type { Types } from 'mongoose';
 import { defineJob } from '@next/queues/client';
 import z from 'zod';
 
-import { UfabcParserConnector } from '@next/connectors/ufabc-parser';
+import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { JOB_NAMES, PARSER_WEBHOOK_SUPPORTED_EVENTS } from '@/constants.js';
 import { ComponentModel } from '@/models/Component.js';
 import {
@@ -66,16 +66,12 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
       data: ComponentSateSchema.shape.data,
     })
   )
-  .handler(async ({ job, app }) => {
+  .handler(async ({ job }) => {
     const { globalTraceId, data } = job.data;
     const { componentKey } = data;
-    const ufabcParserConnector = new UfabcParserConnector({
-      baseURL: app.config.UFABC_PARSER_URL,
-      requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
-      globalTraceId,
-    });
+    const ufabcParserConnector = new UfabcParserConnector(globalTraceId);
     const [component] =
-      await ufabcParserConnector.getComponents(componentKey);
+      await ufabcParserConnector.getComponentByKey(componentKey);
 
     if (!component) {
       throw new Error('Component not found');
