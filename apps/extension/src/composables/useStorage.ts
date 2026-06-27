@@ -1,6 +1,6 @@
-import { type UseAsyncStateOptions, useAsyncState } from "@vueuse/core";
-import { computed, onMounted, onUnmounted } from "vue";
-import { storage, StorageItemKey } from "wxt/utils/storage";
+import { type UseAsyncStateOptions, useAsyncState } from '@vueuse/core';
+import { computed, onMounted, onUnmounted } from 'vue';
+import { storage, StorageItemKey } from 'wxt/storage';
 
 export function useStorage<T>(
 	key: StorageItemKey,

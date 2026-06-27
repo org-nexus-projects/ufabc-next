@@ -1,8 +1,8 @@
 import "toastify-js/src/toastify.css";
 import "@/assets/tailwind.css";
-import { storage } from "wxt/utils/storage";
-import { scrapeMenu } from "@/scripts/sig/homepage";
-import { syncHistoryV2 } from "@/services/next";
+import { storage } from 'wxt/storage';
+import { scrapeMenu } from '@/scripts/sig/homepage';
+import { syncHistoryV2 } from '@/services/next';
 import { processingToast, errorToast, successToast } from "@/utils/toasts";
 import { sendMessage } from "@/messaging";
 import { logger } from "@/utils/logger";
