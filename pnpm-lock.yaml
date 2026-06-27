@@ -792,6 +792,9 @@ importers:
       ofetch:
         specifier: 'catalog:'
         version: 1.5.1
+      zod:
+        specifier: 'catalog:'
+        version: 3.25.76
     devDependencies:
       '@aws-sdk/types':
         specifier: 'catalog:'

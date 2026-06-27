@@ -24,7 +24,8 @@
   "dependencies": {
     "ofetch": "catalog:",
     "@aws-sdk/client-s3": "catalog:",
-    "@next/logger": "workspace:*"
+    "@next/logger": "workspace:*",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@next/config": "workspace:*",
