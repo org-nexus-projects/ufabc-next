@@ -5,27 +5,19 @@ type Files = {
   name: string;
 };
 
-let aiProxyConnectorInstance: AIProxyConnector | null = null;
+export type AIProxyConnectorOptions = {
+  baseURL: string;
+  defaultHeaders?: Record<string, string>;
+  globalTraceId?: string;
+};
 
 export class AIProxyConnector extends BaseRequester {
-  constructor(
-    baseUrl: string,
-    private readonly serviceHeader: string,
-    traceId?: string
-  ) {
-    if (aiProxyConnectorInstance) {
-      return aiProxyConnectorInstance
-    };
-
-    super({ baseURL: baseUrl, globalTraceId: traceId });
-    aiProxyConnectorInstance = this;
+  constructor(options: AIProxyConnectorOptions) {
+    super({ ...options, component: 'ai-proxy' });
   }
 
   async filterFiles(course: string, files: Files[]) {
-    const headers = new Headers();
-    headers.set('x-service-id', this.serviceHeader);
     const response = await this.request<unknown[]>('/', {
-      method: 'POST',
       body: {
         course,
         promptData: {
@@ -36,6 +28,7 @@ export class AIProxyConnector extends BaseRequester {
           })),
         },
       },
+      method: 'POST',
     });
     return response;
   }

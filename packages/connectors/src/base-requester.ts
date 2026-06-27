@@ -23,6 +23,7 @@ export type RequesterOptions = {
   component?: string;
   module?: string;
   timeout?: number;
+  defaultHeaders?: Record<string, string>;
 };
 
 export class BaseRequester {
@@ -31,12 +32,14 @@ export class BaseRequester {
   protected readonly requester: ReturnType<typeof ofetch.create>;
   protected readonly traceContext: TraceContext;
   protected readonly baseURL?: string;
+  protected readonly defaultHeaders?: Record<string, string>;
   private logger: Logger | undefined;
   private loggerPromise: Promise<Logger>;
 
   constructor(options?: RequesterOptions) {
-    const { baseURL, globalTraceId, component, module, timeout } = options ?? {};
+    const { baseURL, globalTraceId, component, module, timeout, defaultHeaders } = options ?? {};
     this.baseURL = baseURL;
+    this.defaultHeaders = defaultHeaders;
 
     this.traceContext = {
       globalTraceId: globalTraceId ?? globalThis.crypto.randomUUID(),
@@ -57,7 +60,11 @@ export class BaseRequester {
             : (requestOptions.headers as Record<string, string>) || {};
 
         // @ts-ignore - ofetch allows custom headers
-        requestOptions.headers = { ...existingHeaders, 'global-trace-id': this.traceContext.globalTraceId } as any;
+        requestOptions.headers = {
+          ...this.defaultHeaders,
+          ...existingHeaders,
+          'global-trace-id': this.traceContext.globalTraceId,
+        } as any;
 
         const requestPath = this.getRequestPath(request);
         const fullUrl = this.buildFullUrl(requestPath);
