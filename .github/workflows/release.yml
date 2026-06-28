@@ -12,6 +12,9 @@ concurrency:
   group: release-extension
   cancel-in-progress: false
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -141,11 +144,22 @@ jobs:
             --notes-file apps/extension/CHANGELOG.md \
             apps/extension/.output/*-chrome.zip
 
+      - name: Verify Chrome Web Store credentials (dry-run)
+        if: github.event.inputs.dryRun == 'true'
+        run: |
+          pnpm wxt submit --dry-run \
+            --chrome-zip apps/extension/.output/*-chrome.zip \
+            --chrome-extension-id "${{ secrets.CHROME_EXTENSION_ID }}" \
+            --chrome-client-id "${{ secrets.CHROME_EXTENSION_CLIENT_ID }}" \
+            --chrome-client-secret "${{ secrets.CHROME_EXTENSION_CLIENT_SECRET }}" \
+            --chrome-refresh-token "${{ secrets.CHROME_EXTENSION_REFRESH_TOKEN }}"
+
       - name: Submit to Chrome Web Store
         if: github.event.inputs.dryRun != 'true' && steps.find_changesets.outputs.count != '0'
-        run: pnpm wxt submit --chrome-zip apps/extension/.output/*-chrome.zip
-        env:
-          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
-          CHROME_EXTENSION_CLIENT_ID: ${{ secrets.CHROME_EXTENSION_CLIENT_ID }}
-          CHROME_EXTENSION_CLIENT_SECRET: ${{ secrets.CHROME_EXTENSION_CLIENT_SECRET }}
-          CHROME_EXTENSION_REFRESH_TOKEN: ${{ secrets.CHROME_EXTENSION_REFRESH_TOKEN }}
+        run: |
+          pnpm wxt submit \
+            --chrome-zip apps/extension/.output/*-chrome.zip \
+            --chrome-extension-id "${{ secrets.CHROME_EXTENSION_ID }}" \
+            --chrome-client-id "${{ secrets.CHROME_EXTENSION_CLIENT_ID }}" \
+            --chrome-client-secret "${{ secrets.CHROME_EXTENSION_CLIENT_SECRET }}" \
+            --chrome-refresh-token "${{ secrets.CHROME_EXTENSION_REFRESH_TOKEN }}"
