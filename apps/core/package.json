@@ -62,7 +62,7 @@
     "zod-openapi": "catalog:",
     "zod-to-json-schema": "catalog:"
   },
-  "devDependencies": {
+"devDependencies": {
     "@aws-sdk/types": "catalog:",
     "@next/testing": "workspace:*",
     "@next/config": "workspace:*",
@@ -71,6 +71,7 @@
     "@types/ms": "catalog:",
     "@types/node": "catalog:",
     "fastify-tsconfig": "catalog:",
+    "ioredis": "^5.11.1",
     "pino-pretty": "catalog:",
     "rimraf": "catalog:",
     "testcontainers": "catalog:",

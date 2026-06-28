@@ -114,8 +114,7 @@ export type TeacherReview = {
   specific: Array<TeacherDetailedReview>;
 };
 
-const nextApiBaseURL =
-  import.meta.env.WXT_UFABC_NEXT_URL ?? 'https://api.v2.ufabcnext.com';
+const nextApiBaseURL = import.meta.env.VITE_UFABC_NEXT_URL;
 
 const nextApiConnector = new NextApiConnector({ baseURL: nextApiBaseURL });
 

@@ -4,7 +4,8 @@
     "dev": {
       "dependsOn": ["@next/docker-infra#up", "docker:build"],
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*"]
     },
     "docker:build": {
       "dependsOn": ["@next/docker-infra#up", "^build"],
@@ -13,6 +14,7 @@
     "build": {
       "env": ["NODE_ENV"],
       "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*"],
       "outputs": ["dist/**"]
     },
     "test": {

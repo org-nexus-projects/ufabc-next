@@ -20,8 +20,7 @@ export type Student = ShallowStudent & {
   sessionId: string;
 };
 
-const ufabcParserBaseURL =
-  import.meta.env.WXT_UFABC_PARSER_URL ?? 'https://ufabc-parser.com';
+const ufabcParserBaseURL = import.meta.env.VITE_UFABC_PARSER_URL;
 
 const ufabcParserConnector = new UfabcParserConnector({
   baseURL: ufabcParserBaseURL,

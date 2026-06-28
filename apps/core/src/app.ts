@@ -24,10 +24,10 @@ import { setupV2Routes } from './plugins/v2/setup.js';
 import testUtilsPlugin from './plugins/v2/test-utils.js';
 
 declare module 'fastify' {
-  interface FastifyInstance {
+  type FastifyInstance = {
     db: DatabaseModels;
     rawMongoose: Mongoose;
-  }
+  };
 }
 
 const routesV2 = [
@@ -81,8 +81,8 @@ export async function buildApp(
     if (error instanceof ResponseSerializationError) {
       reply.status(422);
       reply.send({
-        zodIssues: error.validation?.map((err) => err.params.issue) ?? [],
         originalError: error.validation?.[0]?.params.error ?? null,
+        zodIssues: error.validation?.map((err) => err.params.issue) ?? [],
       });
       return;
     }
@@ -100,9 +100,9 @@ export async function buildApp(
           error: validationError,
           request: {
             method: request.method,
-            url: request.url,
-            query: request.query,
             params: request.params,
+            query: request.query,
+            url: request.url,
           },
         },
         validationError.message
@@ -110,9 +110,9 @@ export async function buildApp(
 
       reply.status(400);
       reply.send({
-        statusCode: 400,
         error: 'Bad Request',
         message: validationError.message,
+        statusCode: 400,
         validation: validationError.validation,
       });
       return;
@@ -124,9 +124,9 @@ export async function buildApp(
           error,
           request: {
             method: request.method,
-            url: request.url,
-            query: request.query,
             params: request.params,
+            query: request.query,
+            url: request.url,
           },
         },
         error.message
@@ -135,8 +135,8 @@ export async function buildApp(
       reply.status(500);
       reply.send({
         error: error.name,
-        statusCode: 500,
         message: error.message,
+        statusCode: 500,
       });
       return;
     }
@@ -151,9 +151,9 @@ export async function buildApp(
       {
         request: {
           method: request.method,
-          url: request.url,
-          query: request.query,
           params: request.params,
+          query: request.query,
+          url: request.url,
         },
       },
       'Resource not found'
@@ -165,9 +165,9 @@ export async function buildApp(
   });
 
   app.register(fastifyAutoload, {
-    dir: join(import.meta.dirname, 'routes'),
     autoHooks: true,
     cascadeHooks: true,
+    dir: join(import.meta.dirname, 'routes'),
     ignorePattern: /^.*(?:test|spec|service|sync).(ts|js)$/,
     options: { ...opts },
   });
@@ -180,7 +180,7 @@ export async function buildApp(
   app.worker.setup();
   await app.job.setup();
 
-  app.get('/health', (request, reply) => {
-    return reply.status(200).send({ message: 'OK' });
-  });
+  app.get('/health', (request, reply) =>
+    reply.status(200).send({ message: 'OK' })
+  );
 }
