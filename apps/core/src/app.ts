@@ -43,8 +43,6 @@ export async function buildApp(
   app: FastifyInstance,
   opts: FastifyServerOptions = {}
 ) {
-  await setupV2Routes(app, routesV2);
-
   await app.register(fastifyAutoload, {
     dir: join(import.meta.dirname, 'plugins/external'),
     options: { ...opts },
@@ -61,6 +59,8 @@ export async function buildApp(
     redisURL: new URL(app.config.REDIS_CONNECTION_URL),
   });
   await app.register(awsV2Plugin);
+
+  await setupV2Routes(app, routesV2);
 
   app.setSchemaErrorFormatter((errors, dataVar) => {
     let message = `${dataVar}:`;

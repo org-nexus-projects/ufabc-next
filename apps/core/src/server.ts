@@ -15,6 +15,7 @@ const appOptions = {
   pluginTimeout: 35_000,
 } satisfies FastifyServerOptions;
 
+
 const app = fastify(appOptions);
 
 export async function start() {
@@ -22,9 +23,6 @@ export async function start() {
   if (app.config.NODE_ENV === 'dev') {
     app.log.info(app.printRoutes());
   }
-
-  // app.job.schedule('ComponentsSync');
-  // app.job.schedule('LogsUpload');
 
   gracefullyShutdown({ delay: 500 }, async ({ err, signal }) => {
     if (err) {

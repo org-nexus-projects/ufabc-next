@@ -65,6 +65,8 @@ services:
       target: dev
     ports:
       - '5000:5000'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     env_file:
       - ./apps/core/.env
     environment:
@@ -72,17 +74,23 @@ services:
       - MONGODB_CONNECTION_URL=mongodb://next-db:27017/ufabc-matricula
       - REDIS_CONNECTION_URL=redis://default:qj6wGxXINcQyWXdN@next-redis:6379
       - LOCALSTACK_ENDPOINT=http://localstack:4566
+      - UFABC_PARSER_URL=http://host.docker.internal:5001
     volumes:
+      # Mount only src/ (and dist/ for logger) — NOT full package dirs, to avoid
+      # overriding the image's node_modules/ symlinks with broken host symlinks
       - ./apps/core/src:/workspace/apps/core/src:ro
-      - ./packages/common/src:/workspace/packages/common/src:ro
-      - ./packages/common/dist:/workspace/packages/common/dist:ro
+      - ./apps/core/.env:/workspace/apps/core/.env:ro
+      - ./packages/connectors/src:/workspace/packages/connectors/src:ro
       - ./packages/db/src:/workspace/packages/db/src:ro
-      - ./packages/db/dist:/workspace/packages/db/dist:ro
+      - ./packages/logger/src:/workspace/packages/logger/src:ro
+      - ./packages/logger/dist:/workspace/packages/logger/dist:ro
       - ./packages/queues/src:/workspace/packages/queues/src:ro
-      - ./packages/queues/dist:/workspace/packages/queues/dist:ro
       - ./packages/testing/src:/workspace/packages/testing/src:ro
-      - ./packages/testing/dist:/workspace/packages/testing/dist:ro
-      - ./packages/tsconfig:/workspace/packages/tsconfig:ro
+      # utils has index.ts at root and source in lib/ (not src/)
+      - ./packages/utils/index.ts:/workspace/packages/utils/index.ts:ro
+      - ./packages/utils/lib:/workspace/packages/utils/lib:ro
+      # tools/tsconfig is config-only, no node_modules issue
+      - ./tools/tsconfig:/workspace/tools/tsconfig:ro
     depends_on:
       next-db:
         condition: service_healthy

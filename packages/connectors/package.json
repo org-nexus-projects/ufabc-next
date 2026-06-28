@@ -1,0 +1,38 @@
+{
+  "name": "@next/connectors",
+  "version": "1.0.0",
+  "description": "Shared connectors for external services and API domain modules",
+  "type": "module",
+  "exports": {
+    "./base-requester": "./src/base-requester.ts",
+    "./base-aws-connector": "./src/base-aws-connector.ts",
+    "./errors": "./src/errors/index.ts",
+    "./ufabc-parser": "./src/ufabc-parser.ts",
+    "./ufabc-matricula": "./src/ufabc-matricula.ts",
+    "./sigaa": "./src/sigaa.ts",
+    "./ai-proxy": "./src/ai-proxy.ts",
+    "./communications": "./src/communications.ts",
+    "./moodle": "./src/moodle.ts",
+    "./s3": "./src/s3-connector.ts",
+    "./schemas/next-api": "./src/schemas/next-api.ts",
+    "./schemas/ufabc-parser": "./src/schemas/ufabc-parser.ts",
+    "./schemas/moodle": "./src/schemas/moodle.ts"
+  },
+  "scripts": {
+    "lint": "oxlint src/**/* || true",
+    "lint:fix": "oxlint --fix src/**/* || true",
+    "tsc": "tsgo --noEmit"
+  },
+  "dependencies": {
+    "ofetch": "catalog:",
+    "@aws-sdk/client-s3": "catalog:",
+    "@next/logger": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@next/config": "workspace:*",
+    "@aws-sdk/types": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

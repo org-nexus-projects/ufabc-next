@@ -1,66 +1,66 @@
-import core from "ultracite/oxlint/core";
-import { defineConfig } from "oxlint";
+import { defineConfig } from 'oxlint';
+import core from 'ultracite/oxlint/core';
 
 export default defineConfig({
   extends: [core],
+  ignorePatterns: [
+    ...(core.ignorePatterns ?? []),
+    '**/tmp',
+    '**/temp',
+    '**/debug.js',
+    'stats.html',
+    'stats-*.json',
+    'codegen.ts',
+    '**/assets/**/*.js',
+    '**/assets/**/*.css',
+    '**/assets/**/*.html',
+    '**/*.min.*',
+  ],
+  options: {
+    typeAware: true,
+    typeCheck: true,
+  },
+  overrides: [
+    {
+      env: {
+        browser: false,
+        node: true,
+      },
+      files: ['apps/core/**/*.ts'],
+    },
+    {
+      env: {
+        browser: true,
+      },
+      files: ['apps/container/**/*.ts', 'apps/container/**/*.vue'],
+      rules: {
+        'unicorn/filename-case': 'off',
+      },
+    },
+    {
+      env: {
+        browser: true,
+        webextensions: true,
+      },
+      files: ['apps/extension/**/*.ts', 'apps/extension/**/*.vue'],
+      rules: {
+        'unicorn/filename-case': 'off',
+      },
+    },
+    {
+      env: {
+        browser: true,
+        node: true,
+      },
+      files: ['packages/**/*.ts'],
+    },
+  ],
   rules: {
     complexity: ['error', 25],
     'eslint/complexity': ['error', { max: 35 }],
     'func-style': ['error', 'declaration'],
-    'import/consistent-type-specifier-style': ['error'],
+    'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
     'typescript/array-type': ['error', { default: 'array-simple' }],
     'typescript/consistent-type-definitions': ['error', 'type'],
   },
-  ignorePatterns: [
-    ...(core.ignorePatterns ?? []),
-    "**/tmp",
-    "**/temp",
-    "**/debug.js",
-    "stats.html",
-    "stats-*.json",
-    "codegen.ts",
-    "**/assets/**/*.js",
-    "**/assets/**/*.css",
-    "**/assets/**/*.html",
-    "**/*.min.*",
-  ],
-  options: {
-    typeAware: true,
-    typeCheck: false,
-  },
-  overrides: [
-    {
-      files: ["apps/core/**/*.ts"],
-      env: {
-        node: true,
-        browser: false,
-      },
-    },
-    {
-      files: ["apps/container/**/*.ts", "apps/container/**/*.vue"],
-      env: {
-        browser: true,
-      },
-      rules: {
-        "unicorn/filename-case": "off",
-      },
-    },
-    {
-      files: ["apps/extension/**/*.ts", "apps/extension/**/*.vue"],
-      env: {
-        webextensions: true,
-        browser: true,
-      },
-      rules: {
-        "unicorn/filename-case": "off",
-      },
-    },
-    {
-      files: ["packages/**/*.ts"],
-      env: {
-        node: true,
-        browser: true,
-      },
-    },
-  ],
 });
