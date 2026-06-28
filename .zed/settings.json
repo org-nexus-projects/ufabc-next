@@ -56,6 +56,13 @@
       "prettier": {
         "allowed": false
       },
+      "language_servers": [
+        "tsgo",
+        "oxlint",
+        "oxfmt",
+        "!vtsls",
+        "!typescript-language-server"
+      ],
       "formatter": [
         {
           "language_server": {
@@ -153,9 +160,11 @@
         "allowed": false
       },
       "language_servers": [
-        "vtsls",
+        "tsgo",
         "oxlint",
-        "oxfmt"
+        "oxfmt",
+        "!vtsls",
+        "!typescript-language-server"
       ],
       "formatter": {
         "language_server": {
@@ -173,9 +182,11 @@
         "allowed": false
       },
       "language_servers": [
-        "vtsls",
+        "tsgo",
         "oxlint",
-        "oxfmt"
+        "oxfmt",
+        "!vtsls",
+        "!typescript-language-server"
       ],
       "formatter": {
         "language_server": {
