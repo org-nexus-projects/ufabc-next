@@ -54,12 +54,19 @@ export default defineConfig({
       },
       files: ['packages/**/*.ts'],
     },
+    {
+      files: ['**/*-controller.ts'],
+      rules: {
+        'func-style': 'off',
+        'require-await': 'off',
+      },
+    },
   ],
   rules: {
     complexity: ['error', 25],
     'eslint/complexity': ['error', { max: 35 }],
     'func-style': ['error', 'declaration'],
-    'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
+    'import/consistent-type-specifier-style': ['error', 'prefer-inline'],
     'typescript/array-type': ['error', { default: 'array-simple' }],
     'typescript/consistent-type-definitions': ['error', 'type'],
   },
