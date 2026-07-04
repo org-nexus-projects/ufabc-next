@@ -61,6 +61,12 @@ export default defineConfig({
         'require-await': 'off',
       },
     },
+    {
+      files: ['**/errors/custom-errors.ts'],
+      rules: {
+        'max-classes-per-file': 'off',
+      },
+    },
   ],
   rules: {
     complexity: ['error', 25],
@@ -69,5 +75,8 @@ export default defineConfig({
     'import/consistent-type-specifier-style': ['error', 'prefer-inline'],
     'typescript/array-type': ['error', { default: 'array-simple' }],
     'typescript/consistent-type-definitions': ['error', 'type'],
+    'typescript/no-import-type-side-effects': 'off',
+    'typescript/restrict-template-expressions': 'warn',
+    'typescript/strict-boolean-expressions': 'warn',
   },
 });
