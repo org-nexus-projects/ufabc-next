@@ -41,6 +41,7 @@
     "@fastify/swagger-ui": "catalog:",
     "@next/logger": "workspace:*",
     "@next/utils": "workspace:*",
+    "@next/connectors": "workspace:*",
     "@next/db": "workspace:*",
     "@next/queues": "workspace:*",
     "@notionhq/client": "catalog:",

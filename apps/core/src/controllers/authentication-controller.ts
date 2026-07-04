@@ -1,39 +1,30 @@
-import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
-
-import { currentQuad } from '@next/utils';
 import { createDecipheriv, createHash } from 'node:crypto';
+
+import {
+  matriculaTokenBodySchema,
+  matriculaTokenResponseSchema,
+  whatsappTokenBodySchema,
+  whatsappTokenResponseSchema,
+} from '@next/connectors/schemas/next-api';
+import { currentQuad } from '@next/utils';
+import { type FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 
+import { matriculaSession } from '@/hooks/matricula-session.js';
 import { ComponentModel } from '@/models/Component.js';
 import { UserModel } from '@/models/User.js';
 
+import { AuthenticationService } from '../services/authentication-service.js';
+
 export const authenticationController: FastifyPluginAsyncZod = async (app) => {
   app.route({
-    method: 'POST',
-    url: '/auth/whatsapp-token',
-    schema: {
-      body: z.object({
-        component: z.string().min(1),
-        token: z.string().min(1),
-      }),
-      response: {
-        200: z.object({
-          token: z.string(),
-        }),
-      },
-    },
     handler: async (request, reply) => {
       const { component, token } = request.body;
 
       let decryptedPayload: string;
       try {
-        const secret = app.config.WHATSAPP_AUTH_SECRET;
-        if (!secret) {
-          throw new Error('WHATSAPP_AUTH_SECRET is not configured');
-        }
-
         const components = JSON.parse(
-          Buffer.from(token, 'base64').toString('utf8')
+          Buffer.from(token, 'base64').toString('utf-8')
         ) as {
           iv: string;
           data: string;
@@ -54,7 +45,7 @@ export const authenticationController: FastifyPluginAsyncZod = async (app) => {
           decipher.final(),
         ]);
 
-        const payload = JSON.parse(decrypted.toString('utf8')) as {
+        const payload = JSON.parse(decrypted.toString('utf-8')) as {
           data: string;
           expiresAt?: number;
         };
@@ -69,54 +60,93 @@ export const authenticationController: FastifyPluginAsyncZod = async (app) => {
         decryptedPayload = payload.data;
       } catch (error) {
         request.log.warn({ error }, 'Failed to decrypt WhatsApp auth token');
-        return reply.unauthorized('Invalid or expired token');
+        return await reply.unauthorized('Invalid or expired token');
       }
 
       const separatorIndex = decryptedPayload.indexOf('+');
       if (separatorIndex === -1) {
-        return reply.badRequest('Invalid token payload');
+        return await reply.badRequest('Invalid token payload');
       }
 
       const ra = decryptedPayload.slice(0, separatorIndex);
       const email = decryptedPayload.slice(separatorIndex + 1);
 
       if (!ra || !email) {
-        return reply.badRequest('Invalid token payload');
+        return await reply.badRequest('Invalid token payload');
       }
 
       const user = await UserModel.findOne({ email }).lean();
       if (!user) {
-        return reply.unauthorized('User not found');
+        return await reply.unauthorized('User not found');
       }
 
       if (user.ra && String(user.ra) !== ra) {
-        return reply.unauthorized('RA mismatch');
+        return await reply.unauthorized('RA mismatch');
       }
 
       const season = currentQuad();
       const componentDoc = await ComponentModel.findOne({
-        uf_cod_turma: component,
         season,
+        uf_cod_turma: component,
       }).lean();
 
       if (!componentDoc) {
-        return reply.badRequest('Component not found');
+        return await reply.badRequest('Component not found');
       }
 
       const jwtToken = app.jwt.sign({
         _id: user._id,
-        ra: user.ra,
         confirmed: user.confirmed,
         email: user.email,
         permissions: user.permissions,
+        ra: user.ra,
       });
 
       request.log.info(
-        { userId: user._id, ra: user.ra },
+        { ra: user.ra, userId: user._id },
         'WhatsApp auth token validated successfully'
       );
 
-      return reply.status(200).send({ token: jwtToken });
+      return await reply.status(200).send({ token: jwtToken });
     },
+    method: 'POST',
+    schema: {
+      body: whatsappTokenBodySchema,
+      response: {
+        200: whatsappTokenResponseSchema,
+      },
+    },
+    url: '/auth/whatsapp-token',
+  });
+
+  app.route({
+    handler: async (request, reply) => {
+      const { login } = request.body;
+      const season = currentQuad();
+      const authenticationService = new AuthenticationService({
+        globalTraceId: request.id,
+        jwtService: app.jwt,
+      });
+
+      const token = await authenticationService.generateMatriculaToken(
+        login,
+        season
+      );
+      const response = { token };
+
+      return await reply.status(200).send(response);
+    },
+    method: 'POST',
+    preHandler: [matriculaSession],
+    schema: { 
+      body: matriculaTokenBodySchema,
+      headers: z.object({
+        'session-id': z.string(),
+      }),
+      response: {
+        200: matriculaTokenResponseSchema,
+      },
+    },
+    url: '/auth/matricula',
   });
 };

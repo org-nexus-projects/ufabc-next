@@ -2,13 +2,9 @@ import { join } from 'node:path';
 
 import { fastifyAutoload } from '@fastify/autoload';
 import dbPlugin from '@next/db/client';
-import type { DatabaseModels } from '@next/db/models';
-import type { FastifyInstance, FastifyServerOptions } from 'fastify';
-import {
-  RequestValidationError,
-  ResponseSerializationError,
-} from 'fastify-zod-openapi';
-import type { Mongoose } from 'mongoose';
+import { type DatabaseModels } from '@next/db/models';
+import { type FastifyInstance, type FastifyServerOptions } from 'fastify';
+import { type Mongoose } from 'mongoose';
 
 import { authenticationController } from './controllers/authentication-controller.js';
 import backofficeController from './controllers/backoffice-controller.js';
@@ -61,108 +57,6 @@ export async function buildApp(
   await app.register(awsV2Plugin);
 
   await setupV2Routes(app, routesV2);
-
-  app.setSchemaErrorFormatter((errors, dataVar) => {
-    let message = `${dataVar}:`;
-    for (const error of errors) {
-      if (error instanceof RequestValidationError) {
-        message += ` ${error.instancePath} ${error.keyword}`;
-      } else if (error.instancePath && error.keyword) {
-        message += ` ${error.instancePath} ${error.keyword}`;
-      }
-    }
-
-    return new Error(message);
-  });
-
-  app.setErrorHandler((error, request, reply) => {
-    reply.error = error as Error;
-
-    if (error instanceof ResponseSerializationError) {
-      reply.status(422);
-      reply.send({
-        originalError: error.validation?.[0]?.params.error ?? null,
-        zodIssues: error.validation?.map((err) => err.params.issue) ?? [],
-      });
-      return;
-    }
-
-    if (
-      error &&
-      typeof error === 'object' &&
-      'validation' in error &&
-      error.validation
-    ) {
-      const validationError = error as Error & { validation: unknown[] };
-
-      request.log.warn(
-        {
-          error: validationError,
-          request: {
-            method: request.method,
-            params: request.params,
-            query: request.query,
-            url: request.url,
-          },
-        },
-        validationError.message
-      );
-
-      reply.status(400);
-      reply.send({
-        error: 'Bad Request',
-        message: validationError.message,
-        statusCode: 400,
-        validation: validationError.validation,
-      });
-      return;
-    }
-
-    if (error instanceof Error) {
-      request.log.error(
-        {
-          error,
-          request: {
-            method: request.method,
-            params: request.params,
-            query: request.query,
-            url: request.url,
-          },
-        },
-        error.message
-      );
-
-      reply.status(500);
-      reply.send({
-        error: error.name,
-        message: error.message,
-        statusCode: 500,
-      });
-      return;
-    }
-
-    if (!error) {
-      return;
-    }
-  });
-
-  app.setNotFoundHandler((request, reply) => {
-    request.log.warn(
-      {
-        request: {
-          method: request.method,
-          params: request.params,
-          query: request.query,
-          url: request.url,
-        },
-      },
-      'Resource not found'
-    );
-
-    reply.code(404);
-
-    return { message: 'Not Found' };
-  });
 
   app.register(fastifyAutoload, {
     autoHooks: true,

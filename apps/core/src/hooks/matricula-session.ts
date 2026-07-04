@@ -1,21 +1,36 @@
-import type { preHandlerAsyncHookHandler } from 'fastify';
+import { UfabcMatriculaConnector } from '@next/connectors/ufabc-matricula';
+import { type preHandlerAsyncHookHandler } from 'fastify';
 
 declare module '@fastify/request-context' {
-  interface RequestContextData {
+  type RequestContextData = {
     matriculaSession: {
       sessionId: string;
     };
-  }
+  };
 }
 
+/* oxlint-disable func-style */
 export const matriculaSession: preHandlerAsyncHookHandler = async (
   request,
   reply
 ) => {
+  const authHeader = request.headers.authorization;
+  if (authHeader !== undefined && authHeader.startsWith('Bearer ')) {
+    try {
+      await request.jwtVerify();
+      request.requestContext.set('matriculaSession', {
+        sessionId: `jwt:${request.user.ra}`,
+      });
+      return;
+    } catch {
+      await reply.unauthorized('Invalid token');
+    }
+  }
+
   const { 'session-id': sessionId } = request.headers;
 
   if (!sessionId || typeof sessionId !== 'string') {
-    return reply.unauthorized('Missing Session');
+    await reply.unauthorized('Missing Session');
   }
 
   const sessionKey = `matricula:session:${sessionId}`;
@@ -30,9 +45,14 @@ export const matriculaSession: preHandlerAsyncHookHandler = async (
     return;
   }
 
-  const isValid = await validateToken(sessionId);
+  const ufabcMatriculaURL = request.server.config.UFABC_MATRICULA_URL;
+  const ufabcMatriculaConnector = new UfabcMatriculaConnector(
+    ufabcMatriculaURL,
+    request.id
+  );
+  const isValid = await ufabcMatriculaConnector.validateToken(sessionId);
   if (!isValid) {
-    return reply.forbidden();
+    await reply.forbidden();
   }
 
   await request.redisService.setJSON(sessionKey, { sessionId }, '20 minutes');
@@ -40,13 +60,3 @@ export const matriculaSession: preHandlerAsyncHookHandler = async (
     sessionId,
   });
 };
-
-async function validateToken(sessionId: string) {
-  if (!sessionId) {
-    return false;
-  }
-  // const connector = new UfabcMatriculaConnector();
-  // const response = await connector.validateToken(sessionId);
-  // TODO: finish
-  return true;
-}
