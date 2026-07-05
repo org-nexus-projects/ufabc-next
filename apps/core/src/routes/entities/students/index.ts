@@ -5,9 +5,9 @@ import {
   listMatriculaStudent,
   listStudentSchema,
   listStudentsStatsComponents,
-  type MatriculaStudent,
   updateStudentSchema,
 } from '@/schemas/entities/students.js';
+import type { MatriculaStudent } from '@/schemas/entities/students.js';
 
 import {
   getAllCourses,
@@ -24,8 +24,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const { season } = request.query;
 
       const isPrevious = await ComponentModel.countDocuments({
-        season,
         before_kick: { $exists: true, $ne: [] },
+        season,
       });
 
       const dataKey = isPrevious ? '$before_kick' : '$alunos_matriculados';
@@ -45,18 +45,16 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     const ra = Number(headers.ra as string);
 
     if (!login || !ra) {
-      return reply.badRequest('Missing required params');
+      return await reply.badRequest('Missing required params');
     }
 
-    const student = await getStudent({ ra, login });
+    const student = await getStudent({ login, ra });
 
     if (!student) {
-      return reply.notFound('Student not found');
+      return await reply.notFound('Student not found');
     }
 
     return {
-      studentId: student.aluno_id,
-      login: student.login,
       graduations: student.cursos.map((c) => ({
         name: c.nome_curso,
         courseId: c.id_curso,
@@ -66,6 +64,8 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         cr: c.cr,
         affinity: c.ind_afinidade,
       })),
+      login: student.login,
+      studentId: student.aluno_id,
       updatedAt: student.updatedAt.toISOString(),
     };
   });
@@ -77,17 +77,16 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       const login = request.headers['uf-login'];
 
       if (!login) {
-        return reply.badRequest('Missing required params');
+        return await reply.badRequest('Missing required params');
       }
 
       const student = await getStudent({ login });
 
       if (!student) {
-        return reply.notFound('Student not found');
+        return await reply.notFound('Student not found');
       }
 
       const matriculaStudent = {
-        studentId: student.aluno_id,
         graduations: student.cursos.map((c) => ({
           courseId: c.id_curso,
           name: c.nome_curso,
@@ -97,6 +96,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           cr: c.cr ?? 0,
           ca: c.ca ?? 0,
         })),
+        studentId: student.aluno_id,
         updatedAt: student.updatedAt.toISOString(),
       } satisfies MatriculaStudent;
 
@@ -108,14 +108,14 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     const { login, ra, studentId, graduationId } = request.body;
 
     const updatedStudent = await update({
+      graduationId,
       login,
       ra,
       studentId,
-      graduationId,
     });
 
     if (!updatedStudent) {
-      return reply.notFound('Could not find student');
+      return await reply.notFound('Could not find student');
     }
 
     return updatedStudent;

@@ -6,10 +6,11 @@
   "scripts": {
     "build": "turbo run build --continue",
     "dev": "turbo run dev",
+    "dev:watch": "turbo watch dev --experimental-write-cache --filter=@next/db --filter=@next/logger --filter=@next/queues --filter=@next/testing --filter=@next/utils --filter=@next/container --filter=@next/extension",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "test": "turbo run test",
-    "tsc": "turbo run tsc --parallel"
+    "tsc": "turbo run tsc"
   },
   "devDependencies": {
     "@typescript/native-preview": "catalog:",
