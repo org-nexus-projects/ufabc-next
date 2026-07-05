@@ -56,7 +56,7 @@ export async function buildApp(
   });
   await app.register(awsV2Plugin);
 
-  await setupV2Routes(app, routesV2);
+await setupV2Routes(app, routesV2);
 
   app.register(fastifyAutoload, {
     autoHooks: true,
