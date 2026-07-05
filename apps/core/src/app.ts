@@ -34,20 +34,19 @@ export async function buildApp(
     options: { ...opts },
   });
 
+  await app.register(redisV2Plugin);
+
   await app.register(fastifyAutoload, {
     dir: join(import.meta.dirname, 'plugins/custom'),
     options: { ...opts },
   });
 
-  await app.register(redisV2Plugin);
   await app.register(dbPlugin, {
     mongodbConnectionUrl: app.config.MONGODB_CONNECTION_URL,
     nodeEnv: app.config.NODE_ENV,
     logLevel: app.config.LOG_LEVEL,
   });
-  await app.register(queueV2Plugin, {
-    redisURL: new URL(app.config.REDIS_CONNECTION_URL),
-  });
+  await app.register(queueV2Plugin);
   await app.register(awsV2Plugin);
 
 await setupV2Routes(app, routesV2);

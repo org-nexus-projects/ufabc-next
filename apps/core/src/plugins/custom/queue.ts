@@ -1,3 +1,4 @@
+import type { ConnectionOptions } from 'bullmq';
 import type { FastifyInstance, FastifyPluginOptions } from 'fastify';
 
 import { fastifyPlugin as fp } from 'fastify-plugin';
@@ -14,14 +15,17 @@ declare module 'fastify' {
 
 export const autoConfig = (app: FastifyInstance) => {
   return {
-    redisURL: new URL(app.config.REDIS_CONNECTION_URL),
+    redisConnection: app.redisConnector.getConnectionOptions(),
   };
 };
 
 export default fp(
-  async (app: FastifyInstance, opts: FastifyPluginOptions & { redisURL: URL }) => {
-    const worker = new QueueWorker(app, opts.redisURL);
-    const jobs = new Jobs(app, opts.redisURL);
+  async (
+    app: FastifyInstance,
+    opts: FastifyPluginOptions & { redisConnection: ConnectionOptions }
+  ) => {
+    const worker = new QueueWorker(app, opts.redisConnection);
+    const jobs = new Jobs(app, opts.redisConnection);
 
     app.addHook('onClose', async () => {
       await worker.close();

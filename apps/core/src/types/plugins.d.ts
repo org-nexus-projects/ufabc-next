@@ -1,3 +1,5 @@
+import { RedisConnector } from '@next/connectors/redis';
+
 import { Config } from '@/plugins/external/config.ts';
 import type { Redis } from 'ioredis';
 
@@ -17,6 +19,7 @@ declare module 'fastify' {
       decode(token: string, options?: object): object;
     };
     redis: Redis;
+    redisConnector: RedisConnector;
     config: Config;
   }
 

@@ -13,7 +13,9 @@
     ],
     "outDir": "dist",
     "rootDir": "src",
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   },
   "include": ["src/**/*.ts", "esbuild.ts", "test/**/*.ts", "runTests.ts"],
   "exclude": ["node_modules/**/*"]

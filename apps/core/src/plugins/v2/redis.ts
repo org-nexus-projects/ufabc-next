@@ -1,79 +1,66 @@
-import { fastifyRedis } from '@fastify/redis';
+import { RedisConnector } from '@next/connectors/redis';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 import ms from 'ms';
 
 import { HTTP_REDIS_KEY_PREFIX } from '@/constants.js';
-import { FastifyInstance } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 
 type RedisService = {
-  acquireLock: (key: string, ttl: string) => Promise<boolean>;
-  releaseLock: (key: string) => Promise<boolean>;
-  setJSON: <T>(key: string, value: T, ttl: string) => Promise<'OK'>;
+  acquireLock: (key: string, ttl: string) => ReturnType<
+    RedisConnector['acquireLock']
+  >;
+  releaseLock: (key: string) => ReturnType<RedisConnector['releaseLock']>;
+  setJSON: (
+    key: string,
+    value: unknown,
+    ttl: string
+  ) => ReturnType<RedisConnector['setJSON']>;
   getJSON: <T>(key: string) => Promise<T | null>;
 };
 
 declare module 'fastify' {
+  export interface FastifyInstance {
+    redisConnector: RedisConnector;
+  }
+
   export interface FastifyRequest {
-    acquireLock: (key: string, ttl: string) => Promise<boolean>;
-    releaseLock: (key: string) => Promise<boolean>;
+    acquireLock: RedisService['acquireLock'];
+    releaseLock: RedisService['releaseLock'];
     redisService: RedisService;
   }
 }
 
+function parseTTLToSeconds(ttl: string) {
+  return Math.ceil(ms(ttl) / 1000);
+}
+
 export default fp(
   async (app: FastifyInstance) => {
-    await app.register(fastifyRedis, {
-      url: app.config.REDIS_CONNECTION_URL,
-      closeClient: true,
+    const redisConnector = new RedisConnector(app.config.REDIS_CONNECTION_URL, {
+      prefix: HTTP_REDIS_KEY_PREFIX,
     });
 
-    const acquireLock = async (key: string, ttl: string) => {
-      const ttlInMs = ms(ttl);
-      const lockKey = `${HTTP_REDIS_KEY_PREFIX}:lock:${key}`;
-      const result = await app.redis.set(
-        lockKey,
-        new Date().toISOString(),
-        'PX',
-        ttlInMs,
-        'NX'
-      );
-
-      return result === 'OK';
-    };
-
-    const releaseLock = async (key: string) => {
-      const lockKey = `${HTTP_REDIS_KEY_PREFIX}:lock:${key}`;
-      const result = await app.redis.del(lockKey);
-      return result === 1;
-    };
+    await redisConnector.connect();
 
     const redisService: RedisService = {
-      acquireLock,
-      releaseLock,
-      setJSON: async <T>(key: string, value: T, ttl: string) => {
-        const fullKey = `${HTTP_REDIS_KEY_PREFIX}:${key}`;
-        const serializedValue = JSON.stringify(value);
-
-        if (ttl) {
-          return app.redis.set(fullKey, serializedValue, 'PX', ms(ttl));
-        }
-
-        return app.redis.set(fullKey, serializedValue);
-      },
-      getJSON: async <T>(key: string) => {
-        const fullKey = `${HTTP_REDIS_KEY_PREFIX}:${key}`;
-        const serializedValue = await app.redis.get(fullKey);
-        if (!serializedValue) {
-          return null;
-        }
-        return JSON.parse(serializedValue) as T;
-      },
+      acquireLock: (key, ttl) =>
+        redisConnector.acquireLock(key, parseTTLToSeconds(ttl)),
+      releaseLock: (key) => redisConnector.releaseLock(key),
+      setJSON: (key, value, ttl) =>
+        redisConnector.setJSON(key, value, parseTTLToSeconds(ttl)),
+      getJSON: <T>(key: string) => redisConnector.getJSON<T>(key),
     };
 
-    app.decorateRequest('acquireLock', acquireLock);
-    app.decorateRequest('releaseLock', releaseLock);
+    app.decorate('redis', redisConnector.client);
+    app.decorate('redisConnector', redisConnector);
+    app.decorateRequest('acquireLock', redisService.acquireLock);
+    app.decorateRequest('releaseLock', redisService.releaseLock);
     app.decorateRequest('redisService', {
       getter: () => redisService,
+    });
+
+    app.addHook('onClose', async () => {
+      await redisConnector.close();
     });
 
     app.log.info('[REDIS] Redis available at app.redis');

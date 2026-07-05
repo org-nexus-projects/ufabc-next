@@ -1,11 +1,11 @@
 import type { Job, Queue, Worker } from 'bullmq';
 import type { FastifyInstance } from 'fastify';
 
-import type { JOBS, QUEUE_JOBS } from './definitions.js';
+import type { JOBS, QueueNames as QueueNamesFromDefinitions } from './definitions.js';
 
 // Basic types for job definitions
 export type JobNames = keyof typeof JOBS;
-export type QueueNames = keyof typeof QUEUE_JOBS;
+export type QueueNames = QueueNamesFromDefinitions;
 
 // Context that will be injected into processors
 export interface QueueContext<TData = unknown> {

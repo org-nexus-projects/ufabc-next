@@ -8,7 +8,7 @@ import {
   userEnrollmentsUpdate,
 } from './jobs/user-enrollments.job.js';
 
-type JobNames =
+type QueueName =
   | 'send_email'
   | 'sync_components'
   | 'user_enrollments_update'
@@ -17,45 +17,37 @@ type JobNames =
 
 const MONTH = 60 * 60 * 24 * 30;
 
-const redisURL = new URL(
-  process.env.REDIS_CONNECTION_URL ?? 'redis://localhost:6379'
-);
-
-export const redisConnection: ConnectionOptions = {
-  username: redisURL.username,
-  password: redisURL.password,
-  host: redisURL.hostname,
-  port: Number(redisURL.port),
-};
-
 function withConnection(
+  redisConnection: ConnectionOptions,
   opts: Omit<WorkerOptions, 'connection'>
 ): WorkerOptions {
   return { ...opts, connection: redisConnection };
 }
 
-export const QUEUE_JOBS: Record<JobNames, WorkerOptions> = {
-  send_email: withConnection({
+export const buildQueueJobs = (
+  redisConnection: ConnectionOptions
+): Record<QueueName, WorkerOptions> => ({
+  send_email: withConnection(redisConnection, {
     removeOnComplete: { age: MONTH },
   }),
-  user_enrollments_update: withConnection({
+  user_enrollments_update: withConnection(redisConnection, {
     concurrency: 5,
     removeOnComplete: { count: 400, age: 0 },
   }),
-  sync_components: withConnection({
+  sync_components: withConnection(redisConnection, {
     concurrency: 10,
     removeOnComplete: { count: 1000, age: 24 * 60 * 60 },
     limiter: { max: 50, duration: 1000 },
   }),
-  logs_upload: withConnection({
+  logs_upload: withConnection(redisConnection, {
     concurrency: 1,
     removeOnComplete: { count: 100, age: 24 * 60 * 60 },
   }),
-  notion_insert: withConnection({
+  notion_insert: withConnection(redisConnection, {
     concurrency: 5,
     removeOnComplete: { count: 100, age: 24 * 60 * 60 },
   }),
-} as const;
+} as const);
 
 export const JOBS = {
   SendEmail: {
@@ -85,4 +77,4 @@ export const JOBS = {
   },
 } as const;
 
-export type QueueNames = keyof typeof QUEUE_JOBS;
+export type QueueNames = QueueName;

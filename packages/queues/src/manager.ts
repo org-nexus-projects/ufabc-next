@@ -41,17 +41,12 @@ export class JobManager<
   constructor(
     private readonly app: FastifyInstance,
     private readonly jobs: TRegistry,
-    redisURL: URL,
+    redisConnection: ConnectionOptions,
     boardPath: string
   ) {
     this.app = app;
     this.boardPath = boardPath;
-    this.redisConnection = {
-      username: redisURL.username ?? '',
-      password: redisURL.password ?? '',
-      host: redisURL.hostname ?? '',
-      port: Number(redisURL.port) ?? 6379,
-    } satisfies ConnectionOptions;
+    this.redisConnection = redisConnection;
     this.flowProducer = new FlowProducer({
       connection: this.redisConnection,
     });

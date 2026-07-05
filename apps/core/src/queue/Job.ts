@@ -1,7 +1,11 @@
 import type { FastifyInstance } from 'fastify';
 
 import { FastifyAdapter } from '@bull-board/fastify';
-import { type JobsOptions, Queue, type RedisOptions } from 'bullmq';
+import {
+  type ConnectionOptions,
+  type JobsOptions,
+  Queue,
+} from 'bullmq';
 import ms from 'ms';
 import { ulid } from 'ulidx';
 
@@ -13,7 +17,7 @@ import type {
 } from './types.js';
 
 import { boardUiPath, createBoard } from './board.js';
-import { JOBS, QUEUE_JOBS, type QueueNames } from './definitions.js';
+import { buildQueueJobs, JOBS, type QueueNames } from './definitions.js';
 
 interface JobImpl {
   setup(): Promise<void>;
@@ -34,33 +38,28 @@ export class Jobs implements JobImpl {
   >;
   public readonly queueBoard = FastifyAdapter;
 
-  private readonly redisConfig: RedisOptions;
+  private readonly redisConfig: ConnectionOptions;
   private readonly app: FastifyInstance;
 
-  constructor(app: FastifyInstance, redisURL: URL) {
+  constructor(app: FastifyInstance, redisConnection: ConnectionOptions) {
     this.app = app;
-    this.redisConfig = {
-      username: redisURL.username,
-      password: redisURL.password,
-      host: redisURL.hostname,
-      port: Number(redisURL.port),
-    };
-    for (const name of Object.keys(QUEUE_JOBS) as QueueNames[]) {
+    this.redisConfig = redisConnection;
+    const queueJobs = buildQueueJobs(redisConnection);
+
+    for (const name of Object.keys(queueJobs) as QueueNames[]) {
       const queue = new Queue<
         JobDataType<JobNames>,
         JobResultType<JobNames>,
         JobNames
-      >(name, {
-        connection: {
-          ...this.redisConfig,
-        },
+      >(name as string, {
+        connection: this.redisConfig,
         defaultJobOptions: {
           attempts: 3,
           removeOnComplete: true,
         },
       });
 
-      this.queues[name] = queue;
+      this.queues[name] = queue as TypeSafeQueue;
     }
   }
 
