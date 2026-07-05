@@ -2,10 +2,7 @@ import { join } from 'node:path';
 
 import { fastifyAutoload } from '@fastify/autoload';
 import dbPlugin from '@next/db/client';
-import { type DatabaseModels } from '@next/db/models';
 import { type FastifyInstance, type FastifyServerOptions } from 'fastify';
-import { type Mongoose } from 'mongoose';
-
 import { authenticationController } from './controllers/authentication-controller.js';
 import backofficeController from './controllers/backoffice-controller.js';
 import componentsController from './controllers/components-controller.js';
@@ -18,13 +15,6 @@ import queueV2Plugin from './plugins/v2/queue.js';
 import redisV2Plugin from './plugins/v2/redis.js';
 import { setupV2Routes } from './plugins/v2/setup.js';
 import testUtilsPlugin from './plugins/v2/test-utils.js';
-
-declare module 'fastify' {
-  type FastifyInstance = {
-    db: DatabaseModels;
-    rawMongoose: Mongoose;
-  };
-}
 
 const routesV2 = [
   componentsController,
@@ -50,7 +40,11 @@ export async function buildApp(
   });
 
   await app.register(redisV2Plugin);
-  await app.register(dbPlugin);
+  await app.register(dbPlugin, {
+    mongodbConnectionUrl: app.config.MONGODB_CONNECTION_URL,
+    nodeEnv: app.config.NODE_ENV,
+    logLevel: app.config.LOG_LEVEL,
+  });
   await app.register(queueV2Plugin, {
     redisURL: new URL(app.config.REDIS_CONNECTION_URL),
   });

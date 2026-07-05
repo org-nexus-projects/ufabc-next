@@ -49,6 +49,7 @@ const configSchema = z.object({
   WEBHOOK_API_KEY: z.string().default('webhook-api-key'),
   UFABC_PARSER_WEBHOOK_SECRET: z.string().optional(),
   WHATSAPP_AUTH_SECRET: z.string().optional(),
+  LOG_LEVEL: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).default('info'),
 });
 
 const schema = zodToJsonSchema(configSchema);
