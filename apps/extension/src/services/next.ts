@@ -65,8 +65,26 @@ export async function getKicksInfo(kickId: string, studentId?: number) {
   return await nextApiConnector.getComponentKicks(kickId, { studentId });
 }
 
-export async function getStudent(login: string, sessionId: string) {
-  return await nextApiConnector.getStudent(login, sessionId);
+export async function getStudent(
+  login: string | undefined,
+  sessionId?: string,
+  jwt?: string
+) {
+  return await nextApiConnector.getStudent(login, sessionId, jwt);
+}
+
+export async function exchangeExtensionToken(
+  source: 'matricula' | 'sigaa' | 'moodle',
+  sessionId: string,
+  login: string,
+  options?: { ra?: number; sessKey?: string; viewId?: string }
+) {
+  return await nextApiConnector.exchangeExtensionToken(
+    source,
+    sessionId,
+    login,
+    options
+  );
 }
 
 type SyncMatriculaStudentParams = {
