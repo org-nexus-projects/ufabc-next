@@ -2,14 +2,14 @@
   "languages": {
     "CSS": {
       "format_on_save": "on",
-"prettier": {
+      "prettier": {
         "allowed": false
       },
       "language_servers": [
-        "tsgo",
+        "!tsgo",
         "oxlint",
         "oxfmt",
-        "!vtsls",
+        "vtsls",
         "!typescript-language-server"
       ],
       "formatter": {
@@ -57,10 +57,10 @@
         "allowed": false
       },
       "language_servers": [
-        "tsgo",
+        "!tsgo",
         "oxlint",
         "oxfmt",
-        "!vtsls",
+        "vtsls",
         "!typescript-language-server"
       ],
       "formatter": [
@@ -160,10 +160,10 @@
         "allowed": false
       },
       "language_servers": [
-        "tsgo",
+        "!tsgo",
         "oxlint",
         "oxfmt",
-        "!vtsls",
+        "vtsls",
         "!typescript-language-server"
       ],
       "formatter": {
@@ -182,10 +182,10 @@
         "allowed": false
       },
       "language_servers": [
-        "tsgo",
+        "!tsgo",
         "oxlint",
         "oxfmt",
-        "!vtsls",
+        "vtsls",
         "!typescript-language-server"
       ],
       "formatter": {
@@ -207,7 +207,7 @@
         "vue-language-server",
         "oxlint",
         "oxfmt",
-        "!vtsls",
+        "vtsls",
         "!typescript-language-server"
       ],
       "formatter": {

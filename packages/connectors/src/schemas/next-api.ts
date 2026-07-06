@@ -58,8 +58,8 @@ export const whatsappTokenResponseSchema = z.object({
 });
 export type WhatsappTokenResponse = z.infer<typeof whatsappTokenResponseSchema>;
 
-export const matriculaTokenResponseSchema = whatsappTokenResponseSchema;
-export type MatriculaTokenResponse = z.infer<typeof matriculaTokenResponseSchema>;
+export const extensionTokenResponseSchema = whatsappTokenResponseSchema;
+export type ExtensionTokenResponse = z.infer<typeof extensionTokenResponseSchema>;
 
 // Route-level request/response schemas shared between backend and clients
 export const updateMatriculaStudentBodySchema = z.object({
@@ -83,10 +83,12 @@ export const whatsappTokenBodySchema = z.object({
 });
 export type WhatsappTokenBody = z.infer<typeof whatsappTokenBodySchema>;
 
-export const matriculaTokenBodySchema = z.object({
+export const extensionTokenBodySchema = z.object({
+  source: z.enum(['matricula', 'sigaa', 'moodle']),
   login: z.string().min(1),
+  ra: z.number().optional(),
 });
-export type MatriculaTokenBody = z.infer<typeof matriculaTokenBodySchema>;
+export type ExtensionTokenBody = z.infer<typeof extensionTokenBodySchema>;
 
 export const messageResponseSchema = z.object({
   message: z.string(),
