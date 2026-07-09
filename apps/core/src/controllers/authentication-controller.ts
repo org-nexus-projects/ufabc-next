@@ -1,8 +1,8 @@
 import { createDecipheriv, createHash } from 'node:crypto';
 
 import {
-  matriculaTokenBodySchema,
-  matriculaTokenResponseSchema,
+  extensionTokenBodySchema,
+  extensionTokenResponseSchema,
   whatsappTokenBodySchema,
   whatsappTokenResponseSchema,
 } from '@next/connectors/schemas/next-api';
@@ -10,7 +10,6 @@ import { currentQuad } from '@next/utils';
 import { type FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 
-import { matriculaSession } from '@/hooks/matricula-session.js';
 import { ComponentModel } from '@/models/Component.js';
 import { UserModel } from '@/models/User.js';
 
@@ -23,6 +22,11 @@ export const authenticationController: FastifyPluginAsyncZod = async (app) => {
 
       let decryptedPayload: string;
       try {
+        const secret = app.config.WHATSAPP_AUTH_SECRET;
+        if (!secret) {
+          throw new Error('WHATSAPP_AUTH_SECRET is not configured');
+        }
+
         const components = JSON.parse(
           Buffer.from(token, 'base64').toString('utf-8')
         ) as {
@@ -121,32 +125,40 @@ export const authenticationController: FastifyPluginAsyncZod = async (app) => {
 
   app.route({
     handler: async (request, reply) => {
-      const { login } = request.body;
-      const season = currentQuad();
+      const { login, ra, source } = request.body;
+      const sessionId = request.headers['session-id'];
+      const viewId = request.headers['view-id'];
+      const sessKey = request.headers['sess-key'];
+
       const authenticationService = new AuthenticationService({
+        config: app.config,
         globalTraceId: request.id,
         jwtService: app.jwt,
       });
 
-      const token = await authenticationService.generateMatriculaToken(
+      const token = await authenticationService.generateExtensionToken({
         login,
-        season
-      );
-      const response = { token };
+        ra,
+        source,
+        sessKey,
+        sessionId,
+        viewId,
+      });
 
-      return await reply.status(200).send(response);
+      return await reply.status(200).send({ token });
     },
     method: 'POST',
-    preHandler: [matriculaSession],
-    schema: { 
-      body: matriculaTokenBodySchema,
+    schema: {
+      body: extensionTokenBodySchema,
       headers: z.object({
         'session-id': z.string(),
+        'sess-key': z.string().optional(),
+        'view-id': z.string().optional(),
       }),
       response: {
-        200: matriculaTokenResponseSchema,
+        200: extensionTokenResponseSchema,
       },
     },
-    url: '/auth/matricula',
+    url: '/auth/extension-token',
   });
 };

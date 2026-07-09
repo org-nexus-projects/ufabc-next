@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { MoodleConnector } from '@/connectors/moodle.js';
 import { JOB_NAMES } from '@/constants.js';
 import { jwtVerifyHook } from '@/hooks/jwt-verify.js';
-import { moodleSession } from '@/hooks/moodle-session.js';
+import { extensionSession } from '@/hooks/extension-session.js';
 import { ComponentModel } from '@/models/Component.js';
 import {
   ListComponent,
@@ -21,7 +21,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
   app.route({
     method: 'POST',
     url: '/components/archives',
-    preHandler: [moodleSession],
+    preHandler: [extensionSession('moodle')],
     schema: {
       response: {
         202: z.object({
@@ -34,7 +34,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       }),
     },
     handler: async (request, reply) => {
-      const session = request.requestContext.get('moodleSession')! as { sessionId: string; sessKey: string };
+      const session = request.requestContext.get('extensionSession')! as { sessionId: string; sessKey: string };
       const hasLock = await request.acquireLock(session.sessionId, '24h');
 
       if (!hasLock) {
@@ -77,7 +77,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
   app.route({
     method: 'GET',
     url: '/components/archives',
-    preHandler: [moodleSession],
+    preHandler: [extensionSession('moodle')],
     schema: {
       response: {
         200: z.object({
@@ -87,7 +87,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       },
     },
     handler: async (request, reply) => {
-      const session = request.requestContext.get('moodleSession')! as { sessionId: string; sessKey: string };
+      const session = request.requestContext.get('extensionSession')! as { sessionId: string; sessKey: string };
       const components = await moodleConnector.getComponents(
         session.sessionId,
         session.sessKey

@@ -11,9 +11,9 @@ import { type FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 
 import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
-import { matriculaSession } from '@/hooks/matricula-session.js';
-import { sigaaSession } from '@/hooks/sigaa-session.js';
+import { extensionSession } from '@/hooks/extension-session.js';
 import { StudentModel } from '@/models/Student.js';
+import { AuthenticationService } from '@/services/authentication-service.js';
 
 function normalizeShift(turno: string): 'Noturno' | 'Matutino' {
   if (turno === 'Matutino' || turno === 'matutino' || turno === 'm') {
@@ -47,10 +47,11 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
       return await reply.send({ message: 'Student updated successfully' });
     },
     method: 'PUT',
-    preHandler: [matriculaSession],
+    preHandler: [extensionSession('matricula')],
     schema: {
       body: updateMatriculaStudentBodySchema,
       headers: z.object({
+        authorization: z.string().optional(),
         'session-id': z.string(),
       }),
       response: {
@@ -93,7 +94,7 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
       return await reply.send(fullStudent);
     },
     method: 'GET',
-    preHandler: [matriculaSession],
+    preHandler: [extensionSession('matricula')],
     schema: {
       headers: z.object({
         authorization: z.string().optional(),
@@ -111,11 +112,22 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
     handler: async (request, reply) => {
       const connector = new UfabcParserConnector(request.id);
       const { ra, login } = request.body;
-      const { sessionId, viewId } = request.sigaaSession;
-      const cacheKey = `http:students:sigaa:${ra}`;
+      const extensionSession = request.requestContext.get('extensionSession')! as { sessionId: string; viewId: string };
+      const { sessionId, viewId } = extensionSession;
 
+      const authenticationService = new AuthenticationService({
+        config: app.config,
+        globalTraceId: request.id,
+        jwtService: app.jwt,
+      });
+      await authenticationService.linkUserRa({
+        login,
+        ra,
+      });
+
+      const cacheKey = `http:students:sigaa:${ra}`;
       const cached = await app.redis.get(cacheKey);
-      if (cached) {
+      if (cached != null) {
         app.log.debug({ cacheKey }, 'Student already synced');
         return await reply.status(202).send({
           status: 'cached',
@@ -155,7 +167,7 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
       });
     },
     method: 'POST',
-    preHandler: [sigaaSession],
+    preHandler: [extensionSession('sigaa')],
     schema: {
       body: syncSigaaStudentBodySchema,
       headers: z.object({

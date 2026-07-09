@@ -1,4 +1,4 @@
-import { BaseRequester } from './base-requester.ts';
+import { BaseRequester } from './base-requester.js';
 import {
   type Comment,
   type Component,
@@ -10,8 +10,8 @@ import {
   type GetCommentResponse,
   type HelpFormResult,
   type HistoriesGraduations,
+  type ExtensionTokenResponse,
   type MatriculaStudent,
-  type MatriculaTokenResponse,
   type QuadInformation,
   type ReactionKind,
   type SearchComponentItem,
@@ -30,7 +30,7 @@ import {
   type User,
   type UserConfirmResponse,
   type WhatsappTokenResponse,
-} from './schemas/next-api.ts';
+} from './schemas/next-api.js';
 
 export type NextApiConnectorOptions = {
   baseURL: string;
@@ -180,12 +180,30 @@ export class NextApiConnector extends BaseRequester {
     return await this.request<MatriculaStudent>('/v2/students', { headers });
   }
 
-  async exchangeMatriculaToken(sessionId: string, login: string) {
-    return await this.request<MatriculaTokenResponse>(
-      '/v2/auth/matricula-token',
+  async exchangeExtensionToken(
+    source: 'matricula' | 'sigaa' | 'moodle',
+    sessionId: string,
+    login: string,
+    options?: { ra?: number; sessKey?: string; viewId?: string }
+  ) {
+    const body: Record<string, unknown> = { login, source };
+    if (options?.ra !== undefined) {
+      body.ra = options.ra;
+    }
+
+    const headers: Record<string, string> = { 'session-id': sessionId };
+    if (options?.sessKey) {
+      headers['sess-key'] = options.sessKey;
+    }
+    if (options?.viewId) {
+      headers['view-id'] = options.viewId;
+    }
+
+    return await this.request<ExtensionTokenResponse>(
+      '/v2/auth/extension-token',
       {
-        body: { login },
-        headers: { login, 'session-id': sessionId },
+        body,
+        headers,
         method: 'POST',
       }
     );
