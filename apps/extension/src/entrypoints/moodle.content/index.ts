@@ -1,5 +1,6 @@
 import { sendResults } from '@/services/next';
 import { sendMessage } from '@/messaging';
+import { authenticate } from '@/services/auth';
 import { logger } from '@/utils/logger';
 
 export default defineContentScript({
@@ -8,19 +9,25 @@ export default defineContentScript({
       const sessionToken = await getToken();
       const sessKey = await getSessKey();
 
-      const results = {
-        sessionToken: sessionToken,
-        sessKey: sessKey,
-      };
+      await authenticate('moodle', {
+        sessionId: sessionToken ?? undefined,
+        sessKey: sessKey ?? undefined,
+      });
 
-      await sendResults(results);
+      if (sessionToken && sessKey) {
+        const results = {
+          sessionToken: sessionToken,
+          sessKey: sessKey,
+        };
+        await sendResults(results);
+      }
 
     } catch (error) {
       logger.error({ error }, '[Moodle] Erro ao fazer scraping');
     }
   },
 
-  runAt: 'document_end',
+  runAt: "document_end",
   matches: ['*://moodle.ufabc.edu.br/my/courses.php*'],
 });
 

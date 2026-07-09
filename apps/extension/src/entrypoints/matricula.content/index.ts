@@ -1,10 +1,12 @@
 import './style.css';
 import { VueQueryPlugin } from '@tanstack/vue-query';
 import HighchartsVue from 'highcharts-vue';
-import type { ContentScriptContext } from 'wxt/client';
+import { type ContentScriptContext } from 'wxt/client';
+import { storage } from 'wxt/storage';
 
 import UFABCMatricula from '@/entrypoints/matricula.content/UFABC-Matricula.vue';
 import { sendMessage } from '@/messaging';
+import { authenticate } from '@/services/auth';
 import { getStudent } from '@/services/next';
 import { getUFEnrolled } from '@/services/ufabc-parser';
 import { logger } from '@/utils/logger';
@@ -76,7 +78,16 @@ export default defineContentScript({
   async main(ctx) {
     const sessionId = await getToken();
     const $topInfo = document.querySelector('#usuario_top > b');
-    const login = $topInfo?.textContent?.trim().split(' ')[0];
+    const pageLogin = $topInfo?.textContent?.trim().split(' ')[0];
+    const storedStudent = await storage.getItem<{ login: string; ra: string }>(
+      'local:student'
+    );
+    const login = storedStudent?.login ?? pageLogin;
+
+    if (!login) {
+      logger.warn('No login available for matricula content script');
+      return;
+    }
 
     const ui = await mountUFABCMatriculaFilters(ctx, sessionId, login);
     ui.mount();
@@ -100,20 +111,52 @@ export default defineContentScript({
       'https://ufabc-matricula-snapshot.vercel.app',
       'https://matricula.ufabc.edu.br',
     ];
+    const MATRICULA_ORIGIN = 'https://matricula.ufabc.edu.br';
     const { origin } = new URL(document.location.href);
     if (URLS_TO_CHECK.includes(origin)) {
-      logger.info('Fetching full student info from Next API');
-      const fullStudent = await getStudent(login!, sessionId!);
-      await storage.setItem('local:fullStudent', fullStudent);
-      document.dispatchEvent(
-        new CustomEvent('student-info', {
-          detail: {
-            hasStudent: !!fullStudent,
-            login,
-            ra: fullStudent.ra,
-          },
-        })
-      );
+      try {
+        let fullStudent = null;
+
+        const jwt = await authenticate('matricula', {
+          sessionId: sessionId ?? undefined,
+        });
+
+        if (jwt) {
+          fullStudent = await getStudent(
+            storedStudent?.login ?? login,
+            undefined,
+            jwt
+          );
+        }
+
+        // Legacy fallback: no stored identity but has a matricula session (prod only)
+        if (!jwt && origin === MATRICULA_ORIGIN && sessionId && login) {
+          logger.warn(
+            { login },
+            'No stored student from SIGAA; using legacy session-based fetch'
+          );
+          fullStudent = await getStudent(login, sessionId);
+        }
+
+        if (fullStudent) {
+          await storage.setItem('local:fullStudent', fullStudent);
+          document.dispatchEvent(
+            new CustomEvent('student-info', {
+              detail: {
+                hasStudent: true,
+                login,
+                ra: fullStudent.ra,
+              },
+            })
+          );
+        }
+
+        if (!jwt && !fullStudent) {
+          logger.warn('No matricula session or stored JWT available');
+        }
+      } catch (error) {
+        logger.error(error, 'Failed to fetch full student info');
+      }
     }
     return;
   },

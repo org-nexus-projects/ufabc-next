@@ -35,3 +35,15 @@ export class RaConflictError extends NextError {
     this.name = 'RaConflictError';
   }
 }
+
+export class SessionInvalidError extends NextError {
+  constructor() {
+    super({
+      code: 'NEX000004',
+      description: 'Session is invalid or missing required credentials',
+      status: 401,
+      title: 'Invalid Session',
+    });
+    this.name = 'SessionInvalidError';
+  }
+}
