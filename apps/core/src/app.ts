@@ -24,10 +24,10 @@ import { setupV2Routes } from './plugins/v2/setup.js';
 import testUtilsPlugin from './plugins/v2/test-utils.js';
 
 declare module 'fastify' {
-  type FastifyInstance = {
+  interface FastifyInstance {
     db: DatabaseModels;
     rawMongoose: Mongoose;
-  };
+  }
 }
 
 const routesV2 = [
