@@ -1,4 +1,5 @@
 import { exchangeExtensionToken } from './next';
+import { storage } from 'wxt/storage';
 import { logger } from '@/utils/logger';
 
 export type AuthSource = 'matricula' | 'sigaa' | 'moodle';
