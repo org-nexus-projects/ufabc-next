@@ -7,6 +7,15 @@ on:
         description: Build + zip + upload artifact only; skip version bump, commit, tag, release and submit
         type: boolean
         default: false
+  push:
+    branches:
+      - extension-lint-utils
+    paths:
+      - apps/extension/**
+      - packages/services/**
+      - packages/utils/**
+      - .github/workflows/release.yml
+      - .changeset/**
   pull_request:
     branches:
       - main
