@@ -177,9 +177,10 @@ jobs:
 
       - name: Verify Chrome Web Store credentials (dry-run)
         if: steps.is_release.outputs.value != 'true'
+        working-directory: apps/extension
         run: |
           pnpm wxt submit --dry-run \
-            --chrome-zip apps/extension/.output/*-chrome.zip \
+            --chrome-zip .output/*-chrome.zip \
             --chrome-extension-id "${{ secrets.CHROME_EXTENSION_ID }}" \
             --chrome-client-id "${{ secrets.CHROME_EXTENSION_CLIENT_ID }}" \
             --chrome-client-secret "${{ secrets.CHROME_EXTENSION_CLIENT_SECRET }}" \
@@ -187,9 +188,10 @@ jobs:
 
       - name: Submit to Chrome Web Store
         if: steps.is_release.outputs.value == 'true' && steps.find_changesets.outputs.count != '0'
+        working-directory: apps/extension
         run: |
           pnpm wxt submit \
-            --chrome-zip apps/extension/.output/*-chrome.zip \
+            --chrome-zip .output/*-chrome.zip \
             --chrome-extension-id "${{ secrets.CHROME_EXTENSION_ID }}" \
             --chrome-client-id "${{ secrets.CHROME_EXTENSION_CLIENT_ID }}" \
             --chrome-client-secret "${{ secrets.CHROME_EXTENSION_CLIENT_SECRET }}" \
