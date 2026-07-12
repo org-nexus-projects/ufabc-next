@@ -13,6 +13,7 @@ export default defineConfig({
     },
   },
   manifest: {
+    name: 'UFABC next',
     host_permissions: [
       'https://sig.ufabc.edu.br/*',
       'https://matricula.ufabc.edu.br/*',
