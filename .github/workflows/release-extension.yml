@@ -14,7 +14,7 @@ on:
       - apps/extension/**
       - packages/services/**
       - packages/utils/**
-      - .github/workflows/release.yml
+      - .github/workflows/release-extension.yml
       - .changeset/**
   pull_request:
     branches:
@@ -23,7 +23,7 @@ on:
       - apps/extension/**
       - packages/services/**
       - packages/utils/**
-      - .github/workflows/release.yml
+      - .github/workflows/release-extension.yml
       - .changeset/**
 
 concurrency:
@@ -33,6 +33,12 @@ concurrency:
 permissions:
   contents: write
   pull-requests: read
+
+env:
+  CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+  CHROME_CLIENT_ID: ${{ secrets.CHROME_EXTENSION_CLIENT_ID }}
+  CHROME_CLIENT_SECRET: ${{ secrets.CHROME_EXTENSION_CLIENT_SECRET }}
+  CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_EXTENSION_REFRESH_TOKEN }}
 
 jobs:
   release:
@@ -60,68 +66,26 @@ jobs:
       - name: Determine if this is a full release
         id: is_release
         run: |
-          if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
-            echo "value=false" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event.inputs.dryRun }}" = "true" ]; then
-            echo "value=false" >> "$GITHUB_OUTPUT"
-          else
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.dryRun }}" != "true" ]; then
             echo "value=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Find pending changesets
         id: find_changesets
-        shell: bash
         run: |
-          shopt -s nullglob
-          files=(.changeset/*.md)
-          files=("${files[@]/.changeset\/README.md/}")
-          pending=()
-          for f in "${files[@]}"; do
-            [ -n "$f" ] && pending+=("$f")
-          done
-          echo "count=${#pending[@]}" >> "$GITHUB_OUTPUT"
-          if [ "${#pending[@]}" -gt 0 ]; then
-            printf ' - %s\n' "${pending[@]}"
-          fi
+          count=$(find .changeset -maxdepth 1 -name '*.md' ! -name README.md 2>/dev/null | wc -l)
+          echo "count=$count" >> "$GITHUB_OUTPUT"
 
       - name: Validate changesets only touch @next/extension
         if: steps.find_changesets.outputs.count != '0'
-        shell: bash
-        run: |
-          node <<'NODE'
-          import { readdirSync, readFileSync } from 'node:fs';
-          const allowed = new Set(['@next/extension']);
-          const invalid = [];
-          for (const file of readdirSync('.changeset')) {
-            if (!file.endsWith('.md') || file === 'README.md') continue;
-            const content = readFileSync(`.changeset/${file}`, 'utf8');
-            const match = content.match(/^---\n([\s\S]*?)\n---/);
-            if (!match) {
-              invalid.push(`${file} (no frontmatter)`);
-              continue;
-            }
-            for (const line of match[1].split('\n')) {
-              const rawKey = line.split(':')[0].trim();
-              if (!rawKey) continue;
-              const key = rawKey.replace(/^["']|["']$/g, '');
-              if (!allowed.has(key)) {
-                invalid.push(`${file} (touches disallowed package ${key})`);
-              }
-            }
-          }
-          if (invalid.length > 0) {
-            console.error('Invalid changesets:\n  - ' + invalid.join('\n  - '));
-            console.error('\nOnly @next/extension is auto-released.');
-            process.exit(1);
-          }
-          console.log('All changesets valid.');
-          NODE
+        run: node .github/scripts/validate-changeset.mjs
 
-      - name: Block non-release when no pending changesets
+      - name: Block release with no pending changesets
         if: steps.is_release.outputs.value == 'true' && steps.find_changesets.outputs.count == '0'
-        shell: bash
         run: |
-          echo "::error::No pending changesets in .changeset/. Run 'pnpm changeset', commit the file, then dispatch again."
+          echo "::error::No pending changesets in .changeset/. Run 'pnpm changeset' on the extension-lint-utils branch, commit the file, then dispatch the workflow again."
           exit 1
 
       - name: Apply changesets (version bump + CHANGELOG)
@@ -181,10 +145,10 @@ jobs:
         run: |
           pnpm wxt submit --dry-run \
             --chrome-zip .output/*-chrome.zip \
-            --chrome-extension-id "${{ secrets.CHROME_EXTENSION_ID }}" \
-            --chrome-client-id "${{ secrets.CHROME_EXTENSION_CLIENT_ID }}" \
-            --chrome-client-secret "${{ secrets.CHROME_EXTENSION_CLIENT_SECRET }}" \
-            --chrome-refresh-token "${{ secrets.CHROME_EXTENSION_REFRESH_TOKEN }}"
+            --chrome-extension-id "$CHROME_EXTENSION_ID" \
+            --chrome-client-id "$CHROME_CLIENT_ID" \
+            --chrome-client-secret "$CHROME_CLIENT_SECRET" \
+            --chrome-refresh-token "$CHROME_REFRESH_TOKEN"
 
       - name: Submit to Chrome Web Store
         if: steps.is_release.outputs.value == 'true' && steps.find_changesets.outputs.count != '0'
@@ -192,7 +156,7 @@ jobs:
         run: |
           pnpm wxt submit \
             --chrome-zip .output/*-chrome.zip \
-            --chrome-extension-id "${{ secrets.CHROME_EXTENSION_ID }}" \
-            --chrome-client-id "${{ secrets.CHROME_EXTENSION_CLIENT_ID }}" \
-            --chrome-client-secret "${{ secrets.CHROME_EXTENSION_CLIENT_SECRET }}" \
-            --chrome-refresh-token "${{ secrets.CHROME_EXTENSION_REFRESH_TOKEN }}"
+            --chrome-extension-id "$CHROME_EXTENSION_ID" \
+            --chrome-client-id "$CHROME_CLIENT_ID" \
+            --chrome-client-secret "$CHROME_CLIENT_SECRET" \
+            --chrome-refresh-token "$CHROME_REFRESH_TOKEN"

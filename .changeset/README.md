@@ -23,7 +23,7 @@ code change. The release workflow consumes it on dispatch.
 
 ## Release flow
 
-`.github/workflows/release.yml` is triggered manually via `workflow_dispatch`
+`.github/workflows/release-extension.yml` is triggered manually via `workflow_dispatch`
 (with optional `dryRun`). It:
 
 1. Validates every pending changeset only touches `@next/extension`
