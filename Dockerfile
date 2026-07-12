@@ -100,6 +100,7 @@ RUN echo "$GIT_SECRET_PRIVATE_KEY" >> ./private-container-file-key
 RUN gpg --batch --yes --pinentry-mode loopback --import ./private-container-file-key
 
 RUN git secret reveal -p ${GIT_SECRET_PASSWORD}
+RUN cp apps/core/.env.prod .env.prod
 
 # Remove the secret key file after decryption
 RUN rm -f ./private-container-file-key
