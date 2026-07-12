@@ -19,7 +19,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -28,9 +28,8 @@ jobs:
           git config user.email "github-actions@users.noreply.github.com"
           git config user.name "github-actions"
 
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: pnpm
@@ -158,8 +157,9 @@ jobs:
         if: github.event.inputs.dryRun != 'true' && steps.find_changesets.outputs.count != '0'
         run: |
           pnpm wxt submit \
-            --chrome-zip apps/extension/.output/*-chrome.zip \
-            --chrome-extension-id "${{ secrets.CHROME_EXTENSION_ID }}" \
-            --chrome-client-id "${{ secrets.CHROME_EXTENSION_CLIENT_ID }}" \
-            --chrome-client-secret "${{ secrets.CHROME_EXTENSION_CLIENT_SECRET }}" \
-            --chrome-refresh-token "${{ secrets.CHROME_EXTENSION_REFRESH_TOKEN }}"
+            --chrome-zip apps/extension/.output/*-chrome.zip
+        env:
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_EXTENSION_REFRESH_TOKEN }}
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_EXTENSION_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_EXTENSION_CLIENT_SECRET }}

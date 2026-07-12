@@ -14,7 +14,7 @@ ENV GIT_SECRET_PASSWORD=$GIT_SECRET_PASSWORD
 RUN apk update && apk add --no-cache libc6-compat
 WORKDIR /workspace
 # enable corepack for pnpm
-RUN npm i -g pnpm@10.33.2
+RUN npm i -g pnpm@10.33.2 tsx
 
 FROM runtime as fetcher
 COPY pnpm*.yaml ./
@@ -92,7 +92,7 @@ USER root
 COPY --chown=core:backend --from=deployer /workspace/out/package.json .
 COPY --chown=core:backend --from=deployer /workspace/out/node_modules/ ./node_modules
 COPY --chown=core:backend --from=deployer /workspace/out/dist/ ./dist
-COPY --chown=core:backend --from=deployer /workspace/apps/core/.env.prod.secret .
+COPY --chown=core:backend --from=deployer /workspace/apps/core/.env.prod.secret apps/core/.env.prod.secret
 COPY --chown=core:backend --from=deployer /workspace/.gitsecret  ./.gitsecret
 
 # Decrypt .env.prod file
@@ -100,6 +100,7 @@ RUN echo "$GIT_SECRET_PRIVATE_KEY" >> ./private-container-file-key
 RUN gpg --batch --yes --pinentry-mode loopback --import ./private-container-file-key
 
 RUN git secret reveal -p ${GIT_SECRET_PASSWORD}
+RUN cp apps/core/.env.prod .env.prod
 
 # Remove the secret key file after decryption
 RUN rm -f ./private-container-file-key
@@ -107,4 +108,4 @@ RUN rm -f ./private-container-file-key
 EXPOSE 5000
 
 # start the app
-CMD pnpm run start
+CMD tsx --env-file=.env.prod dist/server.js

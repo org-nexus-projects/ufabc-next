@@ -16,6 +16,13 @@ import redisV2Plugin from './plugins/v2/redis.js';
 import { setupV2Routes } from './plugins/v2/setup.js';
 import testUtilsPlugin from './plugins/v2/test-utils.js';
 
+declare module 'fastify' {
+  interface FastifyInstance {
+    db: DatabaseModels;
+    rawMongoose: Mongoose;
+  }
+}
+
 const routesV2 = [
   componentsController,
   backofficeController,
