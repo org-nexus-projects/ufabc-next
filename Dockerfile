@@ -92,7 +92,7 @@ USER root
 COPY --chown=core:backend --from=deployer /workspace/out/package.json .
 COPY --chown=core:backend --from=deployer /workspace/out/node_modules/ ./node_modules
 COPY --chown=core:backend --from=deployer /workspace/out/dist/ ./dist
-COPY --chown=core:backend --from=deployer /workspace/apps/core/.env.prod.secret .
+COPY --chown=core:backend --from=deployer /workspace/apps/core/.env.prod.secret apps/core/.env.prod.secret
 COPY --chown=core:backend --from=deployer /workspace/.gitsecret  ./.gitsecret
 
 # Decrypt .env.prod file
