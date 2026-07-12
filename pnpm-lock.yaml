@@ -864,6 +864,9 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.4(@types/node@24.13.1)(jiti@2.7.0)(jsdom@26.1.0)(msw@2.14.6(@types/node@24.13.1)(typescript@5.9.3))(sass@1.100.0)(tsx@4.22.4)(yaml@2.9.0)
 
   packages/queues:
     dependencies:

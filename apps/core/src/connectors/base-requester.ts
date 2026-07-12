@@ -8,6 +8,8 @@ import {
   TRACING_DIRECTION,
   TRACING_MESSAGES,
 } from '@/constants.js';
+import { sanitizeHeaders } from '@next/logger/sanitize';
+
 import { logger as defaultLogger } from '@/utils/logger.js';
 
 export class BaseRequester {
@@ -44,7 +46,7 @@ export class BaseRequester {
             url: fullUrl,
             baseURL: this.baseURL,
             path: requestPath,
-            headers: options.headers,
+            headers: sanitizeHeaders(options.headers),
             responseType: options.responseType,
             body: options.body,
           },
@@ -62,7 +64,7 @@ export class BaseRequester {
           method: options.method || 'GET',
           url: response.url,
           status: response.status,
-          headers: response.headers,
+          headers: sanitizeHeaders(response.headers),
           responseType: options.responseType || 'json',
           body: this.truncateForLogging(response._data),
         };
@@ -197,7 +199,7 @@ export class BaseRequester {
         url: fullUrl,
         baseURL: this.baseURL,
         path: requestPath,
-        headers,
+        headers: sanitizeHeaders(headers),
         responseType: options?.responseType,
         body: options?.body,
       },
@@ -217,7 +219,7 @@ export class BaseRequester {
           method: options?.method || 'GET',
           url: response.url,
           status: response.status,
-          headers: response.headers,
+          headers: sanitizeHeaders(response.headers),
         },
         TRACING_MESSAGES.INCOMING_RESPONSE
       );

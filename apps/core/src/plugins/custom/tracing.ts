@@ -2,6 +2,8 @@ import type { FastifyBaseLogger, FastifyInstance, FastifyReply, FastifyRequest }
 
 import { fastifyPlugin as fp } from 'fastify-plugin';
 
+import { serializeQueryParams } from '@next/logger/sanitize';
+
 import { TRACING_DIRECTION, TRACING_MESSAGES } from '@/constants.js';
 
 declare module '@fastify/request-context' {
@@ -22,7 +24,7 @@ export default fp(async (app: FastifyInstance) => {
         method: request.method,
         url: request.url,
         headers: request.headers, // Redaction should happen at the Pino level
-        queryParams: request.query,
+        queryParams: serializeQueryParams(request.query),
       },
       TRACING_MESSAGES.INCOMING_REQUEST
     );
@@ -40,7 +42,7 @@ export default fp(async (app: FastifyInstance) => {
       headers: reply.getHeaders(),
       userAgent: request.headers['user-agent'],
       ip: request.ip,
-      queryParams: request.query,
+      queryParams: serializeQueryParams(request.query),
       params: request.params,
     };
 

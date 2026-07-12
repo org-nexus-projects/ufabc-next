@@ -11,12 +11,17 @@
     "./browser": {
       "types": "./dist/browser.d.mts",
       "default": "./dist/browser.mjs"
+    },
+    "./sanitize": {
+      "types": "./dist/sanitize.d.mts",
+      "default": "./dist/sanitize.mjs"
     }
   },
   "scripts": {
     "build": "tsdown",
     "tsc": "tsgo --noEmit",
     "dev": "tsdown --watch",
+    "test": "vitest run",
     "clean": "git clean -xdf .cache .turbo dist node_modules"
   },
   "dependencies": {
@@ -29,6 +34,7 @@
     "@next/config": "workspace:*",
     "@types/node": "catalog:",
     "tsdown": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

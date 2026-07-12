@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { fastifyAutoload } from '@fastify/autoload';
 import dbPlugin from '@next/db/client';
 import type { DatabaseModels } from '@next/db/models';
+import { serializeQueryParams } from '@next/logger/sanitize';
 import type { FastifyInstance, FastifyServerOptions } from 'fastify';
 import {
   RequestValidationError,
@@ -101,7 +102,7 @@ export async function buildApp(
           request: {
             method: request.method,
             params: request.params,
-            query: request.query,
+            query: serializeQueryParams(request.query),
             url: request.url,
           },
         },
@@ -125,7 +126,7 @@ export async function buildApp(
           request: {
             method: request.method,
             params: request.params,
-            query: request.query,
+            query: serializeQueryParams(request.query),
             url: request.url,
           },
         },
@@ -152,7 +153,7 @@ export async function buildApp(
         request: {
           method: request.method,
           params: request.params,
-          query: request.query,
+          query: serializeQueryParams(request.query),
           url: request.url,
         },
       },
