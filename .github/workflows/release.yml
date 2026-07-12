@@ -60,7 +60,7 @@ jobs:
       - name: Determine if this is a full release
         id: is_release
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
             echo "value=false" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.inputs.dryRun }}" = "true" ]; then
             echo "value=false" >> "$GITHUB_OUTPUT"
