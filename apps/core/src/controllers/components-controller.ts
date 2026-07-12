@@ -276,7 +276,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
 
   app.route({
     handler: async (request, reply) => {
-      const config = requester.server.config;
+      const { config } = request.server;
       const aiConnector = new AIProxyConnector(config.NEXT_AGENT_URL, 'whatsapp');
 
       const { season, componentId } = request.query;
