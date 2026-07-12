@@ -9,7 +9,7 @@ on:
         default: false
   push:
     branches:
-      - extension-lint-utils
+      - main
     paths:
       - apps/extension/**
       - packages/services/**
