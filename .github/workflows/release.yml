@@ -1,30 +1,109 @@
-name: Release
+name: Release Extension
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'apps/extension/**'
-      - 'packages/services/**'
-      - 'packages/utils/**'
-      - 'pnpm-lock.yaml'
-      - '.github/workflows/release.yml'
   workflow_dispatch:
+    inputs:
+      dryRun:
+        description: Build + zip + upload artifact only; skip version bump, commit, tag, release and submit
+        type: boolean
+        default: false
+
+concurrency:
+  group: release-extension
+  cancel-in-progress: false
+
+permissions:
+  contents: write
 
 jobs:
-  submit:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Configure git bot author
+        run: |
+          git config user.email "github-actions@users.noreply.github.com"
+          git config user.name "github-actions"
+
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v6
         with:
           node-version: 24
-          cache: 'pnpm'
+          cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
+
+      - name: Find pending changesets
+        id: find_changesets
+        shell: bash
+        run: |
+          shopt -s nullglob
+          files=(.changeset/*.md)
+          files=("${files[@]/.changeset\/README.md/}")
+          pending=()
+          for f in "${files[@]}"; do
+            [ -n "$f" ] && pending+=("$f")
+          done
+          echo "count=${#pending[@]}" >> "$GITHUB_OUTPUT"
+          if [ "${#pending[@]}" -gt 0 ]; then
+            printf ' - %s\n' "${pending[@]}"
+          fi
+
+      - name: Validate changesets only touch @next/extension
+        if: steps.find_changesets.outputs.count != '0'
+        shell: bash
+        run: |
+          node <<'NODE'
+          import { readdirSync, readFileSync } from 'node:fs';
+          const allowed = new Set(['@next/extension']);
+          const invalid = [];
+          for (const file of readdirSync('.changeset')) {
+            if (!file.endsWith('.md') || file === 'README.md') continue;
+            const content = readFileSync(`.changeset/${file}`, 'utf8');
+            const match = content.match(/^---\n([\s\S]*?)\n---/);
+            if (!match) {
+              invalid.push(`${file} (no frontmatter)`);
+              continue;
+            }
+            for (const line of match[1].split('\n')) {
+              const rawKey = line.split(':')[0].trim();
+              if (!rawKey) continue;
+              const key = rawKey.replace(/^["']|["']$/g, '');
+              if (!allowed.has(key)) {
+                invalid.push(`${file} (touches disallowed package ${key})`);
+              }
+            }
+          }
+          if (invalid.length > 0) {
+            console.error('Invalid changesets:\n  - ' + invalid.join('\n  - '));
+            console.error('\nOnly @next/extension is auto-released.');
+            process.exit(1);
+          }
+          console.log('All changesets valid.');
+          NODE
+
+      - name: Block non-dry-run when no pending changesets
+        if: steps.find_changesets.outputs.count == '0' && github.event.inputs.dryRun != 'true'
+        shell: bash
+        run: |
+          echo "::error::No pending changesets in .changeset/. Run 'pnpm changeset', commit the file, then dispatch again."
+          exit 1
+
+      - name: Apply changesets (version bump + CHANGELOG)
+        if: github.event.inputs.dryRun != 'true' && steps.find_changesets.outputs.count != '0'
+        run: pnpm changeset version
+
+      - name: Read new extension version
+        if: github.event.inputs.dryRun != 'true' && steps.find_changesets.outputs.count != '0'
+        id: ext_version
+        run: |
+          version=$(node -p "require('./apps/extension/package.json').version")
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "New extension version: ${version}"
 
       - name: Build extension
         run: pnpm turbo run build --filter=@next/extension
@@ -35,10 +114,50 @@ jobs:
       - name: Zip extension
         run: pnpm turbo run zip --filter=@next/extension
 
-      - name: Submit to stores
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-zips
+          path: apps/extension/.output/*.zip
+          if-no-files-found: error
+
+      - name: Commit, tag and push release
+        if: github.event.inputs.dryRun != 'true' && steps.find_changesets.outputs.count != '0'
+        env:
+          EXT_VERSION: ${{ steps.ext_version.outputs.version }}
+        run: |
+          git add apps/extension/package.json apps/extension/CHANGELOG.md .changeset
+          git commit -m "chore(extension): release v${EXT_VERSION}"
+          git tag "extension-v${EXT_VERSION}"
+          git push
+          git push origin "extension-v${EXT_VERSION}"
+
+      - name: Create GitHub Release
+        if: github.event.inputs.dryRun != 'true' && steps.find_changesets.outputs.count != '0'
+        env:
+          EXT_VERSION: ${{ steps.ext_version.outputs.version }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "extension-v${EXT_VERSION}" \
+            --title "Extension v${EXT_VERSION}" \
+            --notes-file apps/extension/CHANGELOG.md \
+            apps/extension/.output/*-chrome.zip
+
+      - name: Verify Chrome Web Store credentials (dry-run)
+        if: github.event.inputs.dryRun == 'true'
+        run: |
+          pnpm wxt submit --dry-run \
+            --chrome-zip apps/extension/.output/*-chrome.zip \
+            --chrome-extension-id "${{ secrets.CHROME_EXTENSION_ID }}" \
+            --chrome-client-id "${{ secrets.CHROME_EXTENSION_CLIENT_ID }}" \
+            --chrome-client-secret "${{ secrets.CHROME_EXTENSION_CLIENT_SECRET }}" \
+            --chrome-refresh-token "${{ secrets.CHROME_EXTENSION_REFRESH_TOKEN }}"
+
+      - name: Submit to Chrome Web Store
+        if: github.event.inputs.dryRun != 'true' && steps.find_changesets.outputs.count != '0'
         run: |
           pnpm wxt submit \
-            --chrome-zip .output/*-chrome.zip
+            --chrome-zip apps/extension/.output/*-chrome.zip
         env:
           CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
           CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_EXTENSION_REFRESH_TOKEN }}

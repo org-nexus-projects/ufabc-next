@@ -6,7 +6,7 @@ import { AIProxyConnector } from '@/connectors/ai-proxy.js';
 import { MoodleConnector } from '@/connectors/moodle.js';
 import { JOB_NAMES } from '@/constants.js';
 import { jwtVerifyHook } from '@/hooks/jwt-verify.js';
-import { moodleSession } from '@/hooks/moodle-session.js';
+import { extensionSession } from '@/hooks/extension-session.js';
 import { ComponentModel } from '@/models/Component.js';
 import { ComponentMetadataModel } from '@/models/ComponentMetadata.js';
 import type {
@@ -20,11 +20,22 @@ const moodleConnector = new MoodleConnector();
 
 const componentsController: FastifyPluginAsyncZod = async (app) => {
   app.route({
+    method: 'POST',
+    url: '/components/archives',
+    preHandler: [extensionSession('moodle')],
+    schema: {
+      response: {
+        202: z.object({
+          status: z.string(),
+        }),
+      },
+      headers: z.object({
+        'session-id': z.string(),
+        'sess-key': z.string(),
+      }),
+    },
     handler: async (request, reply) => {
-      const session = request.requestContext.get('moodleSession')! as {
-        sessionId: string;
-        sessKey: string;
-      };
+      const session = request.requestContext.get('extensionSession')! as { sessionId: string; sessKey: string };
       const hasLock = await request.acquireLock(session.sessionId, '24h');
 
       if (!hasLock) {
@@ -62,28 +73,11 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         return reply.internalServerError('Error getting archives');
       }
     },
-    method: 'POST',
-    preHandler: [moodleSession],
-    schema: {
-      headers: z.object({
-        'session-id': z.string(),
-        'sess-key': z.string(),
-      }),
-      response: {
-        202: z.object({
-          status: z.string(),
-        }),
-      },
-    },
-    url: '/components/archives',
   });
 
   app.route({
     handler: async (request, reply) => {
-      const session = request.requestContext.get('moodleSession')! as {
-        sessionId: string;
-        sessKey: string;
-      };
+      const session = request.requestContext.get('extensionSession')! as { sessionId: string; sessKey: string };
       const components = await moodleConnector.getComponents(
         session.sessionId,
         session.sessKey
@@ -94,7 +88,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       });
     },
     method: 'GET',
-    preHandler: [moodleSession],
+    preHandler: [extensionSession('moodle')],
     schema: {
       response: {
         200: z.object({

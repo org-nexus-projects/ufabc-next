@@ -11,39 +11,39 @@ export const COURSE_SHIFTS = [
 
 const coursesSchema = new Schema(
   {
-    id_curso: { type: Number, required: false },
-    nome_curso: { type: String, required: true },
-    cp: { type: Number, required: false },
-    cr: { type: Number, required: false },
-    ca: { type: Number, required: false },
-    ind_afinidade: { type: Number, required: true },
-    turno: { type: String, required: true, enum: COURSE_SHIFTS },
-    creditos_obtidos: { type: Number, required: false },
-    creditos_obrigatorios: { type: Number, required: false },
-    creditos_optativos: { type: Number, required: false },
-    creditos_livres: { type: Number, required: false },
+    ca: { required: false, type: Number },
+    cp: { required: false, type: Number },
+    cr: { required: false, type: Number },
+    creditos_livres: { required: false, type: Number },
+    creditos_obrigatorios: { required: false, type: Number },
+    creditos_obtidos: { required: false, type: Number },
+    creditos_optativos: { required: false, type: Number },
+    id_curso: { required: false, type: Number },
+    ind_afinidade: { required: true, type: Number },
+    nome_curso: { required: true, type: String },
+    turno: { enum: COURSE_SHIFTS, required: true, type: String },
   },
   { _id: false }
 );
 
 const studentSchema = new Schema(
   {
-    ra: { type: Number, required: true },
-    login: { type: String, required: true },
-    aluno_id: { type: Number, required: false },
+    aluno_id: { required: false, type: Number },
     cursos: [coursesSchema],
-    year: { type: Number, required: false },
+    login: { required: true, type: String },
     quad: {
-      type: Number,
-      min: 1,
       max: 3,
+      min: 1,
       required: false,
+      type: Number,
     },
-    quads: { type: Number, required: false },
+    quads: { required: false, type: Number },
+    ra: { required: true, type: Number },
     season: {
-      type: String,
       required: true,
+      type: String,
     },
+    year: { required: false, type: Number },
   },
   { timestamps: true }
 );

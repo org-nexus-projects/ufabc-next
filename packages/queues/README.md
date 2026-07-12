@@ -7,6 +7,7 @@ This guide demonstrates how to set up and use the `@next/queues` package in your
 ```typescript
 import { defineJob } from '@next/queues/client';
 import { JobManager } from '@next/queues/manager';
+import type { ConnectionOptions } from 'bullmq';
 import { z } from 'zod';
 import type { FastifyInstance } from 'fastify';
 
@@ -67,8 +68,16 @@ const cleanupJob = defineJob<'cleanup', { app: FastifyInstance }, void>(
 
 // Initialize JobManager
 export async function setupQueues(app: FastifyInstance) {
-  const redisURL = new URL(process.env.REDIS_URL || 'redis://localhost:6379');
-  const jobManager = new JobManager(app, redisURL, '/admin/jobs');
+  const redisConnection: ConnectionOptions = {
+    host: process.env.REDIS_HOST || 'localhost',
+    port: Number(process.env.REDIS_PORT) || 6379,
+  };
+  const jobManager = new JobManager(
+    app,
+    { emailJob, cleanupJob },
+    redisConnection,
+    '/admin/jobs'
+  );
 
   // Register all jobs
   jobManager.register(emailJob).register(cleanupJob);
@@ -262,6 +271,7 @@ The board provides:
 ```typescript
 import { defineJob } from '@next/queues/client';
 import { JobManager } from '@next/queues/manager';
+import type { ConnectionOptions } from 'bullmq';
 import { z } from 'zod';
 import type { FastifyInstance } from 'fastify';
 
@@ -296,8 +306,16 @@ const cleanupJob = defineJob<'cleanup', Record<string, never>, void>('cleanup')
 
 // 2. Setup function
 export async function setupQueues(app: FastifyInstance) {
-  const redisURL = new URL(process.env.REDIS_URL || 'redis://localhost:6379');
-  const jobManager = new JobManager(app, redisURL, '/admin/jobs');
+  const redisConnection: ConnectionOptions = {
+    host: process.env.REDIS_HOST || 'localhost',
+    port: Number(process.env.REDIS_PORT) || 6379,
+  };
+  const jobManager = new JobManager(
+    app,
+    { emailJob, cleanupJob },
+    redisConnection,
+    '/admin/jobs'
+  );
 
   jobManager.register(emailJob).register(cleanupJob);
 

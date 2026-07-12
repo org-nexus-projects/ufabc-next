@@ -1,43 +1,40 @@
-import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
-
+import {
+  matriculaStudentSchema,
+  messageResponseSchema,
+  statusResponseSchema,
+  syncSigaaStudentBodySchema,
+  type MatriculaStudent,
+  updateMatriculaStudentBodySchema,
+} from '@next/connectors/schemas/next-api';
 import { currentQuad } from '@next/utils';
+import { type FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 
 import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
-import { matriculaSession } from '@/hooks/matricula-session.js';
-import { sigaaSession } from '@/hooks/sigaa-session.js';
+import { extensionSession } from '@/hooks/extension-session.js';
 import { StudentModel } from '@/models/Student.js';
+import { AuthenticationService } from '@/services/authentication-service.js';
 
-const CACHE_TTL = 1000 * 60 * 60 * 24; // 1 day
+function normalizeShift(turno: string): 'Noturno' | 'Matutino' {
+  if (turno === 'Matutino' || turno === 'matutino' || turno === 'm') {
+    return 'Matutino';
+  }
+  return 'Noturno';
+}
+
+// 1 day
+const CACHE_TTL = 1000 * 60 * 60 * 24;
 
 export const studentsController: FastifyPluginAsyncZod = async (app) => {
   app.route({
-    method: 'PUT',
-    url: '/students',
-    schema: {
-      headers: z.object({
-        'session-id': z.string(),
-      }),
-      body: z.object({
-        login: z.string(),
-        studentId: z.number(),
-        graduationId: z.number(),
-      }),
-      response: {
-        200: z.object({
-          message: z.string(),
-        }),
-      },
-    },
-    preHandler: [matriculaSession],
     handler: async (request, reply) => {
       const season = currentQuad();
       const { login, studentId, graduationId } = request.body;
 
       await StudentModel.findOneAndUpdate(
         {
-          season,
           login,
+          season,
         },
         {
           $set: {
@@ -47,99 +44,92 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
         }
       );
 
-      return reply.send({ message: 'Student updated successfully' });
+      return await reply.send({ message: 'Student updated successfully' });
     },
+    method: 'PUT',
+    preHandler: [extensionSession('matricula')],
+    schema: {
+      body: updateMatriculaStudentBodySchema,
+      headers: z.object({
+        authorization: z.string().optional(),
+        'session-id': z.string(),
+      }),
+      response: {
+        200: messageResponseSchema,
+      },
+    },
+    url: '/students',
   });
 
   app.route({
-    method: 'GET',
-    url: '/students',
-    schema: {
-      headers: z.object({
-        'session-id': z.string(),
-        login: z.string(),
-      }),
-      response: {
-        200: z.object({
-          ra: z.number(),
-          graduations: z
-            .object({
-              name: z.string(),
-              shift: z.enum([
-                'Noturno',
-                'Matutino',
-                'noturno',
-                'matutino',
-                'n',
-                'm',
-              ]),
-              affinity: z.number().nullable(),
-              cp: z.number().optional().nullable(),
-              cr: z.number().optional().nullable(),
-              ca: z.number().optional().nullable(),
-            })
-            .array(),
-        }),
-      },
-    },
-    preHandler: [matriculaSession],
     handler: async (request, reply) => {
       const season = currentQuad();
-      const [student] = await StudentModel.find({
-        season,
-        login: request.headers.login,
-      });
+      const studentQuery = request.user?.ra
+        ? { ra: request.user.ra, season }
+        : { login: request.headers.login, season };
+      const [student] = await StudentModel.find(studentQuery);
 
-      if (!student) {
-        return reply.notFound();
+      if (student === null) {
+        return await reply.notFound();
       }
 
       const response = student.cursos.map((graduation) => ({
+        affinity: graduation.ind_afinidade ?? 0,
+        ca: graduation.ca ?? 0,
+        courseId: graduation.id_curso ?? 0,
+        cp: graduation.cp ?? 0,
+        cr: graduation.cr ?? 0,
         name: graduation.nome_curso,
-        shift: graduation.turno,
-        affinity: graduation.ind_afinidade,
-        cp: graduation.cp,
-        cr: graduation.cr,
-        ca: graduation.ca,
-      }));
+        shift: normalizeShift(graduation.turno),
+      })) satisfies MatriculaStudent['graduations'];
 
-      return reply.send({
-        ra: student.ra,
+      const fullStudent: MatriculaStudent = {
         graduations: response,
-      });
+        login: student.login,
+        ra: student.ra,
+        studentId: student.aluno_id ?? 0,
+        updatedAt: student.updatedAt.toISOString(),
+      };
+
+      return await reply.send(fullStudent);
     },
+    method: 'GET',
+    preHandler: [extensionSession('matricula')],
+    schema: {
+      headers: z.object({
+        authorization: z.string().optional(),
+        login: z.string().optional(),
+        'session-id': z.string().optional(),
+      }),
+      response: {
+        200: matriculaStudentSchema,
+      },
+    },
+    url: '/students',
   });
 
   app.route({
-    method: 'POST',
-    url: '/students/sigaa',
-    schema: {
-      headers: z.object({
-        'session-id': z.string(),
-        'view-id': z.string(),
-      }),
-      body: z.object({
-        ra: z.number(),
-        login: z.string(),
-      }),
-      response: {
-        202: z.object({
-          status: z.string(),
-          data: z.any(),
-        }),
-      },
-    },
-    preHandler: [sigaaSession],
     handler: async (request, reply) => {
       const connector = new UfabcParserConnector(request.id);
       const { ra, login } = request.body;
-      const { sessionId, viewId } = request.sigaaSession;
-      const cacheKey = `http:students:sigaa:${ra}`;
+      const extensionSession = request.requestContext.get('extensionSession')! as { sessionId: string; viewId: string };
+      const { sessionId, viewId } = extensionSession;
 
+      const authenticationService = new AuthenticationService({
+        config: app.config,
+        globalTraceId: request.id,
+        jwtService: app.jwt,
+      });
+      await authenticationService.linkUserRa({
+        login,
+        ra,
+      });
+
+      const cacheKey = `http:students:sigaa:${ra}`;
       const cached = await app.redis.get(cacheKey);
-      if (cached) {
+      if (cached != null) {
         app.log.debug({ cacheKey }, 'Student already synced');
-        return reply.status(202).send({
+        return await reply.status(202).send({
           status: 'cached',
         });
       }
@@ -151,31 +141,44 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
           status: 'created',
           timeline: [
             {
-              status: 'created',
               metadata: {
                 login,
               },
+              status: 'created',
             },
           ],
         });
       }
 
       await connector.syncStudent({
+        requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
         sessionId,
         viewId,
-        requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
       });
 
       await studentSync.transition('awaiting', {
-        source: 'sigaa',
         login,
+        source: 'sigaa',
       });
       await app.redis.set(cacheKey, login, 'PX', CACHE_TTL);
 
-      return reply.status(202).send({
+      return await reply.status(202).send({
         status: 'success',
       });
     },
+    method: 'POST',
+    preHandler: [extensionSession('sigaa')],
+    schema: {
+      body: syncSigaaStudentBodySchema,
+      headers: z.object({
+        'session-id': z.string(),
+        'view-id': z.string(),
+      }),
+      response: {
+        202: statusResponseSchema,
+      },
+    },
+    url: '/students/sigaa',
   });
 };
 

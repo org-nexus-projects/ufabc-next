@@ -36,6 +36,8 @@ catalog:
   "@axiomhq/pino": ^1.3.1
   "@bull-board/api": ^6.15.0
   "@bull-board/fastify": ^6.15.0
+  "@changesets/changelog-git": ^0.2.1
+  "@changesets/cli": ^2.31.0
   "@fastify/autoload": ^6.3.1
   "@fastify/cookie": ^11.0.2
   "@fastify/cors": ^10.1.0
@@ -44,7 +46,6 @@ catalog:
   "@fastify/multipart": ^9.3.0
   "@fastify/oauth2": ^8.1.2
   "@fastify/rate-limit": ^10.3.0
-  "@fastify/redis": ^7.1.0
   "@fastify/request-context": ^6.2.1
   "@fastify/sensible": ^6.0.4
   "@fastify/swagger": ^9.6.1

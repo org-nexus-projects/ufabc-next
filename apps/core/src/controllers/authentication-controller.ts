@@ -1,27 +1,22 @@
-import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
-
-import { currentQuad } from '@next/utils';
 import { createDecipheriv, createHash } from 'node:crypto';
+
+import {
+  extensionTokenBodySchema,
+  extensionTokenResponseSchema,
+  whatsappTokenBodySchema,
+  whatsappTokenResponseSchema,
+} from '@next/connectors/schemas/next-api';
+import { currentQuad } from '@next/utils';
+import { type FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 
 import { ComponentModel } from '@/models/Component.js';
 import { UserModel } from '@/models/User.js';
 
+import { AuthenticationService } from '../services/authentication-service.js';
+
 export const authenticationController: FastifyPluginAsyncZod = async (app) => {
   app.route({
-    method: 'POST',
-    url: '/auth/whatsapp-token',
-    schema: {
-      body: z.object({
-        component: z.string().min(1),
-        token: z.string().min(1),
-      }),
-      response: {
-        200: z.object({
-          token: z.string(),
-        }),
-      },
-    },
     handler: async (request, reply) => {
       const { component, token } = request.body;
 
@@ -39,7 +34,7 @@ export const authenticationController: FastifyPluginAsyncZod = async (app) => {
         }
 
         const components = JSON.parse(
-          Buffer.from(token, 'base64').toString('utf8')
+          Buffer.from(token, 'base64').toString('utf-8')
         ) as {
           iv: string;
           data: string;
@@ -60,7 +55,7 @@ export const authenticationController: FastifyPluginAsyncZod = async (app) => {
           decipher.final(),
         ]);
 
-        const payload = JSON.parse(decrypted.toString('utf8')) as {
+        const payload = JSON.parse(decrypted.toString('utf-8')) as {
           data: string;
           expiresAt?: number;
         };
@@ -80,7 +75,7 @@ export const authenticationController: FastifyPluginAsyncZod = async (app) => {
 
       const separatorIndex = decryptedPayload.indexOf('+');
       if (separatorIndex === -1) {
-        return reply.badRequest('Invalid token payload');
+        return await reply.badRequest('Invalid token payload');
       }
 
       const ra = decryptedPayload.slice(0, separatorIndex);
@@ -89,34 +84,34 @@ export const authenticationController: FastifyPluginAsyncZod = async (app) => {
       request.log.debug({ ra, email, path: request.url, globalTraceId: request.id }, 'Decrypted WhatsApp auth token payload');
 
       if (!ra || !email) {
-        return reply.badRequest('Invalid token payload');
+        return await reply.badRequest('Invalid token payload');
       }
 
       const user = await UserModel.findOne({ email }).lean();
       if (!user) {
-        return reply.unauthorized('User not found');
+        return await reply.unauthorized('User not found');
       }
 
       if (user.ra && String(user.ra) !== ra) {
-        return reply.unauthorized('RA mismatch');
+        return await reply.unauthorized('RA mismatch');
       }
 
       const season = currentQuad();
       const componentDoc = await ComponentModel.findOne({
-        uf_cod_turma: component,
         season,
+        uf_cod_turma: component,
       }).lean();
 
       if (!componentDoc) {
-        return reply.badRequest('Component not found');
+        return await reply.badRequest('Component not found');
       }
 
       const jwtToken = app.jwt.sign({
         _id: user._id,
-        ra: user.ra,
         confirmed: user.confirmed,
         email: user.email,
         permissions: user.permissions,
+        ra: user.ra,
       });
 
       request.log.info(
@@ -124,7 +119,54 @@ export const authenticationController: FastifyPluginAsyncZod = async (app) => {
         'WhatsApp auth token validated successfully'
       );
 
-      return reply.status(200).send({ token: jwtToken });
+      return await reply.status(200).send({ token: jwtToken });
     },
+    method: 'POST',
+    schema: {
+      body: whatsappTokenBodySchema,
+      response: {
+        200: whatsappTokenResponseSchema,
+      },
+    },
+    url: '/auth/whatsapp-token',
+  });
+
+  app.route({
+    handler: async (request, reply) => {
+      const { login, ra, source } = request.body;
+      const sessionId = request.headers['session-id'];
+      const viewId = request.headers['view-id'];
+      const sessKey = request.headers['sess-key'];
+
+      const authenticationService = new AuthenticationService({
+        config: app.config,
+        globalTraceId: request.id,
+        jwtService: app.jwt,
+      });
+
+      const token = await authenticationService.generateExtensionToken({
+        login,
+        ra,
+        source,
+        sessKey,
+        sessionId,
+        viewId,
+      });
+
+      return await reply.status(200).send({ token });
+    },
+    method: 'POST',
+    schema: {
+      body: extensionTokenBodySchema,
+      headers: z.object({
+        'session-id': z.string(),
+        'sess-key': z.string().optional(),
+        'view-id': z.string().optional(),
+      }),
+      response: {
+        200: extensionTokenResponseSchema,
+      },
+    },
+    url: '/auth/extension-token',
   });
 };

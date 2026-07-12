@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { pageableReturnSchema } from './utils.ts';
+import { pageableReturnSchema } from './utils.js';
 
 export const conceptSchema = z.enum(['A', 'B', 'C', 'D', 'F', 'O', 'I', 'E']);
 export type Concept = z.infer<typeof conceptSchema>;
@@ -57,6 +57,48 @@ export const whatsappTokenResponseSchema = z.object({
   token: z.string(),
 });
 export type WhatsappTokenResponse = z.infer<typeof whatsappTokenResponseSchema>;
+
+export const extensionTokenResponseSchema = whatsappTokenResponseSchema;
+export type ExtensionTokenResponse = z.infer<typeof extensionTokenResponseSchema>;
+
+// Route-level request/response schemas shared between backend and clients
+export const updateMatriculaStudentBodySchema = z.object({
+  graduationId: z.number(),
+  login: z.string(),
+  studentId: z.number(),
+});
+export type UpdateMatriculaStudentBody = z.infer<
+  typeof updateMatriculaStudentBodySchema
+>;
+
+export const syncSigaaStudentBodySchema = z.object({
+  login: z.string(),
+  ra: z.number(),
+});
+export type SyncSigaaStudentBody = z.infer<typeof syncSigaaStudentBodySchema>;
+
+export const whatsappTokenBodySchema = z.object({
+  component: z.string().min(1),
+  token: z.string().min(1),
+});
+export type WhatsappTokenBody = z.infer<typeof whatsappTokenBodySchema>;
+
+export const extensionTokenBodySchema = z.object({
+  source: z.enum(['matricula', 'sigaa', 'moodle']),
+  login: z.string().min(1),
+  ra: z.number().optional(),
+});
+export type ExtensionTokenBody = z.infer<typeof extensionTokenBodySchema>;
+
+export const messageResponseSchema = z.object({
+  message: z.string(),
+});
+export type MessageResponse = z.infer<typeof messageResponseSchema>;
+
+export const statusResponseSchema = z.object({
+  status: z.string(),
+});
+export type StatusResponse = z.infer<typeof statusResponseSchema>;
 
 export const enrollmentTeacherCommentSchema = z.object({
   __v: z.number(),

@@ -2,14 +2,14 @@
   "languages": {
     "CSS": {
       "format_on_save": "on",
-"prettier": {
+      "prettier": {
         "allowed": false
       },
       "language_servers": [
-        "tsgo",
+        "!tsgo",
         "oxlint",
         "oxfmt",
-        "!vtsls",
+        "vtsls",
         "!typescript-language-server"
       ],
       "formatter": {
@@ -56,6 +56,13 @@
       "prettier": {
         "allowed": false
       },
+      "language_servers": [
+        "!tsgo",
+        "oxlint",
+        "oxfmt",
+        "vtsls",
+        "!typescript-language-server"
+      ],
       "formatter": [
         {
           "language_server": {
@@ -153,9 +160,11 @@
         "allowed": false
       },
       "language_servers": [
-        "vtsls",
+        "!tsgo",
         "oxlint",
-        "oxfmt"
+        "oxfmt",
+        "vtsls",
+        "!typescript-language-server"
       ],
       "formatter": {
         "language_server": {
@@ -173,9 +182,11 @@
         "allowed": false
       },
       "language_servers": [
-        "vtsls",
+        "!tsgo",
         "oxlint",
-        "oxfmt"
+        "oxfmt",
+        "vtsls",
+        "!typescript-language-server"
       ],
       "formatter": {
         "language_server": {
@@ -192,10 +203,21 @@
       "prettier": {
         "allowed": false
       },
+      "language_servers": [
+        "vue-language-server",
+        "oxlint",
+        "oxfmt",
+        "vtsls",
+        "!typescript-language-server"
+      ],
       "formatter": {
         "language_server": {
           "name": "oxfmt"
         }
+      },
+      "code_actions_on_format": {
+        "source.fixAll.oxc": true,
+        "source.organizeImports.oxc": true
       }
     },
     "YAML": {

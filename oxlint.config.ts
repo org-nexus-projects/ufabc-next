@@ -54,13 +54,31 @@ export default defineConfig({
       },
       files: ['packages/**/*.ts'],
     },
+    {
+      files: ['**/*-controller.ts'],
+      rules: {
+        'func-style': 'off',
+        'require-await': 'off',
+      },
+    },
+    {
+      files: ['**/errors/custom-errors.ts'],
+      rules: {
+        'max-classes-per-file': 'off',
+      },
+    },
   ],
   rules: {
     complexity: ['error', 25],
+    eqeqeq: ['error', 'always', { null: 'ignore' }],
     'eslint/complexity': ['error', { max: 35 }],
     'func-style': ['error', 'declaration'],
-    'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
+    'import/consistent-type-specifier-style': ['error', 'prefer-inline'],
+    'no-eq-null': 'off',
     'typescript/array-type': ['error', { default: 'array-simple' }],
     'typescript/consistent-type-definitions': ['error', 'type'],
+    'typescript/no-import-type-side-effects': 'off',
+    'typescript/restrict-template-expressions': 'warn',
+    'typescript/strict-boolean-expressions': 'warn',
   },
 });

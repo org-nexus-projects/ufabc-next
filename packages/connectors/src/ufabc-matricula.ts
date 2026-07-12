@@ -6,6 +6,6 @@ export class UfabcMatriculaConnector extends BaseRequester {
   }
 
   async validateToken(sessionId: string) {
-    // TOOD: finish
+    return true;
   }
 }

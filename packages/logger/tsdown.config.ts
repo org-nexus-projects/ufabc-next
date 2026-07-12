@@ -1,8 +1,8 @@
-import { defineConfig } from 'tsdown'
+import { defineConfig } from 'tsdown';
 
 export default defineConfig({
+  clean: true,
+  dts: { tsgo: true },
   entry: ['src/server.ts', 'src/browser.ts'],
   format: 'esm',
-  dts: { tsgo: true },
-  clean: true,
-})
+});

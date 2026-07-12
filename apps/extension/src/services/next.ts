@@ -136,7 +136,7 @@ export async function syncHistoryV2(data: SyncHistory) {
   await nextApiConnector.syncSigaaStudent(
     {
       login: data.login,
-      ra: Number.parseInt(data.ra),
+      ra: Number.parseInt(data.ra, 10),
     },
     data.sessionId,
     data.viewState,
@@ -185,10 +185,27 @@ export async function getKicksInfo(kickId: string, studentId?: number) {
   return nextApiConnector.getComponentKicks(kickId, { studentId });
 }
 
-export async function getStudent(login: string, sessionId: string) {
-  return nextApiConnector.getStudent(login, sessionId);
+export async function getStudent(
+  login: string | undefined,
+  sessionId?: string,
+  jwt?: string
+) {
+  return await nextApiConnector.getStudent(login, sessionId, jwt);
 }
 
+export async function exchangeExtensionToken(
+  source: 'matricula' | 'sigaa' | 'moodle',
+  sessionId: string,
+  login: string,
+  options?: { ra?: number; sessKey?: string; viewId?: string }
+) {
+  return await nextApiConnector.exchangeExtensionToken(
+    source,
+    sessionId,
+    login,
+    options
+  );
+}
 type SyncMatriculaStudentParams = {
   studentId: number | null;
   login: string | undefined;
@@ -197,7 +214,7 @@ type SyncMatriculaStudentParams = {
 
 export async function syncMatriculaStudent(
   sessionId: string,
-  { studentId, login, graduationId }: SyncMatriculaStudentParams,
+  { studentId, login, graduationId }: SyncMatriculaStudentParams
 ) {
   await nextApiConnector.syncMatriculaStudent(sessionId, {
     studentId: studentId ?? undefined,
@@ -219,7 +236,7 @@ export async function updateStudent({
   graduationId: number | null;
   sessionId: string;
 }) {
-  return nextApiConnector.updateStudent(
+return nextApiConnector.updateStudent(
     {
       login,
       ra,

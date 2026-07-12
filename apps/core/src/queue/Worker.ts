@@ -1,22 +1,29 @@
 import type { FastifyInstance } from 'fastify';
 
-import { Worker, type WorkerOptions } from 'bullmq';
+import {
+  type ConnectionOptions,
+  Worker,
+  type WorkerOptions,
+} from 'bullmq';
 
 import type {
   JobNames,
   JobResultType,
   QueueContext,
+  QueueNames,
   TypeSafeWorker,
 } from './types.js';
 
-import { JOBS, QUEUE_JOBS } from './definitions.js';
+import { buildQueueJobs, JOBS } from './definitions.js';
 
 export class QueueWorker {
-  private workers: Partial<Record<JobNames, TypeSafeWorker>> = {};
+  private workers: Partial<Record<QueueNames, TypeSafeWorker>> = {};
   private readonly app: FastifyInstance;
+  private readonly redisConfig: ConnectionOptions;
 
-  constructor(app: FastifyInstance, redisURL: URL) {
+  constructor(app: FastifyInstance, redisConnection: ConnectionOptions) {
     this.app = app;
+    this.redisConfig = redisConnection;
   }
 
   public setup() {
@@ -25,8 +32,10 @@ export class QueueWorker {
       return;
     }
 
-    for (const [name, settings] of Object.entries(QUEUE_JOBS) as [
-      JobNames,
+    const queueJobs = buildQueueJobs(this.redisConfig);
+
+    for (const [name, settings] of Object.entries(queueJobs) as [
+      QueueNames,
       WorkerOptions,
     ][]) {
       const workerOpts: WorkerOptions = {

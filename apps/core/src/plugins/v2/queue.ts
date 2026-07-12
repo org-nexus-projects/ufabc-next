@@ -11,11 +11,11 @@ declare module 'fastify' {
 }
 
 export default fp(
-  async (app: FastifyInstance, opts: { redisURL: URL }) => {
+  async (app: FastifyInstance) => {
     const manager = new JobManager(
       app,
       jobRegistry,
-      opts.redisURL,
+      app.redisConnector.getConnectionOptions(),
       '/v2/board/ui'
     );
 
