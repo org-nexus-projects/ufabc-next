@@ -80,7 +80,7 @@ jobs:
 
       - name: Validate changesets only touch @next/extension
         if: steps.find_changesets.outputs.count != '0'
-        run: node .github/scripts/validate-changeset.mjs
+        run: node --experimental-strip-types .github/scripts/validate-changeset.ts
 
       - name: Block release with no pending changesets
         if: steps.is_release.outputs.value == 'true' && steps.find_changesets.outputs.count == '0'

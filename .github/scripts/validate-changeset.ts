@@ -1,13 +1,13 @@
 import { readdirSync, readFileSync } from 'node:fs';
 
-const allowed = new Set(['@next/extension']);
-const invalid = [];
+const allowed: Set<string> = new Set(['@next/extension']);
+const invalid: string[] = [];
 
 for (const file of readdirSync('.changeset')) {
   if (!file.endsWith('.md') || file === 'README.md') continue;
 
-  const content = readFileSync(`.changeset/${file}`, 'utf8');
-  const match = content.match(/^---\n([\s\S]*?)\n---/);
+  const content: string = readFileSync(`.changeset/${file}`, 'utf8');
+  const match: RegExpMatchArray | null = content.match(/^---\n([\s\S]*?)\n---/);
 
   if (!match) {
     invalid.push(`${file} (no frontmatter)`);
@@ -15,9 +15,9 @@ for (const file of readdirSync('.changeset')) {
   }
 
   for (const line of match[1].split('\n')) {
-    const rawKey = line.split(':')[0].trim();
+    const rawKey: string = line.split(':')[0].trim();
     if (!rawKey) continue;
-    const key = rawKey.replace(/^["']|["']$/g, '');
+    const key: string = rawKey.replace(/^["']|["']$/g, '');
     if (!allowed.has(key)) {
       invalid.push(`${file} (touches disallowed package ${key})`);
     }
