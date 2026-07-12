@@ -11,6 +11,10 @@
     "./browser": {
       "types": "./dist/browser.d.mts",
       "default": "./dist/browser.mjs"
+    },
+    "./sanitize": {
+      "types": "./dist/sanitize.d.mts",
+      "default": "./dist/sanitize.mjs"
     }
   },
   "scripts": {

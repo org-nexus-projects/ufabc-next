@@ -97,7 +97,10 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       } catch (error: any) {
         if (error?.data?.payload) {
           reply.log.error(
-            { originalError: error, error: error.data.payload },
+            {
+              error: error.data.payload,
+              statusCode: error?.data?.res?.statusCode,
+            },
             'Error in oauth2'
           );
           return error.data.payload;
