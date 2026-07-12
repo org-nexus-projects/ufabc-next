@@ -96,6 +96,7 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
 
     const existingComponent = await ComponentModel.findOne({
       uf_cod_turma: component.ufClassroomCode,
+      season: component.season,
     });
 
     if (existingComponent) {
