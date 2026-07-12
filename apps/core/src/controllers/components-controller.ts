@@ -1,42 +1,30 @@
-import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
-
 import { currentQuad } from '@next/utils';
+import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 
+import { AIProxyConnector } from '@/connectors/ai-proxy.js';
 import { MoodleConnector } from '@/connectors/moodle.js';
 import { JOB_NAMES } from '@/constants.js';
 import { jwtVerifyHook } from '@/hooks/jwt-verify.js';
 import { moodleSession } from '@/hooks/moodle-session.js';
 import { ComponentModel } from '@/models/Component.js';
 import { ComponentMetadataModel } from '@/models/ComponentMetadata.js';
-import { AIProxyConnector } from '@/connectors/ai-proxy.js';
-import {
+import type {
   ListComponent,
-  listComponentsSchema,
   PopulatedComponent,
 } from '@/schemas/v2/components.js';
+import { listComponentsSchema } from '@/schemas/v2/components.js';
 import { getComponentArchives } from '@/services/components-service.js';
 
 const moodleConnector = new MoodleConnector();
 
 const componentsController: FastifyPluginAsyncZod = async (app) => {
   app.route({
-    method: 'POST',
-    url: '/components/archives',
-    preHandler: [moodleSession],
-    schema: {
-      response: {
-        202: z.object({
-          status: z.string(),
-        }),
-      },
-      headers: z.object({
-        'session-id': z.string(),
-        'sess-key': z.string(),
-      }),
-    },
     handler: async (request, reply) => {
-      const session = request.requestContext.get('moodleSession')! as { sessionId: string; sessKey: string };
+      const session = request.requestContext.get('moodleSession')! as {
+        sessionId: string;
+        sessKey: string;
+      };
       const hasLock = await request.acquireLock(session.sessionId, '24h');
 
       if (!hasLock) {
@@ -74,22 +62,28 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         return reply.internalServerError('Error getting archives');
       }
     },
-  });
-
-  app.route({
-    method: 'GET',
-    url: '/components/archives',
+    method: 'POST',
     preHandler: [moodleSession],
     schema: {
+      headers: z.object({
+        'session-id': z.string(),
+        'sess-key': z.string(),
+      }),
       response: {
-        200: z.object({
+        202: z.object({
           status: z.string(),
-          data: z.any().array(),
         }),
       },
     },
+    url: '/components/archives',
+  });
+
+  app.route({
     handler: async (request, reply) => {
-      const session = request.requestContext.get('moodleSession')! as { sessionId: string; sessKey: string };
+      const session = request.requestContext.get('moodleSession')! as {
+        sessionId: string;
+        sessKey: string;
+      };
       const components = await moodleConnector.getComponents(
         session.sessionId,
         session.sessKey
@@ -99,27 +93,9 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         data: components,
       });
     },
-  });
-
-  app.route({
     method: 'GET',
-    url: '/components/archives/uploads',
-    handler: async (_request, reply) => {
-      const uploads = await app.aws.s3.list(app.config.AWS_BUCKET);
-      return reply.status(200).send({
-        status: 'success',
-        data: uploads,
-      });
-    },
-  });
-
-  app.route({
-    method: 'GET',
-    url: '/components/pending-group-url',
+    preHandler: [moodleSession],
     schema: {
-      querystring: z.object({
-        season: z.string(),
-      }),
       response: {
         200: z.object({
           status: z.string(),
@@ -127,6 +103,22 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         }),
       },
     },
+    url: '/components/archives',
+  });
+
+  app.route({
+    handler: async (_request, reply) => {
+      const uploads = await app.aws.s3.list(app.config.AWS_BUCKET);
+      return reply.status(200).send({
+        status: 'success',
+        data: uploads,
+      });
+    },
+    method: 'GET',
+    url: '/components/archives/uploads',
+  });
+
+  app.route({
     handler: async (request, reply) => {
       const { season } = request.query;
 
@@ -207,20 +199,22 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         data: requested,
       });
     },
+    method: 'GET',
+    schema: {
+      querystring: z.object({
+        season: z.string(),
+      }),
+      response: {
+        200: z.object({
+          status: z.string(),
+          data: z.any().array(),
+        }),
+      },
+    },
+    url: '/components/pending-group-url',
   });
 
   app.route({
-    method: 'GET',
-    url: '/components',
-    preHandler: [jwtVerifyHook],
-    schema: {
-      querystring: z.object({
-        season: z.string().default(currentQuad()),
-      }),
-      response: {
-        200: listComponentsSchema,
-      },
-    },
     handler: async (request, reply) => {
       const { season } = request.query;
       const cacheKey = `list:components:${season}`;
@@ -267,29 +261,23 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
 
       return reply.status(200).send(mappedComponents);
     },
+    method: 'GET',
+    preHandler: [jwtVerifyHook],
+    schema: {
+      querystring: z.object({
+        season: z.string().default(currentQuad()),
+      }),
+      response: {
+        200: listComponentsSchema,
+      },
+    },
+    url: '/components',
   });
 
   app.route({
-    method: 'POST',
-    url: '/components/metadata',
-    schema: {
-      querystring: z.object({
-        season: z.string().default('2026:2'),
-        componentId: z.string()
-      }),
-      body: z.object({
-        userMessage: z.string(),
-      }),
-      response: {
-        200: z.object({
-          status: z.string(),
-          data: z.any().optional(),
-        }),
-      },
-    },
     handler: async (request, reply) => {
-      const baseUrl = process.env.NEXT_AGENT_URL;
-      const aiConnector = new AIProxyConnector(baseUrl, 'whatsapp');
+      const config = requester.server.config;
+      const aiConnector = new AIProxyConnector(config.NEXT_AGENT_URL, 'whatsapp');
 
       const { season, componentId } = request.query;
 
@@ -304,13 +292,33 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
 
       const { userMessage } = request.body as { userMessage: string };
 
-      const response = await aiConnector.requestNaturalResponse(component, userMessage);
+      const response = await aiConnector.requestNaturalResponse(
+        component,
+        userMessage
+      );
 
       return reply.status(200).send({
         status: 'success',
         data: response,
       });
     },
+    method: 'POST',
+    schema: {
+      body: z.object({
+        userMessage: z.string(),
+      }),
+      querystring: z.object({
+        season: z.string().default('2026:2'),
+        componentId: z.string(),
+      }),
+      response: {
+        200: z.object({
+          status: z.string(),
+          data: z.any().optional(),
+        }),
+      },
+    },
+    url: '/components/metadata',
   });
 };
 
