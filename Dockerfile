@@ -14,7 +14,7 @@ ENV GIT_SECRET_PASSWORD=$GIT_SECRET_PASSWORD
 RUN apk update && apk add --no-cache libc6-compat
 WORKDIR /workspace
 # enable corepack for pnpm
-RUN npm i -g pnpm@10.33.2
+RUN npm i -g pnpm@10.33.2 tsx
 
 FROM runtime as fetcher
 COPY pnpm*.yaml ./
@@ -108,4 +108,4 @@ RUN rm -f ./private-container-file-key
 EXPOSE 5000
 
 # start the app
-CMD pnpm run start
+CMD tsx --env-file=.env.prod dist/server.js
