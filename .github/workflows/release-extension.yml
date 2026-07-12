@@ -90,6 +90,7 @@ jobs:
 
       - name: Apply changesets (version bump + CHANGELOG)
         if: steps.is_release.outputs.value == 'true' && steps.find_changesets.outputs.count != '0'
+        working-directory: apps/extension
         run: pnpm changeset version
 
       - name: Read new extension version

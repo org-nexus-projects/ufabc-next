@@ -13,8 +13,6 @@
     "tsc": "turbo run tsc"
   },
   "devDependencies": {
-    "@changesets/changelog-git": "catalog:",
-    "@changesets/cli": "catalog:",
     "@typescript/native-preview": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",

@@ -17,6 +17,8 @@
     "lint": "oxlint ./src || true"
   },
   "devDependencies": {
+    "@changesets/changelog-git": "catalog:",
+    "@changesets/cli": "catalog:",
     "@types/lodash-es": "catalog:",
     "@types/mustache": "catalog:",
     "@types/toastify-js": "catalog:",
