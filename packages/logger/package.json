@@ -21,7 +21,6 @@
     "build": "tsdown",
     "tsc": "tsgo --noEmit",
     "dev": "tsdown --watch",
-    "test": "vitest run",
     "clean": "git clean -xdf .cache .turbo dist node_modules"
   },
   "dependencies": {
@@ -34,7 +33,6 @@
     "@next/config": "workspace:*",
     "@types/node": "catalog:",
     "tsdown": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "catalog:"
   }
 }
