@@ -53,7 +53,11 @@ export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           );
         const oauthUser = await getUserDetails(token, request.log);
 
-        if (!oauthUser.email.endsWith('ufabc.edu.br')) {
+        const BYPASS_EMAILS = ['nexusterceiros@gmail.com'];
+        if (
+          !oauthUser.email.endsWith('ufabc.edu.br') &&
+          !BYPASS_EMAILS.includes(oauthUser.email)
+        ) {
           return reply.forbidden(
             'Apenas e-mails com ufabc.edu.br são permitidos'
           );
