@@ -39,6 +39,11 @@ env:
   CHROME_CLIENT_ID: ${{ secrets.CHROME_EXTENSION_CLIENT_ID }}
   CHROME_CLIENT_SECRET: ${{ secrets.CHROME_EXTENSION_CLIENT_SECRET }}
   CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_EXTENSION_REFRESH_TOKEN }}
+  VITE_AXIOM_TOKEN: ${{ secrets.EXTENSION_AXIOM_INGEST_TOKEN }}
+  VITE_AXIOM_DATASET: ${{ secrets.EXTENSION_AXIOM_DATASET }}
+  VITE_UFABC_NEXT_URL: https://api.v2.ufabcnext.com
+  VITE_UFABC_PARSER_URL: https://ufabc-parser.com/v2
+  VITE_LOG_LEVEL: info
 
 jobs:
   release:
@@ -103,12 +108,6 @@ jobs:
 
       - name: Build extension
         run: pnpm turbo run build --filter=@next/extension
-        env:
-          VITE_AXIOM_TOKEN: ${{ secrets.EXTENSION_AXIOM_INGEST_TOKEN }}
-          VITE_AXIOM_DATASET: ${{ secrets.EXTENSION_AXIOM_DATASET }}
-          VITE_UFABC_NEXT_URL: https://api.v2.ufabcnext.com
-          VITE_UFABC_PARSER_URL: https://ufabc-parser.com/v2
-          VITE_LOG_LEVEL: info
 
       - name: Zip extension
         run: pnpm turbo run zip --filter=@next/extension
