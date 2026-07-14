@@ -1,6 +1,5 @@
-import type { Types } from 'mongoose';
-
 import { defineJob } from '@next/queues/client';
+import type { Types } from 'mongoose';
 import z from 'zod';
 
 import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
@@ -20,7 +19,9 @@ const teacherCache = new Map<string, Types.ObjectId | null>();
 async function findTeacher(
   name: string | null
 ): Promise<Types.ObjectId | null> {
-  if (!name) return null;
+  if (!name) {
+    return null;
+  }
 
   const normalizedName = normalizeName(name);
 
@@ -36,8 +37,8 @@ async function findTeacher(
       await TeacherModel.findByIdAndUpdate(levMatch._id, {
         $addToSet: { alias: { $each: [normalizedName, name.toLowerCase()] } },
       });
-      teacherCache.set(normalizedName, levMatch._id as Types.ObjectId);
-      return levMatch._id as Types.ObjectId;
+      teacherCache.set(normalizedName, levMatch._id);
+      return levMatch._id;
     }
   }
 
@@ -60,10 +61,10 @@ async function findTeacher(
 export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
   .input(
     z.object({
+      data: ComponentSateSchema.shape.data,
       deliveryId: z.string().uuid().describe('Unique webhook delivery ID'),
       event: z.enum(PARSER_WEBHOOK_SUPPORTED_EVENTS),
       timestamp: z.string().describe('Event timestamp'),
-      data: ComponentSateSchema.shape.data,
     })
   )
   .handler(async ({ job }) => {
@@ -95,28 +96,28 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
     const praticaTeacherId = await findTeacher(practice?.name ?? null);
 
     const existingComponent = await ComponentModel.findOne({
-      uf_cod_turma: component.ufClassroomCode,
       season: component.season,
+      uf_cod_turma: component.ufClassroomCode,
     });
 
     if (existingComponent) {
       const updated = await existingComponent.updateOne({
         $set: {
-          disciplina: subject.name,
+          campus: component.campus,
           credits: component.credits,
-          turno: component.shift === 'morning' ? 'diurno' : 'noturno',
-          turma: component.componentClass,
-          vagas: component.vacancies,
+          disciplina: subject.name,
+          kind: 'api',
+          pratica: praticaTeacherId ?? undefined,
           subject: subject._id,
           teoria: teoriaTeacherId ?? undefined,
-          pratica: praticaTeacherId ?? undefined,
           tpi: [
             component.tpi.theory,
             component.tpi.practice,
             component.tpi.individual,
           ],
-          campus: component.campus,
-          kind: 'api',
+          turma: component.componentClass,
+          turno: component.shift === 'morning' ? 'diurno' : 'noturno',
+          vagas: component.vacancies,
         },
       });
 
@@ -128,33 +129,35 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
 
     const [year, quad] = component.season.split(':').map(Number);
     const newComponent = await ComponentModel.create({
-      uf_cod_turma: component.ufClassroomCode,
-      year,
-      quad,
-      subject: subject._id,
+      after_kick: [],
+      alunos_matriculados: [],
+      before_kick: [],
+      campus: component.campus,
+      codigo: component.ufComponentCode,
       disciplina: subject.name ?? component.name,
-      turno: component.shift === 'morning' ? 'diurno' : 'noturno',
-      turma: component.componentClass,
-      vagas: component.vacancies,
+      disciplina_id:
+        component.alternateUfabcComponentId ?? component.ufComponentId,
+      ideal_quad: false,
+      kind: 'api',
       obrigatorias:
         component.courses
           ?.filter((c) => c.category === 'mandatory')
           .map((c) => c.UFCourseId) ?? [],
-      codigo: component.ufComponentCode,
-      teoria: teoriaTeacherId ?? undefined,
       pratica: praticaTeacherId ?? undefined,
+      quad,
+      season: component.season,
+      subject: subject._id,
+      teoria: teoriaTeacherId ?? undefined,
       tpi: [
         component.tpi.theory,
         component.tpi.practice,
         component.tpi.individual,
       ],
-      campus: component.campus,
-      ideal_quad: false,
-      season: component.season,
-      kind: 'api',
-      alunos_matriculados: [],
-      before_kick: [],
-      after_kick: [],
+      turma: component.componentClass,
+      turno: component.shift === 'morning' ? 'diurno' : 'noturno',
+      uf_cod_turma: component.ufClassroomCode,
+      vagas: component.vacancies,
+      year,
     });
 
     return { component: newComponent, created: true };
