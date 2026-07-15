@@ -7,6 +7,7 @@ import { sendMessage } from "@/messaging";
 import { logger } from "@/utils/logger";
 import type { ContentScriptContext } from "wxt/client";
 import { getStudent } from "@/services/next";
+import { Toaster } from "vue-sonner";
 
 export type UFABCMatriculaStudent = {
   studentId: number;
@@ -21,6 +22,11 @@ export default defineContentScript({
 
     const ui = await mountUFABCMatriculaFilters(ctx, sessionId, login);
     ui.mount();
+
+    // vue-sonner injects its stylesheet into document.head at import time, so the
+    // Toaster has to live outside the filters' shadow root (which can't see
+    // document.head styles) or every toast renders unstyled/inline.
+    mountToaster(ctx).mount();
 
     const $meio = document.querySelector<HTMLDivElement>("#meio");
     const $mountedUi = $meio?.firstChild as unknown as HTMLDivElement;
@@ -88,6 +94,22 @@ async function mountUFABCMatriculaFilters(ctx: ContentScriptContext, sessionId: 
       const resolvedMounted = await mounted;
       resolvedMounted?.app.unmount();
       resolvedMounted?.wrapper.remove();
+    },
+  });
+}
+
+function mountToaster(ctx: ContentScriptContext) {
+  return createIntegratedUi(ctx, {
+    position: "inline",
+    anchor: "body",
+    append: "last",
+    onMount(wrapper) {
+      const app = createApp(Toaster, { position: "top-right" });
+      app.mount(wrapper);
+      return app;
+    },
+    onRemove(app) {
+      app?.unmount();
     },
   });
 }

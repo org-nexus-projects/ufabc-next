@@ -232,6 +232,7 @@ watch(filterSelected, (newFilter) => {
           v-model="filterSelected"
           @change="updateFilter()"
           v-if="teacherReviewData?.specific.length"
+          :teleported="false"
         >
         <el-option
           v-for="option in possibleComponents"
