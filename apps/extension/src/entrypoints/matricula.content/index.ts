@@ -23,9 +23,6 @@ export default defineContentScript({
     const ui = await mountUFABCMatriculaFilters(ctx, sessionId, login);
     ui.mount();
 
-    // vue-sonner injects its stylesheet into document.head at import time, so the
-    // Toaster has to live outside the filters' shadow root (which can't see
-    // document.head styles) or every toast renders unstyled/inline.
     mountToaster(ctx).mount();
 
     const $meio = document.querySelector<HTMLDivElement>("#meio");
