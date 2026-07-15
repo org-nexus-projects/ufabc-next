@@ -3,11 +3,10 @@ import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 
 import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
-import { UFABC_EMAIL_DOMAINS } from '@/constants.js';
 import { matriculaSession } from '@/hooks/matricula-session.js';
 import { sigaaSession } from '@/hooks/sigaa-session.js';
 import { StudentModel } from '@/models/Student.js';
-import { UserModel } from '@/models/User.js';
+import { findRaByLogin } from '@/utils/resolve-student-ra.js';
 
 const CACHE_TTL = 1000 * 60 * 60 * 24; // 1 day
 
@@ -17,20 +16,15 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
       const season = currentQuad();
       const { login, studentId, graduationId } = request.body;
 
-      const candidateEmails = UFABC_EMAIL_DOMAINS.map(
-        (domain) => `${login}@${domain}`
-      );
-      const user = await UserModel.findOne({
-        email: { $in: candidateEmails },
-      });
+      const ra = await findRaByLogin(login);
 
-      if (!user) {
+      if (!ra) {
         return await reply.notFound();
       }
 
       await StudentModel.findOneAndUpdate(
         {
-          ra: user.ra,
+          ra,
           season,
         },
         {
