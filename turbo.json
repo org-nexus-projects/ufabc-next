@@ -5,7 +5,8 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".output/**"],
-      "cache": true
+      "cache": true,
+      "env": ["VITE_*"]
     },
     "dev": {
       "dependsOn": ["^build"],
