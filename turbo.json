@@ -24,7 +24,11 @@
       "cache": true,
       "outputLogs": "errors-only"
     },
-    "zip": {},
-    "zip:firefox": {}
+    "zip": {
+      "env": ["VITE_*"]
+    },
+    "zip:firefox": {
+      "env": ["VITE_*"]
+    }
   }
 }
