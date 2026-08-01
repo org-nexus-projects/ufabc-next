@@ -297,7 +297,7 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery } from '@tanstack/vue-query';
-import { RequestError,Users  } from '@ufabc-next/services';
+import { RequestError,Users  } from '@next/services';
 import { toTypedSchema } from '@vee-validate/zod';
 import { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';

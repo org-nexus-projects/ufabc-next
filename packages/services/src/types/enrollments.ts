@@ -1,3 +1,5 @@
+import type { Concept } from './concepts';
+
 export type EnrollmentTeacherComment = {
   _id: string;
   comment: string;
@@ -37,7 +39,6 @@ export type Subject = {
   creditos?: number;
 };
 
-import type { Concept } from './concepts';
 
 export type Enrollment = {
   _id: string;

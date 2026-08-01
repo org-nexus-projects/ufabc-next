@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools';
-import { setTokenGetter } from '@ufabc-next/services';
+import { setTokenGetter } from '@next/services';
 import { ElMessage } from 'element-plus';
 import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';

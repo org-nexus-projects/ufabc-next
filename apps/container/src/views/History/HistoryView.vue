@@ -239,8 +239,8 @@
 
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
-import type { Concept, Enrollment } from '@ufabc-next/services';
-import { Enrollments, Users } from '@ufabc-next/services';
+import type { Concept, Enrollment } from '@next/services';
+import { Enrollments, Users } from '@next/services';
 import { computed, ref } from 'vue';
 
 import { CenteredLoading } from '@/components/CenteredLoading';

@@ -155,7 +155,7 @@
   </v-app>
 </template>
 <script setup lang="ts">
-import { api } from '@ufabc-next/services';
+import { api } from '@next/services';
 import dayjs from 'dayjs';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';

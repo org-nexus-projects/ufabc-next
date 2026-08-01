@@ -63,7 +63,7 @@
 
 <script setup lang="ts">
 import { useInfiniteQuery, useQuery } from '@tanstack/vue-query';
-import { Comments, Reviews } from '@ufabc-next/services';
+import { Comments, Reviews } from '@next/services';
 import { computed, ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 

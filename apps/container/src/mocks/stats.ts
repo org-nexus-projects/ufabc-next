@@ -5,7 +5,7 @@ import type {
   StatsCourse,
   StatsOverview,
   StatsSubject,
-} from '@ufabc-next/services';
+} from '@next/services';
 
 export const classes: PageableReturn<StatsClass> = {
   total: 1022,

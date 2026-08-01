@@ -68,7 +68,7 @@
 
 <script lang="ts" setup>
 import { useQuery } from '@tanstack/vue-query';
-import { Reviews , TeacherReview, TeacherReviewSubject } from '@ufabc-next/services';
+import { Reviews , TeacherReview, TeacherReviewSubject } from '@next/services';
 import { computed, ref } from 'vue';
 import { useDisplay } from 'vuetify';
 

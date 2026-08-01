@@ -4,3 +4,16 @@ declare module '*.vue' {
   const component: DefineComponent<object, object, any>;
   export default component;
 }
+
+declare module 'vuetify/styles' {
+  const styles: undefined;
+  export default styles;
+}
+
+interface ImportMetaEnv {
+  [key: string]: any;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

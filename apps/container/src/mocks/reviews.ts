@@ -6,7 +6,7 @@ import type {
   SubjectInfo,
   TeacherReview,
   UpdateCommentRequest,
-} from '@ufabc-next/services';
+} from '@next/services';
 
 export const subjectInfo = {
   subject: {

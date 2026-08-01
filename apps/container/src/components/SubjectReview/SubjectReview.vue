@@ -135,7 +135,7 @@
 
 <script lang="ts" setup>
 import { useQuery } from '@tanstack/vue-query';
-import { Concept, Reviews , SubjectSpecific } from '@ufabc-next/services';
+import { Concept, Reviews , SubjectSpecific } from '@next/services';
 import { ElMessage } from 'element-plus';
 import { computed, ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';

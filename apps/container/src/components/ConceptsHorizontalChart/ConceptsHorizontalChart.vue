@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { ConceptData, SubjectSpecific } from '@ufabc-next/services';
+import { ConceptData, SubjectSpecific } from '@next/services';
 import { computed, PropType } from 'vue';
 
 import { conceptsColor } from '@/utils/consts';

@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import { useMutation } from '@tanstack/vue-query';
-import { RequestError,Users  } from '@ufabc-next/services';
+import { RequestError,Users  } from '@next/services';
 import { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';
 import { onMounted } from 'vue';

@@ -1,4 +1,4 @@
-import type { User } from '@ufabc-next/services';
+import type { User } from '@next/services';
 import { jwtDecode } from 'jwt-decode';
 
 export function parseJwt(token: string): {

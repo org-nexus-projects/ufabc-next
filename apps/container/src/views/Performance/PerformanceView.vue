@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
-import { type CourseInformation, Performance } from '@ufabc-next/services';
+import { type CourseInformation, Performance } from '@next/services';
 import { Chart } from 'highcharts-vue';
 import { computed, ref, watch } from 'vue';
 import { useTheme } from 'vuetify';

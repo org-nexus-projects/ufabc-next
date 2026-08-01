@@ -150,8 +150,8 @@ import type {
   StatsCourse,
   StatsParams,
   StatsSubject,
-} from '@ufabc-next/services';
-import { StatsSubjects } from '@ufabc-next/services';
+} from '@next/services';
+import { StatsSubjects } from '@next/services';
 import { computed, ref } from 'vue';
 
 import { CenteredLoading } from '@/components/CenteredLoading';

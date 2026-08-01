@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [vue()],
     resolve: {
+      dedupe: ['@vue/shared'],
       alias: [
         {
           find: '@',

@@ -84,8 +84,8 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
-import type { Enrollment } from '@ufabc-next/services';
-import { Comments, Enrollments } from '@ufabc-next/services';
+import type { Enrollment } from '@next/services';
+import { Comments, Enrollments } from '@next/services';
 import { ElMessage } from 'element-plus';
 import { computed, PropType, ref, watch } from 'vue';
 

@@ -1,0 +1,111 @@
+services:
+  next-db:
+    image: mongo:latest
+    container_name: next-db
+    ports:
+      - 27017:27017
+    volumes:
+      - ./scripts/docker/mongo/initdb.d:/docker-entrypoint-initdb.d:ro
+      - next-db-data:/data/db/
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - next-network
+
+  next-redis:
+    image: redis:latest
+    container_name: next-redis
+    ports:
+      - 6379:6379
+    environment:
+      REDIS_USER: default
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: qj6wGxXINcQyWXdN
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks:
+      - next-network
+
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack
+    ports:
+      - '4567:4566' # LocalStack gateway
+      - '4572:4571' # Alternative API gateway
+    environment:
+      SERVICES: 's3,lambda,dynamodb,sqs,sns,ses'
+      AWS_ACCESS_KEY_ID: 'AWS_ACCESS_KEY_ID_LOCALSTACK'
+      AWS_SECRET_ACCESS_KEY: 'AWS_SECRET_ACCESS_KEY_LOCALSTACK'
+      DEBUG: '1'
+    volumes:
+      - './scripts/docker/localstack:/var/lib/localstack'
+      - './scripts/init-localstack.sh:/etc/localstack/init/ready.d/init.sh'
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4566/_localstack/health']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - next-network
+
+  core:
+    container_name: next-core
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - '5000:5000'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    env_file:
+      - ./apps/core/.env
+    environment:
+      # Docker network overrides — service hostnames instead of localhost
+      - MONGODB_CONNECTION_URL=mongodb://next-db:27017/ufabc-matricula
+      - REDIS_CONNECTION_URL=redis://default:qj6wGxXINcQyWXdN@next-redis:6379
+      - LOCALSTACK_ENDPOINT=http://localstack:4566
+      - UFABC_PARSER_URL=http://host.docker.internal:5001
+    volumes:
+      # Mount only src/ (and dist/ for logger) — NOT full package dirs, to avoid
+      # overriding the image's node_modules/ symlinks with broken host symlinks
+      - ./apps/core/src:/workspace/apps/core/src:ro
+      - ./apps/core/.env:/workspace/apps/core/.env:ro
+      - ./packages/connectors/src:/workspace/packages/connectors/src:ro
+      - ./packages/db/src:/workspace/packages/db/src:ro
+      - ./packages/logger/src:/workspace/packages/logger/src:ro
+      - ./packages/logger/dist:/workspace/packages/logger/dist:ro
+      - ./packages/queues/src:/workspace/packages/queues/src:ro
+      - ./packages/testing/src:/workspace/packages/testing/src:ro
+      # utils has index.ts at root and source in lib/ (not src/)
+      - ./packages/utils/index.ts:/workspace/packages/utils/index.ts:ro
+      - ./packages/utils/lib:/workspace/packages/utils/lib:ro
+      # tools/tsconfig is config-only, no node_modules issue
+      - ./tools/tsconfig:/workspace/tools/tsconfig:ro
+    depends_on:
+      next-db:
+        condition: service_healthy
+      next-redis:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    networks:
+      - next-network
+
+networks:
+  next-network:
+    driver: bridge
+
+volumes:
+  next-db-data:
+    driver: local
+    name: next-mongo

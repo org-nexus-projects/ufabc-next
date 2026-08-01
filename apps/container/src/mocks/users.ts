@@ -1,4 +1,4 @@
-import type { User } from '@ufabc-next/services';
+import type { User } from '@next/services';
 
 export const user = {
   _id: '123',

@@ -135,7 +135,7 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery } from '@tanstack/vue-query';
-import { Users } from '@ufabc-next/services';
+import { Users } from '@next/services';
 import { ElMessage } from 'element-plus';
 import { computed, ref } from 'vue';
 

@@ -98,7 +98,7 @@
 
 <script lang="ts" setup>
 import { useMutation } from '@tanstack/vue-query';
-import { Comment, Comments , RequestError } from '@ufabc-next/services';
+import { Comment, Comments , RequestError } from '@next/services';
 import { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';
 import { computed, onMounted, PropType, ref } from 'vue';

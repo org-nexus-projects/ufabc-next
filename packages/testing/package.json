@@ -1,0 +1,32 @@
+{
+  "name": "@next/testing",
+  "version": "1.0.0",
+  "description": "Testing utilities for the backend",
+  "keywords": [],
+  "license": "ISC",
+  "author": "Joabe Silva <joabevarjao123@gmail.com>",
+  "type": "module",
+  "exports": {
+    "./containers": "./src/containers.ts",
+    "./factories": "./src/factories.ts",
+    "./mocks": "./src/mocks.ts",
+    "./methods": "./src/methods.ts"
+  },
+  "scripts": {
+    "dev": "tsgo --noEmit --watch",
+    "build": "tsgo",
+    "check-types": "tsgo --noEmit",
+    "clean": "git clean -xdf .cache .turbo dist node_modules"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-s3": "catalog:",
+    "@next/config": "workspace:*",
+    "@testcontainers/localstack": "catalog:",
+    "@testcontainers/mongodb": "catalog:",
+    "@testcontainers/redis": "catalog:",
+    "@types/node": "catalog:",
+    "nock": "catalog:",
+    "testcontainers": "catalog:",
+    "typescript": "catalog:"
+  }
+}

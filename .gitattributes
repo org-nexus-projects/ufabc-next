@@ -1,3 +1,8 @@
-* text=auto eol=lf
+* text=auto
+*.css text eol=lf
+*.js text eol=lf
+*.html text eol=lf
+*.py text eol=lf
+*.ts text eol=lf
 *.jpg binary
 *.data binary

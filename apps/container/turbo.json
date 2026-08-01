@@ -1,0 +1,37 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "env": [
+        "VITE_APP_ENV",
+        "VITE_APP_BASE_URL",
+        "VITE_API_BASE_URL",
+        "VITE_PARSER_API_BASE_URL",
+        "VITE_MIXPANEL_TOKEN"
+      ],
+      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*"],
+      "outputs": ["dist/**"]
+    },
+    "build:staging": {
+      "env": [
+        "VITE_APP_ENV",
+        "VITE_APP_BASE_URL",
+        "VITE_API_BASE_URL",
+        "VITE_PARSER_API_BASE_URL",
+        "VITE_MIXPANEL_TOKEN"
+      ],
+      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.staging", ".env.*"],
+      "outputs": ["dist/**"]
+    },
+    "dev": {
+      "env": [
+        "VITE_APP_ENV",
+        "VITE_APP_BASE_URL",
+        "VITE_API_BASE_URL",
+        "VITE_PARSER_API_BASE_URL",
+        "VITE_MIXPANEL_TOKEN"
+      ],
+      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*"]
+    }
+  }
+}

@@ -328,7 +328,7 @@
 
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
-import { SearchCourseItem,Whatsapp  } from '@ufabc-next/services';
+import { SearchCourseItem,Whatsapp  } from '@next/services';
 import { useDebounceFn } from '@vueuse/core';
 import { computed, onMounted, ref, toValue, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';

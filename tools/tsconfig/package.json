@@ -1,0 +1,18 @@
+{
+  "name": "@next/config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "files": [
+    "apps.json",
+    "base.json",
+    "libs.json",
+    "vue.json"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "fastify-tsconfig": "catalog:"
+  }
+}

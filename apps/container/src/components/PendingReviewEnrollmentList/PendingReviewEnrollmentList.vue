@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
-import { Enrollment,Enrollments  } from '@ufabc-next/services';
+import { Enrollment,Enrollments  } from '@next/services';
 import { computed } from 'vue';
 
 import { FeedbackAlert } from '@/components/FeedbackAlert';

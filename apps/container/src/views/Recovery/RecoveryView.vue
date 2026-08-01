@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useMutation, useQuery } from '@tanstack/vue-query';
-import { Users } from '@ufabc-next/services';
+import { Users } from '@next/services';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useField, useForm } from 'vee-validate';
 import { computed, ref, watch } from 'vue';
