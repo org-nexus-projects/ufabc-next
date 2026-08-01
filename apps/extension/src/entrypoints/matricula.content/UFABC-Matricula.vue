@@ -2,12 +2,16 @@
 import SubjectReview from "@/components/SubjectReview.vue";
 import { useMutation } from "@tanstack/vue-query";
 import { logger } from "@/utils/logger";
-import { toast, Toaster } from "vue-sonner";
+import { toast } from "vue-sonner";
 import { getStudentCourseId, getStudentId } from "@/utils/ufabc-matricula-student";
 import { useFilters } from "@/composables/useFilters";
 import { useModals } from "@/composables/useModals";
 import { useComponentsBuilder } from "@/composables/useComponentsBuilder";
 import { syncMatriculaStudent, updateStudent, type UpdatedStudent } from "@/services/next";
+import { storage } from "wxt/storage";
+
+const SYNC_TOAST_STORAGE_KEY = "local:lastSessionSyncToastAt";
+const SYNC_TOAST_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 const matriculas = inject<typeof window.matriculas>("matriculas");
 const sessionId = inject<string>("sessionId");
@@ -53,10 +57,17 @@ const sessionMutation = useMutation({
   },
   onError: (error) => {
     logger.error({ error }, "Failed to sync session");
-    toast.error("Failed to sync session data");
+    toast.error("Falha ao sincronizar dados da sessão");
   },
-  onSuccess: () => {
-    toast.success("Session synchronized successfully");
+  onSuccess: async () => {
+    const lastShownAt = await storage.getItem<number>(SYNC_TOAST_STORAGE_KEY);
+    const alreadyShownRecently = lastShownAt && Date.now() - lastShownAt < SYNC_TOAST_INTERVAL_MS;
+    if (alreadyShownRecently) {
+      return;
+    }
+
+    toast.success("Sessão sincronizada com sucesso");
+    await storage.setItem(SYNC_TOAST_STORAGE_KEY, Date.now());
   },
 });
 
@@ -236,7 +247,6 @@ onUnmounted(() => {
 
     <section class="pr-5">
       <h3 class="font-medium text-[14px] mb-0.5 text-black/90">Filtros</h3>
-      <Toaster position="top-right" />
       <el-switch class="mr-3" active-text="Disciplinas escolhidas" v-model="selected" @change="changeSelected()">
       </el-switch>
 

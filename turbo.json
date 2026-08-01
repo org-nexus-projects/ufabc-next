@@ -5,7 +5,8 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".output/**"],
-      "cache": true
+      "cache": true,
+      "env": ["VITE_*"]
     },
     "dev": {
       "dependsOn": ["^build"],
@@ -23,7 +24,11 @@
       "cache": true,
       "outputLogs": "errors-only"
     },
-    "zip": {},
-    "zip:firefox": {}
+    "zip": {
+      "env": ["VITE_*"]
+    },
+    "zip:firefox": {
+      "env": ["VITE_*"]
+    }
   }
 }

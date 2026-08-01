@@ -146,13 +146,18 @@ export class BaseRequester {
   private async getRootLogger(): Promise<Logger> {
     if (BaseRequester._rootLogger) return BaseRequester._rootLogger;
 
-    const nodeEnv = this.getNodeEnv();
-    const env = nodeEnv === 'production' ? 'production' : 'dev';
-
     if (this.isBrowser()) {
       const { createBrowserLogger } = await import('@next/logger/browser');
-      BaseRequester._rootLogger = createBrowserLogger(env) as unknown as Logger;
+      const viteEnv = (import.meta as { env?: Record<string, string> }).env ?? {};
+      const env = viteEnv.PROD ? 'production' : 'dev';
+      BaseRequester._rootLogger = createBrowserLogger(env, {
+        axiomDataset: viteEnv.VITE_AXIOM_DATASET,
+        axiomToken: viteEnv.VITE_AXIOM_TOKEN,
+        level: viteEnv.VITE_LOG_LEVEL,
+      }) as unknown as Logger;
     } else {
+      const nodeEnv = this.getNodeEnv();
+      const env = nodeEnv === 'production' ? 'production' : 'dev';
       const { createServerLogger } = await import('@next/logger/server');
       BaseRequester._rootLogger = createServerLogger(
         env,
