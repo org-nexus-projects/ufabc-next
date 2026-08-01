@@ -378,7 +378,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       });
     },
     method: 'POST',
-    preHandler: [validateInternalTokenAuthHook()],
+    preHandler: [validateInternalTokenAuthHook],
     schema: {
       body: z.object({
         userMessage: z.string(),
