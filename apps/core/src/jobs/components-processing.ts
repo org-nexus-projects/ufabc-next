@@ -107,6 +107,7 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
           credits: component.credits,
           disciplina: subject.name,
           kind: 'api',
+          origin_key: component.componentKey,
           pratica: praticaTeacherId ?? undefined,
           subject: subject._id,
           teoria: teoriaTeacherId ?? undefined,
@@ -143,6 +144,7 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
         component.courses
           ?.filter((c) => c.category === 'mandatory')
           .map((c) => c.UFCourseId) ?? [],
+      origin_key: component.componentKey,
       pratica: praticaTeacherId ?? undefined,
       quad,
       season: component.season,

@@ -43,3 +43,19 @@ export const listComponentItemSchema = z.object({
 export const listComponentsSchema = z.array(listComponentItemSchema);
 
 export type ListComponent = z.infer<typeof listComponentItemSchema>;
+
+export const getComponentSchema = z.object({
+  _id: z.string(),
+  origin_key: z.string().nullable(),
+  disciplina: z.string(),
+  disciplina_id: z.number().nullable(),
+  codigo: z.string().nullable(),
+  turma: z.string(),
+  turno: z.enum(['diurno', 'noturno']),
+  vagas: z.number(),
+  campus: z.enum(['sao bernardo', 'santo andre', 'sbc', 'sa']),
+  season: z.string(),
+  uf_cod_turma: z.string(),
+  identifier: z.string().nullable(),
+  metadata: z.any().nullable().optional(),
+});
