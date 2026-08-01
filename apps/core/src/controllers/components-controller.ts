@@ -13,8 +13,11 @@ import type {
   ListComponent,
   PopulatedComponent,
 } from '@/schemas/v2/components.js';
-import { listComponentsSchema } from '@/schemas/v2/components.js';
-import { getComponentArchives } from '@/services/components-service.js';
+import {
+  getComponentSchema,
+  listComponentsSchema,
+} from '@/schemas/v2/components.js';
+import { ComponentsService } from '@/services/components-service.js';
 
 const moodleConnector = new MoodleConnector();
 
@@ -36,12 +39,16 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       }
 
       try {
+        const componentsService = new ComponentsService({
+          requestId: request.id,
+        });
         const courses = await moodleConnector.getComponents(
           session.sessionId,
           session.sessKey
         );
 
-        const componentArchives = await getComponentArchives(courses[0]);
+        const componentArchives =
+          await componentsService.getComponentArchives(courses[0]);
         if (componentArchives.error || !componentArchives.data) {
           await request.releaseLock(session.sessionId);
           return reply.badRequest(componentArchives.error ?? 'No data');
@@ -272,6 +279,40 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       },
     },
     url: '/components',
+  });
+
+  app.route({
+    handler: async (request, reply) => {
+      const { id } = request.params;
+      const { with_metadata } = request.query;
+
+      const componentsService = new ComponentsService({
+        requestId: request.id,
+      });
+      const response = await componentsService.findComponentByIdOrOriginKey(
+        id,
+        with_metadata
+      );
+
+      if (!response) {
+        return reply.notFound('Component not found');
+      }
+
+      return reply.status(200).send(response);
+    },
+    method: 'GET',
+    schema: {
+      params: z.object({
+        id: z.string(),
+      }),
+      querystring: z.object({
+        with_metadata: z.coerce.boolean().default(false),
+      }),
+      response: {
+        200: getComponentSchema,
+      },
+    },
+    url: '/components/:id',
   });
 
   app.route({

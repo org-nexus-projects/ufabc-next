@@ -27,6 +27,11 @@ const componentSchema = new Schema(
       type: String,
       required: false,
     },
+    origin_key: {
+      type: String,
+      required: false,
+      default: null,
+    },
     // lista de alunos matriculados no momento
     alunos_matriculados: {
       type: [Number],
@@ -84,6 +89,7 @@ const componentSchema = new Schema(
 );
 
 componentSchema.index({ identifier: 'asc' });
+componentSchema.index({ origin_key: 'asc' });
 
 export type Component = InferSchemaType<typeof componentSchema>;
 export type ComponentDocument = ReturnType<(typeof ComponentModel)['hydrate']>;
