@@ -1,4 +1,4 @@
-import { ComponentMetadataDocument } from '@/models/ComponentMetadata.js';
+import { ComponentMetadata } from '@/models/ComponentMetadata.js';
 import { BaseRequester } from './base-requester.js';
 
 type Files = {
@@ -33,7 +33,7 @@ export class AIProxyConnector extends BaseRequester {
     return response;
   }
 
-  async requestNaturalResponse(componentData: ComponentMetadataDocument, userMessage: string) {
+  async requestNaturalResponse(componentData: ComponentMetadata, userMessage: string) {
     const headers = new Headers();
 
     headers.set('x-service-id', 'whatsapp');

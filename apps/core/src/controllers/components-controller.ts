@@ -9,10 +9,12 @@ import { jwtVerifyHook } from '@/hooks/jwt-verify.js';
 import { moodleSession } from '@/hooks/moodle-session.js';
 import { ComponentModel } from '@/models/Component.js';
 import { ComponentMetadataModel } from '@/models/ComponentMetadata.js';
+import type { ComponentMetadata } from '@/models/ComponentMetadata.js';
 import type {
   ListComponent,
   PopulatedComponent,
 } from '@/schemas/v2/components.js';
+import { validateInternalTokenAuthHook } from '@/hooks/validate-token.js';
 import {
   getComponentSchema,
   listComponentsSchema,
@@ -320,23 +322,55 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       const { config } = request.server;
       const aiConnector = new AIProxyConnector(config.NEXT_AGENT_URL, 'whatsapp');
 
-      const { season, componentId } = request.query;
-
-      const component = await ComponentMetadataModel.findOne({
-        'metadata.component_code': componentId,
-        'metadata.component_data.season': season,
-      });
-
-      if (!component) {
-        return reply.notFound('Component not found');
-      }
-
+      const { externalKey, season } = request.query;
       const { userMessage } = request.body as { userMessage: string };
 
-      const response = await aiConnector.requestNaturalResponse(
-        component,
-        userMessage
-      );
+
+      let component: ComponentMetadata | null = null;
+      let response: any = null;
+
+      if (externalKey) {
+
+        component = await ComponentMetadataModel.findOne({
+          'metadata.component_data.componentKey': externalKey,
+          'metadata.component_data.season': season,
+        }).lean<ComponentMetadata>();
+
+        if (component) {
+          response = await aiConnector.requestNaturalResponse(
+            component,
+            userMessage
+          );
+        }
+
+        const [databaseResult] = await ComponentMetadataModel.aggregate(
+          [
+            { $match: { season } },
+            {
+              $lookup: {
+                from: "disciplinas_metadata",
+                localField: "disciplina_id",
+                foreignField: "metadata.disciplina_id",
+                as: "meta"
+              }
+            },
+            { $match: { "meta.0": { $exists: true } } }, // validate metadata without disciplina_id
+            { $project: { disciplina_id: 1, disciplina: 1, matches: { $size: "$meta" } } }
+          ]
+        )
+
+
+        if (databaseResult === null || databaseResult.matches === 0) {
+          return reply.notFound('Component not found');
+        }
+
+        response = await aiConnector.requestNaturalResponse(
+          databaseResult,
+          userMessage
+        );
+
+      }
+
 
       return reply.status(200).send({
         status: 'success',
@@ -344,13 +378,14 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       });
     },
     method: 'POST',
+    preHandler: [validateInternalTokenAuthHook],
     schema: {
       body: z.object({
         userMessage: z.string(),
       }),
       querystring: z.object({
         season: z.string().default('2026:2'),
-        componentId: z.string(),
+        externalKey: z.string().optional(),
       }),
       response: {
         200: z.object({
@@ -361,6 +396,11 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
     },
     url: '/components/metadata',
   });
+
+
 };
+
+
+
 
 export default componentsController;
