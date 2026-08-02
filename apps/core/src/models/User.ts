@@ -88,6 +88,26 @@ const userSchema = new Schema(
   }
 );
 
+const userRaHistorySchema = new Schema(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'users', required: true },
+    Ra: { type: String, required: true, default: null },
+  },
+  { timestamps: true }
+);
+
+userRaHistorySchema.index({ userId: 1, createdAt: -1 });
+
+export type UserRaHistory = InferSchemaType<typeof userRaHistorySchema>;
+export type UserRaHistoryDocument = ReturnType<
+  (typeof UserRaHistoryModel)['hydrate']
+>;
+
+export const UserRaHistoryModel = model<UserRaHistory>(
+  'user_ras',
+  userRaHistorySchema
+);
+
 type UserBase = InferSchemaType<typeof userSchema>;
 export type User = Omit<UserBase, 'expiresAt'> & { expiresAt: Date | null };
 
