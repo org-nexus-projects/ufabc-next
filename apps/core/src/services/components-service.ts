@@ -1,14 +1,19 @@
 import type { JobManager } from '@next/queues/manager';
 import { Types } from 'mongoose';
 
+import type { S3Connector } from '@/connectors/s3-connector.js';
 import { JOB_NAMES } from '@/constants.js';
 import {
+  ArchiveFileEmpty,
+  ArchiveNotFound,
   EmailVerificationFailed,
   UserWithoutRA,
 } from '@/errors/custom-errors.js';
 import type { JobRegistry } from '@/jobs/registry.js';
+import { ComponentArchiveMapper } from '@/mappers/component-archive-mapper.js';
 import { ComponentMapper } from '@/mappers/component-mapper.js';
 import { ComponentModel } from '@/models/Component.js';
+import { ComponentArchiveModel } from '@/models/ComponentArchive.js';
 import { ComponentMetadataModel } from '@/models/ComponentMetadata.js';
 import { UserModel } from '@/models/User.js';
 import { logger as defaultLogger } from '@/utils/logger.js';
@@ -18,6 +23,7 @@ import type { MoodleSession } from './archive-engine.js';
 
 export class ComponentsService {
   private readonly mapper = new ComponentMapper();
+  private readonly archiveMapper = new ComponentArchiveMapper();
   private readonly logger: ReturnType<typeof defaultLogger.child>;
   private readonly engine: ArchiveEngine;
   private readonly manager?: JobManager<JobRegistry>;
@@ -70,6 +76,45 @@ export class ComponentsService {
     });
   }
 
+  async listComponentArchives(componentId: string) {
+    this.logger.debug({ componentId }, 'Listing component archives');
+
+    const archives = await ComponentArchiveModel.find({
+      component: componentId,
+    })
+      .populate('component', 'disciplina codigo turma turno season')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return archives.map((archive) => this.archiveMapper.toResponse(archive));
+  }
+
+  async getArchiveDownload(
+    archiveId: string,
+    s3Connector: S3Connector,
+    bucket: string
+  ) {
+    this.logger.debug({ archiveId }, 'Fetching archive for download');
+
+    const archive = await ComponentArchiveModel.findById(archiveId);
+
+    if (!archive || typeof archive.s3_key !== 'string') {
+      throw new ArchiveNotFound();
+    }
+
+    const s3Object = await s3Connector.getObject(bucket, archive.s3_key);
+
+    if (!s3Object.Body) {
+      throw new ArchiveFileEmpty();
+    }
+
+    return {
+      body: s3Object.Body,
+      contentType: s3Object.ContentType ?? 'application/octet-stream',
+      filename: archive.file_name ?? 'document.pdf',
+    };
+  }
+
   async findComponentByIdOrOriginKey(id: string, withMetadata: boolean) {
     this.logger.debug({ id, withMetadata }, 'Looking up component');
 
@@ -89,7 +134,7 @@ export class ComponentsService {
     }
 
     let metadata = null;
-    if (withMetadata && component.origin_key) {
+    if (withMetadata && component?.origin_key != null) {
       metadata = await ComponentMetadataModel.findOne({
         'metadata.component_data.componentKey': component.origin_key,
       }).lean();

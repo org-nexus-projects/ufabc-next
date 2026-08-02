@@ -75,6 +75,7 @@ export default defineConfig({
     'eslint/complexity': ['error', { max: 35 }],
     'func-style': ['error', 'declaration'],
     'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
+    'no-eq-null': 'off',
     'typescript/array-type': ['error', { default: 'array-simple' }],
     'typescript/consistent-type-definitions': ['error', 'type'],
   },

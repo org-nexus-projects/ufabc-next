@@ -22,3 +22,20 @@ export class ArchiveParseFailed extends NextError {
     super('Archive Parse Failed', 'NEX0003', 400, description);
   }
 }
+
+export class ArchiveNotFound extends NextError {
+  constructor() {
+    super(
+      'Archive Not Found',
+      'NEX0004',
+      404,
+      'Archive not found or not yet stored'
+    );
+  }
+}
+
+export class ArchiveFileEmpty extends NextError {
+  constructor() {
+    super('Archive File Empty', 'NEX0005', 500, 'Empty file on S3');
+  }
+}
