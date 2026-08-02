@@ -104,7 +104,7 @@ export class ArchiveEngine {
     s3Connector?: S3Connector;
   } = {}) {
     this.logger = baseLogger.child({ globalTraceId });
-    this.moodleConnector = new MoodleConnector(globalTraceId);
+    this.moodleConnector = new MoodleConnector({ globalTraceId });
     this.session = session;
     this.s3Connector = s3Connector;
   }
@@ -376,6 +376,16 @@ export class ArchiveEngine {
       'No matching component found'
     );
     return null;
+  }
+
+  async getUserEmail(sessionId: string): Promise<string | null> {
+    const userPage = await this.moodleConnector.getUserPage(sessionId);
+    const $ = load(userPage);
+    const email = $(
+      '#region-main > div > div > div.userprofile > div > section:nth-child(1) > div > ul > li:nth-child(2) > dl > dd > a'
+    ).text();
+
+    return email || null;
   }
 
   async fetchAndValidateCourses(session: MoodleSession) {

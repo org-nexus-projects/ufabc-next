@@ -2,10 +2,15 @@ import type { JobManager } from '@next/queues/manager';
 import { Types } from 'mongoose';
 
 import { JOB_NAMES } from '@/constants.js';
+import {
+  EmailVerificationFailed,
+  UserWithoutRA,
+} from '@/errors/custom-errors.js';
 import type { JobRegistry } from '@/jobs/registry.js';
 import { ComponentMapper } from '@/mappers/component-mapper.js';
 import { ComponentModel } from '@/models/Component.js';
 import { ComponentMetadataModel } from '@/models/ComponentMetadata.js';
+import { UserModel } from '@/models/User.js';
 import { logger as defaultLogger } from '@/utils/logger.js';
 
 import { ArchiveEngine, type MoodleSession } from './archive-engine.js';
@@ -28,6 +33,26 @@ export class ComponentsService {
     this.logger = defaultLogger.child({ requestId, globalTraceId });
     this.engine = new ArchiveEngine({ globalTraceId });
     this.manager = manager;
+  }
+
+  async verifyUserForArchives(session: MoodleSession) {
+    const email = await this.engine.getUserEmail(session.sessionId);
+
+    if (email === null) {
+      throw new EmailVerificationFailed();
+    }
+
+    const user = await UserModel.findOne({ email });
+
+    if (user?.ra === undefined || user.ra === null || user.ra === 0) {
+      this.logger.warn(
+        { email },
+        'User does not have RA, skipping enrollment check'
+      );
+      throw new UserWithoutRA();
+    }
+
+    return user;
   }
 
   async processComponentArchives(

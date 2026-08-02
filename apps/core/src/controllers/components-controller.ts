@@ -1,14 +1,9 @@
 import { currentQuad } from '@next/utils';
-import { load } from 'cheerio';
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 
 import { AIProxyConnector } from '@/connectors/ai-proxy.js';
 import { MoodleConnector } from '@/connectors/moodle.js';
-import {
-  EmailVerificationFailed,
-  UserWithoutRA,
-} from '@/errors/custom-errors.js';
 import { jwtVerifyHook } from '@/hooks/jwt-verify.js';
 import type { Session } from '@/hooks/moodle-session.js';
 import { moodleSession } from '@/hooks/moodle-session.js';
@@ -17,7 +12,6 @@ import { ComponentModel } from '@/models/Component.js';
 import { ComponentArchiveModel } from '@/models/ComponentArchive.js';
 import { ComponentMetadataModel } from '@/models/ComponentMetadata.js';
 import type { ComponentMetadata } from '@/models/ComponentMetadata.js';
-import { UserModel } from '@/models/User.js';
 import type {
   ListComponent,
   PopulatedComponent,
@@ -49,31 +43,11 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         return await reply.status(202).send({ status: 'success' });
       }
 
-      const requestConnector = new MoodleConnector(request.id);
-      const userPage = await requestConnector.getUserPage(session.sessionId);
-      const $ = load(userPage);
-      const email = $(
-        '#region-main > div > div > div.userprofile > div > section:nth-child(1) > div > ul > li:nth-child(2) > dl > dd > a'
-      ).text();
-
-      if (!email) {
-        throw new EmailVerificationFailed();
-      }
-
-      const user = await UserModel.findOne({ email });
-
-      if (user?.ra === undefined || user.ra === null || user.ra === 0) {
-        request.log.warn(
-          { email },
-          'User does not have RA, skipping enrollment check'
-        );
-        throw new UserWithoutRA();
-      }
-
       const componentsService = new ComponentsService({
         globalTraceId: request.id,
         manager: app.manager,
       });
+      await componentsService.verifyUserForArchives(session);
       await componentsService.processComponentArchives(session);
 
       return await reply.status(202).send({
