@@ -5,10 +5,7 @@ import dbPlugin from '@next/db/client';
 import type { DatabaseModels } from '@next/db/models';
 import { serializeQueryParams } from '@next/logger/sanitize';
 import type { FastifyInstance, FastifyServerOptions } from 'fastify';
-import {
-  RequestValidationError,
-  ResponseSerializationError,
-} from 'fastify-zod-openapi';
+import { RequestValidationError } from 'fastify-zod-openapi';
 import type { Mongoose } from 'mongoose';
 
 import { authenticationController } from './controllers/authentication-controller.js';
@@ -19,6 +16,7 @@ import studentsController from './controllers/students-controller.js';
 import { UfabcParserIncomingWebhookController } from './controllers/ufabc-parser-webhook-controller.js';
 import { authenticateBoard } from './hooks/board-authenticate.js';
 import awsV2Plugin from './plugins/v2/aws.js';
+import errorHandlerPlugin from './plugins/v2/error-handler.js';
 import queueV2Plugin from './plugins/v2/queue.js';
 import redisV2Plugin from './plugins/v2/redis.js';
 import { setupV2Routes } from './plugins/v2/setup.js';
@@ -76,76 +74,7 @@ export async function buildApp(
     return new Error(message);
   });
 
-  app.setErrorHandler((error, request, reply) => {
-    reply.error = error as Error;
-
-    if (error instanceof ResponseSerializationError) {
-      reply.status(422);
-      reply.send({
-        originalError: error.validation?.[0]?.params.error ?? null,
-        zodIssues: error.validation?.map((err) => err.params.issue) ?? [],
-      });
-      return;
-    }
-
-    if (
-      error &&
-      typeof error === 'object' &&
-      'validation' in error &&
-      error.validation
-    ) {
-      const validationError = error as Error & { validation: unknown[] };
-
-      request.log.warn(
-        {
-          error: validationError,
-          request: {
-            method: request.method,
-            params: request.params,
-            query: serializeQueryParams(request.query),
-            url: request.url,
-          },
-        },
-        validationError.message
-      );
-
-      reply.status(400);
-      reply.send({
-        error: 'Bad Request',
-        message: validationError.message,
-        statusCode: 400,
-        validation: validationError.validation,
-      });
-      return;
-    }
-
-    if (error instanceof Error) {
-      request.log.error(
-        {
-          error,
-          request: {
-            method: request.method,
-            params: request.params,
-            query: serializeQueryParams(request.query),
-            url: request.url,
-          },
-        },
-        error.message
-      );
-
-      reply.status(500);
-      reply.send({
-        error: error.name,
-        message: error.message,
-        statusCode: 500,
-      });
-      return;
-    }
-
-    if (!error) {
-      return;
-    }
-  });
+  await app.register(errorHandlerPlugin);
 
   app.setNotFoundHandler((request, reply) => {
     request.log.warn(
