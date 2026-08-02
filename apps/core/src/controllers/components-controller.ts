@@ -5,8 +5,7 @@ import { z } from 'zod';
 import { AIProxyConnector } from '@/connectors/ai-proxy.js';
 import { MoodleConnector } from '@/connectors/moodle.js';
 import { jwtVerifyHook } from '@/hooks/jwt-verify.js';
-import type { Session } from '@/hooks/moodle-session.js';
-import { moodleSession } from '@/hooks/moodle-session.js';
+import { isSession, moodleSession } from '@/hooks/moodle-session.js';
 import { validateInternalTokenAuthHook } from '@/hooks/validate-token.js';
 import { ComponentModel } from '@/models/Component.js';
 import { ComponentMetadataModel } from '@/models/ComponentMetadata.js';
@@ -26,7 +25,8 @@ const moodleConnector = new MoodleConnector();
 const componentsController: FastifyPluginAsyncZod = async (app) => {
   app.route({
     handler: async (request, reply) => {
-      const session = request.requestContext.get<Session>('moodleSession');
+      const rawSession = request.requestContext.get('moodleSession');
+      const session = isSession(rawSession) ? rawSession : undefined;
       if (!session) {
         return await reply.unauthorized();
       }
@@ -55,7 +55,8 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
     },
     method: 'POST',
     onError: async (request) => {
-      const session = request.requestContext.get<Session>('moodleSession');
+      const rawSession = request.requestContext.get('moodleSession');
+      const session = isSession(rawSession) ? rawSession : undefined;
       if (session !== undefined) {
         await request.releaseLock(session.sessionId);
       }
@@ -77,7 +78,8 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
 
   app.route({
     handler: async (request, reply) => {
-      const session = request.requestContext.get<Session>('moodleSession');
+      const rawSession = request.requestContext.get('moodleSession');
+      const session = isSession(rawSession) ? rawSession : undefined;
       if (!session) {
         return await reply.unauthorized();
       }

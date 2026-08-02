@@ -18,6 +18,15 @@ export type Session = {
   sessKey: string;
 };
 
+export function isSession(value: unknown): value is Session {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'sessionId' in value &&
+    'sessKey' in value
+  );
+}
+
 const sessionCache = new LRUWeakCache<{ sessionId: string }>({
   capacity: 5000,
   maxAge: 1000 * 60 * 5,
