@@ -1,11 +1,4 @@
-import type { Types } from 'mongoose';
-
-import type { ComponentArchive } from '@/models/ComponentArchive.js';
-
-type LeanComponentArchive = ComponentArchive & {
-  _id: Types.ObjectId;
-  createdAt?: Date;
-};
+import type { LeanComponentArchive } from '@/repositories/component-archives-repository.js';
 
 export class ComponentArchiveMapper {
   toResponse(archive: LeanComponentArchive) {

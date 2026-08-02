@@ -13,9 +13,9 @@ import type { JobRegistry } from '@/jobs/registry.js';
 import { ComponentArchiveMapper } from '@/mappers/component-archive-mapper.js';
 import { ComponentMapper } from '@/mappers/component-mapper.js';
 import { ComponentModel } from '@/models/Component.js';
-import { ComponentArchiveModel } from '@/models/ComponentArchive.js';
 import { ComponentMetadataModel } from '@/models/ComponentMetadata.js';
 import { UserModel } from '@/models/User.js';
+import { ComponentArchivesRepository } from '@/repositories/component-archives-repository.js';
 import { logger as defaultLogger } from '@/utils/logger.js';
 
 import { ArchiveEngine } from './archive-engine.js';
@@ -24,6 +24,7 @@ import type { MoodleSession } from './archive-engine.js';
 export class ComponentsService {
   private readonly mapper = new ComponentMapper();
   private readonly archiveMapper = new ComponentArchiveMapper();
+  private readonly archivesRepository: ComponentArchivesRepository;
   private readonly logger: ReturnType<typeof defaultLogger.child>;
   private readonly engine: ArchiveEngine;
   private readonly manager?: JobManager<JobRegistry>;
@@ -38,6 +39,9 @@ export class ComponentsService {
   }) {
     this.logger = defaultLogger.child({ globalTraceId });
     this.engine = new ArchiveEngine({ globalTraceId });
+    this.archivesRepository = new ComponentArchivesRepository({
+      globalTraceId,
+    });
     this.manager = manager;
   }
 
@@ -77,14 +81,8 @@ export class ComponentsService {
   }
 
   async listComponentArchives(componentId: string) {
-    this.logger.debug({ componentId }, 'Listing component archives');
-
-    const archives = await ComponentArchiveModel.find({
-      component: componentId,
-    })
-      .populate('component', 'disciplina codigo turma turno season')
-      .sort({ createdAt: -1 })
-      .lean();
+    const archives =
+      await this.archivesRepository.findByComponentId(componentId);
 
     return archives.map((archive) => this.archiveMapper.toResponse(archive));
   }
@@ -94,9 +92,7 @@ export class ComponentsService {
     s3Connector: S3Connector,
     bucket: string
   ) {
-    this.logger.debug({ archiveId }, 'Fetching archive for download');
-
-    const archive = await ComponentArchiveModel.findById(archiveId);
+    const archive = await this.archivesRepository.findById(archiveId);
 
     if (!archive || typeof archive.s3_key !== 'string') {
       throw new ArchiveNotFound();

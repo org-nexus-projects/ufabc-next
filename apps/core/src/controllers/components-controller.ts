@@ -304,7 +304,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
 
   app.route({
     handler: async (request, reply) => {
-      const { componentId } = request.params as { componentId: string };
+      const { componentId } = request.params;
 
       const componentsService = new ComponentsService({
         globalTraceId: request.id,
