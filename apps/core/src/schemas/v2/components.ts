@@ -7,7 +7,10 @@ export const componentArchiveSchema = z
   .object({
     viewurl: z.string().url(),
     fullname: z.string(),
+    shortname: z.string().optional(),
+    idnumber: z.string().optional(),
     id: z.number(),
+    startdate: z.number().optional(),
   })
   .array();
 

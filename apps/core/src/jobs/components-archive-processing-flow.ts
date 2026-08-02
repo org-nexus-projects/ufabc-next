@@ -1,17 +1,17 @@
 import { defineJob } from '@next/queues/client';
-import { load } from 'cheerio';
-import { ofetch } from 'ofetch';
 import z from 'zod';
 
-import { MoodleConnector } from '@/connectors/moodle.js';
 import { JOB_NAMES } from '@/constants.js';
-
-const connector = new MoodleConnector();
+import { ComponentArchiveModel } from '@/models/ComponentArchive.js';
+import { ArchiveEngine } from '@/services/archive-engine.js';
 
 const componentSchema = z.object({
   viewurl: z.string().url(),
   fullname: z.string(),
+  shortname: z.string().optional(),
+  idnumber: z.string().optional(),
   id: z.number(),
+  startdate: z.number().optional(),
 });
 
 export const componentsArchivesProcessingJob = defineJob(
@@ -25,26 +25,37 @@ export const componentsArchivesProcessingJob = defineJob(
         sessionId: z.string(),
         sessKey: z.string(),
       }),
+      enrolledCodigos: z.array(z.string()).optional(),
     })
   )
   .iterator('component')
   .concurrency(3)
-  .handler(async ({ job, app, manager }) => {
-    const { component, session } = job.data;
+  .handler(async ({ job, manager }) => {
+    const { component, session, enrolledCodigos } = job.data;
     const globalTraceId = job.data.globalTraceId;
 
-    const pdfs = await extractPDFsFromComponent(
-      component.viewurl,
-      session.sessionId,
-      component.id,
-      session.sessKey
+    const engine = new ArchiveEngine({ globalTraceId, session });
+
+    const teacherNames = await engine.extractTeacherNames(component.id);
+
+    const matchedComponent = await engine.findComponentByMoodleCourse(
+      component,
+      teacherNames,
+      enrolledCodigos
     );
 
-    if (pdfs.length === 0) {
-      app.log.info(
-        { globalTraceId, component: component.fullname },
-        'No PDFs found in component'
+    if (!matchedComponent) {
+      throw new Error(
+        `No matching component found for Moodle course: "${component.fullname}" (id: ${component.id}). ` +
+          `Could not find a matching component in the system.`
       );
+    }
+
+    const componentDbId = matchedComponent._id.toString();
+
+    const files = await engine.extractFiles(component.viewurl, component.id);
+
+    if (files.length === 0) {
       return {
         success: true,
         message: 'No PDFs found in component',
@@ -55,15 +66,16 @@ export const componentsArchivesProcessingJob = defineJob(
     await manager.dispatchFlow({
       name: `summary-${component.fullname}`,
       queueName: JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_SUMMARY,
-      data: { name: component.fullname, total: pdfs.length, globalTraceId },
-      children: pdfs.map((pdf) => ({
+      data: { name: component.fullname, total: files.length, globalTraceId },
+      children: files.map((file) => ({
         name: JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_PDF,
         queueName: JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_PDF,
         data: {
           component: component.fullname,
-          rawUrl: pdf.pdfLink,
-          moodleComponentId: component.id,
+          rawUrl: file.url,
+          componentDbId,
           globalTraceId,
+          session,
         },
       })),
     });
@@ -71,6 +83,8 @@ export const componentsArchivesProcessingJob = defineJob(
     return {
       success: true,
       flowStarted: true,
+      componentDbId,
+      moodleCourseId: component.id,
     };
   });
 
@@ -81,41 +95,75 @@ export const pdfDownloadJob = defineJob(
     z.object({
       component: z.string(),
       rawUrl: z.string().url(),
-      moodleComponentId: z.number(),
+      componentDbId: z.string(),
       globalTraceId: z.string().optional(),
+      session: z
+        .object({
+          sessionId: z.string(),
+          sessKey: z.string(),
+        })
+        .optional(),
     })
   )
   .concurrency(10)
   .handler(async ({ job, app }) => {
-    const { rawUrl, moodleComponentId } = job.data;
-    // Represents nothing currently.
-    // const filteredFiles = await aiProxyConnector.filterFiles(component, [
-    //   { url, name: `${component}.pdf` },
-    // ]);
+    const { rawUrl, componentDbId, globalTraceId, session } = job.data;
 
-    const url = new URL(rawUrl);
-    const buffer = await ofetch(url.href, { responseType: 'arrayBuffer' });
+    const engine = new ArchiveEngine({
+      globalTraceId,
+      session,
+      s3Connector: app.aws.s3,
+    });
 
-    // Extract filename from URL pathname and decode it
-    const filenameFromUrl = extractFilenameFromUrl(url);
-    const sanitizedFilename = sanitizeFilename(filenameFromUrl);
-    const s3Key = `/archives/${moodleComponentId}/${sanitizedFilename}`;
-
-    await app.aws.s3.upload(
-      app.config.AWS_BUCKET ?? '',
-      s3Key,
-      Buffer.from(buffer)
+    const archive = await ComponentArchiveModel.findOneAndUpdate(
+      { component: componentDbId, original_url: rawUrl },
+      {
+        $setOnInsert: {
+          component: componentDbId,
+          original_url: rawUrl,
+          timeline: [{ status: 'created', metadata: { globalTraceId } }],
+        },
+        $set: { status: 'created' },
+      },
+      { upsert: true, new: true }
     );
 
-    return {
-      success: true,
-      message: 'PDF uploaded',
-      data: {
-        pdfLink: url.href,
-        pdfName: sanitizedFilename,
-        s3Key,
-      },
-    };
+    try {
+      const { pdfName, s3Key } = await engine.downloadAndUpload(
+        rawUrl,
+        componentDbId,
+        app.config.AWS_BUCKET
+      );
+
+      await ComponentArchiveModel.findByIdAndUpdate(archive._id, {
+        $set: {
+          s3_key: s3Key,
+          file_name: pdfName,
+          status: 'stored',
+        },
+        $push: {
+          timeline: { status: 'stored' },
+        },
+      });
+
+      return {
+        success: true,
+        message: 'PDF uploaded',
+        data: {
+          fileName: pdfName,
+          s3Key,
+        },
+        archiveId: archive._id,
+      };
+    } catch (error) {
+      await ComponentArchiveModel.findByIdAndUpdate(archive._id, {
+        $push: {
+          timeline: { status: 'failed', metadata: { error: String(error) } },
+        },
+        $set: { status: 'failed' },
+      });
+      throw error;
+    }
   });
 
 export const archivesSummaryJob = defineJob(
@@ -128,7 +176,7 @@ export const archivesSummaryJob = defineJob(
       globalTraceId: z.string().optional(),
     })
   )
-  .handler(async ({ job, app }) => {
+  .handler(async ({ job }) => {
     const { name, total, globalTraceId } = job.data;
     return {
       success: true,
@@ -136,116 +184,3 @@ export const archivesSummaryJob = defineJob(
       data: { name, total, globalTraceId },
     };
   });
-
-async function extractPDFsFromComponent(
-  viewurl: string,
-  sessionId: string,
-  componentId: number,
-  sessionKey: string
-) {
-  const url = new URL(viewurl);
-  const page = await connector.getComponentContentsPage(
-    sessionId,
-    url.pathname,
-    componentId.toString()
-  );
-  const $ = load(page);
-  const potentialLinks: { href: string; name: string }[] = [];
-
-  $('div.activityname').each((_index, el) => {
-    const href = $(el).find('a').attr('href');
-    const name = $(el).find('span.instancename').text();
-    if (href && name) {
-      potentialLinks.push({ href, name });
-    }
-  });
-
-  $('a[href*="/mod/resource/"]').each((_index, el) => {
-    const link = $(el).attr('href');
-    const name = $(el).text().trim();
-    if (link && name && !potentialLinks.some((p) => p.href === link)) {
-      potentialLinks.push({ href: link, name });
-    }
-  });
-
-  $('a[href*="/pluginfile.php/"]').each((_index, el) => {
-    const link = $(el).attr('href');
-    const name = $(el).text().trim() || $(el).attr('title') || 'documento';
-    if (link?.toLowerCase()?.endsWith('.pdf')) {
-      if (!potentialLinks.some((p) => p.href === link)) {
-        potentialLinks.push({ href: link, name });
-      }
-    }
-  });
-
-  const validationPromises = potentialLinks.map(async ({ href, name }) => {
-    const { isPdf, finalUrl } = await connector.validatePdfLink(
-      href,
-      sessionId,
-      sessionKey
-    );
-
-    if (!isPdf) {
-      return null;
-    }
-
-    if (finalUrl) {
-      return { pdfLink: finalUrl, pdfName: name };
-    }
-    return null;
-  });
-
-  const validatedLinks = await Promise.all(validationPromises);
-  return validatedLinks.filter((link) => link !== null);
-}
-
-function extractFilenameFromUrl(url: URL): string {
-  const pathname = url.pathname;
-  const segments = pathname.split('/').filter((segment) => segment.length > 0);
-  const lastSegment = segments[segments.length - 1] || 'document.pdf';
-
-  try {
-    return decodeURIComponent(lastSegment);
-  } catch {
-    return lastSegment;
-  }
-}
-
-/**
- * Sanitizes a filename for S3 upload by:
- * - Removing invalid characters
- * - Ensuring it ends with .pdf
- * - Replacing spaces and special chars with underscores
- */
-function sanitizeFilename(filename: string): string {
-  // Remove invalid S3 characters: < > : " | ? * and control characters
-  const invalidChars = /[<>:"|?*\s]/g;
-
-  let sanitized = filename
-    .split('')
-    .map((char) => {
-      const code = char.charCodeAt(0);
-      // Check for invalid S3 chars or control characters (0-31)
-      if (invalidChars.test(char) || (code >= 0 && code <= 31)) {
-        return '_';
-      }
-      return char;
-    })
-    .join('')
-    .replace(/_{2,}/g, '_')
-    .trim();
-
-  // Ensure it ends with .pdf
-  if (!sanitized.toLowerCase().endsWith('.pdf')) {
-    sanitized = `${sanitized}.pdf`;
-  }
-
-  // Limit length (S3 key limit is 1024 chars, but keep reasonable)
-  if (sanitized.length > 255) {
-    const ext = '.pdf';
-    const nameWithoutExt = sanitized.slice(0, 255 - ext.length);
-    sanitized = `${nameWithoutExt}${ext}`;
-  }
-
-  return sanitized || 'document.pdf';
-}

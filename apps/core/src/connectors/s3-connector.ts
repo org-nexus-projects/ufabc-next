@@ -1,4 +1,5 @@
 import {
+  GetObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
   type S3Client,
@@ -16,6 +17,14 @@ export class S3Connector extends BaseAWSConnector<S3Client> {
       Bucket: bucket,
       Key: key,
       Body: body,
+    });
+    return this.client.send(command);
+  }
+
+  async getObject(bucket: string, key: string) {
+    const command = new GetObjectCommand({
+      Bucket: bucket,
+      Key: key,
     });
     return this.client.send(command);
   }

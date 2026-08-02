@@ -32,6 +32,11 @@ const componentSchema = new Schema(
       required: false,
       default: null,
     },
+    moodleCourseId: {
+      type: Number,
+      sparse: true,
+      default: null,
+    },
     // lista de alunos matriculados no momento
     alunos_matriculados: {
       type: [Number],

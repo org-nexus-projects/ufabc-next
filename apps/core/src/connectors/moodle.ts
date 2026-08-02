@@ -43,8 +43,8 @@ export class MoodleConnector extends BaseRequester {
   private lastRequestTime = 0;
   private readonly minRequestInterval = 300;
 
-  constructor() {
-    super('https://moodle.ufabc.edu.br');
+  constructor(globalTraceId?: string) {
+    super('https://moodle.ufabc.edu.br', globalTraceId);
   }
 
   async validateToken(sessionId: string, sessKey: string) {
@@ -115,6 +115,36 @@ export class MoodleConnector extends BaseRequester {
       query: {
         id,
       },
+    });
+
+    return response;
+  }
+
+  async getUserPage(sessionId: string) {
+    const headers = new Headers();
+    headers.set('Cookie', `MoodleSession=${sessionId}`);
+
+    const response = await this.request<string>('/user/profile.php', {
+      method: 'GET',
+      headers,
+      credentials: 'include',
+      responseType: 'text',
+      timeout: 10_000,
+    });
+
+    return response;
+  }
+
+  async getUsersByCoursePage(sessionId: string, courseId: number) {
+    const headers = new Headers();
+    headers.set('Cookie', `MoodleSession=${sessionId}`);
+
+    const response = await this.request<string>('/user/index.php', {
+      method: 'GET',
+      headers,
+      query: { id: courseId, roleid: 3 },
+      responseType: 'text',
+      timeout: 10_000,
     });
 
     return response;

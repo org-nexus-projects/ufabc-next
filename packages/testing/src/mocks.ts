@@ -13,12 +13,24 @@ export const moodleMock = {
               {
                 id: componentId,
                 fullname: componentName,
+                shortname: 'MCTA001-24',
+                idnumber: 'MCTA001',
+                startdate: 1706745600,
                 viewurl: `https://moodle.ufabc.edu.br/course/${componentId}`,
               },
             ],
           },
         },
       ]);
+
+    nock('https://moodle.ufabc.edu.br')
+      .get('/user/index.php')
+      .query(true)
+      .reply(
+        200,
+        `<html><body><table class="generaltable"><tr><td><a href="https://moodle.ufabc.edu.br/user/view.php?id=1&course=${componentId}">Teacher Name</a></td></tr></table></body></html>`,
+        { 'Content-Type': 'text/html' }
+      );
 
     nock('https://moodle.ufabc.edu.br')
       .get(`/course/${componentId}`)

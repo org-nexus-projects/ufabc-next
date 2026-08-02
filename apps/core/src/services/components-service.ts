@@ -1,36 +1,48 @@
+import type { JobManager } from '@next/queues/manager';
 import { Types } from 'mongoose';
 
-import type { MoodleComponent } from '@/connectors/moodle.js';
+import { JOB_NAMES } from '@/constants.js';
+import type { JobRegistry } from '@/jobs/registry.js';
 import { ComponentMapper } from '@/mappers/component-mapper.js';
 import { ComponentModel } from '@/models/Component.js';
 import { ComponentMetadataModel } from '@/models/ComponentMetadata.js';
-import { componentArchiveSchema } from '@/schemas/v2/components.js';
 import { logger as defaultLogger } from '@/utils/logger.js';
+
+import { ArchiveEngine, type MoodleSession } from './archive-engine.js';
 
 export class ComponentsService {
   private readonly mapper = new ComponentMapper();
   private readonly logger: ReturnType<typeof defaultLogger.child>;
+  private readonly engine: ArchiveEngine;
+  private readonly manager?: JobManager<JobRegistry>;
 
-  constructor({ requestId }: { requestId: string }) {
-    this.logger = defaultLogger.child({ requestId });
+  constructor({
+    requestId,
+    manager,
+    globalTraceId,
+  }: {
+    requestId?: string;
+    manager?: JobManager<JobRegistry>;
+    globalTraceId?: string;
+  }) {
+    this.logger = defaultLogger.child({ requestId, globalTraceId });
+    this.engine = new ArchiveEngine({ globalTraceId });
+    this.manager = manager;
   }
 
-  async getComponentArchives(components: MoodleComponent | undefined) {
-    const componentArchives = componentArchiveSchema.safeParse(
-      components?.data.courses
-    );
+  async processComponentArchives(
+    session: MoodleSession,
+    globalTraceId?: string,
+    enrolledCodigos?: string[]
+  ) {
+    const data = await this.engine.fetchAndValidateCourses(session);
 
-    if (!componentArchives.success) {
-      return {
-        error: componentArchives.error.message,
-        data: null,
-      };
-    }
-
-    return {
-      error: null,
-      data: componentArchives.data,
-    };
+    await this.manager?.dispatch(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING, {
+      component: data,
+      globalTraceId,
+      session,
+      enrolledCodigos,
+    });
   }
 
   async findComponentByIdOrOriginKey(id: string, withMetadata: boolean) {
