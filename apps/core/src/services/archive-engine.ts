@@ -116,157 +116,6 @@ export class ArchiveEngine {
       );
     }
 
-    const tryStrategies = async (
-      extraFilter: Record<string, unknown> = {}
-    ): Promise<ComponentDocument | null> => {
-      const findByKeywords = async (
-        keywords: string[],
-        extraFilterInner: Record<string, unknown> = {}
-      ): Promise<ComponentDocument | null> =>
-        await this.componentsRepository.findByDisciplinaKeywords(
-          keywords,
-          extraFilterInner
-        );
-
-      const enrolledCodigosFilter =
-        enrolledCodigos && enrolledCodigos.length > 0
-          ? { codigo: { $in: enrolledCodigos } }
-          : {};
-
-      const isCodeAllowed =
-        enrolledCodigos && enrolledCodigos.length > 0
-          ? (code: string) => enrolledCodigos.includes(code)
-          : () => true;
-
-      // Strategy 1: candidate code + teacher
-      if (uniqueCandidates.length > 0) {
-        const teacherFilter =
-          uniqueTeacherIds.length > 0
-            ? {
-                $or: [
-                  { teoria: { $in: uniqueTeacherIds } },
-                  { pratica: { $in: uniqueTeacherIds } },
-                ],
-              }
-            : {};
-
-        for (const candidateCode of uniqueCandidates) {
-          if (!isCodeAllowed(candidateCode)) {
-            this.logger.info(
-              { candidateCode },
-              'Skipping candidate code not in enrollments'
-            );
-            continue;
-          }
-
-          const result = await this.componentsRepository.findByCodigo(
-            candidateCode,
-            { ...teacherFilter, ...extraFilter }
-          );
-
-          if (result) {
-            this.logger.info(
-              {
-                candidateCode,
-                componentDbId: result._id,
-                componentName: result.disciplina,
-                season: `${result.year}:${result.quad}`,
-              },
-              'Matched component by candidate code'
-            );
-            return result;
-          }
-        }
-
-        // Strategy 2: candidate code only
-        if (uniqueTeacherIds.length > 0) {
-          for (const candidateCode of uniqueCandidates) {
-            if (!isCodeAllowed(candidateCode)) {
-              continue;
-            }
-            const result = await this.componentsRepository.findByCodigo(
-              candidateCode,
-              extraFilter
-            );
-
-            if (result) {
-              this.logger.info(
-                {
-                  candidateCode,
-                  componentDbId: result._id,
-                  componentName: result.disciplina,
-                  season: `${result.year}:${result.quad}`,
-                },
-                'Matched component by candidate code (no teacher)'
-              );
-              return result;
-            }
-          }
-        }
-      }
-
-      // Strategy 3: disciplina keyword + teacher
-      if (uniqueTeacherIds.length > 0) {
-        const keywords = ArchiveEngine.extractKeywords(moodleCourse.fullname);
-        this.logger.info(
-          { keywords },
-          'No candidate match, trying disciplina keywords'
-        );
-
-        const match = await ArchiveEngine.relaxedKeywordSearch(
-          keywords,
-          {
-            $or: [
-              { teoria: { $in: uniqueTeacherIds } },
-              { pratica: { $in: uniqueTeacherIds } },
-            ],
-            ...extraFilter,
-            ...enrolledCodigosFilter,
-          },
-          findByKeywords
-        );
-
-        if (match) {
-          this.logger.info(
-            {
-              componentDbId: match.component._id,
-              componentName: match.component.disciplina,
-              keywords: match.keywordsUsed,
-              season: `${match.component.year}:${match.component.quad}`,
-            },
-            'Matched component by disciplina keywords'
-          );
-          return match.component;
-        }
-      }
-
-      // Strategy 4: disciplina keyword only
-      {
-        const keywords = ArchiveEngine.extractKeywords(moodleCourse.fullname);
-
-        const match = await ArchiveEngine.relaxedKeywordSearch(
-          keywords,
-          { ...extraFilter, ...enrolledCodigosFilter },
-          findByKeywords
-        );
-
-        if (match) {
-          this.logger.info(
-            {
-              componentDbId: match.component._id,
-              componentName: match.component.disciplina,
-              keywords: match.keywordsUsed,
-              season: `${match.component.year}:${match.component.quad}`,
-            },
-            'Matched component by disciplina keywords (no teacher)'
-          );
-          return match.component;
-        }
-      }
-
-      return null;
-    };
-
     let matchedComponent: ComponentDocument | null = null;
 
     // Try with season filter first
@@ -274,14 +123,25 @@ export class ArchiveEngine {
       ? { quad: seasonFilter.quad, year: seasonFilter.year }
       : {};
 
-    matchedComponent = await tryStrategies(seasonExtra);
+    matchedComponent = await this.matchComponentStrategies(
+      moodleCourse,
+      uniqueCandidates,
+      uniqueTeacherIds,
+      enrolledCodigos,
+      seasonExtra
+    );
 
     // Fall back to tenant-free if no match
     if (!matchedComponent) {
       this.logger.info(
         'No match with season filter, falling back to tenant-free'
       );
-      matchedComponent = await tryStrategies();
+      matchedComponent = await this.matchComponentStrategies(
+        moodleCourse,
+        uniqueCandidates,
+        uniqueTeacherIds,
+        enrolledCodigos
+      );
     }
 
     if (matchedComponent) {
@@ -306,6 +166,161 @@ export class ArchiveEngine {
       { courseName: moodleCourse.fullname, moodleCourseId: moodleCourse.id },
       'No matching component found'
     );
+    return null;
+  }
+
+  private async matchComponentStrategies(
+    moodleCourse: MoodleCourse,
+    uniqueCandidates: string[],
+    uniqueTeacherIds: string[],
+    enrolledCodigos: string[] | undefined,
+    extraFilter: Record<string, unknown> = {}
+  ): Promise<ComponentDocument | null> {
+    const findByKeywords = async (
+      keywords: string[],
+      extraFilterInner: Record<string, unknown> = {}
+    ): Promise<ComponentDocument | null> =>
+      await this.componentsRepository.findByDisciplinaKeywords(
+        keywords,
+        extraFilterInner
+      );
+
+    const enrolledCodigosFilter =
+      enrolledCodigos && enrolledCodigos.length > 0
+        ? { codigo: { $in: enrolledCodigos } }
+        : {};
+
+    const isCodeAllowed =
+      enrolledCodigos && enrolledCodigos.length > 0
+        ? (code: string) => enrolledCodigos.includes(code)
+        : () => true;
+
+    // Strategy 1: candidate code + teacher
+    if (uniqueCandidates.length > 0) {
+      const teacherFilter =
+        uniqueTeacherIds.length > 0
+          ? {
+              $or: [
+                { teoria: { $in: uniqueTeacherIds } },
+                { pratica: { $in: uniqueTeacherIds } },
+              ],
+            }
+          : {};
+
+      for (const candidateCode of uniqueCandidates) {
+        if (!isCodeAllowed(candidateCode)) {
+          this.logger.info(
+            { candidateCode },
+            'Skipping candidate code not in enrollments'
+          );
+          continue;
+        }
+
+        const result = await this.componentsRepository.findByCodigo(
+          candidateCode,
+          { ...teacherFilter, ...extraFilter }
+        );
+
+        if (result) {
+          this.logger.info(
+            {
+              candidateCode,
+              componentDbId: result._id,
+              componentName: result.disciplina,
+              season: `${result.year}:${result.quad}`,
+            },
+            'Matched component by candidate code'
+          );
+          return result;
+        }
+      }
+
+      // Strategy 2: candidate code only
+      if (uniqueTeacherIds.length > 0) {
+        for (const candidateCode of uniqueCandidates) {
+          if (!isCodeAllowed(candidateCode)) {
+            continue;
+          }
+          const result = await this.componentsRepository.findByCodigo(
+            candidateCode,
+            extraFilter
+          );
+
+          if (result) {
+            this.logger.info(
+              {
+                candidateCode,
+                componentDbId: result._id,
+                componentName: result.disciplina,
+                season: `${result.year}:${result.quad}`,
+              },
+              'Matched component by candidate code (no teacher)'
+            );
+            return result;
+          }
+        }
+      }
+    }
+
+    // Strategy 3: disciplina keyword + teacher
+    if (uniqueTeacherIds.length > 0) {
+      const keywords = ArchiveEngine.extractKeywords(moodleCourse.fullname);
+      this.logger.info(
+        { keywords },
+        'No candidate match, trying disciplina keywords'
+      );
+
+      const match = await ArchiveEngine.relaxedKeywordSearch(
+        keywords,
+        {
+          $or: [
+            { teoria: { $in: uniqueTeacherIds } },
+            { pratica: { $in: uniqueTeacherIds } },
+          ],
+          ...extraFilter,
+          ...enrolledCodigosFilter,
+        },
+        findByKeywords
+      );
+
+      if (match) {
+        this.logger.info(
+          {
+            componentDbId: match.component._id,
+            componentName: match.component.disciplina,
+            keywords: match.keywordsUsed,
+            season: `${match.component.year}:${match.component.quad}`,
+          },
+          'Matched component by disciplina keywords'
+        );
+        return match.component;
+      }
+    }
+
+    // Strategy 4: disciplina keyword only
+    {
+      const keywords = ArchiveEngine.extractKeywords(moodleCourse.fullname);
+
+      const match = await ArchiveEngine.relaxedKeywordSearch(
+        keywords,
+        { ...extraFilter, ...enrolledCodigosFilter },
+        findByKeywords
+      );
+
+      if (match) {
+        this.logger.info(
+          {
+            componentDbId: match.component._id,
+            componentName: match.component.disciplina,
+            keywords: match.keywordsUsed,
+            season: `${match.component.year}:${match.component.quad}`,
+          },
+          'Matched component by disciplina keywords (no teacher)'
+        );
+        return match.component;
+      }
+    }
+
     return null;
   }
 
