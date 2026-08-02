@@ -4,27 +4,11 @@ import { ofetch } from 'ofetch';
 import { MoodleConnector } from '@/connectors/moodle.js';
 import { S3Connector } from '@/connectors/s3-connector.js';
 import { ArchiveParseFailed } from '@/errors/custom-errors.js';
-import { ComponentModel, type ComponentDocument } from '@/models/Component.js';
+import type { ComponentDocument } from '@/models/Component.js';
 import { findTeacher } from '@/models/Teacher.js';
+import { ComponentsRepository } from '@/repositories/components-repository.js';
 import { componentArchiveSchema } from '@/schemas/v2/components.js';
 import { logger as baseLogger } from '@/utils/logger.js';
-
-const ACCENT_MAP: Record<string, string> = {
-  a: '[aáàâãAÁÀÂÃ]',
-  e: '[eéêEÉÊ]',
-  i: '[iíIÍ]',
-  o: '[oóôõOÓÔÕ]',
-  u: '[uúüUÚÜ]',
-  c: '[cçCÇ]',
-};
-
-function buildAccentInsensitiveRegex(word: string): string {
-  let pattern = '';
-  for (const char of word.toLowerCase()) {
-    pattern += ACCENT_MAP[char] ?? char;
-  }
-  return pattern;
-}
 
 export type MoodleSession = {
   sessionId: string;
@@ -91,6 +75,7 @@ async function relaxedKeywordSearch(
 export class ArchiveEngine {
   private readonly logger;
   private readonly moodleConnector;
+  private readonly componentsRepository: ComponentsRepository;
   private readonly session?: MoodleSession;
   private readonly s3Connector?: S3Connector;
 
@@ -105,6 +90,7 @@ export class ArchiveEngine {
   } = {}) {
     this.logger = baseLogger.child({ globalTraceId });
     this.moodleConnector = new MoodleConnector({ globalTraceId });
+    this.componentsRepository = new ComponentsRepository({ globalTraceId });
     this.session = session;
     this.s3Connector = s3Connector;
   }
@@ -176,26 +162,17 @@ export class ArchiveEngine {
       );
     }
 
-    const sortDesc = { year: -1 as const, quad: -1 as const };
-
     const tryStrategies = async (
       extraFilter: Record<string, unknown> = {}
     ): Promise<ComponentDocument | null> => {
-      const findByKeywords = async (
+      const findByKeywords = (
         keywords: string[],
         extraFilterInner: Record<string, unknown> = {}
-      ): Promise<ComponentDocument | null> => {
-        if (keywords.length === 0) return null;
-
-        const regexConditions = keywords.map((w) => ({
-          disciplina: { $regex: buildAccentInsensitiveRegex(w) },
-        }));
-
-        return await ComponentModel.findOne({
-          $and: regexConditions,
-          ...extraFilterInner,
-        }).sort(sortDesc);
-      };
+      ): Promise<ComponentDocument | null> =>
+        this.componentsRepository.findByDisciplinaKeywords(
+          keywords,
+          extraFilterInner
+        );
 
       const enrolledCodigosFilter =
         enrolledCodigos && enrolledCodigos.length > 0
@@ -228,11 +205,10 @@ export class ArchiveEngine {
             continue;
           }
 
-          const result = await ComponentModel.findOne({
-            codigo: candidateCode,
-            ...teacherFilter,
-            ...extraFilter,
-          }).sort(sortDesc);
+          const result = await this.componentsRepository.findByCodigo(
+            candidateCode,
+            { ...teacherFilter, ...extraFilter }
+          );
 
           if (result) {
             this.logger.info(
@@ -254,10 +230,10 @@ export class ArchiveEngine {
             if (!isCodeAllowed(candidateCode)) {
               continue;
             }
-            const result = await ComponentModel.findOne({
-              codigo: candidateCode,
-              ...extraFilter,
-            }).sort(sortDesc);
+            const result = await this.componentsRepository.findByCodigo(
+              candidateCode,
+              extraFilter
+            );
 
             if (result) {
               this.logger.info(
@@ -355,9 +331,10 @@ export class ArchiveEngine {
     }
 
     if (matchedComponent) {
-      await ComponentModel.findByIdAndUpdate(matchedComponent._id, {
-        $set: { moodleCourseId: moodleCourse.id },
-      });
+      await this.componentsRepository.setMoodleCourseId(
+        matchedComponent._id,
+        moodleCourse.id
+      );
 
       this.logger.info(
         {
