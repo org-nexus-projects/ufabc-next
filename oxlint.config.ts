@@ -61,6 +61,13 @@ export default defineConfig({
         'require-await': 'off',
       },
     },
+    {
+      files: ['apps/core/src/connectors/**/*.ts'],
+      rules: {
+        'eslint/no-constructor-return': 'off',
+        'unicorn/no-this-assignment': 'off',
+      },
+    },
   ],
   rules: {
     complexity: ['error', 25],
