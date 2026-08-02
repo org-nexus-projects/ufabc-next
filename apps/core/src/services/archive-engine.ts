@@ -24,38 +24,6 @@ export type MoodleCourse = {
   startdate?: number;
 };
 
-function extractKeywords(fullname: string): string[] {
-  return fullname
-    .toLowerCase()
-    .split(/[\s-]+/)
-    .filter((w) => w.length > 3 && !/\d/.test(w))
-    .slice(0, 4);
-}
-
-async function relaxedKeywordSearch(
-  keywords: string[],
-  extraFilter: Record<string, unknown>,
-  finder: (
-    subset: string[],
-    filter: Record<string, unknown>
-  ) => Promise<ComponentDocument | null>
-): Promise<{ component: ComponentDocument; keywordsUsed: string[] } | null> {
-  const cleanKeywords = keywords.filter((w) => w.length > 3 && !/\d/.test(w));
-  if (cleanKeywords.length === 0) {
-    return null;
-  }
-
-  for (let count = cleanKeywords.length; count >= 1; count--) {
-    const subset = cleanKeywords.slice(0, count);
-    const result = await finder(subset, extraFilter);
-    if (result) {
-      return { component: result, keywordsUsed: subset };
-    }
-  }
-
-  return null;
-}
-
 export class ArchiveEngine {
   private readonly logger;
   private readonly moodleConnector;
@@ -248,13 +216,13 @@ export class ArchiveEngine {
 
       // Strategy 3: disciplina keyword + teacher
       if (uniqueTeacherIds.length > 0) {
-        const keywords = extractKeywords(moodleCourse.fullname);
+        const keywords = ArchiveEngine.extractKeywords(moodleCourse.fullname);
         this.logger.info(
           { keywords },
           'No candidate match, trying disciplina keywords'
         );
 
-        const match = await relaxedKeywordSearch(
+        const match = await ArchiveEngine.relaxedKeywordSearch(
           keywords,
           {
             $or: [
@@ -283,9 +251,9 @@ export class ArchiveEngine {
 
       // Strategy 4: disciplina keyword only
       {
-        const keywords = extractKeywords(moodleCourse.fullname);
+        const keywords = ArchiveEngine.extractKeywords(moodleCourse.fullname);
 
-        const match = await relaxedKeywordSearch(
+        const match = await ArchiveEngine.relaxedKeywordSearch(
           keywords,
           { ...extraFilter, ...enrolledCodigosFilter },
           findByKeywords
@@ -347,6 +315,40 @@ export class ArchiveEngine {
       { courseName: moodleCourse.fullname, moodleCourseId: moodleCourse.id },
       'No matching component found'
     );
+    return null;
+  }
+
+  private static extractKeywords(fullname: string): string[] {
+    return fullname
+      .toLowerCase()
+      .split(/[\s-]+/)
+      .filter((w) => w.length > 3 && !/\d/.test(w))
+      .slice(0, 4);
+  }
+
+  private static async relaxedKeywordSearch(
+    keywords: string[],
+    extraFilter: Record<string, unknown>,
+    finder: (
+      subset: string[],
+      filter: Record<string, unknown>
+    ) => Promise<ComponentDocument | null>
+  ): Promise<{ component: ComponentDocument; keywordsUsed: string[] } | null> {
+    const cleanKeywords = keywords.filter(
+      (w) => w.length > 3 && !/\d/.test(w)
+    );
+    if (cleanKeywords.length === 0) {
+      return null;
+    }
+
+    for (let count = cleanKeywords.length; count >= 1; count--) {
+      const subset = cleanKeywords.slice(0, count);
+      const result = await finder(subset, extraFilter);
+      if (result) {
+        return { component: result, keywordsUsed: subset };
+      }
+    }
+
     return null;
   }
 
