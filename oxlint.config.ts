@@ -54,9 +54,17 @@ export default defineConfig({
       },
       files: ['packages/**/*.ts'],
     },
+    {
+      files: ['**/*-controller.ts', '**/hooks/*.ts'],
+      rules: {
+        'func-style': 'off',
+        'require-await': 'off',
+      },
+    },
   ],
   rules: {
     complexity: ['error', 25],
+    eqeqeq: ['error', 'always', { null: 'ignore' }],
     'eslint/complexity': ['error', { max: 35 }],
     'func-style': ['error', 'declaration'],
     'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
