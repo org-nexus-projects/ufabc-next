@@ -13,7 +13,8 @@ import { ComponentMetadataModel } from '@/models/ComponentMetadata.js';
 import { UserModel } from '@/models/User.js';
 import { logger as defaultLogger } from '@/utils/logger.js';
 
-import { ArchiveEngine, type MoodleSession } from './archive-engine.js';
+import { ArchiveEngine } from './archive-engine.js';
+import type { MoodleSession } from './archive-engine.js';
 
 export class ComponentsService {
   private readonly mapper = new ComponentMapper();
@@ -22,7 +23,6 @@ export class ComponentsService {
   private readonly manager?: JobManager<JobRegistry>;
 
   constructor({
-    requestId,
     manager,
     globalTraceId,
   }: {
@@ -30,7 +30,7 @@ export class ComponentsService {
     manager?: JobManager<JobRegistry>;
     globalTraceId?: string;
   }) {
-    this.logger = defaultLogger.child({ requestId, globalTraceId });
+    this.logger = defaultLogger.child({ globalTraceId });
     this.engine = new ArchiveEngine({ globalTraceId });
     this.manager = manager;
   }
@@ -64,9 +64,9 @@ export class ComponentsService {
 
     await this.manager?.dispatch(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING, {
       component: data,
+      enrolledCodigos,
       globalTraceId,
       session,
-      enrolledCodigos,
     });
   }
 
