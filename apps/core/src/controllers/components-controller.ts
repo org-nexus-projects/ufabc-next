@@ -360,7 +360,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         )
 
 
-        if (databaseResult === null || databaseResult.matches === 0) {
+        if (!databaseResult || databaseResult.matches === 0) {
           return reply.notFound('Component not found');
         }
 
