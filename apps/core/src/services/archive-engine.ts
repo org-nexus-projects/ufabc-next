@@ -2,7 +2,7 @@ import { load } from 'cheerio';
 import { ofetch } from 'ofetch';
 
 import { MoodleConnector } from '@/connectors/moodle.js';
-import { S3Connector } from '@/connectors/s3-connector.js';
+import type { S3Connector } from '@/connectors/s3-connector.js';
 import { ArchiveParseFailed } from '@/errors/custom-errors.js';
 import type { ComponentDocument } from '@/models/Component.js';
 import { findTeacher } from '@/models/Teacher.js';
@@ -24,24 +24,6 @@ export type MoodleCourse = {
   startdate?: number;
 };
 
-function deriveSeason(
-  startdate: number
-): { year: number; quad: number } | null {
-  const date = new Date(startdate * 1000);
-  if (isNaN(date.getTime())) return null;
-
-  const month = date.getMonth() + 1;
-  const year = date.getFullYear();
-
-  let quad: number;
-  if (month >= 2 && month <= 4) quad = 1;
-  else if (month >= 5 && month <= 8) quad = 2;
-  else if (month >= 9 || month <= 1) quad = 3;
-  else return null;
-
-  return { year, quad };
-}
-
 function extractKeywords(fullname: string): string[] {
   return fullname
     .toLowerCase()
@@ -59,7 +41,9 @@ async function relaxedKeywordSearch(
   ) => Promise<ComponentDocument | null>
 ): Promise<{ component: ComponentDocument; keywordsUsed: string[] } | null> {
   const cleanKeywords = keywords.filter((w) => w.length > 3 && !/\d/.test(w));
-  if (cleanKeywords.length === 0) return null;
+  if (cleanKeywords.length === 0) {
+    return null;
+  }
 
   for (let count = cleanKeywords.length; count >= 1; count--) {
     const subset = cleanKeywords.slice(0, count);
@@ -99,7 +83,7 @@ export class ArchiveEngine {
     moodleCourse: MoodleCourse,
     teacherNames?: string[],
     enrolledCodigos?: string[]
-  ): Promise<ComponentDocument | null> {
+  ) {
     this.logger.info(
       { courseId: moodleCourse.id, courseName: moodleCourse.fullname },
       'Matching moodle course to internal component'
@@ -107,20 +91,18 @@ export class ArchiveEngine {
 
     const candidates: string[] = [];
 
-    if (moodleCourse.idnumber) {
+    if (moodleCourse.idnumber != null) {
       candidates.push(moodleCourse.idnumber);
     }
 
-    if (moodleCourse.shortname) {
-      const codeMatch = moodleCourse.shortname.match(
-        /[A-Z]{2,}\d{3,}(?:-\d+)?/
-      );
+    if (moodleCourse.shortname != null) {
+      const codeMatch = /[A-Z]{2,}\d{3,}(?:-\d+)?/.exec(moodleCourse.shortname);
       if (codeMatch) {
         candidates.push(codeMatch[0]);
       }
     }
 
-    const codeMatch = moodleCourse.fullname.match(/[A-Z]{2,}\d{3,}(?:-\d+)?/);
+    const codeMatch = /[A-Z]{2,}\d{3,}(?:-\d+)?/.exec(moodleCourse.fullname);
     if (codeMatch) {
       candidates.push(codeMatch[0]);
     }
@@ -147,13 +129,26 @@ export class ArchiveEngine {
     const uniqueTeacherIds = [...new Set(teacherIds)];
 
     this.logger.info(
-      { teacherIds: uniqueTeacherIds, count: uniqueTeacherIds.length },
+      { count: uniqueTeacherIds.length, teacherIds: uniqueTeacherIds },
       'Resolved teachers for matching'
     );
 
-    const seasonFilter = moodleCourse.startdate
-      ? deriveSeason(moodleCourse.startdate)
-      : null;
+    let seasonFilter: { year: number; quad: number } | null = null;
+    if (moodleCourse.startdate) {
+      const date = new Date(moodleCourse.startdate * 1000);
+      if (!Number.isNaN(date.getTime())) {
+        const month = date.getMonth() + 1;
+        const year = date.getFullYear();
+
+        if (month >= 2 && month <= 4) {
+          seasonFilter = { quad: 1, year };
+        } else if (month >= 5 && month <= 8) {
+          seasonFilter = { quad: 2, year };
+        } else if (month >= 9 || month <= 1) {
+          seasonFilter = { quad: 3, year };
+        }
+      }
+    }
 
     if (seasonFilter) {
       this.logger.info(
@@ -165,11 +160,11 @@ export class ArchiveEngine {
     const tryStrategies = async (
       extraFilter: Record<string, unknown> = {}
     ): Promise<ComponentDocument | null> => {
-      const findByKeywords = (
+      const findByKeywords = async (
         keywords: string[],
         extraFilterInner: Record<string, unknown> = {}
       ): Promise<ComponentDocument | null> =>
-        this.componentsRepository.findByDisciplinaKeywords(
+        await this.componentsRepository.findByDisciplinaKeywords(
           keywords,
           extraFilterInner
         );
@@ -275,9 +270,9 @@ export class ArchiveEngine {
         if (match) {
           this.logger.info(
             {
-              keywords: match.keywordsUsed,
               componentDbId: match.component._id,
               componentName: match.component.disciplina,
+              keywords: match.keywordsUsed,
               season: `${match.component.year}:${match.component.quad}`,
             },
             'Matched component by disciplina keywords'
@@ -299,9 +294,9 @@ export class ArchiveEngine {
         if (match) {
           this.logger.info(
             {
-              keywords: match.keywordsUsed,
               componentDbId: match.component._id,
               componentName: match.component.disciplina,
+              keywords: match.keywordsUsed,
               season: `${match.component.year}:${match.component.quad}`,
             },
             'Matched component by disciplina keywords (no teacher)'
@@ -317,7 +312,7 @@ export class ArchiveEngine {
 
     // Try with season filter first
     const seasonExtra = seasonFilter
-      ? { year: seasonFilter.year, quad: seasonFilter.quad }
+      ? { quad: seasonFilter.quad, year: seasonFilter.year }
       : {};
 
     matchedComponent = await tryStrategies(seasonExtra);
@@ -339,8 +334,8 @@ export class ArchiveEngine {
       this.logger.info(
         {
           componentDbId: matchedComponent._id,
-          moodleCourseId: moodleCourse.id,
           componentName: matchedComponent.disciplina,
+          moodleCourseId: moodleCourse.id,
         },
         'Updated component with moodleCourseId'
       );
@@ -349,7 +344,7 @@ export class ArchiveEngine {
     }
 
     this.logger.warn(
-      { moodleCourseId: moodleCourse.id, courseName: moodleCourse.fullname },
+      { courseName: moodleCourse.fullname, moodleCourseId: moodleCourse.id },
       'No matching component found'
     );
     return null;
@@ -382,7 +377,7 @@ export class ArchiveEngine {
       throw new ArchiveParseFailed(parsed.error.message);
     }
 
-    return parsed.data!;
+    return parsed.data;
   }
 
   async extractTeacherNames(courseId: number) {
@@ -409,7 +404,7 @@ export class ArchiveEngine {
     const uniqueNames = [...new Set(teacherNames)];
 
     this.logger.info(
-      { teacherNames: uniqueNames, courseId, count: uniqueNames.length },
+      { count: uniqueNames.length, courseId, teacherNames: uniqueNames },
       'Found teachers via user/index.php'
     );
 
@@ -425,7 +420,7 @@ export class ArchiveEngine {
     );
 
     const $ = load(page);
-    const potentialLinks: { href: string; name: string }[] = [];
+    const potentialLinks: Array<{ href: string; name: string }> = [];
 
     $('div.activityname').each((_index, el) => {
       const href = $(el).find('a').attr('href');
@@ -465,7 +460,7 @@ export class ArchiveEngine {
       }
 
       if (finalUrl) {
-        return { url: finalUrl, name };
+        return { name, url: finalUrl };
       }
       return null;
     });
@@ -481,8 +476,8 @@ export class ArchiveEngine {
       headers.Cookie = `MoodleSession=${this.session.sessionId}`;
     }
     const buffer = await ofetch(url.href, {
-      responseType: 'arrayBuffer',
       headers,
+      responseType: 'arrayBuffer',
     });
 
     const filename = this.extractFilenameFromUrl(url);
@@ -492,21 +487,21 @@ export class ArchiveEngine {
     await this.s3Connector?.upload(bucket, s3Key, Buffer.from(buffer));
 
     return {
-      s3Key,
       pdfName: sanitizedFilename,
+      s3Key,
     };
   }
 
   private extractFilenameFromUrl(url: URL): string {
-    const pathname = url.pathname;
+    const { pathname } = url;
     this.logger.info(
-      { url: url.href, pathname },
+      { pathname, url: url.href },
       'Extracting filename from URL'
     );
     const segments = pathname
       .split('/')
       .filter((segment) => segment.length > 0);
-    const lastSegment = segments[segments.length - 1] || 'document.pdf';
+    const lastSegment = segments.at(-1) || 'document.pdf';
 
     try {
       return decodeURIComponent(lastSegment);
@@ -518,17 +513,16 @@ export class ArchiveEngine {
   private sanitizeFilename(filename: string): string {
     const invalidChars = /[<>:"|?*\s]/g;
 
-    let sanitized = filename
-      .split('')
+    let sanitized = [...filename]
       .map((char) => {
-        const code = char.charCodeAt(0);
-        if (invalidChars.test(char) || (code >= 0 && code <= 31)) {
+        const code = char.codePointAt(0);
+        if (invalidChars.test(char) || (code !== undefined && code <= 31)) {
           return '_';
         }
         return char;
       })
       .join('')
-      .replace(/_{2,}/g, '_')
+      .replaceAll(/_{2,}/g, '_')
       .trim();
 
     if (!sanitized.toLowerCase().endsWith('.pdf')) {

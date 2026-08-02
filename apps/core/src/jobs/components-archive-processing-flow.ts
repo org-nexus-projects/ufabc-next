@@ -6,12 +6,12 @@ import { ComponentArchiveModel } from '@/models/ComponentArchive.js';
 import { ArchiveEngine } from '@/services/archive-engine.js';
 
 const componentSchema = z.object({
-  viewurl: z.string().url(),
   fullname: z.string(),
-  shortname: z.string().optional(),
-  idnumber: z.string().optional(),
   id: z.number(),
+  idnumber: z.string().optional(),
+  shortname: z.string().optional(),
   startdate: z.number().optional(),
+  viewurl: z.string().url(),
 });
 
 export const componentsArchivesProcessingJob = defineJob(
@@ -20,19 +20,19 @@ export const componentsArchivesProcessingJob = defineJob(
   .input(
     z.object({
       component: componentSchema.array(),
+      enrolledCodigos: z.array(z.string()).optional(),
       globalTraceId: z.string().optional(),
       session: z.object({
-        sessionId: z.string(),
         sessKey: z.string(),
+        sessionId: z.string(),
       }),
-      enrolledCodigos: z.array(z.string()).optional(),
     })
   )
   .iterator('component')
   .concurrency(3)
   .handler(async ({ job, manager }) => {
     const { component, session, enrolledCodigos } = job.data;
-    const globalTraceId = job.data.globalTraceId;
+    const { globalTraceId } = job.data;
 
     const engine = new ArchiveEngine({ globalTraceId, session });
 
@@ -57,34 +57,34 @@ export const componentsArchivesProcessingJob = defineJob(
 
     if (files.length === 0) {
       return {
-        success: true,
-        message: 'No PDFs found in component',
         data: [],
+        message: 'No PDFs found in component',
+        success: true,
       };
     }
 
     await manager.dispatchFlow({
-      name: `summary-${component.fullname}`,
-      queueName: JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_SUMMARY,
-      data: { name: component.fullname, total: files.length, globalTraceId },
       children: files.map((file) => ({
-        name: JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_PDF,
-        queueName: JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_PDF,
         data: {
           component: component.fullname,
-          rawUrl: file.url,
           componentDbId,
           globalTraceId,
+          rawUrl: file.url,
           session,
         },
+        name: JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_PDF,
+        queueName: JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_PDF,
       })),
+      data: { globalTraceId, name: component.fullname, total: files.length },
+      name: `summary-${component.fullname}`,
+      queueName: JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING_SUMMARY,
     });
 
     return {
-      success: true,
-      flowStarted: true,
       componentDbId,
+      flowStarted: true,
       moodleCourseId: component.id,
+      success: true,
     };
   });
 
@@ -94,13 +94,13 @@ export const pdfDownloadJob = defineJob(
   .input(
     z.object({
       component: z.string(),
-      rawUrl: z.string().url(),
       componentDbId: z.string(),
       globalTraceId: z.string().optional(),
+      rawUrl: z.string().url(),
       session: z
         .object({
-          sessionId: z.string(),
           sessKey: z.string(),
+          sessionId: z.string(),
         })
         .optional(),
     })
@@ -111,21 +111,21 @@ export const pdfDownloadJob = defineJob(
 
     const engine = new ArchiveEngine({
       globalTraceId,
-      session,
       s3Connector: app.aws.s3,
+      session,
     });
 
     const archive = await ComponentArchiveModel.findOneAndUpdate(
       { component: componentDbId, original_url: rawUrl },
       {
+        $set: { status: 'created' },
         $setOnInsert: {
           component: componentDbId,
           original_url: rawUrl,
-          timeline: [{ status: 'created', metadata: { globalTraceId } }],
+          timeline: [{ metadata: { globalTraceId }, status: 'created' }],
         },
-        $set: { status: 'created' },
       },
-      { upsert: true, new: true }
+      { new: true, upsert: true }
     );
 
     try {
@@ -136,29 +136,29 @@ export const pdfDownloadJob = defineJob(
       );
 
       await ComponentArchiveModel.findByIdAndUpdate(archive._id, {
-        $set: {
-          s3_key: s3Key,
-          file_name: pdfName,
-          status: 'stored',
-        },
         $push: {
           timeline: { status: 'stored' },
+        },
+        $set: {
+          file_name: pdfName,
+          s3_key: s3Key,
+          status: 'stored',
         },
       });
 
       return {
-        success: true,
-        message: 'PDF uploaded',
+        archiveId: archive._id,
         data: {
           fileName: pdfName,
           s3Key,
         },
-        archiveId: archive._id,
+        message: 'PDF uploaded',
+        success: true,
       };
     } catch (error) {
       await ComponentArchiveModel.findByIdAndUpdate(archive._id, {
         $push: {
-          timeline: { status: 'failed', metadata: { error: String(error) } },
+          timeline: { metadata: { error: String(error) }, status: 'failed' },
         },
         $set: { status: 'failed' },
       });
@@ -171,16 +171,16 @@ export const archivesSummaryJob = defineJob(
 )
   .input(
     z.object({
+      globalTraceId: z.string().optional(),
       name: z.string(),
       total: z.number(),
-      globalTraceId: z.string().optional(),
     })
   )
   .handler(async ({ job }) => {
     const { name, total, globalTraceId } = job.data;
     return {
-      success: true,
+      data: { globalTraceId, name, total },
       message: 'Archives summary',
-      data: { name, total, globalTraceId },
+      success: true,
     };
   });
