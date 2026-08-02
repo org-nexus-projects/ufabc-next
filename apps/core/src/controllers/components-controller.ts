@@ -337,6 +337,12 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         }).lean<ComponentMetadata>();
 
         if (!component) {
+          component = await ComponentMetadataModel.findOne({
+            'metadata.component_data.componentKey': externalKey,
+          }).lean<ComponentMetadata>();
+        }
+
+        if (!component) {
           return reply.notFound('Component not found');
         }
 
