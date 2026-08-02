@@ -1,8 +1,8 @@
-import type { FastifyInstance } from 'fastify';
+import { inspect } from 'node:util';
 
+import type { FastifyInstance } from 'fastify';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 import mongoose, { type Mongoose, connect } from 'mongoose';
-import { inspect } from 'node:util';
 
 import { db, type DatabaseModels } from './models.js';
 
@@ -10,12 +10,20 @@ declare module 'fastify' {
   interface FastifyInstance {
     rawMongoose: Mongoose;
     db: DatabaseModels;
-    config: any;
   }
 }
 
+export type MongooseConnectorOptions = {
+  config: {
+    NODE_ENV: string;
+    LOG_LEVEL?: string;
+    MONGODB_CONNECTION_URL: string;
+  };
+};
+
 export default fp(
-  async (app: FastifyInstance) => {
+  async (app: FastifyInstance, options: MongooseConnectorOptions) => {
+    const { config } = options;
     try {
       mongoose.connection.on('connected', () => {
         app.log.info('[MONGO] Connected to instance');
@@ -30,7 +38,7 @@ export default fp(
       });
 
       const isLogDebug =
-        app.config.NODE_ENV === 'dev' && app.config.LOG_LEVEL === 'debug';
+        config.NODE_ENV === 'dev' && config.LOG_LEVEL === 'debug';
 
       if (isLogDebug) {
         mongoose.set('debug', (collection, method, query, doc, options) => {
@@ -51,11 +59,11 @@ export default fp(
         });
       }
 
-      await connect(app.config.MONGODB_CONNECTION_URL, {
+      await connect(config.MONGODB_CONNECTION_URL, {
         maxPoolSize: 10,
         serverSelectionTimeoutMS: 5000,
         socketTimeoutMS: 45000,
-        autoIndex: app.config.NODE_ENV === 'dev',
+        autoIndex: config.NODE_ENV === 'dev',
       });
 
       app.decorate('rawMongoose', mongoose);

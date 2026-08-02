@@ -4,9 +4,9 @@ import { z } from 'zod';
 
 import { AIProxyConnector } from '@/connectors/ai-proxy.js';
 import { MoodleConnector } from '@/connectors/moodle.js';
-import { JOB_NAMES } from '@/constants.js';
 import { jwtVerifyHook } from '@/hooks/jwt-verify.js';
-import { moodleSession } from '@/hooks/moodle-session.js';
+import { isSession, moodleSession } from '@/hooks/moodle-session.js';
+import { validateInternalTokenAuthHook } from '@/hooks/validate-token.js';
 import { ComponentModel } from '@/models/Component.js';
 import { ComponentMetadataModel } from '@/models/ComponentMetadata.js';
 import type { ComponentMetadata } from '@/models/ComponentMetadata.js';
@@ -14,7 +14,6 @@ import type {
   ListComponent,
   PopulatedComponent,
 } from '@/schemas/v2/components.js';
-import { validateInternalTokenAuthHook } from '@/hooks/validate-token.js';
 import {
   getComponentSchema,
   listComponentsSchema,
@@ -26,57 +25,47 @@ const moodleConnector = new MoodleConnector();
 const componentsController: FastifyPluginAsyncZod = async (app) => {
   app.route({
     handler: async (request, reply) => {
-      const session = request.requestContext.get('moodleSession')! as {
-        sessionId: string;
-        sessKey: string;
-      };
-      const hasLock = await request.acquireLock(session.sessionId, '24h');
+      const rawSession = request.requestContext.get('moodleSession');
+      const session = isSession(rawSession) ? rawSession : undefined;
+      if (!session) {
+        return await reply.unauthorized();
+      }
 
-      if (!hasLock) {
+      const hasLock = await request.acquireLock(session.sessionId, '24h');
+      const isDevelopment = app.config.NODE_ENV !== 'prod';
+
+      if (!hasLock && !isDevelopment) {
         request.log.debug(
           { sessionId: session.sessionId },
           'Archives already processing'
         );
-        return reply.status(202).send({ status: 'success' });
+        return await reply.status(202).send({ status: 'success' });
       }
 
-      try {
-        const componentsService = new ComponentsService({
-          requestId: request.id,
-        });
-        const courses = await moodleConnector.getComponents(
-          session.sessionId,
-          session.sessKey
-        );
+      const componentsService = new ComponentsService({
+        globalTraceId: request.id,
+        manager: app.manager,
+      });
+      await componentsService.verifyUserForArchives(session);
+      await componentsService.processComponentArchives(session);
 
-        const componentArchives =
-          await componentsService.getComponentArchives(courses[0]);
-        if (componentArchives.error || !componentArchives.data) {
-          await request.releaseLock(session.sessionId);
-          return reply.badRequest(componentArchives.error ?? 'No data');
-        }
-
-        await app.manager.dispatch(JOB_NAMES.COMPONENTS_ARCHIVES_PROCESSING, {
-          component: componentArchives.data,
-          globalTraceId: request.id,
-          session,
-        });
-
-        return reply.status(202).send({
-          status: 'success',
-        });
-      } catch (error) {
-        request.log.error(error, 'Error getting archives');
-        await request.releaseLock(session.sessionId);
-        return reply.internalServerError('Error getting archives');
-      }
+      return await reply.status(202).send({
+        status: 'success',
+      });
     },
     method: 'POST',
+    onError: async (request) => {
+      const rawSession = request.requestContext.get('moodleSession');
+      const session = isSession(rawSession) ? rawSession : undefined;
+      if (session !== undefined) {
+        await request.releaseLock(session.sessionId);
+      }
+    },
     preHandler: [moodleSession],
     schema: {
       headers: z.object({
-        'session-id': z.string(),
         'sess-key': z.string(),
+        'session-id': z.string(),
       }),
       response: {
         202: z.object({
@@ -89,17 +78,19 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
 
   app.route({
     handler: async (request, reply) => {
-      const session = request.requestContext.get('moodleSession')! as {
-        sessionId: string;
-        sessKey: string;
-      };
+      const rawSession = request.requestContext.get('moodleSession');
+      const session = isSession(rawSession) ? rawSession : undefined;
+      if (!session) {
+        return await reply.unauthorized();
+      }
+
       const components = await moodleConnector.getComponents(
         session.sessionId,
         session.sessKey
       );
-      return reply.status(200).send({
-        status: 'success',
+      return await reply.status(200).send({
         data: components,
+        status: 'success',
       });
     },
     method: 'GET',
@@ -107,8 +98,8 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
     schema: {
       response: {
         200: z.object({
-          status: z.string(),
           data: z.any().array(),
+          status: z.string(),
         }),
       },
     },
@@ -118,9 +109,9 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
   app.route({
     handler: async (_request, reply) => {
       const uploads = await app.aws.s3.list(app.config.AWS_BUCKET);
-      return reply.status(200).send({
-        status: 'success',
+      return await reply.status(200).send({
         data: uploads,
+        status: 'success',
       });
     },
     method: 'GET',
@@ -134,24 +125,24 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       const requested = await ComponentModel.aggregate([
         {
           $match: {
-            season,
             $or: [{ groupURL: null }, { groupURL: { $exists: false } }],
+            season,
           },
         },
         {
           $lookup: {
+            as: 'teoriaTeacher',
+            foreignField: '_id',
             from: 'teachers',
             localField: 'teoria',
-            foreignField: '_id',
-            as: 'teoriaTeacher',
           },
         },
         {
           $lookup: {
+            as: 'praticaTeacher',
+            foreignField: '_id',
             from: 'teachers',
             localField: 'pratica',
-            foreignField: '_id',
-            as: 'praticaTeacher',
           },
         },
         {
@@ -170,16 +161,16 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
             allStudentsInGroup: { $addToSet: '$alunos_matriculados' },
             components: {
               $push: {
-                disciplina_id: '$disciplina_id',
                 amount_studentsId: '$$ROOT.quantidade_alunos_matriculados',
-                nome: '$disciplina',
-                turma: '$turma',
-                vagas: '$vagas',
-                uf_cod_turma: '$uf_cod_turma',
                 component_code: '$codigo',
+                disciplina_id: '$disciplina_id',
+                nome: '$disciplina',
                 // Extract the teacher name immediately during the push
-                teoria: { $arrayElemAt: ['$teoriaTeacher.name', 0] },
                 pratica: { $arrayElemAt: ['$praticaTeacher.name', 0] },
+                teoria: { $arrayElemAt: ['$teoriaTeacher.name', 0] },
+                turma: '$turma',
+                uf_cod_turma: '$uf_cod_turma',
+                vagas: '$vagas',
               },
             },
           },
@@ -187,25 +178,25 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         {
           $project: {
             _id: 0,
-            codigo: '$_id',
             // $reduce transforms the array of arrays into one flat unique array to count unique students
             amount_subject_students: {
               $size: {
                 $reduce: {
-                  input: '$allStudentsInGroup',
-                  initialValue: [],
                   in: { $setUnion: ['$$value', '$$this'] },
+                  initialValue: [],
+                  input: '$allStudentsInGroup',
                 },
               },
             },
+            codigo: '$_id',
             components: 1,
           },
         },
         { $sort: { amount_subject_students: -1 } },
       ]);
-      return reply.status(200).send({
-        status: 'success',
+      return await reply.status(200).send({
         data: requested,
+        status: 'success',
       });
     },
     method: 'GET',
@@ -215,8 +206,8 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       }),
       response: {
         200: z.object({
-          status: z.string(),
           data: z.any().array(),
+          status: z.string(),
         }),
       },
     },
@@ -231,7 +222,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       const cached =
         await request.redisService.getJSON<ListComponent[]>(cacheKey);
       if (cached) {
-        return reply.status(200).send(cached);
+        return await reply.status(200).send(cached);
       }
 
       const components = await ComponentModel.find({ season })
@@ -242,33 +233,29 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
 
       const mappedComponents = components.map(
         (component): ListComponent => ({
-          subject: component.subject?.name ?? '',
+          campus: component.campus,
           codigo: component.codigo ?? '',
+          disciplina_id: component.disciplina_id ?? null,
+          groupURL: component.groupURL ?? null,
+          identifier: component.identifier ?? null,
+          pratica: component.pratica?.name ?? null,
+          praticaId: component.pratica?._id?.toString() ?? null,
+          requisicoes: component.alunos_matriculados?.length ?? 0,
+          season: component.season,
+          subject: component.subject?.name ?? '',
+          subjectId: component.subject?._id?.toString() ?? '',
+          teoria: component.teoria?.name ?? null,
+          teoriaId: component.teoria?._id?.toString() ?? null,
           turma: component.turma,
           turno: component.turno,
-          vagas: component.vagas,
-          campus: component.campus,
-          season: component.season,
           uf_cod_turma: component.uf_cod_turma,
-          identifier: component.identifier ?? null,
-          disciplina_id: component.disciplina_id ?? null,
-          requisicoes: component.alunos_matriculados?.length ?? 0,
-          teoria: component.teoria?.name ?? null,
-          pratica: component.pratica?.name ?? null,
-          teoriaId: component.teoria?._id?.toString() ?? null,
-          praticaId: component.pratica?._id?.toString() ?? null,
-          groupURL: component.groupURL ?? null,
-          subjectId: component.subject?._id?.toString() ?? '',
+          vagas: component.vagas,
         })
       );
 
-      await request.redisService.setJSON(
-        cacheKey,
-        mappedComponents as ListComponent[],
-        '1h'
-      );
+      await request.redisService.setJSON(cacheKey, mappedComponents, '1h');
 
-      return reply.status(200).send(mappedComponents);
+      return await reply.status(200).send(mappedComponents);
     },
     method: 'GET',
     preHandler: [jwtVerifyHook],
@@ -297,10 +284,10 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       );
 
       if (!response) {
-        return reply.notFound('Component not found');
+        return await reply.notFound('Component not found');
       }
 
-      return reply.status(200).send(response);
+      return await reply.status(200).send(response);
     },
     method: 'GET',
     schema: {
@@ -319,31 +306,91 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
 
   app.route({
     handler: async (request, reply) => {
+      const { componentId } = request.params;
+
+      const componentsService = new ComponentsService({
+        globalTraceId: request.id,
+        manager: app.manager,
+      });
+      const data = await componentsService.listComponentArchives(componentId);
+
+      return await reply.status(200).send({ data, status: 'success' });
+    },
+    method: 'GET',
+    schema: {
+      params: z.object({
+        componentId: z.string(),
+      }),
+      response: {
+        200: z.object({
+          data: z.array(z.any()),
+          status: z.string(),
+        }),
+      },
+    },
+    url: '/components/:componentId/archives',
+  });
+
+  app.route({
+    handler: async (request, reply) => {
+      const { archiveId } = request.params as { archiveId: string };
+
+      const componentsService = new ComponentsService({
+        globalTraceId: request.id,
+        manager: app.manager,
+      });
+      const { body, contentType, filename } =
+        await componentsService.getArchiveDownload(
+          archiveId,
+          app.aws.s3,
+          app.config.AWS_BUCKET
+        );
+
+      return await reply
+        .type(contentType)
+        .header('Content-Disposition', `attachment; filename="${filename}"`)
+        .send(body);
+    },
+    method: 'GET',
+    preHandler: [validateInternalTokenAuthHook],
+    schema: {
+      params: z.object({
+        archiveId: z.string(),
+        componentId: z.string(),
+      }),
+      response: {
+        200: z.any(),
+      },
+    },
+    url: '/components/:componentId/archives/:archiveId/download',
+  });
+
+  app.route({
+    handler: async (request, reply) => {
       const { config } = request.server;
-      const aiConnector = new AIProxyConnector(config.NEXT_AGENT_URL, 'whatsapp');
+      const aiConnector = new AIProxyConnector(
+        config.NEXT_AGENT_URL,
+        'whatsapp'
+      );
 
       const { externalKey, season } = request.query;
       const { userMessage } = request.body as { userMessage: string };
 
-
       let component: ComponentMetadata | null = null;
-      let response: any = null;
+      let response: unknown = null;
 
-      if (externalKey) {
-
+      if (externalKey !== undefined) {
         component = await ComponentMetadataModel.findOne({
           'metadata.component_data.componentKey': externalKey,
           'metadata.component_data.season': season,
         }).lean<ComponentMetadata>();
 
-        if (!component) {
-          component = await ComponentMetadataModel.findOne({
-            'metadata.component_data.componentKey': externalKey,
-          }).lean<ComponentMetadata>();
-        }
+        component ??= await ComponentMetadataModel.findOne({
+          'metadata.component_data.componentKey': externalKey,
+        }).lean<ComponentMetadata>();
 
-        if (!component) {
-          return reply.notFound('Component not found');
+        if (component === null) {
+          return await reply.notFound('Component not found');
         }
 
         response = await aiConnector.requestNaturalResponse(
@@ -352,10 +399,9 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         );
       }
 
-
-      return reply.status(200).send({
-        status: 'success',
+      return await reply.status(200).send({
         data: response,
+        status: 'success',
       });
     },
     method: 'POST',
@@ -365,23 +411,18 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         userMessage: z.string(),
       }),
       querystring: z.object({
-        season: z.string().default('2026:2'),
         externalKey: z.string().optional(),
+        season: z.string().default('2026:2'),
       }),
       response: {
         200: z.object({
-          status: z.string(),
           data: z.any().optional(),
+          status: z.string(),
         }),
       },
     },
     url: '/components/metadata',
   });
-
-
 };
-
-
-
 
 export default componentsController;

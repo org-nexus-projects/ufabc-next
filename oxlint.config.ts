@@ -54,12 +54,28 @@ export default defineConfig({
       },
       files: ['packages/**/*.ts'],
     },
+    {
+      files: ['**/*-controller.ts', '**/hooks/*.ts'],
+      rules: {
+        'func-style': 'off',
+        'require-await': 'off',
+      },
+    },
+    {
+      files: ['apps/core/src/connectors/**/*.ts'],
+      rules: {
+        'eslint/no-constructor-return': 'off',
+        'unicorn/no-this-assignment': 'off',
+      },
+    },
   ],
   rules: {
     complexity: ['error', 25],
+    eqeqeq: ['error', 'always', { null: 'ignore' }],
     'eslint/complexity': ['error', { max: 35 }],
     'func-style': ['error', 'declaration'],
     'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
+    'no-eq-null': 'off',
     'typescript/array-type': ['error', { default: 'array-simple' }],
     'typescript/consistent-type-definitions': ['error', 'type'],
   },

@@ -1,8 +1,9 @@
 import {
+  GetObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
-  type S3Client,
 } from '@aws-sdk/client-s3';
+import type { S3Client } from '@aws-sdk/client-s3';
 
 import { BaseAWSConnector } from './base-aws-connector.js';
 
@@ -13,11 +14,19 @@ export class S3Connector extends BaseAWSConnector<S3Client> {
     body: Buffer | Uint8Array | Blob | string
   ) {
     const command = new PutObjectCommand({
+      Body: body,
       Bucket: bucket,
       Key: key,
-      Body: body,
     });
-    return this.client.send(command);
+    return await this.client.send(command);
+  }
+
+  async getObject(bucket: string, key: string) {
+    const command = new GetObjectCommand({
+      Bucket: bucket,
+      Key: key,
+    });
+    return await this.client.send(command);
   }
 
   async list(bucket: string) {
@@ -35,8 +44,8 @@ export class S3Connector extends BaseAWSConnector<S3Client> {
       files.push({
         key: item.Key,
         lastModified: item.LastModified,
-        size: this.#formatFileSize(item.Size),
         rawSize: item.Size,
+        size: this.#formatFileSize(item.Size),
       });
     }
     return files;

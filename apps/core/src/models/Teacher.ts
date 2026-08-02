@@ -1,4 +1,4 @@
-import { type InferSchemaType, Schema, model } from 'mongoose';
+import { type InferSchemaType, Schema, model, Types } from 'mongoose';
 
 export function normalizeName(str: string): string {
   return str
@@ -97,6 +97,53 @@ teacherSchema.index(
   { externalKey: 1 },
   { unique: true, name: 'TeacherExternalKeyIndex', sparse: true }
 );
+
+const teacherCache = new Map<string, Types.ObjectId | null>();
+
+export async function findTeacher(
+  name: string | null
+): Promise<Types.ObjectId | null> {
+  if (!name) return null;
+
+  const normalizedName = normalizeName(name);
+
+  if (teacherCache.has(normalizedName)) {
+    return teacherCache.get(normalizedName)!;
+  }
+
+  const teacher = await TeacherModel.findOne({ name: normalizedName });
+
+  if (!teacher) {
+    const allTeachers = await TeacherModel.find({});
+    const levMatch = findBestLevenshteinMatch(name, allTeachers);
+    if (levMatch) {
+      await TeacherModel.findByIdAndUpdate(levMatch._id, {
+        $addToSet: { alias: { $each: [normalizedName, name.toLowerCase()] } },
+      });
+      teacherCache.set(normalizedName, levMatch._id);
+      return levMatch._id;
+    }
+  }
+
+  if (!teacher && normalizedName !== '0') {
+    teacherCache.set(normalizedName, null);
+    return null;
+  }
+
+  if (teacher && !teacher.alias.includes(normalizedName)) {
+    await TeacherModel.findByIdAndUpdate(teacher._id, {
+      $addToSet: { alias: { $each: [normalizedName, name.toLowerCase()] } },
+    });
+  }
+
+  const teacherId = teacher?._id ?? null;
+  teacherCache.set(normalizedName, teacherId);
+  return teacherId;
+}
+
+export function clearTeacherCache() {
+  teacherCache.clear();
+}
 
 export type Teacher = InferSchemaType<typeof teacherSchema>;
 export type TeacherDocument = ReturnType<(typeof TeacherModel)['hydrate']>;

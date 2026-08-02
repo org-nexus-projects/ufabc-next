@@ -46,10 +46,11 @@ describe('Archive Flow Integration', () => {
 
     const pdfsRes = await app.inject({
       method: 'GET',
-      url: '/v2/components/archives/pdfs',
+      url: '/v2/components/archives/uploads',
     });
     const pdfs = JSON.parse(pdfsRes.body);
 
-    expect(pdfs.length).toBeGreaterThan(1);
+    expect(pdfs.status).toBe('success');
+    expect(pdfs.data.length).toBeGreaterThan(1);
   });
 });
