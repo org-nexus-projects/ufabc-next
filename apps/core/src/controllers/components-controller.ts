@@ -336,39 +336,14 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
           'metadata.component_data.season': season,
         }).lean<ComponentMetadata>();
 
-        if (component) {
-          response = await aiConnector.requestNaturalResponse(
-            component,
-            userMessage
-          );
-        }
-
-        const [databaseResult] = await ComponentMetadataModel.aggregate(
-          [
-            { $match: { season } },
-            {
-              $lookup: {
-                from: "disciplinas_metadata",
-                localField: "disciplina_id",
-                foreignField: "metadata.disciplina_id",
-                as: "meta"
-              }
-            },
-            { $match: { "meta.0": { $exists: true } } }, // validate metadata without disciplina_id
-            { $project: { disciplina_id: 1, disciplina: 1, matches: { $size: "$meta" } } }
-          ]
-        )
-
-
-        if (!databaseResult || databaseResult.matches === 0) {
+        if (!component) {
           return reply.notFound('Component not found');
         }
 
         response = await aiConnector.requestNaturalResponse(
-          databaseResult,
+          component,
           userMessage
         );
-
       }
 
 
