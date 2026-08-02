@@ -31,6 +31,7 @@ const componentArchiveSchema = new Schema(
     s3_key: { type: String },
     original_url: { type: String, required: true },
     file_name: { type: String },
+    checksum: { type: String },
     source: {
       type: String,
       enum: ['moodle', 'manual', 'sigaa'],

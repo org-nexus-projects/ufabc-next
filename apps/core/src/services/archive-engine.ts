@@ -1,5 +1,6 @@
 import { findArchiveQuarter } from '@next/utils';
 import { load } from 'cheerio';
+import { createHash } from 'node:crypto';
 import { ofetch } from 'ofetch';
 
 import { MoodleConnector } from '@/connectors/moodle.js';
@@ -456,7 +457,8 @@ export class ArchiveEngine {
       let name = trimmedText;
       if (name === '') {
         const titleAttr = $(el).attr('title');
-        name = titleAttr !== undefined && titleAttr !== '' ? titleAttr : 'documento';
+        name =
+          titleAttr !== undefined && titleAttr !== '' ? titleAttr : 'documento';
       }
 
       if (
@@ -503,10 +505,14 @@ export class ArchiveEngine {
     const filename = this.extractFilenameFromUrl(url);
     const sanitizedFilename = ArchiveEngine.sanitizeFilename(filename);
     const s3Key = `/archives/${componentId}/${sanitizedFilename}`;
+    const checksum = createHash('sha256')
+      .update(Buffer.from(buffer))
+      .digest('hex');
 
     await this.s3Connector?.upload(bucket, s3Key, Buffer.from(buffer));
 
     return {
+      checksum,
       pdfName: sanitizedFilename,
       s3Key,
     };

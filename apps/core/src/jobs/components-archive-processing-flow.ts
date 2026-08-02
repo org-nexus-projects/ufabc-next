@@ -129,17 +129,30 @@ export const pdfDownloadJob = defineJob(
     );
 
     try {
-      const { pdfName, s3Key } = await engine.downloadAndUpload(
+      const { checksum, pdfName, s3Key } = await engine.downloadAndUpload(
         rawUrl,
         componentDbId,
         app.config.AWS_BUCKET
       );
+
+      if (archive.checksum === checksum) {
+        return {
+          archiveId: archive._id,
+          data: {
+            fileName: archive.file_name,
+            s3Key: archive.s3_key,
+          },
+          message: 'PDF unchanged since last run, skipping stored event',
+          success: true,
+        };
+      }
 
       await ComponentArchiveModel.findByIdAndUpdate(archive._id, {
         $push: {
           timeline: { status: 'stored' },
         },
         $set: {
+          checksum,
           file_name: pdfName,
           s3_key: s3Key,
           status: 'stored',
