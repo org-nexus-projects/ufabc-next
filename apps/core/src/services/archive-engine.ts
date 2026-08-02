@@ -1,3 +1,4 @@
+import { findArchiveQuarter } from '@next/utils';
 import { load } from 'cheerio';
 import { ofetch } from 'ofetch';
 
@@ -64,13 +65,15 @@ export class ArchiveEngine {
     }
 
     if (moodleCourse.shortname != null) {
-      const codeMatch = /[A-Z]{2,}\d{3,}(?:-\d+)?/.exec(moodleCourse.shortname);
+      const codeMatch = /[A-Z]{2,}\d{3,}(?:-\d+)?/u.exec(
+        moodleCourse.shortname
+      );
       if (codeMatch) {
         candidates.push(codeMatch[0]);
       }
     }
 
-    const codeMatch = /[A-Z]{2,}\d{3,}(?:-\d+)?/.exec(moodleCourse.fullname);
+    const codeMatch = /[A-Z]{2,}\d{3,}(?:-\d+)?/u.exec(moodleCourse.fullname);
     if (codeMatch) {
       candidates.push(codeMatch[0]);
     }
@@ -79,7 +82,7 @@ export class ArchiveEngine {
     this.logger.info(
       {
         candidates: uniqueCandidates,
-        hasEnrolledFilter: !!enrolledCodigos?.length,
+        hasEnrolledFilter: (enrolledCodigos?.length ?? 0) > 0,
       },
       'Extracted candidate codes from moodle course'
     );
@@ -101,22 +104,10 @@ export class ArchiveEngine {
       'Resolved teachers for matching'
     );
 
-    let seasonFilter: { year: number; quad: number } | null = null;
-    if (moodleCourse.startdate) {
-      const date = new Date(moodleCourse.startdate * 1000);
-      if (!Number.isNaN(date.getTime())) {
-        const month = date.getMonth() + 1;
-        const year = date.getFullYear();
-
-        if (month >= 2 && month <= 4) {
-          seasonFilter = { quad: 1, year };
-        } else if (month >= 5 && month <= 8) {
-          seasonFilter = { quad: 2, year };
-        } else if (month >= 9 || month <= 1) {
-          seasonFilter = { quad: 3, year };
-        }
-      }
-    }
+    const seasonFilter =
+      moodleCourse.startdate === undefined
+        ? null
+        : findArchiveQuarter(new Date(moodleCourse.startdate * 1000));
 
     if (seasonFilter) {
       this.logger.info(
@@ -321,8 +312,8 @@ export class ArchiveEngine {
   private static extractKeywords(fullname: string): string[] {
     return fullname
       .toLowerCase()
-      .split(/[\s-]+/)
-      .filter((w) => w.length > 3 && !/\d/.test(w))
+      .split(/[\s-]+/u)
+      .filter((w) => w.length > 3 && !/\d/u.test(w))
       .slice(0, 4);
   }
 
@@ -335,13 +326,13 @@ export class ArchiveEngine {
     ) => Promise<ComponentDocument | null>
   ): Promise<{ component: ComponentDocument; keywordsUsed: string[] } | null> {
     const cleanKeywords = keywords.filter(
-      (w) => w.length > 3 && !/\d/.test(w)
+      (w) => w.length > 3 && !/\d/u.test(w)
     );
     if (cleanKeywords.length === 0) {
       return null;
     }
 
-    for (let count = cleanKeywords.length; count >= 1; count--) {
+    for (let count = cleanKeywords.length; count >= 1; count -= 1) {
       const subset = cleanKeywords.slice(0, count);
       const result = await finder(subset, extraFilter);
       if (result) {
@@ -398,7 +389,7 @@ export class ArchiveEngine {
 
     $('a[href*="user/view.php"]').each((_index, el) => {
       const name = $(el).text().trim();
-      if (name && name.length > 2 && !/^\d+$/.test(name)) {
+      if (name && name.length > 2 && !/^\d+$/u.test(name)) {
         teacherNames.push(name);
       }
     });
@@ -416,7 +407,7 @@ export class ArchiveEngine {
   async extractFiles(viewurl: string, componentId: number) {
     const url = new URL(viewurl);
     const page = await this.moodleConnector.getComponentContentsPage(
-      this.session?.sessionId || '',
+      this.session?.sessionId ?? '',
       url.pathname,
       componentId.toString()
     );
@@ -427,7 +418,7 @@ export class ArchiveEngine {
     $('div.activityname').each((_index, el) => {
       const href = $(el).find('a').attr('href');
       const name = $(el).find('span.instancename').text();
-      if (href && name) {
+      if (href !== undefined && name) {
         potentialLinks.push({ href, name });
       }
     });
@@ -435,33 +426,45 @@ export class ArchiveEngine {
     $('a[href*="/mod/resource/"]').each((_index, el) => {
       const link = $(el).attr('href');
       const name = $(el).text().trim();
-      if (link && name && !potentialLinks.some((p) => p.href === link)) {
+      if (
+        link !== undefined &&
+        name &&
+        !potentialLinks.some((p) => p.href === link)
+      ) {
         potentialLinks.push({ href: link, name });
       }
     });
 
     $('a[href*="/pluginfile.php/"]').each((_index, el) => {
       const link = $(el).attr('href');
-      const name = $(el).text().trim() || $(el).attr('title') || 'documento';
-      if (link?.toLowerCase()?.endsWith('.pdf')) {
-        if (!potentialLinks.some((p) => p.href === link)) {
-          potentialLinks.push({ href: link, name });
-        }
+      const trimmedText = $(el).text().trim();
+      let name = trimmedText;
+      if (name === '') {
+        const titleAttr = $(el).attr('title');
+        name = titleAttr !== undefined && titleAttr !== '' ? titleAttr : 'documento';
+      }
+
+      if (
+        link !== undefined &&
+        link.toLowerCase().endsWith('.pdf') &&
+        !potentialLinks.some((p) => p.href === link)
+      ) {
+        potentialLinks.push({ href: link, name });
       }
     });
 
     const validationPromises = potentialLinks.map(async ({ href, name }) => {
       const { isPdf, finalUrl } = await this.moodleConnector.validatePdfLink(
         href,
-        this.session?.sessionId || '',
-        this.session?.sessKey || ''
+        this.session?.sessionId ?? '',
+        this.session?.sessKey ?? ''
       );
 
       if (!isPdf) {
         return null;
       }
 
-      if (finalUrl) {
+      if (finalUrl !== undefined && finalUrl !== '') {
         return { name, url: finalUrl };
       }
       return null;
@@ -483,7 +486,7 @@ export class ArchiveEngine {
     });
 
     const filename = this.extractFilenameFromUrl(url);
-    const sanitizedFilename = this.sanitizeFilename(filename);
+    const sanitizedFilename = ArchiveEngine.sanitizeFilename(filename);
     const s3Key = `/archives/${componentId}/${sanitizedFilename}`;
 
     await this.s3Connector?.upload(bucket, s3Key, Buffer.from(buffer));
@@ -503,7 +506,7 @@ export class ArchiveEngine {
     const segments = pathname
       .split('/')
       .filter((segment) => segment.length > 0);
-    const lastSegment = segments.at(-1) || 'document.pdf';
+    const lastSegment = segments.at(-1) ?? 'document.pdf';
 
     try {
       return decodeURIComponent(lastSegment);
@@ -512,20 +515,18 @@ export class ArchiveEngine {
     }
   }
 
-  private sanitizeFilename(filename: string): string {
-    const invalidChars = /[<>:"|?*\s]/g;
+  private static sanitizeFilename(filename: string): string {
+    const invalidChars = /[<>:"|?*\s]/u;
 
-    let sanitized = [...filename]
-      .map((char) => {
-        const code = char.codePointAt(0);
-        if (invalidChars.test(char) || (code !== undefined && code <= 31)) {
-          return '_';
-        }
-        return char;
-      })
-      .join('')
-      .replaceAll(/_{2,}/g, '_')
-      .trim();
+    let sanitizedChars = '';
+    for (const char of filename) {
+      const code = char.codePointAt(0);
+      const isInvalid =
+        invalidChars.test(char) || (code !== undefined && code <= 31);
+      sanitizedChars += isInvalid ? '_' : char;
+    }
+
+    let sanitized = sanitizedChars.replaceAll(/_{2,}/gu, '_').trim();
 
     if (!sanitized.toLowerCase().endsWith('.pdf')) {
       sanitized = `${sanitized}.pdf`;

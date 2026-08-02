@@ -40,7 +40,7 @@ export type JobHandler<
   TData = unknown,
   TResult = unknown,
   TName extends string = string,
-> = (ctx: JobContext<TData, TResult, TName>) => Promise<TResult>;
+> = (ctx: JobContext<TData, TResult, TName>) => Promise<TResult> | TResult;
 
 export class JobBuilder<
   TName extends string,

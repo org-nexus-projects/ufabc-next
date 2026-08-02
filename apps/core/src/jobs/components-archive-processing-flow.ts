@@ -176,7 +176,7 @@ export const archivesSummaryJob = defineJob(
       total: z.number(),
     })
   )
-  .handler(async ({ job }) => {
+  .handler(({ job }) => {
     const { name, total, globalTraceId } = job.data;
     return {
       data: { globalTraceId, name, total },

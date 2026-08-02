@@ -50,3 +50,25 @@ export function lastQuad(date: Date = new Date()): FindQuarter {
 
   return { year: season.year, quad: (season.quad - 1) as FindQuarter['quad'] };
 }
+
+// Archive matching uses a different quad boundary than the enrollment
+// calendar above: quad1 Feb-Apr, quad2 May-Aug, quad3 Sep-Jan.
+export function findArchiveQuadFromDate(month: number): 1 | 2 | 3 | undefined {
+  if (month >= 1 && month <= 3) return 1;
+  if (month >= 4 && month <= 7) return 2;
+  if (month >= 8 || month === 0) return 3;
+}
+
+export function findArchiveQuarter(date: Date): FindQuarter | null {
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const quad = findArchiveQuadFromDate(date.getMonth());
+
+  if (!quad) {
+    return null;
+  }
+
+  return { quad, year: date.getFullYear() };
+}
