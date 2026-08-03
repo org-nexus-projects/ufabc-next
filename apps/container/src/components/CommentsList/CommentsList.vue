@@ -33,7 +33,7 @@
     :style="`${!smAndDown && 'max-height:500px ; overflow-y:auto'}`"
     class="pr-md-4 py-4"
   >
-    <TeacherSummary :teacher-id="teacherId" />
+    <TeacherSummary :teacher-id="teacherId" class="mb-5" />
     <SingleComment
       v-for="comment in filteredCommentsData?.data"
       :key="comment._id"

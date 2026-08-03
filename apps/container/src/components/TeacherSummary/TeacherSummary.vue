@@ -1,68 +1,126 @@
 <template>
-  <v-container v-if="summaryData" class="pa-0 mb-5 ai-summary-row">
-    <v-row align="start" justify="start" class="ma-0">
-      <v-col
-        sm=""
-        order="1"
-        class="mr-3 justify-center pa-0 flex-grow-0 flex-shrink-1"
-      >
-        <div
-          class="ai-avatar text-white d-flex align-center justify-center rounded-lg"
+  <Transition name="ai-crossfade" mode="default">
+    <v-container v-if="showSkeleton" key="skeleton" class="pa-0">
+      <v-row align="start" justify="start" class="ma-0">
+        <v-col
+          sm=""
+          order="1"
+          class="mr-3 justify-center pa-0 flex-grow-0 flex-shrink-1"
         >
-          <v-icon icon="mdi-creation" size="28" class="ai-sparkle" />
-        </div>
-      </v-col>
-      <v-col
-        cols="12"
-        sm=""
-        order="3"
-        order-sm="2"
-        class="comment-text-container mr-2 pa-0"
-      >
-        <div class="d-flex align-center text-primary flex-wrap">
-          <v-chip
-            size="small"
-            variant="flat"
-            class="ai-badge font-weight-bold mr-2 mb-1"
+          <div
+            class="ai-avatar d-flex align-center justify-center rounded-lg"
           >
-            <v-icon icon="mdi-creation" start size="14" />
-            Gerado por IA
-          </v-chip>
-          <p class="text-subtitle-2 mb-1">Resumo dos comentários</p>
-        </div>
-        <p>{{ summaryData.summary }}</p>
-        <div class="d-flex flex-wrap mt-2">
-          <v-chip
-            v-for="badge in badges"
-            :key="badge.text"
-            variant="outlined"
-            size="small"
-            :color="badge.color"
-            class="mr-2 mb-2"
+            <v-icon icon="mdi-creation" size="28" color="white" />
+          </div>
+        </v-col>
+        <v-col
+          cols="12"
+          sm=""
+          order="3"
+          order-sm="2"
+          class="comment-text-container mr-2 pa-0"
+        >
+          <div class="d-flex align-center text-next-light-gray">
+            <v-progress-circular
+              indeterminate
+              size="16"
+              width="2"
+              color="primary"
+              class="mr-2"
+            />
+            <span class="text-subtitle-2">Resumindo comentários...</span>
+          </div>
+        </v-col>
+        <v-col
+          sm=""
+          order="2"
+          order-sm="3"
+          class="pa-0 flex-grow-0 flex-shrink-1"
+        />
+      </v-row>
+    </v-container>
+    <v-container v-else-if="showCard" key="card" class="pa-0">
+      <v-row align="start" justify="start" class="ma-0">
+        <v-col
+          sm=""
+          order="1"
+          class="mr-3 justify-center pa-0 flex-grow-0 flex-shrink-1"
+        >
+          <div
+            class="ai-avatar d-flex align-center justify-center rounded-lg"
           >
-            <v-icon :icon="badge.icon" start size="16" />
-            {{ badge.text }}
-          </v-chip>
-        </div>
-      </v-col>
-      <v-col
-        sm=""
-        order="2"
-        order-sm="3"
-        class="pa-0 justify-start text-subtitle-2 text-next-light-gray flex-grow-0 flex-shrink-1"
-      >
-        Baseado em {{ summaryData.commentsCount }} comentário{{
-          summaryData.commentsCount === 1 ? '' : 's'
-        }}
-      </v-col>
-    </v-row>
-  </v-container>
+            <img :src="aiSummaryAvatar" alt="" class="ai-avatar-img" />
+          </div>
+        </v-col>
+        <v-col
+          cols="12"
+          sm=""
+          order="3"
+          order-sm="2"
+          class="comment-text-container mr-2 pa-0"
+        >
+          <div class="d-flex align-center flex-wrap mb-1">
+            <v-chip size="small" variant="flat" color="primary" class="ai-badge mr-1">
+              <v-icon icon="mdi-creation" start size="14" />
+              Gerado por IA
+            </v-chip>
+            <v-btn
+              density="compact"
+              icon="mdi-information-outline"
+              variant="text"
+              size="small"
+              class="pa-0 h-auto w-auto"
+              aria-label="Sobre este resumo"
+            >
+              <v-icon size="16" />
+              <v-tooltip activator="parent" location="top" open-on-hover>
+                O tamanduAI fez um resumo com IA para facilitar sua escolha de
+                professores, baseado em {{ summaryData?.commentsCount }}
+                experiência{{ summaryData?.commentsCount === 1 ? '' : 's' }}
+                de alunos.
+              </v-tooltip>
+            </v-btn>
+          </div>
+          <p>{{ summaryData?.summary }}</p>
+          <div class="d-flex flex-wrap mt-1">
+            <v-chip
+              v-for="badge in badges"
+              :key="badge.text"
+              variant="outlined"
+              size="small"
+              :color="badge.color"
+              class="mr-1 mb-1"
+            >
+              <v-icon :icon="badge.icon" start size="16" />
+              {{ badge.text }}
+            </v-chip>
+          </div>
+        </v-col>
+        <v-col
+          sm=""
+          order="2"
+          order-sm="3"
+          class="pa-0 justify-start text-subtitle-2 text-next-light-gray flex-grow-0 flex-shrink-1"
+        >
+          <div
+            class="d-flex align-center justify-end comment-source-count"
+          >
+            <v-icon icon="mdi-comment-multiple-outline" size="16" class="mr-1" />
+            <span class="text-subtitle-2">{{ summaryData?.commentsCount }}</span>
+          </div>
+          <span class="text-next-light-gray text-subtitle-2">Agora mesmo</span>
+        </v-col>
+      </v-row>
+    </v-container>
+  </Transition>
 </template>
 
 <script lang="ts" setup>
 import { useQuery } from '@tanstack/vue-query';
 import { Reviews } from '@next/services';
-import { computed } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
+
+import aiSummaryAvatar from '@/assets/ai-summary.png';
 
 const props = defineProps({
   teacherId: { required: true, type: String },
@@ -70,13 +128,45 @@ const props = defineProps({
 
 const teacherId = computed(() => props.teacherId);
 
-const { data: summaryData } = useQuery({
+const {
+  data: summaryData,
+  isLoading,
+  isError,
+} = useQuery({
   enabled: !!teacherId.value,
   queryFn: () => Reviews.getTeacherSummary(teacherId.value),
   queryKey: ['teacher-summary', teacherId],
   refetchOnWindowFocus: false,
   retry: false,
 });
+
+const MIN_SKELETON_MS = 1600;
+// Starts true so a cache hit (isLoading born false) skips the skeleton
+// instead of hanging forever waiting for a watch that will never fire.
+const skeletonElapsed = ref(true);
+let timer: ReturnType<typeof setTimeout> | null = null;
+
+watch(
+  isLoading,
+  (loading) => {
+    if (loading) {
+      skeletonElapsed.value = false;
+      timer = setTimeout(() => {
+        skeletonElapsed.value = true;
+      }, MIN_SKELETON_MS);
+    }
+  },
+  { immediate: true },
+);
+
+onUnmounted(() => {
+  if (timer) clearTimeout(timer);
+});
+
+const showSkeleton = computed(() => isLoading.value || !skeletonElapsed.value);
+const showCard = computed(
+  () => !showSkeleton.value && !!summaryData.value && !isError.value,
+);
 
 const badges = computed(() => {
   if (!summaryData.value) {
@@ -113,49 +203,34 @@ const badges = computed(() => {
 </script>
 
 <style scoped>
-.ai-summary-row {
-  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-  padding-bottom: 16px !important;
-}
-
 .ai-avatar {
   height: 54px;
   width: 54px;
-  background: linear-gradient(135deg, #8e2de2, #4a00e0);
+  background-color: rgb(var(--v-theme-primary));
+  overflow: hidden;
 }
 
-.ai-badge :deep(.v-chip__content) {
-  color: #fff;
+.ai-avatar-img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
 }
 
 .ai-badge {
-  background: linear-gradient(90deg, #8e2de2, #4a00e0, #8e2de2);
-  background-size: 200% auto;
-  animation: ai-shimmer 3s linear infinite;
+  font-weight: normal;
 }
 
-.ai-sparkle {
-  animation: ai-pulse 1.6s ease-in-out infinite;
+.comment-source-count {
+  height: 36px;
 }
 
-@keyframes ai-shimmer {
-  0% {
-    background-position: 0% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
+.ai-crossfade-enter-active,
+.ai-crossfade-leave-active {
+  transition: opacity 0.35s ease;
 }
 
-@keyframes ai-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.3);
-    opacity: 0.7;
-  }
+.ai-crossfade-enter-from,
+.ai-crossfade-leave-to {
+  opacity: 0;
 }
 </style>
