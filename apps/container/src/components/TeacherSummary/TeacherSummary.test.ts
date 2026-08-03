@@ -30,11 +30,10 @@ describe('<TeacherSummary />', () => {
     });
 
     await waitFor(() =>
-      expect(screen.queryByLabelText('Carregando')).not.toBeInTheDocument(),
+      expect(
+        screen.queryByText(teacherSummary.summary),
+      ).not.toBeInTheDocument(),
     );
-    expect(
-      screen.queryByText(teacherSummary.summary),
-    ).not.toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });

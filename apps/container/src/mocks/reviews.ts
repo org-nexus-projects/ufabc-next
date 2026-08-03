@@ -1739,7 +1739,7 @@ export const userUpdateComment: UpdateCommentRequest = {
 
 export const teacherSummary: TeacherSummary = {
   commentsCount: 12,
-  didacticQuality: true,
+  didacticQuality: 4.5,
   newestComment: '2025-06-01T00:00:00.000Z',
   oldestComment: '2023-02-10T00:00:00.000Z',
   promptVersion: 'v1',

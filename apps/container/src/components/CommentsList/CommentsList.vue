@@ -33,6 +33,7 @@
     :style="`${!smAndDown && 'max-height:500px ; overflow-y:auto'}`"
     class="pr-md-4 py-4"
   >
+    <TeacherSummary :teacher-id="teacherId" />
     <SingleComment
       v-for="comment in filteredCommentsData?.data"
       :key="comment._id"
@@ -70,6 +71,7 @@ import { useDisplay } from 'vuetify';
 import { CenteredLoading } from '@/components/CenteredLoading';
 import { FeedbackAlert } from '@/components/FeedbackAlert';
 import { SingleComment } from '@/components/SingleComment';
+import { TeacherSummary } from '@/components/TeacherSummary';
 import { checkEAD } from '@/utils/season';
 
 const { smAndDown } = useDisplay();

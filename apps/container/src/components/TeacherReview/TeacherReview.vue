@@ -6,10 +6,6 @@
   <CenteredLoading v-if="isFetchingTeacher" class="mt-10" />
   <PaperCard v-else class="w-100">
     <v-container style="max-width: none">
-      <TeacherSummary
-        v-if="Number(teacherData?.general.count) > 0"
-        :teacher-id="teacherId"
-      />
       <v-row v-if="Number(teacherData?.general.count) > 0" class="pa-0">
         <v-col cols="12" md="5">
           <p class="text-h4 font-weight-bold text-primary mb-2">
@@ -81,7 +77,6 @@ import { CommentsList } from '@/components/CommentsList';
 import { ConceptsPieChart } from '@/components/ConceptsPieChart';
 import { FeedbackAlert } from '@/components/FeedbackAlert';
 import { PaperCard } from '@/components/PaperCard';
-import { TeacherSummary } from '@/components/TeacherSummary';
 import { transformConceptDataToObject } from '@/utils/transformConceptDataToObject';
 
 const props = defineProps({

@@ -14,7 +14,7 @@ export const teacherSummarySchema = {
           schema: z.object({
             teacher: z.coerce.string(),
             summary: z.string(),
-            didacticQuality: z.boolean().nullish(),
+            didacticQuality: z.number().min(0).max(5).nullish(),
             takesAttendance: z.boolean().nullish(),
             usesSigaa: z.boolean().nullish(),
             usesMoodle: z.boolean().nullish(),

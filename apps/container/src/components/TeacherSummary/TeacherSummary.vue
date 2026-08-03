@@ -1,38 +1,62 @@
 <template>
-  <FeedbackAlert
-    v-if="isSummaryError"
-    text="Erro ao carregar o resumo do(a) professor(a)"
-  />
-  <CenteredLoading v-if="isFetchingSummary" class="mt-4" />
-  <PaperCard v-else-if="summaryData" class="w-100 mb-4">
-    <div class="d-flex align-center flex-wrap mb-2">
-      <p class="text-primary text-h4 font-weight-bold mb-0 mr-2">
-        Resumo dos comentários
-      </p>
-      <v-chip size="small" variant="flat" class="ai-badge font-weight-bold">
-        <v-icon icon="mdi-creation" start size="16" class="ai-sparkle" />
-        Gerado por IA
-      </v-chip>
-    </div>
-    <p class="text-body-1">{{ summaryData.summary }}</p>
-    <div class="d-flex flex-wrap mt-3">
-      <v-chip
-        v-for="badge in badges"
-        :key="badge.text"
-        variant="outlined"
-        :color="badge.color"
-        class="mr-2 mb-2"
+  <v-container v-if="summaryData" class="pa-0 mb-5 ai-summary-row">
+    <v-row align="start" justify="start" class="ma-0">
+      <v-col
+        sm=""
+        order="1"
+        class="mr-3 justify-center pa-0 flex-grow-0 flex-shrink-1"
       >
-        <v-icon :icon="badge.icon" start />
-        {{ badge.text }}
-      </v-chip>
-    </div>
-    <p class="text-caption text-medium-emphasis mt-2">
-      Baseado em {{ summaryData.commentsCount }} comentário{{
-        summaryData.commentsCount === 1 ? '' : 's'
-      }}
-    </p>
-  </PaperCard>
+        <div
+          class="ai-avatar text-white d-flex align-center justify-center rounded-lg"
+        >
+          <v-icon icon="mdi-creation" size="28" class="ai-sparkle" />
+        </div>
+      </v-col>
+      <v-col
+        cols="12"
+        sm=""
+        order="3"
+        order-sm="2"
+        class="comment-text-container mr-2 pa-0"
+      >
+        <div class="d-flex align-center text-primary flex-wrap">
+          <v-chip
+            size="small"
+            variant="flat"
+            class="ai-badge font-weight-bold mr-2 mb-1"
+          >
+            <v-icon icon="mdi-creation" start size="14" />
+            Gerado por IA
+          </v-chip>
+          <p class="text-subtitle-2 mb-1">Resumo dos comentários</p>
+        </div>
+        <p>{{ summaryData.summary }}</p>
+        <div class="d-flex flex-wrap mt-2">
+          <v-chip
+            v-for="badge in badges"
+            :key="badge.text"
+            variant="outlined"
+            size="small"
+            :color="badge.color"
+            class="mr-2 mb-2"
+          >
+            <v-icon :icon="badge.icon" start size="16" />
+            {{ badge.text }}
+          </v-chip>
+        </div>
+      </v-col>
+      <v-col
+        sm=""
+        order="2"
+        order-sm="3"
+        class="pa-0 justify-start text-subtitle-2 text-next-light-gray flex-grow-0 flex-shrink-1"
+      >
+        Baseado em {{ summaryData.commentsCount }} comentário{{
+          summaryData.commentsCount === 1 ? '' : 's'
+        }}
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script lang="ts" setup>
@@ -40,32 +64,18 @@ import { useQuery } from '@tanstack/vue-query';
 import { Reviews } from '@next/services';
 import { computed } from 'vue';
 
-import { CenteredLoading } from '@/components/CenteredLoading';
-import { FeedbackAlert } from '@/components/FeedbackAlert';
-import { PaperCard } from '@/components/PaperCard';
-
 const props = defineProps({
   teacherId: { required: true, type: String },
 });
 
 const teacherId = computed(() => props.teacherId);
 
-const {
-  data: summaryData,
-  isFetching: isFetchingSummary,
-  error: summaryError,
-} = useQuery({
+const { data: summaryData } = useQuery({
   enabled: !!teacherId.value,
   queryFn: () => Reviews.getTeacherSummary(teacherId.value),
   queryKey: ['teacher-summary', teacherId],
   refetchOnWindowFocus: false,
   retry: false,
-});
-
-const isSummaryError = computed(() => {
-  const status = (summaryError.value as { response?: { status?: number } })
-    ?.response?.status;
-  return !!summaryError.value && status !== 404;
 });
 
 const badges = computed(() => {
@@ -77,10 +87,11 @@ const badges = computed(() => {
     summaryData.value;
 
   if (didacticQuality !== null && didacticQuality !== undefined) {
+    const isGood = didacticQuality >= 3;
     items.push({
-      color: didacticQuality ? 'success' : 'warning',
+      color: isGood ? 'success' : 'warning',
       icon: 'mdi-school',
-      text: didacticQuality ? 'Boa didática' : 'Didática a desejar',
+      text: isGood ? 'Boa didática' : 'Didática a desejar',
     });
   }
   if (takesAttendance !== null && takesAttendance !== undefined) {
@@ -102,6 +113,17 @@ const badges = computed(() => {
 </script>
 
 <style scoped>
+.ai-summary-row {
+  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  padding-bottom: 16px !important;
+}
+
+.ai-avatar {
+  height: 54px;
+  width: 54px;
+  background: linear-gradient(135deg, #8e2de2, #4a00e0);
+}
+
 .ai-badge :deep(.v-chip__content) {
   color: #fff;
 }

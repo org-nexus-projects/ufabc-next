@@ -319,7 +319,7 @@ export type SearchTeacher = {
 export type TeacherSummary = {
   teacher: string;
   summary: string;
-  didacticQuality?: boolean | null;
+  didacticQuality?: number | null;
   takesAttendance?: boolean | null;
   usesSigaa?: boolean | null;
   usesMoodle?: boolean | null;

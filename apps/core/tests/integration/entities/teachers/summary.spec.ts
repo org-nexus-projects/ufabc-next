@@ -31,7 +31,7 @@ describe('GET /entities/teachers/summary/:teacherId', () => {
       teacher: teacherId,
       subject: null,
       summary: 'Resumo de teste.',
-      didacticQuality: true,
+      didacticQuality: 4.2,
       takesAttendance: true,
       usesSigaa: null,
       usesMoodle: false,

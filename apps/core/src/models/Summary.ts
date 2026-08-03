@@ -15,7 +15,7 @@ const summarySchema = new Schema(
       // reservado pra resumo por disciplina no futuro.
     },
     summary: { type: String, required: true },
-    didacticQuality: { type: Boolean, default: null },
+    didacticQuality: { type: Number, min: 0, max: 5, default: null },
     takesAttendance: { type: Boolean, default: null },
     usesSigaa: { type: Boolean, default: null },
     usesMoodle: { type: Boolean, default: null },
