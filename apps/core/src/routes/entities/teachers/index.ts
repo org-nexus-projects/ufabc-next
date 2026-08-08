@@ -3,6 +3,7 @@ import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 import { Types } from 'mongoose';
 
 import { TeacherModel } from '@/models/Teacher.js';
+import { teacherSummarySchema } from '@/schemas/entities/summaries.js';
 import {
   createTeachersSchema,
   listTeachersSchema,
@@ -12,6 +13,7 @@ import {
 
 import {
   findAndUpdate,
+  findLatestSummary,
   findOne,
   listAll,
   populateWithSubject,
@@ -21,6 +23,9 @@ import {
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   const teachersCache = app.cache<{}>();
+  const summaryCache = app.cache<
+    NonNullable<Awaited<ReturnType<typeof findLatestSummary>>>
+  >();
 
   app.get('/', { schema: listTeachersSchema }, async () => {
     const teachers = await listAll();
@@ -119,6 +124,27 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     return resp;
   });
+
+  app.get(
+    '/summary/:teacherId',
+    { schema: teacherSummarySchema },
+    async (request, reply) => {
+      const { teacherId } = request.params;
+
+      const cacheKey = `summary:${teacherId}`;
+      const cached = summaryCache.get(cacheKey);
+      if (cached) return cached;
+
+      const summary = await findLatestSummary(teacherId);
+
+      if (!summary) {
+        return reply.notFound('Nenhum resumo disponível para esse professor');
+      }
+
+      summaryCache.set(cacheKey, summary);
+      return summary;
+    }
+  );
 };
 
 function getMean(value: any[], key?: string): any {

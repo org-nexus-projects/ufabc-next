@@ -8,6 +8,7 @@ import {
   subjectSearch,
   teacher,
   teacherSearch,
+  teacherSummary,
 } from './reviews';
 import {
   classes,
@@ -33,6 +34,9 @@ export const handlers = [
   ),
   http.get(`${baseUrl}/entities/teachers/reviews/*`, () =>
     HttpResponse.json(teacher),
+  ),
+  http.get(`${baseUrl}/entities/teachers/summary/*`, () =>
+    HttpResponse.json(teacherSummary),
   ),
   http.get(`${baseUrl}/entities/subjects/reviews/*`, () =>
     HttpResponse.json(subject),

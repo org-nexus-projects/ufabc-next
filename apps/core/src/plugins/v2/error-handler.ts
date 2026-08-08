@@ -72,16 +72,25 @@ export default fp(
         }
 
         if (error instanceof Error) {
-          request.log.error(
-            { error, request: requestContext },
-            error.message
-          );
+          const statusCode = error.statusCode ?? 500;
 
-          reply.status(500);
+          if (statusCode >= 500) {
+            request.log.error(
+              { error, request: requestContext },
+              error.message
+            );
+          } else {
+            request.log.warn(
+              { error, request: requestContext },
+              error.message
+            );
+          }
+
+          reply.status(statusCode);
           reply.send({
             error: error.name,
             message: error.message,
-            statusCode: 500,
+            statusCode,
           });
           return;
         }
