@@ -418,17 +418,12 @@ export class ArchiveEngine {
       return [];
     }
 
-    let html: string;
-    try {
-      html = await this.moodleConnector.getUsersByCoursePage(
-        this.session.sessionId,
-        courseId
-      );
-    } catch (error) {
-      this.logger.warn(
-        { courseId, error },
-        'Failed to fetch course participants page, continuing without teachers'
-      );
+    const html = await this.moodleConnector.getUsersByCoursePage(
+      this.session.sessionId,
+      courseId
+    );
+
+    if (html === null) {
       return [];
     }
 
