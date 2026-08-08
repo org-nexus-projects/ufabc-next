@@ -1,24 +1,20 @@
 import type { Types } from 'mongoose';
 
+import { ACCENT_MAP, REGEX_SPECIAL_CHARS } from '@/constants.js';
 import { ComponentModel } from '@/models/Component.js';
 import type { ComponentDocument } from '@/models/Component.js';
 
 import { BaseRepository } from './base-repository.js';
 import type { BaseRepositoryOptions } from './base-repository.js';
 
-const ACCENT_MAP: Record<string, string> = {
-  a: '[aáàâãAÁÀÂÃ]',
-  c: '[cçCÇ]',
-  e: '[eéêEÉÊ]',
-  i: '[iíIÍ]',
-  o: '[oóôõOÓÔÕ]',
-  u: '[uúüUÚÜ]',
-};
+function escapeRegexChar(char: string): string {
+  return REGEX_SPECIAL_CHARS.test(char) ? `\\${char}` : char;
+}
 
 function buildAccentInsensitiveRegex(word: string): string {
   let pattern = '';
   for (const char of word.toLowerCase()) {
-    pattern += ACCENT_MAP[char] ?? char;
+    pattern += ACCENT_MAP[char] ?? escapeRegexChar(char);
   }
   return pattern;
 }
