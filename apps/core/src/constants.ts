@@ -69,3 +69,15 @@ export const ALLOWED_ANNOUNCEMENT_PERMISSIONS = [
 ] as const;
 
 export const UFABC_EMAIL_DOMAINS = ['aluno.ufabc.edu.br', 'ufabc.edu.br'];
+
+// accent-insensitive character classes used to build disciplina-name regexes
+export const ACCENT_MAP: Record<string, string> = {
+  a: '[aáàâãAÁÀÂÃ]',
+  c: '[cçCÇ]',
+  e: '[eéêEÉÊ]',
+  i: '[iíIÍ]',
+  o: '[oóôõOÓÔÕ]',
+  u: '[uúüUÚÜ]',
+};
+
+export const REGEX_SPECIAL_CHARS = /[.*+?^${}()|[\]\\]/u;
