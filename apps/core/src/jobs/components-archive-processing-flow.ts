@@ -105,7 +105,7 @@ export const pdfDownloadJob = defineJob(
         .optional(),
     })
   )
-  .concurrency(10)
+  .concurrency(3)
   .handler(async ({ job, app }) => {
     const { rawUrl, componentDbId, globalTraceId, session } = job.data;
 
@@ -129,11 +129,31 @@ export const pdfDownloadJob = defineJob(
     );
 
     try {
-      const { checksum, pdfName, s3Key } = await engine.downloadAndUpload(
+      const result = await engine.downloadAndUpload(
         rawUrl,
         componentDbId,
         app.config.AWS_BUCKET
       );
+
+      if (!result) {
+        await ComponentArchiveModel.findByIdAndUpdate(archive._id, {
+          $push: {
+            timeline: {
+              metadata: { reason: 'missing_session' },
+              status: 'failed',
+            },
+          },
+          $set: { status: 'failed' },
+        });
+
+        return {
+          archiveId: archive._id,
+          message: 'No Moodle session available, skipped download',
+          success: false,
+        };
+      }
+
+      const { checksum, pdfName, s3Key } = result;
 
       if (archive.checksum === checksum) {
         return {

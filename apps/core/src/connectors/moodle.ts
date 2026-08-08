@@ -163,6 +163,20 @@ export class MoodleConnector extends BaseRequester {
     return response;
   }
 
+  async downloadFile(url: string, sessionId: string): Promise<ArrayBuffer> {
+    await this.rateLimit();
+
+    const headers = new Headers();
+    headers.set('Cookie', `MoodleSession=${sessionId}`);
+
+    const response = await this.request<ArrayBuffer>(url, {
+      headers,
+      responseType: 'arrayBuffer',
+    });
+
+    return response;
+  }
+
   private async rateLimit() {
     const now = Date.now();
     const timeSinceLastRequest = now - this.lastRequestTime;
