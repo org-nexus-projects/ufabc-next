@@ -25,6 +25,10 @@ export type MoodleCourse = {
   startdate?: number;
 };
 
+// e.g. "MCTA001-24" — a real discipline offering, not a Moodle
+// program/degree-shell course (those have no discipline code anywhere)
+const DISCIPLINE_CODE_PATTERN = /[A-Z]{2,}\d{3,}(?:-\d+)?/u;
+
 export class ArchiveEngine {
   private readonly logger;
   private readonly moodleConnector;
@@ -53,6 +57,14 @@ export class ArchiveEngine {
     teacherNames?: string[],
     enrolledCodigos?: string[]
   ) {
+    if (ArchiveEngine.isProgramShellCourse(moodleCourse)) {
+      this.logger.info(
+        { courseId: moodleCourse.id, courseName: moodleCourse.fullname },
+        'Skipping Moodle program/degree-shell course, no discipline code found'
+      );
+      return null;
+    }
+
     this.logger.info(
       { courseId: moodleCourse.id, courseName: moodleCourse.fullname },
       'Matching moodle course to internal component'
@@ -65,15 +77,13 @@ export class ArchiveEngine {
     }
 
     if (moodleCourse.shortname != null) {
-      const codeMatch = /[A-Z]{2,}\d{3,}(?:-\d+)?/u.exec(
-        moodleCourse.shortname
-      );
+      const codeMatch = DISCIPLINE_CODE_PATTERN.exec(moodleCourse.shortname);
       if (codeMatch) {
         candidates.push(codeMatch[0]);
       }
     }
 
-    const codeMatch = /[A-Z]{2,}\d{3,}(?:-\d+)?/u.exec(moodleCourse.fullname);
+    const codeMatch = DISCIPLINE_CODE_PATTERN.exec(moodleCourse.fullname);
     if (codeMatch) {
       candidates.push(codeMatch[0]);
     }
@@ -322,6 +332,23 @@ export class ArchiveEngine {
     }
 
     return null;
+  }
+
+  private static isProgramShellCourse(moodleCourse: MoodleCourse): boolean {
+    const hasIdNumber =
+      moodleCourse.idnumber != null && moodleCourse.idnumber !== '';
+    if (hasIdNumber) {
+      return false;
+    }
+
+    const shortnameHasDisciplineCode =
+      moodleCourse.shortname != null &&
+      DISCIPLINE_CODE_PATTERN.test(moodleCourse.shortname);
+    const fullnameHasDisciplineCode = DISCIPLINE_CODE_PATTERN.test(
+      moodleCourse.fullname
+    );
+
+    return !shortnameHasDisciplineCode && !fullnameHasDisciplineCode;
   }
 
   private static extractKeywords(fullname: string): string[] {
