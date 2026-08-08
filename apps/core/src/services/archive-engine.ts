@@ -1,7 +1,6 @@
 import { findArchiveQuarter } from '@next/utils';
 import { load } from 'cheerio';
 import { createHash } from 'node:crypto';
-import { ofetch } from 'ofetch';
 
 import { MoodleConnector } from '@/connectors/moodle.js';
 import type { S3Connector } from '@/connectors/s3-connector.js';
@@ -493,14 +492,10 @@ export class ArchiveEngine {
 
   async downloadAndUpload(rawUrl: string, componentId: string, bucket: string) {
     const url = new URL(rawUrl);
-    const headers: Record<string, string> = {};
-    if (this.session) {
-      headers.Cookie = `MoodleSession=${this.session.sessionId}`;
-    }
-    const buffer = await ofetch(url.href, {
-      headers,
-      responseType: 'arrayBuffer',
-    });
+    const buffer = await this.moodleConnector.downloadFile(
+      url.href,
+      this.session?.sessionId ?? ''
+    );
 
     const filename = this.extractFilenameFromUrl(url);
     const sanitizedFilename = ArchiveEngine.sanitizeFilename(filename);

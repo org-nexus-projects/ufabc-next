@@ -105,7 +105,7 @@ export const pdfDownloadJob = defineJob(
         .optional(),
     })
   )
-  .concurrency(10)
+  .concurrency(3)
   .handler(async ({ job, app }) => {
     const { rawUrl, componentDbId, globalTraceId, session } = job.data;
 
