@@ -423,6 +423,10 @@ export class ArchiveEngine {
       courseId
     );
 
+    if (html === null) {
+      return [];
+    }
+
     const $ = load(html);
     const teacherNames: string[] = [];
 
