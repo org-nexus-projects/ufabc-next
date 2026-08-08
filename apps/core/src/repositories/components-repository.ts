@@ -15,10 +15,16 @@ const ACCENT_MAP: Record<string, string> = {
   u: '[uúüUÚÜ]',
 };
 
+const REGEX_SPECIAL_CHARS = /[.*+?^${}()|[\]\\]/u;
+
+function escapeRegexChar(char: string): string {
+  return REGEX_SPECIAL_CHARS.test(char) ? `\\${char}` : char;
+}
+
 function buildAccentInsensitiveRegex(word: string): string {
   let pattern = '';
   for (const char of word.toLowerCase()) {
-    pattern += ACCENT_MAP[char] ?? char;
+    pattern += ACCENT_MAP[char] ?? escapeRegexChar(char);
   }
   return pattern;
 }
