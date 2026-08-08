@@ -8,10 +8,6 @@ import { useFilters } from "@/composables/useFilters";
 import { useModals } from "@/composables/useModals";
 import { useComponentsBuilder } from "@/composables/useComponentsBuilder";
 import { syncMatriculaStudent, updateStudent, type UpdatedStudent } from "@/services/next";
-import { storage } from "wxt/storage";
-
-const SYNC_TOAST_STORAGE_KEY = "local:lastSessionSyncToastAt";
-const SYNC_TOAST_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 const matriculas = inject<typeof window.matriculas>("matriculas");
 const sessionId = inject<string>("sessionId");
@@ -57,17 +53,6 @@ const sessionMutation = useMutation({
   },
   onError: (error) => {
     logger.error({ error }, "Failed to sync session");
-    toast.error("Falha ao sincronizar dados da sessão");
-  },
-  onSuccess: async () => {
-    const lastShownAt = await storage.getItem<number>(SYNC_TOAST_STORAGE_KEY);
-    const alreadyShownRecently = lastShownAt && Date.now() - lastShownAt < SYNC_TOAST_INTERVAL_MS;
-    if (alreadyShownRecently) {
-      return;
-    }
-
-    toast.success("Sessão sincronizada com sucesso");
-    await storage.setItem(SYNC_TOAST_STORAGE_KEY, Date.now());
   },
 });
 
