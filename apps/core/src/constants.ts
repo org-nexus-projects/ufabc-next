@@ -81,3 +81,7 @@ export const ACCENT_MAP: Record<string, string> = {
 };
 
 export const REGEX_SPECIAL_CHARS = /[.*+?^${}()|[\]\\]/u;
+
+// e.g. "MCTA001-24" — a real discipline offering, not a Moodle
+// program/degree-shell course (those have no discipline code anywhere)
+export const DISCIPLINE_CODE_PATTERN = /[A-Z]{2,}\d{3,}(?:-\d+)?/u;

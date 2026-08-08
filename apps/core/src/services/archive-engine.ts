@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 
 import { MoodleConnector } from '@/connectors/moodle.js';
 import type { S3Connector } from '@/connectors/s3-connector.js';
+import { DISCIPLINE_CODE_PATTERN } from '@/constants.js';
 import { ArchiveParseFailed } from '@/errors/custom-errors.js';
 import type { ComponentDocument } from '@/models/Component.js';
 import { findTeacher } from '@/models/Teacher.js';
@@ -24,10 +25,6 @@ export type MoodleCourse = {
   id: number;
   startdate?: number;
 };
-
-// e.g. "MCTA001-24" — a real discipline offering, not a Moodle
-// program/degree-shell course (those have no discipline code anywhere)
-const DISCIPLINE_CODE_PATTERN = /[A-Z]{2,}\d{3,}(?:-\d+)?/u;
 
 export class ArchiveEngine {
   private readonly logger;
