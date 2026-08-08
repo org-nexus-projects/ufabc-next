@@ -491,10 +491,18 @@ export class ArchiveEngine {
   }
 
   async downloadAndUpload(rawUrl: string, componentId: string, bucket: string) {
+    if (!this.session) {
+      this.logger.warn(
+        { componentId, rawUrl },
+        'No Moodle session available, skipping PDF download'
+      );
+      return null;
+    }
+
     const url = new URL(rawUrl);
     const buffer = await this.moodleConnector.downloadFile(
       url.href,
-      this.session?.sessionId ?? ''
+      this.session.sessionId
     );
 
     const filename = this.extractFilenameFromUrl(url);
