@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 
 import { fastifyPlugin as fp } from 'fastify-plugin';
+import { randomUUID } from 'node:crypto';
 
 import { SystemService } from '@/services/system-service.js';
 
@@ -20,6 +21,7 @@ export default fp(
       snapshotThresholdMB: app.config.MEMORY_SNAPSHOT_THRESHOLD_MB,
       sampleIntervalSeconds: app.config.MEMORY_SAMPLE_INTERVAL_SECONDS,
       snapshotCooldownMinutes: app.config.MEMORY_SNAPSHOT_COOLDOWN_MINUTES,
+      globalTraceId: randomUUID(),
     });
 
     app.decorate('systemService', systemService);

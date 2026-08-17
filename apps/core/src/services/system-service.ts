@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { readFile, unlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -59,6 +58,7 @@ export class SystemService {
     snapshotThresholdMB,
     sampleIntervalSeconds,
     snapshotCooldownMinutes,
+    globalTraceId,
   }: {
     mongoose: Mongoose;
     redis: Redis;
@@ -67,6 +67,7 @@ export class SystemService {
     snapshotThresholdMB: number;
     sampleIntervalSeconds: number;
     snapshotCooldownMinutes: number;
+    globalTraceId?: string;
   }) {
     this.mongoose = mongoose;
     this.redis = redis;
@@ -75,11 +76,11 @@ export class SystemService {
     this.snapshotThresholdMB = snapshotThresholdMB;
     this.sampleIntervalSeconds = sampleIntervalSeconds;
     this.snapshotCooldownMinutes = snapshotCooldownMinutes;
-    this.logger = baseLogger.child({ module: 'memory-monitor' });
+    this.logger = baseLogger.child({ module: 'memory-monitor', globalTraceId });
     this.eventLoopDelayHistogram = monitorEventLoopDelay({ resolution: 20 });
   }
 
-  startMemoryMonitor(): void {
+  startMemoryMonitor() {
     this.eventLoopDelayHistogram.enable();
     const intervalMs = this.sampleIntervalSeconds * 1000;
     this.sampleIntervalHandle = setInterval(
@@ -96,7 +97,7 @@ export class SystemService {
     );
   }
 
-  stopMemoryMonitor(): void {
+  stopMemoryMonitor() {
     if (this.sampleIntervalHandle) {
       clearInterval(this.sampleIntervalHandle);
       this.sampleIntervalHandle = undefined;
@@ -104,11 +105,11 @@ export class SystemService {
     this.eventLoopDelayHistogram.disable();
   }
 
-  getLastThresholdContext(): ThresholdContext | null {
+  getLastThresholdContext() {
     return this.lastThresholdContext;
   }
 
-  private toMB(bytes: number): number {
+  private toMB(bytes: number) {
     return Math.round((bytes / BYTES_PER_MB) * 100) / 100;
   }
 
@@ -126,10 +127,7 @@ export class SystemService {
     };
   }
 
-  private sampleMemory(): void {
-    const globalTraceId = randomUUID();
-    const tickLogger = this.logger.child({ globalTraceId });
-
+  private sampleMemory() {
     const memoryUsage = process.memoryUsage();
     const eventLoopDelayMeanMs =
       this.eventLoopDelayHistogram.mean / NANOSECONDS_PER_MS;
@@ -150,7 +148,7 @@ export class SystemService {
       ...this.getActiveResourceStats(),
     };
 
-    tickLogger.info(
+    this.logger.info(
       { event: 'memory.sample', ...sample },
       'Memory usage sample'
     );
@@ -161,12 +159,11 @@ export class SystemService {
 
     if (isAboveThreshold && isCooldownElapsed) {
       this.lastSnapshotAt = Date.now();
-      this.handleMemoryThresholdExceeded(
-        { ...sample, thresholdMB: this.snapshotThresholdMB },
-        globalTraceId,
-        tickLogger
-      ).catch((error) => {
-        tickLogger.error(
+      this.handleMemoryThresholdExceeded({
+        ...sample,
+        thresholdMB: this.snapshotThresholdMB,
+      }).catch((error) => {
+        this.logger.error(
           { err: error },
           'Failed to handle memory threshold exceeded'
         );
@@ -175,14 +172,9 @@ export class SystemService {
   }
 
   private async handleMemoryThresholdExceeded(
-    context: MemorySample & { thresholdMB: number },
-    globalTraceId: string,
-    tickLogger: Logger
-  ): Promise<void> {
-    const snapshotUrl = await this.captureAndUploadHeapSnapshot(
-      globalTraceId,
-      tickLogger
-    );
+    context: MemorySample & { thresholdMB: number }
+  ) {
+    const snapshotUrl = await this.captureAndUploadHeapSnapshot();
 
     this.lastThresholdContext = {
       rssMB: context.rssMB,
@@ -190,7 +182,7 @@ export class SystemService {
       snapshotUrl,
     };
 
-    tickLogger.error(
+    this.logger.error(
       {
         event: 'memory.threshold_exceeded',
         ...context,
@@ -200,10 +192,7 @@ export class SystemService {
     );
   }
 
-  private async captureAndUploadHeapSnapshot(
-    globalTraceId: string,
-    tickLogger: Logger
-  ): Promise<string | null> {
+  private async captureAndUploadHeapSnapshot() {
     const snapshotFilename = `heap-${process.pid}-${Date.now()}.heapsnapshot`;
     const snapshotPath = join(tmpdir(), snapshotFilename);
 
@@ -221,8 +210,8 @@ export class SystemService {
         SNAPSHOT_URL_TTL_SECONDS
       );
     } catch (error) {
-      tickLogger.error(
-        { err: error, globalTraceId },
+      this.logger.error(
+        { err: error },
         'Failed to capture or upload heap snapshot'
       );
       return null;
