@@ -38,6 +38,10 @@ export const REDIRECT_TARGETS = ['web', 'web-local'] as const;
 export const HTTP_REDIS_KEY_PREFIX = 'http';
 export const MAX_LOG_SIZE = 600 * 1024;
 
+export const BYTES_PER_MB = 1024 * 1024;
+export const NANOSECONDS_PER_MS = 1_000_000;
+export const SNAPSHOT_URL_TTL_SECONDS = 7 * 24 * 60 * 60;
+
 export const PARSER_WEBHOOK_EVENTS = {
   CLASS_SETTLED: 'class.settled',
   COMPONENT_CREATED: 'component.created',

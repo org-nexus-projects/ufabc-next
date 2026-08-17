@@ -23,6 +23,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
     "@aws-sdk/client-ses": "catalog:",
+    "@aws-sdk/s3-request-presigner": "catalog:",
     "@axiomhq/pino": "catalog:",
     "@bull-board/api": "catalog:",
     "@bull-board/fastify": "catalog:",

@@ -17,6 +17,7 @@ import { UfabcParserIncomingWebhookController } from './controllers/ufabc-parser
 import { authenticateBoard } from './hooks/board-authenticate.js';
 import awsV2Plugin from './plugins/v2/aws.js';
 import errorHandlerPlugin from './plugins/v2/error-handler.js';
+import memoryMonitorPlugin from './plugins/v2/memory-monitor.js';
 import queueV2Plugin from './plugins/v2/queue.js';
 import redisV2Plugin from './plugins/v2/redis.js';
 import { setupV2Routes } from './plugins/v2/setup.js';
@@ -58,6 +59,7 @@ export async function buildApp(
     redisURL: new URL(app.config.REDIS_CONNECTION_URL),
   });
   await app.register(awsV2Plugin);
+  await app.register(memoryMonitorPlugin);
 
   await setupV2Routes(app, routesV2);
 
