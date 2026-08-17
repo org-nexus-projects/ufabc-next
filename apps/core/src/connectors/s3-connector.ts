@@ -4,6 +4,7 @@ import {
   PutObjectCommand,
 } from '@aws-sdk/client-s3';
 import type { S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import { BaseAWSConnector } from './base-aws-connector.js';
 
@@ -27,6 +28,16 @@ export class S3Connector extends BaseAWSConnector<S3Client> {
       Key: key,
     });
     return await this.client.send(command);
+  }
+
+  async getPresignedUrl(bucket: string, key: string, ttlSeconds: number) {
+    const command = new GetObjectCommand({
+      Bucket: bucket,
+      Key: key,
+    });
+    return await getSignedUrl(this.client, command, {
+      expiresIn: ttlSeconds,
+    });
   }
 
   async list(bucket: string) {
