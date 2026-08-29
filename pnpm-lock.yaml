@@ -364,7 +364,7 @@ importers:
         specifier: 'catalog:'
         version: 0.2.2(@typescript/native-preview@7.0.0-dev.20260606.1)
 
-  apps/container:
+  apps/web:
     dependencies:
       '@amcharts/amcharts5':
         specifier: 'catalog:'

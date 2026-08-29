@@ -74,15 +74,12 @@ services:
       - LOCALSTACK_ENDPOINT=http://localstack:4566
     volumes:
       - ./apps/core/src:/workspace/apps/core/src:ro
-      - ./packages/common/src:/workspace/packages/common/src:ro
-      - ./packages/common/dist:/workspace/packages/common/dist:ro
       - ./packages/db/src:/workspace/packages/db/src:ro
-      - ./packages/db/dist:/workspace/packages/db/dist:ro
       - ./packages/queues/src:/workspace/packages/queues/src:ro
-      - ./packages/queues/dist:/workspace/packages/queues/dist:ro
       - ./packages/testing/src:/workspace/packages/testing/src:ro
-      - ./packages/testing/dist:/workspace/packages/testing/dist:ro
-      - ./packages/tsconfig:/workspace/packages/tsconfig:ro
+      - ./packages/utils/index.ts:/workspace/packages/utils/index.ts:ro
+      - ./packages/utils/lib:/workspace/packages/utils/lib:ro
+      - ./tools/tsconfig:/workspace/tools/tsconfig:ro
     depends_on:
       next-db:
         condition: service_healthy

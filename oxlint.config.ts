@@ -37,7 +37,7 @@ export default defineConfig({
       },
     },
     {
-      files: ["apps/container/**/*.ts", "apps/container/**/*.vue"],
+      files: ["apps/web/**/*.ts", "apps/web/**/*.vue"],
       env: {
         browser: true,
       },
