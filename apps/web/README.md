@@ -62,7 +62,7 @@ O projeto é um monorepo que usa **Turborepo** para gerenciar a execução rápi
 ```text
 ufabc-next-web/
 ├── apps/
-│   └── container/        # A aplicação principal (SPA Vue 3 com Vite).
+│   └── web/              # A aplicação principal (SPA Vue 3 com Vite).
 └── packages/
     ├── services/         # Funções para realizar Fetch/Mutations na API (Axios).
     ├── types/            # Definições (Interfaces) do TypeScript para toda a plataforma.
