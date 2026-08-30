@@ -221,28 +221,131 @@ const commandFor = (app, target, jobsEnabled = true) => {
   };
 };
 
+const showHelp = () => {
+  process.stdout.write(`
+Uso: pnpm dev [OPTIONS]
+
+Opciones de apps (pelo menos um obrigatório):
+  --web [dev|prod]       Inicia o portal web
+  --core                 Inicia a API Core (padrão: jobs ativado)
+  --extension [dev|prod] Inicia a extensão browser
+
+Opções adicionais:
+  --jobs [on|off]        Ativa/desativa jobs do backend (padrão: on)
+  --help                 Mostra esta mensagem
+
+Exemplos:
+  pnpm dev --web dev --core --extension prod
+  pnpm dev --core --jobs off
+  pnpm dev --web prod
+  pnpm dev                # Menu interativo
+`);
+};
+
+const parseCliArgs = (args) => {
+  const result = {
+    web: null,
+    core: false,
+    extension: null,
+    jobsEnabled: true,
+  };
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+
+    if (arg === '--help') {
+      showHelp();
+      process.exit(0);
+    }
+
+    if (arg === '--web') {
+      const next = args[i + 1];
+      if (!next || next.startsWith('--')) {
+        result.web = 'dev'; // Default to dev
+      } else if (['dev', 'prod'].includes(next)) {
+        result.web = next;
+        i++;
+      } else {
+        throw new Error(`Valor inválido para --web: "${next}". Esperado: dev ou prod`);
+      }
+    } else if (arg === '--core') {
+      result.core = true;
+    } else if (arg === '--extension') {
+      const next = args[i + 1];
+      if (!next || next.startsWith('--')) {
+        result.extension = 'dev'; // Default to dev
+      } else if (['dev', 'prod'].includes(next)) {
+        result.extension = next;
+        i++;
+      } else {
+        throw new Error(`Valor inválido para --extension: "${next}". Esperado: dev ou prod`);
+      }
+    } else if (arg === '--jobs') {
+      const next = args[i + 1];
+      if (!next || next.startsWith('--')) {
+        throw new Error('--jobs requer um valor: on ou off');
+      } else if (['on', 'off'].includes(next)) {
+        result.jobsEnabled = next === 'on';
+        i++;
+      } else {
+        throw new Error(`Valor inválido para --jobs: "${next}". Esperado: on ou off`);
+      }
+    } else if (!arg.startsWith('--')) {
+      throw new Error(`Argumento desconhecido: "${arg}"`);
+    }
+  }
+
+  return result;
+};
+
 const run = async () => {
-  if (!process.stdin.isTTY || !process.stdout.isTTY) {
-    throw new Error('A CLI de desenvolvimento precisa de um terminal interativo.');
-  }
+  // Parse CLI arguments
+  const cliArgs = process.argv.slice(2);
+  let selectedApps, appTargets, jobsEnabled;
 
-  const selectedApps = await selectApps();
-  if (selectedApps.length === 0) {
-    process.stdout.write('\nNenhuma aplicação selecionada.\n');
-    return;
-  }
+  if (cliArgs.length > 0) {
+    // CLI mode
+    const cliConfig = parseCliArgs(cliArgs);
 
-  const appTargets = new Map();
-  for (const app of selectedApps.filter((app) => app !== 'core')) {
-    appTargets.set(app, await selectTarget(apps.find(({ id }) => id === app)));
-  }
+    selectedApps = [
+      ...(cliConfig.web ? ['web'] : []),
+      ...(cliConfig.core ? ['core'] : []),
+      ...(cliConfig.extension ? ['extension'] : []),
+    ];
 
-  let jobsEnabled = true;
-  if (selectedApps.includes('core')) {
-    jobsEnabled = await selectJobsEnabled();
-  }
+    if (selectedApps.length === 0) {
+      throw new Error('Nenhuma aplicação selecionada. Use --help para ver as opções.');
+    }
 
-  clearScreen();
+    appTargets = new Map();
+    if (cliConfig.web) appTargets.set('web', cliConfig.web);
+    if (cliConfig.extension) appTargets.set('extension', cliConfig.extension);
+
+    jobsEnabled = cliConfig.jobsEnabled;
+  } else {
+    // Interactive mode (fallback)
+    if (!process.stdin.isTTY || !process.stdout.isTTY) {
+      throw new Error('A CLI de desenvolvimento precisa de um terminal interativo. Use pnpm dev --help para ver as opções de CLI.');
+    }
+
+    selectedApps = await selectApps();
+    if (selectedApps.length === 0) {
+      process.stdout.write('\nNenhuma aplicação selecionada.\n');
+      return;
+    }
+
+    appTargets = new Map();
+    for (const app of selectedApps.filter((app) => app !== 'core')) {
+      appTargets.set(app, await selectTarget(apps.find(({ id }) => id === app)));
+    }
+
+    jobsEnabled = true;
+    if (selectedApps.includes('core')) {
+      jobsEnabled = await selectJobsEnabled();
+    }
+
+    clearScreen();
+  }
 
   // Build environment variables for all selected apps
   const env = { ...process.env };
