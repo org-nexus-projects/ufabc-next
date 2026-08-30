@@ -3,6 +3,7 @@ import type {
   SearchTeacher,
   SubjectInfo,
   TeacherReview,
+  TeacherSummary,
 } from './types';
 
 import { api } from './api';
@@ -27,5 +28,9 @@ export const Reviews = {
   getSubject: async (id: string) => {
     const { data } = await api.get(`/entities/subjects/reviews/${id}`);
     return data as SubjectInfo;
+  },
+  getTeacherSummary: async (id: string) => {
+    const { data } = await api.get(`/entities/teachers/summary/${id}`);
+    return data as TeacherSummary;
   },
 };
