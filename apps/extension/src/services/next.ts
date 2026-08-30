@@ -15,7 +15,7 @@ export type SigHistory = {
   ra: string;
   grade: string;
   course: string;
-  components: {
+  components: Array<{
     grade: 'A' | 'B' | 'C' | 'D' | 'O' | 'F' | 'E' | null;
     name: string;
     status: string | null;
@@ -24,7 +24,7 @@ export type SigHistory = {
     UFCode: string;
     category: 'mandatory' | 'free' | 'limited';
     credits: number;
-  }[];
+  }>;
 };
 
 export type Grade = 'A' | 'B' | 'C' | 'D' | 'O' | 'F';
@@ -45,7 +45,7 @@ type SubjectDetailedReview = {
     _id: string;
     mainTeacher: string;
   };
-  distribution: Array<Distribution>;
+  distribution: Distribution[];
   numericWeight: number;
   numeric: number;
   amount: number;
@@ -70,7 +70,7 @@ type TeacherDetailedReview = {
     __v: number;
     creditos: number;
   };
-  distribution: Array<Distribution>;
+  distribution: Distribution[];
   numericWeight: number;
   numeric: number;
   amount: number;
@@ -86,12 +86,12 @@ export type SubjectReview = {
     count: number;
     cr_medio: number;
     cr_professor: number;
-    distribution: Array<Distribution>;
+    distribution: Distribution[];
     eadCount: number;
     numeric: number;
     numericWeight: number;
   };
-  specific: Array<SubjectDetailedReview>;
+  specific: SubjectDetailedReview[];
 };
 
 export type TeacherReview = {
@@ -109,14 +109,12 @@ export type TeacherReview = {
     numeric: number;
     numericWeight: number;
     weight: number;
-    distribution: Array<Distribution>;
+    distribution: Distribution[];
   };
-  specific: Array<TeacherDetailedReview>;
+  specific: TeacherDetailedReview[];
 };
 
-const nextApiBaseURL = import.meta.env.VITE_UFABC_NEXT_URL;
-
-const nextApiConnector = new NextApiConnector({ baseURL: nextApiBaseURL });
+const nextApiConnector = new NextApiConnector({ baseURL: __NEXT_API_BASE_URL__ });
 
 type SyncHistory = {
   sessionId: string;

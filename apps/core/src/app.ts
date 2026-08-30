@@ -13,7 +13,6 @@ import backofficeController from './controllers/backoffice-controller.js';
 import componentsController from './controllers/components-controller.js';
 import { proxyController } from './controllers/proxy-controller.js';
 import studentsController from './controllers/students-controller.js';
-import { teacherSummaryController } from './controllers/teacher-summary-controller.js';
 import { UfabcParserIncomingWebhookController } from './controllers/ufabc-parser-webhook-controller.js';
 import { authenticateBoard } from './hooks/board-authenticate.js';
 import awsV2Plugin from './plugins/v2/aws.js';
@@ -38,7 +37,6 @@ const routesV2 = [
   UfabcParserIncomingWebhookController,
   authenticationController,
   proxyController,
-  teacherSummaryController,
 ];
 
 export async function buildApp(
@@ -57,9 +55,13 @@ export async function buildApp(
 
   await app.register(redisV2Plugin);
   await app.register(dbPlugin, { config: app.config });
-  await app.register(queueV2Plugin, {
-    redisURL: new URL(app.config.REDIS_CONNECTION_URL),
-  });
+
+  if (process.env.NEXT_JOBS_ENABLED !== 'false') {
+    await app.register(queueV2Plugin, {
+      redisURL: new URL(app.config.REDIS_CONNECTION_URL),
+    });
+  }
+
   await app.register(awsV2Plugin);
   await app.register(memoryMonitorPlugin);
 

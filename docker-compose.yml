@@ -68,7 +68,7 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     env_file:
-      - ./apps/core/.env
+      - ./.env
     environment:
       # Docker network overrides — service hostnames instead of localhost
       - MONGODB_CONNECTION_URL=mongodb://next-db:27017/ufabc-matricula
