@@ -5,7 +5,8 @@
   "packageManager": "pnpm@10.33.2",
   "scripts": {
     "build": "turbo run build --continue",
-    "dev": "turbo run dev",
+    "dev": "node scripts/dev.mjs",
+    "dev:all": "turbo run dev",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "test": "turbo run test",

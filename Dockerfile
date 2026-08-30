@@ -59,6 +59,7 @@ CMD ["pnpm", "--filter", "@next/core", "run", "dev:local"]
 
 FROM runtime as runner
 WORKDIR /workspace
+ENV ENV_FILE=/workspace/.env
 
 RUN apk update && apk upgrade
 RUN apk add --no-cache git
@@ -80,10 +81,10 @@ USER root
 COPY --chown=core:backend --from=deployer /workspace/out/package.json .
 COPY --chown=core:backend --from=deployer /workspace/out/node_modules/ ./node_modules
 COPY --chown=core:backend --from=deployer /workspace/out/dist/ ./dist
-COPY --chown=core:backend --from=deployer /workspace/apps/core/.env.prod.secret .
+COPY --chown=core:backend --from=deployer /workspace/.env.secret .
 COPY --chown=core:backend --from=deployer /workspace/.gitsecret  ./.gitsecret
 
-# Decrypt .env.prod file
+# Decrypt the global .env file
 RUN echo "$GIT_SECRET_PRIVATE_KEY" >> ./private-container-file-key
 RUN gpg --batch --yes --pinentry-mode loopback --import ./private-container-file-key
 

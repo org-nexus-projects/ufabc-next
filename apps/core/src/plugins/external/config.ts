@@ -54,7 +54,7 @@ export type Config = z.infer<typeof configSchema>;
 export const autoConfig = {
   schema,
   dotenv: {
-    path: '.env',
+    path: process.env.ENV_FILE ?? '../../.env',
   },
   confKey: 'config',
 } satisfies FastifyEnvOptions;

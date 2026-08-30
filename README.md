@@ -36,6 +36,23 @@ O workspace requer Node.js `^24` e pnpm `^10`. A API também usa Docker Compose 
 pnpm install
 ```
 
+Copie o arquivo de configuração global e preencha as integrações necessárias:
+
+```sh
+cp .env.example .env
+```
+
+Todas as aplicações leem esse único `.env` na raiz do workspace. No portal,
+`WEB_LOCAL_*` e `WEB_PRODUCTION_*` definem os alvos. Os valores do alvo
+selecionado são expostos como `VITE_*` no navegador, logo não inclua segredos
+neles.
+
+Para desenvolvimento, `pnpm dev` abre uma seleção interativa. Marque as
+aplicações com espaço e confirme com Enter; para `web` e `extension`, escolha
+se a aplicação local apontará para o backend `dev` ou `prod`. A `core` é sempre
+iniciada localmente. Para manter o comando anterior que inicia todas as
+aplicações, use `pnpm dev:all`.
+
 Inicie apenas a aplicação necessária:
 
 ```sh

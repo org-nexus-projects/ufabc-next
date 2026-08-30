@@ -6,11 +6,8 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "dev:staging": "vite --mode staging",
-    "dev:prod": "vite --mode production",
     "type-check": "vue-tsgo --project tsconfig.json",
     "build": "pnpm type-check && vite build",
-    "build:staging": "pnpm type-check && vite build --mode staging",
     "test": "vitest run --coverage",
     "test:watch": "vitest --coverage",
     "lint": "oxlint . || true",

@@ -143,7 +143,7 @@ export type MatriculaStudent = {
 };
 
 export const nextService = ofetch.create({
-  baseURL: "https://api.v2.ufabcnext.com",
+  baseURL: __NEXT_API_BASE_URL__,
 });
 
 type SyncHistory = {

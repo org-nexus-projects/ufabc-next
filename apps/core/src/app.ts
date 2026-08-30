@@ -57,9 +57,13 @@ export async function buildApp(
 
   await app.register(redisV2Plugin);
   await app.register(dbPlugin);
-  await app.register(queueV2Plugin, {
-    redisURL: new URL(app.config.REDIS_CONNECTION_URL),
-  });
+
+  if (process.env.NEXT_JOBS_ENABLED !== 'false') {
+    await app.register(queueV2Plugin, {
+      redisURL: new URL(app.config.REDIS_CONNECTION_URL),
+    });
+  }
+
   await app.register(awsV2Plugin);
 
   app.setSchemaErrorFormatter((errors, dataVar) => {
