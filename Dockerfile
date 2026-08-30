@@ -53,7 +53,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 
 COPY apps/core/package.json apps/core/package.json
 COPY apps/core/tsconfig.json apps/core/tsconfig.json
-COPY apps/container/package.json apps/container/package.json
+COPY apps/web/package.json apps/web/package.json
 COPY apps/extension/package.json apps/extension/package.json
 COPY packages/connectors/package.json packages/connectors/package.json
 COPY packages/db/package.json packages/db/package.json
