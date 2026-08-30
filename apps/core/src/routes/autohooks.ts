@@ -7,7 +7,6 @@ const PUBLIC_ROUTES = [
   '/entities/components',
   '/entities/subjects/reviews/',
   '/entities/teachers/reviews/',
-  '/entities/teachers/summary/',
   '/entities/students/stats/components',
   '/entities/students/courses',
   '/public/stats/components',

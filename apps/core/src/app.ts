@@ -13,6 +13,7 @@ import backofficeController from './controllers/backoffice-controller.js';
 import componentsController from './controllers/components-controller.js';
 import { proxyController } from './controllers/proxy-controller.js';
 import studentsController from './controllers/students-controller.js';
+import { teacherSummaryController } from './controllers/teacher-summary-controller.js';
 import { UfabcParserIncomingWebhookController } from './controllers/ufabc-parser-webhook-controller.js';
 import { authenticateBoard } from './hooks/board-authenticate.js';
 import awsV2Plugin from './plugins/v2/aws.js';
@@ -60,6 +61,10 @@ export async function buildApp(
   await app.register(awsV2Plugin);
 
   await setupV2Routes(app, routesV2);
+
+  // Not part of routesV2: keeps its pre-existing unprefixed path
+  // (/entities/teachers/summary/:teacherId) for frontend compatibility.
+  await app.register(teacherSummaryController);
 
   app.setSchemaErrorFormatter((errors, dataVar) => {
     let message = `${dataVar}:`;
