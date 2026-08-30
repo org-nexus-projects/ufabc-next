@@ -1,63 +1,27 @@
-# UFABC Next Backend
+# Core API
 
-Repositório que contém todo o código que se refere ao backend que mantém o site de pé!
+`apps/core` é a API Fastify do UFABC Next e concentra integrações, persistência, filas e processamento de dados acadêmicos.
 
-## Ferramentas necessárias para rodar o projeto
+## Desenvolvimento local
 
-- Runtime: [Nodejs](https://nodejs.org/en), v24
-- Package Manager: [pnpm](https://pnpm.io/) v9
-- Conteinerização: [Docker](https://www.docker.com/) v24 e [Docker Compose](https://docs.docker.com/engine/reference/commandline/compose/) v2
-- Sistema Operacional: Pode usar o que preferir, garanto suporte a MacOS, Linux e WSL. Caso enfrente algum problema com Windows, clique [aqui](https://github.com/ufabc-next/ufabc-next-backend/issues/new) e descreva seu problema, para que possamos te auxiliar :)
+- Node.js `^24` e pnpm `^10` são requisitos do workspace.
+- Docker Compose fornece MongoDB, Redis e LocalStack para a API.
+- Variáveis de ambiente locais são necessárias para executar a aplicação.
 
-## Rodando o projeto
-
-Com as ferramentas necessárias instaladas, clone o repositório
+Na raiz do repositório:
 
 ```sh
-# Clone o repositório
-git clone https://github.com/ufabc-next/ufabc-next-backend.git
-
-# Vá para o diretório do repo
-cd ufabc-next-backend
-
-# instale as dependências na raiz
-pnpm i
-
-# Rode o comando `build` para que o código tenha acesso as libs internas
-pnpm build
-
-# Realize a copia das variaveis de ambiente para o arquivo .env
-cp -r apps/core/.env.example apps/core/.env.dev
-
-# Para utilizar o localstack e persistir os logs, instale
-https://github.com/localstack/awscli-local
-
-Atenção: O `awscli-local` é um wrapper para o AWS CLI.
-Certifique-se de que o AWS CLI original esteja instalado em seu sistema.
-(Ao instalar o awscli-local da maneira recomendada, o awscli normalmente já é instalado)
-
-# De `start` no projeto
-pnpm dev
-
-
-## O que temos no repo?
-
-O projeto tem os seguintes packages e apps, cada um desenvolvido com 100% Typescript
-
-### Apps
-- `core`: Uma api [Fastify](https://fastify.dev/), que contém todas as rotas do backend.
-
-### Packages
-
-- `common`: funções utilitárias que podem ser consumidas por um ou mais packages, logger do app é configurado aqui
-- `tsconfig`: `tsconfig.json`s utilizados ao longo do monorepo
-
-### Utilities
-
-Utilitários que o monorepo possui ja configurado
-- [Turborepo](https://turborepo.org/) para gerenciamento do monorepo
-- [TypeScript](https://www.typescriptlang.org/) para tipagem estática
-- [Biome](https://biomejs.dev/) Lint & format
-- [Node.js](https://nodejs.org/api/test.html) para realização de testes unitários
-- [Renovate](https://docs.renovatebot.com/) para manter a saúde das dependências do projeto
+pnpm --filter @next/core dev
 ```
+
+Esse fluxo inicia a API com a infraestrutura Docker local. Para executar o código fonte localmente, use:
+
+```sh
+pnpm --filter @next/core dev:local
+```
+
+Consulte `apps/core/package.json` para os scripts de build, testes, manutenção de banco e os requisitos de configuração.
+
+## Mudanças de contrato
+
+Contratos da API atingem schemas, handlers, persistência e o cliente em `packages/services`. Leia [AGENTS.md](AGENTS.md) antes de editar e mantenha esses pontos alinhados.
