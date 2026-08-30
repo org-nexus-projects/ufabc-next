@@ -11,8 +11,6 @@ const summarySchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'subjects',
       default: null,
-      // null = resumo agregado do professor (único caso hoje).
-      // reservado pra resumo por disciplina no futuro.
     },
     summary: { type: String, required: true },
     didacticQuality: { type: Number, min: 0, max: 5, default: null },
@@ -29,7 +27,6 @@ const summarySchema = new Schema(
   { timestamps: true }
 );
 
-// Mesmo índice já documentado em ufabc-next-ai/docs/sdd-comment-summary.md §8
 summarySchema.index(
   { teacher: 1, subject: 1, status: 1, createdAt: -1 },
   { name: 'SummaryTeacherLookupIndex' }

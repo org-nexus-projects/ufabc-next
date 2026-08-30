@@ -7,9 +7,6 @@ export default fp(async (app: FastifyInstance) => {
 
   app.post('/_test/token', async (request: FastifyRequest, reply: FastifyReply) => {
     const token = app.jwt.sign({
-      // Must be a valid ObjectId hex string: routes cast request.user._id
-      // straight into `new Types.ObjectId(...)` (e.g. GET /comments/:teacherId),
-      // and a non-hex literal like 'test-admin' throws a 500 there.
       _id: new Types.ObjectId().toString(),
       ra: 0,
       confirmed: true,

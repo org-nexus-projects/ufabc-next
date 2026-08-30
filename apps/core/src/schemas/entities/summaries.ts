@@ -21,7 +21,6 @@ export const teacherSummarySchema = {
             commentsCount: z.number().int(),
             oldestComment: z.coerce.date(),
             newestComment: z.coerce.date(),
-            promptVersion: z.string(),
             updatedAt: z.coerce.date(),
           }),
         },

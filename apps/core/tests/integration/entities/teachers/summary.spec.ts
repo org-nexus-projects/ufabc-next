@@ -78,8 +78,6 @@ describe('GET /entities/teachers/summary/:teacherId', () => {
   });
 
   it('returns the most recent summary when there are multiple', async () => {
-    // Rota faz cache por teacherId (5 min TTL) — usa professor à parte
-    // pra não colidir com o cache já aquecido pelo teste anterior.
     const teacherWithMultipleId = new Types.ObjectId();
     await TeacherModel.create({
       _id: teacherWithMultipleId,
