@@ -1,34 +1,35 @@
 export function getStudentId() {
-  const scripts = document.scripts;
-	const searchString = "todasMatriculas";
-	let studentId = null;
+  const { scripts } = document;
+  const searchString = 'todasMatriculas';
+  let studentId = null;
 
-	for (const script of Array.from(scripts)) {
-		const content = script.textContent || script.innerHTML;
-		if (content.includes(searchString)) {
-			const regex = /matriculas\[(\d+)\]/;
-			const match = content.match(regex);
+  for (const script of scripts) {
+    const content = script.textContent || script.innerHTML;
+    if (content.includes(searchString)) {
+      const regex = /matriculas\[(\d+)\]/;
+      const match = regex.exec(content);
 
-			if (match?.[1]) {
-				studentId = Number.parseInt(match[1], 10);
-				break; // Interrompe o loop quando o ID é encontrado
-			}
-		}
-	}
+      if (match?.[1]) {
+        studentId = Number.parseInt(match[1], 10);
+        // Interrompe o loop quando o ID é encontrado
+        break;
+      }
+    }
+  }
 
-	return studentId;
+  return studentId;
 }
 
 export function getStudentCourseId() {
-  const searchString = "cursoAluno";
+  const searchString = 'cursoAluno';
   let UFCourseId = null;
 
-  const scripts = document.scripts;
-  for (const script of Array.from(scripts)) {
+  const { scripts } = document;
+  for (const script of scripts) {
     const content = script.textContent || script.innerHTML;
     if (content.includes(searchString)) {
       const regex = /cursoAluno\s*=\s*(\d+)/;
-      const match = content.match(regex);
+      const match = regex.exec(content);
 
       if (match?.[1]) {
         UFCourseId = match[1];
@@ -36,7 +37,6 @@ export function getStudentCourseId() {
       }
     }
   }
-
 
   return UFCourseId;
 }

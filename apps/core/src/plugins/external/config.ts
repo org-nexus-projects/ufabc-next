@@ -22,6 +22,9 @@ const configSchema = z.object({
   CRONOS_URL: z.string().default('http://localhost:5173'),
   ALLOWED_ORIGINS: z.string().transform((origins) => origins.split(',')),
   UFABC_PARSER_URL: z.string(),
+  MOODLE_URL: z.string(),
+  SIGAA_URL: z.string(),
+  UFABC_MATRICULA_URL: z.string(),
   AWS_REGION: z.string(),
   AWS_ACCESS_KEY_ID: z.string(),
   NEXT_AGENT_URL: z.string(),
@@ -39,6 +42,9 @@ const configSchema = z.object({
     .transform((s) => s?.split(',')),
   AXIOM_TOKEN: z.string().optional(),
   AXIOM_DATASET: z.string().optional(),
+  MEMORY_SNAPSHOT_THRESHOLD_MB: z.coerce.number().default(750),
+  MEMORY_SAMPLE_INTERVAL_SECONDS: z.coerce.number().default(60),
+  MEMORY_SNAPSHOT_COOLDOWN_MINUTES: z.coerce.number().default(15),
   BOARD_PATH: z.string().optional(),
   NOTION_INTEGRATION_SECRET: z.string().default('notion_integration_secret'),
   NOTION_DATABASE_ID: z.string().default('notion_database_id'),
@@ -46,6 +52,7 @@ const configSchema = z.object({
   WEBHOOK_API_KEY: z.string().default('webhook-api-key'),
   UFABC_PARSER_WEBHOOK_SECRET: z.string().optional(),
   WHATSAPP_AUTH_SECRET: z.string().optional(),
+  INTERNAL_TOKEN: z.string().default('internal-token'),
 });
 
 const schema = zodToJsonSchema(configSchema);

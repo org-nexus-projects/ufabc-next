@@ -118,6 +118,7 @@ enrollmentSchema.index({
   cr_acumulado: 'asc',
   conceito: 'asc',
 });
+enrollmentSchema.index({ subject: 'asc', conceito: 'asc' });
 
 enrollmentSchema.pre('findOneAndUpdate', function () {
   const update = this.getUpdate();

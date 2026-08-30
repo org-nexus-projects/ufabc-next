@@ -8,8 +8,7 @@ type Season = {
 type QuadrimestreCalculationParams = {
   entranceQuad: string;
   trancamentos?: string[]; // List of quadrimestres with trancamento
-}
-
+};
 
 export function findQuadFromDate(month: number): number {
   if ([0, 1, 2, 10, 11].includes(month)) {
@@ -40,7 +39,7 @@ export function findSeasonKey(date: dayjs.Dayjs = dayjs()): string {
 
 export function findIdeais(date: dayjs.Dayjs = dayjs()): string[] {
   const quad = findQuadFromDate(date.month());
-  const ideais: Record<number,string[]> = {
+  const ideais: Record<number, string[]> = {
     1: [
       'BCM0506-15', // COMUNICACAO E REDES
       'BCJ0203-15', // ELETROMAG

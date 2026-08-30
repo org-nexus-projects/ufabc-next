@@ -25,6 +25,12 @@ export const authenticationController: FastifyPluginAsyncZod = async (app) => {
     handler: async (request, reply) => {
       const { component, token } = request.body;
 
+      request.log.debug({ component, path: request.url, globalTraceId: request.id }, 'Received WhatsApp auth token validation request');
+
+      if (!token) {
+        return reply.badRequest('Token is required');
+      }
+
       let decryptedPayload: string;
       try {
         const secret = app.config.WHATSAPP_AUTH_SECRET;
@@ -68,7 +74,7 @@ export const authenticationController: FastifyPluginAsyncZod = async (app) => {
 
         decryptedPayload = payload.data;
       } catch (error) {
-        request.log.warn({ error }, 'Failed to decrypt WhatsApp auth token');
+        request.log.warn({ error, globalTraceId: request.id }, 'Failed to decrypt WhatsApp auth token');
         return reply.unauthorized('Invalid or expired token');
       }
 
@@ -79,6 +85,8 @@ export const authenticationController: FastifyPluginAsyncZod = async (app) => {
 
       const ra = decryptedPayload.slice(0, separatorIndex);
       const email = decryptedPayload.slice(separatorIndex + 1);
+
+      request.log.debug({ ra, email, path: request.url, globalTraceId: request.id }, 'Decrypted WhatsApp auth token payload');
 
       if (!ra || !email) {
         return reply.badRequest('Invalid token payload');
@@ -112,7 +120,7 @@ export const authenticationController: FastifyPluginAsyncZod = async (app) => {
       });
 
       request.log.info(
-        { userId: user._id, ra: user.ra },
+        { userId: user._id, ra: user.ra, path: request.url, globalTraceId: request.id },
         'WhatsApp auth token validated successfully'
       );
 

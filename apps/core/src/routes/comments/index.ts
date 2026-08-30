@@ -57,6 +57,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
   app.post('/', { schema: createCommentSchema }, async (request, reply) => {
     const { enrollment: enrollmentId, comment, type } = request.body;
+    const user = request.user;
 
     if (!comment || !enrollmentId || !type) {
       return reply.badRequest('Body must have all obligatory fields');
@@ -66,6 +67,14 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     if (!enrollment) {
       return reply.notFound('Enrollment not found');
+    }
+
+    if (Number(user.ra) !== Number(enrollment.ra)) {
+      request.log.warn(
+        { userRa: user.ra, commentRa: enrollment.ra },
+        'Unauthorized comment creation attempt'
+      );
+      return reply.forbidden();
     }
 
     if (!enrollment.subject || !enrollment.ra) {
@@ -97,6 +106,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     { schema: updateCommentSchema },
     async (request, reply) => {
       const { commentId } = request.params;
+      const user = request.user;
 
       if (!commentId) {
         request.log.warn({ params: request.params }, 'Missing commentId');
@@ -108,6 +118,14 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       if (!comment) {
         request.log.warn(comment, 'Comment missing');
         return reply.notFound('Comment not found');
+      }
+
+      if (Number(user.ra) !== Number(comment.ra)) {
+        request.log.warn(
+          { userRa: user.ra, commentRa: comment.ra },
+          'Unauthorized comment update attempt'
+        );
+        return reply.forbidden();
       }
 
       comment.comment = request.body.comment;
@@ -123,6 +141,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     { schema: deleteCommentSchema },
     async (request, reply) => {
       const { commentId } = request.params;
+      const user = request.user;
 
       if (!commentId) {
         request.log.warn({ params: request.params }, 'Missing commentId');
@@ -134,6 +153,14 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       if (!comment) {
         request.log.warn(comment, 'Comment not found');
         return reply.notFound('Comment not found');
+      }
+
+      if (Number(user.ra) !== Number(comment.ra)) {
+        request.log.warn(
+          { userRa: user.ra, commentRa: comment.ra },
+          'Unauthorized comment delete attempt'
+        );
+        return reply.forbidden();
       }
 
       comment.active = false;

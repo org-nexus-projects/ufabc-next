@@ -105,6 +105,7 @@ const historySchema = new Schema<History, THistoryModel>(
 );
 
 historySchema.index({ curso: 'asc', grade: 'asc' });
+historySchema.index({ ra: 'asc', updatedAt: 'desc' });
 
 export const HistoryModel = model<History, THistoryModel>(
   'histories',

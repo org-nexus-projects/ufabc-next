@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getSubjectReviews, type SubjectReview } from '@/services/next';
 import { Chart , type ChartProps } from 'highcharts-vue';
+import { logger } from '@/utils/logger';
 import SubjectTeachersList from './SubjectTeachersList.vue';
 import { resolveColorForConcept } from '@/utils/grades-colors'
 
@@ -93,7 +94,7 @@ async function setupSubjectStats() {
       }, 500);
     }
   } catch(error) {
-    console.log('dialog error', error);
+    logger.error({ error }, 'dialog error');
     closeDialog();
   } finally {
     loading.value = false;

@@ -29,7 +29,7 @@ type GoogleAuthorizationQuery = {
 
 export default fp(
   async (app: FastifyInstance) => {
-    await app.register(fastifyOauth2, {
+    await app.register(fastifyOauth2 as any, {
       name: 'google',
       userAgent: 'UFABC next (2.0.0)',
       credentials: {

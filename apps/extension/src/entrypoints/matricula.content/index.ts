@@ -4,8 +4,10 @@ import UFABCMatricula from "@/entrypoints/matricula.content/UFABC-Matricula.vue"
 import HighchartsVue from "highcharts-vue";
 import { VueQueryPlugin } from "@tanstack/vue-query";
 import { sendMessage } from "@/messaging";
+import { logger } from "@/utils/logger";
 import type { ContentScriptContext } from "wxt/client";
 import { getStudent } from "@/services/next";
+import { Toaster } from "vue-sonner";
 
 export type UFABCMatriculaStudent = {
   studentId: number;
@@ -20,6 +22,8 @@ export default defineContentScript({
 
     const ui = await mountUFABCMatriculaFilters(ctx, sessionId, login);
     ui.mount();
+
+    mountToaster(ctx).mount();
 
     const $meio = document.querySelector<HTMLDivElement>("#meio");
     const $mountedUi = $meio?.firstChild as unknown as HTMLDivElement;
@@ -91,6 +95,22 @@ async function mountUFABCMatriculaFilters(ctx: ContentScriptContext, sessionId: 
   });
 }
 
+function mountToaster(ctx: ContentScriptContext) {
+  return createIntegratedUi(ctx, {
+    position: "inline",
+    anchor: "body",
+    append: "last",
+    onMount(wrapper) {
+      const app = createApp(Toaster, { position: "top-right" });
+      app.mount(wrapper);
+      return app;
+    },
+    onRemove(app) {
+      app?.unmount();
+    },
+  });
+}
+
 async function getToken() {
   try {
     const token = await sendMessage("getTokenMatricula", {
@@ -98,12 +118,12 @@ async function getToken() {
       pageURL: document.URL,
     });
     if (!token) {
-      console.error("Could not retrieve token, please try again");
+      logger.error("Could not retrieve token, please try again");
       return null;
     }
     return token.value;
   } catch (error) {
-    console.error("Failed to get matricula_rails_session from background script:", error);
+    logger.error({ error }, "Failed to get matricula_rails_session from background script");
     return null;
   }
 }

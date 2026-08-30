@@ -18,6 +18,8 @@
     "lint": "oxlint ./src || true"
   },
   "devDependencies": {
+    "@changesets/changelog-git": "catalog:",
+    "@changesets/cli": "catalog:",
     "@types/lodash-es": "catalog:",
     "@types/mustache": "catalog:",
     "@types/toastify-js": "catalog:",
@@ -29,9 +31,12 @@
     "unplugin-auto-import": "catalog:",
     "unplugin-vue-components": "catalog:",
     "vue-router": "^4.5.0",
-    "wxt": "catalog:"
+    "wxt": "catalog:",
+    "zod": "catalog:"
   },
   "dependencies": {
+    "@next/connectors": "workspace:*",
+    "@next/logger": "workspace:*",
     "@tanstack/vue-query": "^5.66.0",
     "@vueuse/core": "^11.1.0",
     "@vueuse/integrations": "catalog:",

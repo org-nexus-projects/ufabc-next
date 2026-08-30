@@ -13,19 +13,17 @@
     "docker:build": "docker compose -f ../../docker-compose.yml build core",
     "docker:up": "docker compose -f ../../docker-compose.yml up -d core",
     "docker:logs": "docker compose -f ../../docker-compose.yml logs -f core",
-    "build": "rimraf dist && NODE_PATH=./node_modules:$NODE_PATH tspc || true",
+    "build": "rimraf dist && NODE_PATH=./node_modules:$NODE_PATH tspc",
     "tsc": "tsgo",
     "start": "node --env-file=${ENV_FILE:-../../.env} dist/server.js",
     "start:local": "pnpm build && node --env-file=${ENV_FILE:-../../.env} dist/server.js",
     "test": "vitest",
-    "test:watch": "vitest watch",
-    "db:deduplicate:preview": "tsx src/scripts/db/maintenance/deduplicate-preview.ts",
-    "db:deduplicate:backup": "tsx src/scripts/db/maintenance/backup-pre-deduplication.ts",
-    "db:deduplicate": "tsx src/scripts/db/maintenance/deduplicate.ts"
+    "test:watch": "vitest watch"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
     "@aws-sdk/client-ses": "catalog:",
+    "@aws-sdk/s3-request-presigner": "catalog:",
     "@axiomhq/pino": "catalog:",
     "@bull-board/api": "catalog:",
     "@bull-board/fastify": "catalog:",
@@ -42,6 +40,7 @@
     "@fastify/sensible": "catalog:",
     "@fastify/swagger": "catalog:",
     "@fastify/swagger-ui": "catalog:",
+    "@next/logger": "workspace:*",
     "@next/utils": "workspace:*",
     "@next/db": "workspace:*",
     "@next/queues": "workspace:*",
@@ -64,7 +63,7 @@
     "zod-openapi": "catalog:",
     "zod-to-json-schema": "catalog:"
   },
-  "devDependencies": {
+"devDependencies": {
     "@aws-sdk/types": "catalog:",
     "@next/testing": "workspace:*",
     "@next/config": "workspace:*",
@@ -73,6 +72,7 @@
     "@types/ms": "catalog:",
     "@types/node": "catalog:",
     "fastify-tsconfig": "catalog:",
+    "ioredis": "^5.11.1",
     "pino-pretty": "catalog:",
     "rimraf": "catalog:",
     "testcontainers": "catalog:",

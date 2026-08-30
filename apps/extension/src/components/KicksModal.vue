@@ -111,7 +111,7 @@
 
 <script setup lang="ts">
 import { getKicksInfo, MatriculaStudent } from '@/services/next';
-import { getUFComponents, type UFSeasonComponents } from '@/services/ufabc-parser';
+import { getUFComponents, type UfabcParserComponent } from '@/services/ufabc-parser';
 import { findIdeais, findSeasonKey } from '@/utils/season';
 import { orderBy } from 'lodash-es';
 import { Info } from 'lucide-vue-next'
@@ -172,7 +172,7 @@ const headers = ref<Headers[]>([])
 const { state: matriculaStudent } = useStorage<MatriculaStudent>('local:fullStudent')
 const matriculas = inject<typeof window.matriculas>('matriculas')
 
-const component = ref({} as UFSeasonComponents)
+const component = ref({} as UfabcParserComponent)
 
 const { data: ufabcComponents } = useQuery({
   queryKey: ['ufabcComponents'],
@@ -193,7 +193,7 @@ const { data: kicksData, isError, error } = useQuery({
 const criteriaContent = "Os critérios são definidos com base nos critérios abaixo e seu peso, você pode alterar o peso arrastando o critérios para que fiquem na ordem desejada."
 
 const defaultHeaders = computed(() => {
-  const isIdeal = findIdeais().includes(component.value?.UFComponentId?.toString() ?? '')
+  const isIdeal = findIdeais().includes(component.value?.ufComponentId?.toString() ?? '')
   const base = [
     { text: 'Reserva', sortable: false, value: 'reserva' },
     { text: 'Turno', value: 'turno', sortable: false },
@@ -237,7 +237,7 @@ function resort() {
 
   const turnoIndex = sortOrder.indexOf('turno')
   if (turnoIndex !== -1) {
-    sortRef[turnoIndex] = component.value?.turno === 'diurno' ? 'asc' : 'desc'
+    sortRef[turnoIndex] = component.value?.shift === 'morning' ? 'asc' : 'desc'
   }
 
   kicks.value = orderBy(kicks.value, sortOrder, sortRef)
@@ -277,7 +277,7 @@ watch(() => props.isOpen, async (newIsOpen) => {
   if (newIsOpen && props.corteId) {
     headers.value = defaultHeaders.value;
     const match = ufabcComponents.value?.find(c =>
-      c.UFComponentId === Number.parseInt(props.corteId!)
+      c.ufComponentId === Number.parseInt(props.corteId!)
     );
     if (match) {
       component.value = match;

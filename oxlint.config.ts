@@ -1,60 +1,97 @@
-import core from "ultracite/oxlint/core";
-import { defineConfig } from "oxlint";
+import { defineConfig } from 'oxlint';
+import core from 'ultracite/oxlint/core';
 
 export default defineConfig({
   extends: [core],
-  rules: {
-    complexity: ['error', 25],
-    'eslint/complexity': ['error', { max: 35 }],
-    'func-style': ['error', 'declaration'],
-    'import/consistent-type-specifier-style': ['error'],
-    'typescript/array-type': ['error', { default: 'array-simple' }],
-    'typescript/consistent-type-definitions': ['error', 'type'],
-  },
   ignorePatterns: [
     ...(core.ignorePatterns ?? []),
-    "**/tmp",
-    "**/temp",
-    "**/debug.js",
-    "stats.html",
-    "stats-*.json",
-    "codegen.ts",
-    "**/assets/**/*.js",
-    "**/assets/**/*.css",
-    "**/assets/**/*.html",
-    "**/*.min.*",
+    '**/tmp',
+    '**/temp',
+    '**/debug.js',
+    'stats.html',
+    'stats-*.json',
+    'codegen.ts',
+    '**/assets/**/*.js',
+    '**/assets/**/*.css',
+    '**/assets/**/*.html',
+    '**/*.min.*',
   ],
   options: {
     typeAware: true,
-    typeCheck: false,
+    typeCheck: true,
   },
   overrides: [
     {
-      files: ["apps/core/**/*.ts"],
       env: {
-        node: true,
-        browser: false,
+        browser: true,
       },
-    },
-    {
       files: ["apps/web/**/*.ts", "apps/web/**/*.vue"],
-      env: {
-        browser: true,
-      },
     },
     {
-      files: ["apps/extension/**/*.ts", "apps/extension/**/*.vue"],
       env: {
+        browser: true,
         webextensions: true,
-        browser: true,
       },
+      files: ["apps/extension/**/*.ts", "apps/extension/**/*.vue"],
     },
     {
-      files: ["packages/**/*.ts"],
       env: {
         node: true,
+      },
+      files: ["packages/**/*.ts"],
+    },
+    {
+      files: ['apps/core/**/*.ts'],
+    },
+    {
+      env: {
         browser: true,
+      },
+      files: ['apps/container/**/*.ts', 'apps/container/**/*.vue'],
+      rules: {
+        'unicorn/filename-case': 'off',
+      },
+    },
+    {
+      env: {
+        browser: true,
+        webextensions: true,
+      },
+      files: ['apps/extension/**/*.ts', 'apps/extension/**/*.vue'],
+      rules: {
+        'unicorn/filename-case': 'off',
+      },
+    },
+    {
+      env: {
+        browser: true,
+        node: true,
+      },
+      files: ['packages/**/*.ts'],
+    },
+    {
+      files: ['**/*-controller.ts', '**/hooks/*.ts'],
+      rules: {
+        'func-style': 'off',
+        'require-await': 'off',
+      },
+    },
+    {
+      files: ['apps/core/src/connectors/**/*.ts'],
+      rules: {
+        'eslint/no-constructor-return': 'off',
+        'unicorn/no-this-assignment': 'off',
       },
     },
   ],
+  rules: {
+    complexity: ['error', 25],
+    eqeqeq: ['error', 'always', { null: 'ignore' }],
+    'eslint/complexity': ['error', { max: 35 }],
+    'func-style': ['error', 'declaration'],
+    'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
+    'no-eq-null': 'off',
+    'typescript/array-type': ['error', { default: 'array-simple' }],
+    'typescript/consistent-type-definitions': ['error', 'type'],
+  },
 });

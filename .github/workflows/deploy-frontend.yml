@@ -19,14 +19,16 @@ jobs:
     env:
       MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
       VITE_MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
+      VITE_AXIOM_TOKEN: ${{ secrets.WEB_AXIOM_INGEST_TOKEN }}
+      VITE_AXIOM_DATASET: ${{ secrets.WEB_AXIOM_DATASET }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: us-east-1
       AWS_S3_BUCKET_NAME: ${{ github.ref == 'refs/heads/main' && secrets.AWS_S3_BUCKET_NAME_PRD  || secrets.AWS_S3_BUCKET_NAME_HOM }}
       AWS_DISTRIBUTION_ID: ${{ github.ref == 'refs/heads/main' && secrets.AWS_DISTRIBUTION_ID_PRD  || secrets.AWS_DISTRIBUTION_ID_HOM }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v6
         with:
           node-version: 24

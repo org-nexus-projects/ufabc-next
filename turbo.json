@@ -1,24 +1,18 @@
 {
-  "$schema": "https://turbo.build/schema.json",
+  "$schema": "./node_modules/turbo/schema.json",
   "ui": "tui",
   "globalDependencies": [
     ".env"
   ],
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "dist/**",
-        ".output/**"
-      ],
-      "cache": true
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".output/**"],
+      "cache": true,
+      "env": ["VITE_*"]
     },
     "dev": {
-      "dependsOn": [
-        "^build"
-      ],
+      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
     },
@@ -29,8 +23,15 @@
       "cache": false
     },
     "tsc": {
+      "dependsOn": ["^build"],
       "cache": true,
       "outputLogs": "errors-only"
+    },
+    "zip": {
+      "env": ["VITE_*"]
+    },
+    "zip:firefox": {
+      "env": ["VITE_*"]
     }
   }
 }

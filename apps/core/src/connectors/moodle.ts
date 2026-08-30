@@ -1,5 +1,7 @@
 import { setTimeout as sleep } from 'node:timers/promises';
 
+import { logger as defaultLogger } from '@/utils/logger.js';
+
 import { BaseRequester } from './base-requester.js';
 
 type MoodleResponse = {
@@ -39,21 +41,34 @@ export type MoodleComponent = {
   };
 };
 
+export type MoodleConnectorOptions = {
+  globalTraceId?: string;
+};
+
+let moodleConnectorInstance: MoodleConnector | null = null;
+
 export class MoodleConnector extends BaseRequester {
   private lastRequestTime = 0;
   private readonly minRequestInterval = 300;
 
-  constructor() {
-    super('https://moodle.ufabc.edu.br');
+  // singleton constructor: returns the cached instance instead of constructing a new one
+  constructor(options: MoodleConnectorOptions = {}) {
+    if (moodleConnectorInstance) {
+      return moodleConnectorInstance;
+    }
+
+    super('https://moodle.ufabc.edu.br', options.globalTraceId);
+
+    moodleConnectorInstance = this;
   }
 
   async validateToken(sessionId: string, sessKey: string) {
     const body = [
       {
+        args: { classification: 'all', limit: 1, offset: 0 },
         index: 0,
         methodname:
           'core_course_get_enrolled_courses_by_timeline_classification',
-        args: { offset: 0, limit: 1, classification: 'all' },
       },
     ];
 
@@ -62,16 +77,16 @@ export class MoodleConnector extends BaseRequester {
     headers.set('Content-Type', 'application/json');
     headers.set('X-Requested-With', 'XMLHttpRequest');
 
-    const response = await this.request<Array<MoodleResponse>>(
+    const response = await this.request<MoodleResponse[]>(
       '/lib/ajax/service.php?',
       {
+        body,
+        headers,
         method: 'POST',
         query: {
           sesskey: sessKey,
         },
-        headers,
-        body,
-        timeout: 5_000,
+        timeout: 5000,
       }
     );
 
@@ -82,23 +97,23 @@ export class MoodleConnector extends BaseRequester {
     const headers = new Headers();
     headers.set('Cookie', `MoodleSession=${sessionId}`);
 
-    const response = await this.request<Array<MoodleComponent>>(
+    const response = await this.request<MoodleComponent[]>(
       '/lib/ajax/service.php',
       {
+        body: [
+          {
+            args: { classification: 'all', limit: 0, offset: 0 },
+            index: 0,
+            methodname:
+              'core_course_get_enrolled_courses_by_timeline_classification',
+          },
+        ],
+        credentials: 'include',
+        headers,
         method: 'POST',
         query: {
           sesskey: sessKey,
         },
-        headers,
-        credentials: 'include',
-        body: [
-          {
-            index: 0,
-            methodname:
-              'core_course_get_enrolled_courses_by_timeline_classification',
-            args: { offset: 0, limit: 0, classification: 'all' },
-          },
-        ],
       }
     );
     return response;
@@ -109,12 +124,65 @@ export class MoodleConnector extends BaseRequester {
     headers.set('Cookie', `MoodleSession=${sessionId}`);
 
     const response = await this.request<string>(url, {
-      headers,
       credentials: 'include',
-      responseType: 'text',
+      headers,
       query: {
         id,
       },
+      responseType: 'text',
+    });
+
+    return response;
+  }
+
+  async getUserPage(sessionId: string) {
+    const headers = new Headers();
+    headers.set('Cookie', `MoodleSession=${sessionId}`);
+
+    const response = await this.request<string>('/user/profile.php', {
+      credentials: 'include',
+      headers,
+      method: 'GET',
+      responseType: 'text',
+      timeout: 10_000,
+    });
+
+    return response;
+  }
+
+  async getUsersByCoursePage(
+    sessionId: string,
+    courseId: number
+  ): Promise<string | null> {
+    const headers = new Headers();
+    headers.set('Cookie', `MoodleSession=${sessionId}`);
+
+    try {
+      return await this.request<string>('/user/index.php', {
+        headers,
+        method: 'GET',
+        query: { id: courseId, roleid: 3 },
+        responseType: 'text',
+        timeout: 10_000,
+      });
+    } catch (error) {
+      (this.getLogger() ?? defaultLogger.child({ connector: true })).warn(
+        { courseId, error },
+        'Failed to fetch course participants page'
+      );
+      return null;
+    }
+  }
+
+  async downloadFile(url: string, sessionId: string): Promise<ArrayBuffer> {
+    await this.rateLimit();
+
+    const headers = new Headers();
+    headers.set('Cookie', `MoodleSession=${sessionId}`);
+
+    const response = await this.request<ArrayBuffer>(url, {
+      headers,
+      responseType: 'arrayBuffer',
     });
 
     return response;
@@ -140,14 +208,14 @@ export class MoodleConnector extends BaseRequester {
       let contentType: string | null = null;
 
       const response = await this.requestRaw(url, {
-        method: 'HEAD',
         headers: {
           Cookie: `MoodleSession=${sessionId}`,
           sesskey: sessionKey,
         },
+        method: 'HEAD',
         retry: 1,
         retryDelay: 500,
-        timeout: 10000,
+        timeout: 10_000,
       });
 
       finalUrl = response.url || url;
@@ -158,25 +226,25 @@ export class MoodleConnector extends BaseRequester {
         finalUrl.toLowerCase().endsWith('.pdf');
 
       return {
-        isPdf,
         finalUrl: isPdf ? finalUrl : undefined,
+        isPdf,
       };
-    } catch (error) {
+    } catch {
       // Some servers don't support HEAD requests, try GET with range header
       try {
         let finalUrl = url;
         let contentType: string | null = null;
 
         const response = await this.requestRaw(url, {
-          method: 'GET',
           credentials: 'include',
           headers: {
             Cookie: `MoodleSession=${sessionId}`,
-            sesskey: sessionKey,
             Range: 'bytes=0-0', // Only get first byte
+            sesskey: sessionKey,
           },
+          method: 'GET',
           retry: 0,
-          timeout: 10000,
+          timeout: 10_000,
         });
 
         finalUrl = response.url || url;
@@ -187,12 +255,12 @@ export class MoodleConnector extends BaseRequester {
           finalUrl.toLowerCase().endsWith('.pdf');
 
         return {
-          isPdf,
           finalUrl: isPdf ? finalUrl : undefined,
+          isPdf,
         };
       } catch {
         // If both fail, it's likely not accessible or not a PDF
-        return { isPdf: false, finalUrl: undefined };
+        return { finalUrl: undefined, isPdf: false };
       }
     }
   }

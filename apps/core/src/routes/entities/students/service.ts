@@ -8,6 +8,7 @@ import { ComponentModel } from '@/models/Component.js';
 import { HistoryModel } from '@/models/History.js';
 import { StudentModel, type Student } from '@/models/Student.js';
 import { logger } from '@/utils/logger.js';
+import { findRaByLogin } from '@/utils/resolve-student-ra.js';
 
 export async function getComponentsStudentsStats(
   season: string,
@@ -144,15 +145,24 @@ export async function update({
 }: UpdateStudent): Promise<UpdatedStudent | null> {
   const season = currentQuad();
   logger.info({ ra, login, studentId, graduationId });
+
+  const resolvedRa = await findRaByLogin(login);
+
+  if (!resolvedRa) {
+    return null;
+  }
+
   const student = await StudentModel.findOne({
-    login,
+    ra: resolvedRa,
     season,
   });
+
+  if (!student) {
+    return null;
+  }
+
   const historyComponents = await HistoryModel.findOne(
-    {
-      // @ts-ignore fix later
-      ra: student.ra,
-    },
+    { ra: student.ra },
     { disciplinas: 1, _id: 0 }
   )
     .sort({
@@ -160,7 +170,7 @@ export async function update({
     })
     .lean();
 
-  if (!student || !historyComponents) {
+  if (!historyComponents) {
     return null;
   }
 
