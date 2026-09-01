@@ -111,7 +111,32 @@ async function handleStudentSynced(
     });
   }
 
-  await upsertStudentRecord(data, season);
+  const login =
+    studentSync?.timeline?.[0]?.metadata?.login ?? null;
+
+  if (!login) {
+    app.log.warn(
+      { deliveryId, ra: data.ra },
+      'No login found in StudentSync timeline, skipping student record upsert'
+    );
+
+    await processingJob.markFailed(
+      {
+        code: 'MISSING_LOGIN',
+        message: 'No login found in StudentSync timeline',
+      },
+      { source: 'webhook' }
+    );
+
+    return {
+      success: false,
+      deliveryId,
+      event: 'student.synced',
+      message: 'No login found for student',
+    };
+  }
+
+  await upsertStudentRecord(data, season, login);
   await createHistoryRecord(data);
 
   await processingJob.transition('completed', {
@@ -196,7 +221,8 @@ async function handleStudentFailed(
 
 async function upsertStudentRecord(
   data: z.infer<typeof StudentSyncedEventSchema>['data'],
-  season: string
+  season: string,
+  login: string
 ) {
   const { student, coefficients, ra } = data;
   const courseData: StudentCourse = {
@@ -211,7 +237,7 @@ async function upsertStudentRecord(
   await StudentModel.updateOne(
     { ra: Number(ra), season },
     {
-      login: ra,
+      login,
       $push: { cursos: courseData },
     },
     { upsert: true }

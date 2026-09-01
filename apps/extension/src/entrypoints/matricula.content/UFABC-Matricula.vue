@@ -36,6 +36,14 @@ const sessionMutation = useMutation({
     const studentId = getStudentId();
     const graduationId = getStudentCourseId();
 
+    if (!studentId || !graduationId || !login) {
+      logger.warn(
+        { studentId, graduationId, login },
+        "Could not parse student info from page"
+      );
+      return;
+    }
+
     await syncMatriculaStudent(sessionId, {
       studentId,
       login,
