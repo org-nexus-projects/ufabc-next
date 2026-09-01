@@ -1,7 +1,7 @@
 {
   "name": "@next/extension",
   "private": true,
-  "version": "2.2.2",
+  "version": "2.3.0",
   "description": "Adiciona funcionalidades novas em sistemas da UFABC",
   "type": "module",
   "scripts": {
