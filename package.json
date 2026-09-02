@@ -5,12 +5,13 @@
   "packageManager": "pnpm@10.33.2",
   "scripts": {
     "build": "turbo run build --continue",
-    "dev": "turbo run dev",
-    "dev:watch": "turbo watch dev --experimental-write-cache --filter=@next/db --filter=@next/logger --filter=@next/queues --filter=@next/testing --filter=@next/utils --filter=@next/container --filter=@next/extension",
+    "dev": "node scripts/dev.mjs",
+    "dev:all": "turbo run dev",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "test": "turbo run test",
-    "tsc": "turbo run tsc"
+    "tsc": "turbo run tsc --parallel",
+    "validate": "turbo run lint tsc test build --continue"
   },
   "devDependencies": {
     "@typescript/native-preview": "catalog:",

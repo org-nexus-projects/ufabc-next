@@ -6,6 +6,8 @@ import { defineConfig } from 'wxt';
 const extensionKey =
   'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlg7ae7OuGQW9cQU3/qbuewZ6DdTjc1yDXtiwdwoOwgF/CByfjX+yf4addlXcxnLjXVBWwSvRj78mv03lLBjkeh63ia4t/BIzzzvciZyZAKEasC5rt0M6+MKVbkKQS9JGGVFsBiBQcQ6kUP8R4cpWX1G9uEhnshdF+u4Nrs7gq9uXIPZ4pf9PhI/IsPyAsv0m5uO4EHhIMtAp8pFyJfECWWSLchlBoGlaaCyf+fT6SYDsWaw53AcwT5jOJfxdQsoGRKGI5UW8V9+Mw+EDdpTpi7f8E5k604EMqZwmzhYLiXcuUqxeXbNZkyTsUNHXTQFcpNUdmisfjiT50kcxVZVc9wIDAQAB';
 
+const nextApiBaseUrl = process.env.NEXT_API_BASE_URL ?? 'https://api.v2.ufabcnext.com';
+
 export default defineConfig({
   dev: {
     server: {
@@ -13,18 +15,22 @@ export default defineConfig({
     },
   },
   manifest: {
-    name: 'UFABC next',
     host_permissions: [
+      'http://localhost:5000/*',
       'https://sig.ufabc.edu.br/*',
       'https://matricula.ufabc.edu.br/*',
       'https://moodle.ufabc.edu.br/*',
     ],
     key: extensionKey,
+    name: 'UFABC next',
     permissions: ['storage', 'cookies'],
   },
   modules: ['@wxt-dev/module-vue'],
   srcDir: 'src',
   vite: () => ({
+    define: {
+      __NEXT_API_BASE_URL__: JSON.stringify(nextApiBaseUrl),
+    },
     plugins: [
       AutoImport({
         resolvers: [ElementPlusResolver({ importStyle: 'css' })],

@@ -9,14 +9,14 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "pnpm docker:up && pnpm docker:logs",
-    "dev:local": "tsx watch --env-file=.env src/server.ts",
+    "dev:local": "tsx watch --env-file=${ENV_FILE:-../../.env} src/server.ts",
     "docker:build": "docker compose -f ../../docker-compose.yml build core",
     "docker:up": "docker compose -f ../../docker-compose.yml up -d core",
     "docker:logs": "docker compose -f ../../docker-compose.yml logs -f core",
     "build": "rimraf dist && NODE_PATH=./node_modules:$NODE_PATH tspc",
     "tsc": "tsgo",
-    "start": "node --env-file=.env.prod dist/server.js",
-    "start:local": "pnpm build && node --env-file=.env.prod dist/server.js",
+    "start": "node --env-file=${ENV_FILE:-../../.env} dist/server.js",
+    "start:local": "pnpm build && node --env-file=${ENV_FILE:-../../.env} dist/server.js",
     "test": "vitest",
     "test:watch": "vitest watch"
   },

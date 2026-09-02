@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'apps/container/**'
+      - 'apps/web/**'
       - 'apps/static/**'
       - 'packages/services/**'
       - 'packages/utils/**'
@@ -37,14 +37,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build container
-        run: pnpm turbo run build --filter=@next/container
+      - name: Build web
+        run: pnpm turbo run build --filter=@next/web
 
       - name: Sync static with S3
         run: aws s3 sync apps/static s3://$AWS_S3_BUCKET_NAME --exclude '.gitkeep'
 
-      - name: Sync container with S3
-        run: aws s3 sync apps/container/dist s3://$AWS_S3_BUCKET_NAME/app
+      - name: Sync web with S3
+        run: aws s3 sync apps/web/dist s3://$AWS_S3_BUCKET_NAME/app
 
       - name: Invalidate CloudFront cache
         run: aws cloudfront create-invalidation --distribution-id $AWS_DISTRIBUTION_ID --paths "/*"
