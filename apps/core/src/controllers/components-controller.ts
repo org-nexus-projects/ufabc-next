@@ -170,6 +170,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
                 teoria: { $arrayElemAt: ['$teoriaTeacher.name', 0] },
                 turma: '$turma',
                 uf_cod_turma: '$uf_cod_turma',
+                origin_key: '$origin_key',
                 vagas: '$vagas',
               },
             },
