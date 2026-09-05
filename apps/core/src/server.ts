@@ -13,7 +13,6 @@ const appOptions = {
   requestIdLogLabel: 'globalTraceId',
   genReqId: () => randomUUID(),
   pluginTimeout: 35_000,
-  trustProxy: true,
 } satisfies FastifyServerOptions;
 
 
