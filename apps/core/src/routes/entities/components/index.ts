@@ -35,22 +35,19 @@ const validateStudent: preHandlerAsyncHookHandler = async (request, reply) => {
 };
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
-  const componentsListCache = app.cache<NonPaginatedComponents[]>();
-
   app.get('/', async (request, reply) => {
     // @ts-ignore
-    const cacheKey = `list:components:${request.query.season}`;
+    const season = request.query.season ?? currentQuad();
+    const cacheKey = `list:components:legacy:${season}`;
 
-    const cachedResponse = componentsListCache.get(cacheKey);
+    const cachedResponse =
+      await request.redisService.getJSON<NonPaginatedComponents[]>(cacheKey);
     if (cachedResponse) {
       return cachedResponse;
     }
 
     const components = await ComponentModel.find(
-      {
-        // @ts-ignore
-        season: request.query.season ?? currentQuad(),
-      },
+      { season },
       {
         _id: 0,
         codigo: 1,
@@ -88,7 +85,11 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       praticaId: component.pratica?._id.toString(),
     }));
 
-    // componentsListCache.set(cacheKey, nonPaginatedComponents);
+    await request.redisService.setJSON(
+      cacheKey,
+      nonPaginatedComponents,
+      '5m'
+    );
 
     return nonPaginatedComponents;
   });
