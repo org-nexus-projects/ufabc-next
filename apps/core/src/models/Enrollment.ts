@@ -18,6 +18,10 @@ const enrollmentSchema = new Schema(
       type: Number,
       required: true,
     },
+    active: {
+      type: Boolean,
+      default: true,
+    },
     disciplina: {
       type: String,
       required: true,

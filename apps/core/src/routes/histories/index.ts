@@ -11,7 +11,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       _id: string;
       ids: string[];
     }>([
-      { $match: { season } },
+      { $match: { season, active: { $ne: false } } },
       { $unwind: '$cursos' },
       { $match: { 'cursos.id_curso': { $ne: null } } },
       {

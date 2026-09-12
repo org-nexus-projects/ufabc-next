@@ -252,6 +252,7 @@ async function updateHistoryRecords(
     coefficients,
     disciplinas: components,
     graduation: graduation?._id ?? null,
+    active: true,
   };
 
   await Promise.all([
@@ -447,6 +448,7 @@ async function upsertEnrollment(
 ): Promise<void> {
   // @ts-ignore - Mongoose FilterQuery type
   const base: FilterQuery<Enrollment> = {
+    active: { $ne: false },
     ra: enrollmentData.ra,
     season: enrollmentData.season,
   };

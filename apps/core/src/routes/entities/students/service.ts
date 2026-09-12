@@ -38,6 +38,9 @@ export async function getComponentsStudentsStats(
 export async function getAllCourses() {
   const courses = await StudentModel.aggregate([
     {
+      $match: { active: { $ne: false } },
+    },
+    {
       $unwind: '$cursos',
     },
     {
@@ -82,13 +85,18 @@ export async function getStudent(filter: FilterQuery<Student>) {
   const student: Student | null = await StudentModel.findOne({
     ...filter,
     season,
+    active: { $ne: false },
   }).lean();
 
   return student;
 }
 
 export async function getGraduation(ra: number, name: string) {
-  const history = await HistoryModel.findOne({ ra, curso: name }).sort({
+  const history = await HistoryModel.findOne({
+    ra,
+    curso: name,
+    active: { $ne: false },
+  }).sort({
     updatedAt: -1,
   });
 
@@ -130,7 +138,7 @@ export async function createOrInsert({
       ra,
       season,
     },
-    { ra, login, cursos: graduations },
+    { $set: { ra, login, cursos: graduations, active: true } },
     { new: true, upsert: true }
   );
 
@@ -155,6 +163,7 @@ export async function update({
   const student = await StudentModel.findOne({
     ra: resolvedRa,
     season,
+    active: { $ne: false },
   });
 
   if (!student) {
@@ -162,7 +171,7 @@ export async function update({
   }
 
   const historyComponents = await HistoryModel.findOne(
-    { ra: student.ra },
+    { ra: student.ra, active: { $ne: false } },
     { disciplinas: 1, _id: 0 }
   )
     .sort({

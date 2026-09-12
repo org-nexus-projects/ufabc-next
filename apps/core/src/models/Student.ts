@@ -29,6 +29,7 @@ const coursesSchema = new Schema(
 const studentSchema = new Schema(
   {
     ra: { type: Number, required: true },
+    active: { type: Boolean, default: true },
     login: { type: String, required: true },
     aluno_id: { type: Number, required: false },
     cursos: [coursesSchema],
