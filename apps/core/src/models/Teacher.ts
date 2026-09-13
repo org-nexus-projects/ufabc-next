@@ -48,11 +48,16 @@ export function findBestLevenshteinMatch(
   let bestDistance = Infinity;
 
   for (const teacher of candidates) {
-    const teacherNorm = normalizeName(teacher.name);
-    const distance = levenshteinDistance(normalizedName, teacherNorm);
-    if (distance <= threshold && distance < bestDistance) {
-      bestDistance = distance;
-      bestMatch = teacher;
+    const knownNames = [teacher.name, ...teacher.alias];
+    for (const knownName of knownNames) {
+      const distance = levenshteinDistance(
+        normalizedName,
+        normalizeName(knownName)
+      );
+      if (distance <= threshold && distance < bestDistance) {
+        bestDistance = distance;
+        bestMatch = teacher;
+      }
     }
   }
 
@@ -133,7 +138,9 @@ export async function findTeacher(
     return teacherCache.get(normalizedName)!;
   }
 
-  const teacher = await TeacherModel.findOne({ name: normalizedName });
+  const teacher = await TeacherModel.findOne({
+    $or: [{ name: normalizedName }, { alias: normalizedName }],
+  });
 
   if (!teacher) {
     const allTeachers = await TeacherModel.find({});
