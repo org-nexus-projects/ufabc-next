@@ -1,5 +1,6 @@
 <template>
-  <Transition name="ai-crossfade" mode="default">
+  <div class="ai-summary-wrapper">
+    <Transition name="ai-crossfade" mode="default">
     <v-container v-if="showSkeleton" key="skeleton" class="pa-0">
       <v-row align="start" justify="start" class="ma-0">
         <v-col
@@ -112,7 +113,8 @@
         </v-col>
       </v-row>
     </v-container>
-  </Transition>
+    </Transition>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -225,9 +227,20 @@ const badges = computed(() => {
   height: 36px;
 }
 
+.ai-summary-wrapper {
+  position: relative;
+}
+
 .ai-crossfade-enter-active,
 .ai-crossfade-leave-active {
   transition: opacity 0.35s ease;
+}
+
+.ai-crossfade-leave-active {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
 }
 
 .ai-crossfade-enter-from,
