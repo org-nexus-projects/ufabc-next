@@ -232,15 +232,40 @@ Opciones de apps (pelo menos um obrigatório):
 
 Opções adicionais:
   --jobs [on|off]        Ativa/desativa jobs do backend (padrão: on)
+  --no-install           Pula o "pnpm i" das apps selecionadas antes de iniciar
   --help                 Mostra esta mensagem
 
 Exemplos:
   pnpm dev --web dev --core --extension prod
   pnpm dev --core --jobs off
   pnpm dev --web prod
+  pnpm dev --core --no-install
   pnpm dev                # Menu interativo
 `);
 };
+
+const installDependencies = (selectedApps) =>
+  new Promise((resolve, reject) => {
+    process.stdout.write('\n📦 Atualizando dependências (pnpm i)...\n\n');
+
+    const filterArgs = selectedApps.flatMap((app) => ['--filter', `@next/${app}...`]);
+    const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
+
+    const child = spawn(pnpm, ['install', ...filterArgs], {
+      cwd: workspaceRoot,
+      stdio: 'inherit',
+    });
+
+    child.once('error', reject);
+    child.once('exit', (code) => {
+      if (code === 0) {
+        resolve();
+        return;
+      }
+
+      reject(new Error(`pnpm install falhou (código ${code})`));
+    });
+  });
 
 const parseCliArgs = (args) => {
   const result = {
@@ -248,6 +273,7 @@ const parseCliArgs = (args) => {
     core: false,
     extension: null,
     jobsEnabled: true,
+    install: true,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -290,6 +316,8 @@ const parseCliArgs = (args) => {
       } else {
         throw new Error(`Valor inválido para --jobs: "${next}". Esperado: on ou off`);
       }
+    } else if (arg === '--no-install') {
+      result.install = false;
     } else if (!arg.startsWith('--')) {
       throw new Error(`Argumento desconhecido: "${arg}"`);
     }
@@ -301,7 +329,7 @@ const parseCliArgs = (args) => {
 const run = async () => {
   // Parse CLI arguments
   const cliArgs = process.argv.slice(2);
-  let selectedApps, appTargets, jobsEnabled;
+  let selectedApps, appTargets, jobsEnabled, installDeps;
 
   if (cliArgs.length > 0) {
     // CLI mode
@@ -322,6 +350,7 @@ const run = async () => {
     if (cliConfig.extension) appTargets.set('extension', cliConfig.extension);
 
     jobsEnabled = cliConfig.jobsEnabled;
+    installDeps = cliConfig.install;
   } else {
     // Interactive mode (fallback)
     if (!process.stdin.isTTY || !process.stdout.isTTY) {
@@ -344,7 +373,12 @@ const run = async () => {
       jobsEnabled = await selectJobsEnabled();
     }
 
+    installDeps = true;
     clearScreen();
+  }
+
+  if (installDeps) {
+    await installDependencies(selectedApps);
   }
 
   // Build environment variables for all selected apps
