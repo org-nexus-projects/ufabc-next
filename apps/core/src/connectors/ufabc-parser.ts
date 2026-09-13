@@ -18,7 +18,7 @@ type StudentComponent = {
 };
 type UFProcessorEnrollment = Record<StudentRA, StudentComponent[]>;
 
-type UfabcParserComponent = {
+export type UfabcParserComponent = {
   componentKey: string;
   subjectKey: string;
   name: string;
@@ -103,6 +103,13 @@ export class UfabcParserConnector extends BaseRequester {
           componentKey,
         },
       }
+    );
+    return response;
+  }
+
+  async getComponents() {
+    const response = await this.request<UfabcParserComponent[]>(
+      '/v2/components'
     );
     return response;
   }
