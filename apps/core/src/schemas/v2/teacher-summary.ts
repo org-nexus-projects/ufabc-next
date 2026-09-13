@@ -1,7 +1,10 @@
+import { Types } from 'mongoose';
 import { z } from 'zod';
 
 export const teacherSummaryParamsSchema = z.object({
-  teacherId: z.string(),
+  teacherId: z.string().refine((value) => Types.ObjectId.isValid(value), {
+    message: 'Invalid teacherId',
+  }),
 });
 
 export const teacherSummaryResponseSchema = z.object({

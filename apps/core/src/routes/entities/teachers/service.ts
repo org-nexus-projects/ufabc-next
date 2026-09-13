@@ -2,7 +2,6 @@ import { Types } from 'mongoose';
 
 import { EnrollmentModel } from '@/models/Enrollment.js';
 import { SubjectModel, type Subject } from '@/models/Subject.js';
-import { SummaryModel, type Summary } from '@/models/Summary.js';
 import { TeacherModel, type Teacher } from '@/models/Teacher.js';
 
 type SearchResult = {
@@ -193,14 +192,3 @@ export async function listAll() {
   return teachers;
 }
 
-export async function findLatestSummary(teacherId: string) {
-  const summary = await SummaryModel.findOne({
-    teacher: new Types.ObjectId(teacherId),
-    subject: null,
-    status: 'active',
-  })
-    .sort({ createdAt: -1 })
-    .lean<Omit<Summary, 'teacher'> & { teacher: string }>();
-
-  return summary;
-}

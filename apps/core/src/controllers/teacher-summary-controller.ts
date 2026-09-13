@@ -1,17 +1,19 @@
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 
 import { jwtVerifyHook } from '@/hooks/jwt-verify.js';
-import { findLatestSummary } from '@/routes/entities/teachers/service.js';
 import {
   teacherSummaryParamsSchema,
   teacherSummaryResponseSchema,
 } from '@/schemas/v2/teacher-summary.js';
+import { TeacherSummaryService } from '@/services/teacher-summary-service.js';
 
 export const teacherSummaryController: FastifyPluginAsyncZod = async (
   app
 ) => {
   const summaryCache = app.cache<
-    NonNullable<Awaited<ReturnType<typeof findLatestSummary>>>
+    NonNullable<
+      Awaited<ReturnType<TeacherSummaryService['findLatest']>>
+    >
   >();
 
   app.route({
@@ -31,7 +33,8 @@ export const teacherSummaryController: FastifyPluginAsyncZod = async (
       const cached = summaryCache.get(cacheKey);
       if (cached) return cached;
 
-      const summary = await findLatestSummary(teacherId);
+      const teacherSummaryService = new TeacherSummaryService();
+      const summary = await teacherSummaryService.findLatest(teacherId);
 
       if (!summary) {
         return reply.notFound('Nenhum resumo disponível para esse professor');
