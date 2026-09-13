@@ -1,6 +1,6 @@
 import { type InferSchemaType, Schema, model, Types } from 'mongoose';
 
-import { TEACHER_CACHE_MAX_SIZE } from '@/constants.js';
+import { NO_TEACHER_SENTINELS, TEACHER_CACHE_MAX_SIZE } from '@/constants.js';
 
 export function normalizeName(str: string): string {
   return str
@@ -126,12 +126,6 @@ export function setTeacherCacheEntry<Value>(
 }
 
 const teacherCache = new Map<string, Types.ObjectId | null>();
-
-/**
- * Values ufabc-parser sends in place of a real teacher name when none is
- * assigned yet. These must never be matched or created as a teacher.
- */
-const NO_TEACHER_SENTINELS = ['0', 'a definir docente'];
 
 export async function findTeacher(
   name: string | null
