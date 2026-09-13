@@ -1,6 +1,6 @@
 import { type InferSchemaType, Schema, model, Types } from 'mongoose';
 
-import { TEACHER_CACHE_MAX_SIZE } from '@/constants.js';
+import { NO_TEACHER_SENTINELS, TEACHER_CACHE_MAX_SIZE } from '@/constants.js';
 
 export function normalizeName(str: string): string {
   return str
@@ -134,6 +134,10 @@ export async function findTeacher(
 
   const normalizedName = normalizeName(name);
 
+  if (NO_TEACHER_SENTINELS.includes(normalizedName)) {
+    return null;
+  }
+
   if (teacherCache.has(normalizedName)) {
     return teacherCache.get(normalizedName)!;
   }
@@ -142,32 +146,32 @@ export async function findTeacher(
     $or: [{ name: normalizedName }, { alias: normalizedName }],
   });
 
-  if (!teacher) {
-    const allTeachers = await TeacherModel.find({});
-    const levMatch = findBestLevenshteinMatch(name, allTeachers);
-    if (levMatch) {
-      await TeacherModel.findByIdAndUpdate(levMatch._id, {
+  if (teacher) {
+    if (!teacher.alias.includes(normalizedName)) {
+      await TeacherModel.findByIdAndUpdate(teacher._id, {
         $addToSet: { alias: { $each: [normalizedName, name.toLowerCase()] } },
       });
-      setTeacherCacheEntry(teacherCache, normalizedName, levMatch._id);
-      return levMatch._id;
     }
+    setTeacherCacheEntry(teacherCache, normalizedName, teacher._id);
+    return teacher._id;
   }
 
-  if (!teacher && normalizedName !== '0') {
-    setTeacherCacheEntry(teacherCache, normalizedName, null);
-    return null;
-  }
-
-  if (teacher && !teacher.alias.includes(normalizedName)) {
-    await TeacherModel.findByIdAndUpdate(teacher._id, {
+  const allTeachers = await TeacherModel.find({});
+  const levMatch = findBestLevenshteinMatch(name, allTeachers);
+  if (levMatch) {
+    await TeacherModel.findByIdAndUpdate(levMatch._id, {
       $addToSet: { alias: { $each: [normalizedName, name.toLowerCase()] } },
     });
+    setTeacherCacheEntry(teacherCache, normalizedName, levMatch._id);
+    return levMatch._id;
   }
 
-  const teacherId = teacher?._id ?? null;
-  setTeacherCacheEntry(teacherCache, normalizedName, teacherId);
-  return teacherId;
+  const newTeacher = await TeacherModel.create({
+    name,
+    alias: [normalizedName, name.toLowerCase()],
+  });
+  setTeacherCacheEntry(teacherCache, normalizedName, newTeacher._id);
+  return newTeacher._id;
 }
 
 export function clearTeacherCache() {
