@@ -1,24 +1,38 @@
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 
+import { TeacherSummaryNotFound } from '@/errors/custom-errors.js';
 import { jwtVerifyHook } from '@/hooks/jwt-verify.js';
 import {
   teacherSummaryParamsSchema,
   teacherSummaryResponseSchema,
 } from '@/schemas/v2/teacher-summary.js';
+import type { LatestSummary } from '@/services/teacher-summary-service.js';
 import { TeacherSummaryService } from '@/services/teacher-summary-service.js';
 
-export const teacherSummaryController: FastifyPluginAsyncZod = async (
-  app
-) => {
-  const summaryCache = app.cache<
-    NonNullable<
-      Awaited<ReturnType<TeacherSummaryService['findLatest']>>
-    >
-  >();
+export const teacherSummaryController: FastifyPluginAsyncZod = async (app) => {
+  const summaryCache = app.cache<LatestSummary>();
 
   app.route({
+    handler: async (request) => {
+      const { teacherId } = request.params;
+
+      const cacheKey = `summary:${teacherId}`;
+      const cached = summaryCache.get(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
+      const teacherSummaryService = new TeacherSummaryService();
+      const summary = await teacherSummaryService.findLatest(teacherId);
+
+      if (!summary) {
+        throw new TeacherSummaryNotFound(teacherId);
+      }
+
+      summaryCache.set(cacheKey, summary);
+      return summary;
+    },
     method: 'GET',
-    url: '/entities/teachers/summary/:teacherId',
     preHandler: [jwtVerifyHook],
     schema: {
       params: teacherSummaryParamsSchema,
@@ -26,22 +40,6 @@ export const teacherSummaryController: FastifyPluginAsyncZod = async (
         200: teacherSummaryResponseSchema,
       },
     },
-    handler: async (request, reply) => {
-      const { teacherId } = request.params;
-
-      const cacheKey = `summary:${teacherId}`;
-      const cached = summaryCache.get(cacheKey);
-      if (cached) return cached;
-
-      const teacherSummaryService = new TeacherSummaryService();
-      const summary = await teacherSummaryService.findLatest(teacherId);
-
-      if (!summary) {
-        return reply.notFound('Nenhum resumo disponível para esse professor');
-      }
-
-      summaryCache.set(cacheKey, summary);
-      return summary;
-    },
+    url: '/teachers/:teacherId/summary',
   });
 };

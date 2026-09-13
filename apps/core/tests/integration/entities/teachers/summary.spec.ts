@@ -8,7 +8,7 @@ import { buildApp } from '../../../../src/app.js';
 import { SummaryModel } from '../../../../src/models/Summary.js';
 import { TeacherModel } from '../../../../src/models/Teacher.js';
 
-describe('GET /v2/entities/teachers/summary/:teacherId', () => {
+describe('GET /v2/teachers/:teacherId/summary', () => {
   let stack: TestStack;
   let app: FastifyInstance;
   let token: string;
@@ -61,7 +61,7 @@ describe('GET /v2/entities/teachers/summary/:teacherId', () => {
   it('rejects requests without a JWT', async () => {
     const res = await app.inject({
       method: 'GET',
-      url: `/v2/entities/teachers/summary/${teacherId}`,
+      url: `/v2/teachers/${teacherId}/summary`,
     });
     expect(res.statusCode).toBe(401);
   });
@@ -69,7 +69,7 @@ describe('GET /v2/entities/teachers/summary/:teacherId', () => {
   it('returns the latest active summary', async () => {
     const res = await app.inject({
       method: 'GET',
-      url: `/v2/entities/teachers/summary/${teacherId}`,
+      url: `/v2/teachers/${teacherId}/summary`,
       headers: { Authorization: `Bearer ${token}` },
     });
     const body = JSON.parse(res.body);
@@ -84,7 +84,7 @@ describe('GET /v2/entities/teachers/summary/:teacherId', () => {
   it('404s when teacher has no summary yet', async () => {
     const res = await app.inject({
       method: 'GET',
-      url: `/v2/entities/teachers/summary/${teacherWithoutSummaryId}`,
+      url: `/v2/teachers/${teacherWithoutSummaryId}/summary`,
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.statusCode).toBe(404);
@@ -126,7 +126,7 @@ describe('GET /v2/entities/teachers/summary/:teacherId', () => {
 
     const res = await app.inject({
       method: 'GET',
-      url: `/v2/entities/teachers/summary/${teacherWithMultipleId}`,
+      url: `/v2/teachers/${teacherWithMultipleId}/summary`,
       headers: { Authorization: `Bearer ${token}` },
     });
     expect(JSON.parse(res.body).summary).toBe('Resumo mais novo.');

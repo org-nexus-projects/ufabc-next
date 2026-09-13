@@ -6,14 +6,14 @@ import { SummaryModel } from '@/models/Summary.js';
 import type { BaseServiceOptions } from './base-service.js';
 import { BaseService } from './base-service.js';
 
-type LatestSummary = Omit<Summary, 'teacher'> & { teacher: string };
+export type LatestSummary = Omit<Summary, 'teacher'> & { teacher: string };
 
 export class TeacherSummaryService extends BaseService {
   constructor(options: BaseServiceOptions = {}) {
     super(options);
   }
 
-  async findLatest(teacherId: string): Promise<LatestSummary | null> {
+  async findLatest(teacherId: string) {
     const summary = await SummaryModel.findOne({
       status: 'active',
       subject: null,

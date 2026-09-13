@@ -35,7 +35,7 @@ export const handlers = [
   http.get(`${baseUrl}/entities/teachers/reviews/*`, () =>
     HttpResponse.json(teacher),
   ),
-  http.get(`${baseUrl}/v2/entities/teachers/summary/*`, () =>
+  http.get(`${baseUrl}/v2/teachers/*/summary`, () =>
     HttpResponse.json(teacherSummary),
   ),
   http.get(`${baseUrl}/entities/subjects/reviews/*`, () =>

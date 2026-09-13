@@ -75,7 +75,7 @@ describe('<TeacherSummary />', () => {
   test('renders nothing when teacher has no summary yet', async () => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
     server.use(
-      http.get(`${baseUrl}/v2/entities/teachers/summary/*`, () =>
+      http.get(`${baseUrl}/v2/teachers/*/summary`, () =>
         HttpResponse.json({ message: 'not found' }, { status: 404 }),
       ),
     );

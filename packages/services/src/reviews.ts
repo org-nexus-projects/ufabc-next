@@ -30,7 +30,7 @@ export const Reviews = {
     return data as SubjectInfo;
   },
   getTeacherSummary: async (id: string) => {
-    const { data } = await api.get(`/v2/entities/teachers/summary/${id}`);
+    const { data } = await api.get(`/v2/teachers/${id}/summary`);
     return data as TeacherSummary;
   },
 };

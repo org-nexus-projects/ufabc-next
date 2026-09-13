@@ -103,3 +103,16 @@ export class RecommendationNotAllowed extends NextError {
     );
   }
 }
+
+export class TeacherSummaryNotFound extends NextError {
+  constructor(teacherId: string) {
+    super(
+      'Teacher Summary Not Found',
+      'NEX0009',
+      404,
+      'No summary available for this teacher',
+      'Nenhum resumo disponível para esse professor',
+      { teacherId }
+    );
+  }
+}
