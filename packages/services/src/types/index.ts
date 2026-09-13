@@ -318,6 +318,16 @@ export type SearchTeacher = {
   total: number;
 };
 
+export type TeacherSummary = {
+  teacher: string;
+  summary: string;
+  didacticQuality?: number | null;
+  takesAttendance?: boolean | null;
+  usesSigaa?: boolean | null;
+  usesMoodle?: boolean | null;
+  commentsCount: number;
+};
+
 export type Device = {
   _id: string;
   deviceId: string;

@@ -43,6 +43,12 @@ export const NANOSECONDS_PER_MS = 1_000_000;
 export const SNAPSHOT_URL_TTL_SECONDS = 7 * 24 * 60 * 60;
 export const TEACHER_CACHE_MAX_SIZE = 500;
 
+/**
+ * Values ufabc-parser sends in place of a real teacher name when none is
+ * assigned yet. These must never be matched or created as a teacher.
+ */
+export const NO_TEACHER_SENTINELS = ['0', 'a definir docente'];
+
 export const PARSER_WEBHOOK_EVENTS = {
   CLASS_SETTLED: 'class.settled',
   COMPONENT_CREATED: 'component.created',
