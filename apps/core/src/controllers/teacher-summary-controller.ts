@@ -2,15 +2,17 @@ import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 
 import { TeacherSummaryNotFound } from '@/errors/custom-errors.js';
 import { jwtVerifyHook } from '@/hooks/jwt-verify.js';
+import type { TeacherSummaryMapper } from '@/mappers/teacher-summary-mapper.js';
 import {
   teacherSummaryParamsSchema,
   teacherSummaryResponseSchema,
 } from '@/schemas/v2/teacher-summary.js';
-import type { LatestSummary } from '@/services/teacher-summary-service.js';
 import { TeacherSummaryService } from '@/services/teacher-summary-service.js';
 
 export const teacherSummaryController: FastifyPluginAsyncZod = async (app) => {
-  const summaryCache = app.cache<LatestSummary>();
+  const summaryCache = app.cache<
+    ReturnType<TeacherSummaryMapper['toResponse']>
+  >();
 
   app.route({
     handler: async (request) => {

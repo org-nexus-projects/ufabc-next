@@ -1,14 +1,14 @@
 import { Types } from 'mongoose';
 
-import type { Summary } from '@/models/Summary.js';
+import { TeacherSummaryMapper } from '@/mappers/teacher-summary-mapper.js';
 import { SummaryModel } from '@/models/Summary.js';
 
 import type { BaseServiceOptions } from './base-service.js';
 import { BaseService } from './base-service.js';
 
-export type LatestSummary = Omit<Summary, 'teacher'> & { teacher: string };
-
 export class TeacherSummaryService extends BaseService {
+  private readonly mapper = new TeacherSummaryMapper();
+
   constructor(options: BaseServiceOptions = {}) {
     super(options);
   }
@@ -20,12 +20,13 @@ export class TeacherSummaryService extends BaseService {
       teacher: new Types.ObjectId(teacherId),
     })
       .sort({ createdAt: -1 })
-      .lean<LatestSummary>();
+      .lean();
 
     if (!summary) {
       this.logger.debug({ teacherId }, 'no active summary found for teacher');
+      return null;
     }
 
-    return summary;
+    return this.mapper.toResponse(summary);
   }
 }
