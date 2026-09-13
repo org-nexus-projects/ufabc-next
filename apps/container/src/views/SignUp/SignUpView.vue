@@ -88,9 +88,16 @@
               </v-col>
             </v-row>
             <router-link
+              to="/login"
+              :style="smAndDown ? 'max-width: 300px' : ''"
+              class="mt-4 mt-md-2 text-center text-primary font-weight-medium text-decoration-none"
+            >
+              Já tem uma conta? Faça login
+            </router-link>
+            <router-link
               to="/recovery"
               :style="smAndDown ? 'max-width: 300px' : ''"
-              class="mt-4 mt-md-2 text-center"
+              class="mt-2 text-center text-caption"
             >
               Já tenho uma conta no UFABC Next e quero recuperá-la
             </router-link>

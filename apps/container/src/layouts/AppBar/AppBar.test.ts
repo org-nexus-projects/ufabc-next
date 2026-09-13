@@ -67,4 +67,15 @@ describe('<AppBar />', () => {
       expect(screen.getByText('Sair')).toBeInTheDocument();
     });
   });
+
+  test('render login buttons when user is not authenticated', () => {
+    authStore.logOut();
+    render(AppBar);
+
+    const loginButtons = screen.getAllByRole('button', { name: 'Entrar' });
+    expect(loginButtons.length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('Acesse sua conta')).toBeInTheDocument();
+    expect(screen.getByText('Criar Conta')).toBeInTheDocument();
+  });
 });
+

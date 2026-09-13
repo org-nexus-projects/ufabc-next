@@ -75,7 +75,40 @@
         <div class="flex-grow-1"></div>
 
         <div class="flex-grow-0">
-          <div v-if="!authStore.user?.confirmed">
+          <div v-if="!authStore.isLoggedIn">
+            <v-divider />
+            <div class="mb-4 pa-4 bg-blue-darken-3 border create-account-box">
+              <div class="d-flex align-center gap-3">
+                <v-icon class="pa-1" size="20"> mdi-account-circle-outline </v-icon>
+                <strong>Acesse sua conta</strong>
+              </div>
+              <div class="mt-2 text-caption">
+                Entre para acessar todas as funcionalidades do Next.
+              </div>
+              <v-btn
+                variant="flat"
+                size="small"
+                block
+                color="primary"
+                class="mt-4 text-white text-caption pa-2"
+                @click="handleLogin"
+              >
+                Entrar
+              </v-btn>
+              <v-btn
+                variant="tonal"
+                size="small"
+                block
+                class="mt-2 bg-blue-darken-2 text-white text-caption pa-2"
+                style="border-color: #1e40af"
+                @click="createAccount"
+              >
+                Criar Conta
+              </v-btn>
+            </div>
+          </div>
+
+          <div v-else-if="!authStore.user?.confirmed">
             <v-divider />
             <div class="mb-4 pa-4 bg-blue-darken-3 border create-account-box">
               <div class="d-flex align-center gap-3">
@@ -128,6 +161,17 @@
             alt="logo do UFABC Next"
           />
         </div>
+
+        <v-btn
+          v-if="!authStore.isLoggedIn"
+          color="primary"
+          variant="flat"
+          size="small"
+          class="mr-3 text-none"
+          @click="handleLogin"
+        >
+          Entrar
+        </v-btn>
 
         <v-btn
           color="primary"
@@ -188,6 +232,14 @@ const layout = computed(() => router.currentRoute.value.meta.layout ?? null);
 const handleLogout = () => {
   authStore.logOut();
   window.location.href = '/';
+};
+
+const handleLogin = () => {
+  eventTracker.track(WebEvent.LOGIN_CLICKED, {
+    source: 'app_bar',
+  });
+
+  router.push('/login');
 };
 
 const createAccount = () => {
