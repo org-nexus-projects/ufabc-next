@@ -5,7 +5,7 @@ type RequiredEnvKey =
   | 'VITE_PARSER_API_BASE_URL';
 
 type GoogleAuthUrlOptions = {
-  requesterKey?: string;
+  requesterKey: string;
   userId?: string;
   appHostname?: string;
   apiBaseUrl?: string;
@@ -47,12 +47,10 @@ export const buildGoogleAuthUrl = ({
   userId,
   appHostname = window.location.hostname,
   apiBaseUrl = runtimeConfig.apiBaseUrl,
-}: GoogleAuthUrlOptions = {}) => {
+}: GoogleAuthUrlOptions) => {
   const url = new URL('login/google', normalizeBaseUrl(apiBaseUrl));
 
-  if (requesterKey) {
-    url.searchParams.set('requesterKey', requesterKey);
-  }
+  url.searchParams.set('requesterKey', requesterKey);
 
   if (userId) {
     url.searchParams.set('userId', userId);

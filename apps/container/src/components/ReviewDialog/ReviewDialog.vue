@@ -84,8 +84,9 @@
 
 <script setup lang="ts">
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
-import type { Enrollment } from '@next/services';
+import type { Enrollment, RequestError } from '@next/services';
 import { Comments, Enrollments } from '@next/services';
+import { AxiosError } from 'axios';
 import { ElMessage } from 'element-plus';
 import { computed, PropType, ref, watch } from 'vue';
 
@@ -217,9 +218,12 @@ const { mutate: mutateCreate, isPending: isCreatingComment } = useMutation({
       showClose: true,
     });
   },
-  onError: () => {
+  onError: (error: AxiosError<RequestError>) => {
     ElMessage({
-      message: 'Ocorreu um erro ao enviar o comentário',
+      message:
+        error.response?.data.translatedDescription ??
+        error.response?.data.message ??
+        'Ocorreu um erro ao enviar o comentário',
       type: 'error',
       showClose: true,
     });
@@ -248,9 +252,12 @@ const { mutate: mutateUpdate, isPending: isUpdatingComment } = useMutation({
       showClose: true,
     });
   },
-  onError: () => {
+  onError: (error: AxiosError<RequestError>) => {
     ElMessage({
-      message: 'Ocorreu um erro ao editar o comentário',
+      message:
+        error.response?.data.translatedDescription ??
+        error.response?.data.message ??
+        'Ocorreu um erro ao editar o comentário',
       type: 'error',
       showClose: true,
     });

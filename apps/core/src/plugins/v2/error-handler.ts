@@ -67,7 +67,11 @@ export default fp(
 
           const httpBody = error.toHttp();
           reply.status(httpBody.statusCode);
-          reply.send(httpBody);
+          reply.send({
+            ...httpBody,
+            error: httpBody.title,
+            message: httpBody.description,
+          });
           return;
         }
 

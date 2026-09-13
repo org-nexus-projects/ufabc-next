@@ -237,45 +237,49 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     }
   );
 
-  app.post('/update-group-urls/:disciplinaId', async (request, reply) => {
-    const { disciplinaId } = request.params as { disciplinaId: string };
+  app.patch('/update-group-urls/:originKey', async (request, reply) => {
+    const { originKey } = request.params as { originKey: string };
     const { season } = request.query as { season?: string };
-    const { groupURL } = request.body as { groupURL: string };
+    const { groupURL } = request.body as { groupURL: string | null };
 
-    if (!groupURL) {
+    if (groupURL === undefined) {
       return reply.badRequest('groupURL in request body is required');
     }
 
+    if (groupURL !== null && typeof groupURL !== 'string') {
+      return reply.badRequest('groupURL must be a string or null');
+    }
+
     try {
-      app.log.info({ disciplinaId, season, groupURL }, 'Updating groupURL');
+      app.log.info({ originKey, season, groupURL }, 'Updating groupURL');
 
       const seasonToUse = season ?? currentQuad();
 
       const result = await ComponentModel.updateOne(
-        { disciplina_id: Number(disciplinaId), season: season },
+        { origin_key: originKey, season },
         { $set: { groupURL } }
       );
 
       if (result.matchedCount === 0) {
         app.log.info(
-          { disciplinaId, season: seasonToUse },
+          { originKey, season: seasonToUse },
           'No matching component found'
         );
         return reply.status(404).send({
           error: 'No matching component found',
-          disciplinaId,
+          originKey,
           season: seasonToUse,
         });
       }
 
       if (result.modifiedCount === 0) {
         app.log.info(
-          { disciplinaId, season: seasonToUse },
+          { originKey, season: seasonToUse },
           'Component found but not modified (same groupURL)'
         );
         return reply.send({
           message: 'Component found but groupURL was already set to this value',
-          disciplinaId,
+          originKey,
           season: seasonToUse,
           groupURL,
         });
@@ -283,7 +287,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       app.log.info(
         {
-          disciplinaId,
+          originKey,
           season: seasonToUse,
           modifiedCount: result.modifiedCount,
         },
@@ -292,7 +296,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
       return reply.send({
         message: 'GroupURL updated successfully',
-        disciplinaId,
+        originKey,
         season: seasonToUse,
         groupURL,
         modifiedCount: result.modifiedCount,
@@ -301,7 +305,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       app.log.error(
         {
           error: error instanceof Error ? error.message : String(error),
-          disciplinaId,
+          originKey,
           season: season,
         },
         'Error updating groupURL'

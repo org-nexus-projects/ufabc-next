@@ -121,6 +121,8 @@ export type RequestError = {
   type: string;
   error: string;
   message: string;
+  /** User-facing translation of `message`/`description`, safe to render directly. */
+  translatedDescription?: string;
 };
 
 export type SearchTeacherItem = {

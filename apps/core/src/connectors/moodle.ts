@@ -1,7 +1,5 @@
 import { setTimeout as sleep } from 'node:timers/promises';
 
-import { logger as defaultLogger } from '@/utils/logger.js';
-
 import { BaseRequester } from './base-requester.js';
 
 type MoodleResponse = {
@@ -166,7 +164,7 @@ export class MoodleConnector extends BaseRequester {
         timeout: 10_000,
       });
     } catch (error) {
-      (this.getLogger() ?? defaultLogger.child({ connector: true })).warn(
+      this.getLogger().warn(
         { courseId, error },
         'Failed to fetch course participants page'
       );

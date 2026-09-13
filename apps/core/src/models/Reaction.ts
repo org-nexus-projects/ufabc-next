@@ -5,6 +5,11 @@ import {
   model,
 } from 'mongoose';
 
+import {
+  DuplicateReaction,
+  RecommendationNotAllowed,
+} from '@/errors/custom-errors.js';
+
 import { CommentModel } from './Comment.js';
 import { EnrollmentModel } from './Enrollment.js';
 import { UserModel } from './User.js';
@@ -62,9 +67,7 @@ async function validateRules(reaction: ReactionDocument) {
     });
 
     if (!isValid)
-      throw new Error(
-        'Você não pode recomendar este comentário, pois não fez nenhuma matéria com este professor'
-      );
+      throw new RecommendationNotAllowed(reaction.comment, reaction.user);
   }
 }
 
@@ -93,9 +96,7 @@ reactionSchema.pre('save', async function () {
   if (this.isNew) {
     const equalReaction = await this.collection.findOne({ slug });
     if (equalReaction) {
-      throw new Error(
-        'Você não pode reagir duas vezes iguais ao mesmo comentário'
-      );
+      throw new DuplicateReaction(this.comment, this.user, this.kind);
     }
     this.slug = slug;
   }

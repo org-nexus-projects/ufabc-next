@@ -120,7 +120,24 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
 
   app.route({
     handler: async (request, reply) => {
-      const { season } = request.query;
+      const { season, origin_key } = request.query;
+
+      if (origin_key) {
+        const component = await ComponentModel.findOne({
+          origin_key,
+          season,
+        }).lean();
+
+        if (!component) {
+          return await reply.notFound('Component not found');
+        }
+
+        const hasGroupUrl = component.groupURL != null;
+
+        return await reply.status(200).send({
+          hasGroupUrl,
+        });
+      }
 
       const requested = await ComponentModel.aggregate([
         {
@@ -197,19 +214,23 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       ]);
       return await reply.status(200).send({
         data: requested,
-        status: 'success',
       });
     },
     method: 'GET',
     schema: {
       querystring: z.object({
         season: z.string(),
+        origin_key: z.string().optional(),
       }),
       response: {
-        200: z.object({
-          data: z.any().array(),
-          status: z.string(),
-        }),
+        200: z.union([
+          z.object({
+            data: z.any().array(),
+          }),
+          z.object({
+            hasGroupUrl: z.boolean(),
+          }),
+        ]),
       },
     },
     url: '/components/pending-group-url',

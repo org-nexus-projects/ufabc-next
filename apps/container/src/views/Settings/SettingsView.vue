@@ -161,7 +161,7 @@ const userLogin = computed(() => {
 });
 
 const addGoogleAccount = computed(() => {
-  return buildGoogleAuthUrl({ userId: user.value?._id });
+  return buildGoogleAuthUrl({ requesterKey: 'ufabc-next', userId: user.value?._id });
 });
 
 const createdAt = computed(() => {

@@ -43,8 +43,10 @@ describe('runtimeConfig', () => {
   });
 
   test('builds google account association url', () => {
-    expect(buildGoogleAuthUrl({ userId: 'user-123' })).toBe(
-      `${runtimeConfig.apiBaseUrl}/login/google?userId=user-123`,
+    expect(
+      buildGoogleAuthUrl({ requesterKey: 'ufabc-next', userId: 'user-123' }),
+    ).toBe(
+      `${runtimeConfig.apiBaseUrl}/login/google?requesterKey=ufabc-next&userId=user-123`,
     );
   });
 });

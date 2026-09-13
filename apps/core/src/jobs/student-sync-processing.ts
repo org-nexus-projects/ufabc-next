@@ -234,14 +234,34 @@ async function upsertStudentRecord(
     ca: coefficients.ca,
   };
 
-  await StudentModel.updateOne(
-    { ra: Number(ra), season },
+  const updateResult = await StudentModel.updateOne(
+    {
+      ra: Number(ra),
+      season,
+      'cursos.nome_curso': courseData.nome_curso,
+      'cursos.turno': courseData.turno,
+    },
     {
       login,
-      $push: { cursos: courseData },
-    },
-    { upsert: true }
+      $set: {
+        'cursos.$.cp': courseData.cp,
+        'cursos.$.cr': courseData.cr,
+        'cursos.$.ca': courseData.ca,
+        'cursos.$.ind_afinidade': courseData.ind_afinidade,
+      },
+    }
   );
+
+  if (updateResult.matchedCount === 0) {
+    await StudentModel.updateOne(
+      { ra: Number(ra), season },
+      {
+        login,
+        $push: { cursos: courseData },
+      },
+      { upsert: true }
+    );
+  }
 }
 
 async function createHistoryRecord(
