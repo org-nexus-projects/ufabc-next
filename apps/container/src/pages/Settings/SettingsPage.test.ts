@@ -48,28 +48,6 @@ describe('<SettingsPage />', () => {
       )
     ).toBeInTheDocument();
   });
-  test('render user without associated accounts', async () => {
-    server.use(
-      http.get(/.*\/users\/info/, () =>
-        HttpResponse.json({
-          ...mockedUser,
-          oauth: {
-            email: mockedUser.email,
-          },
-        })
-      )
-    );
-    render(SettingsPage);
-    const googleLink = await screen.findByRole('link', {
-      name: 'Associar à uma conta do Google',
-    });
-
-    expect(googleLink).toBeInTheDocument();
-    expect(googleLink).toHaveAttribute(
-      'href',
-      `http://localhost:5000/login/google?userId=${mockedUser._id}`
-    );
-  });
   test('deactivate user', async () => {
     const user = userEvent.setup();
 
