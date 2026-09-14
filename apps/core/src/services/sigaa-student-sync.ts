@@ -118,6 +118,7 @@ export async function syncStudentFromSigaa(
 
             await deactivateEnrollments(Number(previousRa));
             await deactivateGrades(Number(previousRa));
+            await deactivateStudents(Number(previousRa));
         }
 
         user.ra = currentRaNumber;
