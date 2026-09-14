@@ -674,7 +674,7 @@ const {
   enabled: computed(
     () => isUserLoggedIn.value && selectedSearchType.value === 'course',
   ),
-  staleTime: 1000 * 60 * 60,
+  staleTime: 1000 * 60 * 10,
 });
 
 // Componentes filtrados por nome da disciplina (busca por componente)
