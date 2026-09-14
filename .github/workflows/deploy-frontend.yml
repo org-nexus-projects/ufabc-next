@@ -26,6 +26,7 @@ jobs:
       AWS_DEFAULT_REGION: us-east-1
       AWS_S3_BUCKET_NAME: ${{ github.ref == 'refs/heads/main' && secrets.AWS_S3_BUCKET_NAME_PRD  || secrets.AWS_S3_BUCKET_NAME_HOM }}
       AWS_DISTRIBUTION_ID: ${{ github.ref == 'refs/heads/main' && secrets.AWS_DISTRIBUTION_ID_PRD  || secrets.AWS_DISTRIBUTION_ID_HOM }}
+      CONTAINER_BUILD_TASK: ${{ github.ref == 'refs/heads/main' && 'build' || 'build:staging' }}
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -38,7 +39,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build container
-        run: pnpm turbo run build --filter=@next/container
+        run: pnpm turbo run "$CONTAINER_BUILD_TASK" --filter=@next/container
 
       - name: Sync static with S3
         run: aws s3 sync apps/static s3://$AWS_S3_BUCKET_NAME --exclude '.gitkeep'
