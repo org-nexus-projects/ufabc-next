@@ -191,3 +191,4 @@ export async function listAll() {
   ).lean<{ name: string; alias: string[] }[]>();
   return teachers;
 }
+

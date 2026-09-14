@@ -7,7 +7,7 @@ export async function createTestContainers() {
   const mongo = await new MongoDBContainer('mongo:6').withReuse().start();
   const redis = await new RedisContainer('redis:7-alpine').withReuse().start();
   const localstack = await new LocalstackContainer(
-    'localstack/localstack:latest'
+    'localstack/localstack:3.0'
   )
     .withReuse()
     .start();
@@ -26,7 +26,7 @@ export async function startTestStack() {
       .withPassword('qj6wGxXINcQyWXdN')
       .withReuse()
       .start(),
-    new LocalstackContainer('localstack/localstack:latest').withReuse().start(),
+    new LocalstackContainer('localstack/localstack:3.0').withReuse().start(),
   ]);
 
   const localstackUrl = `http://${localstack.getHost()}:${localstack.getMappedPort(4566)}`;

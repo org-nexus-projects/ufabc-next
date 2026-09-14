@@ -214,12 +214,21 @@
             usuários autenticados.
           </p>
           <div class="not-synced__actions auth-required-actions">
-            <button class="not-synced__button" @click="createAccount">
+            <button class="not-synced__button" @click="handleLogin">
+              <v-icon size="20"> mdi-login </v-icon>
+              Entrar
+            </button>
+            <button
+              class="not-synced__button secondary"
+              :class="{ 'secondary--dark': isDarkMode }"
+              @click="createAccount"
+            >
               <v-icon size="20"> mdi-account-plus </v-icon>
               Criar conta
             </button>
             <button
               class="not-synced__button secondary"
+              :class="{ 'secondary--dark': isDarkMode }"
               @click="handleSyncHistory"
             >
               <v-icon size="20"> mdi-sync </v-icon>
@@ -664,7 +673,7 @@ const {
   enabled: computed(
     () => isUserLoggedIn.value && selectedSearchType.value === 'course'
   ),
-  staleTime: 1000 * 60 * 60,
+  staleTime: 1000 * 60 * 10,
 });
 
 // Componentes filtrados por nome da disciplina (busca por componente)
@@ -942,6 +951,14 @@ const handleExtension = () => {
 
 const handleSyncHistory = () => {
   window.open(studentRecordURL, '_blank');
+};
+
+const handleLogin = () => {
+  eventTracker.track(WebEvent.LOGIN_CLICKED, {
+    source: 'whatsapp_groups_dialog',
+  });
+
+  router.push('/login');
 };
 
 const createAccount = () => {

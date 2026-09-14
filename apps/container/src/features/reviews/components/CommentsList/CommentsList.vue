@@ -33,6 +33,7 @@
     :style="`${!smAndDown && 'max-height:500px ; overflow-y:auto'}`"
     class="pr-md-4 py-4"
   >
+    <TeacherSummary :teacher-id="teacherId" class="mb-5" />
     <SingleComment
       v-for="comment in filteredCommentsData?.data"
       :key="comment._id"
@@ -72,6 +73,7 @@ import { FeedbackAlert } from '@/components/ui/FeedbackAlert';
 import { checkEAD } from '@/utils/season';
 
 import { SingleComment } from '../SingleComment';
+import { TeacherSummary } from '../TeacherSummary';
 
 const { smAndDown } = useDisplay();
 const props = defineProps({
