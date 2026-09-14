@@ -57,6 +57,7 @@ async function validateRules(reaction: ReactionDocument) {
     const isValid = await EnrollmentModel.findOne({
       // @ts-expect-error
       ra: user?.ra,
+      active: { $ne: false },
       // @ts-expect-error
       $or: [{ teoria: comment?.teacher }, { pratica: comment?.teacher }],
     });

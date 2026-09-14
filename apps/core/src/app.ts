@@ -15,6 +15,7 @@ import { proxyController } from './controllers/proxy-controller.js';
 import studentsController from './controllers/students-controller.js';
 import { UfabcParserIncomingWebhookController } from './controllers/ufabc-parser-webhook-controller.js';
 import { authenticateBoard } from './hooks/board-authenticate.js';
+import { ensureUserRaIndex } from './models/User.js';
 import awsV2Plugin from './plugins/v2/aws.js';
 import errorHandlerPlugin from './plugins/v2/error-handler.js';
 import memoryMonitorPlugin from './plugins/v2/memory-monitor.js';
@@ -55,6 +56,7 @@ export async function buildApp(
 
   await app.register(redisV2Plugin);
   await app.register(dbPlugin, { config: app.config });
+  await ensureUserRaIndex();
 
   if (process.env.NEXT_JOBS_ENABLED !== 'false') {
     await app.register(queueV2Plugin, {

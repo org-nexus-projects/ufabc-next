@@ -7,6 +7,7 @@ import { type Reaction, ReactionModel } from '@/models/Reaction.js';
 export async function getUserEnrollments(ra: number) {
   const userEnrollments = await EnrollmentModel.find({
     ra,
+    active: { $ne: false },
   }).lean();
 
   return userEnrollments;

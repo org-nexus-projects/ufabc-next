@@ -211,6 +211,7 @@ async function upsertStudentRecord(
   await StudentModel.updateOne(
     { ra: Number(ra), season },
     {
+      $set: { active: true },
       login: ra,
       $push: { cursos: courseData },
     },
@@ -238,6 +239,7 @@ async function createHistoryRecord(
   const baseUpdate = {
     $set: {
       ra: Number(ra),
+      active: true,
       curso: student.course.toLowerCase(),
       grade: student.campus,
       disciplinas: components.map(transformComponentToHistory),
