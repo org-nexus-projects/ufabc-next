@@ -55,6 +55,20 @@ export async function syncStudentFromSigaa(
         } as const;
     }
 
+    const cacheKey = `http:students:sigaa:${ra}`;
+    let studentSync = await app.db.StudentSync.findOne({ ra: currentRaString });
+    const cached = await app.redis.get(cacheKey);
+
+    if (cached && studentSync?.status === 'completed') {
+        return { status: 'cached', cacheKey } as const;
+    }
+
+    await connector.syncStudent({
+        sessionId,
+        viewId,
+        requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
+    });
+
     const userRaString = user.ra !== null && user.ra !== undefined ? String(user.ra) : null;
 
     if (userRaString !== currentRaString) {
@@ -110,15 +124,6 @@ export async function syncStudentFromSigaa(
         await user.save();
     }
 
-    const cacheKey = `http:students:sigaa:${ra}`;
-
-    let studentSync = await app.db.StudentSync.findOne({ ra: currentRaString });
-    const cached = await app.redis.get(cacheKey);
-
-    if (cached && studentSync?.status === 'completed') {
-        return { status: 'cached', cacheKey } as const;
-    }
-
     if (!studentSync) {
         studentSync = await app.db.StudentSync.create({
             ra: currentRaString,
@@ -133,12 +138,6 @@ export async function syncStudentFromSigaa(
             ],
         });
     }
-
-    await connector.syncStudent({
-        sessionId,
-        viewId,
-        requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
-    });
 
     await studentSync.transition('awaiting', {
         source: 'sigaa',
