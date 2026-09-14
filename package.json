@@ -5,7 +5,13 @@
   "packageManager": "pnpm@10.33.2",
   "scripts": {
     "build": "turbo run build --continue",
+    "build:staging": "turbo run build:staging --filter=@next/container",
     "dev": "turbo run dev",
+    "dev:staging": "pnpm --filter @next/container dev:staging",
+    "dev:prod": "pnpm --filter @next/container dev:prod",
+    "dev:app": "pnpm --filter @next/container dev",
+    "dev:app:staging": "pnpm --filter @next/container dev:staging",
+    "dev:app:prod": "pnpm --filter @next/container dev:prod",
     "dev:watch": "turbo watch dev --experimental-write-cache --filter=@next/db --filter=@next/logger --filter=@next/queues --filter=@next/testing --filter=@next/utils --filter=@next/container --filter=@next/extension",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
