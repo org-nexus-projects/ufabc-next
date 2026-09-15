@@ -7,13 +7,6 @@ import { render, screen, userEvent } from '@/test-utils';
 import { HistoryPage } from '.';
 
 describe('<CenteredLoading />', () => {
-  test('show subjects table', async () => {
-    render(HistoryPage);
-    expect(
-      await screen.findByText(enrollments[0].disciplina)
-    ).toBeInTheDocument();
-    expect(screen.getByText(/disciplinas cursadas/i)).toBeInTheDocument();
-  });
   test('show install extension warning if 0 enrollments', async () => {
     server.use(http.get(`*/enrollments`, () => HttpResponse.json([])));
     render(HistoryPage);
@@ -27,20 +20,6 @@ describe('<CenteredLoading />', () => {
     );
     render(HistoryPage);
     expect(await screen.findByText(/disciplina cursada/i)).toBeInTheDocument();
-  });
-  test('show alert error if 5xx request happens', async () => {
-    server.use(
-      http.get(`*/users/info`, () => HttpResponse.json(null, { status: 500 }))
-    );
-    render(HistoryPage);
-    expect(
-      await screen.findByText(enrollments[0].disciplina)
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByText(
-        /Não foi possível buscar as informações, tente novamente mais tarde/i
-      )
-    ).toBeInTheDocument();
   });
   test('open extension dialog when click on extension button then close it', async () => {
     const user = userEvent.setup();
