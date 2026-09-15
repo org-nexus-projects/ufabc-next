@@ -1,7 +1,6 @@
 import 'vuetify/styles';
 import 'element-plus/dist/index.css';
 import '@mdi/font/css/materialdesignicons.css';
-
 import type { QueryClient } from '@tanstack/query-core';
 import {
   QueryClient as QueryClientVue,
@@ -10,9 +9,9 @@ import {
 import type { ElMessage } from 'element-plus';
 import elementPlus from 'element-plus';
 import Highcharts from 'highcharts';
+import HighchartsVue from 'highcharts-vue';
 import accessibility from 'highcharts/modules/accessibility';
 import annotationsInit from 'highcharts/modules/annotations';
-import HighchartsVue from 'highcharts-vue';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 import { createApp } from 'vue';
@@ -22,10 +21,11 @@ import * as directives from 'vuetify/directives';
 import { VFileUpload } from 'vuetify/labs/VFileUpload';
 
 import App from './App.vue';
+import { applyChartsTheme } from './config/highcharts';
+import { darkTheme, lightTheme } from './config/theme';
 import { eventTracker } from './helpers/EventTracker';
 import client from './queryClient';
 import router from './router';
-import { applyChartsTheme, darkTheme, lightTheme } from './theme';
 
 interface Device {
   cordova: string;
@@ -53,7 +53,9 @@ const savedTheme = localStorage.getItem('darkMode');
 const defaultTheme = savedTheme === 'true' ? 'dark' : 'light';
 
 // Set initial Highcharts theme class
-document.body.classList.add(defaultTheme === 'dark' ? 'highcharts-dark' : 'highcharts-light');
+document.body.classList.add(
+  defaultTheme === 'dark' ? 'highcharts-dark' : 'highcharts-light'
+);
 applyChartsTheme();
 
 const vuetify = createVuetify({
