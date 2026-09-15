@@ -12,6 +12,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html'],
       exclude: [
+        '**/dist/**',
         '**/node_modules/**',
         '**/test-utils.ts',
         '**/mocks/**',
@@ -31,8 +32,10 @@ export default defineConfig({
     alias: {
       '@': '/src',
     },
-    deps: {
-      inline: ['vuetify'],
+    server: {
+      deps: {
+        inline: ['vuetify'],
+      },
     },
     setupFiles: ['./setup-tests.ts'],
   },
