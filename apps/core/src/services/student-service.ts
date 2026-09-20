@@ -2,11 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import type { Types } from 'mongoose';
 
 import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
-import {
-  RECENT_RA_CHANGE_WINDOW_DAYS,
-  SIGAA_STUDENT_SYNC_CACHE_TTL_MS,
-  UFABC_EMAIL_DOMAINS,
-} from '@/constants.js';
+import { UFABC_EMAIL_DOMAINS } from '@/constants.js';
 import { EnrollmentModel } from '@/models/Enrollment.js';
 import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
 import { HistoryModel } from '@/models/History.js';
@@ -15,6 +11,8 @@ import { type UserDocument, UserModel, UserRaHistoryModel } from '@/models/User.
 import { BaseService, type BaseServiceOptions } from '@/services/base-service.js';
 
 const [studentEmailDomain] = UFABC_EMAIL_DOMAINS;
+const SIGAA_STUDENT_SYNC_CACHE_TTL_MS = 1000 * 60 * 60 * 24;
+const RECENT_RA_CHANGE_WINDOW_DAYS = 30;
 
 type SigaaSession = { sessionId: string; viewId: string };
 
