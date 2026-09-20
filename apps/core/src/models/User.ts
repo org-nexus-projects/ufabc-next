@@ -118,25 +118,3 @@ export type User = Omit<UserBase, 'expiresAt'> & { expiresAt: Date | null };
 
 export type UserDocument = ReturnType<(typeof UserModel)['hydrate']>;
 export const UserModel = model<User>('users', userSchema);
-
-export async function ensureUserRaIndex() {
-  const indexes = await UserModel.collection.indexes();
-  const raIndex = indexes.find((index) => index.name === 'ra_1');
-  const acceptsOnlyNumbers =
-    raIndex?.partialFilterExpression?.ra?.$type === 'number';
-
-  if (raIndex && !acceptsOnlyNumbers) {
-    await UserModel.collection.dropIndex('ra_1');
-  }
-
-  if (!raIndex || !acceptsOnlyNumbers) {
-    await UserModel.collection.createIndex(
-      { ra: 1 },
-      {
-        name: 'ra_1',
-        unique: true,
-        partialFilterExpression: { ra: { $type: 'number' } },
-      }
-    );
-  }
-}
