@@ -1,3 +1,4 @@
+import type { FastifyInstance } from 'fastify';
 import type { Types } from 'mongoose';
 
 import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
@@ -19,7 +20,7 @@ type SigaaSession = { sessionId: string; viewId: string };
 
 export class StudentService extends BaseService {
   constructor(
-    private readonly app: any,
+    private readonly app: FastifyInstance,
     options: BaseServiceOptions = {}
   ) {
     super(options);
