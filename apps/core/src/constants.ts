@@ -41,6 +41,8 @@ export const MAX_LOG_SIZE = 600 * 1024;
 export const BYTES_PER_MB = 1024 * 1024;
 export const NANOSECONDS_PER_MS = 1_000_000;
 export const SNAPSHOT_URL_TTL_SECONDS = 7 * 24 * 60 * 60;
+export const SIGAA_STUDENT_SYNC_CACHE_TTL_MS = 1000 * 60 * 60 * 24;
+export const RECENT_RA_CHANGE_WINDOW_DAYS = 30;
 
 export const PARSER_WEBHOOK_EVENTS = {
   CLASS_SETTLED: 'class.settled',

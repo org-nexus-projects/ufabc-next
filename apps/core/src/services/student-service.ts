@@ -1,6 +1,11 @@
 import type { Types } from 'mongoose';
 
 import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
+import {
+  RECENT_RA_CHANGE_WINDOW_DAYS,
+  SIGAA_STUDENT_SYNC_CACHE_TTL_MS,
+  UFABC_EMAIL_DOMAINS,
+} from '@/constants.js';
 import { EnrollmentModel } from '@/models/Enrollment.js';
 import { GraduationHistoryModel } from '@/models/GraduationHistory.js';
 import { HistoryModel } from '@/models/History.js';
@@ -8,9 +13,7 @@ import { StudentModel } from '@/models/Student.js';
 import { type UserDocument, UserModel, UserRaHistoryModel } from '@/models/User.js';
 import { BaseService, type BaseServiceOptions } from '@/services/base-service.js';
 
-const CACHE_TTL = 1000 * 60 * 60 * 24;
-const RECENT_RA_CHANGE_WINDOW_DAYS = 30;
-const STUDENT_EMAIL_DOMAIN = '@aluno.ufabc.edu.br';
+const [studentEmailDomain] = UFABC_EMAIL_DOMAINS;
 
 type SigaaSession = { sessionId: string; viewId: string };
 
@@ -24,7 +27,7 @@ export class StudentService extends BaseService {
 
   async syncFromSigaa(params: { ra: number; login: string }, sigaaSession: SigaaSession) {
     const { ra, login } = params;
-    const studentEmail = `${login}${STUDENT_EMAIL_DOMAIN}`;
+    const studentEmail = `${login}@${studentEmailDomain}`;
 
     const user = await UserModel.findOne({ email: studentEmail });
 
@@ -68,7 +71,7 @@ export class StudentService extends BaseService {
     }
 
     await studentSync.transition('awaiting', { source: 'sigaa', login });
-    await this.app.redis.set(cacheKey, login, 'PX', CACHE_TTL);
+    await this.app.redis.set(cacheKey, login, 'PX', SIGAA_STUDENT_SYNC_CACHE_TTL_MS);
 
     return { status: 'success', data: { ra: String(ra), login } } as const;
   }
@@ -94,13 +97,13 @@ export class StudentService extends BaseService {
         } as const;
       }
 
-      await this.recordRaHistory(userWithSameRa._id, newRa);
+      await this.recordRaHistory(userWithSameRa._id, String(newRa));
       await this.deactivateRecordsForRa(newRa);
       await UserModel.updateOne({ _id: userWithSameRa._id }, { $set: { ra: null } });
     }
 
     if (user.ra !== null && user.ra !== undefined) {
-      await this.recordRaHistory(user._id, user.ra);
+      await this.recordRaHistory(user._id, String(user.ra));
       await this.deactivateRecordsForRa(user.ra);
     }
 
@@ -111,7 +114,7 @@ export class StudentService extends BaseService {
     return null;
   }
 
-  private async recordRaHistory(userId: Types.ObjectId, previousRa: number) {
+  private async recordRaHistory(userId: Types.ObjectId, previousRa: string) {
     await UserRaHistoryModel.updateMany(
       { user_id: userId, status: 'current' },
       { $set: { status: 'replaced' } }
@@ -128,5 +131,3 @@ export class StudentService extends BaseService {
     ]);
   }
 }
-
-export default StudentService;

@@ -91,7 +91,7 @@ const userSchema = new Schema(
 const userRaHistorySchema = new Schema(
   {
     user_id: { type: Schema.Types.ObjectId, ref: 'users', required: true },
-    previous_ra: { type: Number, required: true },
+    previous_ra: { type: String, required: true },
     status: {
       type: String,
       enum: ['current', 'replaced'],
