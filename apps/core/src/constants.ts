@@ -89,3 +89,6 @@ export const REGEX_SPECIAL_CHARS = /[.*+?^${}()|[\]\\]/u;
 // e.g. "MCTA001-24" — a real discipline offering, not a Moodle
 // program/degree-shell course (those have no discipline code anywhere)
 export const DISCIPLINE_CODE_PATTERN = /[A-Z]{2,}\d{3,}(?:-\d+)?/u;
+
+export const SIGAA_STUDENT_SYNC_CACHE_TTL_MS = 1000 * 60 * 60 * 24;
+export const RECENT_RA_CHANGE_WINDOW_DAYS = 30;
