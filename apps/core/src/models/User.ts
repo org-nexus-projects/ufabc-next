@@ -90,13 +90,18 @@ const userSchema = new Schema(
 
 const userRaHistorySchema = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, ref: 'users', required: true },
-    Ra: { type: String, required: true, default: null },
+    user_id: { type: Schema.Types.ObjectId, ref: 'users', required: true },
+    previous_ra: { type: String, required: true },
+    status: {
+      type: String,
+      enum: ['current', 'replaced'],
+      default: 'current',
+    },
   },
   { timestamps: true }
 );
 
-userRaHistorySchema.index({ userId: 1, createdAt: -1 });
+userRaHistorySchema.index({ user_id: 1, status: 1 });
 
 export type UserRaHistory = InferSchemaType<typeof userRaHistorySchema>;
 export type UserRaHistoryDocument = ReturnType<
@@ -104,7 +109,7 @@ export type UserRaHistoryDocument = ReturnType<
 >;
 
 export const UserRaHistoryModel = model<UserRaHistory>(
-  'user_ras',
+  'user_ra_history',
   userRaHistorySchema
 );
 
