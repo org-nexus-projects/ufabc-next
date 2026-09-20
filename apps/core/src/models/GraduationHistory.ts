@@ -26,6 +26,7 @@ type GraduationHistory = {
   curso: string;
   grade: string;
   graduation: Types.ObjectId;
+  active?: boolean;
   coefficients: Record<number, CoefficientsMap>;
 };
 
@@ -67,6 +68,7 @@ const graduationHistorySchema = new Schema<
       type: Number,
       required: true,
     },
+    active: { type: Boolean, default: true },
     coefficients: Object,
 
     disciplinas: [GraduationHistoryDisciplinasSchema],

@@ -89,7 +89,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     const [users, currentStudents, comments, enrollments, [componentStats]] =
       await Promise.all([
         UserModel.countDocuments({}),
-        StudentModel.countDocuments({}),
+        StudentModel.countDocuments({ active: { $ne: false } }),
         CommentModel.countDocuments({}),
         EnrollmentModel.countDocuments({
           conceito: { $in: ['A', 'B', 'C', 'D', '0', 'F'] },
@@ -236,7 +236,10 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
           $exists: true,
         },
       }),
-      currentAlunos: await StudentModel.countDocuments({ season }),
+      currentAlunos: await StudentModel.countDocuments({
+        season,
+        active: { $ne: false },
+      }),
       comments: await CommentModel.countDocuments({}),
       enrollments: await EnrollmentModel.countDocuments({
         conceito: { $in: ['A', 'B', 'C', 'D', 'O', 'F'] },

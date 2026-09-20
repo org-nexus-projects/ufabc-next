@@ -23,6 +23,7 @@ const validateStudent: preHandlerAsyncHookHandler = async (request, reply) => {
     season: string;
   };
   const student = await StudentModel.findOne({
+    active: { $ne: false },
     season,
     aluno_id: studentId,
   });
@@ -133,6 +134,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         {
           $match: {
             season: request.query.season,
+            active: { $ne: false },
             aluno_id: { $in: resolveKicked.map((kicked) => kicked.studentId) },
           },
         },
@@ -148,6 +150,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
         },
         {
           $match: {
+            active: { $ne: false },
             'cursos.id_curso': {
               $ne: null,
             },

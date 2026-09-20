@@ -19,6 +19,7 @@ export async function upsertEnrollment(
 ): Promise<string | null> {
   // @ts-ignore - Mongoose FilterQuery type
   const base: FilterQuery<Enrollment> = {
+    active: { $ne: false },
     ra: enrollmentData.ra,
     season: enrollmentData.season,
   };
