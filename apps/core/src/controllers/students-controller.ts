@@ -5,8 +5,8 @@ import { z } from 'zod';
 import { matriculaSession } from '@/hooks/matricula-session.js';
 import { sigaaSession } from '@/hooks/sigaa-session.js';
 import { StudentModel } from '@/models/Student.js';
+import { StudentService } from '@/services/student-service.js';
 import { findRaByLogin } from '@/utils/resolve-student-ra.js';
-import { syncStudentFromSigaa } from '@/services/sigaa-student-sync.js';
 
 export const studentsController: FastifyPluginAsyncZod = async (app) => {
   app.route({
@@ -121,11 +121,10 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
       const { ra, login } = request.body;
       const { sessionId, viewId } = request.sigaaSession;
 
-      const result = await syncStudentFromSigaa(
-        app,
+      const studentService = new StudentService(app, { globalTraceId: request.id });
+      const result = await studentService.syncFromSigaa(
         { ra, login },
-        { sessionId, viewId },
-        request.id
+        { sessionId, viewId }
       );
 
       if (result.status === 'not_found') {
@@ -133,7 +132,6 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
       }
 
       if (result.status === 'cached') {
-        app.log.debug({ cacheKey: result.cacheKey }, 'Student already synced');
         return reply.status(202).send({ status: 'cached' });
       }
 
