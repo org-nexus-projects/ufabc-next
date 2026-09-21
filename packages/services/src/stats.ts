@@ -22,27 +22,27 @@ export type StatsParams = {
 
 export const StatsSubjects = {
   getAllClasses: async (params: StatsParams) => {
-    const { data } = await api.get('public/stats/components', { params });
+    const { data } = await api.get('v2/public/stats/components', { params });
     return data as PageableReturn<StatsClass>;
   },
   getAllCourses: async (params: StatsParams) => {
-    const { data } = await api.get('public/stats/components/courses', { params });
+    const { data } = await api.get('v2/public/stats/components/courses', { params });
     return data as PageableReturn<StatsCourse>;
   },
   getAllSubjects: async (params: StatsParams) => {
-    const { data } = await api.get('public/stats/components/component', { params });
+    const { data } = await api.get('v2/public/stats/components/component', { params });
     return data as PageableReturn<StatsSubject>;
   },
   getAllCoursesNames: async () => {
-    const { data } = await api.get('/histories/courses');
+    const { data } = await api.get('/v2/histories/courses');
     return data as CourseName[];
   },
   getOverview: async (params: Pick<StatsParams, 'season'>) => {
-    const { data } = await api.get('public/stats/components/overview', { params });
+    const { data } = await api.get('v2/public/stats/components/overview', { params });
     return data as StatsOverview;
   },
   getUsage: async (params: Pick<StatsParams, 'season'>) => {
-    const { data } = await api.get('public/stats/usage', { params });
+    const { data } = await api.get('v2/public/stats/usage', { params });
     return data as StatsUsage;
   },
 };

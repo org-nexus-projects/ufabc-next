@@ -61,15 +61,15 @@ type HistoriesGraduations = {
 
 export const Performance = {
   getCrHistory: async () => {
-    const { data } = await api.get<QuadInformation[]>('courseStats/history');
+    const { data } = await api.get<QuadInformation[]>('v2/courseStats/history');
     return data;
   },
   getCrDistribution: async () => {
-    const { data } = await api.get<CrDistributionData[]>('courseStats/grades');
+    const { data } = await api.get<CrDistributionData[]>('v2/courseStats/grades');
     return data;
   },
   getHistoriesGraduations: async () => {
-    const { data } = await api.get<HistoriesGraduations>('/courseStats/user/grades');
+    const { data } = await api.get<HistoriesGraduations>('/v2/courseStats/user/grades');
     return data;
   },
 };
