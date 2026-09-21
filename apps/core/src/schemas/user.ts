@@ -1,5 +1,6 @@
 import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 
+import 'zod-openapi/extend';
 import { z } from 'zod';
 
 const tags = ['User'];
@@ -154,5 +155,15 @@ export const sendRecoveryEmailSchema = {
   tags,
   body: z.object({
     email: z.string().email(),
+  }),
+} satisfies FastifyZodOpenApiSchema;
+
+export const userInfoSchema = {
+  querystring: z.object({}).passthrough(),
+} satisfies FastifyZodOpenApiSchema;
+
+export const validateUserRaSchema = {
+  params: z.object({
+    ra: z.string(),
   }),
 } satisfies FastifyZodOpenApiSchema;

@@ -116,3 +116,19 @@ export class TeacherSummaryNotFound extends NextError {
     );
   }
 }
+
+export class LegacyBodyError extends Error {
+  readonly body: Record<string, unknown>;
+  readonly statusCode: number;
+
+  constructor(
+    message: string,
+    statusCode: number,
+    body: Record<string, unknown>
+  ) {
+    super(message);
+    this.name = 'LegacyBodyError';
+    this.body = body;
+    this.statusCode = statusCode;
+  }
+}

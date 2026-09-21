@@ -10,6 +10,7 @@ type RedisService = {
   releaseLock: (key: string) => Promise<boolean>;
   setJSON: <T>(key: string, value: T, ttl: string) => Promise<'OK'>;
   getJSON: <T>(key: string) => Promise<T | null>;
+  increment: (key: string, ttl: string) => Promise<number>;
 };
 
 declare module 'fastify' {
@@ -59,6 +60,16 @@ export default fp(
         }
 
         return app.redis.set(fullKey, serializedValue);
+      },
+      increment: async (key: string, ttl: string) => {
+        const fullKey = `${HTTP_REDIS_KEY_PREFIX}:${key}`;
+        const value = await app.redis.incr(fullKey);
+
+        if (value === 1) {
+          await app.redis.pexpire(fullKey, ms(ttl));
+        }
+
+        return value;
       },
       getJSON: async <T>(key: string) => {
         const fullKey = `${HTTP_REDIS_KEY_PREFIX}:${key}`;

@@ -72,3 +72,15 @@ export const listComponentsResume = {
     },
   },
 } satisfies FastifyZodOpenApiSchema;
+
+export const publicSummarySchema = {
+  querystring: z.object({}).passthrough(),
+} satisfies FastifyZodOpenApiSchema;
+
+export const publicUsageSchema = {
+  querystring: z
+    .object({
+      season: z.union([z.string(), z.array(z.string())]).optional(),
+    })
+    .passthrough(),
+} satisfies FastifyZodOpenApiSchema;

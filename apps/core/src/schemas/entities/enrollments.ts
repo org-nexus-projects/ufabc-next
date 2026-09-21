@@ -2,7 +2,7 @@ import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 
 import { z } from 'zod';
 
-const enrollmentsListSchema = z.object({
+export const enrollmentsListSchema = z.object({
   _id: z.coerce.string(),
   disciplina: z.string(),
   quad: z.union([z.literal(1), z.literal(2), z.literal(3)]),
@@ -55,4 +55,13 @@ export const listUserEnrollments = {
       },
     },
   },
+} satisfies FastifyZodOpenApiSchema;
+
+export const listWppEnrollmentsSchema = {
+  querystring: z
+    .object({
+      ra: z.union([z.string(), z.array(z.string())]).optional(),
+      season: z.union([z.string(), z.array(z.string())]).optional(),
+    })
+    .passthrough(),
 } satisfies FastifyZodOpenApiSchema;

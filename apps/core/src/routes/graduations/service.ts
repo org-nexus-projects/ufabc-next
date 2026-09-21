@@ -30,3 +30,35 @@ export async function listSubjectsById(graduationId: string, limit: number) {
     .lean();
   return subjects;
 }
+
+export async function listGraduationSubjectsPage(page: number, limit: number) {
+  const [total, graduationSubjects] = await Promise.all([
+    getTotal(),
+    getPaginated(page, limit),
+  ]);
+
+  const pages = Math.ceil(total / limit);
+  const results = graduationSubjects.map((g) => ({
+    _id: g._id.toString(),
+    name: g.subject.name,
+    UFCode: g.codigo,
+    credits: g.creditos,
+    category: g.category,
+    year: g.year,
+    quad: g.quad,
+  }));
+
+  return {
+    total,
+    pages,
+    data: results,
+  };
+}
+
+export async function listGraduationSubjectsById(
+  graduationId: string,
+  limit: number
+) {
+  const graduationSubjects = await listSubjectsById(graduationId, limit);
+  return { docs: graduationSubjects };
+}

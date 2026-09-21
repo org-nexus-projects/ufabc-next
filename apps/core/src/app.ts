@@ -5,19 +5,34 @@ import dbPlugin from '@next/db/client';
 import type { DatabaseModels } from '@next/db/models';
 import { serializeQueryParams } from '@next/logger/sanitize';
 import type { FastifyInstance, FastifyServerOptions } from 'fastify';
-import { RequestValidationError } from 'fastify-zod-openapi';
 import type { Mongoose } from 'mongoose';
 
 import { authenticationController } from './controllers/authentication-controller.js';
 import backofficeController from './controllers/backoffice-controller.js';
+import { commentsController } from './controllers/comments-controller.js';
 import componentsController from './controllers/components-controller.js';
+import { courseStatsController } from './controllers/course-stats-controller.js';
+import { componentsEntitiesController } from './controllers/entities/components-controller.js';
+import { enrollmentsController } from './controllers/entities/enrollments-controller.js';
+import { graduationsController } from './controllers/graduations-controller.js';
+import { helpController } from './controllers/help-controller.js';
+import { historiesController } from './controllers/histories-controller.js';
+import { loginController } from './controllers/login-controller.js';
+import { studentsEntitiesController } from './controllers/entities/students-controller.js';
+import { subjectsController } from './controllers/entities/subjects-controller.js';
+import { teachersController } from './controllers/entities/teachers-controller.js';
 import { proxyController } from './controllers/proxy-controller.js';
+import { publicController } from './controllers/public-controller.js';
 import studentsController from './controllers/students-controller.js';
+import { syncController } from './controllers/sync-controller.js';
 import { teacherSummaryController } from './controllers/teacher-summary-controller.js';
 import { UfabcParserIncomingWebhookController } from './controllers/ufabc-parser-webhook-controller.js';
+import { usersController } from './controllers/users-controller.js';
 import { authenticateBoard } from './hooks/board-authenticate.js';
 import awsV2Plugin from './plugins/v2/aws.js';
-import errorHandlerPlugin from './plugins/v2/error-handler.js';
+import errorHandlerPlugin, {
+  schemaErrorFormatter,
+} from './plugins/v2/error-handler.js';
 import memoryMonitorPlugin from './plugins/v2/memory-monitor.js';
 import queueV2Plugin from './plugins/v2/queue.js';
 import redisV2Plugin from './plugins/v2/redis.js';
@@ -31,8 +46,22 @@ declare module 'fastify' {
   }
 }
 
-const routesV2 = [
+export const routesV2 = [
+  commentsController,
   componentsController,
+  componentsEntitiesController,
+  courseStatsController,
+  enrollmentsController,
+  graduationsController,
+  helpController,
+  historiesController,
+  loginController,
+  publicController,
+  studentsEntitiesController,
+  syncController,
+  usersController,
+  subjectsController,
+  teachersController,
   backofficeController,
   studentsController,
   UfabcParserIncomingWebhookController,
@@ -65,18 +94,7 @@ export async function buildApp(
 
   await setupV2Routes(app, routesV2);
 
-  app.setSchemaErrorFormatter((errors, dataVar) => {
-    let message = `${dataVar}:`;
-    for (const error of errors) {
-      if (error instanceof RequestValidationError) {
-        message += ` ${error.instancePath} ${error.keyword}`;
-      } else if (error.instancePath && error.keyword) {
-        message += ` ${error.instancePath} ${error.keyword}`;
-      }
-    }
-
-    return new Error(message);
-  });
+  app.setSchemaErrorFormatter(schemaErrorFormatter);
 
   await app.register(errorHandlerPlugin);
 

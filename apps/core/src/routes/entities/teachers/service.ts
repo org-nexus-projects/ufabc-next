@@ -13,8 +13,36 @@ type SearchResult = {
   }>;
 };
 
+type TeacherDistribution = {
+  conceito: string;
+  weight: number | null;
+  count: number;
+  eadCount: number;
+  cr_medio: number | null;
+  numeric: number;
+  numericWeight: number;
+  amount: number;
+};
+
+type TeacherReviewsAggregate = {
+  _id: Types.ObjectId;
+  distribution: TeacherDistribution[];
+  numericWeight: number;
+  numeric: number;
+  amount: number;
+  count: number;
+  eadCount: number;
+  cr_professor: number | 'N/A';
+  cr_medio?: number;
+};
+
+type MeanInput = Pick<
+  TeacherDistribution,
+  'amount' | 'count' | 'cr_medio' | 'eadCount' | 'numeric' | 'numericWeight'
+>;
+
 export async function rawReviews(teacherId: Types.ObjectId) {
-  const rawStats = await EnrollmentModel.aggregate<any>([
+  const rawStats = await EnrollmentModel.aggregate<TeacherReviewsAggregate>([
     {
       $match: {
         mainTeacher: teacherId,
@@ -143,7 +171,7 @@ export async function findOne(id: string) {
   return teacher;
 }
 
-export async function populateWithSubject(stats: any) {
+export async function populateWithSubject(stats: TeacherReviewsAggregate[]) {
   const populatedSubject = await SubjectModel.populate(stats, '_id');
   return populatedSubject;
 }
@@ -192,3 +220,58 @@ export async function listAll() {
   return teachers;
 }
 
+
+export function getMean(value: MeanInput[], key?: string) {
+  const count = value.reduce((sum, v) => sum + v.count, 0);
+  const amount = value.reduce((sum, v) => sum + v.amount, 0);
+  const eadCount = value.reduce((sum, v) => sum + v.eadCount, 0);
+  const simpleSum = value
+    .filter((v): v is MeanInput & { cr_medio: number } => v.cr_medio != null)
+    .reduce((sum, v) => sum + v.amount * v.cr_medio, 0);
+
+  return {
+    conceito: key,
+    cr_medio: simpleSum / amount,
+    cr_professor: value.reduce((sum, v) => sum + v.numericWeight, 0) / amount,
+    count,
+    eadCount,
+    amount: amount,
+    numeric: value.reduce((sum, v) => sum + v.numeric, 0),
+    numericWeight: value.reduce((sum, v) => sum + v.numericWeight, 0),
+    weight: 0, // Added to match the Distribution interface
+  };
+}
+
+export async function buildTeacherReviews(teacherId: string) {
+  const validTeacherId = new Types.ObjectId(teacherId);
+  const stats = await rawReviews(validTeacherId);
+  stats.forEach((s) => {
+    s.cr_medio = s.numeric / s.amount;
+  });
+
+  const generalDistribution = stats
+    .flatMap((stat) => stat.distribution)
+    .reduce((acc, dist) => {
+      if (!acc[dist.conceito]) {
+        acc[dist.conceito] = [];
+      }
+      acc[dist.conceito].push(dist);
+      return acc;
+    }, {} as Record<string, TeacherDistribution[]>);
+
+  const generalDistributions = Object.entries(generalDistribution).map(
+    ([key, value]) => getMean(value, key)
+  );
+
+  const teacher = await findOne(teacherId);
+  const populatedSubject = await populateWithSubject(stats);
+
+  return {
+    teacher,
+    general: {
+      ...getMean(generalDistributions),
+      distribution: generalDistributions,
+    },
+    specific: populatedSubject,
+  };
+}

@@ -1,8 +1,11 @@
 import type { Types } from 'mongoose';
 
 import type { Concept } from '@/models/History.js';
+import type { Subject } from '@/models/Subject.js';
 
 import { EnrollmentModel } from '@/models/Enrollment.js';
+import { SubjectModel } from '@/models/Subject.js';
+import { TeacherModel } from '@/models/Teacher.js';
 
 export type Distribution = {
   conceito: Concept;
@@ -126,4 +129,61 @@ export async function rawSubjectsReviews(subjectId: Types.ObjectId) {
     },
   ]);
   return rawStats;
+}
+
+export function getMean(value: Distribution[], key?: string): Distribution {
+  const count = value.reduce((sum, v) => sum + v.count, 0);
+  const amount = value.reduce((sum, v) => sum + v.amount, 0);
+  const simpleSum = value
+    .filter((v) => v.cr_medio != null)
+    .reduce((sum, v) => sum + v.amount * v.cr_medio, 0);
+
+  return {
+    conceito: key as Distribution['conceito'],
+    cr_medio: simpleSum / amount,
+    cr_professor: value.reduce((sum, v) => sum + v.numericWeight, 0) / amount,
+    count,
+    amount: amount,
+    numeric: value.reduce((sum, v) => sum + v.numeric, 0),
+    numericWeight: value.reduce((sum, v) => sum + v.numericWeight, 0),
+    weight: 0, // Added to match the Distribution interface
+  };
+}
+
+export async function buildSubjectReviews(subjectId: Types.ObjectId) {
+  const stats = await rawSubjectsReviews(subjectId);
+  stats.forEach((s) => {
+    s.cr_medio = s.numeric / s.amount;
+  });
+
+  const generalDistribution = stats
+    .flatMap((stat) => stat.distribution)
+    .reduce(
+      (acc, dist) => {
+        if (!acc[dist.conceito]) {
+          acc[dist.conceito] = [];
+        }
+        acc[dist.conceito].push(dist);
+        return acc;
+      },
+      {} as Record<string, Distribution[]>
+    );
+
+  const generalDistributions = Object.entries(generalDistribution).map(
+    ([key, value]) => getMean(value, key)
+  );
+
+  const subject = await SubjectModel.findOne({
+    _id: subjectId,
+  }).lean();
+  const teacher = await TeacherModel.populate(stats, 'teacher');
+
+  return {
+    subject: subject as NonNullable<Subject>,
+    general: {
+      ...getMean(generalDistributions),
+      distribution: generalDistributions,
+    },
+    specific: teacher,
+  };
 }

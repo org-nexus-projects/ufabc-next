@@ -51,3 +51,7 @@ export const userGradesSchema = {
     },
   },
 } satisfies FastifyZodOpenApiSchema;
+
+export const listUserGradesSchema = {
+  querystring: z.object({}).passthrough(),
+} satisfies FastifyZodOpenApiSchema;

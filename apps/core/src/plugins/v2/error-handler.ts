@@ -12,104 +12,123 @@ import {
 } from 'fastify-zod-openapi';
 
 import { NextError } from '@/errors/base-error.js';
+import { LegacyBodyError } from '@/errors/custom-errors.js';
+
+export const schemaErrorFormatter: Parameters<
+  FastifyInstance['setSchemaErrorFormatter']
+>[0] = (errors, dataVar) => {
+  let message = `${dataVar}:`;
+  for (const error of errors) {
+    if (error instanceof RequestValidationError) {
+      message += ` ${error.instancePath} ${error.keyword}`;
+    } else if (error.instancePath && error.keyword) {
+      message += ` ${error.instancePath} ${error.keyword}`;
+    }
+  }
+
+  return new Error(message);
+};
+
+export function centralErrorHandler(
+  error: FastifyError,
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  reply.error = error as Error;
+
+  const requestContext = {
+    method: request.method,
+    params: request.params,
+    query: serializeQueryParams(request.query),
+    url: request.url,
+  };
+
+  if (error instanceof ResponseSerializationError) {
+    reply.status(422);
+    reply.send({
+      originalError: error.validation?.[0]?.params.error ?? null,
+      zodIssues: error.validation?.map((err) => err.params.issue) ?? [],
+    });
+    return;
+  }
+
+  if (
+    error instanceof RequestValidationError ||
+    (error &&
+      typeof error === 'object' &&
+      'validation' in error &&
+      error.validation)
+  ) {
+    const validationError = error as Error & { validation: unknown[] };
+
+    request.log.warn(
+      { error: validationError, request: requestContext },
+      validationError.message
+    );
+
+    reply.status(400);
+    reply.send({
+      error: 'Bad Request',
+      message: validationError.message,
+      statusCode: 400,
+      validation: validationError.validation,
+    });
+    return;
+  }
+
+  if (error instanceof LegacyBodyError) {
+    request.log.warn({ error, request: requestContext }, error.message);
+
+    reply.status(error.statusCode);
+    reply.send(error.body);
+    return;
+  }
+
+  if (error instanceof NextError) {
+    request.log.warn({ error, request: requestContext }, error.description);
+
+    const httpBody = error.toHttp();
+    reply.status(httpBody.statusCode);
+    reply.send({
+      ...httpBody,
+      error: httpBody.title,
+      message: httpBody.description,
+    });
+    return;
+  }
+
+  if (error instanceof Error) {
+    const statusCode =
+      'statusCode' in error &&
+      typeof error.statusCode === 'number' &&
+      error.statusCode >= 400 &&
+      error.statusCode < 600
+        ? error.statusCode
+        : 500;
+
+    if (statusCode >= 500) {
+      request.log.error({ error, request: requestContext }, error.message);
+    } else {
+      request.log.warn({ error, request: requestContext }, error.message);
+    }
+
+    reply.status(statusCode);
+    reply.send({
+      error: error.name,
+      message: error.message,
+      statusCode,
+    });
+    return;
+  }
+
+  if (!error) {
+    return;
+  }
+}
 
 export default fp(
   (app: FastifyInstance) => {
-    app.setErrorHandler(
-      (error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
-        reply.error = error as Error;
-
-        const requestContext = {
-          method: request.method,
-          params: request.params,
-          query: serializeQueryParams(request.query),
-          url: request.url,
-        };
-
-        if (error instanceof ResponseSerializationError) {
-          reply.status(422);
-          reply.send({
-            originalError: error.validation?.[0]?.params.error ?? null,
-            zodIssues: error.validation?.map((err) => err.params.issue) ?? [],
-          });
-          return;
-        }
-
-        if (
-          error instanceof RequestValidationError ||
-          (error &&
-            typeof error === 'object' &&
-            'validation' in error &&
-            error.validation)
-        ) {
-          const validationError = error as Error & { validation: unknown[] };
-
-          request.log.warn(
-            { error: validationError, request: requestContext },
-            validationError.message
-          );
-
-          reply.status(400);
-          reply.send({
-            error: 'Bad Request',
-            message: validationError.message,
-            statusCode: 400,
-            validation: validationError.validation,
-          });
-          return;
-        }
-
-        if (error instanceof NextError) {
-          request.log.warn(
-            { error, request: requestContext },
-            error.description
-          );
-
-          const httpBody = error.toHttp();
-          reply.status(httpBody.statusCode);
-          reply.send({
-            ...httpBody,
-            error: httpBody.title,
-            message: httpBody.description,
-          });
-          return;
-        }
-
-        if (error instanceof Error) {
-          const statusCode =
-            'statusCode' in error &&
-            typeof error.statusCode === 'number' &&
-            error.statusCode >= 400 &&
-            error.statusCode < 600
-              ? error.statusCode
-              : 500;
-
-          if (statusCode >= 500) {
-            request.log.error(
-              { error, request: requestContext },
-              error.message
-            );
-          } else {
-            request.log.warn(
-              { error, request: requestContext },
-              error.message
-            );
-          }
-
-          reply.status(statusCode);
-          reply.send({
-            error: error.name,
-            message: error.message,
-            statusCode,
-          });
-          return;
-        }
-
-        if (!error) {
-          return;
-        }
-      }
-    );
+    app.setErrorHandler(centralErrorHandler);
   },
   { name: 'error-handler' }
 );
