@@ -111,8 +111,9 @@ async function handleStudentSynced(
     });
   }
 
+  // Syncs triggered by other parser clients (e.g. UFABConecta) have no StudentSync
   const login =
-    studentSync?.timeline?.[0]?.metadata?.login ?? null;
+    studentSync?.timeline?.[0]?.metadata?.login || data.login || null;
 
   if (!login) {
     app.log.warn(
