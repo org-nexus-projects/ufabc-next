@@ -48,7 +48,7 @@ export const buildGoogleAuthUrl = ({
   appHostname = window.location.hostname,
   apiBaseUrl = runtimeConfig.apiBaseUrl,
 }: GoogleAuthUrlOptions) => {
-  const url = new URL('login/google', normalizeBaseUrl(apiBaseUrl));
+  const url = new URL('v2/login/google', normalizeBaseUrl(apiBaseUrl));
 
   url.searchParams.set('requesterKey', requesterKey);
 

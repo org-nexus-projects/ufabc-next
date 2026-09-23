@@ -127,3 +127,17 @@ export const deleteReactionSchema = {
     },
   },
 } satisfies FastifyZodOpenApiSchema;
+
+export const addReactionSchema = {
+  body: z.unknown(),
+  params: z.object({
+    commentId: z.string(),
+  }),
+};
+
+export const removeReactionSchema = {
+  params: z.object({
+    commentId: z.string(),
+    kind: z.string(),
+  }),
+} satisfies FastifyZodOpenApiSchema;

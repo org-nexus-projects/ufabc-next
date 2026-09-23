@@ -36,6 +36,14 @@ export const REQUESTERS = ['ufabc-next', 'ufabc-cronos'] as const;
 export const REDIRECT_TARGETS = ['web', 'web-local'] as const;
 
 export const HTTP_REDIS_KEY_PREFIX = 'http';
+
+export const DEPRECATION_HEADER = 'Deprecation';
+export const DEPRECATION_HEADER_VALUE = '@1789776000';
+export const DEPRECATION_LOG_MESSAGE = 'DEPRECATED V1 ROUTE';
+export const DEPRECATION_METRIC_FAILED_MESSAGE =
+  'DEPRECATED V1 ROUTE METRIC FAILED';
+export const DEPRECATION_METRIC_PREFIX = 'deprecation:v1';
+export const DEPRECATION_METRIC_TTL = '90 days';
 export const MAX_LOG_SIZE = 600 * 1024;
 
 export const BYTES_PER_MB = 1024 * 1024;

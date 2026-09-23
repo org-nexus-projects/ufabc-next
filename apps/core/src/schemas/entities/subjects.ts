@@ -4,7 +4,7 @@ import { camelCase, startCase } from 'lodash-es';
 import { Types } from 'mongoose';
 import { z } from 'zod';
 
-const paginatedSubjectsSchema = z.object({
+export const paginatedSubjectsSchema = z.object({
   total: z.number().int(),
   pages: z.number().int(),
   data: z
@@ -33,6 +33,18 @@ export const listSubjectsSchema = {
   },
 } satisfies FastifyZodOpenApiSchema;
 
+export const searchSubjectsResponseSchema = z.object({
+  total: z.number().int(),
+  data: z
+    .object({
+      _id: z.coerce.string(),
+      name: z.string(),
+      search: z.string().nullable(),
+      creditos: z.number().int().nullish(),
+    })
+    .array(),
+});
+
 export const searchSubjectSchema = {
   querystring: z.object({
     q: z
@@ -44,17 +56,7 @@ export const searchSubjectSchema = {
     200: {
       content: {
         'application/json': {
-          schema: z.object({
-            total: z.number().int(),
-            data: z
-              .object({
-                _id: z.coerce.string(),
-                name: z.string(),
-                search: z.string().nullable(),
-                creditos: z.number().int().nullish(),
-              })
-              .array(),
-          }),
+          schema: searchSubjectsResponseSchema,
         },
       },
     },

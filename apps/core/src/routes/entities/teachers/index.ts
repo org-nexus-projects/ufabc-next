@@ -1,7 +1,5 @@
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
-import { Types } from 'mongoose';
-
 import { TeacherModel } from '@/models/Teacher.js';
 import {
   createTeachersSchema,
@@ -11,11 +9,9 @@ import {
 } from '@/schemas/entities/teachers.js';
 
 import {
+  buildTeacherReviews,
   findAndUpdate,
-  findOne,
   listAll,
-  populateWithSubject,
-  rawReviews,
   searchMany,
 } from './service.js';
 
@@ -84,62 +80,12 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       return cached;
     }
 
-    const validTeacherId = new Types.ObjectId(teacherId);
-    const stats = await rawReviews(validTeacherId);
-    stats.forEach((s) => {
-      s.cr_medio = s.numeric / s.amount;
-    });
-
-    const generalDistribution = stats
-      .flatMap((stat) => stat.distribution)
-      .reduce((acc, dist) => {
-        if (!acc[dist.conceito]) {
-          acc[dist.conceito] = [];
-        }
-        acc[dist.conceito].push(dist);
-        return acc;
-      }, {});
-
-    const generalDistributions = Object.entries(generalDistribution).map(
-      ([key, value]) => getMean(value as any, key)
-    );
-
-    const teacher = await findOne(teacherId);
-    const populatedSubject = await populateWithSubject(stats);
-    const resp = {
-      teacher,
-      general: {
-        ...getMean(generalDistributions),
-        distribution: generalDistributions,
-      },
-      specific: populatedSubject,
-    };
+    const resp = await buildTeacherReviews(teacherId);
 
     teachersCache.set(cacheKey, resp);
 
     return resp;
   });
 };
-
-function getMean(value: any[], key?: string): any {
-  const count = value.reduce((sum, v) => sum + v.count, 0);
-  const amount = value.reduce((sum, v) => sum + v.amount, 0);
-  const eadCount = value.reduce((sum, v) => sum + v.eadCount, 0);
-  const simpleSum = value
-    .filter((v) => v.cr_medio != null)
-    .reduce((sum, v) => sum + v.amount * v.cr_medio, 0);
-
-  return {
-    conceito: key,
-    cr_medio: simpleSum / amount,
-    cr_professor: value.reduce((sum, v) => sum + v.numericWeight, 0) / amount,
-    count,
-    eadCount,
-    amount: amount,
-    numeric: value.reduce((sum, v) => sum + v.numeric, 0),
-    numericWeight: value.reduce((sum, v) => sum + v.numericWeight, 0),
-    weight: 0, // Added to match the Distribution interface
-  };
-}
 
 export default plugin;

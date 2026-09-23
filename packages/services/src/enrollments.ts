@@ -4,11 +4,11 @@ import { api } from './api';
 
 export const Enrollments = {
   list: async () => {
-    const { data } = await api.get('/entities/enrollments');
+    const { data } = await api.get('/v2/entities/enrollments');
     return data as Enrollment[];
   },
   get: async (id: string) => {
-    const { data } = await api.get(`/entities/enrollments/${id}`);
+    const { data } = await api.get(`/v2/entities/enrollments/${id}`);
     return data as Enrollment;
   },
 };

@@ -87,3 +87,25 @@ export const listTeacherComponents = {
     },
   },
 } satisfies FastifyZodOpenApiSchema;
+
+const repeatableQueryValue = z.union([z.string(), z.array(z.string())]);
+
+export const listLegacyComponentsSchema = {
+  querystring: z
+    .object({
+      season: repeatableQueryValue.optional(),
+    })
+    .passthrough(),
+} satisfies FastifyZodOpenApiSchema;
+
+export const updateGroupUrlsSchema = {
+  body: z.unknown(),
+  params: z.object({
+    originKey: z.string(),
+  }),
+  querystring: z
+    .object({
+      season: repeatableQueryValue.optional(),
+    })
+    .passthrough(),
+};

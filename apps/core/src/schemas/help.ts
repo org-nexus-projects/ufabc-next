@@ -1,5 +1,6 @@
 import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 
+import 'zod-openapi/extend';
 import { z } from 'zod';
 
 const helpFormBodySchema = z.object({

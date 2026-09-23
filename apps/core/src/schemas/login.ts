@@ -76,3 +76,13 @@ export const googleCallbackSchema = {
     code: z.string().min(1),
   }),
 } satisfies FastifyZodOpenApiSchema;
+
+export const startGoogleLoginSchema = {
+  querystring: z
+    .object({
+      redirectTarget: z.union([z.string(), z.array(z.string())]).optional(),
+      requesterKey: z.union([z.string(), z.array(z.string())]).optional(),
+      userId: z.union([z.string(), z.array(z.string())]).optional(),
+    })
+    .passthrough(),
+} satisfies FastifyZodOpenApiSchema;

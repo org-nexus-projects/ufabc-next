@@ -1,5 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 
+import { registerDeprecationNotice } from '@/hooks/deprecation.js';
+
 const PUBLIC_ROUTES = [
   '/public',
   '/login',
@@ -35,6 +37,8 @@ const isExtensionRoute = (url: string) => {
 };
 
 export default async function (app: FastifyInstance) {
+  registerDeprecationNotice(app);
+
   app.decorateRequest('sessionId');
   app.addHook('onRequest', async (request, reply) => {
     const isPublic = isPublicRoute(request.url);

@@ -28,7 +28,7 @@ export const sendHelpForm = async (
     formData.append('image', data.image);
   }
 
-  const response = await api.post('/help/form', formData, {
+  const response = await api.post('/v2/help/form', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },

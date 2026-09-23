@@ -1,5 +1,6 @@
 import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 
+import 'zod-openapi/extend';
 import { currentQuad } from '@next/utils';
 import { z } from 'zod';
 
@@ -172,4 +173,8 @@ export const sigStudentSchema = {
       },
     },
   },
+} satisfies FastifyZodOpenApiSchema;
+
+export const listAllCoursesSchema = {
+  querystring: z.object({}).passthrough(),
 } satisfies FastifyZodOpenApiSchema;
