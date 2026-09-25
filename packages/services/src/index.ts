@@ -3,6 +3,7 @@ export * from './auth';
 export * from './comments';
 export * from './enrollments';
 export * from './help';
+export * from './history';
 export * from './performance';
 export * from './reviews';
 export * from './stats';
