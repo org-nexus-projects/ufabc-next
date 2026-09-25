@@ -54,6 +54,36 @@ se a aplicação local apontará para o backend `dev` ou `prod`. A `core` é sem
 iniciada localmente. Para manter o comando anterior que inicia todas as
 aplicações, use `pnpm dev:all`.
 
+## Frontend com Backend de Produção
+
+Executa o portal localmente consumindo a API de produção (login via Google OAuth).
+
+Verifique no .env se WEB_PRODUCTION_API_BASE_URL aponta para a API de produção.
+
+Inicie o portal:
+
+pnpm dev --web prod
+
+
+Acesse http://localhost:3000/app/login e clique em Entrar com Google.
+
+## Frontend com Backend Local
+
+Executa o portal e a API localmente (login via e-mail direto, sem OAuth).
+
+Verifique no .env se WEB_LOCAL_API_BASE_URL aponta para a API local (padrão: http://localhost:5000).
+
+Inicie os serviços:
+
+pnpm dev --web dev --core --jobs off
+
+
+Aguarde os serviços iniciarem e acesse http://localhost:3000/login.
+
+Insira um e-mail autorizado (ex: next.dev@aluno.ufabc.edu.br) e clique em Entrar no ambiente DEV.
+
+Nota de Autenticação: Para liberar outros e-mails locais, adicione-os na variável BACKOFFICE_EMAILS do .env (separados por vírgula). O e-mail também deve existir na coleção users do seu MongoDB local.
+
 Inicie apenas a aplicação necessária:
 
 ```sh

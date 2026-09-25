@@ -1,20 +1,50 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { Backoffice } from '@next/services';
+import type { RequestError } from '@next/services';
+import { useMutation } from '@tanstack/vue-query';
+import type { AxiosError } from 'axios';
+import { ElMessage } from 'element-plus';
+import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-import { logger } from '@/utils/logger';
-import { buildGoogleAuthUrl, isLocalAppSession } from '@/utils/runtimeConfig';
+import { useAuthStore } from '@/stores/auth';
+import {
+  buildGoogleAuthUrl,
+  isDevelopmentApiSession,
+} from '@/utils/runtimeConfig';
+
+const router = useRouter();
+const authStore = useAuthStore();
+const email = ref('');
+const usesDevelopmentBackend = computed(() => isDevelopmentApiSession());
 
 const googleAuthUrl = computed(() =>
   buildGoogleAuthUrl({ requesterKey: 'ufabc-next' })
 );
 
-logger.info(
-  {
-    data: googleAuthUrl.value,
-    me: 'Joabe',
+const { mutate: loginWithBackoffice, isPending } = useMutation({
+  mutationFn: Backoffice.getToken,
+  onError: (error: AxiosError<RequestError>) => {
+    ElMessage({
+      message:
+        error.response?.data.message ??
+        'Não foi possível entrar. Confira se o e-mail está autorizado no backoffice.',
+      showClose: true,
+      type: 'error',
+    });
   },
-  'user is starting loggin in dev env'
-);
+  onSuccess: ({ token }) => {
+    authStore.authenticate(token);
+    router.push('/');
+  },
+});
+
+function submitDevelopmentLogin() {
+  const normalizedEmail = email.value.trim().toLowerCase();
+  if (normalizedEmail.length > 0) {
+    loginWithBackoffice(normalizedEmail);
+  }
+}
 </script>
 
 <template>
@@ -31,11 +61,45 @@ logger.info(
 
       <div class="auth-panel">
         <div class="auth-content">
-          <p v-if="isLocalAppSession()" class="auth-env">Ambiente DEV</p>
+          <p v-if="usesDevelopmentBackend" class="auth-env">Backend DEV</p>
           <h1 class="auth-title">Bem-vindo(a)!</h1>
-          <p class="auth-subtitle">Entre com sua conta institucional</p>
+          <p class="auth-subtitle">
+            {{
+              usesDevelopmentBackend
+                ? 'Entre com um e-mail autorizado no backoffice'
+                : 'Entre com sua conta institucional'
+            }}
+          </p>
+
+          <form
+            v-if="usesDevelopmentBackend"
+            class="development-login-form"
+            @submit.prevent="submitDevelopmentLogin"
+          >
+            <v-text-field
+              v-model="email"
+              autocomplete="email"
+              class="development-email"
+              label="E-mail do backoffice"
+              type="email"
+              variant="outlined"
+            />
+            <v-btn
+              block
+              class="development-login-button"
+              color="primary"
+              :disabled="!email.trim()"
+              :loading="isPending"
+              rounded="lg"
+              size="x-large"
+              type="submit"
+            >
+              Entrar no ambiente DEV
+            </v-btn>
+          </form>
 
           <v-btn
+            v-else
             class="google-login-button"
             color="primary"
             rounded="lg"
@@ -162,6 +226,22 @@ logger.info(
   justify-content: flex-start;
   padding-inline: 16px;
   gap: 12px;
+}
+
+.development-login-form {
+  margin-top: 25px;
+  width: 100%;
+}
+
+.development-email {
+  width: 100%;
+}
+
+.development-login-button {
+  min-height: 56px;
+  text-transform: none;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 .google-icon-chip {
