@@ -43,9 +43,10 @@ cp .env.example .env
 ```
 
 Todas as aplicações leem esse único `.env` na raiz do workspace. No portal,
-`WEB_LOCAL_*` e `WEB_PRODUCTION_*` definem os alvos. Os valores do alvo
-selecionado são expostos como `VITE_*` no navegador, logo não inclua segredos
-neles.
+`WEB_LOCAL_API_BASE_URL` e `WEB_PRODUCTION_API_BASE_URL` definem a API de cada
+alvo; os respectivos tokens do Mixpanel são opcionais. Esses valores são
+expostos no navegador, logo não inclua segredos neles. O modo da aplicação, o
+base path e a URL pública do parser são derivados do alvo selecionado.
 
 Para desenvolvimento, `pnpm dev` abre uma seleção interativa. Marque as
 aplicações com espaço e confirme com Enter; para `web` e `extension`, escolha
