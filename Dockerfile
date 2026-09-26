@@ -2,6 +2,8 @@ ARG NODE_VERSION="24.12.0"
 
 FROM node:${NODE_VERSION}-alpine AS runtime
 
+ENV NODE_OPTIONS="--enable-source-maps --max-old-space-size=2048"
+
 #Env git secret private key
 ARG GIT_SECRET_PRIVATE_KEY
 ENV GIT_SECRET_PRIVATE_KEY=$GIT_SECRET_PRIVATE_KEY
@@ -20,9 +22,8 @@ FROM runtime as fetcher
 COPY pnpm*.yaml ./
 
 # mount pnpm store as cache & fetch dependencies
-RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm-store 
-
-RUN pnpm fetch --ignore-scripts
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm-store \
+  pnpm fetch --ignore-scripts
 
 FROM fetcher as builder
 # specify the app in apps/ we want to build
@@ -37,7 +38,7 @@ RUN pnpm i
 
 # build app
 
-RUN  --mount=type=cache,target=/workspace/node_modules/.cache \
+RUN --mount=type=cache,target=/workspace/node_modules/.cache \
   pnpm turbo run build --filter="${APP_NAME}"
 
 # deploy app
@@ -53,7 +54,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 
 COPY apps/core/package.json apps/core/package.json
 COPY apps/core/tsconfig.json apps/core/tsconfig.json
-COPY apps/container/package.json apps/container/package.json
+COPY apps/web/package.json apps/web/package.json
 COPY apps/extension/package.json apps/extension/package.json
 COPY packages/connectors/package.json packages/connectors/package.json
 COPY packages/db/package.json packages/db/package.json
@@ -71,6 +72,7 @@ CMD ["pnpm", "--filter", "@next/core", "run", "dev:local"]
 
 FROM runtime as runner
 WORKDIR /workspace
+ENV ENV_FILE=/workspace/.env
 
 RUN apk update && apk upgrade
 RUN apk add --no-cache git
@@ -92,15 +94,14 @@ USER root
 COPY --chown=core:backend --from=deployer /workspace/out/package.json .
 COPY --chown=core:backend --from=deployer /workspace/out/node_modules/ ./node_modules
 COPY --chown=core:backend --from=deployer /workspace/out/dist/ ./dist
-COPY --chown=core:backend --from=deployer /workspace/apps/core/.env.prod.secret apps/core/.env.prod.secret
+COPY --chown=core:backend --from=deployer /workspace/.env.secret .
 COPY --chown=core:backend --from=deployer /workspace/.gitsecret  ./.gitsecret
 
-# Decrypt .env.prod file
+# Decrypt the global .env file
 RUN echo "$GIT_SECRET_PRIVATE_KEY" >> ./private-container-file-key
 RUN gpg --batch --yes --pinentry-mode loopback --import ./private-container-file-key
 
 RUN git secret reveal -p ${GIT_SECRET_PASSWORD}
-RUN cp apps/core/.env.prod .env.prod
 
 # Remove the secret key file after decryption
 RUN rm -f ./private-container-file-key
@@ -108,4 +109,4 @@ RUN rm -f ./private-container-file-key
 EXPOSE 5000
 
 # start the app
-CMD tsx --env-file=.env.prod dist/server.js
+CMD ["tsx", "--env-file=/workspace/.env", "dist/server.js"]

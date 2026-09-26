@@ -16,6 +16,7 @@
     "dev": "tsgo --noEmit --watch",
     "build": "tsgo",
     "check-types": "tsgo --noEmit",
+    "tsc": "pnpm check-types",
     "clean": "git clean -xdf .cache .turbo dist node_modules"
   },
   "devDependencies": {

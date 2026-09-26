@@ -1,7 +1,13 @@
 import { onMessage } from '@/messaging';
 
 export default defineBackground(() => {
-	browser.storage.session.setAccessLevel({
+	const sessionStorage = browser.storage.session as typeof browser.storage.session & {
+		setAccessLevel?: (options: {
+			accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS';
+		}) => Promise<void>;
+	};
+
+	void sessionStorage.setAccessLevel?.({
 		accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS',
 	});
 

@@ -15,7 +15,7 @@ export type SigHistory = {
   ra: string;
   grade: string;
   course: string;
-  components: {
+  components: Array<{
     grade: 'A' | 'B' | 'C' | 'D' | 'O' | 'F' | 'E' | null;
     name: string;
     status: string | null;
@@ -24,7 +24,7 @@ export type SigHistory = {
     UFCode: string;
     category: 'mandatory' | 'free' | 'limited';
     credits: number;
-  }[];
+  }>;
 };
 
 export type Grade = 'A' | 'B' | 'C' | 'D' | 'O' | 'F';
@@ -40,12 +40,12 @@ export type Distribution = {
   cr_professor: number;
 };
 
-type SubjectDetailedReview = {
+export type SubjectDetailedReview = {
   _id: {
     _id: string;
     mainTeacher: string;
   };
-  distribution: Array<Distribution>;
+  distribution: Distribution[];
   numericWeight: number;
   numeric: number;
   amount: number;
@@ -60,7 +60,7 @@ type SubjectDetailedReview = {
   weight: number;
 };
 
-type TeacherDetailedReview = {
+export type TeacherDetailedReview = {
   _id: {
     _id: string;
     name: string;
@@ -70,7 +70,7 @@ type TeacherDetailedReview = {
     __v: number;
     creditos: number;
   };
-  distribution: Array<Distribution>;
+  distribution: Distribution[];
   numericWeight: number;
   numeric: number;
   amount: number;
@@ -81,17 +81,20 @@ type TeacherDetailedReview = {
 };
 
 export type SubjectReview = {
+  subject: {
+    name: string;
+  };
   general: {
     amount: number;
     count: number;
     cr_medio: number;
     cr_professor: number;
-    distribution: Array<Distribution>;
+    distribution: Distribution[];
     eadCount: number;
     numeric: number;
     numericWeight: number;
   };
-  specific: Array<SubjectDetailedReview>;
+  specific: SubjectDetailedReview[];
 };
 
 export type TeacherReview = {
@@ -109,14 +112,12 @@ export type TeacherReview = {
     numeric: number;
     numericWeight: number;
     weight: number;
-    distribution: Array<Distribution>;
+    distribution: Distribution[];
   };
-  specific: Array<TeacherDetailedReview>;
+  specific: TeacherDetailedReview[];
 };
 
-const nextApiBaseURL = import.meta.env.VITE_UFABC_NEXT_URL;
-
-const nextApiConnector = new NextApiConnector({ baseURL: nextApiBaseURL });
+const nextApiConnector = new NextApiConnector({ baseURL: __NEXT_API_BASE_URL__ });
 
 type SyncHistory = {
   sessionId: string;
@@ -182,8 +183,20 @@ export async function getComponents() {
 }
 
 export async function getKicksInfo(kickId: string, studentId?: number) {
-  return nextApiConnector.getComponentKicks(kickId, { studentId });
+  return (await nextApiConnector.getComponentKicks(kickId, {
+    studentId,
+  })) as unknown as KicksInfo[];
 }
+
+export type KicksInfo = {
+  studentId: number;
+  cr: number | '-';
+  cp: number;
+  ik: string;
+  reserva: boolean;
+  curso: string;
+  turno: 'Matutino' | 'Noturno';
+};
 
 export async function getStudent(login: string, sessionId: string) {
   return nextApiConnector.getStudent(login, sessionId);

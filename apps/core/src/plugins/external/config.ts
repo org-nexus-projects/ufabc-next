@@ -1,11 +1,20 @@
-import type { FastifyInstance } from 'fastify';
 import env, { type FastifyEnvOptions } from '@fastify/env';
+import type { FastifyInstance } from 'fastify';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
 const NEXT_WEB_LOCAL = 'http://localhost:3000' as const;
 const JWT_SECRET = 'LWp9YJMiUtfQxoepoTL7RkWJi6W5C6ED';
+const DEFAULT_ALLOWED_ORIGINS = [
+  'https://sig.ufabc.edu.br',
+  'https://matricula.ufabc.edu.br/',
+  'http://localhost:3000',
+  'http://localhost:5000',
+  'https://ufabc-matricula-snapshot.vercel.app/',
+  'http://localhost:3003/',
+  'https://moodle.ufabc.edu.br',
+].join(',');
 
 const configSchema = z.object({
   PROTOCOL: z.enum(['http', 'https']).default('http'),
@@ -20,17 +29,22 @@ const configSchema = z.object({
   REDIS_CONNECTION_URL: z.string().default('redis://localhost:6379'),
   WEB_URL: z.string().default(NEXT_WEB_LOCAL),
   CRONOS_URL: z.string().default('http://localhost:5173'),
-  ALLOWED_ORIGINS: z.string().transform((origins) => origins.split(',')),
-  UFABC_PARSER_URL: z.string(),
-  MOODLE_URL: z.string(),
-  SIGAA_URL: z.string(),
-  UFABC_MATRICULA_URL: z.string(),
-  AWS_REGION: z.string(),
-  AWS_ACCESS_KEY_ID: z.string(),
+  ALLOWED_ORIGINS: z
+    .string()
+    .default(DEFAULT_ALLOWED_ORIGINS)
+    .transform((origins) => origins.split(',')),
+  UFABC_PARSER_URL: z.string().default('https://ufabc-parser.com'),
+  MOODLE_URL: z.string().default('https://moodle.ufabc.edu.br'),
+  SIGAA_URL: z.string().default('https://sig.ufabc.edu.br'),
+  UFABC_MATRICULA_URL: z.string().default('https://matricula.ufabc.edu.br'),
+  AWS_REGION: z.string().default('us-east-1'),
+  AWS_ACCESS_KEY_ID: z.string().default('AWS_ACCESS_KEY_ID_LOCALSTACK'),
   NEXT_AGENT_URL: z.string(),
-  COMMUNICATIONS_API_URL: z.string(),
+  COMMUNICATIONS_API_URL: z
+    .string()
+    .default('https://communications.fundacaonexus.com/v2'),
   SERVICE_HEADER: z.string().optional(),
-  AWS_SECRET_ACCESS_KEY: z.string(),
+  AWS_SECRET_ACCESS_KEY: z.string().default('AWS_SECRET_ACCESS_KEY_LOCALSTACK'),
   USE_LOCALSTACK: z.coerce.boolean().default(true),
   LOCALSTACK_ENDPOINT: z.string().default('http://localhost:4566'),
   AWS_BUCKET: z.string().default('ufabc-next'),
@@ -38,8 +52,8 @@ const configSchema = z.object({
   OAUTH_GOOGLE_SECRET: z.string().min(16),
   BACKOFFICE_EMAILS: z
     .string()
-    .optional()
-    .transform((s) => s?.split(',')),
+    .default('next.dev@aluno.ufabc.edu.br')
+    .transform((emails) => emails.split(',')),
   AXIOM_TOKEN: z.string().optional(),
   AXIOM_DATASET: z.string().optional(),
   MEMORY_SNAPSHOT_THRESHOLD_MB: z.coerce.number().default(750),
@@ -61,7 +75,7 @@ export type Config = z.infer<typeof configSchema>;
 export const autoConfig = {
   schema,
   dotenv: {
-    path: '.env',
+    path: process.env.ENV_FILE ?? '../../.env',
   },
   confKey: 'config',
 } satisfies FastifyEnvOptions;

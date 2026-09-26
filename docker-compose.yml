@@ -68,7 +68,7 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     env_file:
-      - ./apps/core/.env
+      - ./.env
     environment:
       # Docker network overrides — service hostnames instead of localhost
       - MONGODB_CONNECTION_URL=mongodb://next-db:27017/ufabc-matricula
@@ -78,6 +78,7 @@ services:
     volumes:
       # Mount only src/ (and dist/ for logger) — NOT full package dirs, to avoid
       # overriding the image's node_modules/ symlinks with broken host symlinks
+      - ./.env:/workspace/.env:ro
       - ./apps/core/src:/workspace/apps/core/src:ro
       - ./apps/core/.env:/workspace/apps/core/.env:ro
       - ./packages/connectors/src:/workspace/packages/connectors/src:ro
