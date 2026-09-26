@@ -40,7 +40,7 @@ export type Distribution = {
   cr_professor: number;
 };
 
-type SubjectDetailedReview = {
+export type SubjectDetailedReview = {
   _id: {
     _id: string;
     mainTeacher: string;
@@ -60,7 +60,7 @@ type SubjectDetailedReview = {
   weight: number;
 };
 
-type TeacherDetailedReview = {
+export type TeacherDetailedReview = {
   _id: {
     _id: string;
     name: string;
@@ -81,6 +81,9 @@ type TeacherDetailedReview = {
 };
 
 export type SubjectReview = {
+  subject: {
+    name: string;
+  };
   general: {
     amount: number;
     count: number;
@@ -180,8 +183,20 @@ export async function getComponents() {
 }
 
 export async function getKicksInfo(kickId: string, studentId?: number) {
-  return nextApiConnector.getComponentKicks(kickId, { studentId });
+  return (await nextApiConnector.getComponentKicks(kickId, {
+    studentId,
+  })) as unknown as KicksInfo[];
 }
+
+export type KicksInfo = {
+  studentId: number;
+  cr: number | '-';
+  cp: number;
+  ik: string;
+  reserva: boolean;
+  curso: string;
+  turno: 'Matutino' | 'Noturno';
+};
 
 export async function getStudent(login: string, sessionId: string) {
   return nextApiConnector.getStudent(login, sessionId);
