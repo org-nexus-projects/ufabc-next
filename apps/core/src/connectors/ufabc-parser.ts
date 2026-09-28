@@ -64,6 +64,23 @@ type SyncStudentParams = {
   requesterKey: string;
 };
 
+type UploadStudentHistoryParams = {
+  login: string;
+  requesterKey: string;
+  file: {
+    buffer: Buffer;
+    filename: string;
+    mimetype: string;
+  };
+};
+
+type UploadStudentHistoryResponse = {
+  createdAt: string;
+  studentKey: string;
+  studentHistoryKey: string;
+  result: unknown;
+};
+
 export class UfabcParserConnector extends BaseRequester {
   constructor(globalTraceId?: string) {
     super(process.env.UFABC_PARSER_URL, globalTraceId);
@@ -120,6 +137,50 @@ export class UfabcParserConnector extends BaseRequester {
       headers,
     });
     return response;
+  }
+
+  async uploadStudentHistory(params: UploadStudentHistoryParams) {
+    const { login, requesterKey, file } = params;
+    const form = new FormData();
+    form.append(
+      'file',
+      new Blob([file.buffer], { type: file.mimetype }),
+      file.filename
+    );
+
+    const headers = new Headers();
+    headers.set('requester-key', requesterKey);
+
+    try {
+      const response = await this.request<UploadStudentHistoryResponse>(
+        `/v2/students/sync/${login}`,
+        {
+          method: 'POST',
+          headers,
+          body: form,
+        }
+      );
+      return response;
+    } catch (error: any) {
+      if (error.status === 400) {
+        throw new UfabcParserError({
+          status: 400,
+          code: 'UFP0002',
+          title: 'Bad Request',
+          description:
+            'Não foi possível processar o arquivo enviado. Verifique se é o PDF correto do histórico.',
+        });
+      }
+      if (error.status === 401) {
+        throw new UfabcParserError({
+          status: 401,
+          code: 'UFP0001',
+          title: 'Unauthorized',
+          description: 'Envio direto de documento indisponível no momento.',
+        });
+      }
+      throw error;
+    }
   }
 
   async getStudent(ra: string) {

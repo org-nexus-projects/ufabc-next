@@ -3,6 +3,8 @@ import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 
 import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
+import { UfabcParserError } from '@/errors/ufabc-parser.js';
+import { jwtVerifyHook } from '@/hooks/jwt-verify.js';
 import { matriculaSession } from '@/hooks/matricula-session.js';
 import { sigaaSession } from '@/hooks/sigaa-session.js';
 import { StudentModel } from '@/models/Student.js';
@@ -182,6 +184,60 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
       },
     },
     url: '/students/sigaa',
+  });
+
+  app.route({
+    handler: async (request, reply) => {
+      if (!request.isMultipart()) {
+        return await reply.badRequest('Arquivo do histórico é obrigatório.');
+      }
+
+      const data = await request.file();
+      if (!data) {
+        return await reply.badRequest('Arquivo do histórico é obrigatório.');
+      }
+
+      const buffer = await data.toBuffer();
+      const connector = new UfabcParserConnector(request.id);
+
+      try {
+        const result = await connector.uploadStudentHistory({
+          file: {
+            buffer,
+            filename: data.filename,
+            mimetype: data.mimetype,
+          },
+          login: request.user.email,
+          requesterKey: app.config.UFABC_PARSER_REQUESTER_KEY,
+        });
+
+        return await reply.status(200).send({
+          status: 'success',
+          studentKey: result.studentKey,
+        });
+      } catch (error: unknown) {
+        if (error instanceof UfabcParserError) {
+          if (error.code === 'UFP0002') {
+            return await reply.badRequest(error.description);
+          }
+          if (error.code === 'UFP0001') {
+            return await reply.serviceUnavailable(error.description);
+          }
+        }
+        throw error;
+      }
+    },
+    method: 'POST',
+    preHandler: [jwtVerifyHook],
+    schema: {
+      response: {
+        200: z.object({
+          status: z.string(),
+          studentKey: z.string(),
+        }),
+      },
+    },
+    url: '/students/history-document',
   });
 };
 

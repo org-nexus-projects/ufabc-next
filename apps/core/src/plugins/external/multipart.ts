@@ -4,5 +4,7 @@ import { fastifyMultipart } from '@fastify/multipart';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 
 export default fp(async function multipart(app: FastifyInstance) {
-  await app.register(fastifyMultipart);
+  await app.register(fastifyMultipart, {
+    limits: { fileSize: 10 * 1024 * 1024 },
+  });
 });

@@ -1,5 +1,17 @@
 import nock from 'nock';
 
+export const ufabcParserMock = {
+  syncStudent: (login: string, response: Record<string, unknown>) =>
+    nock('https://ufabc-parser.test')
+      .post(`/v2/students/sync/${login}`)
+      .reply(200, response),
+  syncStudentFailure: (login: string, status: number, body: unknown) =>
+    nock('https://ufabc-parser.test')
+      .post(`/v2/students/sync/${login}`)
+      .reply(status, body),
+  cleanup: () => nock.cleanAll(),
+};
+
 export const moodleMock = {
   setupArchiveFlow: (componentId: number, componentName: string) => {
     const scope = nock('https://moodle.ufabc.edu.br')

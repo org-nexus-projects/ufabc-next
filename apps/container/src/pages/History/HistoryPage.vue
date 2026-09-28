@@ -246,6 +246,34 @@
         height="400"
         alt="Histórico não encontrado"
       />
+      <div class="upload-fallback mt-6">
+        <h3 class="mb-2">Ou envie o PDF do seu histórico direto por aqui</h3>
+        <p class="text-next-light-gray mb-4">
+          Use esta opção caso o Sigaa ou a extensão estejam fora do ar. Baixe
+          o histórico no
+          <a :href="studentRecordURL" target="_blank">Sigaa</a>
+          e envie o PDF abaixo.
+        </p>
+        <v-file-upload
+          :key="fileUploadKey"
+          v-model="historyFile"
+          density="comfortable"
+          show-size
+          title="Envie o PDF do histórico"
+          clearable
+          accept="application/pdf"
+          :disabled="isPendingUpload"
+        />
+        <v-btn
+          class="mt-4"
+          color="primary"
+          :loading="isPendingUpload"
+          :disabled="!historyFile"
+          @click="handleUploadHistory"
+        >
+          Enviar histórico
+        </v-btn>
+      </div>
     </div>
     <CenteredLoading v-if="isPendingEnrollments" />
   </PaperCard>
@@ -253,9 +281,10 @@
 
 <script setup lang="ts">
 import type { Concept, Enrollment } from '@next/services';
-import { Enrollments, Users } from '@next/services';
-import { useQuery } from '@tanstack/vue-query';
-import { computed, ref } from 'vue';
+import { Enrollments, History, Users } from '@next/services';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
+import { ElMessage } from 'element-plus';
+import { computed, nextTick, ref } from 'vue';
 
 import { CenteredLoading } from '@/components/ui/CenteredLoading';
 import { FeedbackAlert } from '@/components/ui/FeedbackAlert';
@@ -368,6 +397,42 @@ const lastUpdate = computed(() => {
   const date = enrollments.value?.[0]?.updatedAt;
   return date && new Date(date);
 });
+
+const historyFile = ref<File>();
+const fileUploadKey = ref(0);
+const queryClient = useQueryClient();
+
+const { mutate: uploadHistory, isPending: isPendingUpload } = useMutation({
+  mutationFn: History.uploadDocument,
+  onSuccess: () => {
+    historyFile.value = undefined;
+    nextTick(() => {
+      fileUploadKey.value += 1;
+    });
+    queryClient.invalidateQueries({ queryKey: ['enrollments', 'list'] });
+    ElMessage({
+      message:
+        'Histórico enviado! O processamento pode levar alguns minutos.',
+      type: 'success',
+      showClose: true,
+    });
+  },
+  onError: () => {
+    ElMessage({
+      message:
+        'Não foi possível enviar o histórico. Tente novamente mais tarde.',
+      type: 'error',
+      showClose: true,
+    });
+  },
+});
+
+const handleUploadHistory = () => {
+  if (!historyFile.value) {
+    return;
+  }
+  uploadHistory(historyFile.value);
+};
 </script>
 <style scoped lang="scss">
 .quad-header {
