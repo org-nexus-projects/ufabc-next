@@ -22,6 +22,7 @@ import queueV2Plugin from './plugins/v2/queue.js';
 import redisV2Plugin from './plugins/v2/redis.js';
 import { setupV2Routes } from './plugins/v2/setup.js';
 import testUtilsPlugin from './plugins/v2/test-utils.js';
+import { teacherSummaryController } from './controllers/teacher-summary-controller.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -37,6 +38,7 @@ const routesV2 = [
   UfabcParserIncomingWebhookController,
   authenticationController,
   proxyController,
+  teacherSummaryController,
 ];
 
 export async function buildApp(
