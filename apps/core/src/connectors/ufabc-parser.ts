@@ -1,4 +1,5 @@
 import { UfabcParserError } from '@/errors/ufabc-parser.js';
+import type { Config } from '@/plugins/external/config.js';
 
 import { BaseRequester } from './base-requester.js';
 
@@ -65,8 +66,11 @@ type SyncStudentParams = {
 };
 
 export class UfabcParserConnector extends BaseRequester {
-  constructor(globalTraceId?: string) {
-    super(process.env.UFABC_PARSER_URL, globalTraceId);
+  constructor(
+    config: Pick<Config, 'UFABC_PARSER_URL'>,
+    globalTraceId?: string
+  ) {
+    super(config.UFABC_PARSER_URL, globalTraceId);
   }
 
   async getEnrollments(kind: string, season: string) {

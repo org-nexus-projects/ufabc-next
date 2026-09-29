@@ -32,7 +32,7 @@ export default defineConfig({
       env: {
         browser: true,
       },
-      files: ['apps/container/**/*.ts', 'apps/container/**/*.vue'],
+      files: ['apps/web/**/*.ts', 'apps/web/**/*.vue'],
       rules: {
         'unicorn/filename-case': 'off',
       },

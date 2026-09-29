@@ -1,7 +1,8 @@
-import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { existsSync } from 'node:fs';
 import { mkdir, readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 
 import { s3Client } from '@/lib/aws.service.js';
 
@@ -11,8 +12,6 @@ const LOGS_DIR = join(process.cwd(), 'logs');
 const ARCHIVE_DIR = join(LOGS_DIR, 'archive');
 
 export async function uploadLogsToS3(ctx: QueueContext<unknown>) {
-  const bucket = process.env.AWS_BUCKET;
-
   try {
     ctx.app.log.info('init logs processing');
 
@@ -34,7 +33,7 @@ export async function uploadLogsToS3(ctx: QueueContext<unknown>) {
       const filePath = join(LOGS_DIR, file);
       const fileContent = await readFile(filePath);
       const command = new PutObjectCommand({
-        Bucket: bucket,
+        Bucket: ctx.app.config.AWS_BUCKET,
         Key: `logs/${file}`,
         Body: fileContent,
       });

@@ -68,7 +68,6 @@ const possibleComponents = computed(() => {
     return;
   }
 
-  const components = [...(teacherReviewData.value.specific || [])]
   const generalDefaults = {
     _id: {
       _id: 'all',
@@ -76,8 +75,7 @@ const possibleComponents = computed(() => {
     }
   }
   const general = Object.assign(generalDefaults, teacherReviewData.value?.general)
-  components?.push(general)
-  return components?.reverse()
+  return [...teacherReviewData.value.specific, general].reverse()
 })
 
 const conceptDistribution = computed(() => {

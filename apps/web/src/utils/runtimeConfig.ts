@@ -37,6 +37,9 @@ export const isLocalHost = (hostname: string) =>
 export const isLocalAppSession = (hostname = window.location.hostname) =>
   isLocalHost(hostname);
 
+export const isDevelopmentApiSession = (appEnv = runtimeConfig.appEnv) =>
+  appEnv === 'local';
+
 export const isRemoteApiSession = (apiBaseUrl = runtimeConfig.apiBaseUrl) => {
   const apiHostname = new URL(apiBaseUrl).hostname;
   return !isLocalHost(apiHostname);

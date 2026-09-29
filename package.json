@@ -2,34 +2,33 @@
   "name": "@next/workspace",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@10.33.2",
   "scripts": {
     "build": "turbo run build --continue",
-    "build:staging": "turbo run build:staging --filter=@next/container",
-    "dev": "turbo run dev",
-    "dev:staging": "pnpm --filter @next/container dev:staging",
-    "dev:prod": "pnpm --filter @next/container dev:prod",
-    "dev:app": "pnpm --filter @next/container dev",
-    "dev:app:staging": "pnpm --filter @next/container dev:staging",
-    "dev:app:prod": "pnpm --filter @next/container dev:prod",
-    "dev:watch": "turbo watch dev --experimental-write-cache --filter=@next/db --filter=@next/logger --filter=@next/queues --filter=@next/testing --filter=@next/utils --filter=@next/container --filter=@next/extension",
+    "dev": "node scripts/dev.ts",
+    "dev:all": "turbo run dev",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "test": "turbo run test",
-    "tsc": "turbo run tsc"
+    "tsc": "turbo run tsc --parallel",
+    "validate": "tsgo -p scripts/tsconfig.json && turbo run lint tsc test build --continue"
   },
   "devDependencies": {
+    "@clack/prompts": "1.5.1",
+    "@types/node": "24.13.1",
     "@typescript/native-preview": "catalog:",
+    "commander": "14.0.3",
+    "dotenv": "17.4.2",
+    "fastify": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
     "turbo": "catalog:",
-    "fastify": "catalog:",
     "typescript": "^5.9.3",
     "ultracite": "catalog:",
     "vue-tsgo": "catalog:"
   },
   "engines": {
     "node": "^24"
-  }
+  },
+  "packageManager": "pnpm@10.33.2"
 }

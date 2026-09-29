@@ -110,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import { getKicksInfo, MatriculaStudent } from '@/services/next';
+import { getKicksInfo, type KicksInfo, MatriculaStudent } from '@/services/next';
 import { getUFComponents, type UfabcParserComponent } from '@/services/ufabc-parser';
 import { findIdeais, findSeasonKey } from '@/utils/season';
 import { orderBy } from 'lodash-es';
@@ -158,15 +158,7 @@ const NOTIFICATION_MESSAGES = {
 } as const;
 
 const loading = ref(false)
-const kicks = ref<{
-    studentId: number;
-    cr: number | '-'
-    cp: number;
-    ik: string;
-    reserva: 'Sim' | 'Não'
-    curso: string
-    turno: 'Matutino' | 'Noturno'
-  }[]>([])
+const kicks = ref<KicksInfo[]>([])
 const headers = ref<Headers[]>([])
 
 const { state: matriculaStudent } = useStorage<MatriculaStudent>('local:fullStudent')
@@ -223,11 +215,12 @@ const transformed = computed(() => {
 
 
 const kicksForecast = computed(() => {
-  if (!props.corteId || !matriculas || !matriculaStudent.value?.studentId) {
+  const corteId = props.corteId;
+  if (!corteId || !matriculas || !matriculaStudent.value?.studentId) {
     return;
   }
   const requests = Object.values(matriculas).reduce((count, current) =>
-  current.includes(props.corteId?.toString()) ? count + 1 : count, 0);
+  current.includes(corteId) ? count + 1 : count, 0);
   return kicks.value.length * component.value?.vacancies / requests
 })
 

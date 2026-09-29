@@ -1,7 +1,6 @@
 import { defineJob } from '@next/queues/client';
 import z from 'zod';
 
-import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { JOB_NAMES, PARSER_WEBHOOK_SUPPORTED_EVENTS } from '@/constants.js';
 import { ComponentModel } from '@/models/Component.js';
 import { findTeacher } from '@/models/Teacher.js';
@@ -18,10 +17,10 @@ export const createComponentJob = defineJob(JOB_NAMES.COMPONENTS_PROCESSING)
       timestamp: z.string().describe('Event timestamp'),
     })
   )
-  .handler(async ({ job }) => {
+  .handler(async ({ job, app }) => {
     const { globalTraceId, data } = job.data;
     const { componentKey } = data;
-    const ufabcParserConnector = new UfabcParserConnector(globalTraceId);
+    const ufabcParserConnector = app.createUfabcParserConnector(globalTraceId);
     const [component] =
       await ufabcParserConnector.getComponentByKey(componentKey);
 

@@ -12,6 +12,7 @@
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "compile": "vue-tsgo --project tsconfig.json",
+    "tsc": "pnpm compile",
     "postinstall": "wxt prepare",
     "fmt": "oxfmt ./src --write",
     "lint": "oxlint ./src || true"

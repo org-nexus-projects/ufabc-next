@@ -1,14 +1,13 @@
-import { currentQuad } from '@next/utils';
 import { defineJob } from '@next/queues/client';
+import { currentQuad } from '@next/utils';
 
-import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { JOB_NAMES } from '@/constants.js';
 import { ComponentModel } from '@/models/Component.js';
 
 export const enrolledStudentsJob = defineJob(JOB_NAMES.ENROLLED_STUDENTS)
   .handler(async ({ manager, app }) => {
     const tenant = currentQuad();
-    const connector = new UfabcParserConnector();
+    const connector = app.createUfabcParserConnector();
     const enrollments = await connector.getEnrolled();
 
     const enrollmentTasks = Object.entries(enrollments).map(

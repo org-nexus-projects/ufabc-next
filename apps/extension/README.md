@@ -1,18 +1,19 @@
-# UFABC next - Extension
+# Browser extension
 
-### Como rodar o projeto?
+`apps/extension` é a extensão WXT que integra funcionalidades do UFABC Next a sistemas da UFABC.
 
-Node version: >=22
+## Desenvolvimento local
 
-1. `pnpm install`
-3. `pnpm dev`
+Node.js `^24` e pnpm `^10` são requisitos do workspace.
 
-Um navegador irá se abrir com a extensão já carregada, basta acessar a URL do [Sigaa](https://sig.ufabc.edu.br/sigaa/portais/discente/discente.jsf) ou do site de
-[Snapshot](https://ufabc-matricula-snapshot.vercel.app/) de matrículas.
+Na raiz do repositório:
 
-Agora, a extensão já estará rodando localmente e você pode desenvolver, a extensão possui hot-reload.
+```sh
+pnpm --filter @next/extension dev
+pnpm --filter @next/extension dev:firefox
+```
 
-Para ter a melhor experiência de desenvolvimento, é necessário rodar as outras aplicações do ecossistema next:
+O WXT abre um navegador com a extensão carregada e mantém hot reload durante o desenvolvimento.
 
 Backend: https://github.com/ufabc-next/ufabc-next-backend
 

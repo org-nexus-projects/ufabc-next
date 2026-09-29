@@ -50,9 +50,9 @@ import type { Distribution, Grade } from '@/services/next';
 type TeacherListProps = {
   teachers: Array<{
     _id: {
-      _id?: 'all';
+      _id?: string;
       name?: string;
-      mainTeacher: string;
+      mainTeacher?: string;
     }
     cr_medio: number;
     cr_professor: number

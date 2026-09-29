@@ -19,6 +19,11 @@ export default defineContentScript({
     const $topInfo = document.querySelector("#usuario_top > b");
     const login = $topInfo?.textContent?.trim().split(" ")[0];
 
+    if (!login) {
+      logger.error('Could not identify the logged-in student');
+      return;
+    }
+
     const ui = await mountUFABCMatriculaFilters(ctx, sessionId, login);
     ui.mount();
 
@@ -36,7 +41,12 @@ export default defineContentScript({
     ];
     const origin = new URL(document.location.href).origin;
     if (URLS_TO_CHECK.includes(origin)) {
-      const fullStudent = await getStudent(login!, sessionId!);
+      if (!sessionId) {
+        logger.error('Could not retrieve the matricula session');
+        return;
+      }
+
+      const fullStudent = await getStudent(login, sessionId);
       await storage.setItem("local:fullStudent", fullStudent);
       document.dispatchEvent(
         new CustomEvent("student-info", {

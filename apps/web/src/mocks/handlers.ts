@@ -25,6 +25,7 @@ import { user } from './users';
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
 export const handlers = [
+  http.post(`${baseUrl}/backoffice/token`, () => HttpResponse.json({})),
   http.get(`${baseUrl}/users/info`, () => HttpResponse.json(user)),
   http.get(`${baseUrl}/entities/enrollments`, () =>
     HttpResponse.json(enrollments),

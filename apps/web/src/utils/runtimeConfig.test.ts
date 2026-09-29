@@ -1,5 +1,6 @@
 import {
   buildGoogleAuthUrl,
+  isDevelopmentApiSession,
   isLocalAppSession,
   isLocalHost,
   isRemoteApiSession,
@@ -22,6 +23,11 @@ describe('runtimeConfig', () => {
   test('detects remote api sessions', () => {
     expect(isRemoteApiSession('http://localhost:5000')).toBe(false);
     expect(isRemoteApiSession('https://api.ufabcnext.com')).toBe(true);
+  });
+
+  test('detects the development API from the selected app environment', () => {
+    expect(isDevelopmentApiSession('local')).toBe(true);
+    expect(isDevelopmentApiSession('production')).toBe(false);
   });
 
   test('builds google login url from api base url', () => {
