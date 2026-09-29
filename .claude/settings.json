@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install)",
+      "Bash(pnpm i)",
+      "Bash(pnpm install --frozen-lockfile)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm tsc:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm turbo run:*)",
+      "Bash(pnpm exec oxlint:*)",
+      "Bash(pnpm exec oxfmt:*)",
+      "Bash(pnpm --filter @next/core tsc)",
+      "Bash(pnpm --filter @next/core exec vitest run:*)",
+      "Bash(pnpm --filter @next/container tsc)",
+      "Bash(pnpm --filter @next/container lint)",
+      "Bash(pnpm --filter @next/container test:*)",
+      "Bash(pnpm --filter @next/container exec vitest run:*)",
+      "Bash(pnpm --filter @next/extension compile)",
+      "Bash(pnpm --filter @next/extension lint)",
+      "Bash(pnpm --filter @next/utils test)",
+      "Bash(pnpm --filter @next/docker-infra up)",
+      "Bash(node .claude/scripts/check-changed.mjs:*)",
+      "Bash(node .claude/scripts/validate-harness.mjs)",
+      "Bash(node --test .claude/hooks/hooks.test.mjs)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git fetch:*)",
+      "Bash(git merge-base:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh run list:*)"
+    ],
+    "deny": [
+      "Read(./apps/core/.env)",
+      "Read(./apps/core/.env.local)",
+      "Read(./apps/core/.env.prod)",
+      "Read(./apps/core/.env.staging)",
+      "Read(./apps/core/.env.test)",
+      "Read(./apps/extension/.env*)",
+      "Read(./.gitsecret/keys/**)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.mjs\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-bash.mjs\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Grep|Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/protect-files.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/format-on-edit.mjs\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

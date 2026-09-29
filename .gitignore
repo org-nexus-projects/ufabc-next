@@ -62,3 +62,7 @@ apps/extension/.env.*
 .opencode
 
 skills-lock.json
+
+# Personal AI agent overrides (see .claude/README.md)
+CLAUDE.local.md
+.claude/settings.local.json

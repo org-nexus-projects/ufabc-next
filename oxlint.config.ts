@@ -62,6 +62,22 @@ export default defineConfig({
       },
     },
     {
+      // Agent harness scripts are untyped Node ESM; the type-aware "unsafe" rules
+      // flag every JSON.parse and spawnSync result there without catching bugs.
+      env: {
+        node: true,
+      },
+      files: ['.claude/**/*.mjs'],
+      rules: {
+        'typescript/no-unsafe-argument': 'off',
+        'typescript/no-unsafe-assignment': 'off',
+        'typescript/no-unsafe-call': 'off',
+        'typescript/no-unsafe-member-access': 'off',
+        'typescript/no-unsafe-return': 'off',
+        'typescript/strict-boolean-expressions': 'off',
+      },
+    },
+    {
       files: ['apps/core/src/connectors/**/*.ts'],
       rules: {
         'eslint/no-constructor-return': 'off',
