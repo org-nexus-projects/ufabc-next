@@ -111,6 +111,16 @@ export class UfabcParserConnector extends BaseRequester {
     return response;
   }
 
+  async getComponentByClassroomCode(season: string, ufClassroomCode: string) {
+    const response = await this.request<UfabcParserComponent[]>(
+      '/v2/components',
+      {
+        query: { season, ufClassroomCode },
+      }
+    );
+    return response;
+  }
+
   async syncStudent(params: SyncStudentParams) {
     const { sessionId, viewId, requesterKey } = params;
     const headers = new Headers();

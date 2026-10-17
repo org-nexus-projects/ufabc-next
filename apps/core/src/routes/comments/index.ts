@@ -2,6 +2,7 @@ import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
 import { Types } from 'mongoose';
 
+import { JOB_NAMES } from '@/constants.js';
 import {
   createCommentSchema,
   updateCommentSchema,
@@ -61,6 +62,14 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       subject: enrollment.subject,
       ra: enrollment.ra.toString(),
     });
+
+    // @ts-ignore teacher is the dynamic enrollment[type] field
+    const teacherId = createdComment.teacher?.toString();
+    if (teacherId) {
+      await app.manager.dispatch(JOB_NAMES.TEACHER_COMMENT_CREATED, {
+        teacherId,
+      });
+    }
 
     return createdComment;
   });

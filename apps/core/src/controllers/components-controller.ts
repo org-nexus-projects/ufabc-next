@@ -7,8 +7,7 @@ import { jwtVerifyHook } from '@/hooks/jwt-verify.js';
 import { isSession, moodleSession } from '@/hooks/moodle-session.js';
 import { validateInternalTokenAuthHook } from '@/hooks/validate-token.js';
 import { ComponentModel } from '@/models/Component.js';
-import { ComponentMetadataModel } from '@/models/ComponentMetadata.js';
-import type { ComponentMetadata } from '@/models/ComponentMetadata.js';
+import { ComponentPlanModel } from '@/models/ComponentPlan.js';
 import type {
   ListComponent,
   PopulatedComponent,
@@ -282,27 +281,42 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       const { externalKey, season } = request.query;
       const { userMessage } = request.body as { userMessage: string };
 
-      let component: ComponentMetadata | null = null;
       let response: unknown = null;
 
       if (externalKey !== undefined) {
-        component = await ComponentMetadataModel.findOne({
-          'metadata.component_data.componentKey': externalKey,
-          'metadata.component_data.season': season,
-        }).lean<ComponentMetadata>();
+        let component = await ComponentModel.findOne({
+          origin_key: externalKey,
+          season,
+        })
+          .populate<{ teoria: { name: string } | null }>('teoria', 'name')
+          .lean();
 
-        component ??= await ComponentMetadataModel.findOne({
-          'metadata.component_data.componentKey': externalKey,
-        }).lean<ComponentMetadata>();
+        component ??= await ComponentModel.findOne({ origin_key: externalKey })
+          .sort({ quad: -1, year: -1 })
+          .populate<{ teoria: { name: string } | null }>('teoria', 'name')
+          .lean();
 
         if (component === null) {
           return await reply.notFound('Component not found');
         }
 
-        response = await aiConnector.requestNaturalResponse(
-          component,
-          userMessage
-        );
+        const plan = await ComponentPlanModel.findOne({
+          component: component._id,
+        })
+          .sort({ extractedAt: -1 })
+          .lean();
+
+        if (plan === null) {
+          return await reply.notFound('Component not found');
+        }
+
+        response = await aiConnector.requestNaturalResponse({
+          classroomCode: component.uf_cod_turma,
+          componentName: component.disciplina,
+          plan,
+          teacherName: component.teoria?.name ?? '',
+          userMessage,
+        });
       }
 
       return await reply.status(200).send({

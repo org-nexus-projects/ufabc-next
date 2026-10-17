@@ -1,87 +1,95 @@
-import { type InferSchemaType, Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
+import type { InferSchemaType } from 'mongoose';
 
 const disciplinasMetadataSchema = new Schema(
   {
-    planejamento: {
-      ementa: { type: String, required: true },
-      objetivos: { type: String, required: true },
-      metodologia: { type: String, required: true },
-      avaliacao: { type: String, required: true },
-    },
     cronograma: [
       {
-        aula: { type: String, required: true },
-        data: { type: String, required: true },
         _id: false,
+        aula: { required: true, type: String },
+        data: { required: true, type: String },
       },
     ],
     metadata: {
-      source_file: { type: String, required: true },
-      processed_at: { type: String, required: true },
-      disciplina_id: { type: Number, required: true },
-      component_code: { type: String, required: true },
+      _id: false,
+      component_code: { required: true, type: String },
       component_data: {
-        componentKey: { type: String, required: true },
-        subjectKey: { type: String, required: true },
-        name: { type: String, required: true },
-        credits: { type: Number, required: true },
-        ufComponentId: { type: Number, required: true },
-        alternateUfabcComponentId: { type: String, required: false },
-        ufComponentCode: { type: String, required: true },
-        campus: { type: String, required: true },
-        shift: { type: String, required: true },
-        vacancies: { type: Number, required: true },
-        componentClass: { type: String, required: true },
-        season: { type: String, required: true },
-        ufClassroomCode: { type: String, required: true },
-        tpi: {
-          theory: { type: Number, required: true },
-          practice: { type: Number, required: true },
-          individual: { type: Number, required: true },
-          _id: false,
-        },
-        timetable: [
-          {
-            dayOfTheWeek: { type: String, required: true },
-            startTime: { type: String, required: true },
-            endTime: { type: String, required: true },
-            periodicity: { type: String, required: false },
-            classroomCode: { type: String, required: true },
-            scheduleType: { type: String, required: true },
-            frequency: { type: String, required: true },
-            unparsed: { type: String, required: true },
-            _id: false,
-          },
-        ],
+        _id: false,
+        alternateUfabcComponentId: { required: false, type: String },
+        campus: { required: true, type: String },
+        componentClass: { required: true, type: String },
+        componentKey: { required: true, type: String },
         courses: [
           {
-            category: { type: String, required: true },
-            UFCourseId: { type: Number, required: true },
+            UFCourseId: { required: true, type: Number },
             _id: false,
+            category: { required: true, type: String },
           },
         ],
+        credits: { required: true, type: Number },
+        name: { required: true, type: String },
+        season: { required: true, type: String },
+        shift: { required: true, type: String },
+        subjectKey: { required: true, type: String },
         teachers: [
           {
-            name: { type: String, required: true },
-            role: { type: String, required: true },
-            isSecondary: { type: Boolean, required: true },
             _id: false,
+            isSecondary: { required: true, type: Boolean },
+            name: { required: true, type: String },
+            role: { required: true, type: String },
           },
         ],
-        _id: false,
+        timetable: [
+          {
+            _id: false,
+            classroomCode: { required: true, type: String },
+            dayOfTheWeek: { required: true, type: String },
+            endTime: { required: true, type: String },
+            frequency: { required: true, type: String },
+            periodicity: { required: false, type: String },
+            scheduleType: { required: true, type: String },
+            startTime: { required: true, type: String },
+            unparsed: { required: true, type: String },
+          },
+        ],
+        tpi: {
+          _id: false,
+          individual: { required: true, type: Number },
+          practice: { required: true, type: Number },
+          theory: { required: true, type: Number },
+        },
+        ufClassroomCode: { required: true, type: String },
+        ufComponentCode: { required: true, type: String },
+        ufComponentId: { required: true, type: Number },
+        vacancies: { required: true, type: Number },
       },
-      _id: false,
+      disciplina_id: { required: true, type: Number },
+      processed_at: { required: true, type: String },
+      source_file: { required: true, type: String },
+    },
+    planejamento: {
+      avaliacao: { required: true, type: String },
+      ementa: { required: true, type: String },
+      metodologia: { required: true, type: String },
+      objetivos: { required: true, type: String },
     },
   },
   {
     timestamps: true,
-  },
+  }
 );
-
 
 disciplinasMetadataSchema.index({ 'metadata.component_code': 'asc' });
 
-export type ComponentMetadata = InferSchemaType<typeof disciplinasMetadataSchema>;
-export type ComponentMetadataDocument = ReturnType<(typeof ComponentMetadataModel)['hydrate']>;
+export type ComponentMetadata = InferSchemaType<
+  typeof disciplinasMetadataSchema
+>;
+export type ComponentMetadataDocument = ReturnType<
+  (typeof ComponentMetadataModel)['hydrate']
+>;
 
-export const ComponentMetadataModel = model('disciplinas_metadata', disciplinasMetadataSchema, 'disciplinas_metadata');
+export const ComponentMetadataModel = model(
+  'disciplinas_metadata',
+  disciplinasMetadataSchema,
+  'disciplinas_metadata'
+);

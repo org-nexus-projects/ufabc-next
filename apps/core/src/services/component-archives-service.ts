@@ -37,8 +37,7 @@ export class ComponentArchivesService extends BaseService {
 
     const archive = await this.repository.findOrCreateForProcessing(
       componentId,
-      rawUrl,
-      this.globalTraceId
+      rawUrl
     );
 
     const alreadyStored = archive.status === 'stored';
@@ -86,6 +85,7 @@ export class ComponentArchivesService extends BaseService {
 
       return {
         archiveId: archive._id,
+        changed: true,
         data: { fileName: pdfName, s3Key },
         message: 'PDF uploaded',
         success: true,

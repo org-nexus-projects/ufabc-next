@@ -21,13 +21,18 @@ export const JOB_NAMES = {
   COMPONENTS_ARCHIVES_PROCESSING_PDF: 'components_archives_processing_pdf',
   COMPONENTS_ARCHIVES_PROCESSING_SUMMARY:
     'components_archives_processing_summary',
+  ARCHIVE_EXTRACTION: 'archive_extraction',
+  CMCC_PLAN: 'cmcc_plan',
+  CMCC_PLANS_SCHEDULE: 'cmcc_plans_schedule',
   COMPONENTS_PROCESSING: 'components_processing',
   ENROLLED_STUDENTS: 'enrolled_students',
   PROCESS_COMPONENTS_ENROLLMENTS: 'process_components_enrollments',
   PROCESS_ENROLLED_STUDENTS: 'process_enrolled_students',
   PROCESS_SETTLED_ENROLLMENTS: 'process_settled_enrollments',
   STUDENT_SYNC_PROCESSING: 'student_sync_processing',
+  TEACHER_COMMENT_CREATED: 'teacher_comment_created',
   TEACHER_CREATED: 'teacher_created',
+  TEACHER_SUMMARY: 'teacher_summary',
   UFABC_PARSER_WEBHOOK_PROCESSING: 'ufabc_parser_webhook_processing',
   USER_ENROLLMENTS_UPDATE: 'user_enrollments_update',
 } as const;
@@ -103,3 +108,8 @@ export const DISCIPLINE_CODE_PATTERN = /[A-Z]{2,}\d{3,}(?:-\d+)?/u;
 export const BOARD_COOKIE_MAX_AGE_SECONDS = 3600;
 
 export const ARCHIVE_MAX_FAILURE_EVENTS = 5;
+
+export const SUMMARY_COMMENT_THRESHOLD = 5;
+export const SUMMARY_MAX_COMMENTS = 50;
+export const SUMMARY_MAX_COMMENT_CHARS = 500;
+export const ARCHIVE_PRESIGNED_URL_TTL_SECONDS = 15 * 60;

@@ -12,6 +12,7 @@ import { getClassLogger, getGlobalTraceId } from '@/utils/logger.js';
 export class BaseRequester {
   protected readonly requester: ReturnType<typeof ofetch.create>;
   protected readonly baseURL?: string;
+  protected readonly redactRequestBody: boolean = false;
 
   constructor(baseURL?: string, globalTraceId?: string) {
     this.baseURL = baseURL;
@@ -45,7 +46,7 @@ export class BaseRequester {
             path: requestPath,
             headers: sanitizeHeaders(options.headers),
             responseType: options.responseType,
-            body: options.body,
+            body: this.redactRequestBody ? '[redacted]' : options.body,
           },
           TRACING_MESSAGES.OUTGOING_REQUEST
         );
