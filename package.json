@@ -16,19 +16,19 @@
     "@clack/prompts": "1.5.1",
     "@types/node": "24.13.1",
     "@typescript/native-preview": "catalog:",
-    "commander": "14.0.3",
-    "dotenv": "17.4.2",
+    "commander": "15.0.0",
+    "dotenv": "18.0.9",
     "fastify": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
     "turbo": "catalog:",
-    "typescript": "^5.9.3",
+    "typescript": "^7.0.0",
     "ultracite": "catalog:",
     "vue-tsgo": "catalog:"
   },
   "engines": {
     "node": "^24"
   },
-  "packageManager": "pnpm@10.33.2"
+  "packageManager": "pnpm@12.15.0"
 }
