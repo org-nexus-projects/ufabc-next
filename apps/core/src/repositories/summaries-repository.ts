@@ -42,6 +42,18 @@ export class SummariesRepository extends BaseRepository {
   async create(summary: NewSummary) {
     this.logger.debug({ teacherId: summary.teacher }, 'Creating summary');
 
-    return await this.model.create(summary);
+    const created = await this.model.create(summary);
+
+    await this.model.updateMany(
+      {
+        _id: { $ne: created._id },
+        status: 'active',
+        subject: null,
+        teacher: created.teacher,
+      },
+      { $set: { status: 'inactive' } }
+    );
+
+    return created;
   }
 }
