@@ -42,18 +42,20 @@ export class SummariesRepository extends BaseRepository {
   async create(summary: NewSummary) {
     this.logger.debug({ teacherId: summary.teacher }, 'Creating summary');
 
-    const created = await this.model.create(summary);
+    return await this.model.create(summary);
+  }
 
-    await this.model.updateMany(
+  async deactivateOthers(teacherId: string, keepSummaryId: Types.ObjectId) {
+    this.logger.debug({ teacherId }, 'Deactivating previous summaries');
+
+    return await this.model.updateMany(
       {
-        _id: { $ne: created._id },
+        _id: { $ne: keepSummaryId },
         status: 'active',
         subject: null,
-        teacher: created.teacher,
+        teacher: new Types.ObjectId(teacherId),
       },
       { $set: { status: 'inactive' } }
     );
-
-    return created;
   }
 }
