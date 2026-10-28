@@ -8,6 +8,7 @@ import type { FastifyInstance, FastifyServerOptions } from 'fastify';
 import { RequestValidationError } from 'fastify-zod-openapi';
 import type { Mongoose } from 'mongoose';
 
+import { archivesController } from './controllers/archives-controller.js';
 import { authenticationController } from './controllers/authentication-controller.js';
 import componentsController from './controllers/components-controller.js';
 import studentsController from './controllers/students-controller.js';
@@ -31,6 +32,7 @@ declare module 'fastify' {
 
 const routesV2 = [
   componentsController,
+  archivesController,
   studentsController,
   UfabcParserIncomingWebhookController,
   authenticationController,

@@ -1,4 +1,5 @@
 export * from './api';
+export * from './archives';
 export * from './auth';
 export * from './backoffice';
 export * from './comments';

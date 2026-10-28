@@ -199,7 +199,6 @@
   </v-app>
 </template>
 <script setup lang="ts">
-import { api } from '@next/services';
 import dayjs from 'dayjs';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -214,12 +213,8 @@ import { UserMenu } from '@/features/auth/components/UserMenu';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
 import { useAuthStore } from '@/stores/auth';
-import { runtimeConfig } from '@/utils/runtimeConfig';
 
-import {
-  getExternalNavigationItems,
-  internalNavigationItems as baseInternalItems,
-} from './navigation';
+import { useNavigationItems } from './useNavigationItems';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -275,22 +270,8 @@ const toggleTheme = () => {
   updateHighchartsThemeClass(newTheme === 'dark');
 };
 
-const apiURL = api.defaults.baseURL ?? runtimeConfig.apiBaseUrl;
-
-const internalNavigationItems = computed(() =>
-  baseInternalItems.map((item) => ({
-    ...item,
-    locked: item.locked(Boolean(authStore.user?.confirmed)),
-  }))
-);
-
-const externalNavigationItems = computed(() =>
-  getExternalNavigationItems({
-    apiURL,
-    token: authStore.token,
-    permissions: authStore.user?.permissions ?? [],
-  })
-);
+const { externalNavigationItems, internalNavigationItems } =
+  useNavigationItems();
 </script>
 <style scoped lang="scss">
 .v-list-item {
