@@ -7,6 +7,7 @@ import {
   findArchiveQuarter,
   findQuadFromDate,
   findQuarter,
+  parseSeasonFromName,
 } from './findQuad';
 
 describe('common.lib.findQuad', () => {
@@ -102,5 +103,30 @@ describe('common.lib.findQuad', () => {
         year: 2023,
       });
     });
+  });
+
+  describe('parseSeasonFromName', () => {
+    const cases: Array<[string, { quad: number; year: number } | null]> = [
+      ['FENÔMENOS MECÂNICOS - 2026.3', { quad: 3, year: 2026 }],
+      ['Natureza da Informação - Cris Sato - Q3.2026', { quad: 3, year: 2026 }],
+      ['INTERAÇÃO HUMANO COMPUTADOR - 2026/Q3', { quad: 3, year: 2026 }],
+      ['Curso de Revisão de Física 2026.Q2', { quad: 2, year: 2026 }],
+      ['Física Quântica 2026q2', { quad: 2, year: 2026 }],
+      ['CR-Q3-2026 - Comunicação e Redes', { quad: 3, year: 2026 }],
+      ['Arquitetura de Computadores - RIT- Q326', { quad: 3, year: 2026 }],
+      ['Funções de Uma Variável 26.3 - Prof. Ercílio', { quad: 3, year: 2026 }],
+      ['FVV 26.Q1 - Turma DA4 (Prof. Ulisses)', { quad: 1, year: 2026 }],
+      ['IPE 3Q26 - Prof. Ricardo Taniwaki', { quad: 3, year: 2026 }],
+      ['Finanças Corporativas 3Q26', { quad: 3, year: 2026 }],
+      ['Computação Gráfica', null],
+      ['Q-ZERO 2026', null],
+      ['Neurobiomol2026', null],
+    ];
+
+    for (const [courseName, expectedSeason] of cases) {
+      it(`parses "${courseName}"`, () => {
+        assert.deepStrictEqual(parseSeasonFromName(courseName), expectedSeason);
+      });
+    }
   });
 });

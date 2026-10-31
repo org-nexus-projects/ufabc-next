@@ -47,12 +47,6 @@ export const emailResponseSchema = z.object({
 });
 export type EmailResponse = z.infer<typeof emailResponseSchema>;
 
-export const facebookAuthSchema = z.object({
-  email: z.string(),
-  ra: z.string(),
-});
-export type FacebookAuth = z.infer<typeof facebookAuthSchema>;
-
 export const whatsappTokenResponseSchema = z.object({
   token: z.string(),
 });
@@ -488,16 +482,6 @@ export const updatedStudentSchema = z.object({
   studentId: z.number(),
 });
 export type UpdatedStudent = z.infer<typeof updatedStudentSchema>;
-
-export const sigStudentSchema = z.object({
-  curso: z.string(),
-  email: z.string(),
-  entrada: z.string(),
-  matricula: z.string(),
-  nivel: z.enum(['graduacao', 'licenciatura']),
-  status: z.string(),
-});
-export type SigStudent = z.infer<typeof sigStudentSchema>;
 
 export const componentSchema = z.object({
   campus: z.enum(['sbc', 'sa']),

@@ -9,9 +9,7 @@ import { RequestValidationError } from 'fastify-zod-openapi';
 import type { Mongoose } from 'mongoose';
 
 import { authenticationController } from './controllers/authentication-controller.js';
-import backofficeController from './controllers/backoffice-controller.js';
 import componentsController from './controllers/components-controller.js';
-import { proxyController } from './controllers/proxy-controller.js';
 import studentsController from './controllers/students-controller.js';
 import { UfabcParserIncomingWebhookController } from './controllers/ufabc-parser-webhook-controller.js';
 import { authenticateBoard } from './hooks/board-authenticate.js';
@@ -22,6 +20,7 @@ import queueV2Plugin from './plugins/v2/queue.js';
 import redisV2Plugin from './plugins/v2/redis.js';
 import { setupV2Routes } from './plugins/v2/setup.js';
 import testUtilsPlugin from './plugins/v2/test-utils.js';
+import { teacherSummaryController } from './controllers/teacher-summary-controller.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -32,11 +31,10 @@ declare module 'fastify' {
 
 const routesV2 = [
   componentsController,
-  backofficeController,
   studentsController,
   UfabcParserIncomingWebhookController,
   authenticationController,
-  proxyController,
+  teacherSummaryController,
 ];
 
 export async function buildApp(

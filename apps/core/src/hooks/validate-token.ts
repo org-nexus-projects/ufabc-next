@@ -1,6 +1,8 @@
-import type { FastifyReply, FastifyRequest, preHandlerAsyncHookHandler } from 'fastify';
+import type { FastifyRequest, preHandlerAsyncHookHandler } from 'fastify';
 
-export const validateInternalTokenAuthHook: preHandlerAsyncHookHandler = async (request: FastifyRequest, reply: FastifyReply) => {
+import { InvalidInternalToken } from '@/errors/custom-errors.js';
+
+export const validateInternalTokenAuthHook: preHandlerAsyncHookHandler = async (request: FastifyRequest) => {
     const internalToken = request.headers['x-internal-token'] as string;
 
     if (!internalToken || internalToken !== request.server.config.INTERNAL_TOKEN) {
@@ -9,8 +11,6 @@ export const validateInternalTokenAuthHook: preHandlerAsyncHookHandler = async (
             'Invalid or missing x-internal-token header'
         );
 
-        return reply.unauthorized(
-            'Invalid or missing x-internal-token header'
-        );
+        throw new InvalidInternalToken();
     }
 };

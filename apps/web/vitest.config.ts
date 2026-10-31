@@ -8,10 +8,17 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    env: {
+      VITE_API_BASE_URL: 'http://localhost:5000',
+      VITE_APP_BASE_URL: '/',
+      VITE_APP_ENV: 'local',
+      VITE_PARSER_API_BASE_URL: 'https://ufabc-parser.com/v2',
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
       exclude: [
+        '**/dist/**',
         '**/node_modules/**',
         '**/test-utils.ts',
         '**/mocks/**',
@@ -31,8 +38,10 @@ export default defineConfig({
     alias: {
       '@': '/src',
     },
-    deps: {
-      inline: ['vuetify'],
+    server: {
+      deps: {
+        inline: ['vuetify'],
+      },
     },
     setupFiles: ['./setup-tests.ts'],
   },

@@ -1,5 +1,6 @@
 import {
   buildGoogleAuthUrl,
+  isDevelopmentApiSession,
   isLocalAppSession,
   isLocalHost,
   isRemoteApiSession,
@@ -24,6 +25,11 @@ describe('runtimeConfig', () => {
     expect(isRemoteApiSession('https://api.ufabcnext.com')).toBe(true);
   });
 
+  test('detects the development API from the selected app environment', () => {
+    expect(isDevelopmentApiSession('local')).toBe(true);
+    expect(isDevelopmentApiSession('production')).toBe(false);
+  });
+
   test('builds google login url from api base url', () => {
     expect(buildGoogleAuthUrl({ requesterKey: 'ufabc-next' })).toBe(
       `${runtimeConfig.apiBaseUrl}/login/google?requesterKey=ufabc-next`,
@@ -43,8 +49,10 @@ describe('runtimeConfig', () => {
   });
 
   test('builds google account association url', () => {
-    expect(buildGoogleAuthUrl({ userId: 'user-123' })).toBe(
-      `${runtimeConfig.apiBaseUrl}/login/google?userId=user-123`,
+    expect(
+      buildGoogleAuthUrl({ requesterKey: 'ufabc-next', userId: 'user-123' }),
+    ).toBe(
+      `${runtimeConfig.apiBaseUrl}/login/google?requesterKey=ufabc-next&userId=user-123`,
     );
   });
 });

@@ -32,6 +32,9 @@ export const UfabcParserIncomingWebhookController: FastifyPluginAsyncZod =
         tags: ['webhook', 'ufabc-parser'],
         hide: true,
       },
+      config: {
+        rateLimit: false,
+      },
       preHandler: webhookAuthHook,
       handler: async (request, reply) => {
         const deliveryId = request.headers['x-webhook-delivery-id'];

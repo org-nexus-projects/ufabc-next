@@ -7,16 +7,6 @@ export type UserSignup = {
   ra: number;
 };
 
-export type FacebookAuth = {
-  // user personal email `not` @aluno.ufabc.edu.br
-  email: string;
-  ra: string;
-};
-
-export type FacebookConfirmResponse = {
-  token: string;
-};
-
 export type UserConfirmResponse = {
   token: string;
 };
@@ -40,10 +30,6 @@ export const Users = {
   info: async () => {
     const { data } = await api.get('/users/info');
     return data as User;
-  },
-  facebookAuth: async (params: FacebookAuth) => {
-    const { data } = await api.post('/users/facebook', params);
-    return data as FacebookConfirmResponse;
   },
   getEmail: async (ra: string) => {
     const { data } = await api.get('/users/check-email', { params: { ra } });

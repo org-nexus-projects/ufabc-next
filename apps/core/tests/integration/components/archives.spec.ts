@@ -47,6 +47,7 @@ describe('Archive Flow Integration', () => {
     const pdfsRes = await app.inject({
       method: 'GET',
       url: '/v2/components/archives/uploads',
+      headers: { 'x-internal-token': app.config.INTERNAL_TOKEN },
     });
     const pdfs = JSON.parse(pdfsRes.body);
 

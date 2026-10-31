@@ -46,26 +46,6 @@ export const resendEmailSchema = {
   },
 } satisfies FastifyZodOpenApiSchema;
 
-export const loginFacebookSchema = {
-  body: z.object({
-    ra: z.coerce.number(),
-    email: z.string().email(),
-  }),
-  response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: z.object({
-            success: z.boolean(),
-            message: z.string().optional(),
-            token: z.string(),
-          }),
-        },
-      },
-    },
-  },
-} satisfies FastifyZodOpenApiSchema;
-
 export const confirmUserSchema = {
   body: z.object({
     token: z.string(),
@@ -86,7 +66,10 @@ export const confirmUserSchema = {
 export const validateUserEmailSchema = {
   tags,
   querystring: z.object({
-    ra: z.string().describe('Student ID (RA) of the user to validate'),
+    ra: z
+      .string()
+      .regex(/^\d{1,15}$/)
+      .describe('Student ID (RA) of the user to validate'),
   }),
   response: {
     400: {
@@ -107,42 +90,6 @@ export const validateUserEmailSchema = {
         'application/json': {
           schema: z.object({
             email: z.string().describe('Valid email address of the user'),
-          }),
-        },
-      },
-    },
-  },
-} satisfies FastifyZodOpenApiSchema;
-
-export const getFacebookUserEmailSchema = {
-  tags,
-  querystring: z.object({
-    ra: z.string(),
-  }),
-  response: {
-    400: {
-      content: {
-        'application/json': {
-          schema: z.object({
-            message: z.string(),
-          }),
-        },
-      },
-    },
-    404: {
-      content: {
-        'application/json': {
-          schema: z.object({
-            message: z.string(),
-          }),
-        },
-      },
-    },
-    200: {
-      content: {
-        'application/json': {
-          schema: z.object({
-            email: z.string().email(),
           }),
         },
       },

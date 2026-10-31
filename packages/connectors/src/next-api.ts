@@ -6,7 +6,6 @@ import type {
   CrDistributionData,
   EmailResponse,
   Enrollment,
-  FacebookAuth,
   GetCommentResponse,
   HelpFormResult,
   HistoriesGraduations,
@@ -17,7 +16,6 @@ import type {
   SearchCourseItem,
   SearchSubject,
   SearchTeacher,
-  SigStudent,
   StatsClass,
   StatsCourse,
   StatsOverview,
@@ -76,13 +74,6 @@ export class NextApiConnector extends BaseRequester {
     return await this.request<User>('/users/info');
   }
 
-   async facebookAuth(data: FacebookAuth) {
-    return await this.request<UserConfirmResponse>('/users/facebook', {
-      body: data,
-      method: 'POST',
-    });
-  }
-
    async getEmail(ra: string) {
     return await this.request<EmailResponse>('/users/check-email', {
       query: { ra },
@@ -120,9 +111,6 @@ export class NextApiConnector extends BaseRequester {
     });
   }
 
-   async deleteComment(id: string) {
-    return await this.request(`/comments/${id}`, { method: 'DELETE' });
-  }
 
    async createReaction(commentId: string, kind: ReactionKind) {
     return await this.request(`/comments/reactions/${commentId}`, {
@@ -200,13 +188,6 @@ export class NextApiConnector extends BaseRequester {
     });
   }
 
-   async getSigStudent(data: SigStudent, sessionId: string) {
-    return await this.request('/entities/students/sig', {
-      body: data,
-      headers: { 'session-id': sessionId },
-      method: 'POST',
-    });
-  }
 
    async searchComponents(season?: string) {
      const query: Record<string, string> = {}
@@ -231,11 +212,6 @@ export class NextApiConnector extends BaseRequester {
     });
   }
 
-   async getComponentArchives(sessionId: string, sessKey: string) {
-    return await this.request('/v2/components/archives', {
-      headers: { 'sess-key': sessKey, 'session-id': sessionId },
-    });
-  }
 
    async triggerComponentArchiveProcessing(sessionId: string, sessKey: string) {
     return await this.request('/v2/components/archives', {
@@ -244,27 +220,9 @@ export class NextApiConnector extends BaseRequester {
     });
   }
 
-   async getComponentUploads() {
-    return await this.request('/v2/components/archives/uploads');
-  }
 
-   async getTeachers() {
-    return await this.request<Array<{ name: string; alias: string[] }>>('/entities/teachers/');
-  }
 
-   async createTeachers(names: string[]) {
-    return await this.request('/entities/teachers/', {
-      body: { names },
-      method: 'POST',
-    });
-  }
 
-   async updateTeacher(teacherId: string, alias: string) {
-    return await this.request(`/entities/teachers/${teacherId}`, {
-      body: { alias },
-      method: 'PUT',
-    });
-  }
 
    async searchTeachers(q: string) {
     return await this.request<SearchTeacher>('/entities/teachers/search', {
@@ -276,9 +234,6 @@ export class NextApiConnector extends BaseRequester {
     return await this.request<TeacherReview>(`/entities/teachers/reviews/${teacherId}`);
   }
 
-   async getSubjects(params: { limit: number; page: number }) {
-    return await this.request('/entities/subjects/', { query: params });
-  }
 
    async searchSubjects(q: string) {
     return await this.request<SearchSubject>('/entities/subjects/search', {
@@ -344,17 +299,6 @@ export class NextApiConnector extends BaseRequester {
     return await this.request<HistoriesGraduations>('/courseStats/user/grades');
   }
 
-   async syncHistory(
-    sessionId: string,
-    viewState: string,
-    data: { login: string; ra: string }
-  ) {
-    return await this.request('/histories', {
-      body: data,
-      headers: { 'session-id': sessionId, 'view-state': viewState },
-      method: 'POST',
-    });
-  }
 
    async sendResults(sessionId: string, sessKey: string) {
     return await this.request<{ msg: string }>('/v2/components/archives', {

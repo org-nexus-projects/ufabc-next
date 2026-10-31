@@ -20,7 +20,6 @@ type Email = {
   recipient: string;
   body: {
     url?: string;
-    recovery_facebook?: string;
     recovery_google?: string;
   };
 };
@@ -60,7 +59,6 @@ export async function sendConfirmationEmail(ctx: QueueContext<EmailJobData>) {
       emailRequest = {
         recipient: user.email,
         body: {
-          recovery_facebook: 'https://api.v2.ufabcnext.com/users/facebook',
           recovery_google: `${MAILER_CONFIG.RECOVERY_URL}/google?userId=${user._id}`,
         },
       };
@@ -93,7 +91,6 @@ export async function sesSendEmail(
     templateData = JSON.stringify({ url: email.body.url });
   } else {
     templateData = JSON.stringify({
-      recovery_facebook: email.body.recovery_facebook,
       recovery_google: email.body.recovery_google,
     });
   }
@@ -122,52 +119,4 @@ export async function sesSendEmail(
   } finally {
     sesClient.destroy();
   }
-}
-
-type BulkEmailJob = {
-  templateName: string;
-  recipients: string[];
-};
-
-export async function sendBulkEmail(ctx: QueueContext<BulkEmailJob>) {
-  const { templateName, recipients } = ctx.job.data;
-  const uniqueRecipients = Array.from(new Set(recipients));
-  const fromIdentity = 'contato@ufabcnext.com';
-
-  const results = await Promise.allSettled(
-    uniqueRecipients.map((recipient) => {
-      const input = {
-        Source: `UFABCnext <${fromIdentity}>`,
-        Destination: {
-          ToAddresses: [recipient],
-        },
-        Template: templateName,
-        TemplateData: JSON.stringify({}),
-      };
-      const cmd = new SendTemplatedEmailCommand(input);
-      return sesClient.send(cmd).catch((error) => {
-        ctx.app.log.error(
-          {
-            recipient,
-            error: error?.message,
-          },
-          'Failed to send email'
-        );
-        throw error;
-      });
-    })
-  );
-
-  const failures = results.filter((result) => result.status === 'rejected');
-
-  const result = {
-    totalRecipients: uniqueRecipients.length,
-    sentEmails: results.length - failures.length,
-    failedEmails: failures.length,
-    failures,
-  };
-
-  ctx.app.log.info(result, 'Sending emails completed');
-
-  return result;
 }

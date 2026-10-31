@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "mongodb": {
+      "command": "node",
+      "args": ["--experimental-strip-types", "tools/mongodb-mcp/src/index.ts"]
+    },
+    "mongodb-live": {
+      "command": "bash",
+      "args": [
+        "-c",
+        "set -a; source tools/mongodb-mcp/.env.live; set +a; exec node --experimental-strip-types tools/mongodb-mcp/src/index.ts"
+      ]
+    }
+  }
+}

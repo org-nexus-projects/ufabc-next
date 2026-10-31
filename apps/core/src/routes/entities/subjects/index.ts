@@ -4,39 +4,12 @@ import { Types } from 'mongoose';
 
 import { SubjectModel, type Subject } from '@/models/Subject.js';
 import { TeacherModel } from '@/models/Teacher.js';
-import {
-  listSubjectsSchema,
-  searchSubjectSchema,
-} from '@/schemas/entities/subjects.js';
+import { searchSubjectSchema } from '@/schemas/entities/subjects.js';
 
 import { rawSubjectsReviews, type Distribution } from './service.js';
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
   const subjectsCache = app.cache<{}>();
-  app.get('/', { schema: listSubjectsSchema }, async (request, reply) => {
-    const { limit, page } = request.query;
-
-    const [total, subjects] = await Promise.all([
-      SubjectModel.countDocuments(),
-      SubjectModel.find()
-        .limit(limit)
-        .skip((page - 1) * limit)
-        .lean(),
-    ]);
-
-    const pages = Math.ceil(total / limit);
-    const results = subjects.map((s) => ({
-      credits: s.creditos,
-      name: s.name,
-    }));
-
-    return {
-      total,
-      pages,
-      data: results,
-    };
-  });
-
   app.get('/search', { schema: searchSubjectSchema }, async (request) => {
     const { q } = request.query;
 

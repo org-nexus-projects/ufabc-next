@@ -4,20 +4,6 @@ import { type Comment, CommentModel } from '@/models/Comment.js';
 import { EnrollmentModel } from '@/models/Enrollment.js';
 import { type Reaction, ReactionModel } from '@/models/Reaction.js';
 
-export async function getUserEnrollments(ra: number) {
-  const userEnrollments = await EnrollmentModel.find({
-    ra,
-    active: { $ne: false },
-  }).lean();
-
-  return userEnrollments;
-}
-
-export async function getUserComments(ra: number) {
-  const userComments = await CommentModel.find({ ra: ra.toString() }).lean();
-  return userComments;
-}
-
 export async function findById(id: string) {
   const enrollment = await EnrollmentModel.findById(id);
 

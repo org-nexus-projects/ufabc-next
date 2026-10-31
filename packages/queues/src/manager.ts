@@ -7,6 +7,7 @@ import {
   Queue,
   Worker,
   FlowProducer,
+  UnrecoverableError,
   type ConnectionOptions,
   type Job,
   type JobsOptions,
@@ -174,13 +175,24 @@ export class JobManager<
       throw new Error(`No handler defined for job: ${job.name}`);
     }
 
-    const result = await jobBuilder.config.handler(ctx);
+    try {
+      const result = await jobBuilder.config.handler(ctx);
 
-    if (jobBuilder.config.outputSchema) {
-      jobBuilder.config.outputSchema.parse(result);
+      if (jobBuilder.config.outputSchema) {
+        jobBuilder.config.outputSchema.parse(result);
+      }
+
+      return result;
+    } catch (error) {
+      await job.log(
+        `Attempt ${job.attemptsMade + 1}/${job.opts.attempts ?? 1} failed: ${
+          error instanceof Error
+            ? (error.stack ?? error.message)
+            : String(error)
+        }`
+      );
+      throw error;
     }
-
-    return result;
   }
 
   private events<TData, TResult>(
@@ -188,7 +200,15 @@ export class JobManager<
     name: string
   ): void {
     worker.on('active', (job) => {
-      this.app.log.info({ data: job.data }, 'Job started');
+      this.app.log.info(
+        {
+          attemptsMade: job.attemptsMade,
+          jobId: job.id,
+          jobName: job.name,
+          queueName: name,
+        },
+        'Job started'
+      );
     });
 
     worker.on('error', (error) => {
@@ -204,7 +224,18 @@ export class JobManager<
     });
 
     worker.on('failed', (job, error) => {
-      this.app.log.error({ jobId: job?.id, error, name }, 'Job failed');
+      this.app.log.error(
+        {
+          attemptsMade: job?.attemptsMade,
+          err: error,
+          jobId: job?.id,
+          jobName: job?.name,
+          maxAttempts: job?.opts.attempts,
+          queueName: name,
+          unrecoverable: error instanceof UnrecoverableError,
+        },
+        'Job failed'
+      );
     });
   }
 

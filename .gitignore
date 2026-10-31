@@ -18,6 +18,7 @@ pnpm-debug.log*
 .env
 .env.local
 .env.prod
+.env.live
 .env.staging
 .env.*.local
 

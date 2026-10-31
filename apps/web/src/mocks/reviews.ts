@@ -5,6 +5,7 @@ import type {
   SearchTeacher,
   SubjectInfo,
   TeacherReview,
+  TeacherSummary,
   UpdateCommentRequest,
 } from '@next/services';
 
@@ -1734,6 +1735,17 @@ export const userCreateComment: CreateCommentRequest = {
 export const userUpdateComment: UpdateCommentRequest = {
   id: '111',
   comment: 'Test Comment 2',
+};
+
+export const teacherSummary: TeacherSummary = {
+  commentsCount: 12,
+  didacticQuality: 4.5,
+  summary:
+    'Professor bem avaliado por explicar com clareza e disponibilizar material de apoio.',
+  takesAttendance: false,
+  teacher: '5bf5fb65d741524f090c9215',
+  usesMoodle: false,
+  usesSigaa: true,
 };
 
 export const teacherSearch: SearchTeacher = {

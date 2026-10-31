@@ -1,5 +1,12 @@
 import { type InferSchemaType, Schema, model, Types } from 'mongoose';
 
+import {
+  NO_TEACHER_SENTINELS,
+  TEACHER_CACHE_MAX_SIZE,
+  TEACHER_FUZZY_MATCH_MAX_DISTANCE,
+  TEACHER_NAME_PARTICLES,
+} from '@/constants.js';
+
 export function normalizeName(str: string): string {
   return str
     .toLowerCase()
@@ -7,6 +14,17 @@ export function normalizeName(str: string): string {
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function getSignificantWords(name: string) {
+  const significantWords: string[] = [];
+  const nameWithoutHyphens = normalizeName(name).replace(/[-_]/gu, ' ');
+  for (const word of nameWithoutHyphens.split(/\s+/u)) {
+    if (!TEACHER_NAME_PARTICLES.includes(word)) {
+      significantWords.push(word);
+    }
+  }
+  return significantWords;
 }
 
 function levenshteinDistance(a: string, b: string): number {
@@ -39,18 +57,27 @@ function levenshteinDistance(a: string, b: string): number {
 export function findBestLevenshteinMatch(
   name: string,
   candidates: TeacherDocument[],
-  threshold = 7
+  threshold = TEACHER_FUZZY_MATCH_MAX_DISTANCE
 ): TeacherDocument | null {
-  const normalizedName = normalizeName(name);
+  const searchedWords = getSignificantWords(name);
   let bestMatch: TeacherDocument | null = null;
   let bestDistance = Infinity;
 
   for (const teacher of candidates) {
-    const teacherNorm = normalizeName(teacher.name);
-    const distance = levenshteinDistance(normalizedName, teacherNorm);
-    if (distance <= threshold && distance < bestDistance) {
-      bestDistance = distance;
-      bestMatch = teacher;
+    const knownNames = [teacher.name, ...teacher.alias];
+    for (const knownName of knownNames) {
+      const knownWords = getSignificantWords(knownName);
+      if (knownWords.length !== searchedWords.length) {
+        continue;
+      }
+      const distance = levenshteinDistance(
+        searchedWords.join(' '),
+        knownWords.join(' ')
+      );
+      if (distance <= threshold && distance < bestDistance) {
+        bestDistance = distance;
+        bestMatch = teacher;
+      }
     }
   }
 
@@ -98,47 +125,75 @@ teacherSchema.index(
   { unique: true, name: 'TeacherExternalKeyIndex', sparse: true }
 );
 
+/**
+ * Sets a cache entry, evicting the oldest entry first if `cache` is already
+ * at `maxSize` — without this, `teacherCache` below grows unbounded for the
+ * life of the process (it caches every distinct teacher name variant ever seen).
+ */
+export function setTeacherCacheEntry<Value>(
+  cache: Map<string, Value>,
+  key: string,
+  value: Value,
+  maxSize = TEACHER_CACHE_MAX_SIZE
+) {
+  if (cache.size >= maxSize && !cache.has(key)) {
+    const oldestKey = cache.keys().next().value;
+    if (oldestKey !== undefined) {
+      cache.delete(oldestKey);
+    }
+  }
+  cache.set(key, value);
+}
+
 const teacherCache = new Map<string, Types.ObjectId | null>();
 
 export async function findTeacher(
-  name: string | null
+  name: string | null,
+  { createIfMissing = true } = {}
 ): Promise<Types.ObjectId | null> {
   if (!name) return null;
 
   const normalizedName = normalizeName(name);
 
+  if (NO_TEACHER_SENTINELS.includes(normalizedName)) {
+    return null;
+  }
+
   if (teacherCache.has(normalizedName)) {
     return teacherCache.get(normalizedName)!;
   }
 
-  const teacher = await TeacherModel.findOne({ name: normalizedName });
+  const teacher = await TeacherModel.findOne({
+    $or: [{ name: normalizedName }, { alias: normalizedName }],
+  });
 
-  if (!teacher) {
-    const allTeachers = await TeacherModel.find({});
-    const levMatch = findBestLevenshteinMatch(name, allTeachers);
-    if (levMatch) {
-      await TeacherModel.findByIdAndUpdate(levMatch._id, {
+  if (teacher) {
+    if (!teacher.alias.includes(normalizedName)) {
+      await TeacherModel.findByIdAndUpdate(teacher._id, {
         $addToSet: { alias: { $each: [normalizedName, name.toLowerCase()] } },
       });
-      teacherCache.set(normalizedName, levMatch._id);
-      return levMatch._id;
     }
+    setTeacherCacheEntry(teacherCache, normalizedName, teacher._id);
+    return teacher._id;
   }
 
-  if (!teacher && normalizedName !== '0') {
-    teacherCache.set(normalizedName, null);
+  const allTeachers = await TeacherModel.find({});
+  const levMatch = findBestLevenshteinMatch(name, allTeachers);
+  if (levMatch) {
+    setTeacherCacheEntry(teacherCache, normalizedName, levMatch._id);
+    return levMatch._id;
+  }
+
+  if (!createIfMissing) {
     return null;
   }
 
-  if (teacher && !teacher.alias.includes(normalizedName)) {
-    await TeacherModel.findByIdAndUpdate(teacher._id, {
-      $addToSet: { alias: { $each: [normalizedName, name.toLowerCase()] } },
-    });
-  }
-
-  const teacherId = teacher?._id ?? null;
-  teacherCache.set(normalizedName, teacherId);
-  return teacherId;
+  const newTeacher = await TeacherModel.create({
+    name,
+    alias: [normalizedName, name.toLowerCase()],
+  });
+  setTeacherCacheEntry(teacherCache, normalizedName, newTeacher._id);
+  return newTeacher._id;
 }
 
 export function clearTeacherCache() {

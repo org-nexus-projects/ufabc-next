@@ -7,7 +7,6 @@ import { sendMessage } from "@/messaging";
 import { logger } from "@/utils/logger";
 import type { ContentScriptContext } from "wxt/client";
 import { getStudent } from "@/services/next";
-import { Toaster } from "vue-sonner";
 
 export type UFABCMatriculaStudent = {
   studentId: number;
@@ -20,10 +19,13 @@ export default defineContentScript({
     const $topInfo = document.querySelector("#usuario_top > b");
     const login = $topInfo?.textContent?.trim().split(" ")[0];
 
+    if (!login) {
+      logger.error('Could not identify the logged-in student');
+      return;
+    }
+
     const ui = await mountUFABCMatriculaFilters(ctx, sessionId, login);
     ui.mount();
-
-    mountToaster(ctx).mount();
 
     const $meio = document.querySelector<HTMLDivElement>("#meio");
     const $mountedUi = $meio?.firstChild as unknown as HTMLDivElement;
@@ -39,7 +41,12 @@ export default defineContentScript({
     ];
     const origin = new URL(document.location.href).origin;
     if (URLS_TO_CHECK.includes(origin)) {
-      const fullStudent = await getStudent(login!, sessionId!);
+      if (!sessionId) {
+        logger.error('Could not retrieve the matricula session');
+        return;
+      }
+
+      const fullStudent = await getStudent(login, sessionId);
       await storage.setItem("local:fullStudent", fullStudent);
       document.dispatchEvent(
         new CustomEvent("student-info", {
@@ -91,22 +98,6 @@ async function mountUFABCMatriculaFilters(ctx: ContentScriptContext, sessionId: 
       const resolvedMounted = await mounted;
       resolvedMounted?.app.unmount();
       resolvedMounted?.wrapper.remove();
-    },
-  });
-}
-
-function mountToaster(ctx: ContentScriptContext) {
-  return createIntegratedUi(ctx, {
-    position: "inline",
-    anchor: "body",
-    append: "last",
-    onMount(wrapper) {
-      const app = createApp(Toaster, { position: "top-right" });
-      app.mount(wrapper);
-      return app;
-    },
-    onRemove(app) {
-      app?.unmount();
     },
   });
 }

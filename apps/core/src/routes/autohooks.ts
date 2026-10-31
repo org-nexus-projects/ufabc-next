@@ -3,24 +3,19 @@ import type { FastifyInstance } from 'fastify';
 const PUBLIC_ROUTES = [
   '/public',
   '/login',
-  '/backoffice',
+  '/backoffice/token',
   '/entities/components',
   '/entities/subjects/reviews/',
   '/entities/teachers/reviews/',
-  '/entities/students/stats/components',
-  '/entities/students/courses',
   '/public/stats/components',
   '/users/check-email',
-  '/users/facebook',
   '/help/form',
   '/users/recover',
-  '/users/validate',
-  '/entities/enrollments/wpp',
+  '/users/validate/',
   '/v2/auth/whatsapp-token',
 ];
 
 const EXTENSION_ROUTES = [
-  '/entities/students/sig',
   '/histories',
   '/entities/students',
   '/components',

@@ -2,6 +2,20 @@ import { pino, stdSerializers, type Logger } from 'pino'
 
 export type Env = 'dev' | 'production'
 
+const REDACTED_PATHS = [
+  'headers.authorization',
+  'headers.cookie',
+  'headers["set-cookie"]',
+  'headers["session-id"]',
+  'headers["sess-key"]',
+  'headers.sesskey',
+  'headers.sessionid',
+  'headers["x-api-key"]',
+  'headers["x-internal-token"]',
+  'data.session.sessKey',
+  'data.session.sessionId',
+]
+
 const DEFAULT_LEVEL: Record<Env, string> = { dev: 'debug', production: 'info' }
 
 export function createServerLogger(env: Env, level?: string) {
@@ -37,6 +51,7 @@ export function createServerLogger(env: Env, level?: string) {
   const pinoOptions: Record<string, unknown> = {
     level: levelOption,
     timestamp: pino.stdTimeFunctions.isoTime,
+    redact: { paths: REDACTED_PATHS, censor: '[REDACTED]' },
     messageKey: 'message',
     serializers: {
       error: stdSerializers.err,

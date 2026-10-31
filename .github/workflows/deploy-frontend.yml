@@ -17,8 +17,9 @@ jobs:
     name: Deploy Frontend
     runs-on: ubuntu-latest
     env:
-      MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
-      VITE_MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
+      NEXT_WEB_TARGET: prod
+      WEB_PRODUCTION_API_BASE_URL: https://api.v2.ufabcnext.com
+      WEB_PRODUCTION_MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
       VITE_AXIOM_TOKEN: ${{ secrets.WEB_AXIOM_INGEST_TOKEN }}
       VITE_AXIOM_DATASET: ${{ secrets.WEB_AXIOM_DATASET }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

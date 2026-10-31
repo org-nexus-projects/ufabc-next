@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 
 import { EnrollmentModel } from '@/models/Enrollment.js';
 import { SubjectModel, type Subject } from '@/models/Subject.js';
-import { TeacherModel, type Teacher } from '@/models/Teacher.js';
+import { TeacherModel } from '@/models/Teacher.js';
 
 type SearchResult = {
   total: number;
@@ -174,20 +174,3 @@ export async function searchMany(q: string) {
   return searchResults;
 }
 
-export async function findAndUpdate(id: string, alias: string) {
-  const teacherWithAlias = await TeacherModel.findOneAndUpdate(
-    { _id: new Types.ObjectId(id) },
-    { alias },
-    { new: true }
-  ).lean<Teacher>();
-
-  return teacherWithAlias;
-}
-
-export async function listAll() {
-  const teachers = await TeacherModel.find(
-    {},
-    { _id: 0, name: 1, alias: 1 }
-  ).lean<{ name: string; alias: string[] }[]>();
-  return teachers;
-}

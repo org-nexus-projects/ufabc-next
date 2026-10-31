@@ -1,7 +1,6 @@
 import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 
 import { currentQuad } from '@next/utils';
-import { Types } from 'mongoose';
 import { z } from 'zod';
 import 'zod-openapi/extend';
 
@@ -72,18 +71,3 @@ export const listKickedSchema = {
   },
 } satisfies FastifyZodOpenApiSchema;
 
-export const listTeacherComponents = {
-  querystring: z.object({
-    season: z.string(),
-    subject: z.string().transform((val) => new Types.ObjectId(val)),
-  }),
-  response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: z.any(),
-        },
-      },
-    },
-  },
-} satisfies FastifyZodOpenApiSchema;

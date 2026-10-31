@@ -86,3 +86,55 @@ export function findArchiveQuarter(date: Date): FindQuarter | null {
 
   return { quad, year: date.getFullYear() };
 }
+
+const SEASON_NAME_PATTERNS: Array<{
+  pattern: RegExp;
+  readSeason: (match: RegExpExecArray) => { quad: number; year: number };
+}> = [
+  {
+    pattern: /(20\d{2})\s*[./\-\s]?\s*Q?\s*([123])(?!\d)/iu,
+    readSeason: (match) => ({ quad: Number(match[2]), year: Number(match[1]) }),
+  },
+  {
+    pattern: /Q\s*([123])\s*[./\-\s]?\s*(20\d{2})/iu,
+    readSeason: (match) => ({ quad: Number(match[1]), year: Number(match[2]) }),
+  },
+  {
+    pattern: /\bQ([123])(\d{2})\b/iu,
+    readSeason: (match) => ({
+      quad: Number(match[1]),
+      year: 2000 + Number(match[2]),
+    }),
+  },
+  {
+    pattern: /\b(2\d)\s*[./\-]?\s*Q([123])\b/iu,
+    readSeason: (match) => ({
+      quad: Number(match[2]),
+      year: 2000 + Number(match[1]),
+    }),
+  },
+  {
+    pattern: /\b([123])Q\s*(20)?(\d{2})\b/iu,
+    readSeason: (match) => ({
+      quad: Number(match[1]),
+      year: 2000 + Number(match[3]),
+    }),
+  },
+  {
+    pattern: /\b(2\d)\.([123])\b/u,
+    readSeason: (match) => ({
+      quad: Number(match[2]),
+      year: 2000 + Number(match[1]),
+    }),
+  },
+];
+
+export function parseSeasonFromName(courseName: string) {
+  for (const { pattern, readSeason } of SEASON_NAME_PATTERNS) {
+    const match = pattern.exec(courseName);
+    if (match) {
+      return readSeason(match);
+    }
+  }
+  return null;
+}

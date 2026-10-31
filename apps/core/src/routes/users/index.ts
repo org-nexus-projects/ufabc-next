@@ -1,15 +1,14 @@
 import { currentQuad } from '@next/utils';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
 
-import { UfabcParserConnector } from '@/connectors/ufabc-parser.js';
 import { UfabcParserError } from '@/errors/ufabc-parser.js';
+import { validateInternalTokenAuthHook } from '@/hooks/validate-token.js';
 import { StudentModel } from '@/models/Student.js';
 import { UserModel, type User } from '@/models/User.js';
 import { completeUserSchema, type Auth } from '@/schemas/auth.js';
 import {
   confirmUserSchema,
   deactivateUserSchema,
-  loginFacebookSchema,
   resendEmailSchema,
   sendRecoveryEmailSchema,
   validateUserEmailSchema,
@@ -51,61 +50,24 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
     return userInfo;
   });
-  app.get('/validate/:ra', async (request, reply) => {
-    const { ra } = request.params as { ra: string };
-    const raNumber = Number.parseInt(ra);
-    const user = await UserModel.findOne({ ra: raNumber });
-    if (!user) {
-      return reply.badRequest('User not found');
-    }
-
-    const userInfo = {
-      ra: user.ra,
-      active: user.active,
-      confirmed: user.confirmed,
-    };
-
-    return userInfo;
-  });
-
-  app.post(
-    '/facebook',
-    { schema: loginFacebookSchema },
+  app.get(
+    '/validate/:ra',
+    { preHandler: [validateInternalTokenAuthHook] },
     async (request, reply) => {
-      const { ra, email } = request.body;
-      const user = await UserModel.findOne({
-        ra,
-        $or: [
-          { 'oauth.facebookEmail': email },
-          { 'oauth.email': email },
-          { 'oauth.emailFacebook': email },
-        ],
-      });
-
+      const { ra } = request.params as { ra: string };
+      const raNumber = Number.parseInt(ra);
+      const user = await UserModel.findOne({ ra: raNumber });
       if (!user) {
-        return reply.notFound('Usuario não encontrado');
+        return reply.badRequest('User not found');
       }
 
-      const userEmails = [user.oauth?.emailFacebook, user.oauth?.email].filter(
-        Boolean
-      );
-
-      if (!userEmails.includes(email)) {
-        throw new Error(
-          'Email does not match the registered email for this RA'
-        );
-      }
-
-      const jwtToken = app.jwt.sign({
-        _id: user._id.toJSON(),
+      const userInfo = {
         ra: user.ra,
-        permissions: user.permissions,
         active: user.active,
         confirmed: user.confirmed,
-        email: user.email,
-      });
+      };
 
-      return { success: true, token: jwtToken };
+      return userInfo;
     }
   );
 
@@ -134,7 +96,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     // @ts-ignore
     async (request, reply) => {
       const { email, ra } = request.body;
-      const ufabcParserConnector = new UfabcParserConnector(request.id);
+      const ufabcParserConnector = app.createUfabcParserConnector(request.id);
 
       try {
         const student = await ufabcParserConnector.getStudent(ra);
@@ -298,7 +260,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     { schema: validateUserEmailSchema },
     // @ts-ignore
     async (request, reply) => {
-      const ufabcParserConnector = new UfabcParserConnector(request.id);
+      const ufabcParserConnector = app.createUfabcParserConnector(request.id);
       const { ra } = request.query;
 
       try {

@@ -1,7 +1,5 @@
 import { setTimeout as sleep } from 'node:timers/promises';
 
-import { logger as defaultLogger } from '@/utils/logger.js';
-
 import { BaseRequester } from './base-requester.js';
 
 type MoodleResponse = {
@@ -166,7 +164,7 @@ export class MoodleConnector extends BaseRequester {
         timeout: 10_000,
       });
     } catch (error) {
-      (this.getLogger() ?? defaultLogger.child({ connector: true })).warn(
+      this.getLogger().warn(
         { courseId, error },
         'Failed to fetch course participants page'
       );
@@ -174,11 +172,16 @@ export class MoodleConnector extends BaseRequester {
     }
   }
 
-  async downloadFile(url: string, sessionId: string): Promise<ArrayBuffer> {
+  async downloadFile(
+    url: string,
+    sessionId: string,
+    sessKey: string
+  ): Promise<ArrayBuffer> {
     await this.rateLimit();
 
     const headers = new Headers();
     headers.set('Cookie', `MoodleSession=${sessionId}`);
+    headers.set('sesskey', sessKey);
 
     const response = await this.request<ArrayBuffer>(url, {
       headers,

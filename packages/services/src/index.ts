@@ -1,5 +1,6 @@
 export * from './api';
 export * from './auth';
+export * from './backoffice';
 export * from './comments';
 export * from './enrollments';
 export * from './help';

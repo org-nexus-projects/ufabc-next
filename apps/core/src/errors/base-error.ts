@@ -6,6 +6,7 @@ export const errorJsonSchema = z.object({
   description: z.string(),
   httpStatus: z.number(),
   title: z.string(),
+  translatedDescription: z.string(),
 });
 
 export const errorHttpSchema = z.object({
@@ -14,6 +15,7 @@ export const errorHttpSchema = z.object({
   description: z.string(),
   statusCode: z.number(),
   title: z.string(),
+  translatedDescription: z.string(),
 });
 
 export type ErrorJson = z.infer<typeof errorJsonSchema>;
@@ -24,6 +26,8 @@ export class NextError extends Error {
   readonly code: string;
   readonly httpStatus: number;
   description: string;
+  /** User-facing translation of `description`, for clients to display directly. */
+  translatedDescription: string;
   additionalData: Record<string, unknown> | null | undefined;
 
   get status(): number {
@@ -39,12 +43,14 @@ export class NextError extends Error {
     code: string,
     httpStatus: number,
     description: string,
+    translatedDescription: string,
     additionalData?: Record<string, unknown> | null
   ) {
     super(title);
     this.name = 'NextError';
     this.title = title;
     this.description = description;
+    this.translatedDescription = translatedDescription;
     this.code = code;
     this.httpStatus = httpStatus;
     this.additionalData = additionalData ?? null;
@@ -57,6 +63,7 @@ export class NextError extends Error {
       description: this.description,
       httpStatus: this.httpStatus,
       title: this.title,
+      translatedDescription: this.translatedDescription,
     };
 
     return errorJsonSchema.parse(json);
@@ -69,6 +76,7 @@ export class NextError extends Error {
       description: this.description,
       statusCode: this.httpStatus,
       title: this.title,
+      translatedDescription: this.translatedDescription,
     };
 
     return errorHttpSchema.parse(http);

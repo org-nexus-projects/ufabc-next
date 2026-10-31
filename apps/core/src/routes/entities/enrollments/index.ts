@@ -19,16 +19,22 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
 
   app.get('/wpp', async ({ user, query }, reply) => {
     const { season, ra } = query as {
-      season: ReturnType<typeof currentQuad>;
-      ra: string;
+      season?: ReturnType<typeof currentQuad>;
+      ra?: string;
     };
 
     const actualSeason = season ?? currentQuad();
 
-    const wppEnrollments = await listWithComponents(
-      user?.ra ?? ra,
-      actualSeason
-    );
+    let targetRa = user.ra;
+    if (ra !== undefined) {
+      targetRa = Number(ra);
+    }
+
+    if (Number.isNaN(targetRa)) {
+      return reply.badRequest('Invalid ra');
+    }
+
+    const wppEnrollments = await listWithComponents(targetRa, actualSeason);
     return wppEnrollments;
   });
 

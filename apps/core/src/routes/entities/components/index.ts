@@ -1,21 +1,17 @@
+import { currentQuad } from '@next/utils';
 import type { preHandlerAsyncHookHandler } from 'fastify';
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-
-import { currentQuad } from '@next/utils';
 import { orderBy as LodashOrderBy } from 'lodash-es';
 
-import type { SubjectDocument } from '@/models/Subject.js';
-import type { TeacherDocument } from '@/models/Teacher.js';
-
+import { validateInternalTokenAuthHook } from '@/hooks/validate-token.js';
 import { type Component, ComponentModel } from '@/models/Component.js';
 import { StudentModel } from '@/models/Student.js';
+import type { SubjectDocument } from '@/models/Subject.js';
+import type { TeacherDocument } from '@/models/Teacher.js';
 import {
   listKickedSchema,
-  listTeacherComponents,
   type NonPaginatedComponents,
 } from '@/schemas/entities/components.js';
-
-import { findTeachers } from './service.js';
 
 const validateStudent: preHandlerAsyncHookHandler = async (request, reply) => {
   const { studentId, season } = request.query as {
@@ -36,22 +32,19 @@ const validateStudent: preHandlerAsyncHookHandler = async (request, reply) => {
 };
 
 const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
-  const componentsListCache = app.cache<NonPaginatedComponents[]>();
-
   app.get('/', async (request, reply) => {
     // @ts-ignore
-    const cacheKey = `list:components:${request.query.season}`;
+    const season = request.query.season ?? currentQuad();
+    const cacheKey = `list:components:legacy:${season}`;
 
-    const cachedResponse = componentsListCache.get(cacheKey);
+    const cachedResponse =
+      await request.redisService.getJSON<NonPaginatedComponents[]>(cacheKey);
     if (cachedResponse) {
       return cachedResponse;
     }
 
     const components = await ComponentModel.find(
-      {
-        // @ts-ignore
-        season: request.query.season ?? currentQuad(),
-      },
+      { season },
       {
         _id: 0,
         codigo: 1,
@@ -89,7 +82,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
       praticaId: component.pratica?._id.toString(),
     }));
 
-    // componentsListCache.set(cacheKey, nonPaginatedComponents);
+    await request.redisService.setJSON(cacheKey, nonPaginatedComponents, '5m');
 
     return nonPaginatedComponents;
   });
@@ -224,93 +217,87 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     }
   );
 
-  app.get(
-    '/teachers',
-    { schema: listTeacherComponents },
+  app.patch(
+    '/update-group-urls/:originKey',
+    { preHandler: [validateInternalTokenAuthHook] },
     async (request, reply) => {
-      const { season, subject } = request.query;
+      const { originKey } = request.params as { originKey: string };
+      const { season } = request.query as { season?: string };
+      const { groupURL } = request.body as { groupURL: string | null };
 
-      const components = await findTeachers(subject, season);
-
-      return components.map((c) => ({
-        teoria: c.teoria?.name,
-        pratica: c.pratica?.name,
-      }));
-    }
-  );
-
-  app.post('/update-group-urls/:disciplinaId', async (request, reply) => {
-    const { disciplinaId } = request.params as { disciplinaId: string };
-    const { season } = request.query as { season?: string };
-    const { groupURL } = request.body as { groupURL: string };
-
-    if (!groupURL) {
-      return reply.badRequest('groupURL in request body is required');
-    }
-
-    try {
-      app.log.info({ disciplinaId, season, groupURL }, 'Updating groupURL');
-
-      const seasonToUse = season ?? currentQuad();
-
-      const result = await ComponentModel.updateOne(
-        { disciplina_id: Number(disciplinaId), season: season },
-        { $set: { groupURL } }
-      );
-
-      if (result.matchedCount === 0) {
-        app.log.info(
-          { disciplinaId, season: seasonToUse },
-          'No matching component found'
-        );
-        return reply.status(404).send({
-          error: 'No matching component found',
-          disciplinaId,
-          season: seasonToUse,
-        });
+      if (groupURL === undefined) {
+        return reply.badRequest('groupURL in request body is required');
       }
 
-      if (result.modifiedCount === 0) {
-        app.log.info(
-          { disciplinaId, season: seasonToUse },
-          'Component found but not modified (same groupURL)'
+      if (groupURL !== null && typeof groupURL !== 'string') {
+        return reply.badRequest('groupURL must be a string or null');
+      }
+
+      try {
+        app.log.info({ originKey, season, groupURL }, 'Updating groupURL');
+
+        const seasonToUse = season ?? currentQuad();
+
+        const result = await ComponentModel.updateOne(
+          { origin_key: originKey, season },
+          { $set: { groupURL } }
         );
+
+        if (result.matchedCount === 0) {
+          app.log.info(
+            { originKey, season: seasonToUse },
+            'No matching component found'
+          );
+          return reply.status(404).send({
+            error: 'No matching component found',
+            originKey,
+            season: seasonToUse,
+          });
+        }
+
+        if (result.modifiedCount === 0) {
+          app.log.info(
+            { originKey, season: seasonToUse },
+            'Component found but not modified (same groupURL)'
+          );
+          return reply.send({
+            message:
+              'Component found but groupURL was already set to this value',
+            originKey,
+            season: seasonToUse,
+            groupURL,
+          });
+        }
+
+        app.log.info(
+          {
+            originKey,
+            season: seasonToUse,
+            modifiedCount: result.modifiedCount,
+          },
+          'GroupURL updated successfully'
+        );
+
         return reply.send({
-          message: 'Component found but groupURL was already set to this value',
-          disciplinaId,
+          message: 'GroupURL updated successfully',
+          originKey,
           season: seasonToUse,
           groupURL,
-        });
-      }
-
-      app.log.info(
-        {
-          disciplinaId,
-          season: seasonToUse,
           modifiedCount: result.modifiedCount,
-        },
-        'GroupURL updated successfully'
-      );
-
-      return reply.send({
-        message: 'GroupURL updated successfully',
-        disciplinaId,
-        season: seasonToUse,
-        groupURL,
-        modifiedCount: result.modifiedCount,
-      });
-    } catch (error) {
-      app.log.error(
-        {
-          error: error instanceof Error ? error.message : String(error),
-          disciplinaId,
-          season: season,
-        },
-        'Error updating groupURL'
-      );
-      return reply.internalServerError('Error updating groupURL');
+        });
+      } catch (error) {
+        app.log.error(
+          {
+            error: error instanceof Error ? error.message : String(error),
+            originKey,
+            season: season,
+          },
+          'Error updating groupURL'
+        );
+        return reply.internalServerError('Error updating groupURL');
+      }
     }
-  });
+  );
 };
 
 function kickRule(idealQuad: boolean, season: string) {

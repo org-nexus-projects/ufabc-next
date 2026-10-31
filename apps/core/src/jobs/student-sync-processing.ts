@@ -111,7 +111,33 @@ async function handleStudentSynced(
     });
   }
 
-  await upsertStudentRecord(data, season);
+  // Syncs triggered by other parser clients (e.g. UFABConecta) have no StudentSync
+  const login =
+    studentSync?.timeline?.[0]?.metadata?.login || data.login || null;
+
+  if (!login) {
+    app.log.warn(
+      { deliveryId, ra: data.ra },
+      'No login found in StudentSync timeline, skipping student record upsert'
+    );
+
+    await processingJob.markFailed(
+      {
+        code: 'MISSING_LOGIN',
+        message: 'No login found in StudentSync timeline',
+      },
+      { source: 'webhook' }
+    );
+
+    return {
+      success: false,
+      deliveryId,
+      event: 'student.synced',
+      message: 'No login found for student',
+    };
+  }
+
+  await upsertStudentRecord(data, season, login);
   await createHistoryRecord(data);
 
   await processingJob.transition('completed', {
@@ -196,7 +222,8 @@ async function handleStudentFailed(
 
 async function upsertStudentRecord(
   data: z.infer<typeof StudentSyncedEventSchema>['data'],
-  season: string
+  season: string,
+  login: string
 ) {
   const { student, coefficients, ra } = data;
   const courseData: StudentCourse = {
@@ -208,15 +235,34 @@ async function upsertStudentRecord(
     ca: coefficients.ca,
   };
 
-  await StudentModel.updateOne(
-    { ra: Number(ra), season },
+  const updateResult = await StudentModel.updateOne(
     {
-      $set: { active: true },
-      login: ra,
-      $push: { cursos: courseData },
+      ra: Number(ra),
+      season,
+      'cursos.nome_curso': courseData.nome_curso,
+      'cursos.turno': courseData.turno,
     },
-    { upsert: true }
+    {
+      login,
+      $set: {
+        'cursos.$.cp': courseData.cp,
+        'cursos.$.cr': courseData.cr,
+        'cursos.$.ca': courseData.ca,
+        'cursos.$.ind_afinidade': courseData.ind_afinidade,
+      },
+    }
   );
+
+  if (updateResult.matchedCount === 0) {
+    await StudentModel.updateOne(
+      { ra: Number(ra), season },
+      {
+        login,
+        $push: { cursos: courseData },
+      },
+      { upsert: true }
+    );
+  }
 }
 
 async function createHistoryRecord(

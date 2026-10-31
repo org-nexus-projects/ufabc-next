@@ -1,9 +1,6 @@
 import type { Client } from '@aws-sdk/types';
 
-import { requestContext } from '@fastify/request-context';
-import { randomUUID } from 'node:crypto';
-
-import { logger as defaultLogger } from '@/utils/logger.js';
+import { getClassLogger, getGlobalTraceId } from '@/utils/logger.js';
 
 export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
   protected readonly client: TClient;
@@ -61,10 +58,10 @@ export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
   }
 
   protected getLogger() {
-    return requestContext.get('log') ?? defaultLogger.child({ aws: true });
+    return getClassLogger(this);
   }
 
   protected getTraceId() {
-    return requestContext.get('traceId') ?? randomUUID();
+    return getGlobalTraceId();
   }
 }

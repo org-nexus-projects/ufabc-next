@@ -17,5 +17,6 @@ export enum WebEvent {
   DONATE_PIX_LINK_CLICKED = 'donate_pix_link_clicked',
 
   CREATE_ACCOUNT_CLICKED = 'create_account_clicked',
+  LOGIN_CLICKED = 'login_clicked',
   OPEN_SUPPORT = 'open_support',
 }

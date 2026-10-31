@@ -58,3 +58,6 @@ jobs:
       - name: Build (affected only)
         if: github.event_name == 'pull_request'
         run: pnpm turbo run build lint tsc --filter=...[origin/${{ github.base_ref }}]
+
+      - name: Test frontend
+        run: pnpm --filter @next/container test

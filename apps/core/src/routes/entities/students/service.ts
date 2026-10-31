@@ -1,95 +1,11 @@
-import type { QueryFilter as FilterQuery } from 'mongoose';
-
 import { currentQuad } from '@next/utils';
 
 import type { UpdatedStudent } from '@/schemas/entities/students.js';
 
-import { ComponentModel } from '@/models/Component.js';
 import { HistoryModel } from '@/models/History.js';
 import { StudentModel, type Student } from '@/models/Student.js';
 import { logger } from '@/utils/logger.js';
 import { findRaByLogin } from '@/utils/resolve-student-ra.js';
-
-export async function getComponentsStudentsStats(
-  season: string,
-  dataKey: '$before_kick' | '$alunos_matriculados'
-) {
-  const stats = await ComponentModel.aggregate<{
-    studentsNumber: number;
-    componentsNumber: number;
-  }>([
-    { $match: { season } },
-    { $unwind: dataKey },
-    { $group: { _id: dataKey, count: { $sum: 1 } } },
-    { $group: { _id: '$count', studentsNumber: { $sum: 1 } } },
-    { $sort: { _id: 1 } },
-    {
-      $project: {
-        _id: 0,
-        studentsNumber: 1,
-        componentsNumber: '$_id',
-      },
-    },
-  ]);
-
-  return stats;
-}
-
-export async function getAllCourses() {
-  const courses = await StudentModel.aggregate([
-    {
-      $match: { active: { $ne: false } },
-    },
-    {
-      $unwind: '$cursos',
-    },
-    {
-      $match: {
-        'cursos.id_curso': {
-          $ne: null,
-        },
-      },
-    },
-    {
-      $project: {
-        'cursos.id_curso': 1,
-        'cursos.nome_curso': {
-          $trim: {
-            input: '$cursos.nome_curso',
-          },
-        },
-      },
-    },
-    {
-      $group: {
-        _id: '$cursos.nome_curso',
-        ids: {
-          $addToSet: '$cursos.id_curso',
-        },
-      },
-    },
-    {
-      $project: {
-        _id: 0,
-        names: '$_id',
-        UFCourseIds: '$ids',
-      },
-    },
-  ]);
-
-  return courses;
-}
-
-export async function getStudent(filter: FilterQuery<Student>) {
-  const season = currentQuad();
-  const student: Student | null = await StudentModel.findOne({
-    ...filter,
-    season,
-    active: { $ne: false },
-  }).lean();
-
-  return student;
-}
 
 export async function getGraduation(ra: number, name: string) {
   const history = await HistoryModel.findOne({

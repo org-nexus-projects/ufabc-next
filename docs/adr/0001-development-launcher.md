@@ -9,7 +9,7 @@ executadas localmente apontando para uma API local ou para a API de produção.
 
 ## Decisão
 
-`pnpm dev` abre uma CLI interativa nativa do Node.js. A pessoa desenvolvedora
+`pnpm dev` abre uma CLI interativa implementada com `@clack/prompts`. A pessoa desenvolvedora
 seleciona uma ou mais aplicações com as setas, espaço e Enter. Para cada
 seleção de `web` ou `extension`, escolhe o alvo `dev` ou `prod`.
 
@@ -23,8 +23,9 @@ segredo do `.env` é injetado no navegador ou na extensão.
 
 Os processos são iniciados diretamente pelo Node.js, com entrada e saída
 herdadas. A CLI encaminha `Ctrl+C` para os processos filhos, sem adicionar uma
-biblioteca de supervisão de processos. O antigo comando que inicia todas as
-aplicações pelo Turbo continua disponível como `pnpm dev:all`.
+biblioteca de supervisão de processos. O launcher usa `dotenv` para ler a
+configuração pública necessária à extensão. O antigo comando que inicia todas
+as aplicações pelo Turbo continua disponível como `pnpm dev:all`.
 
 ## Consequências
 

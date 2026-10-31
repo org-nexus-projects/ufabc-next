@@ -2,13 +2,12 @@ import { NextApiConnector } from '@next/connectors/next-api';
 import type {
   Component,
   MatriculaStudent,
-  SigStudent,
   UpdatedStudent,
 } from '@next/connectors/schemas/next-api';
 import type { Student } from './ufabc-parser';
 import { logger } from '@/utils/logger';
 
-export type { Component, MatriculaStudent, SigStudent, UpdatedStudent };
+export type { Component, MatriculaStudent, UpdatedStudent };
 export type { Student } from './ufabc-parser';
 
 export type SigHistory = {
@@ -40,7 +39,7 @@ export type Distribution = {
   cr_professor: number;
 };
 
-type SubjectDetailedReview = {
+export type SubjectDetailedReview = {
   _id: {
     _id: string;
     mainTeacher: string;
@@ -60,7 +59,7 @@ type SubjectDetailedReview = {
   weight: number;
 };
 
-type TeacherDetailedReview = {
+export type TeacherDetailedReview = {
   _id: {
     _id: string;
     name: string;
@@ -81,6 +80,9 @@ type TeacherDetailedReview = {
 };
 
 export type SubjectReview = {
+  subject: {
+    name: string;
+  };
   general: {
     amount: number;
     count: number;
@@ -122,13 +124,6 @@ type SyncHistory = {
   login: string;
   ra: string;
 };
-
-export async function syncHistory(data: SyncHistory) {
-  return nextApiConnector.syncHistory(data.sessionId, data.viewState, {
-    login: data.login,
-    ra: data.ra,
-  });
-}
 
 export async function syncHistoryV2(data: SyncHistory) {
   await nextApiConnector.syncSigaaStudent(
@@ -180,8 +175,20 @@ export async function getComponents() {
 }
 
 export async function getKicksInfo(kickId: string, studentId?: number) {
-  return nextApiConnector.getComponentKicks(kickId, { studentId });
+  return (await nextApiConnector.getComponentKicks(kickId, {
+    studentId,
+  })) as unknown as KicksInfo[];
 }
+
+export type KicksInfo = {
+  studentId: number;
+  cr: number | '-';
+  cp: number;
+  ik: string;
+  reserva: boolean;
+  curso: string;
+  turno: 'Matutino' | 'Noturno';
+};
 
 export async function getStudent(login: string, sessionId: string) {
   return nextApiConnector.getStudent(login, sessionId);
@@ -226,11 +233,4 @@ export async function updateStudent({
     },
     sessionId,
   );
-}
-
-export async function getSigStudent(sigStudent: SigStudent, sessionId: string) {
-  return (await nextApiConnector.getSigStudent(
-    sigStudent,
-    sessionId,
-  )) as unknown as Student;
 }

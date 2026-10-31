@@ -1,0 +1,23 @@
+{
+  "name": "@next/mongodb-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MCP server exposing read-only MongoDB tools backed by MONGODB_CONNECTION_URL",
+  "type": "module",
+  "scripts": {
+    "start": "node --experimental-strip-types src/index.ts",
+    "tsc": "tsgo --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "mongoose": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@next/config": "workspace:*",
+    "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:",
+    "typescript": "catalog:"
+  }
+}

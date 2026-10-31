@@ -4,43 +4,47 @@ import vue from '@vitejs/plugin-vue';
 import { defineConfig, loadEnv } from 'vite';
 
 const workspaceRoot = fileURLToPath(new URL('../..', import.meta.url));
-const webEnvKeys = [
-  'APP_ENV',
-  'APP_BASE_URL',
-  'API_BASE_URL',
-  'PARSER_API_BASE_URL',
-  'MIXPANEL_TOKEN',
-] as const;
+const webEnvKeys = ['API_BASE_URL', 'MIXPANEL_TOKEN'] as const;
+const parserApiBaseUrl = 'https://ufabc-parser.com/v2';
 
-const profileForTarget = (target: string) => {
-  if (target === 'dev') {
-    return 'local';
-  }
-
-  if (target === 'prod') {
-    return 'production';
-  }
-
-  throw new Error(
-    `Unsupported web target: ${target}. Use dev or prod.`,
-  );
-};
+const webTargetConfig = {
+  dev: {
+    appBaseUrl: '/',
+    appEnv: 'local',
+  },
+  prod: {
+    appBaseUrl: '/app',
+    appEnv: 'production',
+  },
+} as const;
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, workspaceRoot, '');
-  const target = process.env.NEXT_WEB_TARGET ?? (mode === 'production' ? 'prod' : 'dev');
-  const profile = profileForTarget(target);
-  const selectedEnv = Object.fromEntries(
+  const target =
+    process.env.NEXT_WEB_TARGET ?? (mode === 'production' ? 'prod' : 'dev');
+
+  if (!(target in webTargetConfig)) {
+    throw new Error(`Unsupported web target: ${target}. Use dev or prod.`);
+  }
+
+  const targetConfig = webTargetConfig[target as keyof typeof webTargetConfig];
+  const selectedProfileEnv = Object.fromEntries(
     webEnvKeys.map((key) => [
       `VITE_${key}`,
-      env[`WEB_${profile.toUpperCase()}_${key}`] ?? '',
-    ]),
+      env[`WEB_${targetConfig.appEnv.toUpperCase()}_${key}`] ?? '',
+    ])
   );
+  const selectedEnv = {
+    ...selectedProfileEnv,
+    VITE_APP_BASE_URL: targetConfig.appBaseUrl,
+    VITE_APP_ENV: targetConfig.appEnv,
+    VITE_PARSER_API_BASE_URL: parserApiBaseUrl,
+  };
 
   Object.assign(process.env, selectedEnv);
 
   return {
-    base: selectedEnv.VITE_APP_BASE_URL || '/',
+    base: selectedEnv.VITE_APP_BASE_URL,
     build: {
       outDir: 'dist',
       sourcemap: false,

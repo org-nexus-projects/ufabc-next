@@ -5,22 +5,6 @@ import { z } from 'zod';
 
 const tags = ['Comments'];
 
-export const missingCommentsSchema = {
-  tags,
-  params: z.object({
-    userId: z.string().transform((value) => new Types.ObjectId(value)),
-  }),
-  response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: z.any(),
-        },
-      },
-    },
-  },
-} satisfies FastifyZodOpenApiSchema;
-
 export const createCommentSchema = {
   tags,
   body: z.object({
@@ -44,22 +28,6 @@ export const updateCommentSchema = {
   body: z.object({
     comment: z.string(),
   }),
-  params: z.object({
-    commentId: z.string().transform((val) => new Types.ObjectId(val)),
-  }),
-  response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: z.any(),
-        },
-      },
-    },
-  },
-} satisfies FastifyZodOpenApiSchema;
-
-export const deleteCommentSchema = {
-  tags,
   params: z.object({
     commentId: z.string().transform((val) => new Types.ObjectId(val)),
   }),

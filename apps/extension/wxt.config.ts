@@ -43,7 +43,12 @@ export default defineConfig({
       dedupe: ['@vue/shared'],
     },
   }),
-  webExt: {
-    disabled: true,
+  runner: {
+    startUrls: [
+      'http://localhost:3000/app/login',
+      'https://ufabcnext.com/',
+      'https://matricula.ufabc.edu.br/',
+      'https://sig.ufabc.edu.br/sigaa/verMenuPrincipal.do',
+    ],
   },
 });

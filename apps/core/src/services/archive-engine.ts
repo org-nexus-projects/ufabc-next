@@ -1,6 +1,7 @@
-import { findArchiveQuarter } from '@next/utils';
-import { load } from 'cheerio';
 import { createHash } from 'node:crypto';
+
+import { findArchiveQuarter, parseSeasonFromName } from '@next/utils';
+import { load } from 'cheerio';
 
 import { MoodleConnector } from '@/connectors/moodle.js';
 import type { S3Connector } from '@/connectors/s3-connector.js';
@@ -25,6 +26,19 @@ export type MoodleCourse = {
   id: number;
   startdate?: number;
 };
+
+const MAX_KEYWORDS = 5;
+const NOISE_KEYWORDS = new Set([
+  'turma',
+  'prof',
+  'profa',
+  'professor',
+  'professora',
+  'noturno',
+  'diurno',
+  'matutino',
+  'vespertino',
+]);
 
 export class ArchiveEngine {
   private readonly logger;
@@ -54,14 +68,6 @@ export class ArchiveEngine {
     teacherNames?: string[],
     enrolledCodigos?: string[]
   ) {
-    if (ArchiveEngine.isProgramShellCourse(moodleCourse)) {
-      this.logger.info(
-        { courseId: moodleCourse.id, courseName: moodleCourse.fullname },
-        'Skipping Moodle program/degree-shell course, no discipline code found'
-      );
-      return null;
-    }
-
     this.logger.info(
       { courseId: moodleCourse.id, courseName: moodleCourse.fullname },
       'Matching moodle course to internal component'
@@ -97,7 +103,9 @@ export class ArchiveEngine {
     const teacherIds: string[] = [];
     if (teacherNames && teacherNames.length > 0) {
       for (const teacherName of teacherNames) {
-        const teacherId = await findTeacher(teacherName);
+        const teacherId = await findTeacher(teacherName, {
+          createIfMissing: false,
+        });
         if (teacherId) {
           teacherIds.push(teacherId.toString());
         }
@@ -111,10 +119,15 @@ export class ArchiveEngine {
       'Resolved teachers for matching'
     );
 
-    const seasonFilter =
-      moodleCourse.startdate === undefined
-        ? null
-        : findArchiveQuarter(new Date(moodleCourse.startdate * 1000));
+    let seasonFilter =
+      parseSeasonFromName(moodleCourse.fullname) ??
+      parseSeasonFromName(moodleCourse.shortname ?? '');
+
+    if (seasonFilter === null && moodleCourse.startdate !== undefined) {
+      seasonFilter = findArchiveQuarter(
+        new Date(moodleCourse.startdate * 1000)
+      );
+    }
 
     if (seasonFilter) {
       this.logger.info(
@@ -305,7 +318,11 @@ export class ArchiveEngine {
     }
 
     // Strategy 4: disciplina keyword only
-    {
+    const hasNarrowingSignal =
+      uniqueCandidates.length > 0 ||
+      uniqueTeacherIds.length > 0 ||
+      enrolledCodigosFilter.codigo !== undefined;
+    if (hasNarrowingSignal) {
       const keywords = ArchiveEngine.extractKeywords(moodleCourse.fullname);
 
       const match = await ArchiveEngine.relaxedKeywordSearch(
@@ -331,29 +348,23 @@ export class ArchiveEngine {
     return null;
   }
 
-  private static isProgramShellCourse(moodleCourse: MoodleCourse): boolean {
-    const hasIdNumber =
-      moodleCourse.idnumber != null && moodleCourse.idnumber !== '';
-    if (hasIdNumber) {
-      return false;
+  private static extractKeywords(fullname: string): string[] {
+    const words = fullname
+      .toLowerCase()
+      .replaceAll(/&[a-z]+;|&#\d+;/gu, ' ')
+      .replaceAll(/(\p{L})(\d)/gu, '$1 $2')
+      .replaceAll(/(\d)(\p{L})/gu, '$1 $2')
+      .split(/[^\p{L}\p{N}]+/u);
+
+    const keywords: string[] = [];
+    for (const word of words) {
+      if (word.length <= 3 || /\d/u.test(word) || NOISE_KEYWORDS.has(word)) {
+        continue;
+      }
+      keywords.push(word);
     }
 
-    const shortnameHasDisciplineCode =
-      moodleCourse.shortname != null &&
-      DISCIPLINE_CODE_PATTERN.test(moodleCourse.shortname);
-    const fullnameHasDisciplineCode = DISCIPLINE_CODE_PATTERN.test(
-      moodleCourse.fullname
-    );
-
-    return !shortnameHasDisciplineCode && !fullnameHasDisciplineCode;
-  }
-
-  private static extractKeywords(fullname: string): string[] {
-    return fullname
-      .toLowerCase()
-      .split(/[\s-]+/u)
-      .filter((w) => w.length > 3 && !/\d/u.test(w))
-      .slice(0, 4);
+    return keywords.slice(0, MAX_KEYWORDS);
   }
 
   private static async relaxedKeywordSearch(
@@ -372,10 +383,12 @@ export class ArchiveEngine {
     }
 
     for (let count = cleanKeywords.length; count >= 1; count -= 1) {
-      const subset = cleanKeywords.slice(0, count);
-      const result = await finder(subset, extraFilter);
-      if (result) {
-        return { component: result, keywordsUsed: subset };
+      for (let start = 0; start + count <= cleanKeywords.length; start += 1) {
+        const subset = cleanKeywords.slice(start, start + count);
+        const result = await finder(subset, extraFilter);
+        if (result) {
+          return { component: result, keywordsUsed: subset };
+        }
       }
     }
 
@@ -431,6 +444,7 @@ export class ArchiveEngine {
     const teacherNames: string[] = [];
 
     $('a[href*="user/view.php"]').each((_index, el) => {
+      $(el).find('.userinitials').remove();
       const name = $(el).text().trim();
       if (name && name.length > 2 && !/^\d+$/u.test(name)) {
         teacherNames.push(name);
@@ -530,7 +544,8 @@ export class ArchiveEngine {
     const url = new URL(rawUrl);
     const buffer = await this.moodleConnector.downloadFile(
       url.href,
-      this.session.sessionId
+      this.session.sessionId,
+      this.session.sessKey
     );
 
     const filename = this.extractFilenameFromUrl(url);

@@ -1,4 +1,5 @@
-import { type InferSchemaType, Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
+import type { InferSchemaType } from 'mongoose';
 
 const COMPONENT_ARCHIVE_STATUS = [
   'created',
@@ -10,41 +11,41 @@ const COMPONENT_ARCHIVE_STATUS = [
 
 const timelineEventSchema = new Schema(
   {
+    metadata: { type: Schema.Types.Mixed },
     status: {
-      type: String,
       enum: COMPONENT_ARCHIVE_STATUS,
       required: true,
+      type: String,
     },
-    timestamp: { type: Date, default: Date.now, required: true },
-    metadata: { type: Schema.Types.Mixed },
+    timestamp: { default: Date.now, required: true, type: Date },
   },
   { _id: false }
 );
 
 const componentArchiveSchema = new Schema(
   {
+    checksum: { type: String },
     component: {
-      type: Schema.Types.ObjectId,
       ref: 'disciplinas',
       required: true,
+      type: Schema.Types.ObjectId,
     },
-    s3_key: { type: String },
-    original_url: { type: String, required: true },
     file_name: { type: String },
-    checksum: { type: String },
+    original_url: { required: true, type: String },
+    s3_key: { type: String },
     source: {
-      type: String,
-      enum: ['moodle', 'manual', 'sigaa'],
-      required: true,
       default: 'moodle',
+      enum: ['moodle', 'manual', 'sigaa', 'cmcc'],
+      required: true,
+      type: String,
     },
     status: {
-      type: String,
-      enum: COMPONENT_ARCHIVE_STATUS,
       default: 'created',
+      enum: COMPONENT_ARCHIVE_STATUS,
       required: true,
+      type: String,
     },
-    timeline: { type: [timelineEventSchema], default: [] },
+    timeline: { default: [], type: [timelineEventSchema] },
   },
   {
     timestamps: { createdAt: true, updatedAt: false },

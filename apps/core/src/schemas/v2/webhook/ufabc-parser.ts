@@ -76,6 +76,11 @@ export const StudentSyncedEventSchema = z.object({
   deliveryId: z.string().uuid(),
   data: z.object({
     ra: z.string().describe('Student ID'),
+    login: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('Student login, absent on deliveries sent before it was added'),
     timestamp: z.string().describe('When processing completed'),
     student: StudentSchema,
     components: z.array(ComponentSchema),

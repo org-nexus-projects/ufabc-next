@@ -21,6 +21,10 @@ allowBuilds:
   ssh2: true
   weak-napi: true
 injectWorkspacePackages: true
+packageExtensions:
+  fastify-type-provider-zod@3.0.0:
+    dependencies:
+      "@fastify/error": ^4.2.0
 overrides:
   "@smithy/types": 4.14.3
   "@smithy/core": 3.33.2
@@ -46,6 +50,7 @@ catalog:
   "@fastify/cookie": ^11.0.2
   "@fastify/cors": ^10.1.0
   "@fastify/env": ^5.0.3
+  "@fastify/error": ^4.2.0
   "@fastify/jwt": ^9.1.0
   "@fastify/multipart": ^9.3.0
   "@fastify/oauth2": ^8.1.2
@@ -63,7 +68,7 @@ catalog:
   "@testcontainers/mongodb": ^11.10.0
   "@testcontainers/redis": ^11.10.0
   "@testing-library/jest-dom": 6.9.1
-  "@testing-library/user-event": 14.6.1
+  "@testing-library/user-event": 14.6.8
   "@testing-library/vue": 8.1.0
   "@total-typescript/ts-reset": ^0.5.1
   "@types/lodash-es": ^4.17.12
@@ -75,12 +80,12 @@ catalog:
   "@types/toastify-js": ^1.12.3
   "@typescript/native-preview": 7.0.0-dev.20260606.1
   "@vee-validate/zod": 4.15.1
-  "@vitejs/plugin-vue": ^6.0.7
-  "@vitest/coverage-v8": 3.2.4
+  "@vitejs/plugin-vue": 6.0.10
+  "@vitest/coverage-v8": 3.2.7
   "@vueuse/integrations": ^11.1.0
   "@webext-core/messaging": ^2.2.0
   "@wxt-dev/module-vue": ^1.0.0
-  autoprefixer: ^10.4.20
+  autoprefixer: 10.6.1
   axios: 1.13.2
   bullmq: ^5.66.2
   c8: ^10.1.3
@@ -93,17 +98,17 @@ catalog:
   fastify-type-provider-zod: ^3.0.0
   fastify-zod-openapi: ^3.0.4
   globals: ^16.3.0
-  ics: ^3.12.0
+  ics: 3.12.1
   jsdom: 26.1.0
   jwt-decode: ^4.0.0
   lodash-es: ^4.17.21
   lodash.debounce: 4.0.8
   lru-weak-cache: ^0.3.3
-  lucide-vue-next: ^0.447.0
+  lucide-vue-next: 0.577.0
   mixpanel-browser: ^2.80.0
   mongoose: ^9.3.1
   ms: ^2.1.3
-  msw: ^2.14.6
+  msw: 2.15.0
   mustache: ^4.2.0
   nock: ^14.0.10
   ofetch: ^1.4.0
@@ -114,7 +119,7 @@ catalog:
   pinia-plugin-persistedstate: ^4.5.0
   pino: 10.1.0
   pino-pretty: ^13.1.3
-  postcss: ^8.4.47
+  postcss: 8.5.30
   rimraf: ^6.1.2
   sass: 1.100.0
   sass-loader: 16.0.6
@@ -133,7 +138,7 @@ catalog:
   unplugin-auto-import: ^0.18.3
   unplugin-vue-components: ^0.27.4
   vee-validate: 4.15.1
-  vite: ^6.3.5
+  vite: 6.4.4
   vite-tsconfig-paths: ^6.0.3
   vitest: 3.2.4
   vue-sonner: ^1.2.5

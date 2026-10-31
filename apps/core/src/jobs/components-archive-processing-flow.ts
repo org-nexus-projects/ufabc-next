@@ -1,9 +1,10 @@
 import { defineJob } from '@next/queues/client';
+import { UnrecoverableError } from 'bullmq';
 import z from 'zod';
 
 import { JOB_NAMES } from '@/constants.js';
-import { ComponentArchiveModel } from '@/models/ComponentArchive.js';
 import { ArchiveEngine } from '@/services/archive-engine.js';
+import { ComponentArchivesService } from '@/services/component-archives-service.js';
 
 const componentSchema = z.object({
   fullname: z.string(),
@@ -45,13 +46,13 @@ export const componentsArchivesProcessingJob = defineJob(
     );
 
     if (!matchedComponent) {
-      throw new Error(
+      throw new UnrecoverableError(
         `No matching component found for Moodle course: "${component.fullname}" (id: ${component.id}). ` +
           `Could not find a matching component in the system.`
       );
     }
 
-    const componentDbId = matchedComponent._id.toString();
+    const componentId = matchedComponent._id.toString();
 
     const files = await engine.extractFiles(component.viewurl, component.id);
 
@@ -67,7 +68,7 @@ export const componentsArchivesProcessingJob = defineJob(
       children: files.map((file) => ({
         data: {
           component: component.fullname,
-          componentDbId,
+          componentId,
           globalTraceId,
           rawUrl: file.url,
           session,
@@ -81,7 +82,7 @@ export const componentsArchivesProcessingJob = defineJob(
     });
 
     return {
-      componentDbId,
+      componentId,
       flowStarted: true,
       moodleCourseId: component.id,
       success: true,
@@ -94,7 +95,7 @@ export const pdfDownloadJob = defineJob(
   .input(
     z.object({
       component: z.string(),
-      componentDbId: z.string(),
+      componentId: z.string(),
       globalTraceId: z.string().optional(),
       rawUrl: z.string().url(),
       session: z
@@ -107,96 +108,19 @@ export const pdfDownloadJob = defineJob(
   )
   .concurrency(3)
   .handler(async ({ job, app }) => {
-    const { rawUrl, componentDbId, globalTraceId, session } = job.data;
+    const { rawUrl, componentId, globalTraceId, session } = job.data;
 
-    const engine = new ArchiveEngine({
+    const archivesService = new ComponentArchivesService({
       globalTraceId,
       s3Connector: app.aws.s3,
       session,
     });
 
-    const archive = await ComponentArchiveModel.findOneAndUpdate(
-      { component: componentDbId, original_url: rawUrl },
-      {
-        $set: { status: 'created' },
-        $setOnInsert: {
-          component: componentDbId,
-          original_url: rawUrl,
-          timeline: [{ metadata: { globalTraceId }, status: 'created' }],
-        },
-      },
-      { new: true, upsert: true }
-    );
-
-    try {
-      const result = await engine.downloadAndUpload(
-        rawUrl,
-        componentDbId,
-        app.config.AWS_BUCKET
-      );
-
-      if (!result) {
-        await ComponentArchiveModel.findByIdAndUpdate(archive._id, {
-          $push: {
-            timeline: {
-              metadata: { reason: 'missing_session' },
-              status: 'failed',
-            },
-          },
-          $set: { status: 'failed' },
-        });
-
-        return {
-          archiveId: archive._id,
-          message: 'No Moodle session available, skipped download',
-          success: false,
-        };
-      }
-
-      const { checksum, pdfName, s3Key } = result;
-
-      if (archive.checksum === checksum) {
-        return {
-          archiveId: archive._id,
-          data: {
-            fileName: archive.file_name,
-            s3Key: archive.s3_key,
-          },
-          message: 'PDF unchanged since last run, skipping stored event',
-          success: true,
-        };
-      }
-
-      await ComponentArchiveModel.findByIdAndUpdate(archive._id, {
-        $push: {
-          timeline: { status: 'stored' },
-        },
-        $set: {
-          checksum,
-          file_name: pdfName,
-          s3_key: s3Key,
-          status: 'stored',
-        },
-      });
-
-      return {
-        archiveId: archive._id,
-        data: {
-          fileName: pdfName,
-          s3Key,
-        },
-        message: 'PDF uploaded',
-        success: true,
-      };
-    } catch (error) {
-      await ComponentArchiveModel.findByIdAndUpdate(archive._id, {
-        $push: {
-          timeline: { metadata: { error: String(error) }, status: 'failed' },
-        },
-        $set: { status: 'failed' },
-      });
-      throw error;
-    }
+    return await archivesService.processArchive({
+      bucket: app.config.AWS_BUCKET,
+      componentId,
+      rawUrl,
+    });
   });
 
 export const archivesSummaryJob = defineJob(

@@ -12,6 +12,8 @@ import type {
   TypeSafeQueue,
 } from './types.js';
 
+import { authenticateBoard } from '@/hooks/board-authenticate.js';
+
 import { boardUiPath, createBoard } from './board.js';
 import { JOBS, QUEUE_JOBS, type QueueNames } from './definitions.js';
 
@@ -200,40 +202,7 @@ export class Jobs implements JobImpl {
     const bullBoard = createBoard(Object.values(this.queues));
 
     this.app.register(async (app) => {
-      app.addHook('onRequest', async (request, reply) => {
-        if (app.config.NODE_ENV !== 'prod') {
-          return;
-        }
-        const query = request.query as { token?: string };
-        try {
-          if (query.token) {
-            await request.jwtVerify({
-              extractToken: (req: any) => req.query.token,
-            });
-            request.isAdmin(reply);
-            reply.setCookie('token', query.token, {
-              path: boardUiPath,
-              secure: process.env.NODE_ENV === 'production',
-              httpOnly: true,
-              maxAge: 3600,
-              sameSite: 'lax',
-            });
-            return reply.redirect('/board/ui/', 303);
-          }
-          await request.jwtVerify({
-            extractToken: (req: any) => req.cookies.token,
-          });
-          request.isAdmin(reply);
-        } catch (error) {
-          request.log.error({
-            msg: 'Failed to authenticate in jobs board',
-            error: error instanceof Error ? error.message : String(error),
-          });
-          return reply.unauthorized(
-            'You must be authenticated to access this route'
-          );
-        }
-      });
+      app.addHook('onRequest', authenticateBoard);
 
       app.register(bullBoard.registerPlugin(), {
         prefix: boardUiPath,

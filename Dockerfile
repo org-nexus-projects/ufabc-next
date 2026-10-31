@@ -2,6 +2,8 @@ ARG NODE_VERSION="24.12.0"
 
 FROM node:${NODE_VERSION}-alpine AS runtime
 
+ENV NODE_OPTIONS="--enable-source-maps --max-old-space-size=2048"
+
 #Env git secret private key
 ARG GIT_SECRET_PRIVATE_KEY
 ENV GIT_SECRET_PRIVATE_KEY=$GIT_SECRET_PRIVATE_KEY
@@ -20,9 +22,8 @@ FROM runtime as fetcher
 COPY pnpm*.yaml ./
 
 # mount pnpm store as cache & fetch dependencies
-RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm-store 
-
-RUN pnpm fetch --ignore-scripts
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm-store \
+  pnpm fetch --ignore-scripts
 
 FROM fetcher as builder
 # specify the app in apps/ we want to build
@@ -37,7 +38,7 @@ RUN pnpm i
 
 # build app
 
-RUN  --mount=type=cache,target=/workspace/node_modules/.cache \
+RUN --mount=type=cache,target=/workspace/node_modules/.cache \
   pnpm turbo run build --filter="${APP_NAME}"
 
 # deploy app
@@ -101,7 +102,6 @@ RUN echo "$GIT_SECRET_PRIVATE_KEY" >> ./private-container-file-key
 RUN gpg --batch --yes --pinentry-mode loopback --import ./private-container-file-key
 
 RUN git secret reveal -p ${GIT_SECRET_PASSWORD}
-RUN cp apps/core/.env.prod .env.prod
 
 # Remove the secret key file after decryption
 RUN rm -f ./private-container-file-key
@@ -109,4 +109,4 @@ RUN rm -f ./private-container-file-key
 EXPOSE 5000
 
 # start the app
-CMD tsx --env-file=.env.prod dist/server.js
+CMD ["tsx", "--env-file=/workspace/.env", "dist/server.js"]

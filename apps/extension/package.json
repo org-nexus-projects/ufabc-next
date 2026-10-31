@@ -1,7 +1,7 @@
 {
   "name": "@next/extension",
   "private": true,
-  "version": "2.2.2",
+  "version": "2.3.0",
   "description": "Adiciona funcionalidades novas em sistemas da UFABC",
   "type": "module",
   "scripts": {
@@ -42,17 +42,17 @@
     "@vueuse/integrations": "catalog:",
     "@webext-core/messaging": "catalog:",
     "change-case": "catalog:",
-    "dayjs": "^1.11.13",
+    "dayjs": "1.11.23",
     "element-plus": "^2.8.4",
-    "highcharts": "^12.0.1",
-    "highcharts-vue": "^2.0.1",
+    "highcharts": "12.6.2",
+    "highcharts-vue": "2.0.2",
     "lodash-es": "catalog:",
     "lucide-vue-next": "catalog:",
     "mustache": "catalog:",
     "ofetch": "catalog:",
     "toastify-js": "catalog:",
-    "vue": "^3.5.12",
-    "@vue/shared": "^3.5.12",
+    "vue": "3.5.44",
+    "@vue/shared": "3.5.44",
     "vue-sonner": "catalog:",
     "vuedraggable": "catalog:"
   }

@@ -8,6 +8,7 @@ import {
   subjectSearch,
   teacher,
   teacherSearch,
+  teacherSummary,
 } from './reviews';
 import {
   classes,
@@ -24,6 +25,7 @@ import { user } from './users';
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
 export const handlers = [
+  http.post(`${baseUrl}/backoffice/token`, () => HttpResponse.json({})),
   http.get(`${baseUrl}/users/info`, () => HttpResponse.json(user)),
   http.get(`${baseUrl}/entities/enrollments`, () =>
     HttpResponse.json(enrollments),
@@ -33,6 +35,9 @@ export const handlers = [
   ),
   http.get(`${baseUrl}/entities/teachers/reviews/*`, () =>
     HttpResponse.json(teacher),
+  ),
+  http.get(`${baseUrl}/v2/teachers/*/summary`, () =>
+    HttpResponse.json(teacherSummary),
   ),
   http.get(`${baseUrl}/entities/subjects/reviews/*`, () =>
     HttpResponse.json(subject),

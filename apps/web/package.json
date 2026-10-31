@@ -25,9 +25,9 @@
     "@vee-validate/zod": "catalog:",
     "@vueuse/core": "^13.9.0",
     "axios": "catalog:",
-    "dayjs": "1.11.19",
+    "dayjs": "1.11.23",
     "element-plus": "2.13.1",
-    "highcharts": "11.4.8",
+    "highcharts": "11.4.9",
     "highcharts-vue": "1.4.3",
     "ics": "catalog:",
     "jwt-decode": "catalog:",
@@ -36,8 +36,8 @@
     "pinia": "catalog:",
     "pinia-plugin-persistedstate": "catalog:",
     "vee-validate": "catalog:",
-    "vue": "3.5.35",
-    "@vue/shared": "3.5.35",
+    "vue": "3.5.44",
+    "@vue/shared": "3.5.44",
     "vue-router": "4.6.4",
     "vue-zustand": "catalog:",
     "vuetify": "catalog:",
@@ -60,6 +60,6 @@
     "sass-loader": "catalog:",
     "typescript": "5.9.3",
     "vite": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "3.2.7"
   }
 }

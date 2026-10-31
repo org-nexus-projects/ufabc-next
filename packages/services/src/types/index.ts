@@ -121,6 +121,8 @@ export type RequestError = {
   type: string;
   error: string;
   message: string;
+  /** User-facing translation of `message`/`description`, safe to render directly. */
+  translatedDescription?: string;
 };
 
 export type SearchTeacherItem = {
@@ -314,6 +316,16 @@ export type TeacherReview = {
 export type SearchTeacher = {
   data: SearchTeacherItem[];
   total: number;
+};
+
+export type TeacherSummary = {
+  teacher: string;
+  summary: string;
+  didacticQuality?: number | null;
+  takesAttendance?: boolean | null;
+  usesSigaa?: boolean | null;
+  usesMoodle?: boolean | null;
+  commentsCount: number;
 };
 
 export type Device = {
