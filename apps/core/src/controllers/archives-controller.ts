@@ -11,17 +11,14 @@ import {
 import { ArchiveMonitoringService } from '@/services/archive-monitoring-service.js';
 
 export const archivesController: FastifyPluginAsyncZod = async (app) => {
-  const buildService = (globalTraceId: string) =>
-    new ArchiveMonitoringService({
-      bucket: app.config.AWS_BUCKET,
-      globalTraceId,
-      storageConnector: app.aws.s3,
-    });
-
   app.route({
     handler: async (request, reply) => {
       const filter = request.query;
-      const archiveMonitoringService = buildService(request.id);
+      const archiveMonitoringService = new ArchiveMonitoringService({
+        bucket: app.config.AWS_BUCKET,
+        globalTraceId: request.id,
+        storageConnector: app.aws.s3,
+      });
       const archives = await archiveMonitoringService.listArchives(filter);
 
       return await reply.status(200).send(archives);
@@ -38,7 +35,11 @@ export const archivesController: FastifyPluginAsyncZod = async (app) => {
   app.route({
     handler: async (request, reply) => {
       const { archiveId } = request.params;
-      const archiveMonitoringService = buildService(request.id);
+      const archiveMonitoringService = new ArchiveMonitoringService({
+        bucket: app.config.AWS_BUCKET,
+        globalTraceId: request.id,
+        storageConnector: app.aws.s3,
+      });
       const download =
         await archiveMonitoringService.createDownloadUrl(archiveId);
 
