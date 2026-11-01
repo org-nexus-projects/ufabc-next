@@ -1,11 +1,10 @@
 import type { Types } from 'mongoose';
 
-import {
-  ARCHIVE_MAX_FAILURE_EVENTS,
-  REGEX_SPECIAL_CHARS,
-} from '@/constants.js';
+import { ARCHIVE_MAX_FAILURE_EVENTS } from '@/constants.js';
 import { ComponentArchiveModel } from '@/models/ComponentArchive.js';
 import type { ComponentArchive } from '@/models/ComponentArchive.js';
+import type { ArchiveListQuery } from '@/schemas/v2/archives.js';
+import { escapeRegex } from '@/utils/escape-regex.js';
 
 import { BaseRepository } from './base-repository.js';
 import type { BaseRepositoryOptions } from './base-repository.js';
@@ -32,26 +31,6 @@ type FailureCountRow = {
   failureCount: number;
 };
 
-export type ArchivePageFilter = {
-  limit: number;
-  page: number;
-  q?: string;
-  source?: ComponentArchive['source'];
-  status?: ComponentArchive['status'];
-};
-
-function escapeRegex(text: string) {
-  let escaped = '';
-  for (const char of text) {
-    if (REGEX_SPECIAL_CHARS.test(char)) {
-      escaped += `\\${char}`;
-    } else {
-      escaped += char;
-    }
-  }
-  return escaped;
-}
-
 export type ComponentArchivesRepositoryOptions = BaseRepositoryOptions & {
   model?: typeof ComponentArchiveModel;
 };
@@ -64,9 +43,9 @@ export class ComponentArchivesRepository extends BaseRepository {
     this.model = model ?? ComponentArchiveModel;
   }
 
-  async findPage({ limit, page, q, source, status }: ArchivePageFilter) {
+  async findPage({ limit, page, q, source, status }: ArchiveListQuery) {
     this.logger.debug(
-      { limit, page, q, source, status },
+      { hasSearch: Boolean(q), limit, page, source, status },
       'Listing archives page'
     );
 

@@ -1,6 +1,11 @@
 import type { ComponentArchive } from '@/models/ComponentArchive.js';
 import type { LeanPopulatedArchive } from '@/repositories/component-archives-repository.js';
 
+const SHIFT_BY_TURNO: Record<string, 'day' | 'night'> = {
+  diurno: 'day',
+  noturno: 'night',
+};
+
 export type PresignedDownload = {
   expiresInSeconds: number;
   url: string;
@@ -16,18 +21,13 @@ export class ComponentArchiveMapper {
   toResponse(archive: LeanPopulatedArchive) {
     let component = null;
     if (archive.component) {
-      let shift: 'day' | 'night' = 'night';
-      if (archive.component.turno === 'diurno') {
-        shift = 'day';
-      }
-
       component = {
         _id: archive.component._id.toString(),
         code: archive.component.codigo,
         group: archive.component.turma,
         name: archive.component.disciplina,
         season: archive.component.season,
-        shift,
+        shift: SHIFT_BY_TURNO[archive.component.turno] ?? 'night',
       };
     }
 

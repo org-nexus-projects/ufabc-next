@@ -89,8 +89,6 @@ export const PERMISSIONS = {
   ARCHIVES: 'archives',
 } as const;
 
-export const ARCHIVE_DOWNLOAD_TTL_SECONDS = 300;
-
 export const ARCHIVE_READERS = [PERMISSIONS.ADMIN, PERMISSIONS.ARCHIVES];
 
 export const UFABC_EMAIL_DOMAINS = ['aluno.ufabc.edu.br', 'ufabc.edu.br'];

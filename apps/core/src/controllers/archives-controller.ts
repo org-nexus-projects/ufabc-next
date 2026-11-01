@@ -7,20 +7,21 @@ import {
   archiveListQuerySchema,
   archiveListResponseSchema,
   archiveParamsSchema,
-  componentPlanResponseSchema,
-  planParamsSchema,
 } from '@/schemas/v2/archives.js';
 import { ArchiveMonitoringService } from '@/services/archive-monitoring-service.js';
 
 export const archivesController: FastifyPluginAsyncZod = async (app) => {
+  const buildService = (globalTraceId: string) =>
+    new ArchiveMonitoringService({
+      bucket: app.config.AWS_BUCKET,
+      globalTraceId,
+      storageConnector: app.aws.s3,
+    });
+
   app.route({
     handler: async (request, reply) => {
       const filter = request.query;
-      const archiveMonitoringService = new ArchiveMonitoringService({
-        bucket: app.config.AWS_BUCKET,
-        globalTraceId: request.id,
-        storageConnector: app.aws.s3,
-      });
+      const archiveMonitoringService = buildService(request.id);
       const archives = await archiveMonitoringService.listArchives(filter);
 
       return await reply.status(200).send(archives);
@@ -37,11 +38,7 @@ export const archivesController: FastifyPluginAsyncZod = async (app) => {
   app.route({
     handler: async (request, reply) => {
       const { archiveId } = request.params;
-      const archiveMonitoringService = new ArchiveMonitoringService({
-        bucket: app.config.AWS_BUCKET,
-        globalTraceId: request.id,
-        storageConnector: app.aws.s3,
-      });
+      const archiveMonitoringService = buildService(request.id);
       const download =
         await archiveMonitoringService.createDownloadUrl(archiveId);
 
@@ -54,26 +51,5 @@ export const archivesController: FastifyPluginAsyncZod = async (app) => {
       response: { 200: archiveDownloadResponseSchema },
     },
     url: '/archives/:archiveId/download',
-  });
-
-  app.route({
-    handler: async (request, reply) => {
-      const { componentId } = request.params;
-      const archiveMonitoringService = new ArchiveMonitoringService({
-        bucket: app.config.AWS_BUCKET,
-        globalTraceId: request.id,
-        storageConnector: app.aws.s3,
-      });
-      const plan = await archiveMonitoringService.findLatestPlan(componentId);
-
-      return await reply.status(200).send(plan);
-    },
-    method: 'GET',
-    preHandler: [permissionVerifyHook(ARCHIVE_READERS)],
-    schema: {
-      params: planParamsSchema,
-      response: { 200: componentPlanResponseSchema },
-    },
-    url: '/components/:componentId/plan',
   });
 };

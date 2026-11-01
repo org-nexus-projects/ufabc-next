@@ -10,8 +10,10 @@ import type { Mongoose } from 'mongoose';
 
 import { archivesController } from './controllers/archives-controller.js';
 import { authenticationController } from './controllers/authentication-controller.js';
+import { componentPlansController } from './controllers/component-plans-controller.js';
 import componentsController from './controllers/components-controller.js';
 import studentsController from './controllers/students-controller.js';
+import { teacherSummaryController } from './controllers/teacher-summary-controller.js';
 import { UfabcParserIncomingWebhookController } from './controllers/ufabc-parser-webhook-controller.js';
 import { authenticateBoard } from './hooks/board-authenticate.js';
 import awsV2Plugin from './plugins/v2/aws.js';
@@ -21,7 +23,6 @@ import queueV2Plugin from './plugins/v2/queue.js';
 import redisV2Plugin from './plugins/v2/redis.js';
 import { setupV2Routes } from './plugins/v2/setup.js';
 import testUtilsPlugin from './plugins/v2/test-utils.js';
-import { teacherSummaryController } from './controllers/teacher-summary-controller.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -33,6 +34,7 @@ declare module 'fastify' {
 const routesV2 = [
   componentsController,
   archivesController,
+  componentPlansController,
   studentsController,
   UfabcParserIncomingWebhookController,
   authenticationController,

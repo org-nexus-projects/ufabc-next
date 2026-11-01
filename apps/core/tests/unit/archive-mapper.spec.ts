@@ -6,8 +6,8 @@ import { ComponentPlanMapper } from '../../src/mappers/component-plan-mapper.js'
 import {
   archiveDownloadResponseSchema,
   archiveListResponseSchema,
-  componentPlanResponseSchema,
 } from '../../src/schemas/v2/archives.js';
+import { componentPlanResponseSchema } from '../../src/schemas/v2/component-plans.js';
 
 describe('archive and plan mappers match the response schemas', () => {
   it('maps a populated archive page', () => {
