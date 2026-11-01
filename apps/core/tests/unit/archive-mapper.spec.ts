@@ -41,7 +41,7 @@ describe('archive and plan mappers match the response schemas', () => {
       group: 'A1',
       name: 'Algoritmos',
       season: '2026:3',
-      shift: 'day',
+      shift: 'morning',
     });
     expect(page.data[0]).not.toHaveProperty('createdAt');
     expect(page.data[0]).not.toHaveProperty('timeline');

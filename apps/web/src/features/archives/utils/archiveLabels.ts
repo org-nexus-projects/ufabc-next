@@ -8,7 +8,7 @@ export const sourceLabels: Record<ArchiveSource, string> = {
 };
 
 export const shiftLabels = {
-  day: 'Diurno',
+  morning: 'Diurno',
   night: 'Noturno',
 } as const;
 

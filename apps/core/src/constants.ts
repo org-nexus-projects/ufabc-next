@@ -91,6 +91,13 @@ export const PERMISSIONS = {
 
 export const ARCHIVE_READERS = [PERMISSIONS.ADMIN, PERMISSIONS.ARCHIVES];
 
+export const ARCHIVE_DOWNLOAD_TTL_SECONDS = 300;
+
+export const SHIFT_BY_TURNO: Record<string, 'morning' | 'night'> = {
+  diurno: 'morning',
+  noturno: 'night',
+};
+
 export const UFABC_EMAIL_DOMAINS = ['aluno.ufabc.edu.br', 'ufabc.edu.br'];
 
 // accent-insensitive character classes used to build disciplina-name regexes

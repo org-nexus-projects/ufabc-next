@@ -1,4 +1,5 @@
 import type { S3Connector } from '@/connectors/s3-connector.js';
+import { ARCHIVE_DOWNLOAD_TTL_SECONDS } from '@/constants.js';
 import { ArchiveNotFound } from '@/errors/custom-errors.js';
 import { ComponentArchiveMapper } from '@/mappers/component-archive-mapper.js';
 import { ComponentArchivesRepository } from '@/repositories/component-archives-repository.js';
@@ -6,8 +7,6 @@ import type { ArchiveListQuery } from '@/schemas/v2/archives.js';
 
 import type { BaseServiceOptions } from './base-service.js';
 import { BaseService } from './base-service.js';
-
-const DOWNLOAD_TTL_SECONDS = 300;
 
 export type ArchiveMonitoringServiceOptions = BaseServiceOptions & {
   bucket: string;
@@ -49,11 +48,11 @@ export class ArchiveMonitoringService extends BaseService {
     const url = await this.storageConnector.getPresignedUrl(
       this.bucket,
       archive.s3_key,
-      DOWNLOAD_TTL_SECONDS
+      ARCHIVE_DOWNLOAD_TTL_SECONDS
     );
 
     return this.archiveMapper.toDownloadResponse(archive, {
-      expiresInSeconds: DOWNLOAD_TTL_SECONDS,
+      expiresInSeconds: ARCHIVE_DOWNLOAD_TTL_SECONDS,
       url,
     });
   }

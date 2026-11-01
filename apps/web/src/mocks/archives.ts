@@ -10,7 +10,7 @@ const structuredProgramming = {
   group: 'A1',
   name: 'programação estruturada',
   season: '2026:3',
-  shift: 'day',
+  shift: 'morning',
 } as const;
 
 const linearAlgebra = {
@@ -28,7 +28,7 @@ const networks = {
   group: 'A1',
   name: 'redes convergentes',
   season: '2026:3',
-  shift: 'day',
+  shift: 'morning',
 } as const;
 
 export const archives = {

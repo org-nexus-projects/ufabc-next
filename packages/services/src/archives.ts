@@ -14,7 +14,7 @@ export type ArchiveComponent = {
   group: string;
   name: string;
   season: string;
-  shift: 'day' | 'night';
+  shift: 'morning' | 'night';
 };
 
 export type ComponentArchive = {

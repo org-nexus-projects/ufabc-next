@@ -36,7 +36,7 @@ const archiveResponseSchema = z.object({
       group: z.string(),
       name: z.string(),
       season: z.string(),
-      shift: z.enum(['day', 'night']),
+      shift: z.enum(['morning', 'night']),
     })
     .nullable(),
   fileName: z.string().nullable(),

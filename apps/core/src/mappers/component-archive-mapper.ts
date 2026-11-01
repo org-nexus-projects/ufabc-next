@@ -1,10 +1,6 @@
+import { SHIFT_BY_TURNO } from '@/constants.js';
 import type { ComponentArchive } from '@/models/ComponentArchive.js';
 import type { LeanPopulatedArchive } from '@/repositories/component-archives-repository.js';
-
-const SHIFT_BY_TURNO: Record<string, 'day' | 'night'> = {
-  diurno: 'day',
-  noturno: 'night',
-};
 
 export type PresignedDownload = {
   expiresInSeconds: number;
