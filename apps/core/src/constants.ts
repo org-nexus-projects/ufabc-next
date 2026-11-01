@@ -34,7 +34,6 @@ export const JOB_NAMES = {
   TEACHER_CREATED: 'teacher_created',
   TEACHER_SUMMARY: 'teacher_summary',
   UFABC_PARSER_WEBHOOK_PROCESSING: 'ufabc_parser_webhook_processing',
-  USER_ENROLLMENTS_UPDATE: 'user_enrollments_update',
 } as const;
 
 export const REQUESTERS = ['ufabc-next', 'ufabc-cronos'] as const;

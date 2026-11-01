@@ -167,6 +167,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
       });
     },
     method: 'GET',
+    preHandler: [validateInternalTokenAuthHook],
     schema: {
       querystring: z.object({
         season: z.string(),

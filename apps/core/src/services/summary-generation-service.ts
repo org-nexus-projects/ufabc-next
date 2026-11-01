@@ -90,6 +90,8 @@ export class SummaryGenerationService extends BaseService {
       usesSigaa: result.uses_sigaa,
     });
 
+    await this.summariesRepository.deactivateOthers(teacherId, summary._id);
+
     this.logger.info(
       { commentsCount: comments.length, teacherId },
       'teacher summary stored'
