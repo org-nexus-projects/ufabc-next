@@ -28,6 +28,7 @@ const LoginPage = () => import('@/pages/Login/LoginPage.vue');
 const CalengradePage = () => import('@/pages/Calengrade/CalengradePage.vue');
 const WhatsappGroupsPage = () =>
   import('@/pages/WhatsappGroups/WhatsappGroupsPage.vue');
+const ArchivesPage = () => import('@/pages/Archives/ArchivesPage.vue');
 const HelpPage = () => import('@/pages/Help/HelpPage.vue');
 
 const routes: Array<RouteRecordRaw> = [
@@ -156,6 +157,17 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
 
+  {
+    path: '/archives',
+    name: 'archives',
+    component: ArchivesPage,
+    meta: {
+      title: 'Arquivos',
+      requiresAuth: true,
+      requiresConfirmed: true,
+      permissions: ['admin', 'archives'],
+    },
+  },
   {
     path: '/help',
     name: 'help',
@@ -303,6 +315,7 @@ function resolveRouteAccess(to: RouteLocationNormalized) {
   if (requiresConfirmed) {
     if (!isLoggedIn) return redirectToStaticRootIfProduction();
     if (!isConfirmed) return { name: 'signup' };
+    if (!hasRoutePermission(to)) return { path: authenticatedRedirectPath };
     return;
   }
 
@@ -320,6 +333,17 @@ function resolveRouteAccess(to: RouteLocationNormalized) {
     if (isConfirmed) return { name: authenticatedRedirectPath };
     return;
   }
+}
+
+function hasRoutePermission(to: RouteLocationNormalized) {
+  const requiredPermissions = to.meta.permissions;
+  if (!Array.isArray(requiredPermissions)) return true;
+
+  const userPermissions = useAuthStore().user?.permissions ?? [];
+  for (const permission of requiredPermissions) {
+    if (userPermissions.includes(permission)) return true;
+  }
+  return false;
 }
 
 function redirectToStaticRootIfProduction() {

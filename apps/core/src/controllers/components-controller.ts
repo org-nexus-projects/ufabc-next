@@ -245,33 +245,6 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
 
   app.route({
     handler: async (request, reply) => {
-      const { componentId } = request.params;
-
-      const componentsService = new ComponentsService({
-        globalTraceId: request.id,
-        manager: app.manager,
-      });
-      const data = await componentsService.listComponentArchives(componentId);
-
-      return await reply.status(200).send({ data, status: 'success' });
-    },
-    method: 'GET',
-    schema: {
-      params: z.object({
-        componentId: z.string(),
-      }),
-      response: {
-        200: z.object({
-          data: z.array(z.any()),
-          status: z.string(),
-        }),
-      },
-    },
-    url: '/components/:componentId/archives',
-  });
-
-  app.route({
-    handler: async (request, reply) => {
       const { externalKey, season } = request.query;
       const { userMessage } = request.body as { userMessage: string };
 

@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 
 export type InternalNavItem = {
   title: string;
+  permissions?: string[];
   icon: string;
   route: string;
   releaseDate?: dayjs.Dayjs;
@@ -37,6 +38,13 @@ export const internalNavigationItems: InternalNavItem[] = [
     title: 'Dados da Matrícula',
     icon: 'mdi-book-multiple',
     route: '/stats',
+    locked: (confirmed) => !confirmed,
+  },
+  {
+    title: 'Arquivos',
+    icon: 'mdi-file-document-multiple',
+    route: '/archives',
+    permissions: ['admin', 'archives'],
     locked: (confirmed) => !confirmed,
   },
   {

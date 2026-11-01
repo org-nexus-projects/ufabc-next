@@ -54,7 +54,7 @@ export class ComponentPlanChatService extends BaseService {
     );
 
     if (plan === null) {
-      throw new ComponentPlanNotFound(String(component._id));
+      throw new ComponentPlanNotFound();
     }
 
     return await this.aiConnector.requestNaturalResponse({

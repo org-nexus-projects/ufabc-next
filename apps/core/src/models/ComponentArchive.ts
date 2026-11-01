@@ -1,12 +1,19 @@
 import { Schema, model } from 'mongoose';
 import type { InferSchemaType } from 'mongoose';
 
-const COMPONENT_ARCHIVE_STATUS = [
+export const COMPONENT_ARCHIVE_STATUS = [
   'created',
   'downloaded',
   'stored',
   'failed',
   'deleted',
+] as const;
+
+export const COMPONENT_ARCHIVE_SOURCES = [
+  'moodle',
+  'manual',
+  'sigaa',
+  'cmcc',
 ] as const;
 
 const timelineEventSchema = new Schema(
@@ -35,7 +42,7 @@ const componentArchiveSchema = new Schema(
     s3_key: { type: String },
     source: {
       default: 'moodle',
-      enum: ['moodle', 'manual', 'sigaa', 'cmcc'],
+      enum: COMPONENT_ARCHIVE_SOURCES,
       required: true,
       type: String,
     },

@@ -6,17 +6,13 @@ import {
   UserWithoutRA,
 } from '@/errors/custom-errors.js';
 import type { JobRegistry } from '@/jobs/registry.js';
-import { ComponentArchiveMapper } from '@/mappers/component-archive-mapper.js';
 import { UserModel } from '@/models/User.js';
-import { ComponentArchivesRepository } from '@/repositories/component-archives-repository.js';
 import { logger as defaultLogger } from '@/utils/logger.js';
 
 import { ArchiveEngine } from './archive-engine.js';
 import type { MoodleSession } from './archive-engine.js';
 
 export class ComponentsService {
-  private readonly archiveMapper = new ComponentArchiveMapper();
-  private readonly archivesRepository: ComponentArchivesRepository;
   private readonly logger: ReturnType<typeof defaultLogger.child>;
   private readonly engine: ArchiveEngine;
   private readonly manager?: JobManager<JobRegistry>;
@@ -31,9 +27,6 @@ export class ComponentsService {
   }) {
     this.logger = defaultLogger.child({ globalTraceId });
     this.engine = new ArchiveEngine({ globalTraceId });
-    this.archivesRepository = new ComponentArchivesRepository({
-      globalTraceId,
-    });
     this.manager = manager;
   }
 
@@ -70,12 +63,5 @@ export class ComponentsService {
       globalTraceId,
       session,
     });
-  }
-
-  async listComponentArchives(componentId: string) {
-    const archives =
-      await this.archivesRepository.findByComponentId(componentId);
-
-    return archives.map((archive) => this.archiveMapper.toResponse(archive));
   }
 }

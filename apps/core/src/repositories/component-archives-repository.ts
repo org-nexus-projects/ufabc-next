@@ -3,13 +3,28 @@ import type { Types } from 'mongoose';
 import { ARCHIVE_MAX_FAILURE_EVENTS } from '@/constants.js';
 import { ComponentArchiveModel } from '@/models/ComponentArchive.js';
 import type { ComponentArchive } from '@/models/ComponentArchive.js';
+import type { ArchiveListQuery } from '@/schemas/v2/archives.js';
+import { escapeRegex } from '@/utils/escape-regex.js';
 
 import { BaseRepository } from './base-repository.js';
 import type { BaseRepositoryOptions } from './base-repository.js';
 
 export type LeanComponentArchive = ComponentArchive & {
   _id: Types.ObjectId;
-  createdAt?: Date;
+  createdAt: Date;
+};
+
+export type ArchiveComponentSummary = {
+  _id: Types.ObjectId;
+  codigo: string;
+  disciplina: string;
+  season: string;
+  turma: string;
+  turno: string;
+};
+
+export type LeanPopulatedArchive = Omit<LeanComponentArchive, 'component'> & {
+  component: ArchiveComponentSummary | null;
 };
 
 type FailureCountRow = {
@@ -28,16 +43,36 @@ export class ComponentArchivesRepository extends BaseRepository {
     this.model = model ?? ComponentArchiveModel;
   }
 
-  async findByComponentId(
-    componentId: string
-  ): Promise<LeanComponentArchive[]> {
-    this.logger.debug({ componentId }, 'Listing archives by component');
+  async findPage({ limit, page, q, source, status }: ArchiveListQuery) {
+    this.logger.debug(
+      { hasSearch: Boolean(q), limit, page, source, status },
+      'Listing archives page'
+    );
 
-    return await this.model
-      .find({ component: componentId })
-      .populate('component', 'disciplina codigo turma turno season')
+    const filter: Record<string, unknown> = {};
+    if (q) {
+      filter.file_name = { $options: 'i', $regex: escapeRegex(q) };
+    }
+    if (source) {
+      filter.source = source;
+    }
+    if (status) {
+      filter.status = status;
+    }
+
+    const items = await this.model
+      .find(filter)
+      .populate<{ component: ArchiveComponentSummary | null }>(
+        'component',
+        'disciplina codigo turma turno season'
+      )
       .sort({ createdAt: -1 })
-      .lean();
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean<LeanPopulatedArchive[]>();
+    const total = await this.model.countDocuments(filter);
+
+    return { items, total };
   }
 
   async findById(archiveId: string) {

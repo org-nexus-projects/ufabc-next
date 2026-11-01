@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw';
 
+import { archiveDownload, archives, componentPlan } from './archives';
 import { enrollment, enrollments } from './enrollments';
 import { historiesGraduations } from './performance';
 import {
@@ -25,6 +26,13 @@ import { user } from './users';
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
 export const handlers = [
+  http.get(`${baseUrl}/v2/archives`, () => HttpResponse.json(archives)),
+  http.get(`${baseUrl}/v2/archives/*/download`, () =>
+    HttpResponse.json(archiveDownload),
+  ),
+  http.get(`${baseUrl}/v2/components/*/plan`, () =>
+    HttpResponse.json(componentPlan),
+  ),
   http.post(`${baseUrl}/backoffice/token`, () => HttpResponse.json({})),
   http.get(`${baseUrl}/users/info`, () => HttpResponse.json(user)),
   http.get(`${baseUrl}/entities/enrollments`, () =>
