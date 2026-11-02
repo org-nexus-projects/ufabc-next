@@ -55,7 +55,7 @@ export class StudentService extends BaseService {
       return { cacheKey, status: 'cached' } as const;
     }
 
-    const connector = new UfabcParserConnector(this.globalTraceId);
+    const connector = new UfabcParserConnector(this.app.config, this.globalTraceId);
     await connector.syncStudent({
       requesterKey: this.app.config.UFABC_PARSER_REQUESTER_KEY,
       sessionId: sigaaSession.sessionId,

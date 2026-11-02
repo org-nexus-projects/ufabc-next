@@ -118,7 +118,6 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
 
   app.route({
     handler: async (request, reply) => {
-      const connector = app.createUfabcParserConnector(request.id);
       const { ra, login } = request.body;
       const { sessionId, viewId } = request.sigaaSession;
 
