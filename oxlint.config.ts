@@ -23,9 +23,24 @@ export default defineConfig({
   overrides: [
     {
       env: {
-        browser: false,
+        browser: true,
+      },
+      files: ["apps/web/**/*.ts", "apps/web/**/*.vue"],
+    },
+    {
+      env: {
+        browser: true,
+        webextensions: true,
+      },
+      files: ["apps/extension/**/*.ts", "apps/extension/**/*.vue"],
+    },
+    {
+      env: {
         node: true,
       },
+      files: ["packages/**/*.ts"],
+    },
+    {
       files: ['apps/core/**/*.ts'],
     },
     {

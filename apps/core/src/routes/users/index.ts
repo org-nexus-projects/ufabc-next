@@ -31,6 +31,7 @@ const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
     const isUserSynced = await StudentModel.exists({
       ra: user.ra,
       season,
+      active: { $ne: false },
     });
 
     const userInfo = {
