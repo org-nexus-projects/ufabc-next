@@ -73,7 +73,7 @@
     "@types/ms": "catalog:",
     "@types/node": "catalog:",
     "fastify-tsconfig": "catalog:",
-    "ioredis": "^5.11.1",
+    "ioredis": "^6.0.0",
     "pino-pretty": "catalog:",
     "rimraf": "catalog:",
     "testcontainers": "catalog:",
