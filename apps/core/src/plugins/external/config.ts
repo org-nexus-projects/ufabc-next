@@ -42,7 +42,7 @@ const configSchema = z.object({
   LOCALSTACK_ENDPOINT: z.string().default('http://localhost:4566'),
   MEMORY_SAMPLE_INTERVAL_SECONDS: z.coerce.number().default(60),
   MEMORY_SNAPSHOT_COOLDOWN_MINUTES: z.coerce.number().default(15),
-  MEMORY_SNAPSHOT_THRESHOLD_MB: z.coerce.number().default(750),
+  MEMORY_SNAPSHOT_THRESHOLD_MB: z.coerce.number().default(1200),
   MONGODB_CONNECTION_URL: z
     .string()
     .default('mongodb://127.0.0.1:27017/ufabc-matricula'),

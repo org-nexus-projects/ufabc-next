@@ -133,6 +133,14 @@ export class ComponentArchivesRepository extends BaseRepository {
     return rows[0].failureCount;
   }
 
+  async markChecked(archiveId: Types.ObjectId): Promise<void> {
+    this.logger.debug({ archiveId }, 'Marking archive checked');
+
+    await this.model.findByIdAndUpdate(archiveId, {
+      $set: { last_checked_at: new Date() },
+    });
+  }
+
   async markStored(
     archiveId: Types.ObjectId,
     stored: {
@@ -153,6 +161,7 @@ export class ComponentArchivesRepository extends BaseRepository {
       $set: {
         checksum: stored.checksum,
         file_name: stored.fileName,
+        last_checked_at: new Date(),
         s3_key: stored.s3Key,
         status: 'stored',
       },

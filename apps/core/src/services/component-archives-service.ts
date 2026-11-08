@@ -1,3 +1,4 @@
+import { ARCHIVE_RECHECK_TTL_MS } from '@/constants.js';
 import type { S3Connector } from '@/connectors/s3-connector.js';
 import { ComponentArchivesRepository } from '@/repositories/component-archives-repository.js';
 
@@ -42,6 +43,24 @@ export class ComponentArchivesService extends BaseService {
 
     const alreadyStored = archive.status === 'stored';
 
+    const lastCheckedAt = archive.last_checked_at;
+    const wasCheckedRecently =
+      lastCheckedAt !== undefined &&
+      lastCheckedAt !== null &&
+      Date.now() - lastCheckedAt.getTime() < ARCHIVE_RECHECK_TTL_MS;
+
+    if (alreadyStored && wasCheckedRecently) {
+      return {
+        archiveId: archive._id,
+        data: {
+          fileName: archive.file_name,
+          s3Key: archive.s3_key,
+        },
+        message: 'PDF checked recently, skipping download',
+        success: true,
+      };
+    }
+
     try {
       const result = await this.engine.downloadAndUpload(
         rawUrl,
@@ -66,6 +85,8 @@ export class ComponentArchivesService extends BaseService {
       const { checksum, pdfName, s3Key } = result;
 
       if (archive.checksum === checksum) {
+        await this.repository.markChecked(archive._id);
+
         return {
           archiveId: archive._id,
           data: {
