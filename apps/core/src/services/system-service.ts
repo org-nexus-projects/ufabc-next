@@ -1,4 +1,5 @@
-import { readFile, unlink } from 'node:fs/promises';
+import { createReadStream } from 'node:fs';
+import { stat, unlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { monitorEventLoopDelay, type IntervalHistogram } from 'node:perf_hooks';
@@ -199,10 +200,15 @@ export class SystemService {
     try {
       writeHeapSnapshot(snapshotPath);
 
-      const snapshotBuffer = await readFile(snapshotPath);
+      const snapshotStats = await stat(snapshotPath);
       const s3Key = `heap-snapshots/${snapshotFilename}`;
 
-      await this.s3Connector.upload(this.bucket, s3Key, snapshotBuffer);
+      await this.s3Connector.upload(
+        this.bucket,
+        s3Key,
+        createReadStream(snapshotPath),
+        snapshotStats.size
+      );
 
       return await this.s3Connector.getPresignedUrl(
         this.bucket,

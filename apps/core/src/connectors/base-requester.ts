@@ -63,7 +63,7 @@ export class BaseRequester {
           status: response.status,
           headers: sanitizeHeaders(response.headers),
           responseType: options.responseType || 'json',
-          body: this.truncateForLogging(response._data),
+          body: this.summarizeBodyForLogging(response._data),
         };
 
         if (response.status >= 500) {
@@ -230,6 +230,17 @@ export class BaseRequester {
       );
       throw error;
     }
+  }
+
+  // Moodle pages and PDFs are large; log only their size, never the content.
+  protected summarizeBodyForLogging(data: unknown): unknown {
+    if (typeof data === 'string') {
+      return `[text body: ${Buffer.byteLength(data, 'utf8')} bytes]`;
+    }
+    if (data instanceof ArrayBuffer) {
+      return `[binary body: ${data.byteLength} bytes]`;
+    }
+    return this.truncateForLogging(data);
   }
 
   protected truncateForLogging(data: unknown): unknown {

@@ -38,6 +38,7 @@ const componentArchiveSchema = new Schema(
       type: Schema.Types.ObjectId,
     },
     file_name: { type: String },
+    last_checked_at: { type: Date },
     original_url: { required: true, type: String },
     s3_key: { type: String },
     source: {

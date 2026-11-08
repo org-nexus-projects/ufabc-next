@@ -5,7 +5,10 @@ import { load } from 'cheerio';
 
 import { MoodleConnector } from '@/connectors/moodle.js';
 import type { S3Connector } from '@/connectors/s3-connector.js';
-import { DISCIPLINE_CODE_PATTERN } from '@/constants.js';
+import {
+  DISCIPLINE_CODE_PATTERN,
+  PDF_VALIDATION_CONCURRENCY,
+} from '@/constants.js';
 import { ArchiveParseFailed } from '@/errors/custom-errors.js';
 import type { ComponentDocument } from '@/models/Component.js';
 import { findTeacher } from '@/models/Teacher.js';
@@ -511,25 +514,41 @@ export class ArchiveEngine {
       }
     });
 
-    const validationPromises = potentialLinks.map(async ({ href, name }) => {
-      const { isPdf, finalUrl } = await this.moodleConnector.validatePdfLink(
-        href,
-        this.session?.sessionId ?? '',
-        this.session?.sessKey ?? ''
+    const validatedLinks: Array<{ name: string; url: string }> = [];
+
+    for (
+      let start = 0;
+      start < potentialLinks.length;
+      start += PDF_VALIDATION_CONCURRENCY
+    ) {
+      const batch = potentialLinks.slice(
+        start,
+        start + PDF_VALIDATION_CONCURRENCY
+      );
+      const batchResults = await Promise.all(
+        batch.map(async ({ href, name }) => {
+          const { isPdf, finalUrl } =
+            await this.moodleConnector.validatePdfLink(
+              href,
+              this.session?.sessionId ?? '',
+              this.session?.sessKey ?? ''
+            );
+
+          if (!isPdf || finalUrl === undefined || finalUrl === '') {
+            return null;
+          }
+          return { name, url: finalUrl };
+        })
       );
 
-      if (!isPdf) {
-        return null;
+      for (const result of batchResults) {
+        if (result !== null) {
+          validatedLinks.push(result);
+        }
       }
+    }
 
-      if (finalUrl !== undefined && finalUrl !== '') {
-        return { name, url: finalUrl };
-      }
-      return null;
-    });
-
-    const validatedLinks = await Promise.all(validationPromises);
-    return validatedLinks.filter((link) => link !== null);
+    return validatedLinks;
   }
 
   async downloadAndUpload(rawUrl: string, componentId: string, bucket: string) {

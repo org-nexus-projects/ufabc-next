@@ -1,3 +1,5 @@
+import type { Readable } from 'node:stream';
+
 import {
   GetObjectCommand,
   ListObjectsV2Command,
@@ -12,11 +14,13 @@ export class S3Connector extends BaseAWSConnector<S3Client> {
   async upload(
     bucket: string,
     key: string,
-    body: Buffer | Uint8Array | Blob | string
+    body: Buffer | Uint8Array | Blob | string | Readable,
+    contentLength?: number
   ) {
     const command = new PutObjectCommand({
       Body: body,
       Bucket: bucket,
+      ContentLength: contentLength,
       Key: key,
     });
     return await this.client.send(command);
