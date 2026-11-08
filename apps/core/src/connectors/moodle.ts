@@ -191,6 +191,12 @@ export class MoodleConnector extends BaseRequester {
     return response;
   }
 
+  // Probes must never buffer the body: servers that ignore HEAD/Range would
+  // otherwise send the whole PDF into memory.
+  private async discardBody(response: Response) {
+    await response.body?.cancel().catch(() => {});
+  }
+
   private async rateLimit() {
     const now = Date.now();
     const timeSinceLastRequest = now - this.lastRequestTime;
@@ -216,10 +222,12 @@ export class MoodleConnector extends BaseRequester {
           sesskey: sessionKey,
         },
         method: 'HEAD',
+        responseType: 'stream',
         retry: 1,
         retryDelay: 500,
         timeout: 10_000,
       });
+      await this.discardBody(response);
 
       finalUrl = response.url || url;
       contentType = response.headers.get('Content-Type');
@@ -246,9 +254,11 @@ export class MoodleConnector extends BaseRequester {
             sesskey: sessionKey,
           },
           method: 'GET',
+          responseType: 'stream',
           retry: 0,
           timeout: 10_000,
         });
+        await this.discardBody(response);
 
         finalUrl = response.url || url;
         contentType = response.headers.get('Content-Type');
