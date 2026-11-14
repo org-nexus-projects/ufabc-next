@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@next/config": "workspace:*",
-    "typescript": "^5.9.2",
+    "typescript": "^7.0.0",
     "vite": "catalog:"
   },
   "dependencies": {
