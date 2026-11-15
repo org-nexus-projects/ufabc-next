@@ -1,18 +1,16 @@
-import { type UseAsyncStateOptions, useAsyncState } from '@vueuse/core';
+import { useAsyncState } from '@vueuse/core';
+import type { UseAsyncStateOptions } from '@vueuse/core';
 import { computed, onMounted, onUnmounted } from 'vue';
-import { storage, StorageItemKey } from 'wxt/storage';
+import { storage } from 'wxt/storage';
+import type { StorageItemKey } from 'wxt/storage';
 
 export function useStorage<T>(
 	key: StorageItemKey,
 	initialValue?: T,
 	opts?: UseAsyncStateOptions<true, T | null>,
 ) {
-	const {
-		state,
-		execute: _, // Don't include "execute" in returned object
-		...asyncState
-	} = useAsyncState<T | null, [], true>(
-		() => storage.getItem(key),
+	const { state, isReady, isLoading, error } = useAsyncState(
+		async () => await storage.getItem<T>(key),
 		initialValue ?? null,
 		opts,
 	);
@@ -20,7 +18,7 @@ export function useStorage<T>(
 	// Listen for changes
 	let unwatch: (() => void) | undefined;
 	onMounted(() => {
-		unwatch = storage.watch<T>(key, async (newValue) => {
+		unwatch = storage.watch<T>(key, (newValue) => {
 			state.value = newValue ?? initialValue ?? null;
 		});
 	});
@@ -29,6 +27,9 @@ export function useStorage<T>(
 	});
 
 	return {
+		error,
+		isLoading,
+		isReady,
 		// Use a writable computed ref to write updates to storage
 		state: computed({
 			get() {
@@ -39,6 +40,5 @@ export function useStorage<T>(
 				state.value = newValue;
 			},
 		}),
-		...asyncState,
 	};
 }

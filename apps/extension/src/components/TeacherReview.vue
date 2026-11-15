@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { getStudent, getTeacherReviews, type TeacherReview, type Grade } from '@/services/next';
-import { type ChartProps, Chart } from 'highcharts-vue';
+import { getStudent, getTeacherReviews } from '@/services/next';
+import type { TeacherReview, Grade } from '@/services/next';
+import { Chart } from 'highcharts-vue';
+import type { ChartProps } from 'highcharts-vue';
 import { logger } from '@/utils/logger';
 import { sortBy } from 'lodash-es';
 import { useStorage } from '@/composables/useStorage'
@@ -23,39 +25,39 @@ const filterSelected = ref()
 const studentCR = ref()
 const chartOptions = ref<ChartOptions>({
   chart: {
-    type: "pie",
+    height: 240,
     options3d: {
-      enabled: true,
-      alpha: 45
+      alpha: 45,
+      enabled: true
     },
-    width: 380,
-    height: 240
+    type: "pie",
+    width: 380
   },
+  plotOptions: {
+    pie: {
+      allowPointSelect: true,
+      animation: {
+        duration: 200,
+      },
+      cursor: 'pointer',
+      dataLabels: {
+        enabled: true,
+        format: '{key}: <b>{point.percentage:.1f}%</b>'
+      },
+      depth: 20,
+      showInLegend: true
+    }
+  },
+  series: [],
   title: {
     text: ''
   },
   tooltip: {
     pointFormat: 'Porcentagem: <b>{point.percentage:.1f}%</b>'
-  },
-  plotOptions: {
-    pie: {
-      animation: {
-        duration: 200,
-      },
-      depth: 20,
-      allowPointSelect: true,
-      cursor: 'pointer',
-      dataLabels: {
-        format: '{key}: <b>{point.percentage:.1f}%</b>',
-        enabled: true
-      },
-      showInLegend: true
-    }
-  },
-  series: []
+  }
 })
 const { state: sigStudent } = useStorage<Student>('local:student')
-const conceitos = ref<Record<string, Grade>[]>([
+const conceitos = ref<Array<Record<string, Grade>>>([
   { conceito: 'A' },
   { conceito: 'B' },
   { conceito: 'C' },
@@ -83,14 +85,11 @@ const conceptDistribution = computed(() => {
     return []
   }
 
-  let filter;
-  if (filterSelected.value === 'all') {
-    filter = teacherReviewData.value?.general
-  } else {
-    filter = teacherReviewData.value?.specific.find((specific) =>
+  const filter = filterSelected.value === 'all'
+    ? teacherReviewData.value?.general
+    : teacherReviewData.value?.specific.find((specific) =>
       specific._id._id === filterSelected.value
     );
-  }
 
   return sortBy(filter?.distribution, 'conceito')
 })
@@ -109,9 +108,12 @@ const targetStudentConcept = computed(() => {
   }
 
   const allCRS = conceptDistribution.value.filter(({ conceito }) => conceito !== 'O' && conceito !== 'F').map(item => item.cr_medio)
-  const closest = allCRS.reduce((prev, curr) =>
-    Math.abs(curr - studentCR.value) < Math.abs(prev - studentCR.value) ? curr : prev
-  );
+  let closest: number | undefined
+  for (const cr of allCRS) {
+    if (closest === undefined || Math.abs(cr - studentCR.value) < Math.abs(closest - studentCR.value)) {
+      closest = cr
+    }
+  }
 
   const target = conceptDistribution.value.find(c => c.cr_medio === closest);
 
@@ -148,8 +150,8 @@ async function setupTeacherReviewStats() {
         filterSelected.value = possibleComponents.value?.[0]?._id._id;
       })
     }
-  } catch (err) {
-    logger.error({ err }, 'Teacher review error')
+  } catch (error) {
+    logger.error({ error }, 'Teacher review error')
     closeDialog()
   } finally {
     loading.value = false
@@ -166,7 +168,6 @@ async function fetchStudent() {
     return
   }
 
-  // TODO: fix this - currently we don't have CR in the backend
   studentCR.value = student.graduations?.[1]?.cr || student.graduations?.[0]?.cr
 }
 
@@ -175,19 +176,16 @@ function updateFilter() {
     return
   }
 
-  let filter;
-  if (filterSelected.value === 'all') {
-    filter = teacherReviewData.value?.general;
-  } else {
-    filter = teacherReviewData.value?.specific.find((specific) =>
+  const filter = filterSelected.value === 'all'
+    ? teacherReviewData.value?.general
+    : teacherReviewData.value?.specific.find((specific) =>
       specific._id._id === filterSelected.value
     );
-  }
 
   const gradesFiltered = filter?.distribution.map(grade => ({
+    color: resolveColorForConcept(grade.conceito),
     name: grade.conceito,
-    y: grade.count,
-    color: resolveColorForConcept(grade.conceito)
+    y: grade.count
   }))
 
   samplesCount.value = filter?.count ?? 0
@@ -196,8 +194,8 @@ function updateFilter() {
     ...chartOptions.value,
     series: [
       {
-        name: 'Conceito',
         data: sortBy(gradesFiltered, 'name'),
+        name: 'Conceito',
       },
     ],
   }

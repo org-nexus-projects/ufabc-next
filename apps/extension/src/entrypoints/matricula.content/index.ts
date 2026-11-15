@@ -6,6 +6,7 @@ import { VueQueryPlugin } from "@tanstack/vue-query";
 import { sendMessage } from "@/messaging";
 import { logger } from "@/utils/logger";
 import type { ContentScriptContext } from "wxt/client";
+import type { App } from "vue";
 import { getStudent } from "@/services/next";
 
 export type UFABCMatriculaStudent = {
@@ -14,12 +15,13 @@ export type UFABCMatriculaStudent = {
 };
 
 export default defineContentScript({
+  cssInjectionMode: "ui",
   async main(ctx) {
     const sessionId = await getToken();
     const $topInfo = document.querySelector("#usuario_top > b");
     const login = $topInfo?.textContent?.trim().split(" ")[0];
 
-    if (!login) {
+    if (login === undefined || login === '') {
       logger.error('Could not identify the logged-in student');
       return;
     }
@@ -28,11 +30,13 @@ export default defineContentScript({
     ui.mount();
 
     const $meio = document.querySelector<HTMLDivElement>("#meio");
-    const $mountedUi = $meio?.firstChild as unknown as HTMLDivElement;
+    const $mountedUi = $meio?.firstChild;
 
-    $mountedUi.style.position = "sticky";
-    $mountedUi.style.top = "0px";
-    $mountedUi.style.zIndex = "9";
+    if ($mountedUi instanceof HTMLElement) {
+      $mountedUi.style.position = "sticky";
+      $mountedUi.style.top = "0px";
+      $mountedUi.style.zIndex = "9";
+    }
 
     const URLS_TO_CHECK = [
       "http://localhost:3003",
@@ -41,7 +45,7 @@ export default defineContentScript({
     ];
     const origin = new URL(document.location.href).origin;
     if (URLS_TO_CHECK.includes(origin)) {
-      if (!sessionId) {
+      if (sessionId === null || sessionId === '') {
         logger.error('Could not retrieve the matricula session');
         return;
       }
@@ -51,30 +55,27 @@ export default defineContentScript({
       document.dispatchEvent(
         new CustomEvent("student-info", {
           detail: {
-            ra: fullStudent.ra,
+            hasStudent: true,
             login,
-            hasStudent: !!fullStudent,
+            ra: fullStudent.ra,
           },
         }),
       );
     }
-    return;
   },
-  runAt: "document_end",
-  cssInjectionMode: "ui",
   matches: [
     "http://localhost/*",
     "https://ufabc-matricula-snapshot.vercel.app/*",
     "https://matricula.ufabc.edu.br/matricula/*",
   ],
+  runAt: "document_end",
 });
 
 async function mountUFABCMatriculaFilters(ctx: ContentScriptContext, sessionId: string | null, login: string) {
-  return createShadowRootUi(ctx, {
-    name: "matriculas-filter",
-    position: "inline",
+  return await createShadowRootUi(ctx, {
     anchor: "#meio",
     append: "first",
+    name: "matriculas-filter",
     async onMount(container, _shadow, _shadowhost) {
       const wrapper = document.createElement("div");
       container.append(wrapper);
@@ -94,12 +95,19 @@ async function mountUFABCMatriculaFilters(ctx: ContentScriptContext, sessionId: 
       app.mount(wrapper);
       return { app, wrapper };
     },
-    async onRemove(mounted) {
-      const resolvedMounted = await mounted;
-      resolvedMounted?.app.unmount();
-      resolvedMounted?.wrapper.remove();
+    onRemove(mounted) {
+      void unmountUFABCMatriculaFilters(mounted);
     },
+    position: "inline",
   });
+}
+
+async function unmountUFABCMatriculaFilters(
+  mounted: Promise<{ app: App; wrapper: HTMLDivElement }> | undefined,
+) {
+  const resolvedMounted = await mounted;
+  resolvedMounted?.app.unmount();
+  resolvedMounted?.wrapper.remove();
 }
 
 async function getToken() {

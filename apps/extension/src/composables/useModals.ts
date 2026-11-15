@@ -7,19 +7,19 @@ export function useModals() {
   })
 
   const kicksModal = ref({
-    isOpen: false,
     corteId: null as string | null,
+    isOpen: false,
   })
 
   const teacherReview = ref({
     isOpen: false,
-    teacherId: null as string | null,
     name: null as string | null,
+    teacherId: null as string | null,
   })
 
   return {
-    subjectReview,
     kicksModal,
+    subjectReview,
     teacherReview,
   }
 }

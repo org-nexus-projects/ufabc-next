@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { getSubjectReviews, type SubjectReview } from '@/services/next';
-import { Chart , type ChartProps } from 'highcharts-vue';
+import { getSubjectReviews } from '@/services/next';
+import type { SubjectReview } from '@/services/next';
+import { Chart } from 'highcharts-vue';
+import type { ChartProps } from 'highcharts-vue';
 import { logger } from '@/utils/logger';
 import SubjectTeachersList from './SubjectTeachersList.vue';
 import { resolveColorForConcept } from '@/utils/grades-colors'
@@ -19,29 +21,29 @@ const samplesCount = ref<number>(0);
 const filterSelected = ref<string | null>(null)
 const chartOptions = ref<ChartOptions>({
   chart: {
-    type: "pie",
+    height: 240,
     plotBackgroundColor: undefined,
     plotBorderWidth: undefined,
     plotShadow: false,
-    width: 380,
-    height: 240
-  },
-  title: {
-    text: ''
+    type: "pie",
+    width: 380
   },
   plotOptions: {
     pie: {
       allowPointSelect: true,
+      animation: {
+        duration: 200,
+      },
       cursor: 'pointer',
       dataLabels: {
         enabled: true,
         format: '<b>{point.name}</b>: {point.percentage:.1f} %',
       },
       showInLegend: true,
-      animation: {
-        duration: 200,
-      },
     }
+  },
+  title: {
+    text: ''
   },
 });
 
@@ -56,7 +58,7 @@ const possibleComponents = computed(() => {
     },
   };
   const general = Object.assign(generalDefaults, subjectDistributionData.value?.general);
-  // @ts-ignore Nullable case
+  // @ts-expect-error Nullable case
   components?.push(general);
 
   return components?.reverse();
@@ -106,36 +108,33 @@ function updateFilter() {
     return
   }
 
-  let filter;
-  if (filterSelected.value === 'all') {
-    filter = subjectDistributionData.value.general;
-  } else {
-    filter = subjectDistributionData.value.specific.find((specific) =>
+  const filter = filterSelected.value === 'all'
+    ? subjectDistributionData.value.general
+    : subjectDistributionData.value.specific.find((specific) =>
       specific._id._id === filterSelected.value
     );
-  }
 
   const conceitosFiltered = filter?.distribution.map(grade => ({
+    color: resolveColorForConcept(grade.conceito),
     name: grade.conceito,
-    y: grade.count,
-    color: resolveColorForConcept(grade.conceito)
+    y: grade.count
   }))
 
   samplesCount.value = filter?.count ?? 0
 
   chartOptions.value = {
     ...chartOptions.value,
-    series: [
-    {
-      name: 'Conceito',
-      data: conceitosFiltered,
-    },
-  ],
     plotOptions: {
       pie: {
         colors: conceitosFiltered?.map(grade => grade.color)
       }
-    }
+    },
+    series: [
+    {
+      data: conceitosFiltered,
+      name: 'Conceito',
+    },
+  ]
   }
 }
 

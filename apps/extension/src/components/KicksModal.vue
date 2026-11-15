@@ -110,8 +110,10 @@
 </template>
 
 <script setup lang="ts">
-import { getKicksInfo, type KicksInfo, MatriculaStudent } from '@/services/next';
-import { getUFComponents, type UfabcParserComponent } from '@/services/ufabc-parser';
+import { getKicksInfo, MatriculaStudent } from '@/services/next';
+import type { KicksInfo } from '@/services/next';
+import { getUFComponents } from '@/services/ufabc-parser';
+import type { UfabcParserComponent } from '@/services/ufabc-parser';
 import { findIdeais, findSeasonKey } from '@/utils/season';
 import { orderBy } from 'lodash-es';
 import { Info } from 'lucide-vue-next'
@@ -148,12 +150,12 @@ const emit = defineEmits(['close']);
 
 const NOTIFICATION_MESSAGES = {
   forbidden: {
-    type: 'warning',
-    message: 'Não temos as disciplinas que você cursou, acesse o Sigaa'
+    message: 'Não temos as disciplinas que você cursou, acesse o Sigaa',
+    type: 'warning'
   },
   serverError: {
-    type: 'error',
-    message: 'Estamos com problemas no servidor, por favor tente novamente mais tarde!'
+    message: 'Estamos com problemas no servidor, por favor tente novamente mais tarde!',
+    type: 'error'
   }
 } as const;
 
@@ -167,19 +169,19 @@ const matriculas = inject<typeof window.matriculas>('matriculas')
 const component = ref({} as UfabcParserComponent)
 
 const { data: ufabcComponents } = useQuery({
-  queryKey: ['ufabcComponents'],
-  queryFn: getUFComponents,
-  staleTime: 1000 * 60 * 5,
+  enabled: computed(() => props.isOpen),
   gcTime: 1000 * 60 * 30,
-  enabled: computed(() => props.isOpen)
+  queryFn: getUFComponents,
+  queryKey: ['ufabcComponents'],
+  staleTime: 1000 * 60 * 5
 });
 
 const studentId = getStudentId() || matriculaStudent.value?.studentId;
 
 const { data: kicksData, isError, error } = useQuery({
-  queryKey: ['kicks', props.corteId, studentId],
-  queryFn: () => getKicksInfo(props.corteId!, studentId),
   enabled: computed(() => Boolean(props.corteId && props.isOpen)),
+  queryFn: async () => await getKicksInfo(props.corteId ?? '', studentId),
+  queryKey: ['kicks', props.corteId, studentId],
 });
 
 const criteriaContent = "Os critérios são definidos com base nos critérios abaixo e seu peso, você pode alterar o peso arrastando o critérios para que fiquem na ordem desejada."
@@ -187,31 +189,35 @@ const criteriaContent = "Os critérios são definidos com base nos critérios ab
 const defaultHeaders = computed(() => {
   const isIdeal = findIdeais().includes(component.value?.ufComponentId?.toString() ?? '')
   const base = [
-    { text: 'Reserva', sortable: false, value: 'reserva' },
-    { text: 'Turno', value: 'turno', sortable: false },
-    { text: 'Ik', value: 'ik', sortable: false },
+    { sortable: false, text: 'Reserva', value: 'reserva' },
+    { sortable: false, text: 'Turno', value: 'turno' },
+    { sortable: false, text: 'Ik', value: 'ik' },
   ]
 
   const season = findSeasonKey()
 
   if (isIdeal && !['2020:3', '2021:1', '2021:2'].includes(season)) {
-    base.push({ text: 'CR', value: 'cr', sortable: false })
-    base.push({ text: 'CP', value: 'cp', sortable: false })
+    base.push(
+      { sortable: false, text: 'CR', value: 'cr' },
+      { sortable: false, text: 'CP', value: 'cp' },
+    )
   } else {
-    base.push({ text: 'CP', value: 'cp', sortable: false })
-    base.push({ text: 'CR', value: 'cr', sortable: false })
+    base.push(
+      { sortable: false, text: 'CP', value: 'cp' },
+      { sortable: false, text: 'CR', value: 'cr' },
+    )
   }
 
   return base
 })
 
-const transformed = computed(() => {
-  return kicks.value.map(d => ({
+const transformed = computed(() => 
+  kicks.value.map(d => ({
     ...d,
-    reserva: d.reserva ? 'Sim' : 'Não',
-    ik: Number(d.ik).toFixed(3)
+    ik: Number(d.ik).toFixed(3),
+    reserva: d.reserva ? 'Sim' : 'Não'
   }))
-})
+)
 
 
 const kicksForecast = computed(() => {
@@ -219,14 +225,18 @@ const kicksForecast = computed(() => {
   if (!corteId || !matriculas || !matriculaStudent.value?.studentId) {
     return;
   }
-  const requests = Object.values(matriculas).reduce((count, current) =>
-  current.includes(corteId) ? count + 1 : count, 0);
+  let requests = 0
+  for (const current of Object.values(matriculas)) {
+    if (current.includes(corteId)) {
+      requests += 1
+    }
+  }
   return kicks.value.length * component.value?.vacancies / requests
 })
 
 function resort() {
   const sortOrder = headers.value.map(h => h.value)
-  const sortRef = Array(sortOrder.length).fill('desc')
+  const sortRef: Array<'asc' | 'desc'> = sortOrder.map(() => 'desc')
 
   const turnoIndex = sortOrder.indexOf('turno')
   if (turnoIndex !== -1) {
@@ -266,11 +276,12 @@ function tableRowClassname({ row, rowIndex }: TableData) {
   return 'probably-kicked-row'
 }
 
-watch(() => props.isOpen, async (newIsOpen) => {
+watch(() => props.isOpen, (newIsOpen) => {
   if (newIsOpen && props.corteId) {
     headers.value = defaultHeaders.value;
+    const ufComponentId = Number(props.corteId);
     const match = ufabcComponents.value?.find(c =>
-      c.ufComponentId === Number.parseInt(props.corteId!)
+      c.ufComponentId === ufComponentId
     );
     if (match) {
       component.value = match;

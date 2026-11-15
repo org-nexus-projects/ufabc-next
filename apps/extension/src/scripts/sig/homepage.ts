@@ -4,24 +4,25 @@ import { normalizeDiacritics } from '@/utils/remove-diacritics';
 export function retrieveStudent(
 	pageTrs: NodeListOf<HTMLTableRowElement>,
 ) {
-	const rows = Array.from(pageTrs);
-	const kvStudent = rows.map((row) => {
-		const $childrens = row.children as HTMLCollectionOf<HTMLElement>;
-		const cleaned = Array.from($childrens).map((column) =>
-			normalizeDiacritics(column.innerText ?? ''),
+	const kvStudent = [...pageTrs].map((row) => {
+		const $childrens = row.querySelectorAll<HTMLElement>(':scope > *');
+		return [...$childrens].map((column) =>
+			// oxlint-disable-next-line unicorn/prefer-dom-node-text-content -- innerText keeps the rendered text used as keys
+			normalizeDiacritics(column.innerText),
 		);
-		return cleaned;
 	});
 
-	const rawStudent = Object.fromEntries(kvStudent);
+	const rawStudent = new Map(kvStudent.map((cells) => [cells[0], cells.at(1)]));
+	const email = rawStudent.get('email');
+	const ra = rawStudent.get('matricula');
 
-	if (!rawStudent) {
+	if (email === undefined || ra === undefined) {
 		return null;
 	}
 
 	return {
-	  login: rawStudent.email.split('@')[0],
-		ra: rawStudent.matricula,
+	  login: email.split('@')[0],
+		ra,
 	};
 }
 
@@ -32,20 +33,13 @@ export function scrapeMenu(
 
 	if (!shallowStudent) {
 		return {
-      error: 'Não Conseguimos Realizar a busca, Tente Novamente Mais Tarde!',
-      data: null
+      data: null,
+      error: 'Não Conseguimos Realizar a busca, Tente Novamente Mais Tarde!'
     };
 	}
 
-  if (!shallowStudent) {
-    return {
-      error: 'Could not scrape',
-      data: null
-    }
-  }
-
   return {
-    error: null,
-    data: shallowStudent
+    data: shallowStudent,
+    error: null
   }
 }

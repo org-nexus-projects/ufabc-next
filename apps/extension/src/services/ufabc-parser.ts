@@ -1,5 +1,4 @@
 import { UfabcParserConnector } from '@next/connectors/ufabc-parser';
-import type { UfabcParserComponent } from '@next/connectors/schemas/ufabc-parser';
 
 export type { UfabcParserComponent } from '@next/connectors/schemas/ufabc-parser';
 
@@ -31,13 +30,9 @@ export async function getUFEnrolled() {
   const enrolled = await ufabcParserConnector.getEnrolled();
 
   const result: Record<number, string[]> = {};
-  for (const componentId in enrolled) {
-    const studentIds = enrolled[Number(componentId)];
-
+  for (const [componentId, studentIds] of Object.entries(enrolled)) {
     for (const studentId of studentIds) {
-      if (!result[studentId]) {
-        result[studentId] = [];
-      }
+      result[studentId] ??= [];
       result[studentId].push(componentId);
     }
   }
@@ -46,5 +41,5 @@ export async function getUFEnrolled() {
 }
 
 export async function getUFComponents() {
-  return ufabcParserConnector.getComponents();
+  return await ufabcParserConnector.getComponents();
 }
