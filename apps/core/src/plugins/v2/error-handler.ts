@@ -27,10 +27,17 @@ export default fp(
         };
 
         if (error instanceof ResponseSerializationError) {
+          // The ZodError lives in `cause`; keep it server-side so response
+          // schema details never reach the client.
+          request.log.error(
+            { error, request: requestContext },
+            error.message
+          );
+
           reply.status(422);
           reply.send({
-            originalError: error.validation?.[0]?.params.error ?? null,
-            zodIssues: error.validation?.map((err) => err.params.issue) ?? [],
+            originalError: null,
+            zodIssues: [],
           });
           return;
         }
