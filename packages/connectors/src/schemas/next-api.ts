@@ -413,7 +413,10 @@ export type Discipline = z.infer<typeof disciplineSchema>;
 export const courseInformationSchema = z.object({
   __v: z.number(),
   _id: z.string(),
-  coefficients: z.record(z.record(z.string(), quadInformationSchema)),
+  coefficients: z.record(
+    z.string(),
+    z.record(z.string(), quadInformationSchema)
+  ),
   createdAt: z.string(),
   curso: z.string(),
   disciplinas: z.array(disciplineSchema),
