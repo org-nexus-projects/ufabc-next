@@ -175,7 +175,6 @@ export const studentsController: FastifyPluginAsyncZod = async (app) => {
       }),
       response: {
         202: z.object({
-          data: z.any(),
           status: z.string(),
         }),
       },

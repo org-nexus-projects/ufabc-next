@@ -3,7 +3,6 @@ import type { FastifyEnvOptions } from '@fastify/env';
 import type { FastifyInstance } from 'fastify';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 
 const NEXT_WEB_LOCAL = 'http://localhost:3000' as const;
 const JWT_SECRET = 'LWp9YJMiUtfQxoepoTL7RkWJi6W5C6ED';
@@ -69,7 +68,7 @@ const configSchema = z.object({
   WHATSAPP_AUTH_SECRET: z.string().optional(),
 });
 
-const schema = zodToJsonSchema(configSchema);
+const schema = z.toJSONSchema(configSchema);
 
 export type Config = z.infer<typeof configSchema>;
 export const autoConfig = {
