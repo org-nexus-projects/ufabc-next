@@ -20,8 +20,8 @@
     "./schemas/moodle": "./src/schemas/moodle.ts"
   },
   "scripts": {
-    "lint": "oxlint src/**/* || true",
-    "lint:fix": "oxlint --fix src/**/* || true",
+    "lint": "oxlint src",
+    "lint:fix": "oxlint --fix src",
     "tsc": "tsgo --noEmit"
   },
   "dependencies": {

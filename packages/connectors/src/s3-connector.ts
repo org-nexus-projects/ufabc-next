@@ -1,8 +1,5 @@
-import {
-  ListObjectsV2Command,
-  PutObjectCommand,
-  type S3Client,
-} from '@aws-sdk/client-s3';
+import { ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
+import type { S3Client } from '@aws-sdk/client-s3';
 
 import { BaseAWSConnector } from './base-aws-connector.ts';
 
@@ -11,8 +8,8 @@ let s3ConnectorInstance: S3Connector | null = null;
 export class S3Connector extends BaseAWSConnector<S3Client> {
   constructor(client: S3Client, traceId?: string) {
     if (s3ConnectorInstance) {
-      return s3ConnectorInstance
-    };
+      return s3ConnectorInstance;
+    }
 
     super(client, traceId);
     s3ConnectorInstance = this;
@@ -24,11 +21,11 @@ export class S3Connector extends BaseAWSConnector<S3Client> {
     body: Buffer | Uint8Array | Blob | string
   ) {
     const command = new PutObjectCommand({
+      Body: body,
       Bucket: bucket,
       Key: key,
-      Body: body,
     });
-    return this.client.send(command);
+    return await this.client.send(command);
   }
 
   async list(bucket: string) {
@@ -46,15 +43,15 @@ export class S3Connector extends BaseAWSConnector<S3Client> {
       files.push({
         key: item.Key,
         lastModified: item.LastModified,
-        size: this.#formatFileSize(item.Size),
         rawSize: item.Size,
+        size: this.#formatFileSize(item.Size),
       });
     }
     return files;
   }
 
   #formatFileSize(size?: number) {
-    if (!size) {
+    if (size === undefined || size === 0) {
       return '0 B';
     }
 

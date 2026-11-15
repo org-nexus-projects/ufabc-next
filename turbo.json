@@ -16,8 +16,12 @@
       "cache": false,
       "persistent": true
     },
-    "lint": {},
-    "lint:fix": {},
+    "lint": {
+      "dependsOn": ["^build"]
+    },
+    "lint:fix": {
+      "dependsOn": ["^build"]
+    },
     "test": {},
     "up": {
       "cache": false

@@ -62,9 +62,14 @@ export default defineConfig({
       },
     },
     {
-      files: ['apps/core/src/connectors/**/*.ts'],
+      files: [
+        'apps/core/src/connectors/**/*.ts',
+        'packages/connectors/src/**/*.ts',
+      ],
       rules: {
         'eslint/no-constructor-return': 'off',
+        'typescript/consistent-return': 'off',
+        'typescript/no-this-alias': 'off',
         'unicorn/no-this-assignment': 'off',
       },
     },
