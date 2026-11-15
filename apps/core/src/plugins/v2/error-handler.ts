@@ -6,10 +6,7 @@ import type {
   FastifyRequest,
 } from 'fastify';
 import { fastifyPlugin as fp } from 'fastify-plugin';
-import {
-  RequestValidationError,
-  ResponseSerializationError,
-} from 'fastify-zod-openapi';
+import { RequestValidationError } from 'fastify-zod-openapi';
 
 import { NextError } from '@/errors/base-error.js';
 
@@ -25,15 +22,6 @@ export default fp(
           query: serializeQueryParams(request.query),
           url: request.url,
         };
-
-        if (error instanceof ResponseSerializationError) {
-          reply.status(422);
-          reply.send({
-            originalError: error.validation?.[0]?.params.error ?? null,
-            zodIssues: error.validation?.map((err) => err.params.issue) ?? [],
-          });
-          return;
-        }
 
         if (
           error instanceof RequestValidationError ||

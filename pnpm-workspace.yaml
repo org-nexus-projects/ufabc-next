@@ -21,6 +21,8 @@ allowBuilds:
   ssh2: true
   weak-napi: true
 injectWorkspacePackages: true
+syncInjectedDepsAfterScripts:
+  - build
 packageExtensions:
   fastify-type-provider-zod@3.0.0:
     dependencies:
