@@ -20,7 +20,7 @@ describe('<SignUpPage />', () => {
   afterEach(() => {
     authStore.logOut();
   });
-  test('render sm and down screen', async () => {
+  test('render sm and down screen', () => {
     vi.spyOn(vuetify, 'useDisplay').mockImplementation(
       () =>
         ({
@@ -35,20 +35,22 @@ describe('<SignUpPage />', () => {
     });
 
     expect(
-      screen.getByAltText(/Pessoa meditando na frente do computador/)
+      screen.getByAltText(/Pessoa meditando na frente do computador/u)
     ).toBeInTheDocument();
-    expect(screen.getByText(/O que você faz na UFABC\?/)).toBeInTheDocument();
+    expect(screen.getByText(/O que você faz na UFABC\?/u)).toBeInTheDocument();
   });
   test('fill form as teacher', async () => {
-    const user = await userEvent.setup();
+    const user = userEvent.setup();
     render(SignUpPage, {
       global: {
         stubs: ['router-link'],
       },
     });
 
-    await user.click(screen.getByText(/Professor/i));
+    await user.click(screen.getByText(/Professor/iu));
 
-    expect(screen.getByText(/Estamos trabalhando nisso!/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Estamos trabalhando nisso!/iu)
+    ).toBeInTheDocument();
   });
 });

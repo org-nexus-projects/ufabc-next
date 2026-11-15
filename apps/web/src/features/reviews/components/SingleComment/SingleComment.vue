@@ -4,11 +4,11 @@
       <v-col
         sm=""
         order="1"
-        class="mr-3 justify-center pa-0 flex-grow-0 flex-shrink-1"
+        class="pa-0 mr-3 flex-shrink-1 flex-grow-0 justify-center"
       >
         <div
           :style="conceptStyle"
-          class="text-white d-flex align-center justify-center rounded-lg"
+          class="d-flex align-center justify-center rounded-lg text-white"
         >
           {{ comment?.enrollment.conceito }}
         </div>
@@ -21,7 +21,7 @@
         sm=""
         order="3"
         order-sm="2"
-        class="comment-text-container mr-2 pa-0"
+        class="comment-text-container pa-0 mr-2"
         :style="`max-height: ${expanded || smAndDown ? 'unset' : '80px'}`"
       >
         <div>
@@ -29,7 +29,7 @@
             <v-chip
               v-if="isEAD"
               density="compact"
-              class="px-2 mr-1"
+              class="mr-1 px-2"
               style="font-size: 12px"
             >
               EAD
@@ -56,7 +56,7 @@
         sm=""
         order="2"
         order-sm="3"
-        class="pa-0 justify-start text-subtitle-2 text-next-light-gray flex-grow-0 flex-shrink-1"
+        class="pa-0 text-subtitle-2 text-next-light-gray flex-shrink-1 flex-grow-0 justify-start"
       >
         <div class="d-flex">
           <v-btn
@@ -76,7 +76,7 @@
               (recommendation ? 'Remover' : 'Deixar') + ' recomendação'
             "
             :loading="isPendingRecommendation || isPendingRemoveRecommendation"
-            class="ml-1 icon-button text-subtitle-2"
+            class="icon-button text-subtitle-2 ml-1"
             variant="text"
             :icon="recommendation ? 'mdi-medal' : 'mdi-medal-outline'"
             :color="recommendation ? 'primary' : ''"
@@ -111,8 +111,8 @@ import { checkEAD, formatSeason } from '@/utils/season';
 const { smAndDown } = useDisplay();
 const props = defineProps({
   comment: {
-    type: Object as PropType<Comment>,
     required: true,
+    type: Object as PropType<Comment>,
   },
 });
 
@@ -127,55 +127,55 @@ const recommendationCount = ref(
 
 const conceptStyle = computed(() => ({
   backgroundColor: conceptsColor[props.comment?.enrollment.conceito ?? ''],
+  fontSize: '34px',
   height: '54px',
   width: '54px',
-  fontSize: '34px',
 }));
 
 const { mutate: mutateLike, isPending: isPendingLike } = useMutation({
   mutationFn: () => Comments.like(props.comment?._id),
-  onSuccess: () => {
-    like.value = true;
-    likeCount.value++;
-  },
   onError: (error: AxiosError<RequestError>) => {
     ElMessage({
       message: error.response?.data.error,
-      type: 'error',
       showClose: true,
+      type: 'error',
     });
+  },
+  onSuccess: () => {
+    like.value = true;
+    likeCount.value += 1;
   },
 });
 
 const { mutate: mutateRecommendation, isPending: isPendingRecommendation } =
   useMutation({
     mutationFn: () => Comments.recommendation(props.comment?._id),
-    onSuccess: () => {
-      recommendation.value = true;
-      recommendationCount.value++;
-    },
     onError: (error: AxiosError<RequestError>) => {
       ElMessage({
         message: error.response?.data.message,
-        type: 'error',
         showClose: true,
+        type: 'error',
       });
+    },
+    onSuccess: () => {
+      recommendation.value = true;
+      recommendationCount.value += 1;
     },
   });
 
 const { mutate: mutateRemoveLike, isPending: isPendingRemoveLike } =
   useMutation({
     mutationFn: () => Comments.removeLike(props.comment?._id),
-    onSuccess: () => {
-      like.value = false;
-      likeCount.value--;
-    },
     onError: (error: AxiosError<RequestError>) => {
       ElMessage({
         message: error.response?.data.error,
-        type: 'error',
         showClose: true,
+        type: 'error',
       });
+    },
+    onSuccess: () => {
+      like.value = false;
+      likeCount.value -= 1;
     },
   });
 
@@ -184,31 +184,32 @@ const {
   isPending: isPendingRemoveRecommendation,
 } = useMutation({
   mutationFn: () => Comments.removeRecommendation(props.comment?._id),
-  onSuccess: () => {
-    recommendation.value = false;
-    recommendationCount.value--;
-  },
   onError: (error: AxiosError<RequestError>) => {
     ElMessage({
       message: error.response?.data.error,
-      type: 'error',
       showClose: true,
+      type: 'error',
     });
+  },
+  onSuccess: () => {
+    recommendation.value = false;
+    recommendationCount.value -= 1;
   },
 });
 
 const date = computed(() => dateToTimeAgo(props.comment?.createdAt));
 
 const season = computed(() => {
-  if (!props.comment?.enrollment?.season && !props.comment?.enrollment?.year)
+  if (!props.comment?.enrollment?.season && !props.comment?.enrollment?.year) {
     return '';
+  }
 
   const [year, quad] = props.comment.enrollment.season?.split(':') ?? [];
 
   return formatSeason(
-    (year ?? props.comment.enrollment.year) +
-      ':' +
-      (quad ?? props.comment.enrollment.quad)
+    `${year ?? props.comment.enrollment.year}:${
+      quad ?? props.comment.enrollment.quad
+    }`
   );
 });
 
@@ -219,12 +220,16 @@ const isEAD = computed(() =>
 const expanded = ref(false);
 const commentText = ref<HTMLElement | null>(null);
 
-const showMore = () => {
-  if (!commentText.value) return;
+function showMore() {
+  if (!commentText.value) {
+    return;
+  }
   expanded.value = true;
-};
+}
 onMounted(() => {
-  if (!commentText.value) return;
+  if (!commentText.value) {
+    return;
+  }
   if (commentText.value.clientHeight <= 60) {
     expanded.value = true;
   }

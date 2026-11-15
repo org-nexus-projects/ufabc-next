@@ -16,48 +16,48 @@ export const CURRENT_QUARTER_ADVANCE_DAYS = 20;
 
 const MANUAL_QUARTER_TITLE = 'Definir datas manualmente';
 
-const parseQuarterTitleToSeason = (title: string): string | null => {
+function parseQuarterTitleToSeason(title: string): string | null {
   if (!title || title === MANUAL_QUARTER_TITLE) {
     return null;
   }
 
-  const match = title.match(/^(\d)\/(\d{4})$/);
-  if (!match) {
+  const match = /^(?<quad>\d)\/(?<year>\d{4})$/u.exec(title);
+  if (!match?.groups) {
     return null;
   }
 
-  const [, quad, year] = match;
+  const { quad, year } = match.groups;
   return `${year}:${quad}`;
-};
+}
 
-const toAcademicQuarterRanges = (): QuarterRange[] => {
+function toAcademicQuarterRanges(): QuarterRange[] {
   return definedQuarters
     .map((quarter) => {
       const season = parseQuarterTitleToSeason(quarter.title);
 
-      if (!season) {
+      if (season === null) {
         return null;
       }
 
       return {
+        endDate: new Date(`${quarter.endDate}T23:59:59.999`),
         season,
         startDate: new Date(`${quarter.startDate}T00:00:00`),
-        endDate: new Date(`${quarter.endDate}T23:59:59.999`),
       };
     })
     .filter((quarter): quarter is QuarterRange => quarter !== null)
     .sort((a, b) => b.startDate.getTime() - a.startDate.getTime());
-};
+}
 
 export const academicQuarterRanges = toAcademicQuarterRanges();
 
-export const isValidAcademicSeason = (season: string): boolean => {
+export function isValidAcademicSeason(season: string): boolean {
   return academicQuarterRanges.some((quarter) => quarter.season === season);
-};
+}
 
-export const getCurrentAcademicSeason = (
+export function getCurrentAcademicSeason(
   options: GetCurrentAcademicSeasonOptions = {}
-): string => {
+): string {
   const { now = new Date(), advanceDays = CURRENT_QUARTER_ADVANCE_DAYS } =
     options;
 
@@ -74,10 +74,10 @@ export const getCurrentAcademicSeason = (
     return currentRange.season;
   }
 
-  const newestQuarter = academicQuarterRanges[0];
-  const oldestQuarter = academicQuarterRanges[academicQuarterRanges.length - 1];
+  const newestQuarter = academicQuarterRanges.at(0);
+  const oldestQuarter = academicQuarterRanges.at(-1);
 
-  if (!newestQuarter || !oldestQuarter) {
+  if (newestQuarter === undefined || oldestQuarter === undefined) {
     return '';
   }
 
@@ -86,19 +86,15 @@ export const getCurrentAcademicSeason = (
   }
 
   return oldestQuarter.season;
-};
+}
 
-export const getSelectableAcademicSeasons = (
-  currentSeason: string
-): string[] => {
+export function getSelectableAcademicSeasons(currentSeason: string): string[] {
   const orderedSeasons = academicQuarterRanges.map((quarter) => quarter.season);
-  const currentIndex = orderedSeasons.findIndex(
-    (season) => season === currentSeason
-  );
+  const currentIndex = orderedSeasons.indexOf(currentSeason);
 
   if (currentIndex === -1) {
     return orderedSeasons;
   }
 
   return orderedSeasons.slice(currentIndex);
-};
+}

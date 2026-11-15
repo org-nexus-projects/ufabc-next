@@ -33,15 +33,17 @@ describe('<SingleComment />', () => {
       },
     });
     expect(
-      await screen.findByText(RegExp(comments.data[0].comment, 'i'))
+      await screen.findByText(new RegExp(comments.data[0].comment, 'iu'))
     ).toBeInTheDocument();
     expect(
-      screen.getByText(RegExp(comments.data[0].subject.name, 'i'))
+      screen.getByText(new RegExp(comments.data[0].subject.name, 'iu'))
     ).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole('button', { name: /Deixar like/i }));
     await userEvent.click(
-      screen.getByRole('button', { name: /Deixar recomendação/i })
+      screen.getByRole('button', { name: /Deixar like/iu })
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: /Deixar recomendação/iu })
     );
     await waitFor(() => {
       expect(screen.getByText('51')).toBeInTheDocument();
@@ -50,10 +52,10 @@ describe('<SingleComment />', () => {
       expect(screen.getByText('151')).toBeInTheDocument();
     });
     await userEvent.click(
-      screen.getByRole('button', { name: /Remover like/i })
+      screen.getByRole('button', { name: /Remover like/iu })
     );
     await userEvent.click(
-      screen.getByRole('button', { name: /Remover recomendação/i })
+      screen.getByRole('button', { name: /Remover recomendação/iu })
     );
     await waitFor(() => {
       expect(screen.getByText('50')).toBeInTheDocument();
@@ -69,10 +71,10 @@ describe('<SingleComment />', () => {
         () =>
           HttpResponse.json(
             {
-              status: 400,
-              name: 'BadRequest',
-              type: 'BadRequest',
               error: 'Reaction remove like error',
+              name: 'BadRequest',
+              status: 400,
+              type: 'BadRequest',
             },
             {
               status: 400,
@@ -87,10 +89,10 @@ describe('<SingleComment />', () => {
         () =>
           HttpResponse.json(
             {
-              status: 400,
-              name: 'BadRequest',
-              type: 'BadRequest',
               error: 'Reaction remove recommendation error',
+              name: 'BadRequest',
+              status: 400,
+              type: 'BadRequest',
             },
             {
               status: 400,
@@ -118,16 +120,16 @@ describe('<SingleComment />', () => {
       },
     });
     expect(
-      await screen.findByText(RegExp(comments.data[0].comment, 'i'))
+      await screen.findByText(new RegExp(comments.data[0].comment, 'iu'))
     ).toBeInTheDocument();
     expect(
-      screen.getByText(RegExp(comments.data[0].subject.name, 'i'))
+      screen.getByText(new RegExp(comments.data[0].subject.name, 'iu'))
     ).toBeInTheDocument();
     await userEvent.click(
-      screen.getByRole('button', { name: /Remover like/i })
+      screen.getByRole('button', { name: /Remover like/iu })
     );
     await userEvent.click(
-      screen.getByRole('button', { name: /Remover recomendação/i })
+      screen.getByRole('button', { name: /Remover recomendação/iu })
     );
     expect(
       await screen.findByText('Reaction remove like error')

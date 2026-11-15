@@ -32,27 +32,27 @@ describe('runtimeConfig', () => {
 
   test('builds google login url from api base url', () => {
     expect(buildGoogleAuthUrl({ requesterKey: 'ufabc-next' })).toBe(
-      `${runtimeConfig.apiBaseUrl}/login/google?requesterKey=ufabc-next`,
+      `${runtimeConfig.apiBaseUrl}/login/google?requesterKey=ufabc-next`
     );
   });
 
   test('adds redirect target when app is local and api is remote', () => {
     expect(
       buildGoogleAuthUrl({
-        requesterKey: 'ufabc-next',
-        appHostname: 'localhost',
         apiBaseUrl: 'https://api.ufabcnext.com',
-      }),
+        appHostname: 'localhost',
+        requesterKey: 'ufabc-next',
+      })
     ).toBe(
-      'https://api.ufabcnext.com/login/google?requesterKey=ufabc-next&redirectTarget=web-local',
+      'https://api.ufabcnext.com/login/google?requesterKey=ufabc-next&redirectTarget=web-local'
     );
   });
 
   test('builds google account association url', () => {
     expect(
-      buildGoogleAuthUrl({ requesterKey: 'ufabc-next', userId: 'user-123' }),
+      buildGoogleAuthUrl({ requesterKey: 'ufabc-next', userId: 'user-123' })
     ).toBe(
-      `${runtimeConfig.apiBaseUrl}/login/google?requesterKey=ufabc-next&userId=user-123`,
+      `${runtimeConfig.apiBaseUrl}/login/google?requesterKey=ufabc-next&userId=user-123`
     );
   });
 });

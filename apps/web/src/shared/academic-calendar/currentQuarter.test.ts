@@ -10,8 +10,8 @@ import {
 describe('currentQuarter helpers', () => {
   test('returns season that matches the official date ranges', () => {
     const season = getCurrentAcademicSeason({
-      now: new Date('2026-04-01T12:00:00Z'),
       advanceDays: 0,
+      now: new Date('2026-04-01T12:00:00Z'),
     });
 
     expect(season).toBe('2026:1');
@@ -19,8 +19,8 @@ describe('currentQuarter helpers', () => {
 
   test('applies offset to anticipate the next quarter during recess windows', () => {
     const season = getCurrentAcademicSeason({
-      now: new Date('2026-05-10T12:00:00Z'),
       advanceDays: CURRENT_QUARTER_ADVANCE_DAYS,
+      now: new Date('2026-05-10T12:00:00Z'),
     });
 
     expect(season).toBe('2026:2');
@@ -28,8 +28,8 @@ describe('currentQuarter helpers', () => {
 
   test('falls back to newest known season for dates after configured ranges', () => {
     const season = getCurrentAcademicSeason({
-      now: new Date('2030-01-01T12:00:00Z'),
       advanceDays: 0,
+      now: new Date('2030-01-01T12:00:00Z'),
     });
 
     expect(season).toBe('2026:3');
@@ -37,8 +37,8 @@ describe('currentQuarter helpers', () => {
 
   test('falls back to oldest known season for dates before configured ranges', () => {
     const season = getCurrentAcademicSeason({
-      now: new Date('2019-01-01T12:00:00Z'),
       advanceDays: 0,
+      now: new Date('2019-01-01T12:00:00Z'),
     });
 
     expect(season).toBe('2021:1');

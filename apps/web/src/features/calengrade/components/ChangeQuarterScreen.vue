@@ -57,7 +57,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
-import { definedQuarters, type Quarter } from '@/shared/academic-calendar';
+import { definedQuarters } from '@/shared/academic-calendar';
+import type { Quarter } from '@/shared/academic-calendar';
 
 import { CalengradeSteps } from '../types';
 
@@ -65,11 +66,11 @@ const props = defineProps<{
   selectedQuarter: Quarter;
 }>();
 
-const findSelectedQuarterIndex = () => {
+function findSelectedQuarterIndex() {
   return definedQuarters.findIndex(
     (q) => props.selectedQuarter.title === q.title
   );
-};
+}
 
 const newQuarter = ref<number>(findSelectedQuarterIndex());
 
@@ -86,20 +87,20 @@ onMounted(() => {
   endDate.value = definedQuarters[newQuarter.value].endDate;
 });
 
-const handleQuarterChange = (value: number) => {
+function handleQuarterChange(value: number) {
   if (value !== 0) {
     startDate.value = definedQuarters[value].startDate;
     endDate.value = definedQuarters[value].endDate;
   }
   newQuarter.value = value;
-};
+}
 
-const goToSummaryScreen = () => {
+function goToSummaryScreen() {
   if (newQuarter.value !== findSelectedQuarterIndex()) {
     emit('changeQuarter', newQuarter.value);
   }
   emit('nextStep', CalengradeSteps.Summary);
-};
+}
 </script>
 
 <style scoped>

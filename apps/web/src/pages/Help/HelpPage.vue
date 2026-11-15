@@ -80,7 +80,7 @@
                 accept="image/jpeg,image/jpg,image/png"
                 :disabled="isPendingSubmit"
               />
-              <small class="text-caption text-grey ml-3 mt-1 d-block">
+              <small class="text-caption text-grey d-block mt-1 ml-3">
                 Formatos: JPEG, JPG e PNG
               </small>
             </v-col>
@@ -135,14 +135,14 @@ const isDataFromStore = computed(() =>
 const validationSchema = toTypedSchema(helpFormSchema);
 
 const { handleSubmit, meta, resetForm } = useForm({
-  validationSchema,
   initialValues: {
     email: userEmail.value,
-    ra: String(userRa.value),
-    problemTitle: '',
-    problemDescription: '',
     image: undefined,
+    problemDescription: '',
+    problemTitle: '',
+    ra: String(userRa.value),
   },
+  validationSchema,
 });
 
 const emailField = useField('email');
@@ -153,6 +153,15 @@ const imageField = useField<File>('image');
 
 const { mutate: mutateSendForm, isPending: isPendingSubmit } = useMutation({
   mutationFn: sendHelpForm,
+  onError: (error: AxiosError<RequestError>) => {
+    ElMessage({
+      message: `Erro ao enviar mensagem de ajuda: ${
+        error.response?.data?.error || error.message
+      }`,
+      showClose: true,
+      type: 'error',
+    });
+  },
   onSuccess: () => {
     resetForm();
     // Force re-render of file upload component to ensure proper reset state
@@ -161,23 +170,14 @@ const { mutate: mutateSendForm, isPending: isPendingSubmit } = useMutation({
     });
     ElMessage({
       message: 'Mensagem de ajuda enviada com sucesso!',
-      type: 'success',
       showClose: true,
+      type: 'success',
     });
 
     eventTracker.track(WebEvent.HELP_FORM_SUBMITTED, {
       event_type: 'form_submit_success',
       has_image: Boolean(imageField.value.value),
       user_logged_in: isDataFromStore.value,
-    });
-  },
-  onError: (error: AxiosError<RequestError>) => {
-    ElMessage({
-      message:
-        'Erro ao enviar mensagem de ajuda: ' +
-        (error.response?.data?.error || error.message),
-      type: 'error',
-      showClose: true,
     });
   },
 });
@@ -187,18 +187,18 @@ const onSubmit = handleSubmit((values) => {
 
   mutateSendForm({
     email: values.email,
-    ra: values.ra,
-    problemTitle: values.problemTitle,
-    problemDescription: values.problemDescription,
     image: values.image,
+    problemDescription: values.problemDescription,
+    problemTitle: values.problemTitle,
+    ra: values.ra,
   });
 });
 
 onMounted(() => {
   eventTracker.track(WebEvent.HELP_ACCESS, {
     event_type: 'page_view',
-    user_logged_in: isDataFromStore.value,
     user_email: Boolean(userEmail.value),
+    user_logged_in: isDataFromStore.value,
     user_ra: Boolean(userRa.value),
   });
 });

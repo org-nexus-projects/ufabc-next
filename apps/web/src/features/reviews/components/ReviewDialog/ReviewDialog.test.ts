@@ -26,32 +26,32 @@ describe('<ReviewDialog />', () => {
   });
 
   test.each([
-    { tagName: 'teoria', subjectType: 'teoria' },
-    { tagName: 'prática', subjectType: 'pratica' },
+    { subjectType: 'teoria', tagName: 'teoria' },
+    { subjectType: 'pratica', tagName: 'prática' },
   ])(
     'render Review Dialog and be able to comment (%s)%#',
     async ({ tagName, subjectType }) => {
+      const subject = {
+        ...enrollment[subjectType as 'teoria' | 'pratica'],
+        comment: undefined,
+      };
       server.use(
-        http.get(`*/enrollments/*`, () => {
-          return HttpResponse.json({
+        http.get(`*/enrollments/*`, () =>
+          HttpResponse.json({
             ...enrollment,
             comments: [],
-            teoria: null,
-            pratica: null,
-            [subjectType]: {
-              ...enrollment[subjectType as 'teoria' | 'pratica'],
-              comment: undefined,
-            },
-          });
-        })
+            pratica: subjectType === 'pratica' ? subject : null,
+            teoria: subjectType === 'teoria' ? subject : null,
+          })
+        )
       );
       render(ReviewDialog, {
         props: {
-          enrollment: enrollment,
+          enrollment,
           showDialog: true,
           tags: [
             tagName,
-            formatSeason(enrollment.year + ':' + enrollment.quad),
+            formatSeason(`${enrollment.year}:${enrollment.quad}`),
           ],
         },
       });
@@ -61,24 +61,24 @@ describe('<ReviewDialog />', () => {
         screen.getByPlaceholderText(commentAreaPlaceholder),
         userCreateComment.comment
       );
-      await userEvent.click(screen.getByRole('button', { name: /Enviar/i }));
+      await userEvent.click(screen.getByRole('button', { name: /Enviar/iu }));
       await expectToasterToHaveText('Comentário enviado com sucesso');
     }
   );
   test.each([
-    { tagName: 'teoria', commentAvaliable: ['teoria'] },
-    { tagName: 'prática', commentAvaliable: ['pratica'] },
-    { tagName: 'teoria e prática', commentAvaliable: ['teoria', 'pratica'] },
+    { commentAvaliable: ['teoria'], tagName: 'teoria' },
+    { commentAvaliable: ['pratica'], tagName: 'prática' },
+    { commentAvaliable: ['teoria', 'pratica'], tagName: 'teoria e prática' },
   ])(
     'render Review Dialog with user comment and be able to edit comment %s %#',
     async ({ tagName, commentAvaliable }) => {
       server.use(
-        http.get(`*/enrollments/*`, () => {
-          return HttpResponse.json({
+        http.get(`*/enrollments/*`, () =>
+          HttpResponse.json({
             ...enrollment,
             comments: commentAvaliable,
-            teoria: null,
             pratica: null,
+            teoria: null,
             [commentAvaliable[0]]: {
               ...enrollment[commentAvaliable[0] as 'teoria' | 'pratica'],
               comment: {
@@ -87,26 +87,26 @@ describe('<ReviewDialog />', () => {
                 comment: userCreateComment.comment,
               },
             },
-          });
-        })
+          })
+        )
       );
 
       render(ReviewDialog, {
         props: {
-          enrollment: enrollment,
+          enrollment,
           showDialog: true,
           tags: [
             tagName,
-            formatSeason(enrollment.year + ':' + enrollment.quad),
+            formatSeason(`${enrollment.year}:${enrollment.quad}`),
           ],
         },
       });
       expect(await screen.findByRole('dialog')).toBeInTheDocument();
-      await waitFor(() =>
+      await waitFor(() => {
         expect(
           screen.getByPlaceholderText(commentAreaPlaceholder)
-        ).toHaveProperty('value', userCreateComment.comment)
-      );
+        ).toHaveProperty('value', userCreateComment.comment);
+      });
 
       await userEvent.clear(
         screen.getByPlaceholderText(commentAreaPlaceholder)
@@ -116,16 +116,16 @@ describe('<ReviewDialog />', () => {
         userUpdateComment.comment
       );
       await userEvent.click(
-        screen.getByRole('button', { name: /Atualizar comentário/i })
+        screen.getByRole('button', { name: /Atualizar comentário/iu })
       );
 
       await expectToasterToHaveText('Comentário editado com sucesso');
     }
   );
   test.each([
-    { tagName: 'teoria', commentAvaliable: ['teoria'] },
-    { tagName: 'prática', commentAvaliable: ['pratica'] },
-    { tagName: 'teoria e prática', commentAvaliable: ['teoria', 'pratica'] },
+    { commentAvaliable: ['teoria'], tagName: 'teoria' },
+    { commentAvaliable: ['pratica'], tagName: 'prática' },
+    { commentAvaliable: ['teoria', 'pratica'], tagName: 'teoria e prática' },
   ])(
     'render Review Dialog with theorical subject type and missing atributes %s %#',
     async ({ tagName, commentAvaliable }) => {
@@ -134,45 +134,44 @@ describe('<ReviewDialog />', () => {
           enrollment: {
             ...enrollment,
             _id: '31312312313',
-            teoria: {
-              _id: 'teoria-id',
-              name: 'Teoria',
-              updatedAt: new Date().toISOString(),
-              createdAt: new Date().toISOString(),
+            pratica: {
               __v: 0,
+              _id: 'pratica-id',
+              createdAt: new Date().toISOString(),
+              name: 'Prática',
+              updatedAt: new Date().toISOString(),
+            },
+            teoria: {
+              __v: 0,
+              _id: 'teoria-id',
               comment: {
+                __v: 0,
                 _id: 'comment-id',
+                active: true,
                 comment: userCreateComment.comment,
                 createdAt: new Date().toISOString(),
                 enrollment: enrollment._id,
+                ra: '123456789',
                 reactionsCount: { like: 0, recommendation: 0 },
                 subject: 'subject-id',
                 teacher: 'teacher-id',
+                type: 'teoria',
                 updatedAt: new Date().toISOString(),
                 viewers: 20,
-                type: 'teoria',
-                ra: '123456789',
-                active: true,
-                __v: 0,
               },
-            },
-            pratica: {
-              _id: 'pratica-id',
-              name: 'Prática',
-              updatedAt: new Date().toISOString(),
               createdAt: new Date().toISOString(),
-              __v: 0,
+              name: 'Teoria',
+              updatedAt: new Date().toISOString(),
             },
-            ...commentAvaliable.reduce(
-              (acc, comment) => ({
-                ...acc,
-                [comment]: {
+            ...Object.fromEntries(
+              commentAvaliable.map((comment) => [
+                comment,
+                {
                   ...enrollment[comment as 'teoria' | 'pratica'],
                   _id: undefined,
                   name: undefined,
                 },
-              }),
-              {}
+              ])
             ),
           },
           showDialog: true,
@@ -195,7 +194,7 @@ describe('<ReviewDialog />', () => {
     );
     render(ReviewDialog, {
       props: {
-        enrollment: enrollment,
+        enrollment,
         showDialog: true,
         tags: [],
       },
@@ -206,12 +205,12 @@ describe('<ReviewDialog />', () => {
       'Erro ao carregar as informações do professor desta disciplina'
     );
   });
-  test('not render Dialog if props is false', async () => {
+  test('not render Dialog if props is false', () => {
     render(ReviewDialog, {
       props: {
-        enrollment: enrollment,
+        enrollment,
         showDialog: false,
-        tags: ['teoria', formatSeason(enrollment.year + ':' + enrollment.quad)],
+        tags: ['teoria', formatSeason(`${enrollment.year}:${enrollment.quad}`)],
       },
     });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();

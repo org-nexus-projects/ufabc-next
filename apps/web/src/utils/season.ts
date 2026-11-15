@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-export const getSeason = (date = dayjs()) => {
+export function getSeason(date = dayjs()) {
   const year = date.year();
   const month = date.month();
 
@@ -14,50 +14,50 @@ export const getSeason = (date = dayjs()) => {
   }
 
   return `${year}:${quad}`;
-};
+}
 
 type getElapsedSeasonsProps = {
   startSeason?: string;
   endSeason: string;
 };
 
-export const getElapsedSeasons = ({
+export function getElapsedSeasons({
   startSeason = '2019:1',
   endSeason,
-}: getElapsedSeasonsProps) => {
+}: getElapsedSeasonsProps) {
   let currentSeason = startSeason;
   const seasons = [startSeason];
-  while (currentSeason != endSeason) {
+  while (currentSeason !== endSeason) {
     let year = Number(currentSeason.split(':')[0]);
     let quad = Number(currentSeason.split(':')[1]);
-    if (quad == 3) {
+    if (quad === 3) {
       quad = 1;
-      year++;
+      year += 1;
     } else {
-      quad++;
+      quad += 1;
     }
-    currentSeason = year + ':' + quad;
+    currentSeason = `${year}:${quad}`;
     seasons.push(currentSeason);
   }
 
   return seasons;
-};
+}
 
-export const checkEAD = (year: string | number, quad: string | number) => {
+export function checkEAD(year: string | number, quad: string | number) {
   const possibles = getElapsedSeasons({
-    startSeason: '2020:1',
     endSeason: '2022:2',
+    startSeason: '2020:1',
   });
 
   return possibles.includes(`${year}:${quad}`);
-};
+}
 
-export const formatSeason = (season: string) => {
+export function formatSeason(season: string) {
   const [year, quad] = season.split(':');
   return `Q${quad} ${year}`;
-};
+}
 
-export const prettifySeason = (season: string) => {
+export function prettifySeason(season: string) {
   const [year, quad] = season.split(':');
   return `${quad}º quadrimestre de ${year}`;
-};
+}

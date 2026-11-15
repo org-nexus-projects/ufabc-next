@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import type { RequestError } from '@next/services';
 import { Users } from '@next/services';
 import { useMutation, useQuery } from '@tanstack/vue-query';
 import { toTypedSchema } from '@vee-validate/zod';
+import type { AxiosError } from 'axios';
 import { useField, useForm } from 'vee-validate';
 import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
@@ -11,7 +13,17 @@ import { recoverySchema } from '@/features/auth/validation/recoveryValidationSch
 
 const router = useRouter();
 
-const redirectToHome = () => (window.location.pathname = '/');
+function redirectToHome() {
+  return (window.location.pathname = '/');
+}
+
+const validationSchema = toTypedSchema(recoverySchema);
+
+const { handleSubmit, meta } = useForm({
+  validationSchema,
+});
+
+const email = useField<string>('email');
 
 const outlookDomain = computed(() => {
   const userEmail = email.value.value;
@@ -20,14 +32,6 @@ const outlookDomain = computed(() => {
   }
   return 'ufabc.edu.br';
 });
-
-const validationSchema = toTypedSchema(recoverySchema as any);
-
-const { handleSubmit, meta } = useForm({
-  validationSchema,
-});
-
-const email = useField<string>('email');
 const ra = useField<string>('ra.ra');
 const raConfirm = useField('ra.confirm');
 
@@ -40,9 +44,9 @@ const {
   data: verifiedEmail,
   error: fetchEmailError,
 } = useQuery({
-  queryKey: ['email'],
-  queryFn: () => Users.getEmail(ra.value.value),
   enabled: false,
+  queryFn: () => Users.getEmail(ra.value.value),
+  queryKey: ['email'],
 });
 
 const handleEmailError = computed(() => {
@@ -50,8 +54,7 @@ const handleEmailError = computed(() => {
     return 'Um Erro inesperado ocorreu, tente novamente';
   }
 
-  // crime here
-  const error = fetchEmailError.value as any;
+  const error = fetchEmailError.value as AxiosError<RequestError>;
 
   if (error.response?.status === 400) {
     return error.response.data.message;
@@ -64,13 +67,13 @@ const handleEmailError = computed(() => {
   return 'Um Erro inesperado ocorreu, tente novamente';
 });
 
-const getUserEmail = (fieldState: boolean) => {
+function getUserEmail(fieldState: boolean) {
   if (fieldState || !ra.value.value || !isFetchEmailEnabled.value) {
     return;
   }
 
   fetchEmail();
-};
+}
 
 watch(
   () => verifiedEmail.value,
@@ -85,16 +88,16 @@ const recoveryStep = ref(0);
 
 const { mutate: mutateRecover, isPending: isPendingSubmit } = useMutation({
   mutationFn: Users.recovery,
-  onSuccess: () => {
-    recoveryStep.value = 2;
-  },
   onError: () => {
     recoveryStep.value = 1;
   },
+  onSuccess: () => {
+    recoveryStep.value = 2;
+  },
 });
 
-const onSubmit = handleSubmit(({ email }) =>
-  mutateRecover(email.toLowerCase())
+const onSubmit = handleSubmit((values) =>
+  mutateRecover(values.email.toLowerCase())
 );
 </script>
 

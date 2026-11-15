@@ -11,51 +11,55 @@ type GoogleAuthUrlOptions = {
   apiBaseUrl?: string;
 };
 
-const getRequiredEnv = <TKey extends RequiredEnvKey>(key: TKey) => {
+function getRequiredEnv<TKey extends RequiredEnvKey>(key: TKey) {
   const value = import.meta.env[key];
 
   if (!value) {
     throw new Error(`Missing required environment variable: ${key}`);
   }
 
-  return value as ImportMetaEnv[TKey];
-};
+  return value;
+}
 
-const normalizeBaseUrl = (baseUrl: string) =>
-  baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+function normalizeBaseUrl(baseUrl: string) {
+  return baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+}
 
 export const runtimeConfig = {
-  appEnv: getRequiredEnv('VITE_APP_ENV'),
-  appBaseUrl: getRequiredEnv('VITE_APP_BASE_URL'),
   apiBaseUrl: getRequiredEnv('VITE_API_BASE_URL'),
+  appBaseUrl: getRequiredEnv('VITE_APP_BASE_URL'),
+  appEnv: getRequiredEnv('VITE_APP_ENV'),
   parserApiBaseUrl: getRequiredEnv('VITE_PARSER_API_BASE_URL'),
 };
 
-export const isLocalHost = (hostname: string) =>
-  hostname === 'localhost' || hostname === '127.0.0.1';
+export function isLocalHost(hostname: string) {
+  return hostname === 'localhost' || hostname === '127.0.0.1';
+}
 
-export const isLocalAppSession = (hostname = window.location.hostname) =>
-  isLocalHost(hostname);
+export function isLocalAppSession(hostname = window.location.hostname) {
+  return isLocalHost(hostname);
+}
 
-export const isDevelopmentApiSession = (appEnv = runtimeConfig.appEnv) =>
-  appEnv === 'local';
+export function isDevelopmentApiSession(appEnv = runtimeConfig.appEnv) {
+  return appEnv === 'local';
+}
 
-export const isRemoteApiSession = (apiBaseUrl = runtimeConfig.apiBaseUrl) => {
+export function isRemoteApiSession(apiBaseUrl = runtimeConfig.apiBaseUrl) {
   const apiHostname = new URL(apiBaseUrl).hostname;
   return !isLocalHost(apiHostname);
-};
+}
 
-export const buildGoogleAuthUrl = ({
+export function buildGoogleAuthUrl({
   requesterKey,
   userId,
   appHostname = window.location.hostname,
   apiBaseUrl = runtimeConfig.apiBaseUrl,
-}: GoogleAuthUrlOptions) => {
+}: GoogleAuthUrlOptions) {
   const url = new URL('login/google', normalizeBaseUrl(apiBaseUrl));
 
   url.searchParams.set('requesterKey', requesterKey);
 
-  if (userId) {
+  if (userId !== undefined && userId !== '') {
     url.searchParams.set('userId', userId);
   }
 
@@ -68,4 +72,4 @@ export const buildGoogleAuthUrl = ({
   }
 
   return url.toString();
-};
+}

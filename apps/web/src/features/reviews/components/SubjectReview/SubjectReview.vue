@@ -28,10 +28,10 @@
             />
           </div>
         </v-col>
-        <v-col cols="12" md="7" class="px-0 d-flex flex-column align-end">
+        <v-col cols="12" md="7" class="d-flex flex-column align-end px-0">
           <v-menu transition="slide-y-transition">
             <template #activator="{ props }">
-              <button v-bind="props" class="text-body-2 order-button mb-4 mr-2">
+              <button v-bind="props" class="text-body-2 order-button mr-2 mb-4">
                 <span class="font-weight-bold"> Ordenar por: </span>
                 {{ orders.find((o) => o.value === selectedOrder)?.title }}
                 <v-icon class="text-ufabcnext-green"> mdi-menu-down </v-icon>
@@ -50,7 +50,7 @@
           <v-table
             hover
             density="comfortable"
-            class="rounded-lg w-100 pr-sm-4"
+            class="pr-sm-4 w-100 rounded-lg"
             :style="`${!smAndDown && 'max-height:500px ; overflow-y:auto'}`"
           >
             <thead v-if="!xs" class="table-head bg-ufabcnext-green">
@@ -58,7 +58,7 @@
                 <th
                   v-for="(item, index) in tableHead"
                   :key="item"
-                  :class="`text-white text-caption text-uppercase text-center ${
+                  :class="`text-caption text-uppercase text-center text-white ${
                     !index && 'title-first-column'
                   }`"
                 >
@@ -137,7 +137,7 @@
 import { Concept, Reviews, SubjectSpecific } from '@next/services';
 import { useQuery } from '@tanstack/vue-query';
 import { ElMessage } from 'element-plus';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, toRaw, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 
 import { CenteredLoading } from '@/components/ui/CenteredLoading';
@@ -148,7 +148,7 @@ import { ConceptsHorizontalChart } from '../ConceptsHorizontalChart';
 import { ConceptsPieChart } from '../ConceptsPieChart';
 
 const props = defineProps({
-  subjectId: { type: String, required: true },
+  subjectId: { required: true, type: String },
 });
 
 const subjectId = computed(() => props.subjectId);
@@ -162,21 +162,22 @@ const {
   isFetching: isFetchingSubject,
   isError: isFetchingSubjectError,
 } = useQuery({
-  refetchOnWindowFocus: false,
-  queryKey: ['subject', subjectId.value],
-  queryFn: () => Reviews.getSubject(subjectId.value),
   enabled: !!subjectId.value,
+  queryFn: () => Reviews.getSubject(subjectId.value),
+  queryKey: ['subject', subjectId.value],
+  refetchOnWindowFocus: false,
 });
 
 watch(
   () => isFetchingSubjectError.value,
   () => {
-    isFetchingSubjectError.value &&
+    if (isFetchingSubjectError.value) {
       ElMessage({
         message: 'Erro ao carregar dados da disciplina',
-        type: 'error',
         showClose: true,
+        type: 'error',
       });
+    }
   }
 );
 
@@ -186,21 +187,23 @@ const chips = computed(() => {
   }
   return [
     {
-      value: subjectData.value?.general.count,
-      text: subjectData.value?.general.count == 1 ? 'conceito' : 'conceitos',
       icon: 'mdi-message-text-outline',
+      text: subjectData.value?.general.count === 1 ? 'conceito' : 'conceitos',
+      value: subjectData.value?.general.count,
     },
     {
-      value: subjectData.value.specific.length,
-      text:
-        subjectData.value.specific.length == 1 ? 'professor' : 'professores',
       icon: 'mdi-human-male-board',
+      text:
+        subjectData.value.specific.length === 1 ? 'professor' : 'professores',
+      value: subjectData.value.specific.length,
     },
   ];
 });
 
 const generalGrades = computed(() => {
-  if (!subjectData.value) return {};
+  if (!subjectData.value) {
+    return {};
+  }
   return transformConceptDataToObject(subjectData.value.general.distribution);
 });
 
@@ -233,26 +236,27 @@ const orders = [
   },
 ];
 
-const approveRating = (subject: SubjectSpecific) => {
-  const approvalConcepts: Concept[] = ['A', 'B', 'C', 'D'];
-  const reproofConcepts: Concept[] = ['F', 'O'];
+const approvalConcepts = new Set<Concept>(['A', 'B', 'C', 'D']);
+const reproofConcepts = new Set<Concept>(['F', 'O']);
 
-  return (
-    subject.distribution.reduce((acc, grade) => {
-      if (approvalConcepts.includes(grade.conceito)) {
-        acc += grade.count;
-      } else if (reproofConcepts.includes(grade.conceito)) {
-        acc -= grade.count;
-      }
-      return acc;
-    }, 0) / subject.count
-  );
-};
+function approveRating(subject: SubjectSpecific) {
+  let rating = 0;
+  for (const grade of subject.distribution) {
+    if (approvalConcepts.has(grade.conceito)) {
+      rating += grade.count;
+    } else if (reproofConcepts.has(grade.conceito)) {
+      rating -= grade.count;
+    }
+  }
+  return rating / subject.count;
+}
 
 const shortedSpecifics = computed(() => {
-  if (!subjectData.value?.specific) return [];
-  const sorted: SubjectSpecific[] = JSON.parse(
-    JSON.stringify(subjectData.value.specific)
+  if (!subjectData.value?.specific) {
+    return [];
+  }
+  const sorted: SubjectSpecific[] = structuredClone(
+    toRaw(subjectData.value.specific)
   );
 
   if (selectedOrder.value === 'teacherCres') {

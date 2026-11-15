@@ -5,8 +5,8 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "lint": "oxlint src/**/* || true",
-    "lint:fix": "oxlint --fix src/**/* || true",
+    "lint": "oxlint src",
+    "lint:fix": "oxlint --fix src",
     "tsc": "tsgo --noEmit"
   },
   "devDependencies": {

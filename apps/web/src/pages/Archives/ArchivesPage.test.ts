@@ -15,7 +15,9 @@ describe('<ArchivesPage />', () => {
 
     const matches = await screen.findAllByText(firstComponentName);
     expect(matches.length).toBeGreaterThan(0);
-    expect(await screen.findByText('Apresentação da disciplina')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Apresentação da disciplina')
+    ).toBeInTheDocument();
     expect(screen.getByText('Ementa')).toBeInTheDocument();
     expect(screen.getByText('Sem disciplina vinculada')).toBeInTheDocument();
   });
@@ -71,6 +73,8 @@ describe('<ArchivesPage />', () => {
       'plano'
     );
 
-    await waitFor(() => expect(requestedTerms).toContain('plano'));
+    await waitFor(() => {
+      expect(requestedTerms).toContain('plano');
+    });
   });
 });

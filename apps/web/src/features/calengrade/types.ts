@@ -1,19 +1,19 @@
 import type { Quarter } from '@/shared/academic-calendar';
 
-export type Classes = {
+export type Classes = Array<{
   title: string | null;
   campus: string | null;
-  info: {
+  info: Array<{
     title: string;
     content: string | null;
-  }[];
-  times: {
+  }>;
+  times: Array<{
     day: string | null;
     start: string | null;
     end: string | null;
     repeat: string | null;
-  }[];
-}[];
+  }>;
+}>;
 
 export type Calendar = {
   classes: Classes;

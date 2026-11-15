@@ -1,5 +1,8 @@
 function base64UrlEncode(str: string): string {
-  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  return btoa(str)
+    .replaceAll('+', '-')
+    .replaceAll('/', '_')
+    .replace(/[=]+$/u, '');
 }
 
 export function createMockJwt(payload: Record<string, unknown>): string {

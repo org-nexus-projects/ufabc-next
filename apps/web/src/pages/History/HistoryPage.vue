@@ -115,7 +115,7 @@
             <th
               v-for="item in tableHead"
               :key="item"
-              :class="`text-white text-caption ${
+              :class="`text-caption text-white ${
                 item !== 'Disciplina' ? 'text-center' : ''
               } text-uppercase`"
             >
@@ -227,7 +227,7 @@
     </div>
     <div
       v-else-if="!isPendingEnrollments"
-      class="mt-5 d-flex justify-center align-center flex-column"
+      class="d-flex align-center flex-column mt-5 justify-center"
     >
       <h2 class="mb-4">
         Parece que não encontramos os dados do seu histórico :( <br />
@@ -270,10 +270,15 @@ const showDialog = ref(false);
 const selectedEnrollment = ref<Enrollment>();
 
 const tags = ref<string[]>([]);
-const handleOpenDialog = (
-  enrollment: Enrollment,
-  type: 'teoria' | 'pratica'
-) => {
+
+function getSubjectTag(enrollment: Enrollment, type: 'teoria' | 'pratica') {
+  if (enrollment.pratica?._id === enrollment.teoria?._id) {
+    return 'teoria e prática';
+  }
+  return type === 'pratica' ? 'prática' : 'teoria';
+}
+
+function handleOpenDialog(enrollment: Enrollment, type: 'teoria' | 'pratica') {
   const processedEnrollment: Enrollment = {
     ...enrollment,
     [type]: enrollment[type],
@@ -286,17 +291,13 @@ const handleOpenDialog = (
     checkEAD(enrollment.year, enrollment.quad);
 
   tags.value = [
-    enrollment.pratica?._id === enrollment.teoria?._id
-      ? 'teoria e prática'
-      : type === 'pratica'
-        ? 'prática'
-        : 'teoria',
-    formatSeason(processedEnrollment.year + ':' + processedEnrollment.quad),
+    getSubjectTag(enrollment, type),
+    formatSeason(`${processedEnrollment.year}:${processedEnrollment.quad}`),
     isEAD && 'EAD',
   ].filter(Boolean) as string[];
 
   showDialog.value = true;
-};
+}
 
 const tableHead = [
   'Disciplina',
@@ -308,23 +309,23 @@ const tableHead = [
 
 const extensionDialog = ref(false);
 
-const handleCloseExtensionDialog = () => {
+function handleCloseExtensionDialog() {
   extensionDialog.value = false;
-};
+}
 
-const handleOpenExtensionDialog = () => {
+function handleOpenExtensionDialog() {
   extensionDialog.value = true;
-};
+}
 
 const subjectConceptClass = {
   A: 'gray',
   B: 'gray',
   C: 'gray',
   D: 'gray',
-  O: 'error',
-  F: 'error',
   E: 'error',
+  F: 'error',
   I: 'error',
+  O: 'error',
 } satisfies Record<Concept, string>;
 
 const {
@@ -332,33 +333,35 @@ const {
   isPending: isPendingEnrollments,
   isError: isErrorEnrollments,
 } = useQuery({
-  queryKey: ['enrollments', 'list'],
   queryFn: Enrollments.list,
+  queryKey: ['enrollments', 'list'],
 });
 
 const { data: user, isError: isErrorUser } = useQuery({
-  queryKey: ['users', 'info'],
   queryFn: Users.info,
+  queryKey: ['users', 'info'],
 });
 
 const enrollmentByDate = computed(() => {
-  const enrollmentCopy = enrollments.value?.slice();
-  return enrollmentCopy?.reduce(
-    (acc, enroll) => {
-      const date = enroll.quad + enroll.year * 10;
-      if (!acc[date]) {
-        acc[date] = [];
-      }
-      acc[date].push(enroll);
-      return acc;
-    },
-    {} as Record<string, Enrollment[]>
-  );
+  if (!enrollments.value) {
+    return;
+  }
+  const grouped: Record<string, Enrollment[]> = {};
+  for (const enroll of enrollments.value) {
+    const date = enroll.quad + enroll.year * 10;
+    grouped[date] ??= [];
+    grouped[date].push(enroll);
+  }
+  return grouped;
 });
 
-const hasCommented = (item: Enrollment) =>
-  item.comments?.includes('pratica') ||
-  (item.pratica?._id === item.teoria?._id && item.comments?.includes('teoria'));
+function hasCommented(item: Enrollment) {
+  return (
+    item.comments?.includes('pratica') ||
+    (item.pratica?._id === item.teoria?._id &&
+      item.comments?.includes('teoria'))
+  );
+}
 
 const enrollmentByDateKeysSorted = computed(() =>
   Object.keys(enrollmentByDate.value || {}).sort()

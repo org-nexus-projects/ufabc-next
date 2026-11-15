@@ -20,11 +20,11 @@
     </v-row>
     <v-row class="ma-0 mt-1">
       <v-col
-        class="pa-0 mr-3 d-flex align-center justify-center flex-grow-0 flex-shrink-1"
+        class="pa-0 d-flex align-center mr-3 flex-shrink-1 flex-grow-0 justify-center"
       >
         <div
           :style="conceptStyle"
-          class="text-white d-flex align-center justify-center rounded-lg"
+          class="d-flex align-center justify-center rounded-lg text-white"
         >
           {{ enrollment.conceito }}
         </div>
@@ -41,14 +41,14 @@
             v-for="tag in tags"
             :key="tag"
             density="compact"
-            class="px-2 mr-1 rounded-sm"
+            class="mr-1 rounded-sm px-2"
             style="font-size: 12px"
           >
             {{ tag }}
           </v-chip>
         </div>
       </v-col>
-      <v-col cols="12" sm="auto" class="d-flex justify-end align-end pa-0">
+      <v-col cols="12" sm="auto" class="d-flex align-end pa-0 justify-end">
         AVALIAR
         <v-icon class="ml-1"> mdi-plus-circle-outline </v-icon>
       </v-col>
@@ -65,39 +65,40 @@ import { checkEAD, formatSeason } from '@/utils/season';
 
 import { ReviewDialog } from '../ReviewDialog';
 
+const props = defineProps({
+  enrollment: {
+    required: true,
+    type: Object as PropType<Enrollment>,
+  },
+});
+
 const showDialog = ref(false);
 
 const conceptStyle = computed(() => ({
   backgroundColor: conceptsColor[props.enrollment.conceito],
+  fontSize: '34px',
   height: '54px',
   width: '54px',
-  fontSize: '34px',
 }));
-
-const props = defineProps({
-  enrollment: {
-    type: Object as PropType<Enrollment>,
-    required: true,
-  },
-});
 
 const isEAD = computed(() =>
   checkEAD(props.enrollment.year, props.enrollment.quad)
 );
-const subjectType = computed(() =>
-  props.enrollment.teoria
-    ? props.enrollment.pratica
-      ? 'teoria e prática'
-      : 'teoria'
-    : 'prática'
-);
+const subjectType = computed(() => {
+  if (!props.enrollment.teoria) {
+    return 'prática';
+  }
+  return props.enrollment.pratica ? 'teoria e prática' : 'teoria';
+});
 const tags = computed(() => {
-  const tags = [
+  const result = [
     subjectType.value,
-    formatSeason(props.enrollment.year + ':' + props.enrollment.quad),
+    formatSeason(`${props.enrollment.year}:${props.enrollment.quad}`),
   ];
-  isEAD.value && tags.push('EAD');
-  return tags;
+  if (isEAD.value) {
+    result.push('EAD');
+  }
+  return result;
 });
 </script>
 <style scoped>

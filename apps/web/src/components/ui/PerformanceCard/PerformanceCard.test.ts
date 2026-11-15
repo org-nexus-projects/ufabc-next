@@ -6,15 +6,15 @@ describe('<PerformanceCard />', () => {
   test('render a performance card title, subtitle and description', () => {
     render(PerformanceCard, {
       props: {
-        title: 'title',
-        description: 'description',
-        subTitle: 'subtitle',
         color: 'primary',
+        description: 'description',
         icon: 'mdi-trophy-outline',
+        subTitle: 'subtitle',
+        title: 'title',
       },
     });
-    expect(screen.getByText(/^title/i)).toBeInTheDocument();
-    expect(screen.getByText(/description/i)).toBeInTheDocument();
-    expect(screen.getByText(/subtitle/i)).toBeInTheDocument();
+    expect(screen.getByText(/^title/iu)).toBeInTheDocument();
+    expect(screen.getByText(/description/iu)).toBeInTheDocument();
+    expect(screen.getByText(/subtitle/iu)).toBeInTheDocument();
   });
 });

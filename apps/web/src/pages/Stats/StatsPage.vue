@@ -7,7 +7,7 @@
     <PaperCard>
       <v-menu transition="slide-y-transition">
         <template #activator="{ props }">
-          <div class="w-100 d-flex align-center justify-center">
+          <div class="d-flex align-center w-100 justify-center">
             <button v-bind="props" class="text-h6 text-sm-h4 font-weight-bold">
               {{ prettifySeason(selectedSeason) }}
               <v-icon size="x-small" class="text-ufabcnext-green">
@@ -54,7 +54,7 @@
         class="d-flex justify-space-between flex-column flex-md-row align-md-center mb-4"
       >
         <p>{{ total }} resultados encontrados</p>
-        <div class="d-flex gap-2 my-2 my-md-0" style="min-width: 200px">
+        <div class="d-flex my-md-0 my-2 gap-2" style="min-width: 200px">
           <v-checkbox
             v-model="periodCheckboxes"
             label="Matutino"
@@ -116,7 +116,7 @@
         </thead>
         <tbody>
           <tr v-if="!disciplinas || disciplinas.length === 0">
-            <td colspan="5" class="text-center py-8">Nenhum dado encontrado</td>
+            <td colspan="5" class="py-8 text-center">Nenhum dado encontrado</td>
           </tr>
           <tr v-for="(item, index) in disciplinas" :key="index">
             <td>{{ matriculaNameLabel(item) }}</td>
@@ -131,7 +131,7 @@
         v-if="hasMoreItems"
         variant="outlined"
         color="primary"
-        class="w-100 mt-4"
+        class="mt-4 w-100"
         @click="fetchMoreItems()"
       >
         Carregar mais
@@ -177,46 +177,43 @@ const periodCheckboxes = ref<string[]>(['diurno', 'noturno']);
 
 const filterByPeriod = computed(
   () =>
-    periodCheckboxes.value.filter(
-      (item) => item !== undefined
-    ) as StatsParams['turno'][]
+    periodCheckboxes.value.filter((item) => item !== undefined) as Array<
+      StatsParams['turno']
+    >
 );
 
-const changeOrderBy = (item: OrderBy) => {
-  orderBy.value = item;
-  pages.value[tab.value] = 0;
-};
-
 const pages = ref({
-  subjects: 0,
-  courses: 0,
   classes: 0,
+  courses: 0,
+  subjects: 0,
 });
 
-const fallbackValue = (
-  value: number | undefined | null,
-  fallback: number = 0
-) => {
+function changeOrderBy(item: OrderBy) {
+  orderBy.value = item;
+  pages.value[tab.value] = 0;
+}
+
+function fallbackValue(value: number | undefined | null, fallback = 0) {
   return value ?? fallback;
-};
+}
 
 const selectedSeason = ref(getSeason());
 
-const changeSelectedSeason = (season: string) => {
+function changeSelectedSeason(season: string) {
   selectedSeason.value = season;
-};
+}
 
 const elapsedSeasons = getElapsedSeasons({ endSeason: selectedSeason.value });
 
 const params = computed<StatsParams>(() => ({
+  deficit: orderBy.value === 'deficit' ? 1 : undefined,
   page: pages.value[tab.value],
+  ratio: orderBy.value === 'ratio' ? 1 : undefined,
+  requisicoes: orderBy.value === 'requisicoes' ? 1 : undefined,
   season: selectedSeason.value,
   turno:
     filterByPeriod.value.length === 1 ? filterByPeriod.value[0] : undefined,
-  deficit: orderBy.value === 'deficit' ? 1 : undefined,
-  ratio: orderBy.value === 'ratio' ? 1 : undefined,
   vagas: orderBy.value === 'vagas' ? 1 : undefined,
-  requisicoes: orderBy.value === 'requisicoes' ? 1 : undefined,
 }));
 
 const isSubjectsTab = computed(() => tab.value === 'subjects');
@@ -224,6 +221,13 @@ const isCoursesTab = computed(() => tab.value === 'courses');
 const isClassesTab = computed(() => tab.value === 'classes');
 
 const subjects = useInfiniteQuery({
+  enabled: isSubjectsTab,
+  getNextPageParam: (lastPage: PageableReturn<StatsSubject>, allPages) => {
+    if (lastPage.total >= allPages.length * 10) {
+      return allPages.length;
+    }
+  },
+  initialPageParam: 0,
   queryFn: () => StatsSubjects.getAllSubjects(params.value),
   queryKey: [
     'stats',
@@ -233,17 +237,17 @@ const subjects = useInfiniteQuery({
     orderBy,
     filterByPeriod,
   ],
-  getNextPageParam: (lastPage: PageableReturn<StatsSubject>, allPages) => {
+  select: (data) => data.pages,
+});
+
+const courses = useInfiniteQuery({
+  enabled: isCoursesTab,
+  getNextPageParam: (lastPage: PageableReturn<StatsCourse>, allPages) => {
     if (lastPage.total >= allPages.length * 10) {
       return allPages.length;
     }
   },
   initialPageParam: 0,
-  enabled: isSubjectsTab,
-  select: ({ pages }) => pages,
-});
-
-const courses = useInfiniteQuery({
   queryFn: () => StatsSubjects.getAllCourses(params.value),
   queryKey: [
     'stats',
@@ -254,17 +258,17 @@ const courses = useInfiniteQuery({
     orderBy,
     filterByPeriod,
   ],
-  getNextPageParam: (lastPage: PageableReturn<StatsCourse>, allPages) => {
+  select: (data) => data.pages,
+});
+
+const classes = useInfiniteQuery({
+  enabled: isClassesTab,
+  getNextPageParam: (lastPage: PageableReturn<StatsClass>, allPages) => {
     if (lastPage.total >= allPages.length * 10) {
       return allPages.length;
     }
   },
   initialPageParam: 0,
-  enabled: isCoursesTab,
-  select: ({ pages }) => pages,
-});
-
-const classes = useInfiniteQuery({
   queryFn: () => StatsSubjects.getAllClasses(params.value),
   queryKey: [
     'stats',
@@ -275,14 +279,7 @@ const classes = useInfiniteQuery({
     orderBy,
     filterByPeriod,
   ],
-  getNextPageParam: (lastPage: PageableReturn<StatsClass>, allPages) => {
-    if (lastPage.total >= allPages.length * 10) {
-      return allPages.length;
-    }
-  },
-  initialPageParam: 0,
-  enabled: isClassesTab,
-  select: ({ pages }) => pages,
+  select: (data) => data.pages,
 });
 
 const { data: coursesNames } = useQuery({
@@ -291,9 +288,9 @@ const { data: coursesNames } = useQuery({
 });
 
 const queriesData = computed(() => ({
-  subjects,
-  courses,
   classes,
+  courses,
+  subjects,
 }));
 
 const isLoadingCurrentInfo = computed(
@@ -306,7 +303,8 @@ const total = computed(
 
 const disciplinas = computed(() =>
   queriesData.value[tab.value]?.data?.value?.flatMap(
-    (page) => page.data as readonly (StatsSubject | StatsClass | StatsCourse)[]
+    (page) =>
+      page.data as ReadonlyArray<StatsSubject | StatsClass | StatsCourse>
   )
 );
 
@@ -314,38 +312,38 @@ const hasMoreItems = computed(
   () => queriesData.value[tab.value]?.hasNextPage?.value
 );
 
-const fetchMoreItems = () => {
-  pages.value[tab.value]++;
+function fetchMoreItems() {
+  pages.value[tab.value] += 1;
   queriesData.value[tab.value]?.fetchNextPage?.();
-};
+}
 
-const mapCourseName = (courseId: number) => {
-  const course = coursesNames.value?.find(
-    (course) => course.curso_id === courseId
-  );
+function mapCourseName(courseId: number) {
+  const course = coursesNames.value?.find((item) => item.curso_id === courseId);
   return course?.name;
-};
+}
 
-const mapTurnoLabel = (turno: NonNullable<StatsParams['turno']>) => {
+function mapTurnoLabel(turno: NonNullable<StatsParams['turno']>) {
   return {
-    noturno: 'Noturno',
     diurno: 'Matutino',
+    noturno: 'Noturno',
   }[turno];
-};
+}
 
-const matriculaNameLabel = (data: StatsClass | StatsSubject | StatsCourse) => {
-  if (!data) return;
-  if (tab.value == 'courses') {
+function matriculaNameLabel(data: StatsClass | StatsSubject | StatsCourse) {
+  if (!data) {
+    return;
+  }
+  if (tab.value === 'courses') {
     return mapCourseName((data as StatsCourse)._id);
   }
-  if (tab.value == 'subjects') {
+  if (tab.value === 'subjects') {
     return (data as StatsSubject).disciplina;
   }
 
   const info = data as StatsClass;
 
   return `${info.disciplina} ${info.turma}-${mapTurnoLabel(info.turno)}`;
-};
+}
 
 const { data: deficit, isPending: isPendingDeficit } = useQuery({
   queryFn: () => StatsSubjects.getOverview({ season: selectedSeason.value }),
@@ -362,38 +360,37 @@ const currentAlunosPercentage = computed(() =>
   (
     (100 * fallbackValue(usage.value?.currentAlunos)) /
     fallbackValue(usage.value?.totalAlunos, 1)
-  ).toFixed()
+  ).toFixed(0)
 );
 
 const cards = computed(() => [
   {
-    title: fallbackValue(usage.value?.currentAlunos),
-    subtitle: '/' + usage.value?.totalAlunos,
-    content: 'Alunos usando a extensão',
     color: 'ufabcnext-green',
+    content: 'Alunos usando a extensão',
     icon: 'mdi-account-group',
-    progressBarValue: usage.value?.currentAlunos,
     progressBarMaxValue: usage.value?.totalAlunos,
-    tooltip:
-      currentAlunosPercentage.value + '% dos alunos estão usando a extensão',
+    progressBarValue: usage.value?.currentAlunos,
+    subtitle: `/${usage.value?.totalAlunos}`,
+    title: fallbackValue(usage.value?.currentAlunos),
+    tooltip: `${currentAlunosPercentage.value}% dos alunos estão usando a extensão`,
   },
   {
-    title: fallbackValue(usage.value?.subjects),
-    content: 'Turmas',
     color: 'navigation',
+    content: 'Turmas',
     icon: 'mdi-book-open-variant',
+    title: fallbackValue(usage.value?.subjects),
   },
   {
-    title: fallbackValue(usage.value?.teachers),
-    content: 'Professores',
     color: 'primary',
+    content: 'Professores',
     icon: 'mdi-human-male-board',
+    title: fallbackValue(usage.value?.teachers),
   },
   {
-    title: fallbackValue(deficit.value),
-    content: 'Vagas que sobraram',
     color: 'ufabcnext-red',
+    content: 'Vagas que sobraram',
     icon: 'mdi-import',
+    title: fallbackValue(deficit.value),
   },
 ]);
 </script>

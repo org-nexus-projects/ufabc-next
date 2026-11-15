@@ -57,11 +57,8 @@ import ChangeQuarterScreen from '@/features/calengrade/components/ChangeQuarterS
 import PreviewScreen from '@/features/calengrade/components/PreviewScreen.vue';
 import SummaryScreen from '@/features/calengrade/components/SummaryScreen.vue';
 import WelcomeScreen from '@/features/calengrade/components/WelcomeScreen.vue';
-import {
-  type CalengradeInfo,
-  CalengradeSteps,
-  type Classes,
-} from '@/features/calengrade/types';
+import { CalengradeSteps } from '@/features/calengrade/types';
+import type { CalengradeInfo, Classes } from '@/features/calengrade/types';
 import { eventTracker } from '@/helpers/EventTracker';
 import { WebEvent } from '@/helpers/WebEvent';
 import { definedQuarters } from '@/shared/academic-calendar';
@@ -74,19 +71,18 @@ const currentQuarter = ref(0);
 
 function getQuarterFromCurrentDate() {
   const now = Date.now();
-  for (let q = 1; q < definedQuarters.length; q++) {
+  for (let q = 1; q < definedQuarters.length; q += 1) {
     const quarterEndDate = new Date(
       `${definedQuarters[q].endDate}T00:00:00.000`
     );
     if (now > quarterEndDate.getTime()) {
       return q - 1;
-    } else {
-      const quarterStartDate = new Date(
-        `${definedQuarters[q].startDate}T00:00:00.000`
-      );
-      if (now >= quarterStartDate.getTime()) {
-        return q;
-      }
+    }
+    const quarterStartDate = new Date(
+      `${definedQuarters[q].startDate}T00:00:00.000`
+    );
+    if (now >= quarterStartDate.getTime()) {
+      return q;
     }
   }
   return 0;
@@ -102,29 +98,28 @@ onMounted(() => {
 });
 
 const calengrade = reactive<CalengradeInfo>({
-  quarter: definedQuarters[currentQuarter.value],
   classes: null,
+  quarter: definedQuarters[currentQuarter.value],
   summary: '',
 });
 
-// todo: refactor this in future
 watch(currentQuarter, (newVal: number) => {
   calengrade.quarter = definedQuarters[newVal];
 });
 
-const onChangeQuarter = (quarter: number) => {
+function onChangeQuarter(quarter: number) {
   currentQuarter.value = quarter;
-};
+}
 
-const onUpdateClasses = (value: Classes) => {
+function onUpdateClasses(value: Classes) {
   calengrade.classes = value;
-};
+}
 
-const onUpdateSummary = (value: string) => {
+function onUpdateSummary(value: string) {
   calengrade.summary = value;
-};
+}
 
-const onNextStep = (step: CalengradeSteps) => {
+function onNextStep(step: CalengradeSteps) {
   currentStepName.value = step;
 
   if (step === CalengradeSteps.Preview) {
@@ -133,14 +128,14 @@ const onNextStep = (step: CalengradeSteps) => {
       quarter_title: calengrade.quarter?.title || 'unknown',
     });
   }
-};
+}
 
-const resetCalengrade = () => {
+function resetCalengrade() {
   calengrade.classes = null;
   calengrade.summary = '';
 
   currentStepName.value = CalengradeSteps.Welcome;
-};
+}
 </script>
 
 <style scoped>

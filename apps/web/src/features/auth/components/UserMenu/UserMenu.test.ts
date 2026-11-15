@@ -8,12 +8,12 @@ import { render, screen, userEvent, waitFor } from '@/test-utils';
 
 import { UserMenu } from '.';
 
-vi.mock('vue-router', async () => ({
-  useRouter: vi.fn(),
+vi.mock('vue-router', () => ({
   createRouter: vi.fn(() => ({
     beforeEach: vi.fn(),
   })),
   createWebHistory: vi.fn(),
+  useRouter: vi.fn(),
 }));
 
 const pushMock = vi.fn();
@@ -27,14 +27,14 @@ describe('<UserMenu />', () => {
     authStore.authenticate(createMockJwt(mockedUser));
 
     vi.mocked(useRouter).mockReturnValue({
-      go: vi.fn(),
-      push: pushMock,
-      replace: vi.fn(),
       currentRoute: {
         value: {
           query: {},
         },
       },
+      go: vi.fn(),
+      push: pushMock,
+      replace: vi.fn(),
     } as unknown as ReturnType<typeof useRouter>);
   });
 

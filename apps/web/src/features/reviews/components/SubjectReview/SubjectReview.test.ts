@@ -5,12 +5,12 @@ import { render, screen } from '@/test-utils';
 
 import { SubjectReview } from '.';
 
-vi.mock('vue-router', async () => ({
-  useRouter: vi.fn(),
+vi.mock('vue-router', () => ({
   createRouter: vi.fn(() => ({
     beforeEach: vi.fn(),
   })),
   createWebHistory: vi.fn(),
+  useRouter: vi.fn(),
 }));
 
 const replaceMock = vi.fn();
@@ -18,9 +18,6 @@ const replaceMock = vi.fn();
 describe('<SubjectReview />', () => {
   beforeEach(() => {
     vi.mocked(useRouter).mockReturnValue({
-      go: vi.fn(),
-      push: vi.fn(),
-      replace: replaceMock,
       currentRoute: {
         value: {
           query: {
@@ -29,16 +26,17 @@ describe('<SubjectReview />', () => {
           },
         },
       },
+      go: vi.fn(),
+      push: vi.fn(),
+      replace: replaceMock,
     } as unknown as ReturnType<typeof useRouter>);
   });
 
   test('render subject review', async () => {
     vi.mocked(useRouter).mockReturnValue({
-      useRouter: vi.fn(),
       createRouter: vi.fn(() => ({
         beforeEach: vi.fn(),
       })),
-      replace: replaceMock,
       currentRoute: {
         value: {
           query: {
@@ -47,6 +45,8 @@ describe('<SubjectReview />', () => {
           },
         },
       },
+      replace: replaceMock,
+      useRouter: vi.fn(),
     } as unknown as ReturnType<typeof useRouter>);
 
     render(SubjectReview, {
@@ -57,15 +57,13 @@ describe('<SubjectReview />', () => {
     expect(
       await screen.findByText(subjectSearch.data[0].name)
     ).toBeInTheDocument();
-    expect(await screen.findByText(/Nome do Professor/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Nome do Professor/iu)).toBeInTheDocument();
   });
   test('render subject that demands review', async () => {
     vi.mocked(useRouter).mockReturnValue({
-      useRouter: vi.fn(),
       createRouter: vi.fn(() => ({
         beforeEach: vi.fn(),
       })),
-      replace: replaceMock,
       currentRoute: {
         value: {
           query: {
@@ -74,6 +72,8 @@ describe('<SubjectReview />', () => {
           },
         },
       },
+      replace: replaceMock,
+      useRouter: vi.fn(),
     } as unknown as ReturnType<typeof useRouter>);
 
     render(SubjectReview, {
@@ -84,6 +84,6 @@ describe('<SubjectReview />', () => {
     expect(
       await screen.findByText(subjectSearch.data[0].name)
     ).toBeInTheDocument();
-    expect(await screen.findByText(/Nome do Professor/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Nome do Professor/iu)).toBeInTheDocument();
   });
 });

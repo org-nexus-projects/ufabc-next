@@ -9,7 +9,7 @@
       <div class="d-flex flex-column" style="height: 100%">
         <div class="flex-grow-0">
           <v-list>
-            <div class="py-4 d-flex justify-center align-center">
+            <div class="d-flex align-center justify-center py-4">
               <img
                 class="logo-white"
                 src="@/assets/logo_white.svg"
@@ -77,12 +77,14 @@
         <div class="flex-grow-0">
           <div v-if="!authStore.isLoggedIn">
             <v-divider />
-            <div class="mb-4 pa-4 bg-blue-darken-3 border create-account-box">
+            <div class="pa-4 bg-blue-darken-3 create-account-box mb-4 border">
               <div class="d-flex align-center gap-3">
-                <v-icon class="pa-1" size="20"> mdi-account-circle-outline </v-icon>
+                <v-icon class="pa-1" size="20">
+                  mdi-account-circle-outline
+                </v-icon>
                 <strong>Acesse sua conta</strong>
               </div>
-              <div class="mt-2 text-caption">
+              <div class="text-caption mt-2">
                 Entre para acessar todas as funcionalidades do Next.
               </div>
               <v-btn
@@ -90,7 +92,7 @@
                 size="small"
                 block
                 color="primary"
-                class="mt-4 text-white text-caption pa-2"
+                class="text-caption pa-2 mt-4 text-white"
                 @click="handleLogin"
               >
                 Entrar
@@ -99,7 +101,7 @@
                 variant="tonal"
                 size="small"
                 block
-                class="mt-2 bg-blue-darken-2 text-white text-caption pa-2"
+                class="bg-blue-darken-2 text-caption pa-2 mt-2 text-white"
                 style="border-color: #1e40af"
                 @click="createAccount"
               >
@@ -110,19 +112,19 @@
 
           <div v-else-if="!authStore.user?.confirmed">
             <v-divider />
-            <div class="mb-4 pa-4 bg-blue-darken-3 border create-account-box">
+            <div class="pa-4 bg-blue-darken-3 create-account-box mb-4 border">
               <div class="d-flex align-center gap-3">
                 <v-icon class="pa-1" size="20"> mdi-lock-outline </v-icon>
                 <strong>Conta não confirmada</strong>
               </div>
-              <div class="mt-2 text-caption">
+              <div class="text-caption mt-2">
                 Crie sua conta no next para acessar todas as funcionalidades.
               </div>
               <v-btn
                 variant="tonal"
                 size="small"
                 block
-                class="mt-4 bg-blue-darken-2 text-white text-caption pa-2"
+                class="bg-blue-darken-2 text-caption pa-2 mt-4 text-white"
                 style="border-color: #1e40af"
                 @click="createAccount"
               >
@@ -153,7 +155,7 @@
           @click.stop="drawer = !drawer"
         />
 
-        <div class="flex-grow-1 d-flex justify-center">
+        <div class="d-flex flex-grow-1 justify-center">
           <img
             class="logo-white"
             :src="isDarkMode ? logoLight : logoDark"
@@ -167,7 +169,7 @@
           color="primary"
           variant="flat"
           size="small"
-          class="mr-3 text-none"
+          class="text-none mr-3"
           @click="handleLogin"
         >
           Entrar
@@ -220,30 +222,32 @@ const router = useRouter();
 const authStore = useAuthStore();
 const theme = useTheme();
 
-const getCurrentDate = () => dayjs();
+function getCurrentDate() {
+  return dayjs();
+}
 
 const layout = computed(() => router.currentRoute.value.meta.layout ?? null);
 
-const handleLogout = () => {
+function handleLogout() {
   authStore.logOut();
   window.location.href = '/';
-};
+}
 
-const handleLogin = () => {
+function handleLogin() {
   eventTracker.track(WebEvent.LOGIN_CLICKED, {
     source: 'app_bar',
   });
 
   router.push('/login');
-};
+}
 
-const createAccount = () => {
+function createAccount() {
   eventTracker.track(WebEvent.CREATE_ACCOUNT_CLICKED, {
     source: 'app_bar_sidebar',
   });
 
   router.push('/signup');
-};
+}
 
 function isMdiIcon(icon: string) {
   return icon.startsWith('mdi');
@@ -257,18 +261,18 @@ onMounted(() => {
 
 const isDarkMode = computed(() => theme.global.current.value.dark);
 
-const updateHighchartsThemeClass = (isDark: boolean) => {
+function updateHighchartsThemeClass(isDark: boolean) {
   document.body.classList.remove('highcharts-light', 'highcharts-dark');
   document.body.classList.add(isDark ? 'highcharts-dark' : 'highcharts-light');
   applyChartsTheme();
-};
+}
 
-const toggleTheme = () => {
+function toggleTheme() {
   const newTheme = isDarkMode.value ? 'light' : 'dark';
   theme.toggle();
   localStorage.setItem('darkMode', JSON.stringify(newTheme === 'dark'));
   updateHighchartsThemeClass(newTheme === 'dark');
-};
+}
 
 const { externalNavigationItems, internalNavigationItems } =
   useNavigationItems();

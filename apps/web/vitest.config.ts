@@ -1,22 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /// <reference types="vitest" />
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-  plugins: [vue() as any],
+  plugins: [vue()],
   test: {
-    globals: true,
-    environment: 'jsdom',
-    env: {
-      VITE_API_BASE_URL: 'http://localhost:5000',
-      VITE_APP_BASE_URL: '/',
-      VITE_APP_ENV: 'local',
-      VITE_PARSER_API_BASE_URL: 'https://ufabc-parser.com/v2',
+    alias: {
+      '@': '/src',
     },
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'html'],
+      all: true,
       exclude: [
         '**/dist/**',
         '**/node_modules/**',
@@ -32,12 +25,18 @@ export default defineConfig({
         'src/main.ts',
         '**/*.d.ts',
       ],
-      all: true,
+      provider: 'v8',
       reportOnFailure: true,
+      reporter: ['text', 'html'],
     },
-    alias: {
-      '@': '/src',
+    env: {
+      VITE_API_BASE_URL: 'http://localhost:5000',
+      VITE_APP_BASE_URL: '/',
+      VITE_APP_ENV: 'local',
+      VITE_PARSER_API_BASE_URL: 'https://ufabc-parser.com/v2',
     },
+    environment: 'jsdom',
+    globals: true,
     server: {
       deps: {
         inline: ['vuetify'],

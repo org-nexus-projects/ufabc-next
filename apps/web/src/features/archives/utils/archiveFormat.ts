@@ -1,5 +1,6 @@
-const ISO_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/u;
-const CONTROL_CHARACTERS = /[\u0000-\u001f\u007f]/gu;
+const ISO_DATE_PATTERN = /^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})$/u;
+// oxlint-disable-next-line no-control-regex -- strips ASCII control characters from file names
+const CONTROL_CHARACTERS = /[\u0000-\u001F\u007F]/gu;
 
 export function formatScheduleDate(date: string) {
   const parts = ISO_DATE_PATTERN.exec(date);
@@ -10,5 +11,8 @@ export function formatScheduleDate(date: string) {
 }
 
 export function cleanFileName(fileName: string) {
-  return fileName.replace(CONTROL_CHARACTERS, ' ').replace(/\s+/gu, ' ').trim();
+  return fileName
+    .replaceAll(CONTROL_CHARACTERS, ' ')
+    .replaceAll(/\s+/gu, ' ')
+    .trim();
 }

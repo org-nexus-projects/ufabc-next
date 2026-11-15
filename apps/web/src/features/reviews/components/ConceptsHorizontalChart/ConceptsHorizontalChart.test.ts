@@ -22,10 +22,10 @@ describe('<ConceptsHorizontalChart />', () => {
 
     const tooltipTextAmount = `${subjectInfo.specific[2].distribution[0].count} notas`;
     expect(
-      await screen.findByText(RegExp(tooltipTextPercentage, 'i'))
+      await screen.findByText(new RegExp(tooltipTextPercentage, 'iu'))
     ).toBeInTheDocument();
     expect(
-      await screen.getByText(RegExp(tooltipTextAmount, 'i'))
+      screen.getByText(new RegExp(tooltipTextAmount, 'iu'))
     ).toBeInTheDocument();
   });
 

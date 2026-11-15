@@ -73,17 +73,17 @@ const textareaRef = ref<HTMLTextAreaElement | null>(null);
 
 const message = ref<[string, 'info' | 'error'] | []>([]);
 
-const onUpdateClasses = (value: Classes) => {
+function onUpdateClasses(value: Classes) {
   classes.value = value;
   emit('updateClasses', value);
-};
+}
 
-const onUpdateSummary = (value: string) => {
+function onUpdateSummary(value: string) {
   summaryText.value = value;
   emit('updateSummary', value);
-};
+}
 
-const handleChange = (value: string) => {
+function handleChange(value: string) {
   summaryText.value = value;
 
   if (value === '') {
@@ -112,20 +112,20 @@ const handleChange = (value: string) => {
   } else {
     message.value = [];
   }
-};
+}
 
-const handlePaste = async () => {
+async function handlePaste() {
   try {
     textareaRef.value?.focus();
     const copied = await navigator.clipboard.readText();
     summaryText.value = copied;
     handleChange(copied);
-  } catch (error) {
+  } catch {
     textareaRef.value?.focus();
   }
-};
+}
 
-const handleClick = () => {
+function handleClick() {
   if (summaryText.value === '') {
     message.value = ['Cole seu resumo de disciplinas!!!', 'error'];
   } else if ((classes.value || []).length <= 0) {
@@ -133,11 +133,11 @@ const handleClick = () => {
   } else {
     emit('nextStep', CalengradeSteps.Preview);
   }
-};
+}
 
-const goToStep = (step: CalengradeSteps) => {
+function goToStep(step: CalengradeSteps) {
   emit('nextStep', step);
-};
+}
 </script>
 
 <style scoped>

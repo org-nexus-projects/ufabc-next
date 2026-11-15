@@ -38,7 +38,7 @@ import { conceptsColor } from '@/utils/consts';
 import { transformConceptDataToObject } from '../../utils/transformConceptDataToObject';
 
 const props = defineProps({
-  gradeData: { type: Object as PropType<SubjectSpecific>, required: true },
+  gradeData: { required: true, type: Object as PropType<SubjectSpecific> },
 });
 
 const untrustableThreshold = 10;

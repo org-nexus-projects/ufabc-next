@@ -35,6 +35,7 @@ export default defineConfig({
       files: ['apps/web/**/*.ts', 'apps/web/**/*.vue'],
       rules: {
         'unicorn/filename-case': 'off',
+        'unicorn/no-array-sort': 'off',
       },
     },
     {
@@ -45,6 +46,7 @@ export default defineConfig({
       files: ['apps/extension/**/*.ts', 'apps/extension/**/*.vue'],
       rules: {
         'unicorn/filename-case': 'off',
+        'unicorn/no-array-sort': 'off',
       },
     },
     {
@@ -53,6 +55,25 @@ export default defineConfig({
         node: true,
       },
       files: ['packages/**/*.ts'],
+    },
+    {
+      files: ['**/*.d.ts'],
+      rules: {
+        'typescript/consistent-type-definitions': 'off',
+      },
+    },
+    {
+      files: ['**/*.test.ts', '**/test-utils.ts', '**/setup-tests.ts'],
+      rules: {
+        'typescript/no-non-null-assertion': 'off',
+        'typescript/no-unsafe-type-assertion': 'off',
+      },
+    },
+    {
+      files: ['packages/services/src/index.ts'],
+      rules: {
+        'oxc/no-barrel-file': 'off',
+      },
     },
     {
       files: ['**/*-controller.ts', '**/hooks/*.ts'],
@@ -68,7 +89,6 @@ export default defineConfig({
       ],
       rules: {
         'eslint/no-constructor-return': 'off',
-        'typescript/consistent-return': 'off',
         'typescript/no-this-alias': 'off',
         'unicorn/no-this-assignment': 'off',
       },
@@ -88,6 +108,7 @@ export default defineConfig({
     'node/callback-return': 'off',
     'promise/prefer-await-to-callbacks': 'off',
     'typescript/array-type': ['error', { default: 'array-simple' }],
+    'typescript/consistent-return': 'off',
     'typescript/consistent-type-definitions': ['error', 'type'],
     'typescript/no-extraneous-class': 'off',
     'unicorn/no-static-only-class': 'off',

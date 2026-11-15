@@ -5,7 +5,7 @@
   />
   <v-dialog v-model="showDialog" max-width="1200">
     <PaperCard>
-      <div class="w-100 d-flex justify-end">
+      <div class="d-flex w-100 justify-end">
         <v-btn
           variant="tonal"
           icon="mdi-window-close"
@@ -15,7 +15,7 @@
       </div>
       <v-container class="pa-0 my-2" style="max-width: none">
         <v-row class="ma-0">
-          <v-col class="pa-0 pb-5 pa-sm-3" cols="12" md="5">
+          <v-col class="pa-0 pa-sm-3 pb-5" cols="12" md="5">
             <p class="text-h4 font-weight-bold text-primary mb-2">
               {{ capitalizeName(teacherName) }}
             </p>
@@ -26,7 +26,7 @@
             <div class="d-flex align-center">
               <span class="item-name"> Conceito:</span>
               <div
-                class="text-white d-flex align-center justify-center rounded ml-1"
+                class="d-flex align-center ml-1 justify-center rounded text-white"
                 :style="
                   enrollment?.conceito &&
                   `background-color:${
@@ -42,7 +42,7 @@
               v-for="tag in tags"
               :key="tag"
               density="compact"
-              class="px-2 mr-1 rounded-sm"
+              class="mr-1 rounded-sm px-2"
               style="font-size: 12px"
             >
               {{ tag }}
@@ -58,7 +58,7 @@
               auto-grow
               :loading="isFetchingTeacherEnrollment"
             />
-            <div class="w-100 d-flex justify-end">
+            <div class="d-flex w-100 justify-end">
               <v-btn
                 color="primary"
                 :disabled="disableMutateComment"
@@ -104,29 +104,33 @@ const props = defineProps({
     type: Object as PropType<Enrollment>,
   },
   showDialog: {
-    type: Boolean,
     required: true,
+    type: Boolean,
   },
   tags: {
-    type: Object as PropType<string[]>,
     required: true,
+    type: Object as PropType<string[]>,
   },
 });
 
 const enrollmentId = computed(() => props.enrollment?._id || '');
 
 const subjectType = computed(() => {
-  if (props.tags[0] === 'teoria e prática') return 'teoria';
+  if (props.tags[0] === 'teoria e prática') {
+    return 'teoria';
+  }
   return props.tags[0];
 });
 
 const teacherId = computed(() => {
   let id = '';
-  if (subjectType.value === 'teoria e prática')
+  if (subjectType.value === 'teoria e prática') {
     id = props.enrollment?.pratica?._id || props.enrollment?.teoria?._id || '';
-  else if (subjectType.value === 'prática')
+  } else if (subjectType.value === 'prática') {
     id = props.enrollment?.pratica?._id || '';
-  else id = props.enrollment?.teoria?._id || '';
+  } else {
+    id = props.enrollment?.teoria?._id || '';
+  }
 
   return id;
 });
@@ -137,12 +141,14 @@ if (!teacherId.value) {
 }
 
 const teacherName = computed(() => {
-  if (subjectType.value === 'teoria e prática')
+  if (subjectType.value === 'teoria e prática') {
     return (
       props.enrollment?.pratica?.name || props.enrollment?.teoria?.name || ''
     );
-  if (subjectType.value === 'prática')
+  }
+  if (subjectType.value === 'prática') {
     return props.enrollment?.pratica?.name || '';
+  }
   return props.enrollment?.teoria?.name || '';
 });
 
@@ -161,37 +167,36 @@ const {
   isFetching: isFetchingTeacherEnrollment,
   isError: isFetchingTeacherEnrollmentError,
 } = useQuery({
-  refetchOnWindowFocus: false,
-  queryKey: ['enrollments', 'get', enrollmentId],
-  queryFn: () => Enrollments.get(enrollmentId.value),
   enabled: showDialog,
+  queryFn: () => Enrollments.get(enrollmentId.value),
+  queryKey: ['enrollments', 'get', enrollmentId],
+  refetchOnWindowFocus: false,
 });
 
 const comment = ref<string>('');
 const teacherEnrollmentComment = computed(() => ({
-  teoria: teacherEnrollment.value?.teoria?.comment?.comment,
   prática: teacherEnrollment.value?.pratica?.comment?.comment,
+  teoria: teacherEnrollment.value?.teoria?.comment?.comment,
 }));
 
 const userCommentMessage = computed({
   get: () => {
     const currentComment =
       teacherEnrollmentComment.value[subjectType.value as 'teoria' | 'prática'];
-    return comment.value ? comment.value : (currentComment ?? '');
+    return comment.value || (currentComment ?? '');
   },
   set: (value: string) => {
     comment.value = value;
   },
 });
 
-const disableMutateComment = computed(() => {
-  return (
+const disableMutateComment = computed(
+  () =>
     !userCommentMessage.value ||
     teacherEnrollmentComment.value[
       subjectType.value as 'teoria' | 'prática'
     ] === userCommentMessage.value
-  );
-});
+);
 
 const hasUserComment = computed(
   () =>
@@ -202,10 +207,20 @@ const queryClient = useQueryClient();
 const { mutate: mutateCreate, isPending: isCreatingComment } = useMutation({
   mutationFn: () =>
     Comments.create({
-      enrollment: enrollmentId.value,
       comment: comment.value,
+      enrollment: enrollmentId.value,
       type: subjectType.value === 'prática' ? 'pratica' : 'teoria',
     }),
+  onError: (error: AxiosError<RequestError>) => {
+    ElMessage({
+      message:
+        error.response?.data.translatedDescription ??
+        error.response?.data.message ??
+        'Ocorreu um erro ao enviar o comentário',
+      showClose: true,
+      type: 'error',
+    });
+  },
   onSuccess: () => {
     queryClient.invalidateQueries({
       queryKey: ['comments', teacherId],
@@ -215,18 +230,8 @@ const { mutate: mutateCreate, isPending: isCreatingComment } = useMutation({
     });
     ElMessage({
       message: 'Comentário enviado com sucesso',
+      showClose: true,
       type: 'success',
-      showClose: true,
-    });
-  },
-  onError: (error: AxiosError<RequestError>) => {
-    ElMessage({
-      message:
-        error.response?.data.translatedDescription ??
-        error.response?.data.message ??
-        'Ocorreu um erro ao enviar o comentário',
-      type: 'error',
-      showClose: true,
     });
   },
 });
@@ -234,12 +239,22 @@ const { mutate: mutateCreate, isPending: isCreatingComment } = useMutation({
 const { mutate: mutateUpdate, isPending: isUpdatingComment } = useMutation({
   mutationFn: () =>
     Comments.update({
+      comment: comment.value,
       id:
         teacherEnrollment.value?.teoria?.comment?._id ??
         teacherEnrollment.value?.pratica?.comment?._id ??
         '',
-      comment: comment.value,
     }),
+  onError: (error: AxiosError<RequestError>) => {
+    ElMessage({
+      message:
+        error.response?.data.translatedDescription ??
+        error.response?.data.message ??
+        'Ocorreu um erro ao editar o comentário',
+      showClose: true,
+      type: 'error',
+    });
+  },
   onSuccess: () => {
     queryClient.invalidateQueries({
       queryKey: ['comments'],
@@ -249,34 +264,26 @@ const { mutate: mutateUpdate, isPending: isUpdatingComment } = useMutation({
     });
     ElMessage({
       message: 'Comentário editado com sucesso',
+      showClose: true,
       type: 'success',
-      showClose: true,
-    });
-  },
-  onError: (error: AxiosError<RequestError>) => {
-    ElMessage({
-      message:
-        error.response?.data.translatedDescription ??
-        error.response?.data.message ??
-        'Ocorreu um erro ao editar o comentário',
-      type: 'error',
-      showClose: true,
     });
   },
 });
 
-const submit = () => {
+function submit() {
   if (hasUserComment.value) {
     mutateUpdate();
     return;
   }
   mutateCreate();
-};
+}
 
 watch(
   () => props.showDialog,
   () => {
-    if (!showDialog.value) comment.value = '';
+    if (!showDialog.value) {
+      comment.value = '';
+    }
   }
 );
 </script>

@@ -1,3 +1,4 @@
+import { api } from './api';
 import type {
   CourseName,
   PageableReturn,
@@ -7,8 +8,6 @@ import type {
   StatsSubject,
   StatsUsage,
 } from './types';
-
-import { api } from './api';
 
 export type StatsParams = {
   page: number;
@@ -22,27 +21,41 @@ export type StatsParams = {
 
 export const StatsSubjects = {
   getAllClasses: async (params: StatsParams) => {
-    const { data } = await api.get('public/stats/components', { params });
-    return data as PageableReturn<StatsClass>;
+    const { data } = await api.get<PageableReturn<StatsClass>>(
+      'public/stats/components',
+      { params }
+    );
+    return data;
   },
   getAllCourses: async (params: StatsParams) => {
-    const { data } = await api.get('public/stats/components/courses', { params });
-    return data as PageableReturn<StatsCourse>;
-  },
-  getAllSubjects: async (params: StatsParams) => {
-    const { data } = await api.get('public/stats/components/component', { params });
-    return data as PageableReturn<StatsSubject>;
+    const { data } = await api.get<PageableReturn<StatsCourse>>(
+      'public/stats/components/courses',
+      { params }
+    );
+    return data;
   },
   getAllCoursesNames: async () => {
-    const { data } = await api.get('/histories/courses');
-    return data as CourseName[];
+    const { data } = await api.get<CourseName[]>('/histories/courses');
+    return data;
+  },
+  getAllSubjects: async (params: StatsParams) => {
+    const { data } = await api.get<PageableReturn<StatsSubject>>(
+      'public/stats/components/component',
+      { params }
+    );
+    return data;
   },
   getOverview: async (params: Pick<StatsParams, 'season'>) => {
-    const { data } = await api.get('public/stats/components/overview', { params });
-    return data as StatsOverview;
+    const { data } = await api.get<StatsOverview>(
+      'public/stats/components/overview',
+      { params }
+    );
+    return data;
   },
   getUsage: async (params: Pick<StatsParams, 'season'>) => {
-    const { data } = await api.get('public/stats/usage', { params });
-    return data as StatsUsage;
+    const { data } = await api.get<StatsUsage>('public/stats/usage', {
+      params,
+    });
+    return data;
   },
 };

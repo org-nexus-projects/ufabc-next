@@ -33,7 +33,7 @@ const router = useRouter();
 const layout = computed(() => router.currentRoute.value.meta.layout ?? null);
 const confirmedUser = computed(() => !!authStore.user?.confirmed);
 
-onMounted(async () => {
+onMounted(() => {
   window.Toaster = ElMessage;
 
   if (authStore.isLoggedIn && authStore.user) {

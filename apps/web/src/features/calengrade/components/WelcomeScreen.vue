@@ -32,9 +32,9 @@ const emit = defineEmits<{
   (e: 'nextStep', step: CalengradeSteps): boolean;
 }>();
 
-const nextStep = (step: CalengradeSteps) => {
+function nextStep(step: CalengradeSteps) {
   emit('nextStep', step);
-};
+}
 </script>
 
 <style scoped>

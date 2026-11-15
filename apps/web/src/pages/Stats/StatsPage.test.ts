@@ -26,7 +26,7 @@ describe('<StatsPage />', () => {
     expect(screen.getByText('Professores')).toBeInTheDocument();
     expect(screen.getByText('Vagas que sobraram')).toBeInTheDocument();
     expect(screen.getByText(usage.currentAlunos)).toBeInTheDocument();
-    expect(screen.getByText('/' + usage.totalAlunos)).toBeInTheDocument();
+    expect(screen.getByText(`/${usage.totalAlunos}`)).toBeInTheDocument();
     expect(screen.getByText(usage.subjects)).toBeInTheDocument();
     expect(screen.getByText(usage.teachers)).toBeInTheDocument();
     expect(screen.getByText(-overview.data[0].deficit)).toBeInTheDocument();
@@ -95,9 +95,9 @@ describe('<StatsPage />', () => {
     const user = userEvent.setup();
 
     render(StatsPage);
-    expect(
-      (await screen.findAllByText(classes.data[0].vagas)).length
-    ).toBeGreaterThan(0);
+    expect(await screen.findAllByText(classes.data[0].vagas)).not.toHaveLength(
+      0
+    );
 
     await user.click(screen.getByText('Cursos'));
 
@@ -119,9 +119,9 @@ describe('<StatsPage />', () => {
     const user = userEvent.setup();
 
     render(StatsPage);
-    expect(
-      (await screen.findAllByText(classes.data[0].vagas)).length
-    ).toBeGreaterThan(0);
+    expect(await screen.findAllByText(classes.data[0].vagas)).not.toHaveLength(
+      0
+    );
 
     await user.click(screen.getByText('Disciplinas'));
 
@@ -145,9 +145,9 @@ describe('<StatsPage />', () => {
     const user = userEvent.setup();
 
     render(StatsPage);
-    expect(
-      (await screen.findAllByText(classes.data[0].vagas)).length
-    ).toBeGreaterThan(0);
+    expect(await screen.findAllByText(classes.data[0].vagas)).not.toHaveLength(
+      0
+    );
 
     await user.click(screen.getByText('Ordenar por:'));
     await user.click(screen.getAllByText('Pessoas por vaga')[0]);
@@ -166,9 +166,9 @@ describe('<StatsPage />', () => {
     const user = userEvent.setup();
 
     render(StatsPage);
-    expect(
-      (await screen.findAllByText(classes.data[0].vagas)).length
-    ).toBeGreaterThan(0);
+    expect(await screen.findAllByText(classes.data[0].vagas)).not.toHaveLength(
+      0
+    );
 
     await user.click(screen.getByText(prettifySeason(getSeason())));
 
@@ -182,9 +182,9 @@ describe('<StatsPage />', () => {
     const user = userEvent.setup();
 
     render(StatsPage);
-    expect(
-      (await screen.findAllByText(classes.data[0].vagas)).length
-    ).toBeGreaterThan(0);
+    expect(await screen.findAllByText(classes.data[0].vagas)).not.toHaveLength(
+      0
+    );
 
     expect(screen.getByRole('checkbox', { name: 'Matutino' })).toBeChecked();
     await user.click(screen.getByRole('checkbox', { name: 'Matutino' }));

@@ -18,16 +18,20 @@ const webTargetConfig = {
   },
 } as const;
 
+function isWebTarget(value: string): value is keyof typeof webTargetConfig {
+  return value in webTargetConfig;
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, workspaceRoot, '');
   const target =
     process.env.NEXT_WEB_TARGET ?? (mode === 'production' ? 'prod' : 'dev');
 
-  if (!(target in webTargetConfig)) {
+  if (!isWebTarget(target)) {
     throw new Error(`Unsupported web target: ${target}. Use dev or prod.`);
   }
 
-  const targetConfig = webTargetConfig[target as keyof typeof webTargetConfig];
+  const targetConfig = webTargetConfig[target];
   const selectedProfileEnv = Object.fromEntries(
     webEnvKeys.map((key) => [
       `VITE_${key}`,

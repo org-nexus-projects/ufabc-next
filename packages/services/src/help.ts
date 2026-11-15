@@ -1,22 +1,22 @@
 import { api } from './api';
 
-export interface HelpFormData {
+export type HelpFormData = {
   email: string;
   ra: string;
   problemTitle: string;
   problemDescription: string;
   image?: File;
-}
+};
 
-export interface HelpFormResult {
+export type HelpFormResult = {
   success: boolean;
   id?: string;
   url?: string;
-}
+};
 
-export const sendHelpForm = async (
-  data: HelpFormData,
-): Promise<HelpFormResult> => {
+export async function sendHelpForm(
+  data: HelpFormData
+): Promise<HelpFormResult> {
   const formData = new FormData();
 
   formData.append('email', data.email);
@@ -39,4 +39,4 @@ export const sendHelpForm = async (
   }
 
   throw new Error('Falha ao enviar o formulário');
-};
+}
