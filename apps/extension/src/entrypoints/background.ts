@@ -14,8 +14,8 @@ export default defineBackground(() => {
   onMessage('getToken', async ({ data }) => {
     const url = new URL(data.pageURL)
     const cookie = await browser.cookies.get({
-      url: url.href,
-      name: 'JSESSIONID'
+      name: 'JSESSIONID',
+      url: url.href
     })
 
      if (!cookie) {
@@ -28,8 +28,8 @@ export default defineBackground(() => {
   onMessage('getTokenMatricula', async ({ data }) => {
     const url = new URL(data.pageURL)
     const cookie = await browser.cookies.get({
-      url: url.origin,
-      name: '_matricula_sig_rails_session'
+      name: '_matricula_sig_rails_session',
+      url: url.origin
     });
 
     if (!cookie) {
@@ -42,8 +42,8 @@ export default defineBackground(() => {
   onMessage("getTokenMoodle", async ({ data }) => {
     const url = new URL(data.pageURL);
     const cookie = await browser.cookies.get({
-      url: url.origin,
       name: "MoodleSession",
+      url: url.origin,
     });
     return cookie;
   });

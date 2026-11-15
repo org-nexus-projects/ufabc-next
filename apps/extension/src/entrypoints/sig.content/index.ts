@@ -16,7 +16,7 @@ export default defineContentScript({
 
     const viewStateID = document.querySelector<HTMLInputElement>('input[name="javax.faces.ViewState"]');
     const sessionId = await getToken();
-    if (!sessionId || !viewStateID) {
+    if (sessionId === null || sessionId === '' || viewStateID === null) {
       const msg = "Ocorreu um erro ao extrair as disciplinas cursadas, por favor tente novamente mais tarde!";
       scrappingErrorToast(msg).showToast();
       return null;
@@ -25,7 +25,7 @@ export default defineContentScript({
     const sigURL = new URL(document.location.href);
     const itineraryTable = document.querySelector<HTMLTableElement>("#turmas-portal");
     const $trs = document.querySelectorAll<HTMLTableRowElement>("#agenda-docente tbody tr");
-    const shouldFormatItinerary = sigURL.pathname.includes("/portais/discente/discente.jsf") && itineraryTable;
+    const shouldFormatItinerary = sigURL.pathname.includes("/portais/discente/discente.jsf") && itineraryTable !== null;
     if (shouldFormatItinerary) {
       const sigStudent = scrapeMenu($trs);
       if (!sigStudent.data) {
@@ -50,8 +50,8 @@ export default defineContentScript({
       }
     }
   },
-  runAt: "document_end",
   matches: ["https://sig.ufabc.edu.br/*"],
+  runAt: "document_end",
 });
 
 async function getToken() {

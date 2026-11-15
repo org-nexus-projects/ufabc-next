@@ -83,28 +83,61 @@ const concepts = [
   { code: 'O', color: 'rgb(169, 169, 169)' },
 ];
 
-const findGradeCount = (distribution: Distribution[], concept: Grade) => {
+function findGradeCount(distribution: Distribution[], concept: Grade) {
   const conceptTarget = distribution.find(({ conceito }) => conceito === concept);
   return conceptTarget?.count ?? null;
-};
+}
 
-const findGradeCountTotal = (distribution: Distribution[]) => {
+function findGradeCountTotal(distribution: Distribution[]) {
   const summed = distribution.reduce((acc, item) => acc + item.count, 0)
   return summed;
 }
 
-const calculateGradePercentage = (distribution: Distribution[], concept: Grade) => {
+function calculateGradePercentage(distribution: Distribution[], concept: Grade) {
   return (100 * (findGradeCount(distribution, concept) ?? 0)) / findGradeCountTotal(distribution)
 }
 
-const onSortChange = () => {
+
+function onSortChange() {
   sortButton.value = 0;
-};
+}
 
 watch(() => sortButton, (val) => {
   if (val !== null && teachersList.value) {
     teachersList.value?.clearSort();
   }
+});
+
+const teachersPopulated = computed(() => {
+  const teachersToPopulate = [...teachers || []]
+  const possibleConcepts = ['A', 'B', 'C', 'D', 'F', 'O']
+  const approvalConcepts = ['A', 'B', 'C', 'D']
+  const reproofConcepts = ['F', 'O']
+
+  return teachersToPopulate.map(teacher => {
+    teacher.concepts = {
+      count: 0,
+      percentage: 0
+    }
+
+    for (const c of possibleConcepts) {
+      // @ts-expect-error concepts is not indexed by grade
+      teacher.concepts[c] = {
+        count: findGradeCount(teacher.distribution, c as Grade),
+        percentage: calculateGradePercentage(teacher.distribution, c as Grade)
+      }
+    }
+
+    teacher.approval = approvalConcepts.reduce((total, c) =>
+      // @ts-expect-error concepts is not indexed by grade
+      total + teacher.concepts[c].percentage, 0)
+
+    teacher.reproof = reproofConcepts.reduce((total, c) =>
+      // @ts-expect-error concepts is not indexed by grade
+      total + teacher.concepts[c].percentage, 0)
+
+    return teacher
+  })
 });
 
 const teachersSorted = computed(() => {
@@ -126,38 +159,6 @@ const teachersSorted = computed(() => {
   return orderBy([...teachersPopulated.value], ...order);
 });
 
-const teachersPopulated = computed(() => {
-  const teachersToPopulate = [...teachers || []]
-  const possibleConcepts = ['A', 'B', 'C', 'D', 'F', 'O']
-  const approvalConcepts = ['A', 'B', 'C', 'D']
-  const reproofConcepts = ['F', 'O']
-
-  return teachersToPopulate.map(teacher => {
-    teacher.concepts = {
-      count: 0,
-      percentage: 0
-    }
-
-    // biome-ignore lint/complexity/noForEach: <explanation>
-    possibleConcepts.forEach(c => {
-      // @ts-ignore
-      teacher.concepts[c] = {
-        percentage: calculateGradePercentage(teacher.distribution, c as Grade),
-        count: findGradeCount(teacher.distribution, c as Grade)
-      }
-    })
-
-    teacher.approval = approvalConcepts.reduce((total, c) =>
-      // @ts-ignore
-      total + teacher.concepts[c].percentage, 0)
-
-    teacher.reproof = reproofConcepts.reduce((total, c) =>
-      // @ts-ignore
-      total + teacher.concepts[c].percentage, 0)
-
-    return teacher
-  })
-});
 </script>
 
 <style scoped lang="css">

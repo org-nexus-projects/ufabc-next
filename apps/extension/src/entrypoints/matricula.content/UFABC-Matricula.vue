@@ -7,7 +7,8 @@ import { getStudentCourseId, getStudentId } from "@/utils/ufabc-matricula-studen
 import { useFilters } from "@/composables/useFilters";
 import { useModals } from "@/composables/useModals";
 import { useComponentsBuilder } from "@/composables/useComponentsBuilder";
-import { syncMatriculaStudent, updateStudent, type UpdatedStudent } from "@/services/next";
+import { syncMatriculaStudent, updateStudent } from '@/services/next';
+import type { UpdatedStudent } from '@/services/next';
 
 const matriculas = inject<typeof window.matriculas>("matriculas");
 const sessionId = inject<string>("sessionId");
@@ -34,26 +35,25 @@ const sessionMutation = useMutation({
 
     if (!studentId || !graduationId || !login) {
       logger.warn(
-        { studentId, graduationId, login },
+        { graduationId, login, studentId },
         "Could not parse student info from page"
       );
       return;
     }
 
     await syncMatriculaStudent(sessionId, {
-      studentId,
-      login,
       graduationId: Number(graduationId),
+      login,
+      studentId,
     });
 
     const result = await updateStudent({
-      // @ts-ignore fix later
-      login,
-      // @ts-ignore fix later
-      ra: null,
-      studentId,
       graduationId: Number(graduationId),
+      login,
+      // @ts-expect-error fix later
+      ra: null,
       sessionId,
+      studentId,
     });
 
     matriculaStudent.value = result;
@@ -98,7 +98,6 @@ function closeKicksModal() {
   kicksModal.value.corteId = null;
 }
 
-// todo: utilizar o storage da extensão
 function changeSelected() {
   const notSelected = document.querySelectorAll<HTMLTableCaptionElement>(".notSelecionada");
   if (!selected.value) {
@@ -144,9 +143,9 @@ function changeCursadas() {
 
   const trData = document.querySelectorAll<HTMLTableSectionElement>("table tr td:nth-child(3)");
   for (const $el of trData) {
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
-    const [component] = $el?.textContent?.split("-")!;
-    const name = component.substring(0, component.lastIndexOf(" "));
+    const [component] = ($el.textContent ?? "").split("-");
+    const spaceIndex = component.lastIndexOf(" ");
+    const name = spaceIndex === -1 ? "" : component.slice(0, spaceIndex);
     if (passed?.includes(name)) {
       $el?.parentElement?.classList.add("isCursada");
       if ($el.parentElement) {
@@ -195,7 +194,7 @@ watch(
   { immediate: true },
 );
 
-onMounted(async () => {
+onMounted(() => {
   document.body.addEventListener("click", handleClick);
   buildComponents();
   teachers.value = true;

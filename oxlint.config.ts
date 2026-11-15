@@ -36,6 +36,7 @@ export default defineConfig({
       rules: {
         'unicorn/filename-case': 'off',
         'unicorn/no-array-sort': 'off',
+        'unicorn/no-array-reverse': 'off',
       },
     },
     {
@@ -47,6 +48,7 @@ export default defineConfig({
       rules: {
         'unicorn/filename-case': 'off',
         'unicorn/no-array-sort': 'off',
+        'unicorn/no-array-reverse': 'off',
       },
     },
     {

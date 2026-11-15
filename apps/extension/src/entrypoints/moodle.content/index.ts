@@ -6,11 +6,11 @@ export default defineContentScript({
   async main() {
     try {
       const sessionToken = await getToken();
-      const sessKey = await getSessKey();
+      const sessKey = getSessKey();
 
       const results = {
-        sessionToken: sessionToken,
-        sessKey: sessKey,
+        sessKey,
+        sessionToken,
       };
 
       await sendResults(results);
@@ -20,8 +20,9 @@ export default defineContentScript({
     }
   },
 
-  runAt: 'document_end',
   matches: ['*://moodle.ufabc.edu.br/my/courses.php*'],
+
+  runAt: 'document_end',
 });
 
 async function getToken() {
@@ -41,13 +42,13 @@ async function getToken() {
   }
 }
 
-async function getSessKey(): Promise<string | null> {
+function getSessKey(): string | null {
   try {
     const html = document.documentElement.innerHTML;
 
-    const sesskey = html.match(/"sesskey":"([^"]+)"/)?.[1];
+    const sesskey = /"sesskey":"(?<sesskey>[^"]+)"/u.exec(html)?.groups?.sesskey;
 
-    return typeof sesskey === 'undefined' ? null : sesskey;
+    return sesskey ?? null;
   } catch (error) {
     logger.error({ error }, 'Erro ao extrair sesskey do HTML');
     return null;

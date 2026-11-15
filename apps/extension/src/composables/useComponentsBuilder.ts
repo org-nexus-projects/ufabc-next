@@ -3,6 +3,7 @@ import Teachers from '@/components/Teachers.vue';
 import { ref, render } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { getComponents } from '@/services/next'
+import type { Component } from '@/services/next'
 
 // this is probably more than a coomposable
 
@@ -20,25 +21,25 @@ function setupSubjectElement(subjectEl: HTMLSpanElement, subjectId: string) {
   subjectEl.setAttribute('subjectId', subjectId)
 }
 
-function appendTeacherComponent(el: HTMLTableColElement | null, component: any) {
-  if (!el) return
+function appendTeacherComponent(el: HTMLTableColElement | null, component: Component) {
+  if (!el) {return}
 
   const teacherContainer = document.createElement('div')
-  el.appendChild(teacherContainer)
+  el.append(teacherContainer)
 
   render(h(Teachers, {
-    teoria: component.teoria,
-    teoriaId: component.teoriaId,
     pratica: component.pratica,
     praticaId: component.praticaId,
+    teoria: component.teoria,
+    teoriaId: component.teoriaId,
   }), teacherContainer)
 }
 
 function appendCortesComponent(corteEl: Element | null) {
-  if (!corteEl) return
+  if (!corteEl) {return}
 
   const cortesContainer = document.createElement('div')
-  corteEl.appendChild(cortesContainer)
+  corteEl.append(cortesContainer)
 
   render(h(Cortes), cortesContainer)
 }
@@ -46,12 +47,11 @@ function appendCortesComponent(corteEl: Element | null) {
 export function useComponentsBuilder() {
   const teachers = ref(false)
 
-  const { data: components, error } = useQuery({
+  const { data: components } = useQuery({
+    initialData: [],
+    queryFn: async () => await getComponents(),
     queryKey: ['components'],
-    queryFn: async () => getComponents(),
     retry: 3,
-    // staleTime: 1000 * 60 * 5, // 5 minutes
-    initialData: [], // Provide empty array as initial data
   })
 
   watch(components, (newComponents) => {
@@ -63,14 +63,17 @@ export function useComponentsBuilder() {
 
   function buildComponents() {
     if (!teachers.value) {
-      document.querySelectorAll<HTMLTableCaptionElement>('.isTeacherReview')
-        .forEach($el => $el.style.display = 'none')
+      for (const $el of document.querySelectorAll<HTMLTableCaptionElement>('.isTeacherReview')) {
+        $el.style.display = 'none'
+      }
       return
     }
 
     const teacherReviews = document.querySelectorAll<HTMLTableCaptionElement>('.isTeacherReview')
     if (teacherReviews.length > 0) {
-      teacherReviews.forEach($el => $el.style.display = '')
+      for (const $el of teacherReviews) {
+        $el.style.display = ''
+      }
       return
     }
 
@@ -78,15 +81,15 @@ export function useComponentsBuilder() {
       components.value?.map(component => [component.disciplina_id.toString(), component])
     )
 
-    document.querySelectorAll('table tr').forEach(row => {
+    for (const row of document.querySelectorAll('table tr')) {
       const el = row.querySelector<HTMLTableColElement>('td:nth-child(3)')
       const subjectEl = row.querySelector<HTMLSpanElement>('td:nth-child(3) > span')
       const corteEl = row.querySelector('td:nth-child(5)')
       const componentId = row.getAttribute('value')
 
-      if (!componentId) return
+      if (componentId === null || componentId === '') {continue}
       const component = componentsMap.get(componentId)
-      if (!component) return
+      if (!component) {continue}
 
       if (component.subject && subjectEl) {
         setupSubjectElement(subjectEl, component.subjectId)
@@ -94,11 +97,11 @@ export function useComponentsBuilder() {
 
       appendTeacherComponent(el, component)
       appendCortesComponent(corteEl)
-    })
+    }
   }
 
   return {
-    teachers,
-    buildComponents
+    buildComponents,
+    teachers
   }
 }

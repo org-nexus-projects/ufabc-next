@@ -1,13 +1,11 @@
 import { NextApiConnector } from '@next/connectors/next-api';
-import type {
+import { logger } from '@/utils/logger';
+
+export type {
   Component,
   MatriculaStudent,
   UpdatedStudent,
 } from '@next/connectors/schemas/next-api';
-import type { Student } from './ufabc-parser';
-import { logger } from '@/utils/logger';
-
-export type { Component, MatriculaStudent, UpdatedStudent };
 export type { Student } from './ufabc-parser';
 
 export type SigHistory = {
@@ -129,7 +127,8 @@ export async function syncHistoryV2(data: SyncHistory) {
   await nextApiConnector.syncSigaaStudent(
     {
       login: data.login,
-      ra: Number.parseInt(data.ra),
+      // oxlint-disable-next-line unicorn/prefer-number-coercion -- the scraped RA may carry trailing text
+      ra: Number.parseInt(data.ra, 10),
     },
     data.sessionId,
     data.viewState,
@@ -140,7 +139,13 @@ export async function sendResults(results: {
   sessionToken: string | null;
   sessKey: string | null;
 }) {
-  if (!results.sessionToken || !results.sessKey) {
+  const { sessionToken, sessKey } = results;
+  if (
+    sessionToken === null ||
+    sessionToken === '' ||
+    sessKey === null ||
+    sessKey === ''
+  ) {
     logger.warn(
       results,
       '[sendResults] Token de sessão ou sessKey inválido(s), abortando envio.',
@@ -149,35 +154,34 @@ export async function sendResults(results: {
   }
 
   try {
-    return await nextApiConnector.sendResults(
-      results.sessionToken,
-      results.sessKey,
-    );
+    return await nextApiConnector.sendResults(sessionToken, sessKey);
   } catch (error) {
     logger.error({ error }, '[sendResults] Erro ao enviar dados');
   }
 }
 
 export async function getSubjectReviews(subjectId: string) {
-  return (await nextApiConnector.getSubjectReviews(
-    subjectId,
-  )) as unknown as SubjectReview;
+  const reviews = await nextApiConnector.getSubjectReviews(subjectId);
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the connector schema differs from the extension view model
+  return reviews as unknown as SubjectReview;
 }
 
 export async function getTeacherReviews(teacherId: string) {
-  return (await nextApiConnector.getTeacherReviews(
-    teacherId,
-  )) as unknown as TeacherReview;
+  const reviews = await nextApiConnector.getTeacherReviews(teacherId);
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the connector schema differs from the extension view model
+  return reviews as unknown as TeacherReview;
 }
 
 export async function getComponents() {
-  return nextApiConnector.getEntityComponents();
+  return await nextApiConnector.getEntityComponents();
 }
 
 export async function getKicksInfo(kickId: string, studentId?: number) {
-  return (await nextApiConnector.getComponentKicks(kickId, {
+  const kicks = await nextApiConnector.getComponentKicks(kickId, {
     studentId,
-  })) as unknown as KicksInfo[];
+  });
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the connector returns an untyped payload
+  return kicks as KicksInfo[];
 }
 
 export type KicksInfo = {
@@ -191,7 +195,7 @@ export type KicksInfo = {
 };
 
 export async function getStudent(login: string, sessionId: string) {
-  return nextApiConnector.getStudent(login, sessionId);
+  return await nextApiConnector.getStudent(login, sessionId);
 }
 
 type SyncMatriculaStudentParams = {
@@ -205,9 +209,9 @@ export async function syncMatriculaStudent(
   { studentId, login, graduationId }: SyncMatriculaStudentParams,
 ) {
   await nextApiConnector.syncMatriculaStudent(sessionId, {
-    studentId: studentId ?? undefined,
     graduationId: graduationId ?? undefined,
     login,
+    studentId: studentId ?? undefined,
   });
 }
 
@@ -224,12 +228,12 @@ export async function updateStudent({
   graduationId: number | null;
   sessionId: string;
 }) {
-  return nextApiConnector.updateStudent(
+  return await nextApiConnector.updateStudent(
     {
+      graduationId: graduationId ?? undefined,
       login,
       ra,
       studentId: studentId ?? undefined,
-      graduationId: graduationId ?? undefined,
     },
     sessionId,
   );

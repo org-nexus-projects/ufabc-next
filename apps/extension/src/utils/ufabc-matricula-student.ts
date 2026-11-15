@@ -4,13 +4,13 @@ export function getStudentId() {
   let studentId = null;
 
   for (const script of scripts) {
-    const content = script.textContent || script.innerHTML;
+    const content = script.textContent ?? script.innerHTML;
     if (content.includes(searchString)) {
-      const regex = /matriculas\[(\d+)\]/;
-      const match = regex.exec(content);
+      const regex = /matriculas\[(?<id>\d+)\]/u;
+      const id = regex.exec(content)?.groups?.id;
 
-      if (match?.[1]) {
-        studentId = Number.parseInt(match[1], 10);
+      if (id !== undefined && id !== '') {
+        studentId = Number(id);
         // Interrompe o loop quando o ID é encontrado
         break;
       }
@@ -26,13 +26,13 @@ export function getStudentCourseId() {
 
   const { scripts } = document;
   for (const script of scripts) {
-    const content = script.textContent || script.innerHTML;
+    const content = script.textContent ?? script.innerHTML;
     if (content.includes(searchString)) {
-      const regex = /cursoAluno\s*=\s*(\d+)/;
-      const match = regex.exec(content);
+      const regex = /cursoAluno\s*=\s*(?<id>\d+)/u;
+      const id = regex.exec(content)?.groups?.id;
 
-      if (match?.[1]) {
-        UFCourseId = match[1];
+      if (id !== undefined && id !== '') {
+        UFCourseId = id;
         break;
       }
     }

@@ -10,31 +10,31 @@ export type Filter = {
 export function useFilters() {
   const campusFilters = ref<Filter[]>([
     {
-      name: 'São Bernardo',
       class: 'notBernardo',
-      val: true,
       comparator: 'andr',
+      name: 'São Bernardo',
+      val: true,
     },
     {
-      name: 'Santo André',
       class: 'notAndre',
-      val: true,
       comparator: 'bernardo',
+      name: 'Santo André',
+      val: true,
     },
   ])
 
   const shiftFilters = ref<Filter[]>([
     {
-      name: 'Noturno',
       class: 'notNoturno',
-      val: true,
       comparator: 'diurno',
+      name: 'Noturno',
+      val: true,
     },
     {
-      name: 'Matutino',
       class: 'notMatutino',
-      val: true,
       comparator: 'noturno',
+      name: 'Matutino',
+      val: true,
     },
   ])
 
@@ -43,9 +43,8 @@ export function useFilters() {
       const tableData = document.querySelectorAll<HTMLTableElement>('#tabeladisciplinas tr td:nth-child(3)')
       for (const data of tableData) {
         const subject = data.textContent?.toLocaleLowerCase()
-        if (!subject?.includes(params.comparator.toLocaleLowerCase())) {
-          // biome-ignore lint/style/noNonNullAssertion: <explanation>
-          data.parentElement!.style.display = 'none'
+        if (!subject?.includes(params.comparator.toLocaleLowerCase()) && data.parentElement !== null) {
+          data.parentElement.style.display = 'none'
         }
       }
       return
@@ -58,8 +57,8 @@ export function useFilters() {
   }
 
   return {
+    applyFilter,
     campusFilters,
     shiftFilters,
-    applyFilter,
   }
 }

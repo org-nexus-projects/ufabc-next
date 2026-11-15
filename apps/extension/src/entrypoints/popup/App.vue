@@ -3,7 +3,8 @@ import { Loader2 } from 'lucide-vue-next'
 import { useStorage } from '@/composables/useStorage'
 import { logger } from '@/utils/logger'
 import { useQuery } from '@tanstack/vue-query'
-import { getStudent, type MatriculaStudent } from '@/services/next'
+import { getStudent } from '@/services/next';
+import type { MatriculaStudent } from '@/services/next';
 
 const { state: student, isLoading: loading, error } = useStorage<{ ra: string; login: string }>('local:student')
 
@@ -14,7 +15,7 @@ const {
   isLoading: isFetching,
   error: fetchError
 } = useQuery({
-  queryKey: ['studentCoefficients', student],
+  enabled: !!student.value?.ra && !!student.value?.login,
   queryFn: async () => {
     if (!student.value?.login) {
       return {} as MatriculaStudent;
@@ -22,7 +23,7 @@ const {
     const dbStudent = await getStudent(student.value.login, student.value.ra)
     return dbStudent
   },
-  enabled: !!student.value?.ra && !!student.value?.login
+  queryKey: ['studentCoefficients', student]
 })
 </script>
 

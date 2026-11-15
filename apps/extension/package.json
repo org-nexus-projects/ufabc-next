@@ -15,7 +15,7 @@
     "tsc": "pnpm compile",
     "postinstall": "wxt prepare",
     "fmt": "oxfmt ./src --write",
-    "lint": "oxlint ./src || true"
+    "lint": "oxlint ./src"
   },
   "devDependencies": {
     "@changesets/changelog-git": "catalog:",
