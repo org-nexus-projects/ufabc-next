@@ -6,10 +6,7 @@ import type {
   FastifyRequest,
 } from 'fastify';
 import { fastifyPlugin as fp } from 'fastify-plugin';
-import {
-  RequestValidationError,
-  ResponseSerializationError,
-} from 'fastify-zod-openapi';
+import { RequestValidationError } from 'fastify-zod-openapi';
 
 import { NextError } from '@/errors/base-error.js';
 
@@ -25,22 +22,6 @@ export default fp(
           query: serializeQueryParams(request.query),
           url: request.url,
         };
-
-        if (error instanceof ResponseSerializationError) {
-          // The ZodError lives in `cause`; keep it server-side so response
-          // schema details never reach the client.
-          request.log.error(
-            { error, request: requestContext },
-            error.message
-          );
-
-          reply.status(422);
-          reply.send({
-            originalError: null,
-            zodIssues: [],
-          });
-          return;
-        }
 
         if (
           error instanceof RequestValidationError ||
