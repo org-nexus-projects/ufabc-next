@@ -11,7 +11,7 @@ describe('<CenteredLoading />', () => {
     server.use(http.get(`*/enrollments`, () => HttpResponse.json([])));
     render(HistoryPage);
     expect(
-      await screen.findByText(/É necessário instalar a/i)
+      await screen.findByText(/É necessário instalar a/iu)
     ).toBeInTheDocument();
   });
   test('show install extension warning if only 1 enrollment', async () => {
@@ -19,19 +19,19 @@ describe('<CenteredLoading />', () => {
       http.get(`*/enrollments`, () => HttpResponse.json([enrollments[0]]))
     );
     render(HistoryPage);
-    expect(await screen.findByText(/disciplina cursada/i)).toBeInTheDocument();
+    expect(await screen.findByText(/disciplina cursada/iu)).toBeInTheDocument();
   });
   test('open extension dialog when click on extension button then close it', async () => {
     const user = userEvent.setup();
 
     render(HistoryPage);
 
-    await user.click(await screen.findByLabelText(/Atualizar o histórico/));
+    await user.click(await screen.findByLabelText(/Atualizar o histórico/u));
 
-    expect(screen.getByText(/Já tenho instalado/i)).toBeVisible();
+    expect(screen.getByText(/Já tenho instalado/iu)).toBeVisible();
 
-    await user.click(screen.getByText(/Já tenho instalado/i));
+    await user.click(screen.getByText(/Já tenho instalado/iu));
 
-    expect(screen.getByText(/Já tenho instalado/i)).not.toBeVisible();
+    expect(screen.getByText(/Já tenho instalado/iu)).not.toBeVisible();
   });
 });

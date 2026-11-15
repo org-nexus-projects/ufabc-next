@@ -1,11 +1,11 @@
 import type { User } from '@next/services';
 import mixpanel from 'mixpanel-browser';
 
-import type { WebEvent } from './WebEvent';
 import { logger } from '@/utils/logger';
 
-// todo: improve error handling
-const MIXPANEL_TOKEN = import.meta.env.VITE_MIXPANEL_TOKEN || '';
+import type { WebEvent } from './WebEvent';
+
+const MIXPANEL_TOKEN = import.meta.env.VITE_MIXPANEL_TOKEN ?? '';
 
 class EventTracker {
   private initialized = false;
@@ -18,19 +18,22 @@ class EventTracker {
 
     mixpanel.init(MIXPANEL_TOKEN, {
       debug: import.meta.env.VITE_APP_ENV === 'local',
-      track_pageview: false,
       persistence: 'localStorage',
+      track_pageview: false,
     });
     this.initialized = true;
   }
 
   public track(event: WebEvent, params?: Record<string, unknown>) {
-    if (!this.initialized) return;
+    if (!this.initialized) {
+      return;
+    }
 
+    const distinctId: unknown = mixpanel.get_distinct_id();
     const eventParams = {
-      distinct_id: mixpanel.get_distinct_id() ?? null,
+      distinct_id: distinctId ?? null,
+      page_url: typeof window === 'undefined' ? null : window.location.href,
       timestamp: new Date().toISOString(),
-      page_url: typeof window !== 'undefined' ? window.location.href : null,
       ...params,
     };
 
@@ -38,19 +41,21 @@ class EventTracker {
   }
 
   public setUserProperties(userData: User) {
-    if (!this.initialized) return;
+    if (!this.initialized) {
+      return;
+    }
 
     const { _id: userId, oauth, email, createdAt, ra } = userData;
 
-    mixpanel.identify(String(ra)); // todo: maybe use userId instead of ra
+    mixpanel.identify(String(ra));
 
     const userProperties = {
-      $id: userId,
-      $email: email,
       $created: createdAt,
-      oauth: oauth,
-      userId: userId,
-      ra: ra,
+      $email: email,
+      $id: userId,
+      oauth,
+      ra,
+      userId,
     };
 
     mixpanel.people.set(userProperties);

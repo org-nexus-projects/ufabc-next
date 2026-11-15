@@ -1,12 +1,10 @@
 import 'vuetify/styles';
 import 'element-plus/dist/index.css';
 import '@mdi/font/css/materialdesignicons.css';
-import type { QueryClient } from '@tanstack/query-core';
 import {
   QueryClient as QueryClientVue,
   VueQueryPlugin,
 } from '@tanstack/vue-query';
-import type { ElMessage } from 'element-plus';
 import elementPlus from 'element-plus';
 import Highcharts from 'highcharts';
 import HighchartsVue from 'highcharts-vue';
@@ -26,22 +24,6 @@ import { darkTheme, lightTheme } from './config/theme';
 import { eventTracker } from './helpers/EventTracker';
 import client from './queryClient';
 import router from './router';
-
-interface Device {
-  cordova: string;
-  model: string;
-  platform: string;
-  uuid: string;
-  version: string;
-}
-
-declare global {
-  interface Window {
-    Toaster: typeof ElMessage;
-    device: Device;
-    queryClient: QueryClient;
-  }
-}
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
@@ -67,15 +49,15 @@ const vuetify = createVuetify({
   theme: {
     defaultTheme,
     themes: {
-      light: lightTheme,
       dark: darkTheme,
+      light: lightTheme,
     },
   },
 });
 
 const queryClient = new QueryClientVue({
-  queryCache: client.getQueryCache(),
   defaultOptions: client.getDefaultOptions(),
+  queryCache: client.getQueryCache(),
 });
 
 eventTracker.init();
@@ -88,6 +70,6 @@ createApp(App)
   .use(VueQueryPlugin, {
     queryClient,
   })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any, typescript/no-unsafe-argument, typescript/no-unsafe-type-assertion -- highcharts-vue only ships Vue 2 typings
   .use(HighchartsVue as any)
   .mount('#app');

@@ -7,12 +7,12 @@ import { render, screen, userEvent } from '@/test-utils';
 
 import { SearchBar } from '.';
 
-vi.mock('vue-router', async () => ({
-  useRouter: vi.fn(),
+vi.mock('vue-router', () => ({
   createRouter: vi.fn(() => ({
     beforeEach: vi.fn(),
   })),
   createWebHistory: vi.fn(),
+  useRouter: vi.fn(),
 }));
 
 const replaceMock = vi.fn();
@@ -20,14 +20,14 @@ const replaceMock = vi.fn();
 describe('<SearchBar />', () => {
   beforeEach(() => {
     vi.mocked(useRouter).mockReturnValue({
-      go: vi.fn(),
-      push: vi.fn(),
-      replace: replaceMock,
       currentRoute: {
         value: {
           query: {},
         },
       },
+      go: vi.fn(),
+      push: vi.fn(),
+      replace: replaceMock,
     } as unknown as ReturnType<typeof useRouter>);
   });
 
@@ -35,7 +35,7 @@ describe('<SearchBar />', () => {
     render(SearchBar);
     await userEvent.type(
       await screen.findByPlaceholderText(
-        /Digite o nome do professor ou disciplina/i
+        /Digite o nome do professor ou disciplina/iu
       ),
       'teste'
     );
@@ -46,19 +46,19 @@ describe('<SearchBar />', () => {
   });
   test('render SearchBar, type something, and click on teacher result', async () => {
     vi.mocked(useRouter).mockReturnValue({
-      replace: replaceMock,
       currentRoute: {
         value: {
           name: 'reviews',
           query: { q: 'teste' },
         },
       },
+      replace: replaceMock,
     } as unknown as ReturnType<typeof useRouter>);
     render(SearchBar);
 
     await userEvent.click(
       await screen.findByPlaceholderText(
-        /Digite o nome do professor ou disciplina/i
+        /Digite o nome do professor ou disciplina/iu
       )
     );
     expect(
@@ -78,19 +78,19 @@ describe('<SearchBar />', () => {
   });
   test('render SearchBar, type something, and click on subject result', async () => {
     vi.mocked(useRouter).mockReturnValue({
-      replace: replaceMock,
       currentRoute: {
         value: {
           name: 'reviews',
           query: { q: 'teste' },
         },
       },
+      replace: replaceMock,
     } as unknown as ReturnType<typeof useRouter>);
     render(SearchBar);
 
     await userEvent.click(
       await screen.findByPlaceholderText(
-        /Digite o nome do professor ou disciplina/i
+        /Digite o nome do professor ou disciplina/iu
       )
     );
     expect(
@@ -118,20 +118,20 @@ describe('<SearchBar />', () => {
       )
     );
     vi.mocked(useRouter).mockReturnValue({
-      replace: replaceMock,
       currentRoute: {
         value: {
           name: 'reviews',
           query: { q: 'teste' },
         },
       },
+      replace: replaceMock,
     } as unknown as ReturnType<typeof useRouter>);
     render(SearchBar);
     expect(
-      await screen.findByText(/Erro ao buscar professores/i)
+      await screen.findByText(/Erro ao buscar professores/iu)
     ).toBeInTheDocument();
     expect(
-      await screen.findByText(/Erro ao buscar disciplinas/i)
+      await screen.findByText(/Erro ao buscar disciplinas/iu)
     ).toBeInTheDocument();
   });
 });

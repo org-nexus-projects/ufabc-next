@@ -4,27 +4,27 @@ import { ElMessage } from 'element-plus';
 import { onMounted, PropType } from 'vue';
 
 const props = defineProps({
-  type: {
-    type: String as PropType<'error' | 'success' | 'warning' | 'info'>,
-    default: 'error',
-  },
   duration: {
-    type: Number,
     default: 5000,
+    type: Number,
   },
   text: {
-    type: String,
     default:
       'Não foi possível buscar as informações, tente novamente mais tarde',
+    type: String,
+  },
+  type: {
+    default: 'error',
+    type: String as PropType<'error' | 'success' | 'warning' | 'info'>,
   },
 });
 
 onMounted(() => {
   ElMessage({
-    showClose: true,
-    message: props.text,
-    type: props.type,
     duration: props.duration,
+    message: props.text,
+    showClose: true,
+    type: props.type,
   });
 });
 </script>

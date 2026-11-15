@@ -10,21 +10,21 @@ describe('<CommentsList />', () => {
   test('render Comments List', async () => {
     render(CommentsList, {
       props: {
-        teacherId: '111',
         selectedSubject: 'Todas as matérias',
+        teacherId: '111',
       },
     });
     expect(
-      await screen.findByText(RegExp(comments.data[0].comment, 'i'))
+      await screen.findByText(new RegExp(comments.data[0].comment, 'iu'))
     ).toBeInTheDocument();
     expect(
-      screen.getAllByText(RegExp(comments.data[0].subject.name, 'i'))[0]
+      screen.getAllByText(new RegExp(comments.data[0].subject.name, 'iu'))[0]
     ).toBeInTheDocument();
     expect(
-      screen.getByText(RegExp(comments.data[1].comment, 'i'))
+      screen.getByText(new RegExp(comments.data[1].comment, 'iu'))
     ).toBeInTheDocument();
     expect(
-      screen.getAllByText(RegExp(comments.data[1].subject.name, 'i'))[0]
+      screen.getAllByText(new RegExp(comments.data[1].subject.name, 'iu'))[0]
     ).toBeInTheDocument();
   });
   test('render empty Comments List', async () => {
@@ -38,12 +38,14 @@ describe('<CommentsList />', () => {
     );
     render(CommentsList, {
       props: {
-        teacherId: '111',
         selectedSubject: 'Todas as matérias',
+        teacherId: '111',
       },
     });
     expect(
-      await screen.findByText(/Infelizmente, nenhum comentário foi encontrado/i)
+      await screen.findByText(
+        /Infelizmente, nenhum comentário foi encontrado/iu
+      )
     ).toBeInTheDocument();
   });
   test('show toaster when Fetching Comments Error', async () => {
@@ -52,8 +54,8 @@ describe('<CommentsList />', () => {
     );
     render(CommentsList, {
       props: {
-        teacherId: '111',
         selectedSubject: 'Todas as matérias',
+        teacherId: '111',
       },
     });
 

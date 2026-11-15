@@ -33,9 +33,7 @@ type Disciplina = {
 
 type Quads = 1 | 2 | 3;
 
-type CoefficientsByYear = {
-  [year: string]: Record<Quads, QuadInformation>;
-};
+type CoefficientsByYear = Record<string, Record<Quads, QuadInformation>>;
 
 export type CourseInformation = {
   _id: string;
@@ -60,16 +58,18 @@ type HistoriesGraduations = {
 };
 
 export const Performance = {
-  getCrHistory: async () => {
-    const { data } = await api.get<QuadInformation[]>('courseStats/history');
-    return data;
-  },
   getCrDistribution: async () => {
     const { data } = await api.get<CrDistributionData[]>('courseStats/grades');
     return data;
   },
+  getCrHistory: async () => {
+    const { data } = await api.get<QuadInformation[]>('courseStats/history');
+    return data;
+  },
   getHistoriesGraduations: async () => {
-    const { data } = await api.get<HistoriesGraduations>('/courseStats/user/grades');
+    const { data } = await api.get<HistoriesGraduations>(
+      '/courseStats/user/grades'
+    );
     return data;
   },
 };

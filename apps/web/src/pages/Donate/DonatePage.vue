@@ -7,40 +7,40 @@ import { WebEvent } from '@/helpers/WebEvent';
 
 const dialog = ref(false);
 
-const handleCloseDialog = () => {
+function handleCloseDialog() {
   dialog.value = false;
-};
+}
 
-const handleOpenDialog = () => {
+function handleOpenDialog() {
   dialog.value = true;
 
   eventTracker.track(WebEvent.DONATE_DIALOG_OPENED, {
     event_type: 'dialog_open',
   });
-};
+}
 
-const handlePixLinkClick = () => {
+function handlePixLinkClick() {
   eventTracker.track(WebEvent.DONATE_PIX_LINK_CLICKED);
-};
+}
 
 const tableData = [
   {
-    name: 'Domínio ufabcnext.com',
+    amount: 'R$ 70,00/ano',
     description:
       'É o nome da nossa URL. Os domínios servem para identificar, de forma amigável, os endereços das aplicações pela internet.',
-    amount: 'R$ 70,00/ano',
+    name: 'Domínio ufabcnext.com',
   },
   {
-    name: 'Servidor (Digital Ocean)',
+    amount: 'US$ 120,00/ano',
     description:
       'Para a plataforma poder estar no ar, precisamos hospedar toda a interface e sua infraestrutura, assim como a sua API. Para isso, usamos um servidor na cloud DigitalOcean, o que também nos gera custos',
-    amount: 'US$ 120,00/ano',
+    name: 'Servidor (Digital Ocean)',
   },
   {
-    name: 'Conta Apple Developer',
+    amount: 'US$ 100,00/ano',
     description:
       'Precisamos pagar uma taxa anual para podermos ter uma conta de desenvolvedor na Apple, e assim poder publicar aplicativos para a Apple Store.',
-    amount: 'US$ 100,00/ano',
+    name: 'Conta Apple Developer',
   },
 ];
 
@@ -106,7 +106,7 @@ onMounted(() => {
           </div>
         </div>
 
-        <v-table class="mb-3 costs-table">
+        <v-table class="costs-table mb-3">
           <thead>
             <tr>
               <th>Nome</th>

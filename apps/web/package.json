@@ -10,8 +10,8 @@
     "build": "pnpm type-check && vite build",
     "test": "vitest run --coverage",
     "test:watch": "vitest --coverage",
-    "lint": "oxlint . || true",
-    "lint:fix": "oxlint --fix . || true",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
     "tsc": "vue-tsgo --project tsconfig.json"
   },
   "dependencies": {

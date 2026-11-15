@@ -1,3 +1,4 @@
+import { api } from './api';
 import type {
   SearchSubject,
   SearchTeacher,
@@ -6,31 +7,35 @@ import type {
   TeacherSummary,
 } from './types';
 
-import { api } from './api';
-
 export const Reviews = {
-  searchTeachers: async (q: string) => {
-    const { data } = await api.get('/entities/teachers/search', {
-      params: { q },
-    });
-    return data as SearchTeacher;
-  },
-  searchSubjects: async (q: string) => {
-    const { data } = await api.get('/entities/subjects/search', {
-      params: { q },
-    });
-    return data as SearchSubject;
+  getSubject: async (id: string) => {
+    const { data } = await api.get<SubjectInfo>(
+      `/entities/subjects/reviews/${id}`
+    );
+    return data;
   },
   getTeacher: async (id: string) => {
-    const { data } = await api.get(`/entities/teachers/reviews/${id}`);
-    return data as TeacherReview;
-  },
-  getSubject: async (id: string) => {
-    const { data } = await api.get(`/entities/subjects/reviews/${id}`);
-    return data as SubjectInfo;
+    const { data } = await api.get<TeacherReview>(
+      `/entities/teachers/reviews/${id}`
+    );
+    return data;
   },
   getTeacherSummary: async (id: string) => {
-    const { data } = await api.get(`/v2/teachers/${id}/summary`);
-    return data as TeacherSummary;
+    const { data } = await api.get<TeacherSummary>(
+      `/v2/teachers/${id}/summary`
+    );
+    return data;
+  },
+  searchSubjects: async (q: string) => {
+    const { data } = await api.get<SearchSubject>('/entities/subjects/search', {
+      params: { q },
+    });
+    return data;
+  },
+  searchTeachers: async (q: string) => {
+    const { data } = await api.get<SearchTeacher>('/entities/teachers/search', {
+      params: { q },
+    });
+    return data;
   },
 };

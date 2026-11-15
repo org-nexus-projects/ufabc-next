@@ -19,13 +19,13 @@ const chartKey = ref(0);
 watch(
   () => theme.global.current.value.dark,
   () => {
-    chartKey.value++;
+    chartKey.value += 1;
   }
 );
 
 type Grades = Record<string, number>;
 const props = defineProps({
-  grades: { type: Object as PropType<Grades>, required: true },
+  grades: { required: true, type: Object as PropType<Grades> },
 });
 
 const grades = computed(() => {
@@ -40,26 +40,26 @@ const chartOptions = computed(() => ({
   chart: {
     type: 'pie',
   },
-  series: [
-    {
-      name: 'Conceito',
-      data: grades.value,
-    },
-  ],
-  title: {
-    text: '',
-  },
   plotOptions: {
     pie: {
       allowPointSelect: true,
+      colors: grades.value.map((grade) => conceptsColor[grade.name]),
       cursor: 'pointer',
       dataLabels: {
         enabled: true,
         format: '<b>{point.name}</b>: {point.percentage:.1f} %',
       },
-      colors: grades.value.map((grade) => conceptsColor[grade.name]),
       showInLegend: true,
     },
+  },
+  series: [
+    {
+      data: grades.value,
+      name: 'Conceito',
+    },
+  ],
+  title: {
+    text: '',
   },
 }));
 </script>

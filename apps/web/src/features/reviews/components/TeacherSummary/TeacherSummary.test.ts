@@ -21,11 +21,9 @@ describe('<TeacherSummary />', () => {
     });
 
     expect(
-      await screen.findByText('Resumindo comentários...'),
+      await screen.findByText('Resumindo comentários...')
     ).toBeInTheDocument();
-    expect(
-      screen.queryByText(teacherSummary.summary),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(teacherSummary.summary)).not.toBeInTheDocument();
 
     await vi.advanceTimersByTimeAsync(1600);
 
@@ -53,7 +51,7 @@ describe('<TeacherSummary />', () => {
 
     expect(await screen.findByText('Gerado por IA')).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Sobre este resumo' }),
+      screen.getByRole('button', { name: 'Sobre este resumo' })
     ).toBeInTheDocument();
   });
 
@@ -67,7 +65,7 @@ describe('<TeacherSummary />', () => {
     await screen.findByText(teacherSummary.summary);
 
     expect(
-      screen.getByText(teacherSummary.commentsCount.toString()),
+      screen.getByText(teacherSummary.commentsCount.toString())
     ).toBeInTheDocument();
     expect(screen.getByText('Agora mesmo')).toBeInTheDocument();
   });
@@ -76,8 +74,8 @@ describe('<TeacherSummary />', () => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
     server.use(
       http.get(`${baseUrl}/v2/teachers/*/summary`, () =>
-        HttpResponse.json({ message: 'not found' }, { status: 404 }),
-      ),
+        HttpResponse.json({ message: 'not found' }, { status: 404 })
+      )
     );
 
     render(TeacherSummary, {
@@ -86,11 +84,11 @@ describe('<TeacherSummary />', () => {
 
     await vi.advanceTimersByTimeAsync(1600);
 
-    await waitFor(() =>
+    await waitFor(() => {
       expect(
-        screen.queryByText(teacherSummary.summary),
-      ).not.toBeInTheDocument(),
-    );
+        screen.queryByText(teacherSummary.summary)
+      ).not.toBeInTheDocument();
+    });
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });

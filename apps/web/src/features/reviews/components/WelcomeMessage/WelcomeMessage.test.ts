@@ -9,13 +9,13 @@ describe('<WelcomeMessage />', () => {
       screen.getByText('Como funciona o UFABC Next e os Reviews?')
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Centralização da informação/i)
+      screen.getByText(/Centralização da informação/iu)
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Informações anônimas e segurança de dados/i)
+      screen.getByText(/Informações anônimas e segurança de dados/iu)
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Interface responsiva, acesse pelo celular/i)
+      screen.getByText(/Interface responsiva, acesse pelo celular/iu)
     ).toBeInTheDocument();
   });
 });

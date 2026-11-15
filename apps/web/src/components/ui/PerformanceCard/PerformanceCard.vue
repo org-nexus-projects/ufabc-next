@@ -1,8 +1,8 @@
 <template>
   <v-card
-    class="performance-card pa-5 rounded-lg w-100 h-100 d-flex flex-column justify-space-between"
+    class="performance-card pa-5 d-flex flex-column justify-space-between h-100 w-100 rounded-lg"
   >
-    <v-icon class="mb-1 mdi" :class="[props.icon, `text-${props.color}`]" />
+    <v-icon class="mdi mb-1" :class="[props.icon, `text-${props.color}`]" />
     <span class="text-h5 font-weight-bold">
       {{ props.title }}
       <span class="text-body-1 font-weight-light">
@@ -11,7 +11,7 @@
     </span>
 
     <v-card-text
-      class="text-subtitle-2 px-0 pb-0 pt-1 d-flex flex-column justify-end"
+      class="text-subtitle-2 d-flex flex-column justify-end px-0 pt-1 pb-0"
     >
       <p>
         {{ description }}
@@ -34,7 +34,7 @@
         height="6"
         :color="color"
         bg-color="pink-lighten-3"
-        class="rounded-lg mt-2 d-none d-sm-block"
+        class="d-none d-sm-block mt-2 rounded-lg"
       />
     </v-card-text>
   </v-card>
@@ -53,8 +53,8 @@ type Props = {
 };
 
 const props = withDefaults(defineProps<Props>(), {
-  progressBarValue: 100,
   progressBarMaxValue: 100,
+  progressBarValue: 100,
 });
 </script>
 

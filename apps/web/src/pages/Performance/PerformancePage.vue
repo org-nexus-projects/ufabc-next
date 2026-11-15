@@ -20,10 +20,10 @@
         </v-col>
       </v-row>
     </v-container>
-    <PaperCard class="w-100 mt-4">
+    <PaperCard class="mt-4 w-100">
       <Chart :key="`cr-history-${chartKey}`" :options="crHistoryOptions" />
     </PaperCard>
-    <PaperCard class="w-100 mt-4">
+    <PaperCard class="mt-4 w-100">
       <v-select
         v-model="currentCpCourse"
         :items="cpHistoryData"
@@ -34,7 +34,7 @@
       />
       <Chart :key="`cp-history-${chartKey}`" :options="cpHistoryOptions" />
     </PaperCard>
-    <PaperCard class="w-100 mt-4">
+    <PaperCard class="mt-4 w-100">
       <Chart
         :key="`cr-distribution-${chartKey}`"
         :options="crDistributionOptions"
@@ -44,7 +44,8 @@
 </template>
 
 <script setup lang="ts">
-import { type CourseInformation, Performance } from '@next/services';
+import { Performance } from '@next/services';
+import type { CourseInformation } from '@next/services';
 import { useQuery } from '@tanstack/vue-query';
 import { Chart } from 'highcharts-vue';
 import { computed, ref, watch } from 'vue';
@@ -62,7 +63,7 @@ const chartKey = ref(0);
 watch(
   () => theme.global.current.value.dark,
   () => {
-    chartKey.value++;
+    chartKey.value += 1;
   }
 );
 
@@ -71,9 +72,10 @@ const areaGraphOptions = computed(() => ({
     enabled: true,
   },
   chart: {
-    type: 'area',
     style: { fontFamily: 'Roboto, sans-serif' },
+    type: 'area',
   },
+  colors: [theme.global.current.value.colors?.primary],
   plotOptions: {
     area: {
       fillOpacity: 0.45,
@@ -83,7 +85,6 @@ const areaGraphOptions = computed(() => ({
       },
     },
   },
-  colors: [theme.global.current.value.colors?.primary],
   tooltip: {
     borderRadius: 10,
     padding: 12,
@@ -91,13 +92,13 @@ const areaGraphOptions = computed(() => ({
 }));
 
 const { data: crHistoryData, isPending: isPendingCrHistory } = useQuery({
-  queryKey: ['users', 'me', 'grades'],
   queryFn: Performance.getCrHistory,
+  queryKey: ['users', 'me', 'grades'],
 });
 
 const crHistorySeries = computed(() => {
   const arrCrHistory = crHistoryData.value?.map((quad) => {
-    const roundedCr = parseFloat(quad.cr_acumulado.toFixed(2));
+    const roundedCr = Number(quad.cr_acumulado.toFixed(2));
     return [formatSeason(quad.season), roundedCr];
   });
   return arrCrHistory;
@@ -105,39 +106,39 @@ const crHistorySeries = computed(() => {
 
 const crHistoryOptions = computed(() => ({
   ...areaGraphOptions.value,
-  title: {
-    text: 'Seu CR ao longo do tempo',
-  },
-  yAxis: {
-    title: {
-      text: 'CR',
-    },
-    tickInterval: 0.5,
-    min: 0,
-    max: 4,
-  },
-  xAxis: {
-    title: {
-      text: 'Quadrimestre',
-    },
-    crosshair: true,
-    type: 'category',
+  legend: {
+    verticalAlign: 'top',
   },
   series: [
     {
-      name: 'Seu CR',
       data: crHistorySeries.value,
+      name: 'Seu CR',
     },
   ],
-  legend: {
-    verticalAlign: 'top',
+  title: {
+    text: 'Seu CR ao longo do tempo',
+  },
+  xAxis: {
+    crosshair: true,
+    title: {
+      text: 'Quadrimestre',
+    },
+    type: 'category',
+  },
+  yAxis: {
+    max: 4,
+    min: 0,
+    tickInterval: 0.5,
+    title: {
+      text: 'CR',
+    },
   },
 }));
 
 const currentCpCourse = ref<CourseInformation>();
 const { data: cpHistoryData, isPending: isPendingCpHistory } = useQuery({
-  queryKey: ['historiesGraduations'],
   queryFn: Performance.getHistoriesGraduations,
+  queryKey: ['historiesGraduations'],
   select: (response) => {
     currentCpCourse.value = response.docs[0];
     return response.docs;
@@ -145,63 +146,62 @@ const { data: cpHistoryData, isPending: isPendingCpHistory } = useQuery({
 });
 
 const cpHistorySeries = computed(() => {
-  if (!currentCpCourse.value) return [];
+  if (!currentCpCourse.value) {
+    return [];
+  }
 
   const result = [];
   const courseData = currentCpCourse.value.coefficients;
 
-  for (const year in courseData) {
-    for (const quadNumber in courseData[year]) {
-      const cpValue =
-        courseData[year][Number(quadNumber) as 1 | 2 | 3].cp_acumulado;
-      result.push([formatSeason(`${year}:${quadNumber}`), cpValue]);
+  for (const [year, quads] of Object.entries(courseData)) {
+    for (const [quadNumber, quad] of Object.entries(quads)) {
+      result.push([formatSeason(`${year}:${quadNumber}`), quad.cp_acumulado]);
     }
   }
   return result;
 });
 const cpHistoryOptions = computed(() => ({
   ...areaGraphOptions.value,
+  series: [
+    {
+      data: cpHistorySeries.value,
+      name: 'Seu CP',
+    },
+  ],
   title: {
     text: 'Seu CP ao longo do tempo',
   },
-  yAxis: {
-    title: {
-      text: 'CP',
-    },
-    min: 0,
-    max: 1,
-  },
   xAxis: {
+    crosshair: true,
     title: {
       text: 'Quadrimestre',
     },
-    crosshair: true,
     type: 'category',
   },
-  series: [
-    {
-      name: 'Seu CP',
-      data: cpHistorySeries.value,
+  yAxis: {
+    max: 1,
+    min: 0,
+    title: {
+      text: 'CP',
     },
-  ],
+  },
 }));
 
 const { data: crDistributionData, isPending: isPendingCrDistributionData } =
   useQuery({
-    queryKey: ['stats', 'grades'],
     queryFn: Performance.getCrDistribution,
+    queryKey: ['stats', 'grades'],
   });
 
 const crDistributionSeries = computed(() => {
-  const arrCrDistribution = crDistributionData.value?.map((element) => {
-    return [Number(element._id), element.total];
-  });
+  const arrCrDistribution = crDistributionData.value?.map((element) => [
+    Number(element._id),
+    element.total,
+  ]);
   return arrCrDistribution;
 });
 
-const userCr = computed(() => {
-  return crHistoryData.value?.[crHistoryData.value.length - 1].cr_acumulado;
-});
+const userCr = computed(() => crHistoryData.value?.at(-1)?.cr_acumulado);
 
 const closeCrs = computed(
   () =>
@@ -212,29 +212,6 @@ const closeCrs = computed(
 
 const crDistributionOptions = computed(() => ({
   ...areaGraphOptions.value,
-  title: {
-    text: 'Distribuição de CR',
-  },
-  yAxis: {
-    title: {
-      text: 'Quantidade de alunos',
-    },
-    tickInterval: 50,
-  },
-  xAxis: {
-    title: {
-      text: 'CR',
-    },
-    crosshair: true,
-    type: 'category',
-    tickInterval: 0.5,
-  },
-  series: [
-    {
-      name: 'Quantidade de alunos',
-      data: crDistributionSeries.value,
-    },
-  ],
   annotations: [
     {
       draggable: '',
@@ -245,8 +222,8 @@ const crDistributionOptions = computed(() => ({
         {
           point: {
             x: userCr.value,
-            y: closeCrs.value,
             xAxis: 0,
+            y: closeCrs.value,
             yAxis: 0,
           },
           text: 'Seu CR está aqui',
@@ -254,6 +231,29 @@ const crDistributionOptions = computed(() => ({
       ],
     },
   ],
+  series: [
+    {
+      data: crDistributionSeries.value,
+      name: 'Quantidade de alunos',
+    },
+  ],
+  title: {
+    text: 'Distribuição de CR',
+  },
+  xAxis: {
+    crosshair: true,
+    tickInterval: 0.5,
+    title: {
+      text: 'CR',
+    },
+    type: 'category',
+  },
+  yAxis: {
+    tickInterval: 50,
+    title: {
+      text: 'Quantidade de alunos',
+    },
+  },
 }));
 
 const userMaxCr = computed(() => {
@@ -264,49 +264,54 @@ const userMaxCr = computed(() => {
   return 'undefined';
 });
 
+function findLastMaxBy<T>(
+  items: T[] | undefined,
+  getValue: (item: T) => number
+): T | undefined {
+  let best: T | undefined;
+  for (const item of items ?? []) {
+    if (best === undefined || !(getValue(best) > getValue(item))) {
+      best = item;
+    }
+  }
+  return best;
+}
+
 const maxCreditsQuad = computed(() =>
-  crHistoryData.value?.reduce((previousQuad, currentQuad) => {
-    return previousQuad.period_credits > currentQuad.period_credits
-      ? previousQuad
-      : currentQuad;
-  })
+  findLastMaxBy(crHistoryData.value, (quad) => quad.period_credits)
 );
 
-const bestQuad = computed(() => {
-  return crHistoryData.value?.reduce((previousQuad, currentQuad) => {
-    return previousQuad.cr_quad > currentQuad.cr_quad
-      ? previousQuad
-      : currentQuad;
-  });
-});
+const bestQuad = computed(() =>
+  findLastMaxBy(crHistoryData.value, (quad) => quad.cr_quad)
+);
 
 const cards = computed(() => [
   {
-    title: userMaxCr.value,
-    content: 'Seu maior CR até hoje',
     color: 'ufabcnext-green',
+    content: 'Seu maior CR até hoje',
     icon: 'mdi-chart-line-variant',
+    title: userMaxCr.value,
   },
   {
-    title: closeCrs.value,
-    content: 'Possuem um CR muito próximo ao seu',
     color: 'navigation',
+    content: 'Possuem um CR muito próximo ao seu',
     icon: 'mdi-chart-bell-curve',
+    title: closeCrs.value,
   },
   {
-    title: formatSeason(bestQuad.value?.season || ''),
-    subtitle: `/ ${bestQuad.value?.period_credits} créditos`,
-    content: 'Seu melhor quadrimestre',
     color: 'primary',
+    content: 'Seu melhor quadrimestre',
     icon: 'mdi-trophy-outline',
+    subtitle: `/ ${bestQuad.value?.period_credits} créditos`,
+    title: formatSeason(bestQuad.value?.season || ''),
     tooltip: 'Foi o quadrimestre em que você tirou suas melhores notas',
   },
   {
-    title: formatSeason(maxCreditsQuad.value?.season || ''),
-    subtitle: `/ ${maxCreditsQuad.value?.period_credits} créditos`,
-    content: 'Quadrimestre com mais créditos',
     color: 'ufabcnext-yellow',
+    content: 'Quadrimestre com mais créditos',
     icon: 'mdi-fire',
+    subtitle: `/ ${maxCreditsQuad.value?.period_credits} créditos`,
+    title: formatSeason(maxCreditsQuad.value?.season || ''),
   },
 ]);
 </script>

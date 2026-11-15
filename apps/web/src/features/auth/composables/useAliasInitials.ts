@@ -12,10 +12,10 @@ export function useAliasInitials() {
   const alias = ref('');
 
   const userLogin = authStore.user?.email
-    ?.replace(/@(aluno\.)?ufabc\.edu\.br$/, '')
+    ?.replace(/@(?:aluno\.)?ufabc\.edu\.br$/u, '')
     .toUpperCase();
 
-  if (userLogin) {
+  if (userLogin !== undefined && userLogin !== '') {
     const userSplited = userLogin.split('.');
 
     if (userSplited.length === 1) {
@@ -25,7 +25,6 @@ export function useAliasInitials() {
 
     alias.value = `${userLogin[0]}${userSplited[1][0]}`;
     return alias;
-  } else {
-    return alias;
   }
+  return alias;
 }

@@ -1,8 +1,7 @@
+import { api, apiParser } from './api';
 import type { SearchComponentItem, SearchCourseItem } from './types';
 
-import { api, apiParser } from './api';
-
-export interface UfabcParserComponent {
+export type UfabcParserComponent = {
   componentKey: string;
   subjectKey: string;
   name: string;
@@ -21,7 +20,7 @@ export interface UfabcParserComponent {
     individual: number;
   };
   courses: Array<{
-    name: string | '-';
+    name: string;
     UFCourseId: number;
     category: 'limited' | 'mandatory';
   }>;
@@ -31,30 +30,43 @@ export interface UfabcParserComponent {
     isSecondary: boolean;
   }>;
   // timetable: Timetable[]; // Removed for now
-}
+};
 
 export const Whatsapp = {
-  searchComponents: async (season: string) => {
-    const { data } = await api.get('v2/components', {
-      params: { season },
-    });
-    return data as SearchComponentItem[];
-  },
-  getComponentsByUser: async ({ ra, season }: { ra: number; season: string }) => {
-    const { data } = await api.get('entities/enrollments/wpp', {
-      params: { ra, season },
-    });
-    return data as SearchComponentItem[];
+  getComponentsByUser: async ({
+    ra,
+    season,
+  }: {
+    ra: number;
+    season: string;
+  }) => {
+    const { data } = await api.get<SearchComponentItem[]>(
+      'entities/enrollments/wpp',
+      {
+        params: { ra, season },
+      }
+    );
+    return data;
   },
   getCourses: async () => {
-    const response = await apiParser.get('/components/curriculum/subjects');
-    return response.data as SearchCourseItem[];
+    const response = await apiParser.get<SearchCourseItem[]>(
+      '/components/curriculum/subjects'
+    );
+    return response.data;
   },
-
-  searchComponentsBySeason: async (season: string) => {
-    const response = await apiParser.get<UfabcParserComponent[]>('/components', {
+  searchComponents: async (season: string) => {
+    const { data } = await api.get<SearchComponentItem[]>('v2/components', {
       params: { season },
     });
+    return data;
+  },
+  searchComponentsBySeason: async (season: string) => {
+    const response = await apiParser.get<UfabcParserComponent[]>(
+      '/components',
+      {
+        params: { season },
+      }
+    );
     return response.data;
   },
 };

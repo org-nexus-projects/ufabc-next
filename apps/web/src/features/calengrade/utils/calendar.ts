@@ -11,14 +11,6 @@ const dayOfWeekReturnMappings = {
     number: 0,
     short: 'SU',
   },
-  'Segunda-feira': {
-    number: 1,
-    short: 'MO',
-  },
-  'Terça-feira': {
-    number: 2,
-    short: 'TU',
-  },
   'Quarta-feira': {
     number: 3,
     short: 'WE',
@@ -26,6 +18,10 @@ const dayOfWeekReturnMappings = {
   'Quinta-feira': {
     number: 4,
     short: 'TH',
+  },
+  'Segunda-feira': {
+    number: 1,
+    short: 'MO',
   },
   'Sexta-feira': {
     number: 5,
@@ -35,58 +31,66 @@ const dayOfWeekReturnMappings = {
     number: 6,
     short: 'SA',
   },
+  'Terça-feira': {
+    number: 2,
+    short: 'TU',
+  },
 } as const;
 
 type DayOfWeekReturnMappings = typeof dayOfWeekReturnMappings;
 
-const getDayInfo = (day: string | null) => {
-  let value;
-  Object.keys(dayOfWeekReturnMappings).forEach((dayOfWeek) => {
-    if (day?.indexOf(dayOfWeek) !== -1) {
-      value =
-        dayOfWeekReturnMappings[dayOfWeek as keyof DayOfWeekReturnMappings];
+function getDayInfo(day: string | null) {
+  let value: DayOfWeekReturnMappings[keyof DayOfWeekReturnMappings] | undefined;
+  for (const [dayOfWeek, info] of Object.entries(dayOfWeekReturnMappings)) {
+    const matches = day === null || day.includes(dayOfWeek);
+    if (matches && (value === undefined || info.number > value.number)) {
+      value = info;
     }
-  });
-  if (value) return value;
-  return dayOfWeekReturnMappings.Domingo;
-};
+  }
+  return value ?? dayOfWeekReturnMappings.Domingo;
+}
 
-const formatEventDate = (date: Dayjs): ics.DateArray =>
-  date
-    .format('YYYY-M-D-H-m')
-    .split('-')
-    .map((str) => Number(str)) as ics.DateArray;
+function formatEventDate(date: Dayjs): ics.DateArray {
+  return [
+    date.year(),
+    date.month() + 1,
+    date.date(),
+    date.hour(),
+    date.minute(),
+  ];
+}
 
 // Function to sanitize text for iCalendar
-const sanitizeText = (text: string | null): string => {
-  if (!text) return '';
+function sanitizeText(text: string | null): string {
+  if (text === null || text === '') {
+    return '';
+  }
 
-  // Remove or replace problematic characters
   return text
-    .normalize('NFD') // Decompose accented characters
-    .replace(/[\u0300-\u036f]/g, '') // Remove accent marks
-    .replace(/[^\x00-\x7F]/g, '') // Remove non-ASCII characters
-    .replace(/\\/g, '\\\\')
-    .replace(/;/g, '\\;')
-    .replace(/,/g, '\\,')
-    .replace(/\n/g, '\\n');
-};
+    .normalize('NFD')
+    .replaceAll(/[\u0300-\u036F]/gu, '')
+    .replaceAll(/[^\p{ASCII}]/gu, '')
+    .replaceAll('\\', '\\\\')
+    .replaceAll(';', '\\;')
+    .replaceAll(',', '\\,')
+    .replaceAll('\n', '\\n');
+}
 
-export const handleCalendar = ({ classes, startDate, endDate }: Calendar) => {
+export function handleCalendar({ classes, startDate, endDate }: Calendar) {
   const calendar: ics.EventAttributes[] = [];
 
-  classes.forEach((subject) => {
-    subject.times.forEach((time) => {
+  for (const subject of classes) {
+    for (const time of subject.times) {
       let startOfPeriod = dayjs(`${startDate}T00:00:00.000`);
       const day = getDayInfo(time.day).number;
 
-      if (startOfPeriod.day() <= day) {
-        startOfPeriod = startOfPeriod.add(day - startOfPeriod.day(), 'days');
-      } else {
-        startOfPeriod = startOfPeriod.add(startOfPeriod.day() + day, 'days');
-      }
+      startOfPeriod =
+        startOfPeriod.day() <= day
+          ? startOfPeriod.add(day - startOfPeriod.day(), 'days')
+          : startOfPeriod.add(startOfPeriod.day() + day, 'days');
 
-      if (time.repeat?.indexOf('quinzenal (II)') !== -1) {
+      const { repeat } = time;
+      if (repeat === null || repeat.includes('quinzenal (II)')) {
         startOfPeriod = startOfPeriod.add(7, 'days');
       }
 
@@ -101,53 +105,52 @@ export const handleCalendar = ({ classes, startDate, endDate }: Calendar) => {
       let recurrenceRule = `FREQ=WEEKLY;`;
       recurrenceRule += `BYDAY=${getDayInfo(time.day).short};`;
 
-      if (time.repeat?.indexOf('semanal') !== -1)
+      if (repeat === null || repeat.includes('semanal')) {
         recurrenceRule += `INTERVAL=1;`;
-      else if (
-        time.repeat?.indexOf('quinzenal (I)') !== -1 ||
-        time.repeat?.indexOf('quinzenal (II)') !== -1
-      )
+      } else if (
+        repeat.includes('quinzenal (I)') ||
+        repeat.includes('quinzenal (II)')
+      ) {
         recurrenceRule += `INTERVAL=2;`;
+      }
 
       recurrenceRule += `UNTIL=${dayjs(endDate).format('YYYYMMDDThhmmss')}Z`;
 
       let description = '';
-      subject.info.forEach((info) => {
-        // Sanitize description content
+      for (const info of subject.info) {
         const sanitizedTitle = sanitizeText(info.title);
         const sanitizedContent = sanitizeText(info.content);
         description += `${sanitizedTitle}: ${sanitizedContent}\n`;
-      });
+      }
 
       const event = {
-        title: sanitizeText(subject.title) || '',
-        location: `UFABC - ${sanitizeText(subject.campus)}`,
-        description: description,
-        status: 'CONFIRMED' as const,
-        start: formatEventDate(start),
-        startInputType: 'local' as const,
-        startOutputType: 'local' as const,
+        description,
         end: formatEventDate(end),
         endInputType: 'local' as const,
         endOutputType: 'local' as const,
+        location: `UFABC - ${sanitizeText(subject.campus)}`,
         recurrenceRule,
+        start: formatEventDate(start),
+        startInputType: 'local' as const,
+        startOutputType: 'local' as const,
+        status: 'CONFIRMED' as const,
+        title: sanitizeText(subject.title) || '',
       };
 
       calendar.push(event);
-    });
-  });
+    }
+  }
 
   const { error, value } = ics.createEvents(calendar);
 
   if (error) {
     logger.error({ error }, 'Calendar creation error');
-    return undefined;
-  } else {
-    // Add UTF-8 header to the ICS file
-    if (value) {
-      // Add the charset property to the PRODID field
-      return value.replace('PRODID:', 'PRODID;CHARSET=UTF-8:');
-    }
-    return value;
+    return;
   }
-};
+  // Add UTF-8 header to the ICS file
+  if (value != null) {
+    // Add the charset property to the PRODID field
+    return value.replace('PRODID:', 'PRODID;CHARSET=UTF-8:');
+  }
+  return value;
+}

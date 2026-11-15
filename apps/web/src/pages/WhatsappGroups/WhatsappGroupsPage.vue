@@ -336,7 +336,8 @@
 </template>
 
 <script setup lang="ts">
-import { SearchCourseItem, Whatsapp } from '@next/services';
+import { Whatsapp } from '@next/services';
+import type { SearchComponentItem, SearchCourseItem } from '@next/services';
 import { useQuery } from '@tanstack/vue-query';
 import { useDebounceFn } from '@vueuse/core';
 import { computed, onMounted, ref, toValue, watch } from 'vue';
@@ -371,10 +372,10 @@ const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 
-const handleLoginAgain = () => {
+function handleLoginAgain() {
   authStore.logOut();
   window.location.href = '/';
-};
+}
 
 const theme = useTheme();
 const isDarkMode = computed(() => theme.global.current.value.dark);
@@ -392,14 +393,13 @@ const componentSelectedByQueryUrl = computed(() => {
   return componentQuery ?? '';
 });
 const isUserLoggedIn = computed(() => authStore.isLoggedIn);
-const isRaValid = computed(() => {
-  return (
+const searchRaQuery = ref<number | null>(null);
+const isRaValid = computed(
+  () =>
     searchRaQuery.value !== null &&
     String(searchRaQuery.value).length >= MIN_RA_LENGTH
-  );
-});
+);
 
-const searchRaQuery = ref<number | null>(null);
 const searchComponentQuery = ref('');
 const searchCourseQuery = ref<number | string | null>(null);
 const searchCourseFilterQuery = ref('');
@@ -425,14 +425,12 @@ const queryResultsPage = ref(1);
 const seasonOptions = computed(() => {
   const currentSeason = getCurrentAcademicSeason();
   return getSelectableAcademicSeasons(currentSeason).map((season) => ({
-    value: season,
     label: formatSeason(season),
+    value: season,
   }));
 });
 
-const selectedSeasonLabel = computed(() => {
-  return formatSeason(selectedSeason.value);
-});
+const selectedSeasonLabel = computed(() => formatSeason(selectedSeason.value));
 
 const debouncedRaSearch = useDebounceFn((raValue: number) => {
   if (!isUserLoggedIn.value) {
@@ -442,8 +440,8 @@ const debouncedRaSearch = useDebounceFn((raValue: number) => {
 
   if (raValue && String(raValue).length >= MIN_RA_LENGTH) {
     eventTracker.track(WebEvent.WHATSAPP_GROUP_SEARCH, {
-      search_type: 'ra',
       search_query: raValue,
+      search_type: 'ra',
       user_logged_in: isUserLoggedIn.value,
     });
 
@@ -453,33 +451,8 @@ const debouncedRaSearch = useDebounceFn((raValue: number) => {
   }
 }, 500);
 
-const applyDefaultCourseSelection = () => {
-  if (!coursesList.value.length) {
-    return;
-  }
-
-  if (
-    searchCourseQuery.value !== null &&
-    String(searchCourseQuery.value).trim()
-  ) {
-    return;
-  }
-
-  const normalizedDefault = normalizeText(DEFAULT_COURSE_NAME);
-  const defaultCourse = coursesList.value.find(
-    (course: SearchCourseItem) =>
-      normalizeText(course.name) === normalizedDefault
-  );
-
-  if (!defaultCourse) {
-    return;
-  }
-
-  searchCourseQuery.value = defaultCourse.id;
-};
-
-const selectSearchType = (type: SearchType | null) => {
-  const normalizedType = type ?? 'course';
+function selectSearchType(type: SearchType | null) {
+  const normalizedType: SearchType = type === null ? 'course' : type;
   if (!isUserLoggedIn.value) {
     searchRaQuery.value = null;
   }
@@ -500,18 +473,14 @@ const selectSearchType = (type: SearchType | null) => {
   if (normalizedType === 'ra' && isRaValid.value && searchRaQuery.value) {
     debouncedRaSearch(searchRaQuery.value);
   }
-};
+}
 
-const loadMoreResults = () => {
+function loadMoreResults() {
   queryResultsPage.value += 1;
-};
+}
 
 const debouncedComponentSearch = useDebounceFn((query: string) => {
-  if (query.trim().length >= 2) {
-    shouldFetchComponents.value = true;
-  } else {
-    shouldFetchComponents.value = false;
-  }
+  shouldFetchComponents.value = query.trim().length >= 2;
 }, 300);
 
 watch(
@@ -547,8 +516,8 @@ watch(searchComponentQuery, () => {
 watch(searchCourseQuery, (newCourseId) => {
   if (selectedSearchType.value === 'course' && newCourseId !== null) {
     eventTracker.track(WebEvent.WHATSAPP_GROUP_SEARCH, {
-      search_type: 'course',
       search_query: newCourseId,
+      search_type: 'course',
       user_logged_in: isUserLoggedIn.value,
     });
     searchCourseFilterQuery.value = '';
@@ -608,11 +577,11 @@ watch(selectedSeason, (season) => {
   });
 });
 
-const getWhatsappGroupsByComponent = () => {
+function getWhatsappGroupsByComponent() {
   if (selectedSearchType.value === 'component') {
     debouncedComponentSearch(searchComponentQuery.value);
   }
-};
+}
 
 // Query principal - busca todos os componentes (searchComponents retorna dados formatados do backend Next)
 const {
@@ -621,28 +590,31 @@ const {
   isSuccess: isAllComponentsSuccess,
   isError: isAllComponentsError,
 } = useQuery({
-  queryKey: ['whatsappGroups', 'allComponents', selectedSeason],
-  queryFn: () => Whatsapp.searchComponents(selectedSeason.value),
-  gcTime: 1000 * 60 * 10,
   enabled: computed(
     () =>
       isUserLoggedIn.value &&
       ['component', 'course'].includes(selectedSearchType.value)
   ),
+  gcTime: 1000 * 60 * 10,
+  queryFn: () => Whatsapp.searchComponents(selectedSeason.value),
+  queryKey: ['whatsappGroups', 'allComponents', selectedSeason],
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
 
+// Computed para acessar dados do allComponents
+const allComponentsData = computed(() => allComponents.value || []);
+
 // Query para dados do parser (professores)
 const { data: parserComponents } = useQuery({
-  queryKey: ['disciplinaComponents', selectedSeason],
-  queryFn: () => Whatsapp.searchComponentsBySeason(selectedSeason.value),
-  gcTime: 1000 * 60 * 10,
   enabled: computed(
     () =>
       isUserLoggedIn.value &&
       ['component', 'course'].includes(selectedSearchType.value)
   ),
+  gcTime: 1000 * 60 * 10,
+  queryFn: () => Whatsapp.searchComponentsBySeason(selectedSeason.value),
+  queryKey: ['disciplinaComponents', selectedSeason],
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
@@ -654,13 +626,13 @@ const {
   isSuccess: isGroupsByRaSuccess,
   isError: isGroupsByRaError,
 } = useQuery({
-  queryKey: ['whatsappGroups', 'byRa', searchRaQuery, selectedSeason],
+  enabled: computed(() => isUserLoggedIn.value && shouldFetchGroupsByRa.value),
   queryFn: () =>
     Whatsapp.getComponentsByUser({
       ra: searchRaQuery.value ?? 0,
       season: selectedSeason.value,
     }),
-  enabled: computed(() => isUserLoggedIn.value && shouldFetchGroupsByRa.value),
+  queryKey: ['whatsappGroups', 'byRa', searchRaQuery, selectedSeason],
 });
 
 const {
@@ -668,11 +640,11 @@ const {
   isLoading: isCoursesLoading,
   isError: isCoursesError,
 } = useQuery({
-  queryKey: ['courses'],
-  queryFn: () => Whatsapp.getCourses(),
   enabled: computed(
     () => isUserLoggedIn.value && selectedSearchType.value === 'course'
   ),
+  queryFn: () => Whatsapp.getCourses(),
+  queryKey: ['courses'],
   staleTime: 1000 * 60 * 10,
 });
 
@@ -702,7 +674,9 @@ const filteredByComponent = computed(() => {
 });
 
 const coursesList = computed(() => {
-  if (!coursesData.value) return [];
+  if (!coursesData.value) {
+    return [];
+  }
   return coursesData.value
     .filter((course: SearchCourseItem) => course.name && course.name.trim())
     .sort((a: SearchCourseItem, b: SearchCourseItem) =>
@@ -710,29 +684,57 @@ const coursesList = computed(() => {
     );
 });
 
+function applyDefaultCourseSelection() {
+  if (!coursesList.value.length) {
+    return;
+  }
+
+  if (
+    searchCourseQuery.value !== null &&
+    String(searchCourseQuery.value).trim()
+  ) {
+    return;
+  }
+
+  const normalizedDefault = normalizeText(DEFAULT_COURSE_NAME);
+  const defaultCourse = coursesList.value.find(
+    (course: SearchCourseItem) =>
+      normalizeText(course.name) === normalizedDefault
+  );
+
+  if (!defaultCourse) {
+    return;
+  }
+
+  searchCourseQuery.value = defaultCourse.id;
+}
+
 watch(coursesList, () => {
   if (selectedSearchType.value === 'course') {
     applyDefaultCourseSelection();
   }
 });
 
-const normalizeCourseCode = (code: string | null | undefined) =>
-  String(code ?? '')
+function normalizeCourseCode(code: string | null | undefined) {
+  return String(code ?? '')
     .trim()
     .toUpperCase();
+}
 
-const getBaseCourseCode = (code: string | null | undefined) =>
-  normalizeCourseCode(code).split('-')[0] ?? '';
+function getBaseCourseCode(code: string | null | undefined) {
+  return normalizeCourseCode(code).split('-')[0] ?? '';
+}
 
-const normalizeSeasonToken = (season: string | null | undefined) =>
-  String(season ?? '')
+function normalizeSeasonToken(season: string | null | undefined) {
+  return String(season ?? '')
     .trim()
     .replace('.', ':');
+}
 
-const extractComponentCodeFromUfClassroom = (ufClassroomCode: string) => {
-  const match = ufClassroomCode.match(/[A-Z]{3}\d{4}-\d{2}/i);
+function extractComponentCodeFromUfClassroom(ufClassroomCode: string) {
+  const match = ufClassroomCode.match(/[A-Z]{3}\d{4}-\d{2}/iu);
   return match ? normalizeCourseCode(match[0]) : '';
-};
+}
 
 // Componentes filtrados por curso
 const filteredByCourse = computed(() => {
@@ -818,9 +820,6 @@ const filteredAndSearchedCourseComponents = computed(() => {
   });
 });
 
-// Computed para acessar dados do allComponents
-const allComponentsData = computed(() => allComponents.value || []);
-
 // Mapa de componentes com dados de professores normalizados (do parser)
 const componentsByCode = computed(() => {
   if (!parserComponents.value) {
@@ -828,34 +827,47 @@ const componentsByCode = computed(() => {
   }
   const grouped: Record<string, { teoria: string; pratica: string }> = {};
 
-  parserComponents.value.forEach((component) => {
+  for (const component of parserComponents.value) {
     const teoriaRaw =
-      component.teachers?.find((t: any) => t.role === 'professor')?.name || '';
+      component.teachers.find((t) => t.role === 'professor')?.name ?? '';
     const praticaRaw =
-      component.teachers?.find((t: any) => t.role === 'practice')?.name || '';
+      component.teachers.find((t) => t.role === 'practice')?.name ?? '';
 
     const teoria = capitalizeName(teoriaRaw);
     const pratica = capitalizeName(praticaRaw);
 
     grouped[component.ufClassroomCode] = {
-      teoria,
       pratica,
+      teoria,
     };
-  });
+  }
 
   return grouped;
 });
 
 // Função helper para enriquecer componentes com dados de professores
-const enrichComponent = (component: any) => {
-  const teachersData =
-    componentsByCode.value[component.ufClassroomCode || component.uf_cod_turma];
+function enrichComponent(
+  component: SearchComponentItem & { ufClassroomCode?: string }
+) {
+  const teachersData: { teoria: string; pratica: string } | undefined =
+    componentsByCode.value[
+      firstFilled(component.ufClassroomCode, component.uf_cod_turma)
+    ];
   return {
     ...component,
-    teoria: teachersData?.teoria || component.teoria || '',
-    pratica: teachersData?.pratica || component.pratica || '',
+    pratica: firstFilled(teachersData?.pratica, component.pratica),
+    teoria: firstFilled(teachersData?.teoria, component.teoria),
   };
-};
+}
+
+function firstFilled(...values: Array<string | null | undefined>): string {
+  return (
+    values.find(
+      (value): value is string =>
+        value !== undefined && value !== null && value !== ''
+    ) ?? ''
+  );
+}
 
 const groupsFromRa = computed(() => {
   const groups = groupsByRa.value || [];
@@ -863,26 +875,26 @@ const groupsFromRa = computed(() => {
 });
 
 const searchConfig = computed(() => ({
-  ra: {
-    groups: groupsFromRa.value,
-    loading: isGroupsByRaLoading.value,
-    success: isGroupsByRaSuccess.value && shouldFetchGroupsByRa.value,
-    error: isGroupsByRaError.value,
-    query: searchRaQuery.value,
-  },
   component: {
+    error: isAllComponentsError.value,
     groups: filteredByComponent.value,
     loading: isAllComponentsLoading.value,
-    success: isAllComponentsSuccess.value && shouldFetchComponents.value,
-    error: isAllComponentsError.value,
     query: searchComponentQuery.value,
+    success: isAllComponentsSuccess.value && shouldFetchComponents.value,
   },
   course: {
+    error: isAllComponentsError.value || isCoursesError.value,
     groups: filteredAndSearchedCourseComponents.value,
     loading: isAllComponentsLoading.value || isCoursesLoading.value,
-    success: isAllComponentsSuccess.value && shouldFetchGroupsByCourse.value,
-    error: isAllComponentsError.value || isCoursesError.value,
     query: searchCourseQuery.value,
+    success: isAllComponentsSuccess.value && shouldFetchGroupsByCourse.value,
+  },
+  ra: {
+    error: isGroupsByRaError.value,
+    groups: groupsFromRa.value,
+    loading: isGroupsByRaLoading.value,
+    query: searchRaQuery.value,
+    success: isGroupsByRaSuccess.value && shouldFetchGroupsByRa.value,
   },
 }));
 
@@ -895,9 +907,9 @@ const paginatedGroups = computed(() => {
   return currentGroups.value.slice(0, endIndex);
 });
 
-const hasMoreResults = computed(() => {
-  return paginatedGroups.value.length < currentGroups.value.length;
-});
+const hasMoreResults = computed(
+  () => paginatedGroups.value.length < currentGroups.value.length
+);
 
 const currentLoading = computed(
   () => searchConfig.value[selectedSearchType.value]?.loading || false
@@ -924,59 +936,57 @@ watch(
   }
 );
 
-const openWhatsappGroup = (url: string) => {
+function openWhatsappGroup(url: string) {
   if (!isUserLoggedIn.value || !url) {
     return;
   }
 
-  const component = currentGroups.value.find(
-    (group: any) => group.groupURL === url
-  );
+  const component = currentGroups.value.find((group) => group.groupURL === url);
   const searchQuery = searchConfig.value[selectedSearchType.value]?.query;
 
   eventTracker.track(WebEvent.WHATSAPP_GROUP_JOINED, {
-    whatsapp_url: url,
-    component: component,
-    search_type: selectedSearchType.value,
+    component,
     search_query: searchQuery,
+    search_type: selectedSearchType.value,
     user_logged_in: isUserLoggedIn.value,
+    whatsapp_url: url,
   });
 
   window.open(url, '_blank');
-};
+}
 
-const handleExtension = () => {
+function handleExtension() {
   window.open(extensionURL, '_blank');
-};
+}
 
-const handleSyncHistory = () => {
+function handleSyncHistory() {
   window.open(studentRecordURL, '_blank');
-};
+}
 
-const handleLogin = () => {
+function handleLogin() {
   eventTracker.track(WebEvent.LOGIN_CLICKED, {
     source: 'whatsapp_groups_dialog',
   });
 
   router.push('/login');
-};
+}
 
-const createAccount = () => {
+function createAccount() {
   eventTracker.track(WebEvent.CREATE_ACCOUNT_CLICKED, {
     source: 'whatsapp_groups_dialog',
   });
 
   router.push('/signup');
-};
+}
 
-const openSupport = () => {
+function openSupport() {
   eventTracker.track(WebEvent.OPEN_SUPPORT, {
-    user_ra: userRa.value || null,
-    user_logged_in: isUserLoggedIn.value,
     source: 'whatsapp_groups_dialog',
+    user_logged_in: isUserLoggedIn.value,
+    user_ra: userRa.value || null,
   });
   window.open('https://www.instagram.com/ufabc_next/?hl=pt-br', '_blank');
-};
+}
 
 onMounted(() => {
   eventTracker.track(WebEvent.WHATSAPP_GROUP_VIEWED, {

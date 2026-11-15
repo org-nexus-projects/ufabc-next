@@ -63,7 +63,9 @@ const calendar = ref<string | null>();
 
 const downloadTimer = ref<NodeJS.Timeout>();
 onMounted(() => {
-  downloadTimer.value = setInterval(() => step.value++, 1000);
+  downloadTimer.value = setInterval(() => {
+    step.value += 1;
+  }, 1000);
 });
 
 onUnmounted(() => {
@@ -72,9 +74,9 @@ onUnmounted(() => {
   }
 });
 
-const resetCalengrade = () => {
+function resetCalengrade() {
   emit('resetCalengrade');
-};
+}
 
 watch(
   step,
@@ -82,7 +84,7 @@ watch(
     const { classes, quarter } = props.calengrade;
 
     if (!classes || !quarter) {
-      emit('nextStep', CalengradeSteps.Summary); // todo: create fallback screen (never reach here i hope)
+      emit('nextStep', CalengradeSteps.Summary);
       return;
     }
 
@@ -92,22 +94,23 @@ watch(
     }
 
     switch (newStep) {
-      case 0: // Gerar
+      case 0: {
+        // Gerar
         const newCalendar = handleCalendar({
           classes,
-          startDate: quarter.startDate,
           endDate: quarter.endDate,
+          startDate: quarter.startDate,
         });
 
         calendar.value = newCalendar;
         break;
+      }
 
-      case 1: // Download
+      case 1: {
+        // Download
         generatingCalendarMessage.value =
           generatingCalendarMessages.DOWNLOADING;
         try {
-          const { quarter } = props.calengrade;
-
           if (calendar.value && typeof calendar.value === 'string') {
             const blob = new Blob([calendar.value], {
               type: 'text/calendar;charset=utf-8',
@@ -121,24 +124,32 @@ watch(
 
             URL.revokeObjectURL(downloadURL);
           } else {
-            if (downloadTimer.value) clearInterval(downloadTimer.value);
+            if (downloadTimer.value) {
+              clearInterval(downloadTimer.value);
+            }
             window.Toaster.error('Não foi possível baixar seu Calengrade!');
           }
-        } catch (e) {
+        } catch {
           window.Toaster.error('Não foi possível baixar seu Calengrade!');
-          if (downloadTimer.value) clearInterval(downloadTimer.value);
+          if (downloadTimer.value) {
+            clearInterval(downloadTimer.value);
+          }
           emit('nextStep', CalengradeSteps.Summary);
         }
         break;
+      }
 
-      default:
-        if (downloadTimer.value) clearInterval(downloadTimer.value);
+      default: {
+        if (downloadTimer.value) {
+          clearInterval(downloadTimer.value);
+        }
         break;
+      }
     }
   },
   {
-    immediate: true,
     deep: true,
+    immediate: true,
   }
 );
 </script>

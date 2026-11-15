@@ -28,32 +28,32 @@ const baseUrl = import.meta.env.VITE_API_BASE_URL;
 export const handlers = [
   http.get(`${baseUrl}/v2/archives`, () => HttpResponse.json(archives)),
   http.get(`${baseUrl}/v2/archives/*/download`, () =>
-    HttpResponse.json(archiveDownload),
+    HttpResponse.json(archiveDownload)
   ),
   http.get(`${baseUrl}/v2/components/*/plan`, () =>
-    HttpResponse.json(componentPlan),
+    HttpResponse.json(componentPlan)
   ),
   http.post(`${baseUrl}/backoffice/token`, () => HttpResponse.json({})),
   http.get(`${baseUrl}/users/info`, () => HttpResponse.json(user)),
   http.get(`${baseUrl}/entities/enrollments`, () =>
-    HttpResponse.json(enrollments),
+    HttpResponse.json(enrollments)
   ),
   http.get(`${baseUrl}/entities/enrollments/*`, () =>
-    HttpResponse.json(enrollment),
+    HttpResponse.json(enrollment)
   ),
   http.get(`${baseUrl}/entities/teachers/reviews/*`, () =>
-    HttpResponse.json(teacher),
+    HttpResponse.json(teacher)
   ),
   http.get(`${baseUrl}/v2/teachers/*/summary`, () =>
-    HttpResponse.json(teacherSummary),
+    HttpResponse.json(teacherSummary)
   ),
   http.get(`${baseUrl}/entities/subjects/reviews/*`, () =>
-    HttpResponse.json(subject),
+    HttpResponse.json(subject)
   ),
   http.get(`${baseUrl}/comments/*`, () => HttpResponse.json(comments)),
   http.get(`${baseUrl}/public/stats/usage`, () => HttpResponse.json(usage)),
   http.get(`${baseUrl}/public/stats/components/courses`, () =>
-    HttpResponse.json(courses),
+    HttpResponse.json(courses)
   ),
   http.get(`${baseUrl}/public/stats/components`, ({ request }) => {
     const url = new URL(request.url);
@@ -63,23 +63,23 @@ export const handlers = [
     return HttpResponse.json(classes);
   }),
   http.get(`${baseUrl}/public/stats/components/overview`, () =>
-    HttpResponse.json(overview),
+    HttpResponse.json(overview)
   ),
   http.get(`${baseUrl}/public/stats/components/component`, () =>
-    HttpResponse.json(subjects),
+    HttpResponse.json(subjects)
   ),
   http.get(`${baseUrl}/histories/courses`, () =>
-    HttpResponse.json(courseNames),
+    HttpResponse.json(courseNames)
   ),
   http.get(`${baseUrl}/courseStats/user/grades`, () =>
-    HttpResponse.json(historiesGraduations),
+    HttpResponse.json(historiesGraduations)
   ),
   http.get(`${baseUrl}/courseStats/grades`, () => HttpResponse.json(grades)),
-  http.get(`${baseUrl}/entities/teachers/search`, () => {
-    return HttpResponse.json(teacherSearch);
-  }),
+  http.get(`${baseUrl}/entities/teachers/search`, () =>
+    HttpResponse.json(teacherSearch)
+  ),
   http.get(`${baseUrl}/entities/subjects/search`, () =>
-    HttpResponse.json(subjectSearch),
+    HttpResponse.json(subjectSearch)
   ),
   http.delete(`${baseUrl}/users/remove`, () => HttpResponse.json({})),
   http.post(`${baseUrl}/users/confirm`, () => HttpResponse.json({})),
@@ -90,9 +90,9 @@ export const handlers = [
   http.put(`${baseUrl}/comments/*`, () => HttpResponse.json({})),
   http.post(`${baseUrl}/comments/reactions/*`, () => HttpResponse.json({})),
   http.delete(`${baseUrl}/comments/reactions/*/like`, () =>
-    HttpResponse.json({}),
+    HttpResponse.json({})
   ),
   http.delete(`${baseUrl}/comments/reactions/*/recommendation`, () =>
-    HttpResponse.json({}),
+    HttpResponse.json({})
   ),
 ];

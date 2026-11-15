@@ -10,7 +10,7 @@ describe('<PendingReviewEnrollmentList />', () => {
   test('render Pending Review Enrollments List with a reviewable subjects', async () => {
     render(PendingReviewEnrollmentList);
     expect(
-      await screen.findByText(/Seus professores para avaliar/i)
+      await screen.findByText(/Seus professores para avaliar/iu)
     ).toBeInTheDocument();
     expect(
       await screen.findByText(enrollments[26].subject.name)
@@ -34,7 +34,7 @@ describe('<PendingReviewEnrollmentList />', () => {
     render(PendingReviewEnrollmentList);
     await userEvent.click(
       screen.getByRole('button', {
-        name: RegExp(enrollments[26].subject.name, 'i'),
+        name: new RegExp(enrollments[26].subject.name, 'iu'),
       })
     );
     expect(await screen.findByRole('dialog')).toBeInTheDocument();

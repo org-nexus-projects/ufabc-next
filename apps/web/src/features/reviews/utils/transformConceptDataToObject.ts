@@ -1,22 +1,17 @@
 import type { ConceptData } from '@next/services';
 
-export const transformConceptDataToObject = (
+export function transformConceptDataToObject(
   grades: ConceptData[],
   eadFilter?: boolean
-) => {
+) {
   const result: Record<string, number> = {};
-  grades.forEach((grade) => {
-    if (eadFilter) {
-      result[grade.conceito] = grade.count - grade.eadCount;
-    } else {
-      result[grade.conceito] = grade.count;
-    }
-  });
-  const ordered = Object.keys(result)
-    .sort()
-    .reduce((obj: typeof result, key) => {
-      obj[key] = result[key];
-      return obj;
-    }, {});
+  for (const grade of grades) {
+    result[grade.conceito] =
+      eadFilter === true ? grade.count - grade.eadCount : grade.count;
+  }
+  const ordered: Record<string, number> = {};
+  for (const key of Object.keys(result).sort()) {
+    ordered[key] = result[key];
+  }
   return ordered;
-};
+}

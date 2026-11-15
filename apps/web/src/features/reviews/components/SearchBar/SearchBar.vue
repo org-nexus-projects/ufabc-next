@@ -1,7 +1,7 @@
 <template>
   <FeedbackAlert v-if="isErrorTeachers" text="Erro ao buscar professores" />
   <FeedbackAlert v-if="isErrorSubjects" text="Erro ao buscar disciplinas" />
-  <div class="wrapper w-100 mb-5">
+  <div class="wrapper mb-5 w-100">
     <v-text-field
       v-model="query"
       variant="solo"
@@ -56,27 +56,28 @@ import { capitalizeName } from '@/utils/capitalizeName';
 const router = useRouter();
 const query = computed({
   get: () => router.currentRoute.value.query.q as string,
+  // oxlint-disable-next-line no-empty-function -- the route query is the source of truth
   set: () => {},
 });
 
-const clear = () => {
+function clear() {
   router.replace({
     name: 'reviews',
   });
-};
+}
 
-const enterSearch = (id: string, type: string, name: string) => {
+function enterSearch(id: string, type: string, name: string) {
   (document.activeElement as HTMLDivElement)?.blur();
 
   router.replace({
     name: 'reviews',
     query: {
       q: name,
-      teacherId: type === 'teacher' ? id : undefined,
       subjectId: type === 'subject' ? id : undefined,
+      teacherId: type === 'teacher' ? id : undefined,
     },
   });
-};
+}
 
 const debouncedQuery = ref('');
 const enableQuery = computed(() => !!debouncedQuery.value);
@@ -86,10 +87,10 @@ const {
   isFetching: isFetchingTeachers,
   data: searchResultsTeachers,
 } = useQuery({
-  refetchOnWindowFocus: false,
-  queryKey: ['reviews', 'search', debouncedQuery, 'teachers'],
-  queryFn: () => Reviews.searchTeachers(debouncedQuery.value),
   enabled: enableQuery,
+  queryFn: () => Reviews.searchTeachers(debouncedQuery.value),
+  queryKey: ['reviews', 'search', debouncedQuery, 'teachers'],
+  refetchOnWindowFocus: false,
 });
 
 const {
@@ -97,17 +98,17 @@ const {
   isFetching: isFetchingSubjects,
   data: searchResultsSubjects,
 } = useQuery({
-  refetchOnWindowFocus: false,
-  queryKey: ['reviews', 'search', debouncedQuery, 'subjects'],
-  queryFn: () => Reviews.searchSubjects(debouncedQuery.value),
   enabled: enableQuery,
+  queryFn: () => Reviews.searchSubjects(debouncedQuery.value),
+  queryKey: ['reviews', 'search', debouncedQuery, 'subjects'],
+  refetchOnWindowFocus: false,
 });
 
 const handleUpdateDebouncedQuery = debounce(() => {
   debouncedQuery.value = query.value;
 }, 500);
 
-const onChangeQuery = (e: InputEvent) => {
+function onChangeQuery(e: InputEvent) {
   router.replace({
     name: 'reviews',
     query: {
@@ -115,21 +116,24 @@ const onChangeQuery = (e: InputEvent) => {
     },
   });
   handleUpdateDebouncedQuery();
-};
+}
 
 onMounted(() => {
   debouncedQuery.value = query.value;
 });
 
-const mapSearchResults = (
+function mapSearchResults(
   type: string,
-  results?: (SearchTeacherItem | SearchSubjectItem)[]
-) =>
-  results?.map((result) => ({
-    name: result.name || '',
-    id: result._id,
-    type: type,
-  })) || [];
+  results?: Array<SearchTeacherItem | SearchSubjectItem>
+) {
+  return (
+    results?.map((result) => ({
+      id: result._id,
+      name: result.name || '',
+      type,
+    })) || []
+  );
+}
 
 const processedResults = computed(() => [
   ...mapSearchResults('teacher', searchResultsTeachers.value?.data),

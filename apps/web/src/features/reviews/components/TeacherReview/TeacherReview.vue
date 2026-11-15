@@ -31,7 +31,7 @@
               :grades="grades"
             />
           </div>
-          <p class="text-body-2 text-center font-weight-bold mt-6">
+          <p class="text-body-2 font-weight-bold mt-6 text-center">
             * Provavelmente esse professor
             {{
               demandsAttendance ? ' cobra presença👎' : ' NÃO cobra presença👍'
@@ -81,7 +81,7 @@ import { CommentsList } from '../CommentsList';
 import { ConceptsPieChart } from '../ConceptsPieChart';
 
 const props = defineProps({
-  teacherId: { type: String, required: true },
+  teacherId: { required: true, type: String },
 });
 
 const teacherId = computed(() => props.teacherId);
@@ -96,27 +96,30 @@ const {
   isFetching: isFetchingTeacher,
   isError: isFetchingTeacherError,
 } = useQuery({
-  refetchOnWindowFocus: false,
-  queryKey: ['teacher', teacherId],
-  queryFn: () => Reviews.getTeacher(teacherId.value),
   enabled: !!teacherId.value,
+  queryFn: () => Reviews.getTeacher(teacherId.value),
+  queryKey: ['teacher', teacherId],
+  refetchOnWindowFocus: false,
 });
 
+function toPlural(value?: number) {
+  return value === 1 ? '' : 's';
+}
+
 function calculateGradeCount(
-  eadFilter: boolean,
+  isEadFilter: boolean,
   generalSubjects: TeacherReview['general'],
   isAllSubjects: boolean,
   specificSubject?: TeacherReviewSubject
 ) {
-  if (eadFilter) {
+  if (isEadFilter) {
     const specificCount = specificSubject?.count ?? 0;
     const specificEadCount = specificSubject?.eadCount ?? 0;
     return isAllSubjects
       ? generalSubjects.count - generalSubjects.eadCount
       : specificCount - specificEadCount;
-  } else {
-    return isAllSubjects ? generalSubjects.count : specificSubject?.count;
   }
+  return isAllSubjects ? generalSubjects.count : specificSubject?.count;
 }
 
 const chips = computed(() => {
@@ -128,7 +131,6 @@ const chips = computed(() => {
   const specificValidSelected = specificValid.find(
     (subject) => subject._id.name === selectedSubject.value
   );
-  const toPlural = (value?: number) => (value == 1 ? '' : 's');
   const isAllSubjects = selectedSubject.value === 'Todas as matérias';
 
   const gradeCount = calculateGradeCount(
@@ -140,22 +142,24 @@ const chips = computed(() => {
 
   return [
     {
-      value: specificValid.length,
-      text: `disciplina${toPlural(specificValid.length)}`,
       icon: 'mdi-human-male-board',
+      text: `disciplina${toPlural(specificValid.length)}`,
+      value: specificValid.length,
     },
     {
-      value: gradeCount,
+      icon: 'mdi-format-annotation-plus',
       text: isAllSubjects
         ? `conceito${toPlural(general.count)}`
         : `conceito${toPlural(specificValidSelected?.count)}`,
-      icon: 'mdi-format-annotation-plus',
+      value: gradeCount,
     },
   ];
 });
 
 const grades = computed(() => {
-  if (!teacherData.value) return {};
+  if (!teacherData.value) {
+    return {};
+  }
   if (selectedSubject.value === 'Todas as matérias') {
     return transformConceptDataToObject(
       teacherData.value.general.distribution,
@@ -172,7 +176,9 @@ const grades = computed(() => {
 });
 
 const demandsAttendance = computed(() => {
-  if (!teacherData.value) return false;
+  if (!teacherData.value) {
+    return false;
+  }
   return teacherData.value.general.distribution.some(
     (grade) => grade.conceito === 'O'
   );

@@ -7,23 +7,23 @@ import { isUserTokenExpired, isValidJwtFormat, parseJwt } from '@/utils/jwt';
 describe('jwt utilities', () => {
   describe('parseJwt', () => {
     test('returns decoded payload for a valid token', () => {
-      const payload = { _id: '1', ra: 12345 };
+      const payload = { _id: '1', ra: 12_345 };
       const token = createMockJwt(payload);
 
-      expect(parseJwt(token)).toEqual({ user: payload, error: null });
+      expect(parseJwt(token)).toEqual({ error: null, user: payload });
     });
 
     test('returns error for a malformed token', () => {
       expect(parseJwt('not-a-jwt')).toEqual({
-        user: null,
         error: 'Invalid token format',
+        user: null,
       });
     });
 
     test('returns error for a token with invalid base64 payload', () => {
       expect(parseJwt('header.invalid-payload.signature')).toEqual({
-        user: null,
         error: 'Invalid token format',
+        user: null,
       });
     });
   });

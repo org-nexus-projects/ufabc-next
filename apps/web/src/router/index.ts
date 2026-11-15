@@ -13,184 +13,212 @@ import { useAuthStore } from '@/stores/auth';
 import { isUserTokenExpired, isValidJwtFormat } from '@/utils/jwt';
 import { logger } from '@/utils/logger';
 
-const ReviewsPage = () => import('@/pages/Reviews/ReviewsPage.vue');
-const PerformancePage = () => import('@/pages/Performance/PerformancePage.vue');
-const PlanningPage = () => import('@/pages/Planning/PlanningPage.vue');
-const HistoryPage = () => import('@/pages/History/HistoryPage.vue');
-const StatsPage = () => import('@/pages/Stats/StatsPage.vue');
-const SettingsPage = () => import('@/pages/Settings/SettingsPage.vue');
-const DonatePage = () => import('@/pages/Donate/DonatePage.vue');
-const SignUpPage = () => import('@/pages/SignUp/SignUpPage.vue');
-const ConfirmationPage = () =>
-  import('@/pages/Confirmation/ConfirmationPage.vue');
-const RecoveryPage = () => import('@/pages/Recovery/RecoveryPage.vue');
-const LoginPage = () => import('@/pages/Login/LoginPage.vue');
-const CalengradePage = () => import('@/pages/Calengrade/CalengradePage.vue');
-const WhatsappGroupsPage = () =>
-  import('@/pages/WhatsappGroups/WhatsappGroupsPage.vue');
-const ArchivesPage = () => import('@/pages/Archives/ArchivesPage.vue');
-const HelpPage = () => import('@/pages/Help/HelpPage.vue');
+async function ReviewsPage() {
+  return await import('@/pages/Reviews/ReviewsPage.vue');
+}
+async function PerformancePage() {
+  return await import('@/pages/Performance/PerformancePage.vue');
+}
+async function PlanningPage() {
+  return await import('@/pages/Planning/PlanningPage.vue');
+}
+async function HistoryPage() {
+  return await import('@/pages/History/HistoryPage.vue');
+}
+async function StatsPage() {
+  return await import('@/pages/Stats/StatsPage.vue');
+}
+async function SettingsPage() {
+  return await import('@/pages/Settings/SettingsPage.vue');
+}
+async function DonatePage() {
+  return await import('@/pages/Donate/DonatePage.vue');
+}
+async function SignUpPage() {
+  return await import('@/pages/SignUp/SignUpPage.vue');
+}
+async function ConfirmationPage() {
+  return await import('@/pages/Confirmation/ConfirmationPage.vue');
+}
+async function RecoveryPage() {
+  return await import('@/pages/Recovery/RecoveryPage.vue');
+}
+async function LoginPage() {
+  return await import('@/pages/Login/LoginPage.vue');
+}
+async function CalengradePage() {
+  return await import('@/pages/Calengrade/CalengradePage.vue');
+}
+async function WhatsappGroupsPage() {
+  return await import('@/pages/WhatsappGroups/WhatsappGroupsPage.vue');
+}
+async function ArchivesPage() {
+  return await import('@/pages/Archives/ArchivesPage.vue');
+}
+async function HelpPage() {
+  return await import('@/pages/Help/HelpPage.vue');
+}
 
-const routes: Array<RouteRecordRaw> = [
+const routes: RouteRecordRaw[] = [
   {
-    path: '/reviews',
-    name: 'reviews',
     component: ReviewsPage,
     meta: {
-      title: 'Reviews',
       requiresAuth: true,
       requiresConfirmed: true,
+      title: 'Reviews',
     },
+    name: 'reviews',
+    path: '/reviews',
   },
   {
-    path: '/performance',
-    name: 'performance',
     component: PerformancePage,
     meta: {
-      title: 'Performance',
       requiresAuth: true,
       requiresConfirmed: true,
+      title: 'Performance',
     },
+    name: 'performance',
+    path: '/performance',
   },
   {
-    path: '/planning',
-    name: 'planning',
     component: PlanningPage,
     meta: {
-      title: 'Planejamento',
       requiresAuth: true,
       requiresConfirmed: true,
+      title: 'Planejamento',
     },
+    name: 'planning',
+    path: '/planning',
   },
   {
-    path: '/history',
-    name: 'history',
     component: HistoryPage,
     meta: {
-      title: 'Meu Histórico',
       requiresAuth: true,
       requiresConfirmed: true,
+      title: 'Meu Histórico',
     },
+    name: 'history',
+    path: '/history',
   },
   {
-    path: '/stats',
-    name: 'stats',
     component: StatsPage,
     meta: {
-      title: 'Dados da Matrícula',
       requiresAuth: true,
       requiresConfirmed: true,
+      title: 'Dados da Matrícula',
     },
+    name: 'stats',
+    path: '/stats',
   },
   {
-    path: '/settings',
-    name: 'settings',
     component: SettingsPage,
     meta: {
-      title: 'Configurações',
       requiresAuth: true,
       requiresConfirmed: true,
+      title: 'Configurações',
     },
+    name: 'settings',
+    path: '/settings',
   },
   {
-    path: '/donate',
-    name: 'donate',
     component: DonatePage,
     meta: {
-      title: 'Ajude o Next',
       layout: 'include-sidebar',
+      title: 'Ajude o Next',
     },
+    name: 'donate',
+    path: '/donate',
   },
   {
-    name: 'signup',
-    path: '/signup',
     component: SignUpPage,
     meta: {
       title: 'Cadastro',
       unconfirmedOnly: true,
     },
+    name: 'signup',
+    path: '/signup',
     props: true,
   },
   {
-    name: 'confirm',
-    path: '/confirm',
     component: ConfirmationPage,
     meta: {
       title: 'Confirmação da conta',
       unconfirmedOnly: true,
     },
+    name: 'confirm',
+    path: '/confirm',
   },
   {
-    path: '/recovery',
-    name: 'recovery',
     component: RecoveryPage,
     meta: {
-      title: 'Recuperar conta',
       guestOnly: true,
+      title: 'Recuperar conta',
     },
+    name: 'recovery',
+    path: '/recovery',
   },
   {
-    path: '/login',
-    name: 'login',
     component: LoginPage,
     meta: {
-      title: 'Entrar no Next',
       guestOnly: true,
+      title: 'Entrar no Next',
     },
+    name: 'login',
+    path: '/login',
   },
   {
-    path: '/grupos-whatsapp',
-    name: 'whatsapp',
     component: WhatsappGroupsPage,
     meta: {
-      title: 'Grupos do Whatsapp',
       layout: 'include-sidebar',
+      title: 'Grupos do Whatsapp',
     },
+    name: 'whatsapp',
+    path: '/grupos-whatsapp',
   },
   {
-    path: '/calengrade',
-    name: 'calengrade',
     component: CalengradePage,
     meta: {
-      title: 'Calengrade',
       layout: 'include-sidebar',
+      title: 'Calengrade',
     },
+    name: 'calengrade',
+    path: '/calengrade',
   },
 
   {
-    path: '/archives',
-    name: 'archives',
     component: ArchivesPage,
     meta: {
-      title: 'Arquivos',
+      permissions: ['admin', 'archives'],
       requiresAuth: true,
       requiresConfirmed: true,
-      permissions: ['admin', 'archives'],
+      title: 'Arquivos',
     },
+    name: 'archives',
+    path: '/archives',
   },
   {
-    path: '/help',
-    name: 'help',
     component: HelpPage,
     meta: {
-      title: 'Ajuda',
       layout: 'include-sidebar',
+      title: 'Ajuda',
     },
+    name: 'help',
+    path: '/help',
   },
   {
     path: '/:pathMatch(.*)*',
     redirect: (to) => {
       if (to.hash) {
         return {
-          path: to.hash.replace('#', ''),
           hash: '',
+          path: to.hash.replace('#', ''),
           query: to.query,
         };
       }
 
       return {
-        path: '/reviews',
         hash: '',
+        path: '/reviews',
         query: to.query,
       };
     },
@@ -203,28 +231,35 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to) => {
-  updateDocumentTitle(to.meta.title as string | undefined);
+  updateDocumentTitle(readQueryString(to.meta.title));
 
   handleSignupAdviceIfNeeded(to);
 
   const tokenRedirect = await handleAuthValidationIfNeeded(to);
-  if (tokenRedirect) return tokenRedirect;
+  if (tokenRedirect) {
+    return tokenRedirect;
+  }
 
   const authStatusRedirect = handleAuthStatus();
-  if (authStatusRedirect) return authStatusRedirect;
+  if (authStatusRedirect) {
+    return authStatusRedirect;
+  }
 
   return resolveRouteAccess(to);
 });
 
 function updateDocumentTitle(title: string | undefined) {
-  document.title = title || 'UFABC Next';
+  document.title = title === undefined || title === '' ? 'UFABC Next' : title;
+}
+
+function readQueryString(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
 }
 
 function handleSignupAdviceIfNeeded(to: RouteLocationNormalized) {
   const authStore = useAuthStore();
 
   // Edge case: /signup?advice=true enquanto logado
-  // TODO: esse caso ainda é necessário?
   if (
     to.name === 'signup' &&
     to.query.advice === 'true' &&
@@ -235,20 +270,21 @@ function handleSignupAdviceIfNeeded(to: RouteLocationNormalized) {
 }
 
 async function handleAuthValidationIfNeeded(to: RouteLocationNormalized) {
-  const token = to.query.token as string | undefined;
-  const component = to.query.component as string | undefined;
+  const token = readQueryString(to.query.token);
+  const component = readQueryString(to.query.component);
 
-  if (!token) return;
+  if (token === undefined || token === '') {
+    return;
+  }
 
   if (isValidJwtFormat(token)) {
     validateJwtAuth(token);
     return { path: AUTHENTICATED_REDIRECT_PATH };
   }
 
-  return validateWhatsappAuth({ token, component });
+  return await validateWhatsappAuth({ component, token });
 }
 
-// TODO: melhorar esse guard, talvez seja algo só pra rota de grupos do whatsapp mesmo, e não um guard global
 async function validateWhatsappAuth({
   token,
   component,
@@ -294,7 +330,6 @@ function handleAuthStatus() {
   };
 }
 
-// todo: não gosto dessa quantidade de condicionais, ver melhor depois
 function resolveRouteAccess(to: RouteLocationNormalized) {
   const authStore = useAuthStore();
   const isLoggedIn = authStore.isLoggedIn;
@@ -313,37 +348,48 @@ function resolveRouteAccess(to: RouteLocationNormalized) {
   );
 
   if (requiresConfirmed) {
-    if (!isLoggedIn) return redirectToStaticRootIfProduction();
-    if (!isConfirmed) return { name: 'signup' };
-    if (!hasRoutePermission(to)) return { path: authenticatedRedirectPath };
+    if (!isLoggedIn) {
+      return redirectToStaticRootIfProduction();
+    }
+    if (!isConfirmed) {
+      return { name: 'signup' };
+    }
+    if (!hasRoutePermission(to)) {
+      return { path: authenticatedRedirectPath };
+    }
     return;
   }
 
   if (requiresAuth) {
-    if (!isLoggedIn) return redirectToStaticRootIfProduction();
+    if (!isLoggedIn) {
+      return redirectToStaticRootIfProduction();
+    }
     return;
   }
 
   if (guestOnly) {
-    if (isLoggedIn) return { name: authenticatedRedirectPath };
+    if (isLoggedIn) {
+      return { name: authenticatedRedirectPath };
+    }
     return;
   }
 
-  if (unconfirmedOnly) {
-    if (isConfirmed) return { name: authenticatedRedirectPath };
-    return;
+  if (unconfirmedOnly && isConfirmed) {
+    return { name: authenticatedRedirectPath };
   }
 }
 
 function hasRoutePermission(to: RouteLocationNormalized) {
   const requiredPermissions = to.meta.permissions;
-  if (!Array.isArray(requiredPermissions)) return true;
+  if (!Array.isArray(requiredPermissions)) {
+    return true;
+  }
 
   const userPermissions = useAuthStore().user?.permissions ?? [];
-  for (const permission of requiredPermissions) {
-    if (userPermissions.includes(permission)) return true;
-  }
-  return false;
+  return requiredPermissions.some(
+    (permission) =>
+      typeof permission === 'string' && userPermissions.includes(permission)
+  );
 }
 
 function redirectToStaticRootIfProduction() {

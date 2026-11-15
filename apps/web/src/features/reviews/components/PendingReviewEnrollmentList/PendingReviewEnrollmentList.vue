@@ -32,50 +32,59 @@ import { PaperCard } from '@/components/ui/PaperCard';
 import { PendingReviewEnrollment } from '../PendingReviewEnrollment';
 
 const { data: enrollments, isError: isErrorEnrollment } = useQuery({
-  refetchOnWindowFocus: false,
-  queryKey: ['enrollments', 'list'],
   queryFn: Enrollments.list,
+  queryKey: ['enrollments', 'list'],
+  refetchOnWindowFocus: false,
 });
 
+function getLatestSeason(list: Enrollment[]) {
+  let year = 0;
+  for (const enrollment of list) {
+    if (enrollment.year > year) {
+      year = enrollment.year;
+    }
+  }
+
+  let quad = 0;
+  for (const enrollment of list) {
+    if (year === enrollment.year && enrollment.quad > quad) {
+      quad = enrollment.quad;
+    }
+  }
+
+  return { quad, year };
+}
+
+function getPendingReviews(enrollment: Enrollment): Enrollment[] {
+  if (!enrollment.teoria?.name && !enrollment.pratica?.name) {
+    return [];
+  }
+  if (enrollment.teoria?.name === enrollment.pratica?.name) {
+    const reviewed =
+      enrollment.comments?.includes('teoria') ||
+      enrollment.comments?.includes('pratica');
+    return reviewed ? [] : [enrollment];
+  }
+
+  const pending: Enrollment[] = [];
+  if (enrollment.teoria?.name && !enrollment.comments?.includes('teoria')) {
+    pending.push({ ...enrollment, pratica: null });
+  }
+  if (enrollment.pratica?.name && !enrollment.comments?.includes('pratica')) {
+    pending.push({ ...enrollment, teoria: null });
+  }
+  return pending;
+}
+
 const filteredAndSeparatedEnrollments = computed(() => {
-  if (!enrollments.value) return [] as Enrollment[];
+  if (!enrollments.value) {
+    return [] as Enrollment[];
+  }
 
-  const year = enrollments.value.reduce((acc, enrollment) => {
-    if (enrollment.year > acc) {
-      return enrollment.year;
-    }
-    return acc;
-  }, 0);
-
-  const quad = enrollments.value.reduce((acc, enrollment) => {
-    if (year == enrollment.year && enrollment.quad > acc) {
-      return enrollment.quad;
-    }
-    return acc;
-  }, 0);
+  const { year, quad } = getLatestSeason(enrollments.value);
 
   return enrollments.value
-    .reduce((acc, enrollment) => {
-      if (!enrollment.teoria?.name && !enrollment.pratica?.name) {
-        return acc;
-      }
-      if (enrollment.teoria?.name === enrollment.pratica?.name) {
-        !(
-          enrollment.comments?.includes('teoria') ||
-          enrollment.comments?.includes('pratica')
-        ) && acc.push(enrollment);
-        return acc;
-      }
-      if (enrollment.teoria?.name) {
-        !enrollment.comments?.includes('teoria') &&
-          acc.push({ ...enrollment, pratica: null });
-      }
-      if (enrollment.pratica?.name) {
-        !enrollment.comments?.includes('pratica') &&
-          acc.push({ ...enrollment, teoria: null });
-      }
-      return acc;
-    }, [] as Enrollment[])
+    .flatMap(getPendingReviews)
     .filter(
       (enrollment) => enrollment.year === year && enrollment.quad === quad
     );

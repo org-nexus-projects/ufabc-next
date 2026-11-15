@@ -10,25 +10,25 @@ const theme = useTheme();
 
 const props = defineProps({
   text: {
-    type: String,
     default: 'O next está em manutenção, por favor, tente novamente mais tarde',
+    type: String,
   },
   title: {
-    type: String,
     default: 'UFABC Next informa',
+    type: String,
   },
 });
 
 onMounted(() => {
   ElNotification({
-    message: props.text,
-    title: props.title,
-    onClick: () => {
-      emit('click');
-    },
     customClass: theme.global.current.value.dark
       ? 'notification-dark'
       : 'notification-light',
+    message: props.text,
+    onClick: () => {
+      emit('click');
+    },
+    title: props.title,
   });
 });
 </script>

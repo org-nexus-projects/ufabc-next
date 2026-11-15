@@ -13,7 +13,7 @@ const vuetify = createVuetify({
   directives,
 });
 
-export const defaultPlugins: (Plugin | [Plugin, ...unknown[]])[] = [
+export const defaultPlugins: Array<Plugin | [Plugin, ...unknown[]]> = [
   vuetify,
   elementPlus,
   [
@@ -30,23 +30,24 @@ export const defaultPlugins: (Plugin | [Plugin, ...unknown[]])[] = [
   ],
 ];
 
-const customRender: typeof render = (component, options) => {
-  return render(component, {
+const customRender: typeof render = (component, options) =>
+  render(component, {
     ...options,
     global: {
       plugins: defaultPlugins,
       ...options?.global,
     },
   });
-};
 
 export { customRender as render };
 export * from '@testing-library/vue';
 
-export const expectToasterToHaveText = async (text: string) => {
+export async function expectToasterToHaveText(text: string) {
   await waitFor(() => {
     expect(
-      within(screen.getAllByRole('alert').at(-1)!).getByText(RegExp(text, 'i')),
+      within(screen.getAllByRole('alert').at(-1)!).getByText(
+        new RegExp(text, 'iu')
+      )
     ).toBeInTheDocument();
   });
-};
+}

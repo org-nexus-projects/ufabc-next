@@ -34,7 +34,9 @@ describe('<SettingsPage />', () => {
   test('render user info', async () => {
     render(SettingsPage);
     expect(
-      await screen.findByText(mockedUser.email.replace(/(.*)@.*/, '$1'))
+      await screen.findByText(
+        mockedUser.email.replace(/(?<user>.*)@.*/u, '$<user>')
+      )
     ).toBeInTheDocument();
     expect(await screen.findByText(mockedUser.email)).toBeInTheDocument();
     expect(
@@ -65,7 +67,7 @@ describe('<SettingsPage />', () => {
     });
   });
   test('show toast if error when deactivate user', async () => {
-    server.use(http.delete(/.*\/users\/remove/, () => HttpResponse.error()));
+    server.use(http.delete(/.*\/users\/remove/u, () => HttpResponse.error()));
 
     const user = userEvent.setup();
 

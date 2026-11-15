@@ -1,3 +1,4 @@
+import { api } from './api';
 import type {
   Comment,
   CreateCommentRequest,
@@ -5,26 +6,32 @@ import type {
   UpdateCommentRequest,
 } from './types';
 
-import { api } from './api';
-
 export const Comments = {
+  create: async (data: CreateCommentRequest) =>
+    await api.post('/comments/', data),
   get: async (teacherId: string, subjectId: string, pageParam = 0) => {
-    const { data } = await api.get(`/comments/${teacherId}/${subjectId}`, {
-      params: { page: pageParam, limit: 10 },
-    });
-    return data as GetCommentResponse;
+    const { data } = await api.get<GetCommentResponse>(
+      `/comments/${teacherId}/${subjectId}`,
+      {
+        params: { limit: 10, page: pageParam },
+      }
+    );
+    return data;
   },
   getUserComment: async (enrollmentId: string) => {
-    const { data } = await api.get(`/comments/enrollment/${enrollmentId}`);
-    return data as Comment;
+    const { data } = await api.get<Comment>(
+      `/comments/enrollment/${enrollmentId}`
+    );
+    return data;
   },
-  create: (data: CreateCommentRequest) => api.post('/comments/', data),
-  update: ({ id, comment }: UpdateCommentRequest) =>
-    api.put(`/comments/${id}`, { comment }),
-  like: (id: string) => api.post(`/comments/reactions/${id}`, { kind: 'like' }),
-  recommendation: (id: string) =>
-    api.post(`/comments/reactions/${id}`, { kind: 'recommendation' }),
-  removeLike: (id: string) => api.delete(`/comments/reactions/${id}/like`),
-  removeRecommendation: (id: string) =>
-    api.delete(`/comments/reactions/${id}/recommendation`),
+  like: async (id: string) =>
+    await api.post(`/comments/reactions/${id}`, { kind: 'like' }),
+  recommendation: async (id: string) =>
+    await api.post(`/comments/reactions/${id}`, { kind: 'recommendation' }),
+  removeLike: async (id: string) =>
+    await api.delete(`/comments/reactions/${id}/like`),
+  removeRecommendation: async (id: string) =>
+    await api.delete(`/comments/reactions/${id}/recommendation`),
+  update: async ({ id, comment }: UpdateCommentRequest) =>
+    await api.put(`/comments/${id}`, { comment }),
 };

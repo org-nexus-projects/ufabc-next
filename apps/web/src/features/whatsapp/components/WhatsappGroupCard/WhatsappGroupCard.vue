@@ -71,30 +71,31 @@ type WhatsappGroupCardProps = {
 const props = defineProps<WhatsappGroupCardProps>();
 
 const campusName = computed(() => {
-  if (!props.component.campus) return null;
+  if (!props.component.campus) {
+    return null;
+  }
   return props.component.campus === 'sa' ? 'Santo André' : 'São Bernardo';
 });
 
-const isGroupAvailable = computed(() => {
-  return (
+const isGroupAvailable = computed(
+  () =>
     props.component.groupURL !== null &&
     props.component.groupURL !== '' &&
     props.component.groupURL !== undefined
-  );
-});
+);
 
 const emit = defineEmits<{
   (e: 'openGroup', value: string): void;
 }>();
 
-const handleClick = () => {
+function handleClick() {
   const groupURL = props.component.groupURL;
   if (!groupURL) {
     return;
   }
 
   emit('openGroup', groupURL);
-};
+}
 </script>
 
 <style scoped>

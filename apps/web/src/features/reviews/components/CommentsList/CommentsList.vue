@@ -15,7 +15,7 @@
       :items="subjects"
       hide-details
       menu-icon="mdi-menu-down"
-      class="mr-4 custom-select"
+      class="custom-select mr-4"
       bg-color="appbar"
     />
 
@@ -41,9 +41,9 @@
       date=""
       class="mb-5"
     />
-    <div v-if="hasMoreComments" class="text-center px-4">
+    <div v-if="hasMoreComments" class="px-4 text-center">
       <v-btn
-        class="w-100 text-body-2"
+        class="text-body-2 w-100"
         :loading="isFetchingMoreComments"
         @click="fetchMoreComments"
       >
@@ -64,6 +64,7 @@
 
 <script setup lang="ts">
 import { Comments, Reviews } from '@next/services';
+import type { GetCommentResponse } from '@next/services';
 import { useInfiniteQuery, useQuery } from '@tanstack/vue-query';
 import { computed, ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
@@ -77,8 +78,8 @@ import { TeacherSummary } from '../TeacherSummary';
 
 const { smAndDown } = useDisplay();
 const props = defineProps({
-  teacherId: { type: String, required: true },
-  selectedSubject: { type: String, required: true },
+  selectedSubject: { required: true, type: String },
+  teacherId: { required: true, type: String },
 });
 
 const teacherId = computed(() => props.teacherId);
@@ -99,10 +100,10 @@ const {
   refetch: refetchTeacher,
   isError: isTeacherDataError,
 } = useQuery({
-  refetchOnWindowFocus: false,
-  queryKey: ['teacher', teacherId.value],
-  queryFn: () => Reviews.getTeacher(teacherId.value),
   enabled: !!teacherId.value,
+  queryFn: () => Reviews.getTeacher(teacherId.value),
+  queryKey: ['teacher', teacherId.value],
+  refetchOnWindowFocus: false,
 });
 
 const selectedSubjectId = computed(
@@ -121,23 +122,28 @@ const {
   isFetchingNextPage: isFetchingMoreComments,
   isError: isFetchingCommentsError,
 } = useInfiniteQuery({
-  queryKey: ['comments', teacherId, selectedSubjectId, page],
-  queryFn: ({ pageParam }) =>
-    Comments.get(teacherId.value, selectedSubjectId.value, pageParam),
-  refetchOnWindowFocus: false,
   enabled: !!teacherId.value,
-  getNextPageParam: (lastPage, allPages) => {
+  getNextPageParam: (
+    lastPage: GetCommentResponse,
+    allPages: GetCommentResponse[]
+  ) => {
     if (lastPage.total >= allPages.length * 10) {
       return allPages.length;
     }
   },
   initialPageParam: 0,
+  queryFn: ({ pageParam }) =>
+    Comments.get(teacherId.value, selectedSubjectId.value, pageParam),
+  queryKey: ['comments', teacherId, selectedSubjectId, page],
+  refetchOnWindowFocus: false,
 });
 
 const commentsData = computed(() => {
-  if (!commentsDataPageable.value) return;
+  if (!commentsDataPageable.value) {
+    return;
+  }
   return {
-    data: commentsDataPageable.value.pages.map((page) => page.data).flat(),
+    data: commentsDataPageable.value.pages.flatMap((pageData) => pageData.data),
     total: commentsDataPageable.value.pages[0].total,
   };
 });
@@ -146,13 +152,16 @@ const eadFilter = ref(false);
 
 const filteredCommentsData = computed(() => {
   emit('update:eadFilter', eadFilter.value);
-  if (!commentsData.value) return;
+  if (!commentsData.value) {
+    return;
+  }
 
-  if (!eadFilter.value)
+  if (!eadFilter.value) {
     return {
       data: commentsData.value.data,
       total: commentsData.value.total,
     };
+  }
 
   const commentsList = commentsData.value.data.filter(
     (comment) => !checkEAD(comment.enrollment.year, comment.enrollment.quad)
@@ -170,7 +179,9 @@ watch(
 );
 
 const subjects = computed(() => {
-  if (!teacherData.value) return [];
+  if (!teacherData.value) {
+    return [];
+  }
   return [
     'Todas as matérias',
     ...teacherData.value.specific

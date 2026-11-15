@@ -4,46 +4,46 @@ const darkMode = {
   chart: {
     backgroundColor: '#212121',
   },
+  credits: {
+    style: {
+      color: '#1f1f1f',
+    },
+  },
+  legend: {
+    itemHoverStyle: {
+      color: '#FFF',
+    },
+    itemStyle: {
+      color: '#E0E0E3',
+    },
+  },
   title: {
     style: {
       color: '#E0E0E3',
     },
   },
-  yAxis: {
-    title: {
-      style: {
-        color: '#E0E0E3',
-      },
-    },
-    labels: {
-      style: {
-        color: '#E0E0E3',
-      },
-    },
-  },
   xAxis: {
-    title: {
-      style: {
-        color: '#E0E0E3',
-      },
-    },
     labels: {
       style: {
         color: '#E0E0E3',
       },
     },
-  },
-  legend: {
-    itemStyle: {
-      color: '#E0E0E3',
-    },
-    itemHoverStyle: {
-      color: '#FFF',
+    title: {
+      style: {
+        color: '#E0E0E3',
+      },
     },
   },
-  credits: {
-    style: {
-      color: '#1f1f1f',
+  yAxis: {
+    labels: {
+      style: {
+        color: '#E0E0E3',
+      },
+    },
+    title: {
+      style: {
+        color: '#E0E0E3',
+      },
     },
   },
 };
@@ -52,46 +52,46 @@ const lightMode = {
   chart: {
     backgroundColor: '#ffffff',
   },
+  credits: {
+    style: {
+      color: '#ffffff',
+    },
+  },
+  legend: {
+    itemHoverStyle: {
+      color: '#000000',
+    },
+    itemStyle: {
+      color: '#333333',
+    },
+  },
   title: {
     style: {
       color: '#333333',
     },
   },
-  yAxis: {
-    title: {
-      style: {
-        color: '#333333',
-      },
-    },
-    labels: {
-      style: {
-        color: '#333333',
-      },
-    },
-  },
   xAxis: {
-    title: {
-      style: {
-        color: '#333333',
-      },
-    },
     labels: {
       style: {
         color: '#333333',
       },
     },
-  },
-  legend: {
-    itemStyle: {
-      color: '#333333',
-    },
-    itemHoverStyle: {
-      color: '#000000',
+    title: {
+      style: {
+        color: '#333333',
+      },
     },
   },
-  credits: {
-    style: {
-      color: '#ffffff',
+  yAxis: {
+    labels: {
+      style: {
+        color: '#333333',
+      },
+    },
+    title: {
+      style: {
+        color: '#333333',
+      },
     },
   },
 };

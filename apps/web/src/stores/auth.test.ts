@@ -19,7 +19,7 @@ describe('useAuthStore', () => {
   });
 
   test('authenticate sets user and token for a valid JWT', () => {
-    const payload = { _id: 'user-1', ra: 12345 };
+    const payload = { _id: 'user-1', ra: 12_345 };
     const token = createMockJwt(payload);
 
     authStore.authenticate(token);
@@ -38,7 +38,7 @@ describe('useAuthStore', () => {
   });
 
   test('logOut clears user and token', () => {
-    const payload = { _id: 'user-1', ra: 12345 };
+    const payload = { _id: 'user-1', ra: 12_345 };
     authStore.authenticate(createMockJwt(payload));
 
     authStore.logOut();

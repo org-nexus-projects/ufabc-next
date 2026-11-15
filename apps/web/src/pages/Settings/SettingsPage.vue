@@ -26,7 +26,7 @@
           <v-col
             cols="12"
             md="2"
-            class="mb-3 d-flex justify-center d align-center"
+            class="d-flex d align-center mb-3 justify-center"
           >
             <v-avatar
               :size="80"
@@ -78,7 +78,7 @@
           <v-col
             cols="12"
             md="3"
-            class="d-flex justify-center justify-md-end align-center"
+            class="d-flex justify-md-end align-center justify-center"
           >
             <v-btn
               class="settings-button error--text"
@@ -149,20 +149,20 @@ const {
   isLoading: isLoadingUser,
   error: isErrorUser,
 } = useQuery({
-  queryKey: ['users', 'info'],
   queryFn: Users.info,
+  queryKey: ['users', 'info'],
 });
 
-const userLogin = computed(() => {
-  return user.value?.email?.replace(/@(aluno\.)?ufabc\.edu\.br$/, '');
-});
+const userLogin = computed(() =>
+  user.value?.email?.replace(/@(?:aluno\.)?ufabc\.edu\.br$/u, '')
+);
 
-const addGoogleAccount = computed(() => {
-  return buildGoogleAuthUrl({
+const addGoogleAccount = computed(() =>
+  buildGoogleAuthUrl({
     requesterKey: 'ufabc-next',
     userId: user.value?._id,
-  });
-});
+  })
+);
 
 const createdAt = computed(() => {
   if (user.value?.createdAt) {
@@ -178,30 +178,32 @@ const userInitials = useAliasInitials();
 
 const dialog = ref(false);
 
-const handleLogout = () => {
+function handleLogout() {
   authStore.logOut();
   window.location.href = '/';
-};
+}
 
 const { mutate: removeUser } = useMutation({
   mutationFn: () => Users.delete(),
-  onSuccess: () => {
-    handleLogout();
-  },
   onError: () => {
     ElMessage({
       message: 'Ocorreu um erro ao tentar excluir sua conta',
       type: 'error',
     });
   },
+  onSuccess: () => {
+    handleLogout();
+  },
 });
 
-async function removeAccount() {
+function removeAccount() {
   dialog.value = false;
   removeUser();
 }
 
-const reloadPage = () => window.location.reload();
+function reloadPage() {
+  return window.location.reload();
+}
 </script>
 
 <style scoped>

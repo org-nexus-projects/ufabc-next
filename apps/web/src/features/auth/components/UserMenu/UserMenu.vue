@@ -3,7 +3,7 @@
     <template #activator="{ props }">
       <div
         v-bind="props"
-        class="pa-4 cursor-pointer hover:bg-blue-darken-2 transition-colors"
+        class="pa-4 hover:bg-blue-darken-2 cursor-pointer transition-colors"
         style="border-top: 1px solid rgba(255, 255, 255, 0.12)"
       >
         <div class="d-flex align-center gap-3">
@@ -12,7 +12,7 @@
               {{ userInitials }}
             </span>
           </v-avatar>
-          <div class="flex-grow-1 pa-3">
+          <div class="pa-3 flex-grow-1">
             <div class="text-body-2 font-weight-medium">
               {{ userCleanUsername }}
             </div>
@@ -29,7 +29,7 @@
                 {{ userInitials }}
               </span>
             </v-avatar>
-            <div class="flex-grow-1 pa-3">
+            <div class="pa-3 flex-grow-1">
               <div class="text-body-3 font-weight-black">
                 {{ userCleanUsername }}
               </div>
@@ -41,7 +41,7 @@
         </v-list-item>
         <v-divider />
         <v-list-item @click="handleSettingsClick">
-          <div class="d-flex align-center py-2 rounded-lg bg-gray-200">
+          <div class="d-flex align-center rounded-lg bg-gray-200 py-2">
             <v-icon icon="mdi-cog" />
             <div class="text-body-2 pa-3">Configurações</div>
           </div>
@@ -78,13 +78,13 @@ const userCleanUsername = useCleanUsername();
 
 const isMenuOpen = ref(false);
 
-const handleSettingsClick = () => {
+function handleSettingsClick() {
   isMenuOpen.value = false;
   router.push('/settings');
-};
+}
 
-const handleLogoutClick = () => {
+function handleLogoutClick() {
   isMenuOpen.value = false;
   emit('logout');
-};
+}
 </script>

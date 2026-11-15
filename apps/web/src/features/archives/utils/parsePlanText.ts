@@ -6,11 +6,11 @@ export type PlanTextBlock =
 
 export type PlanTextSegment = { text: string; href?: string };
 
-const BULLET_PATTERN = /^\s*[-*•]\s+(.*)$/u;
-const NUMBERED_PATTERN = /^\s*\d+[.)]\s+(.*)$/u;
-const HEADING_PATTERN = /^#{1,6}\s+(.*)$/u;
+const BULLET_PATTERN = /^\s*[-*•]\s+(?<content>.*)$/u;
+const NUMBERED_PATTERN = /^\s*\d+[.)]\s+(?<content>.*)$/u;
+const HEADING_PATTERN = /^#{1,6}\s+(?<content>.*)$/u;
 const TABLE_SEPARATOR_PATTERN =
-  /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\s*$/u;
+  /^\s*\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)*\|?\s*$/u;
 const LINK_PATTERN = /https?:\/\/[^\s<>]+/gu;
 const TRAILING_PUNCTUATION = /[.,;:!?)\]]+$/u;
 

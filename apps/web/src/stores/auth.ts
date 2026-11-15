@@ -9,20 +9,10 @@ type AuthState = {
 };
 
 export const useAuthStore = defineStore('auth', {
-  persist: true,
-  state: (): AuthState => {
-    return {
-      user: null,
-      token: null,
-    };
-  },
-  getters: {
-    isLoggedIn: (state): boolean => Boolean(state.user),
-  },
   actions: {
     authenticate(token: string) {
       const { user, error } = parseJwt(token);
-      if (error || !user) {
+      if (error !== null || user === null) {
         return;
       }
       this.token = token;
@@ -33,4 +23,12 @@ export const useAuthStore = defineStore('auth', {
       this.token = null;
     },
   },
+  getters: {
+    isLoggedIn: (state): boolean => Boolean(state.user),
+  },
+  persist: true,
+  state: (): AuthState => ({
+    token: null,
+    user: null,
+  }),
 });

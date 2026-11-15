@@ -17,65 +17,65 @@ export type ExternalNavItem = {
 
 export const internalNavigationItems: InternalNavItem[] = [
   {
-    title: 'Reviews',
     icon: 'mdi-message-draw',
+    locked: (confirmed) => !confirmed,
     route: '/reviews',
-    locked: (confirmed) => !confirmed,
+    title: 'Reviews',
   },
   {
-    title: 'Meu histórico',
     icon: 'mdi-history',
+    locked: (confirmed) => !confirmed,
     route: '/history',
-    locked: (confirmed) => !confirmed,
+    title: 'Meu histórico',
   },
   {
-    title: 'Performance',
     icon: 'mdi-google-analytics',
+    locked: (confirmed) => !confirmed,
     route: '/performance',
-    locked: (confirmed) => !confirmed,
+    title: 'Performance',
   },
   {
-    title: 'Dados da Matrícula',
     icon: 'mdi-book-multiple',
+    locked: (confirmed) => !confirmed,
     route: '/stats',
-    locked: (confirmed) => !confirmed,
+    title: 'Dados da Matrícula',
   },
   {
-    title: 'Arquivos',
     icon: 'mdi-file-document-multiple',
-    route: '/archives',
-    permissions: ['admin', 'archives'],
     locked: (confirmed) => !confirmed,
+    permissions: ['admin', 'archives'],
+    route: '/archives',
+    title: 'Arquivos',
   },
   {
-    title: 'Grupos no WhatsApp',
     icon: 'mdi-whatsapp',
-    route: '/grupos-whatsapp',
+    locked: () => false,
     releaseDate: dayjs('07/10/2025'),
-    locked: () => false,
+    route: '/grupos-whatsapp',
+    title: 'Grupos no WhatsApp',
   },
   {
-    title: 'Calengrade',
     icon: 'mdi-calendar',
-    route: '/calengrade',
+    locked: () => false,
     releaseDate: dayjs('11/25/2023'),
-    locked: () => false,
+    route: '/calengrade',
+    title: 'Calengrade',
   },
   {
-    title: 'Apoie o UFABC next',
     icon: 'mdi-bank',
-    route: '/donate',
     locked: () => false,
+    route: '/donate',
+    title: 'Apoie o UFABC next',
   },
   {
-    title: 'Ajuda',
     icon: 'mdi-help-circle',
-    route: '/help',
     locked: () => false,
+    route: '/help',
+    title: 'Ajuda',
   },
 ];
 
-export const getExternalNavigationItems = ({
+export function getExternalNavigationItems({
   apiURL,
   token,
   permissions,
@@ -83,38 +83,40 @@ export const getExternalNavigationItems = ({
   apiURL: string;
   token: string | null;
   permissions: string[];
-}): ExternalNavItem[] => [
-  {
-    title: 'Discord',
-    icon: 'fa-brands fa-discord',
-    url: 'https://discord.gg/7BBzDwRXSg',
-  },
-  {
-    title: 'Snapshot da Matrícula',
-    icon: 'mdi-open-in-new',
-    url: 'https://ufabc-matricula-snapshot.vercel.app',
-  },
-  {
-    title: 'Use a Extensão',
-    icon: 'mdi-download',
-    url: 'https://chrome.google.com/webstore/detail/ufabc-next/gphjopenfpnlnffmhhhhdiecgdcopmhk',
-  },
-  ...(permissions.includes('admin')
-    ? [
-        {
-          title: 'Monitoramento de Jobs',
-          icon: 'mdi-open-in-new',
-          url: `${apiURL}/board/ui?token=${token}`,
-        },
-      ]
-    : []),
-  ...(permissions.includes('admin')
-    ? [
-        {
-          title: 'Monitoramento de Jobs V2',
-          icon: 'mdi-open-in-new',
-          url: `${apiURL}/v2/board/ui?token=${token}`,
-        },
-      ]
-    : []),
-];
+}): ExternalNavItem[] {
+  return [
+    {
+      icon: 'fa-brands fa-discord',
+      title: 'Discord',
+      url: 'https://discord.gg/7BBzDwRXSg',
+    },
+    {
+      icon: 'mdi-open-in-new',
+      title: 'Snapshot da Matrícula',
+      url: 'https://ufabc-matricula-snapshot.vercel.app',
+    },
+    {
+      icon: 'mdi-download',
+      title: 'Use a Extensão',
+      url: 'https://chrome.google.com/webstore/detail/ufabc-next/gphjopenfpnlnffmhhhhdiecgdcopmhk',
+    },
+    ...(permissions.includes('admin')
+      ? [
+          {
+            icon: 'mdi-open-in-new',
+            title: 'Monitoramento de Jobs',
+            url: `${apiURL}/board/ui?token=${token}`,
+          },
+        ]
+      : []),
+    ...(permissions.includes('admin')
+      ? [
+          {
+            icon: 'mdi-open-in-new',
+            title: 'Monitoramento de Jobs V2',
+            url: `${apiURL}/v2/board/ui?token=${token}`,
+          },
+        ]
+      : []),
+  ];
+}

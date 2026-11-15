@@ -1,12 +1,12 @@
 <template>
-  <v-container class="container pt-md-10">
+  <v-container class="pt-md-10 container">
     <v-row class="d-flex mb-5 flex-grow-0">
       <v-col xs="12" class="d-flex align-center justify-space-between">
         <img height="32" src="@/assets/logo.svg" />
       </v-col>
     </v-row>
     <v-row class="h-100">
-      <v-col class="d-flex justify-center align-center">
+      <v-col class="d-flex align-center justify-center">
         <div
           v-if="isPendingConfirmToken"
           class="d-flex flex-column align-center"
@@ -23,17 +23,17 @@
             style="max-width: 260px; width: 100%"
           />
           <h1 class="text-h5 mb-4">Erro ao confirmar sua conta</h1>
-          <p class="text-left text-body-1 mb-2">
+          <p class="text-body-1 mb-2 text-left">
             A URL que você entrou para confirmar sua conta não é válida. Siga
             esses passos:
           </p>
-          <p class="text-left text-body-1 mb-1">
+          <p class="text-body-1 mb-1 text-left">
             1. Acesse o email que você recebeu de confirmação.
           </p>
-          <p class="text-left text-body-1 mb-1">
+          <p class="text-body-1 mb-1 text-left">
             2. Copie o link que está abaixo do botão verde de "Confirmar conta".
           </p>
-          <p class="text-left text-body-1 mb-1">
+          <p class="text-body-1 mb-1 text-left">
             3. Cole esse link no navegador e tente confirmar a conta novamente.
           </p>
         </div>
@@ -60,21 +60,21 @@ const router = useRouter();
 const { mutate: mutateConfirmToken, isPending: isPendingConfirmToken } =
   useMutation({
     mutationFn: Users.confirmSignup,
-    onSuccess: (data) => {
-      ElMessage({
-        message: 'Conta confirmada com sucesso',
-        type: 'success',
-        showClose: true,
-      });
-      authStore.authenticate(data.token);
-      router.push('/');
-    },
     onError: (error: AxiosError<RequestError>) => {
       ElMessage({
         message: error.response?.data.error,
-        type: 'error',
         showClose: true,
+        type: 'error',
       });
+    },
+    onSuccess: (data) => {
+      ElMessage({
+        message: 'Conta confirmada com sucesso',
+        showClose: true,
+        type: 'success',
+      });
+      authStore.authenticate(data.token);
+      router.push('/');
     },
   });
 
@@ -84,8 +84,8 @@ onMounted(async () => {
   if (!token) {
     ElMessage({
       message: 'Token de confirmação não encontrado',
-      type: 'error',
       showClose: true,
+      type: 'error',
     });
     return;
   }

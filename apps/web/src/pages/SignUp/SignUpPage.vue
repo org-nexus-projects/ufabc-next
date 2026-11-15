@@ -1,7 +1,7 @@
 <template>
   <FeedbackAlert v-if="fetchEmailError" :text="handleEmailError" />
   <v-form @submit.prevent="onSubmit">
-    <v-container class="container pt-md-10">
+    <v-container class="pt-md-10 container">
       <v-row class="d-flex mb-5 flex-grow-0">
         <v-col xs="12" class="d-flex align-center justify-space-between">
           <img height="32" src="@/assets/logo.svg" alt="logo do UFABC Next" />
@@ -16,7 +16,7 @@
           </v-btn>
         </v-col>
       </v-row>
-      <v-row class="w-100 h-100 justify-center justify-md-start">
+      <v-row class="justify-md-start h-100 w-100 justify-center">
         <v-col cols="12" md="6" class="d-flex align-center justify-center">
           <img
             src="@/assets/signup.svg"
@@ -33,7 +33,7 @@
         >
           <el-steps
             :active="step"
-            class="w-100 mb-5"
+            class="mb-5 w-100"
             align-center
             finish-status="success"
           >
@@ -47,7 +47,7 @@
           >
             <div class="mb-6">
               <h1
-                class="text-h6 text-md-h5 text-center text-md-start font-weight-bold pb-4"
+                class="text-h6 text-md-h5 text-md-start font-weight-bold pb-4 text-center"
               >
                 O que você faz na UFABC?
               </h1>
@@ -59,10 +59,10 @@
               <v-col
                 cols="12"
                 md="6"
-                class="d-flex justify-center px-0 px-md-2"
+                class="d-flex px-md-2 justify-center px-0"
               >
                 <v-btn
-                  class="w-100 text-capitalize"
+                  class="text-capitalize w-100"
                   rounded="lg"
                   size="x-large"
                   @click="handleAccountType('student')"
@@ -74,10 +74,10 @@
               <v-col
                 cols="12"
                 md="6"
-                class="d-flex justify-center px-0 px-md-2"
+                class="d-flex px-md-2 justify-center px-0"
               >
                 <v-btn
-                  class="w-100 text-capitalize"
+                  class="text-capitalize w-100"
                   rounded="lg"
                   size="x-large"
                   @click="handleAccountType('teacher')"
@@ -90,14 +90,14 @@
             <router-link
               to="/login"
               :style="smAndDown ? 'max-width: 300px' : ''"
-              class="mt-4 mt-md-2 text-center text-primary font-weight-medium text-decoration-none"
+              class="mt-md-2 text-primary font-weight-medium text-decoration-none mt-4 text-center"
             >
               Já tem uma conta? Faça login
             </router-link>
             <router-link
               to="/recovery"
               :style="smAndDown ? 'max-width: 300px' : ''"
-              class="mt-2 text-center text-caption"
+              class="text-caption mt-2 text-center"
             >
               Já tenho uma conta no UFABC Next e quero recuperá-la
             </router-link>
@@ -107,7 +107,7 @@
             class="d-flex flex-column align-center align-md-start justify-md-center"
           >
             <h1
-              class="text-h6 text-md-h5 text-center text-md-start font-weight-bold mb-4"
+              class="text-h6 text-md-h5 text-md-start font-weight-bold mb-4 text-center"
             >
               Falta pouco para completar o seu cadastro
             </h1>
@@ -166,7 +166,7 @@
             class="d-flex flex-column align-center align-md-start justify-md-center"
           >
             <h1
-              class="text-h6 text-md-h5 text-center text-md-start font-weight-bold pb-4"
+              class="text-h6 text-md-h5 text-md-start font-weight-bold pb-4 text-center"
             >
               Estamos trabalhando nisso!
             </h1>
@@ -185,21 +185,21 @@
             class="d-flex flex-column align-center align-md-start justify-md-center"
           >
             <h1
-              class="text-h6 text-md-h5 text-center text-md-start font-weight-bold"
+              class="text-h6 text-md-h5 text-md-start font-weight-bold text-center"
             >
               Enviamos um email de confirmação para
             </h1>
             <span
-              class="text-h6 text-md-h5 text-center text-md-start font-weight-bold text-primary text-break pb-4"
+              class="text-h6 text-md-h5 text-md-start font-weight-bold text-primary text-break pb-4 text-center"
             >
               {{ email.value.value }}
             </span>
 
-            <v-row class="w-100 flex-grow-0 mb-7 mb-md-0">
+            <v-row class="mb-md-0 mb-7 w-100 flex-grow-0">
               <v-col
                 cols="12"
                 md="6"
-                class="d-flex justify-center px-0 px-md-2"
+                class="d-flex px-md-2 justify-center px-0"
               >
                 <v-btn
                   style="text-transform: unset !important"
@@ -215,7 +215,7 @@
               <v-col
                 cols="12"
                 md="6"
-                class="d-flex justify-center px-0 px-md-2"
+                class="d-flex px-md-2 justify-center px-0"
               >
                 <v-btn
                   :disabled="!enableResendEmail"
@@ -246,7 +246,7 @@
               <v-col
                 cols="12"
                 :md="step === 3 ? 12 : 6"
-                class="d-flex justify-center px-0 px-md-2"
+                class="d-flex px-md-2 justify-center px-0"
               >
                 <v-btn
                   style="text-transform: unset !important"
@@ -261,7 +261,7 @@
               <v-col
                 cols="12"
                 md="6"
-                class="d-flex justify-center px-0 px-md-2"
+                class="d-flex px-md-2 justify-center px-0"
               >
                 <v-btn
                   v-if="accountType === 'student' && step === 2"
@@ -282,7 +282,7 @@
         </v-col>
       </v-row>
       <v-row v-if="smAndDown">
-        <v-col class="d-flex justify-end w-100">
+        <v-col class="d-flex w-100 justify-end">
           <v-btn
             label="Usar outra conta do google"
             prepend-icon="mdi-exit-to-app"
@@ -329,33 +329,34 @@ const advice = route.value?.query.advice;
 const isAdvice = !!advice;
 
 onMounted(() => {
-  if (advice === 'true')
+  if (advice === 'true') {
     ElMessage({
       // @ts-expect-error TODO(nic): fix it
+      customClass: 'custom-warn',
+      duration: 0,
       message:
         'Você não tem uma conta no UFABC next. Para continuar o login no UFABC Cronos, continue criando sua conta aqui.',
-      type: 'warn',
-      duration: 0,
       showClose: true,
-      customClass: 'custom-warn',
+      type: 'warn',
     });
+  }
 });
 
-const handleLogout = () => {
+function handleLogout() {
   authStore.logOut();
   window.location.href = '/';
-};
+}
 
 const { smAndDown } = useDisplay();
 const step = ref(1);
 const accountType = ref('student');
 const enableResendEmail = ref(true);
-const handleAccountType = (type: string) => {
+function handleAccountType(type: string) {
   accountType.value = type;
   step.value = 2;
-};
+}
 
-const validationSchema = toTypedSchema(SignUpSchema as any);
+const validationSchema = toTypedSchema(SignUpSchema);
 
 const { handleSubmit, meta, setValues } = useForm({
   validationSchema,
@@ -368,12 +369,6 @@ const check = useField('check');
 
 const { mutate: mutateSignUp, isPending: isPendingSubmit } = useMutation({
   mutationFn: Users.completeSignup,
-  onSuccess: (data: any) => {
-    if (data?.token) {
-      authStore.authenticate(data.token);
-      router.push('/');
-    } else step.value = 3;
-  },
   onError: (error: AxiosError<RequestError>) => {
     const message =
       error.status === 500
@@ -381,16 +376,24 @@ const { mutate: mutateSignUp, isPending: isPendingSubmit } = useMutation({
         : error.response?.data.message;
     ElMessage({
       message,
-      type: 'error',
       showClose: true,
+      type: 'error',
     });
+  },
+  onSuccess: (data) => {
+    if (data?.token) {
+      authStore.authenticate(data.token);
+      router.push('/');
+    } else {
+      step.value = 3;
+    }
   },
 });
 
-const onSubmit = handleSubmit(({ email, ra }) =>
+const onSubmit = handleSubmit((values) =>
   mutateSignUp({
-    email: email.toLowerCase(),
-    ra: Number(ra.ra),
+    email: values.email.toLowerCase(),
+    ra: Number(values.ra.ra),
   })
 );
 
@@ -403,9 +406,9 @@ const {
   data: verifiedEmail,
   error: fetchEmailError,
 } = useQuery({
-  queryKey: ['email'],
-  queryFn: () => Users.getEmail(ra.value.value),
   enabled: false,
+  queryFn: () => Users.getEmail(ra.value.value),
+  queryKey: ['email'],
 });
 
 const handleEmailError = computed(() => {
@@ -425,13 +428,13 @@ const handleEmailError = computed(() => {
   return 'Um Erro inesperado ocorreu, tente novamente';
 });
 
-const getUserEmail = (fieldState: boolean) => {
+function getUserEmail(fieldState: boolean) {
   if (fieldState || !ra.value.value || !isFetchEmailEnabled.value) {
     return;
   }
 
   fetchEmail();
-};
+}
 
 watch(
   () => verifiedEmail.value,
@@ -445,26 +448,26 @@ watch(
 const { mutate: mutateResendEmail, isPending: isPendingResendEmail } =
   useMutation({
     mutationFn: Users.resendEmail,
-    onSuccess: () => {
-      ElMessage({
-        message: 'Email reenviado com sucesso',
-        type: 'success',
-        showClose: true,
-      });
-      enableResendEmail.value = false;
-    },
     onError: (error: AxiosError<RequestError>) => {
       ElMessage({
         message: error.response?.data.error,
-        type: 'error',
         showClose: true,
+        type: 'error',
       });
+    },
+    onSuccess: () => {
+      ElMessage({
+        message: 'Email reenviado com sucesso',
+        showClose: true,
+        type: 'success',
+      });
+      enableResendEmail.value = false;
     },
   });
 
 const { data: user } = useQuery({
-  queryKey: ['users', 'info'],
   queryFn: Users.info,
+  queryKey: ['users', 'info'],
 });
 
 watch(
@@ -473,12 +476,12 @@ watch(
     if (user.value?.ra && user.value?.email) {
       step.value = 3;
       setValues({
-        email: user.value.email.replace(/@(aluno\.)?ufabc\.edu\.br$/, ''),
-        ra: {
-          ra: user.value.ra.toString(),
-          confirm: user.value.ra.toString(),
-        },
         check: true,
+        email: user.value.email.replace(/@(?:aluno\.)?ufabc\.edu\.br$/u, ''),
+        ra: {
+          confirm: user.value.ra.toString(),
+          ra: user.value.ra.toString(),
+        },
       });
     }
   }

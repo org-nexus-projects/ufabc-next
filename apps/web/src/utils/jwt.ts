@@ -6,17 +6,17 @@ export function parseJwt(token: string): {
   error: string | null;
 } {
   try {
-    return { user: jwtDecode<User>(token), error: null };
+    return { error: null, user: jwtDecode<User>(token) };
   } catch {
-    return { user: null, error: 'Invalid token format' };
+    return { error: 'Invalid token format', user: null };
   }
 }
 
 export function isValidJwtFormat(token: string): boolean {
-  return /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/=]*$/.test(token);
+  return /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/=]*$/u.test(token);
 }
 
-const TOKEN_EXPIRATION_SECONDS = 7 * 24 * 60 * 60; // 7 days
+const TOKEN_EXPIRATION_SECONDS = 7 * 24 * 60 * 60;
 
 export function isUserTokenExpired(user: User): boolean {
   const currentTime = Math.floor(Date.now() / 1000);
