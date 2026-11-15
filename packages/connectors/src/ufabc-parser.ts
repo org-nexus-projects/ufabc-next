@@ -1,5 +1,5 @@
-import { UfabcParserError } from './errors/ufabc-parser.ts';
 import { BaseRequester } from './base-requester.ts';
+import { UfabcParserError } from './errors/ufabc-parser.ts';
 
 type ComponentId = number;
 type StudentIds = number;
@@ -64,30 +64,34 @@ type SyncStudentParams = {
 };
 
 export type UFSeasonComponents = {
-  UFComponentId: number
+  UFComponentId: number;
   UFComponentCode: string;
-  name: string
-  campus: 'sbc' | 'sa'
-  turma: string
-  turno: 'diurno' | 'noturno'
-  credits: number
-  vacancies: number
-  courses: Array<{ name: string; UFCourseId: number; category: 'limited' | 'mandatory' }>
-  hours: unknown
-}
+  name: string;
+  campus: 'sbc' | 'sa';
+  turma: string;
+  turno: 'diurno' | 'noturno';
+  credits: number;
+  vacancies: number;
+  courses: Array<{
+    name: string;
+    UFCourseId: number;
+    category: 'limited' | 'mandatory';
+  }>;
+  hours: unknown;
+};
 
 export class UfabcParserConnector extends BaseRequester {
   private readonly requesterKey: string;
 
-  constructor(
-    {
-      baseURL, traceId, requesterKey
-    }: {
-      baseURL: string;
-      traceId?: string;
-      requesterKey: string;
-    }
-  ) {
+  constructor({
+    baseURL,
+    traceId,
+    requesterKey,
+  }: {
+    baseURL: string;
+    traceId?: string;
+    requesterKey: string;
+  }) {
     super({ baseURL, component: 'ufabc-parser', globalTraceId: traceId });
     this.requesterKey = requesterKey;
   }
@@ -119,13 +123,12 @@ export class UfabcParserConnector extends BaseRequester {
   }
 
   async getComponents(componentKey?: string) {
-    if (!componentKey) { 
-      const response = await this.request<UfabcParserComponent[]>(
-        '/v2/components',
-      );
+    if (componentKey === undefined || componentKey === '') {
+      const response =
+        await this.request<UfabcParserComponent[]>('/v2/components');
       return response;
     }
-    
+
     const response = await this.request<UfabcParserComponent[]>(
       '/v2/components',
       {
@@ -170,8 +173,8 @@ export class UfabcParserConnector extends BaseRequester {
         },
       });
       return response;
-    } catch (error: any) {
-      if (error.status === 404) {
+    } catch (error) {
+      if (getErrorStatus(error) === 404) {
         throw new UfabcParserError({
           code: 'UFP0015',
           description: 'O RA digitado não existe.',
@@ -179,7 +182,7 @@ export class UfabcParserConnector extends BaseRequester {
           title: 'Student not found',
         });
       }
-      if (error.status === 403) {
+      if (getErrorStatus(error) === 403) {
         throw new UfabcParserError({
           code: 'UFP0031',
           description: 'O aluno não pode ter contrato com a UFABC.',
@@ -207,8 +210,8 @@ export class UfabcParserConnector extends BaseRequester {
         headers,
       });
       return response;
-    } catch (error: any) {
-      if (error.status === 404) {
+    } catch (error) {
+      if (getErrorStatus(error) === 404) {
         return null;
       }
       throw error;
@@ -219,14 +222,17 @@ export class UfabcParserConnector extends BaseRequester {
     const headers = new Headers();
     headers.set('requester-key', this.requesterKey);
 
-    try {
-      await this.request(`/v2/teachers/routines/configure/manual`, {
-        body: teachers,
-        headers,
-        method: 'POST',
-      });
-    } catch (error: any) {
-      throw error;
-    }
+    await this.request(`/v2/teachers/routines/configure/manual`, {
+      body: teachers,
+      headers,
+      method: 'POST',
+    });
   }
+}
+
+function getErrorStatus(error: unknown): unknown {
+  if (typeof error !== 'object' || error === null || !('status' in error)) {
+    return undefined;
+  }
+  return error.status;
 }

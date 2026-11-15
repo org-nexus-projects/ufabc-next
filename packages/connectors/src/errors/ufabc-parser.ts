@@ -3,14 +3,14 @@ export class UfabcParserError extends Error {
   public readonly code: string;
   public readonly title: string;
   public readonly description: string;
-  public readonly additionalData?: Record<string, any>;
+  public readonly additionalData?: Record<string, unknown>;
 
   constructor(payload: {
     title: string;
     code: string;
     status: number;
     description: string;
-    additionalData?: Record<string, any>;
+    additionalData?: Record<string, unknown>;
   }) {
     super(payload.description);
     this.name = 'UfabcParserError';

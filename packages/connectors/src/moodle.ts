@@ -1,3 +1,5 @@
+import { setTimeout as sleep } from 'node:timers/promises';
+
 import { BaseRequester } from './base-requester.ts';
 
 type MoodleResponse = {
@@ -48,10 +50,10 @@ export class MoodleConnector extends BaseRequester {
   async validateToken(sessionId: string, sessKey: string) {
     const body = [
       {
+        args: { classification: 'all', limit: 1, offset: 0 },
         index: 0,
         methodname:
           'core_course_get_enrolled_courses_by_timeline_classification',
-        args: { offset: 0, limit: 1, classification: 'all' },
       },
     ];
 
@@ -60,16 +62,16 @@ export class MoodleConnector extends BaseRequester {
     headers.set('Content-Type', 'application/json');
     headers.set('X-Requested-With', 'XMLHttpRequest');
 
-    const response = await this.request<Array<MoodleResponse>>(
+    const response = await this.request<MoodleResponse[]>(
       '/lib/ajax/service.php?',
       {
+        body,
+        headers,
         method: 'POST',
         query: {
           sesskey: sessKey,
         },
-        headers,
-        body,
-        timeout: 5_000,
+        timeout: 5000,
       }
     );
 
@@ -80,23 +82,23 @@ export class MoodleConnector extends BaseRequester {
     const headers = new Headers();
     headers.set('Cookie', `MoodleSession=${sessionId}`);
 
-    const response = await this.request<Array<MoodleComponent>>(
+    const response = await this.request<MoodleComponent[]>(
       '/lib/ajax/service.php',
       {
+        body: [
+          {
+            args: { classification: 'all', limit: 0, offset: 0 },
+            index: 0,
+            methodname:
+              'core_course_get_enrolled_courses_by_timeline_classification',
+          },
+        ],
+        credentials: 'include',
+        headers,
         method: 'POST',
         query: {
           sesskey: sessKey,
         },
-        headers,
-        credentials: 'include',
-        body: [
-          {
-            index: 0,
-            methodname:
-              'core_course_get_enrolled_courses_by_timeline_classification',
-            args: { offset: 0, limit: 0, classification: 'all' },
-          },
-        ],
       }
     );
     return response;
@@ -106,13 +108,13 @@ export class MoodleConnector extends BaseRequester {
     const headers = new Headers();
     headers.set('Cookie', `MoodleSession=${sessionId}`);
 
-    const response = await this.request<string>(url, {
-      headers,
+    const response = await this.request<string, 'text'>(url, {
       credentials: 'include',
-      responseType: 'text',
+      headers,
       query: {
         id,
       },
+      responseType: 'text',
     });
 
     return response;
@@ -124,7 +126,7 @@ export class MoodleConnector extends BaseRequester {
 
     if (timeSinceLastRequest < this.minRequestInterval) {
       const delay = this.minRequestInterval - timeSinceLastRequest;
-      await new Promise((resolve) => globalThis.setTimeout(resolve, delay));
+      await sleep(delay);
     }
 
     this.lastRequestTime = Date.now();
@@ -138,59 +140,59 @@ export class MoodleConnector extends BaseRequester {
       let contentType: string | null = null;
 
       const response = await this.requestRaw(url, {
-        method: 'HEAD',
         headers: {
           Cookie: `MoodleSession=${sessionId}`,
           sesskey: sessionKey,
         },
+        method: 'HEAD',
         retry: 1,
         retryDelay: 500,
-        timeout: 10000,
+        timeout: 10_000,
       });
 
-      finalUrl = response.url || url;
+      finalUrl = response.url === '' ? url : response.url;
       contentType = response.headers.get('Content-Type');
 
       const isPdf =
-        contentType?.includes('application/pdf') ||
+        contentType?.includes('application/pdf') === true ||
         finalUrl.toLowerCase().endsWith('.pdf');
 
       return {
-        isPdf,
         finalUrl: isPdf ? finalUrl : undefined,
+        isPdf,
       };
-    } catch (error) {
+    } catch {
       // Some servers don't support HEAD requests, try GET with range header
       try {
         let finalUrl = url;
         let contentType: string | null = null;
 
         const response = await this.requestRaw(url, {
-          method: 'GET',
           credentials: 'include',
           headers: {
             Cookie: `MoodleSession=${sessionId}`,
+            Range: 'bytes=0-0',
             sesskey: sessionKey,
-            Range: 'bytes=0-0', // Only get first byte
           },
+          method: 'GET',
           retry: 0,
-          timeout: 10000,
+          timeout: 10_000,
         });
 
-        finalUrl = response.url || url;
+        finalUrl = response.url === '' ? url : response.url;
         contentType = response.headers.get('Content-Type');
 
         const isPdf =
-          contentType?.includes('application/pdf') ||
+          contentType?.includes('application/pdf') === true ||
           finalUrl.toLowerCase().endsWith('.pdf');
 
         return {
-          isPdf,
           finalUrl: isPdf ? finalUrl : undefined,
+          isPdf,
         };
       } catch {
         // If both fail, it's likely not accessible or not a PDF
-        return { isPdf: false, finalUrl: undefined };
+        return { finalUrl: undefined, isPdf: false };
       }
     }
   }

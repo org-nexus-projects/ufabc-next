@@ -5,7 +5,7 @@ export class UfabcMatriculaConnector extends BaseRequester {
     super({ baseURL, globalTraceId: traceId });
   }
 
-  async validateToken(sessionId: string) {
+  async validateToken(_sessionId: string) {
     // TOOD: finish
   }
 }

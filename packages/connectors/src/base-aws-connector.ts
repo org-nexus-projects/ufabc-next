@@ -1,6 +1,8 @@
-import type { Client } from '@aws-sdk/types';
+import type { Client, MetadataBearer } from '@aws-sdk/types';
 
-export abstract class BaseAWSConnector<TClient extends Client<any, any, any>> {
+type AWSClient = Pick<Client<object, MetadataBearer, unknown>, 'destroy'>;
+
+export abstract class BaseAWSConnector<TClient extends AWSClient> {
   protected readonly client: TClient;
   protected readonly traceId?: string;
 

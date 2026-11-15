@@ -191,7 +191,7 @@ export class NextApiConnector extends BaseRequester {
 
    async searchComponents(season?: string) {
      const query: Record<string, string> = {}
-     if (season != undefined) {
+     if (season !== undefined) {
       query.season = season
      }
      return await this.request<SearchComponentItem[]>('/v2/components', {
