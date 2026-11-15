@@ -149,6 +149,6 @@ catalog:
   vuedraggable: ^4.1.0
   vuetify: 3.11.6
   wxt: ^0.19.19
-  zod: 3.25.76
+  zod: 4.6.6
   zod-openapi: ^3.3.0
   zod-to-json-schema: ^3.25.0

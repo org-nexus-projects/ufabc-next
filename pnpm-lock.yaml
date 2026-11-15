@@ -178,6 +178,9 @@ catalogs:
     close-with-grace:
       specifier: ^1.3.0
       version: 1.3.0
+    fastify:
+      specifier: ^5.6.2
+      version: 5.12.2
     fastify-plugin:
       specifier: ^4.5.1
       version: 4.5.1
@@ -338,8 +341,8 @@ catalogs:
       specifier: ^0.19.19
       version: 0.19.29
     zod:
-      specifier: 3.25.76
-      version: 3.25.76
+      specifier: 4.6.6
+      version: 4.6.6
     zod-openapi:
       specifier: ^3.3.0
       version: 3.3.0
@@ -491,10 +494,10 @@ importers:
         version: 4.5.1
       fastify-type-provider-zod:
         specifier: 'catalog:'
-        version: 3.0.0(fastify@5.12.2)(zod@3.25.76)
+        version: 3.0.0(fastify@5.12.2)(zod@4.6.6)
       fastify-zod-openapi:
         specifier: 'catalog:'
-        version: 3.0.4(@fastify/swagger-ui@5.2.6)(@fastify/swagger@9.7.0)(fastify@5.12.2)(zod-openapi@3.3.0(zod@3.25.76))(zod@3.25.76)
+        version: 3.0.4(@fastify/swagger-ui@5.2.6)(@fastify/swagger@9.7.0)(fastify@5.12.2)(zod-openapi@3.3.0(zod@4.6.6))(zod@4.6.6)
       lodash-es:
         specifier: 'catalog:'
         version: 4.18.1
@@ -518,13 +521,13 @@ importers:
         version: 2.4.1
       zod:
         specifier: 'catalog:'
-        version: 3.25.76
+        version: 4.6.6
       zod-openapi:
         specifier: 'catalog:'
-        version: 3.3.0(zod@3.25.76)
+        version: 3.3.0(zod@4.6.6)
       zod-to-json-schema:
         specifier: 'catalog:'
-        version: 3.25.2(zod@3.25.76)
+        version: 3.25.2(zod@4.6.6)
     devDependencies:
       '@aws-sdk/types':
         specifier: 'catalog:'
@@ -688,7 +691,7 @@ importers:
         version: 0.19.29(@types/node@24.13.1)(rollup@4.61.1)(sass@1.100.0)(tsx@4.22.4)(yaml@2.9.0)
       zod:
         specifier: 'catalog:'
-        version: 3.25.76
+        version: 4.6.6
 
   apps/web:
     dependencies:
@@ -715,7 +718,7 @@ importers:
         version: 5.91.0(@tanstack/vue-query@5.92.5(vue@3.5.44(typescript@5.9.3)))(vue@3.5.44(typescript@5.9.3))
       '@vee-validate/zod':
         specifier: 'catalog:'
-        version: 4.15.1(vue@3.5.44(typescript@5.9.3))(zod@3.25.76)
+        version: 4.15.1(vue@3.5.44(typescript@5.9.3))(zod@4.6.6)
       '@vue/shared':
         specifier: 3.5.44
         version: 3.5.44
@@ -772,7 +775,7 @@ importers:
         version: 3.11.6(typescript@5.9.3)(vue@3.5.44(typescript@5.9.3))
       zod:
         specifier: 'catalog:'
-        version: 3.25.76
+        version: 4.6.6
     devDependencies:
       '@next/config':
         specifier: workspace:*
@@ -839,7 +842,7 @@ importers:
         version: 1.5.1
       zod:
         specifier: 'catalog:'
-        version: 3.25.76
+        version: 4.6.6
     devDependencies:
       '@aws-sdk/types':
         specifier: 'catalog:'
@@ -920,7 +923,7 @@ importers:
         version: 2.1.3
       zod:
         specifier: 'catalog:'
-        version: 3.25.76
+        version: 4.6.6
     devDependencies:
       '@next/config':
         specifier: workspace:*
@@ -1014,13 +1017,13 @@ importers:
     dependencies:
       '@modelcontextprotocol/sdk':
         specifier: ^1.29.0
-        version: 1.32.1(zod@3.25.76)
+        version: 1.32.1(zod@4.6.6)
       mongoose:
         specifier: 'catalog:'
         version: 9.6.3
       zod:
         specifier: 'catalog:'
-        version: 3.25.76
+        version: 4.6.6
     devDependencies:
       '@next/config':
         specifier: workspace:*
@@ -8279,11 +8282,11 @@ packages:
     peerDependencies:
       zod: ^3.25.28 || ^4
 
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
-
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
+
+  zod@4.6.6:
+    resolution: {integrity: sha512-4UmzQUF5fxvfcYHlbjBmejU+w+hbDnWFx4aS8kBx7nPBHcO2SqPbpAG8snbdg+Xse4pRefR98hgjFgIMCI/UhA==}
 
   zustand@5.0.14:
     resolution: {integrity: sha512-/8tAspM5LMPr28b3fwLYrtdj77ECpfZviaP75CMTnwO8ISyaE4GDIG/9rDDYq/cH9D2Xw2A2RXglLInmVBQB/g==}
@@ -8913,7 +8916,7 @@ snapshots:
       outdent: 0.5.0
       prettier: 2.8.8
       resolve-from: 5.0.0
-      semver: 7.8.2
+      semver: 7.8.6
 
   '@changesets/assemble-release-plan@6.0.10':
     dependencies:
@@ -8922,7 +8925,7 @@ snapshots:
       '@changesets/should-skip-package': 0.1.2
       '@changesets/types': 6.1.0
       '@manypkg/get-packages': 1.1.3
-      semver: 7.8.2
+      semver: 7.8.6
 
   '@changesets/changelog-git@0.2.1':
     dependencies:
@@ -8979,7 +8982,7 @@ snapshots:
       '@changesets/types': 6.1.0
       '@manypkg/get-packages': 1.1.3
       picocolors: 1.1.1
-      semver: 7.8.2
+      semver: 7.8.6
 
   '@changesets/get-release-plan@4.0.16':
     dependencies:
@@ -9668,7 +9671,7 @@ snapshots:
       base64-arraybuffer: 1.0.2
       mitt: 3.0.1
 
-  '@modelcontextprotocol/sdk@1.32.1(zod@3.25.76)':
+  '@modelcontextprotocol/sdk@1.32.1(zod@4.6.6)':
     dependencies:
       '@hono/node-server': 2.1.4(hono@4.13.13)
       ajv: 8.20.0
@@ -9685,8 +9688,8 @@ snapshots:
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
       raw-body: 3.0.2
-      zod: 3.25.76
-      zod-to-json-schema: 3.25.2(zod@3.25.76)
+      zod: 4.6.6
+      zod-to-json-schema: 3.25.2(zod@4.6.6)
     transitivePeerDependencies:
       - supports-color
 
@@ -9733,7 +9736,7 @@ snapshots:
       '@aws-sdk/client-s3': 3.1169.0
       '@next/logger': file:packages/logger
       ofetch: 1.5.1
-      zod: 3.25.76
+      zod: 4.6.6
 
   '@next/logger@file:packages/logger':
     dependencies:
@@ -10756,11 +10759,11 @@ snapshots:
 
   '@uttr/tint@0.1.3': {}
 
-  '@vee-validate/zod@4.15.1(vue@3.5.44(typescript@5.9.3))(zod@3.25.76)':
+  '@vee-validate/zod@4.15.1(vue@3.5.44(typescript@5.9.3))(zod@4.6.6)':
     dependencies:
       type-fest: 4.41.0
       vee-validate: 4.15.1(vue@3.5.44(typescript@5.9.3))
-      zod: 3.25.76
+      zod: 4.6.6
     transitivePeerDependencies:
       - vue
 
@@ -12513,21 +12516,21 @@ snapshots:
 
   fastify-tsconfig@2.0.0: {}
 
-  fastify-type-provider-zod@3.0.0(fastify@5.12.2)(zod@3.25.76):
+  fastify-type-provider-zod@3.0.0(fastify@5.12.2)(zod@4.6.6):
     dependencies:
       '@fastify/error': 4.2.0
       fastify: 5.12.2
-      zod: 3.25.76
-      zod-to-json-schema: 3.25.2(zod@3.25.76)
+      zod: 4.6.6
+      zod-to-json-schema: 3.25.2(zod@4.6.6)
 
-  fastify-zod-openapi@3.0.4(@fastify/swagger-ui@5.2.6)(@fastify/swagger@9.7.0)(fastify@5.12.2)(zod-openapi@3.3.0(zod@3.25.76))(zod@3.25.76):
+  fastify-zod-openapi@3.0.4(@fastify/swagger-ui@5.2.6)(@fastify/swagger@9.7.0)(fastify@5.12.2)(zod-openapi@3.3.0(zod@4.6.6))(zod@4.6.6):
     dependencies:
       '@fastify/error': 4.2.0
       fast-json-stringify: 6.4.0
       fastify: 5.12.2
       fastify-plugin: 5.1.0
-      zod: 3.25.76
-      zod-openapi: 3.3.0(zod@3.25.76)
+      zod: 4.6.6
+      zod-openapi: 3.3.0(zod@4.6.6)
     optionalDependencies:
       '@fastify/swagger': 9.7.0
       '@fastify/swagger-ui': 5.2.6
@@ -14301,7 +14304,7 @@ snapshots:
       formdata-node: 6.0.3
       listr2: 8.3.3
       ofetch: 1.5.1
-      zod: 3.25.76
+      zod: 4.6.6
 
   pump@3.0.4:
     dependencies:
@@ -15920,16 +15923,16 @@ snapshots:
       compress-commons: 6.0.2
       readable-stream: 4.7.0
 
-  zod-openapi@3.3.0(zod@3.25.76):
+  zod-openapi@3.3.0(zod@4.6.6):
     dependencies:
-      zod: 3.25.76
+      zod: 4.6.6
 
-  zod-to-json-schema@3.25.2(zod@3.25.76):
+  zod-to-json-schema@3.25.2(zod@4.6.6):
     dependencies:
-      zod: 3.25.76
-
-  zod@3.25.76: {}
+      zod: 4.6.6
 
   zod@4.4.3: {}
+
+  zod@4.6.6: {}
 
   zustand@5.0.14: {}
