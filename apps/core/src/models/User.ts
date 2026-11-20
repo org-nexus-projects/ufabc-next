@@ -10,7 +10,7 @@ const userSchema = new Schema(
     ra: {
       type: Number,
       unique: true,
-      partialFilterExpression: { ra: { $exists: true } },
+      partialFilterExpression: { ra: { $type: 'number' } },
     },
     email: {
       type: String,
@@ -86,6 +86,31 @@ const userSchema = new Schema(
     },
     timestamps: true,
   }
+);
+
+const userRaHistorySchema = new Schema(
+  {
+    user_id: { type: Schema.Types.ObjectId, ref: 'users', required: true },
+    previous_ra: { type: String, required: true },
+    status: {
+      type: String,
+      enum: ['current', 'replaced'],
+      default: 'current',
+    },
+  },
+  { timestamps: true }
+);
+
+userRaHistorySchema.index({ user_id: 1, status: 1 });
+
+export type UserRaHistory = InferSchemaType<typeof userRaHistorySchema>;
+export type UserRaHistoryDocument = ReturnType<
+  (typeof UserRaHistoryModel)['hydrate']
+>;
+
+export const UserRaHistoryModel = model<UserRaHistory>(
+  'user_ra_history',
+  userRaHistorySchema
 );
 
 type UserBase = InferSchemaType<typeof userSchema>;

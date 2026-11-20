@@ -285,6 +285,7 @@ async function createHistoryRecord(
   const baseUpdate = {
     $set: {
       ra: Number(ra),
+      active: true,
       curso: student.course.toLowerCase(),
       grade: student.campus,
       disciplinas: components.map(transformComponentToHistory),

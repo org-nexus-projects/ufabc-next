@@ -31,6 +31,7 @@ const plugin: FastifyPluginAsyncZod = async (app) => {
     const isUserSynced = await StudentModel.exists({
       ra: user.ra,
       season,
+      active: { $ne: false },
     });
 
     const userInfo = {

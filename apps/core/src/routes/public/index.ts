@@ -79,7 +79,10 @@ const plugin: FastifyPluginAsyncZod = async (app) => {
           $exists: true,
         },
       }),
-      currentAlunos: await StudentModel.countDocuments({ season }),
+      currentAlunos: await StudentModel.countDocuments({
+        season,
+        active: { $ne: false },
+      }),
       comments: await CommentModel.countDocuments({}),
       enrollments: await EnrollmentModel.countDocuments({
         conceito: { $in: ['A', 'B', 'C', 'D', 'O', 'F'] },

@@ -11,7 +11,10 @@ export async function getCrDistribution(points: number, interval: number) {
 
   const pipeline: any = [
     {
-      $match: { [coefficientsKey]: { $exists: true } },
+      $match: {
+        active: { $ne: false },
+        [coefficientsKey]: { $exists: true },
+      },
     },
     { $project: { value: `$${coefficientsKey}` } },
     {
@@ -34,6 +37,7 @@ export async function getCrDistribution(points: number, interval: number) {
 export async function findLatestHistory(ra: number) {
   const lastHistory = await HistoryModel.findOne({
     ra,
+    active: { $ne: false },
     disciplinas: { $ne: [] },
   }).sort({ updatedAt: -1 });
 
@@ -44,6 +48,7 @@ export async function findOneGraduation(grade: string, curso: string) {
   const graduation = await GraduationHistoryModel.findOne({
     curso,
     grade,
+    active: { $ne: false },
   }).lean<Graduation>();
 
   return graduation;
@@ -52,6 +57,7 @@ export async function findOneGraduation(grade: string, curso: string) {
 export async function getGraduationHistory(ra: number) {
   const history = await GraduationHistoryModel.find({
     ra,
+    active: { $ne: false },
   }).lean();
 
   return history;

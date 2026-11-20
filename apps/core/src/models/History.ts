@@ -84,6 +84,7 @@ const historiesDisciplinasSchema = new Schema(
 export type History = {
   ra: number;
   disciplinas: InferSchemaType<typeof historiesDisciplinasSchema>[];
+  active?: boolean;
   coefficients: HistoryCoefficients;
   curso: string;
   grade: string | undefined;
@@ -94,6 +95,7 @@ export type HistoryDocument = ReturnType<(typeof HistoryModel)['hydrate']>;
 const historySchema = new Schema<History, THistoryModel>(
   {
     ra: { type: Number, required: true },
+    active: { type: Boolean, default: true },
     disciplinas: [historiesDisciplinasSchema],
     coefficients: Object,
     curso: { type: String, required: true },

@@ -17,6 +17,7 @@ type PopulatedFields = {
 export async function listByRa(ra: number) {
   const populatedEnrollments = await EnrollmentModel.find({
     ra,
+    active: { $ne: false },
     conceito: { $in: ['A', 'B', 'C', 'D', 'O', 'F'] },
   })
     .populate<PopulatedFields>(['pratica', 'teoria', 'subject'])
@@ -29,6 +30,7 @@ export async function findOne(id: string, ra: number) {
   const enrollment = await EnrollmentModel.findOne({
     _id: id,
     ra,
+    active: { $ne: false },
   })
     .populate<PopulatedFields>(['pratica', 'teoria', 'subject'])
     .lean();
@@ -49,6 +51,7 @@ export async function listWithComponents(
   const enrollments = await EnrollmentModel.find({
     ra,
     season,
+    active: { $ne: false },
   })
     .populate<{
       pratica: TeacherDocument;
