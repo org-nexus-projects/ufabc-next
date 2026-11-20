@@ -24,9 +24,9 @@ export const moodleComponentDataSchema = z.object({
 });
 
 export const moodleResponseSchema = z.object({
-  data: z.record(z.unknown()),
+  data: z.record(z.string(), z.unknown()),
   error: z.boolean(),
-  exception: z.record(z.unknown()).optional(),
+  exception: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const moodleComponentSchema = z.object({

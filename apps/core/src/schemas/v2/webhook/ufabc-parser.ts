@@ -65,7 +65,7 @@ const ErrorSchema = z.object({
   httpStatus: z.number(),
   description: z.string(),
   additionalData: z
-    .record(z.unknown())
+    .record(z.string(), z.unknown())
     .optional()
     .describe('Additional context'),
 });

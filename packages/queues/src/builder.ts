@@ -46,7 +46,7 @@ export class JobBuilder<
   TName extends string,
   TData,
   TResult,
-  TIterator extends keyof TData | undefined = undefined,
+  TIterator extends PropertyKey | undefined = undefined,
 > {
   declare _data: TData; // This is used to store the data for the job
 

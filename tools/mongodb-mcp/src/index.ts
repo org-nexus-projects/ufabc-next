@@ -8,7 +8,7 @@ import { z } from 'zod';
 
 const { MongoClient, BSON } = mongoose.mongo;
 
-const documentSchema = z.record(z.unknown());
+const documentSchema = z.record(z.string(), z.unknown());
 type Document = z.infer<typeof documentSchema>;
 
 const MAX_DOCUMENTS = 200;
@@ -134,10 +134,10 @@ async function main() {
       description: `Find documents in a collection (Extended JSON filter). Returns at most ${MAX_DOCUMENTS} documents.`,
       inputSchema: {
         collection: z.string().min(1),
-        filter: z.record(z.unknown()).default({}),
+        filter: z.record(z.string(), z.unknown()).default({}),
         limit: z.number().int().positive().optional(),
-        projection: z.record(z.unknown()).optional(),
-        sort: z.record(z.unknown()).optional(),
+        projection: z.record(z.string(), z.unknown()).optional(),
+        sort: z.record(z.string(), z.unknown()).optional(),
       },
     },
     async ({
@@ -186,7 +186,7 @@ async function main() {
       description: `Run an aggregation pipeline (Extended JSON stages). Read-only unless MONGODB_MCP_READ_ONLY=false: $out, $merge, $function, $accumulator and $where are rejected. A $limit of ${MAX_DOCUMENTS} is appended.`,
       inputSchema: {
         collection: z.string().min(1),
-        pipeline: z.array(z.record(z.unknown())),
+        pipeline: z.array(z.record(z.string(), z.unknown())),
       },
     },
     async ({
@@ -221,7 +221,7 @@ async function main() {
       description: 'Count documents matching a filter (Extended JSON).',
       inputSchema: {
         collection: z.string().min(1),
-        filter: z.record(z.unknown()).default({}),
+        filter: z.record(z.string(), z.unknown()).default({}),
       },
     },
     async ({
