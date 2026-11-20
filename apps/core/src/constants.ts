@@ -43,6 +43,8 @@ export const HTTP_REDIS_KEY_PREFIX = 'http';
 export const MAX_LOG_SIZE = 600 * 1024;
 export const ARCHIVE_RECHECK_TTL_MS = 6 * 60 * 60 * 1000;
 export const PDF_VALIDATION_CONCURRENCY = 5;
+export const COURSE_FILES_CACHE_TTL_MS = 10 * 60 * 1000;
+export const COURSE_FILES_CACHE_MAX_SIZE = 200;
 
 export const BYTES_PER_MB = 1024 * 1024;
 export const NANOSECONDS_PER_MS = 1_000_000;

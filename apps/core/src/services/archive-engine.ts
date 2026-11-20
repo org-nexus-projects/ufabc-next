@@ -6,6 +6,8 @@ import { load } from 'cheerio';
 import { MoodleConnector } from '@/connectors/moodle.js';
 import type { S3Connector } from '@/connectors/s3-connector.js';
 import {
+  COURSE_FILES_CACHE_MAX_SIZE,
+  COURSE_FILES_CACHE_TTL_MS,
   DISCIPLINE_CODE_PATTERN,
   PDF_VALIDATION_CONCURRENCY,
 } from '@/constants.js';
@@ -42,6 +44,15 @@ const NOISE_KEYWORDS = new Set([
   'matutino',
   'vespertino',
 ]);
+
+type CourseFiles = Array<{ name: string; url: string }>;
+
+// Every student enrolled in a course triggers the same page scrape and link
+// validation. Share the in-flight/finished result for a short while.
+const courseFilesCache = new Map<
+  number,
+  { expiresAt: number; files: Promise<CourseFiles> }
+>();
 
 export class ArchiveEngine {
   private readonly logger;
@@ -465,6 +476,37 @@ export class ArchiveEngine {
   }
 
   async extractFiles(viewurl: string, componentId: number) {
+    const now = Date.now();
+    const cachedEntry = courseFilesCache.get(componentId);
+    if (cachedEntry !== undefined && cachedEntry.expiresAt > now) {
+      return await cachedEntry.files;
+    }
+
+    const files = this.scrapeCourseFiles(viewurl, componentId);
+    courseFilesCache.set(componentId, {
+      expiresAt: now + COURSE_FILES_CACHE_TTL_MS,
+      files,
+    });
+
+    if (courseFilesCache.size > COURSE_FILES_CACHE_MAX_SIZE) {
+      const oldestKey = courseFilesCache.keys().next().value;
+      if (oldestKey !== undefined) {
+        courseFilesCache.delete(oldestKey);
+      }
+    }
+
+    try {
+      return await files;
+    } catch (error) {
+      courseFilesCache.delete(componentId);
+      throw error;
+    }
+  }
+
+  private async scrapeCourseFiles(
+    viewurl: string,
+    componentId: number
+  ): Promise<CourseFiles> {
     const url = new URL(viewurl);
     const page = await this.moodleConnector.getComponentContentsPage(
       this.session?.sessionId ?? '',

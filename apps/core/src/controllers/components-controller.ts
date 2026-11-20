@@ -198,11 +198,33 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
         return await reply.status(200).send(cached);
       }
 
-      const components = await ComponentModel.find({ season })
+      // alunos_matriculados can hold thousands of ids per component; only the
+      // count is needed here, so let Mongo compute it instead of loading it.
+      const components = await ComponentModel.find(
+        { season },
+        {
+          campus: 1,
+          codigo: 1,
+          disciplina_id: 1,
+          groupURL: 1,
+          identifier: 1,
+          pratica: 1,
+          requisicoes: { $size: { $ifNull: ['$alunos_matriculados', []] } },
+          season: 1,
+          subject: 1,
+          teoria: 1,
+          turma: 1,
+          turno: 1,
+          uf_cod_turma: 1,
+          vagas: 1,
+        }
+      )
         .populate<{ teoria: PopulatedComponent['teoria'] }>('teoria', 'name')
         .populate<{ pratica: PopulatedComponent['pratica'] }>('pratica', 'name')
         .populate<{ subject: PopulatedComponent['subject'] }>('subject', 'name')
-        .lean<PopulatedComponent[]>({ defaults: false });
+        .lean<Array<PopulatedComponent & { requisicoes: number }>>({
+          defaults: false,
+        });
 
       const mappedComponents = components.map(
         (component): ListComponent => ({
@@ -213,7 +235,7 @@ const componentsController: FastifyPluginAsyncZod = async (app) => {
           identifier: component.identifier ?? null,
           pratica: component.pratica?.name ?? null,
           praticaId: component.pratica?._id?.toString() ?? null,
-          requisicoes: component.alunos_matriculados?.length ?? 0,
+          requisicoes: component.requisicoes,
           season: component.season,
           subject: component.subject?.name ?? '',
           subjectId: component.subject?._id?.toString() ?? '',
