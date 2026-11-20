@@ -1,5 +1,5 @@
 import { currentQuad } from '@next/utils';
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 
 import { UfabcParserError } from '@/errors/ufabc-parser.js';
 import { validateInternalTokenAuthHook } from '@/hooks/validate-token.js';
@@ -14,7 +14,7 @@ import {
   validateUserEmailSchema,
 } from '@/schemas/user.js';
 
-const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
+const plugin: FastifyPluginAsyncZod = async (app) => {
   const usersCache = app.cache<Auth>();
   app.get('/info', async (request, reply) => {
     const cachedResponse = usersCache.get(`user:info:${request.user._id}`);

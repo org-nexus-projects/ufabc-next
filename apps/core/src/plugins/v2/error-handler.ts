@@ -6,7 +6,6 @@ import type {
   FastifyRequest,
 } from 'fastify';
 import { fastifyPlugin as fp } from 'fastify-plugin';
-import { RequestValidationError } from 'fastify-zod-openapi';
 
 import { NextError } from '@/errors/base-error.js';
 
@@ -23,13 +22,7 @@ export default fp(
           url: request.url,
         };
 
-        if (
-          error instanceof RequestValidationError ||
-          (error &&
-            typeof error === 'object' &&
-            'validation' in error &&
-            error.validation)
-        ) {
+        if (error.validation) {
           const validationError = error as Error & { validation: unknown[] };
 
           request.log.warn(
@@ -78,10 +71,7 @@ export default fp(
               error.message
             );
           } else {
-            request.log.warn(
-              { error, request: requestContext },
-              error.message
-            );
+            request.log.warn({ error, request: requestContext }, error.message);
           }
 
           reply.status(statusCode);

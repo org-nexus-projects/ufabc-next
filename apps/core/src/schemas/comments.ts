@@ -1,5 +1,4 @@
-import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
-
+import type { FastifySchema } from 'fastify';
 import { Types } from 'mongoose';
 import { z } from 'zod';
 
@@ -13,15 +12,9 @@ export const createCommentSchema = {
     type: z.union([z.literal('teoria'), z.literal('pratica')]),
   }),
   response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: z.any(),
-        },
-      },
-    },
+    200: z.any(),
   },
-} satisfies FastifyZodOpenApiSchema;
+} satisfies FastifySchema;
 
 export const updateCommentSchema = {
   tags,
@@ -32,15 +25,9 @@ export const updateCommentSchema = {
     commentId: z.string().transform((val) => new Types.ObjectId(val)),
   }),
   response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: z.any(),
-        },
-      },
-    },
+    200: z.any(),
   },
-} satisfies FastifyZodOpenApiSchema;
+} satisfies FastifySchema;
 
 export const commentsOnTeacherSchema = {
   tags,
@@ -55,7 +42,7 @@ export const commentsOnTeacherSchema = {
     limit: z.coerce.number().int().default(10),
     page: z.coerce.number().int().default(0),
   }),
-} satisfies FastifyZodOpenApiSchema;
+} satisfies FastifySchema;
 
 export const createReactionSchema = {
   tags,
@@ -66,15 +53,9 @@ export const createReactionSchema = {
     kind: z.enum(['like', 'recommendation', 'star']),
   }),
   response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: z.any(),
-        },
-      },
-    },
+    200: z.any(),
   },
-} satisfies FastifyZodOpenApiSchema;
+} satisfies FastifySchema;
 
 export const deleteReactionSchema = {
   tags,
@@ -86,12 +67,6 @@ export const deleteReactionSchema = {
     kind: z.enum(['like', 'recommendation', 'star']),
   }),
   response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: z.any(),
-        },
-      },
-    },
+    200: z.any(),
   },
-} satisfies FastifyZodOpenApiSchema;
+} satisfies FastifySchema;

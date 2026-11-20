@@ -1,10 +1,9 @@
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-
 import { currentQuad } from '@next/utils';
+import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 
 import { StudentModel } from '@/models/Student.js';
 
-const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
+const plugin: FastifyPluginAsyncZod = async (app) => {
   app.get('/courses', async (request, reply) => {
     const season = currentQuad();
     const coursesAggregate = await StudentModel.aggregate<{
