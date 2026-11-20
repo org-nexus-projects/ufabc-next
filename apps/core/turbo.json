@@ -29,7 +29,9 @@
         "OAUTH_GOOGLE_SECRET",
         "JWT_SECRET",
         "MONGODB_CONNECTION_URL",
-        "REDIS_CONNECTION_URL"
+        "REDIS_CONNECTION_URL",
+        "CMCC_URL",
+        "EXTRACTOR_URL"
       ],
       "inputs": ["src/**/*.ts", "test/**/*.ts"]
     }
