@@ -26,6 +26,7 @@ syncInjectedDepsAfterScripts:
 overrides:
   "@smithy/types": 4.14.3
   "@smithy/core": 3.33.2
+  node-forge: ^1.4.3
 onlyBuiltDependencies:
   - "@parcel/watcher"
   - esbuild
