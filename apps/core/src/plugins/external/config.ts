@@ -68,7 +68,10 @@ const configSchema = z.object({
   WHATSAPP_AUTH_SECRET: z.string().optional(),
 });
 
-const schema = z.toJSONSchema(configSchema);
+const schema = z.toJSONSchema(configSchema, {
+  io: 'input',
+  target: 'draft-7',
+});
 
 export type Config = z.infer<typeof configSchema>;
 export const autoConfig = {

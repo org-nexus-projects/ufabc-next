@@ -1,6 +1,6 @@
 import { currentQuad } from '@next/utils';
 import type { preHandlerAsyncHookHandler } from 'fastify';
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { orderBy as LodashOrderBy } from 'lodash-es';
 
 import { validateInternalTokenAuthHook } from '@/hooks/validate-token.js';
@@ -30,7 +30,7 @@ const validateStudent: preHandlerAsyncHookHandler = async (request, reply) => {
   return;
 };
 
-const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
+const plugin: FastifyPluginAsyncZod = async (app) => {
   app.get('/', async (request, reply) => {
     // @ts-ignore
     const season = request.query.season ?? currentQuad();

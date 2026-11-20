@@ -1,5 +1,4 @@
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-
+import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { Types } from 'mongoose';
 
 import { SubjectModel, type Subject } from '@/models/Subject.js';
@@ -8,7 +7,7 @@ import { searchSubjectSchema } from '@/schemas/entities/subjects.js';
 
 import { rawSubjectsReviews, type Distribution } from './service.js';
 
-const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
+const plugin: FastifyPluginAsyncZod = async (app) => {
   const subjectsCache = app.cache<{}>();
   app.get('/search', { schema: searchSubjectSchema }, async (request) => {
     const { q } = request.query;

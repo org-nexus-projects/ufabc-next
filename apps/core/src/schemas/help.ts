@@ -1,5 +1,4 @@
-import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
-
+import type { FastifySchema } from 'fastify';
 import { z } from 'zod';
 
 const helpFormBodySchema = z.object({
@@ -8,11 +7,11 @@ const helpFormBodySchema = z.object({
   problemTitle: z
     .string()
     .max(120)
-    .openapi({ description: 'pequeno titulo explicando o problema' }),
+    .meta({ description: 'pequeno titulo explicando o problema' }),
   problemDescription: z
     .string()
     .max(5000)
-    .openapi({ description: 'descrição do problema' }),
+    .meta({ description: 'descrição do problema' }),
   imageBuffer: z.string().optional(),
   imageFilename: z.string().optional(),
   imageMimeType: z.string().optional(),
@@ -21,6 +20,6 @@ const helpFormBodySchema = z.object({
 export const helpFormSchema = {
   tags: ['help'],
   body: helpFormBodySchema,
-} satisfies FastifyZodOpenApiSchema;
+} satisfies FastifySchema;
 
 export type HelpForm = z.infer<typeof helpFormBodySchema>;

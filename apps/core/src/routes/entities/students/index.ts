@@ -1,10 +1,10 @@
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 
 import { updateStudentSchema } from '@/schemas/entities/students.js';
 
 import { update } from './service.js';
 
-const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
+const plugin: FastifyPluginAsyncZod = async (app) => {
   app.put('/', { schema: updateStudentSchema }, async (request, reply) => {
     const { login, ra, studentId, graduationId } = request.body;
 

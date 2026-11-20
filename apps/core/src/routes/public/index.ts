@@ -1,7 +1,6 @@
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-import type { QueryFilter as FilterQuery } from 'mongoose';
-
 import { currentQuad } from '@next/utils';
+import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
+import type { QueryFilter as FilterQuery } from 'mongoose';
 
 import { CommentModel } from '@/models/Comment.js';
 import { type Component, ComponentModel } from '@/models/Component.js';
@@ -13,7 +12,7 @@ import { resolveStep } from '@/utils/resolve-stats-steps.js';
 
 import { getAllCourses } from './service.js';
 
-const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
+const plugin: FastifyPluginAsyncZod = async (app) => {
   app.get('/stats/usage', { logLevel: 'silent' }, async () => {
     const season = currentQuad();
     const teacherCountQuery = [

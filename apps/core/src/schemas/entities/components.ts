@@ -1,8 +1,6 @@
-import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
-
 import { currentQuad } from '@next/utils';
+import type { FastifySchema } from 'fastify';
 import { z } from 'zod';
-import 'zod-openapi/extend';
 
 const NonPaginatedComponentsSchema = z.object({
   identifier: z.string().optional().nullable(),
@@ -11,29 +9,26 @@ const NonPaginatedComponentsSchema = z.object({
     .int()
     .optional()
     .nullable()
-    .openapi({ description: 'Id da disciplina para a UFABC' }),
-  subject: z.string().openapi({ description: 'Nome da matéria ofertada' }),
+    .meta({ description: 'Id da disciplina para a UFABC' }),
+  subject: z.string().meta({ description: 'Nome da matéria ofertada' }),
   turma: z.string(),
   turno: z.enum(['diurno', 'noturno']),
   vagas: z.number().int(),
   requisicoes: z.number().int(),
   campus: z.enum(['sbc', 'sa', 'santo andre', 'sao bernardo']),
-  teoria: z.string().optional().openapi({ description: 'Nome do professor' }),
-  pratica: z.string().optional().openapi({ description: 'Nome do professor' }),
-  teoriaId: z.any(), // z.coerce.string().optional().openapi({ description: 'Id interno' }),
-  season: z.string().openapi({ description: 'Chave do tenant' }),
+  teoria: z.string().optional().meta({ description: 'Nome do professor' }),
+  pratica: z.string().optional().meta({ description: 'Nome do professor' }),
+  teoriaId: z.any(), // z.coerce.string().optional().meta({ description: 'Id interno' }),
+  season: z.string().meta({ description: 'Chave do tenant' }),
   praticaId: z.any(),
-  groupURL: z.string().optional().openapi({
+  groupURL: z.string().optional().meta({
     description: 'Link do grupo de WhatsApp',
   }),
   uf_cod_turma: z
     .string()
     .optional()
-    .openapi({ description: 'Código da turma na UFABC' }),
-  subjectId: z.coerce
-    .string()
-    .optional()
-    .openapi({ description: 'Id interno' }),
+    .meta({ description: 'Código da turma na UFABC' }),
+  subjectId: z.coerce.string().optional().meta({ description: 'Id interno' }),
 });
 
 export type NonPaginatedComponents = z.infer<
@@ -61,13 +56,6 @@ export const listKickedSchema = {
     studentId: z.coerce.number().optional(),
   }),
   response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: z.any(),
-        },
-      },
-    },
+    200: z.any(),
   },
-} satisfies FastifyZodOpenApiSchema;
-
+} satisfies FastifySchema;

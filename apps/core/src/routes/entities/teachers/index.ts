@@ -1,5 +1,4 @@
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-
+import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { Types } from 'mongoose';
 
 import { searchTeacherSchema } from '@/schemas/entities/teachers.js';
@@ -11,7 +10,7 @@ import {
   searchMany,
 } from './service.js';
 
-const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
+const plugin: FastifyPluginAsyncZod = async (app) => {
   const teachersCache = app.cache<{}>();
 
   app.get('/search', { schema: searchTeacherSchema }, async (request) => {

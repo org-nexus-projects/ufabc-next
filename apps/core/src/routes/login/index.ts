@@ -1,6 +1,5 @@
 import type { Token } from '@fastify/oauth2';
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-
+import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { Types, type QueryFilter as FilterQuery } from 'mongoose';
 import { ofetch } from 'ofetch';
 
@@ -17,7 +16,7 @@ type RequesterUrls = {
   cronos: string;
 };
 
-export const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
+export const plugin: FastifyPluginAsyncZod = async (app) => {
   app.get('/google', async function (request, reply) {
     const validatedURI = await this.google.generateAuthorizationUri(
       request,

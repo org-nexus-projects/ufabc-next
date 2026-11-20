@@ -1,6 +1,5 @@
-import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
-
 import { currentQuad } from '@next/utils';
+import type { FastifySchema } from 'fastify';
 import { z } from 'zod';
 
 export const listComponentsResume = {
@@ -22,12 +21,6 @@ export const listComponentsResume = {
     page: z.coerce.number().optional().default(0),
   }),
   response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: z.any(),
-        },
-      },
-    },
+    200: z.any(),
   },
-} satisfies FastifyZodOpenApiSchema;
+} satisfies FastifySchema;

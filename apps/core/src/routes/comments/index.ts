@@ -1,5 +1,4 @@
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-
+import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { Types } from 'mongoose';
 
 import { JOB_NAMES } from '@/constants.js';
@@ -19,7 +18,7 @@ import {
   insert,
 } from './service.js';
 
-const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
+const plugin: FastifyPluginAsyncZod = async (app) => {
   app.post('/', { schema: createCommentSchema }, async (request, reply) => {
     const { enrollment: enrollmentId, comment, type } = request.body;
     const user = request.user;
