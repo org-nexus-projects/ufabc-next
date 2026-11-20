@@ -80,6 +80,26 @@ jobs:
             docker image prune -af
             docker builder prune -af
 
+      - name: Health check
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.HOSTNAME }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SECRET_SSH_KEY }}
+          script: |
+            TIMEOUT=60
+            START=$(date +%s)
+            until curl -fs --max-time 5 "http://localhost:${{ secrets.PORT }}/health" > /dev/null; do
+              ELAPSED=$(( $(date +%s) - START ))
+              if [ "$ELAPSED" -ge "$TIMEOUT" ]; then
+                echo "App did not become healthy within ${TIMEOUT}s"
+                exit 1
+              fi
+              echo "Waiting for app... (${ELAPSED}s)"
+              sleep 5
+            done
+            echo "App is healthy after $(( $(date +%s) - START ))s"
+
       - name: Revoke runner ip address
         if: ${{ always() && steps.whitelist-ip.conclusion == 'success' }}
         run: |
