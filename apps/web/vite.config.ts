@@ -40,6 +40,9 @@ function staticSite(): Plugin {
           res.writeHead(302, { Location: `/app/login${search}` }).end();
           return;
         }
+        if (pathname === '/camiseta' || pathname === '/camiseta.html') {
+          req.url = `/temp/camiseta.html${search}`;
+        }
         serve(req, res, (error) => {
           if (error?.statusCode === 404) {
             res.writeHead(404).end('Not found');

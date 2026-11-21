@@ -7,7 +7,7 @@
       width="240"
     >
       <div class="d-flex flex-column" style="height: 100%">
-        <div class="flex-grow-0">
+        <div class="flex-grow-1 sidebar-navigation">
           <v-list>
             <div class="py-4 d-flex justify-center align-center">
               <img
@@ -72,14 +72,30 @@
           </v-list>
         </div>
 
-        <div class="flex-grow-1"></div>
+        <div class="flex-grow-0 flex-shrink-0">
+          <section class="shirt-campaign" aria-label="Camiseta do Next">
+            <div class="shirt-campaign__heading">
+              <span>Camiseta do Next</span>
+            </div>
+            <p>Edição limitada · 30 peças numeradas</p>
+            <a
+              class="shirt-campaign__button"
+              href="/camiseta"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Vista o Next! Conheça a camiseta (abre em nova aba)"
+            >
+              Vista o Next!
+            </a>
+          </section>
 
-        <div class="flex-grow-0">
           <div v-if="!authStore.isLoggedIn">
             <v-divider />
             <div class="mb-4 pa-4 bg-blue-darken-3 border create-account-box">
               <div class="d-flex align-center gap-3">
-                <v-icon class="pa-1" size="20"> mdi-account-circle-outline </v-icon>
+                <v-icon class="pa-1" size="20">
+                  mdi-account-circle-outline
+                </v-icon>
                 <strong>Acesse sua conta</strong>
               </div>
               <div class="mt-2 text-caption">
@@ -315,5 +331,64 @@ const { externalNavigationItems, internalNavigationItems } =
 .create-account-box {
   border-radius: 16px;
   margin: 10px;
+}
+
+.sidebar-navigation {
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.shirt-campaign {
+  padding: 16px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(55, 187, 163, 0.14) 35%,
+    rgba(55, 187, 163, 0.65)
+  );
+  color: #fff;
+
+  &__heading {
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+
+    span {
+      font-size: 13px;
+      font-weight: 600;
+    }
+  }
+
+  p {
+    margin: 5px 0 12px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  &__button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: #fff;
+    color: #173b64;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+
+    &:hover {
+      background: #edf8f5;
+    }
+
+    &:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 3px;
+    }
+  }
 }
 </style>
