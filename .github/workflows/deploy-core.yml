@@ -65,22 +65,29 @@ jobs:
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
       - name: Deploy and start container
+        id: deploy
         uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.HOSTNAME }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SECRET_SSH_KEY }}
           script: |
+            # Record the image currently running so the rollback step can restore it
+            mkdir -p "$HOME/.unext-backend"
+            PREVIOUS_IMAGE=$(docker inspect --format '{{.Config.Image}}' unext-backend 2>/dev/null || true)
+            if [ -n "$PREVIOUS_IMAGE" ] && [ "$PREVIOUS_IMAGE" != "${{ secrets.ECR_REGISTRY }}/unext-backend-ecr:${{ github.sha }}" ]; then
+              echo "$PREVIOUS_IMAGE" > "$HOME/.unext-backend/previous-image"
+              echo "Previous image recorded: $PREVIOUS_IMAGE"
+            fi
+
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
             docker pull ${{ secrets.ECR_REGISTRY }}/unext-backend-ecr:${{ github.sha }}
             docker stop unext-backend
             docker rm unext-backend
             docker run --restart unless-stopped -d --name unext-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.ECR_REGISTRY }}/unext-backend-ecr:${{ github.sha }}
-            docker container prune -f
-            docker image prune -af
-            docker builder prune -af
 
       - name: Health check
+        id: health-check
         uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.HOSTNAME }}
@@ -99,6 +106,61 @@ jobs:
               sleep 5
             done
             echo "App is healthy after $(( $(date +%s) - START ))s"
+
+      - name: Rollback to previous version
+        if: ${{ failure() && (steps.deploy.outcome == 'failure' || steps.health-check.outcome == 'failure') }}
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.HOSTNAME }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SECRET_SSH_KEY }}
+          script: |
+            set -e
+            PREVIOUS_FILE="$HOME/.unext-backend/previous-image"
+            if [ ! -s "$PREVIOUS_FILE" ]; then
+              echo "No previous image recorded, cannot roll back"
+              exit 1
+            fi
+            PREVIOUS_IMAGE=$(cat "$PREVIOUS_FILE")
+
+            RUNNING_IMAGE=$(docker inspect --format '{{.Config.Image}}' unext-backend 2>/dev/null || true)
+            RUNNING_STATE=$(docker inspect --format '{{.State.Running}}' unext-backend 2>/dev/null || true)
+            if [ "$RUNNING_IMAGE" = "$PREVIOUS_IMAGE" ] && [ "$RUNNING_STATE" = "true" ]; then
+              echo "Previous image is still running, nothing to roll back"
+              exit 0
+            fi
+
+            echo "Rolling back to $PREVIOUS_IMAGE"
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+            docker pull "$PREVIOUS_IMAGE"
+            docker stop unext-backend 2>/dev/null || true
+            docker rm unext-backend 2>/dev/null || true
+            docker run --restart unless-stopped -d --name unext-backend -p ${{ secrets.PORT }}:${{ secrets.PORT }} "$PREVIOUS_IMAGE"
+
+            TIMEOUT=60
+            START=$(date +%s)
+            until curl -fs --max-time 5 "http://localhost:${{ secrets.PORT }}/health" > /dev/null; do
+              ELAPSED=$(( $(date +%s) - START ))
+              if [ "$ELAPSED" -ge "$TIMEOUT" ]; then
+                echo "Rolled back version did not become healthy within ${TIMEOUT}s"
+                exit 1
+              fi
+              echo "Waiting for rolled back app... (${ELAPSED}s)"
+              sleep 5
+            done
+            echo "Rollback to $PREVIOUS_IMAGE completed and healthy"
+
+      - name: Clean up old images
+        if: ${{ success() }}
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.HOSTNAME }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SECRET_SSH_KEY }}
+          script: |
+            docker container prune -f
+            docker image prune -af
+            docker builder prune -af
 
       - name: Revoke runner ip address
         if: ${{ always() && steps.whitelist-ip.conclusion == 'success' }}
