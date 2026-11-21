@@ -1,10 +1,9 @@
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-
+import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 
 import { UserModel } from '@/models/User.js';
 
-const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
+const plugin: FastifyPluginAsyncZod = async (app) => {
   if (app.config.NODE_ENV === 'dev') {
     app.post(
       '/token',

@@ -1,12 +1,11 @@
-import type { FastifyInstance } from 'fastify';
-
 import { fastifySwagger } from '@fastify/swagger';
 import { fastifySwaggerUi } from '@fastify/swagger-ui';
+import type { FastifyInstance } from 'fastify';
 import { fastifyPlugin as fp } from 'fastify-plugin';
 import {
-  fastifyZodOpenApiTransform,
-  fastifyZodOpenApiTransformObject,
-} from 'fastify-zod-openapi';
+  jsonSchemaTransform,
+  jsonSchemaTransformObject,
+} from 'fastify-type-provider-zod';
 
 export async function swagger(app: FastifyInstance) {
   await app.register(fastifySwagger, {
@@ -22,8 +21,8 @@ export async function swagger(app: FastifyInstance) {
         },
       ],
     },
-    transform: fastifyZodOpenApiTransform,
-    transformObject: fastifyZodOpenApiTransformObject,
+    transform: jsonSchemaTransform,
+    transformObject: jsonSchemaTransformObject,
     hideUntagged: true,
   });
   await app.register(fastifySwaggerUi, {

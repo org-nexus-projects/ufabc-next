@@ -1,5 +1,4 @@
-import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
-
+import type { FastifySchema } from 'fastify';
 import { z } from 'zod';
 
 const enrollmentsListSchema = z.object({
@@ -47,12 +46,6 @@ export type EnrollmentsList = z.infer<typeof enrollmentsListSchema>;
 
 export const listUserEnrollments = {
   response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: enrollmentsListSchema.array(),
-        },
-      },
-    },
+    200: enrollmentsListSchema.array(),
   },
-} satisfies FastifyZodOpenApiSchema;
+} satisfies FastifySchema;

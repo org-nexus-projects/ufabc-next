@@ -1,8 +1,5 @@
 import type { FastifySchema } from 'fastify';
-
-import { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
 import { z } from 'zod';
-import 'zod-openapi/extend';
 
 const SOURCE_TYPE = {
   SOURCE_TYPE_UNSPECIFIED: 'SOURCE_TYPE_UNSPECIFIED',
@@ -57,7 +54,7 @@ export type LegacyGoogleUser = {
 };
 export const loginSchema = {
   querystring: z.object({
-    inApp: z.coerce.boolean().default(false).openapi({
+    inApp: z.coerce.boolean().default(false).meta({
       description:
         'Váriavel legada que informava, se o acesso estava acontecendo pelo aplicativo',
       example: false,
@@ -75,4 +72,4 @@ export const googleCallbackSchema = {
     state: z.string(),
     code: z.string().min(1),
   }),
-} satisfies FastifyZodOpenApiSchema;
+} satisfies FastifySchema;

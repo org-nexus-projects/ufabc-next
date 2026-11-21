@@ -52,7 +52,6 @@
     "fastify": "catalog:",
     "fastify-plugin": "catalog:",
     "fastify-type-provider-zod": "catalog:",
-    "fastify-zod-openapi": "catalog:",
     "lodash-es": "catalog:",
     "lru-weak-cache": "catalog:",
     "mongoose": "catalog:",
@@ -60,9 +59,7 @@
     "ofetch": "catalog:",
     "pino": "catalog:",
     "ulidx": "catalog:",
-    "zod": "catalog:",
-    "zod-openapi": "catalog:",
-    "zod-to-json-schema": "catalog:"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@aws-sdk/types": "catalog:",

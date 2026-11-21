@@ -1,5 +1,4 @@
-import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
-
+import type { FastifySchema } from 'fastify';
 import { z } from 'zod';
 
 const tags = ['CourseStats'];
@@ -29,25 +28,13 @@ export type CRDistribution = z.infer<typeof crDistributionSchema>;
 export const gradesStatsSchema = {
   tags,
   response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: crDistributionSchema.array(),
-        },
-      },
-    },
+    200: crDistributionSchema.array(),
   },
-} satisfies FastifyZodOpenApiSchema;
+} satisfies FastifySchema;
 
 export const userGradesSchema = {
   tags,
   response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: seasonStatsSchema.array(),
-        },
-      },
-    },
+    200: seasonStatsSchema.array(),
   },
-} satisfies FastifyZodOpenApiSchema;
+} satisfies FastifySchema;

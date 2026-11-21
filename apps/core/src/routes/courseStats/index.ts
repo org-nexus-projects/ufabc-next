@@ -1,9 +1,7 @@
-import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
-
 import { calculateCoefficients } from '@next/utils';
+import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 
 import type { GraduationHistory } from '@/models/GraduationHistory.js';
-
 import { gradesStatsSchema, userGradesSchema } from '@/schemas/courseStats.js';
 
 import {
@@ -13,7 +11,7 @@ import {
   getGraduationHistory,
 } from './service.js';
 
-const plugin: FastifyPluginAsyncZodOpenApi = async (app) => {
+const plugin: FastifyPluginAsyncZod = async (app) => {
   app.get('/grades', { schema: gradesStatsSchema }, async (request, reply) => {
     // TODO: discover why points is a 40 constant
     const POINTS = 40;

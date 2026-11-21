@@ -1,39 +1,37 @@
-import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
-
+import type { FastifySchema } from 'fastify';
 import { Types } from 'mongoose';
-import 'zod-openapi/extend';
 import { z } from 'zod';
 
 const OauthSchema = z.object({
   google: z
     .string()
     .optional()
-    .openapi({
+    .meta({
       description: 'Id do usuário recebido após login Oauth2',
     })
     .optional(),
   emailGoogle: z
     .string()
     .email()
-    .openapi({
+    .meta({
       description: 'E-mail escolhido pelo usuário na tela de oauth',
     })
     .optional(),
   email: z
     .string()
     .email()
-    .openapi({
+    .meta({
       description: 'Mesmo caso do emailGoogle/Facebook',
     })
     .optional(),
   facebook: z
     .string()
     .optional()
-    .openapi({ description: 'Id do usuário recebido após login Oauth2' }),
+    .meta({ description: 'Id do usuário recebido após login Oauth2' }),
   emailFacebook: z
     .string()
     .email()
-    .openapi({
+    .meta({
       description: 'E-mail escolhido pelo usuário na tela de oauth',
     })
     .optional(),
@@ -46,22 +44,16 @@ export const SessionUserSchema = z.object({
   oauth: z.any().default(OauthSchema),
   permissions: z.string().array().default([]),
   createdAt: z.date(),
-  active: z.boolean().openapi({ description: 'Estado da conta do usuário' }),
-  confirmed: z.boolean().openapi({ description: 'Usuário ativou a conta' }),
+  active: z.boolean().meta({ description: 'Estado da conta do usuário' }),
+  confirmed: z.boolean().meta({ description: 'Usuário ativou a conta' }),
 });
 
 export const userAuthSchema = {
   tags: ['User'],
   response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: SessionUserSchema,
-        },
-      },
-    },
+    200: SessionUserSchema,
   },
-} satisfies FastifyZodOpenApiSchema;
+} satisfies FastifySchema;
 
 export const completeUserSchema = {
   body: z.object({
@@ -69,23 +61,17 @@ export const completeUserSchema = {
     email: z.string().email(),
   }),
   response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: z
-            .object({
-              ra: z.number(),
-              email: z.string().email(),
-            })
-            .or(
-              z.object({
-                token: z.string(),
-              })
-            ),
-        },
-      },
-    },
+    200: z
+      .object({
+        ra: z.number(),
+        email: z.string().email(),
+      })
+      .or(
+        z.object({
+          token: z.string(),
+        })
+      ),
   },
-} satisfies FastifyZodOpenApiSchema;
+} satisfies FastifySchema;
 
 export type Auth = z.infer<typeof SessionUserSchema>;

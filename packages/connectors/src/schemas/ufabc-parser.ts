@@ -52,7 +52,7 @@ export type UfabcParserComponent = z.infer<typeof ufabcParserComponentSchema>;
 export const ufabcParserStudentSchema = z.object({
   email: z.array(z.string()),
   login: z.string(),
-  metadata: z.record(z.unknown()),
+  metadata: z.record(z.string(), z.unknown()),
   ra: z.string(),
   studentKey: z.string(),
 });
@@ -61,7 +61,7 @@ export type UfabcParserStudent = z.infer<typeof ufabcParserStudentSchema>;
 export const ufabcParserTeacherResponseSchema = z.object({
   aliases: z.array(z.string()),
   email: z.array(z.string()),
-  metadata: z.record(z.unknown()),
+  metadata: z.record(z.string(), z.unknown()),
   name: z.string(),
   room: z.string().nullable(),
   teacherKey: z.string(),
@@ -70,7 +70,10 @@ export type UfabcParserTeacherResponse = z.infer<
   typeof ufabcParserTeacherResponseSchema
 >;
 
-export const ufabcParserEnrolledSchema = z.record(z.array(z.number()));
+export const ufabcParserEnrolledSchema = z.record(
+  z.string(),
+  z.array(z.number())
+);
 export type UfabcParserEnrolled = z.infer<typeof ufabcParserEnrolledSchema>;
 
 export const ufabcParserEnrollmentStudentComponentSchema = z.object({
@@ -87,6 +90,7 @@ export type UfabcParserEnrollmentStudentComponent = z.infer<
 >;
 
 export const ufabcParserEnrollmentSchema = z.record(
+  z.string(),
   z.array(ufabcParserEnrollmentStudentComponentSchema)
 );
 export type UfabcParserEnrollment = z.infer<typeof ufabcParserEnrollmentSchema>;

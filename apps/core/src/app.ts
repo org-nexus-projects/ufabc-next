@@ -5,7 +5,6 @@ import dbPlugin from '@next/db/client';
 import type { DatabaseModels } from '@next/db/models';
 import { serializeQueryParams } from '@next/logger/sanitize';
 import type { FastifyInstance, FastifyServerOptions } from 'fastify';
-import { RequestValidationError } from 'fastify-zod-openapi';
 import type { Mongoose } from 'mongoose';
 
 import { archivesController } from './controllers/archives-controller.js';
@@ -72,9 +71,7 @@ export async function buildApp(
   app.setSchemaErrorFormatter((errors, dataVar) => {
     let message = `${dataVar}:`;
     for (const error of errors) {
-      if (error instanceof RequestValidationError) {
-        message += ` ${error.instancePath} ${error.keyword}`;
-      } else if (error.instancePath && error.keyword) {
+      if (error.instancePath && error.keyword) {
         message += ` ${error.instancePath} ${error.keyword}`;
       }
     }

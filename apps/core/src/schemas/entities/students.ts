@@ -1,5 +1,4 @@
-import type { FastifyZodOpenApiSchema } from 'fastify-zod-openapi';
-
+import type { FastifySchema } from 'fastify';
 import { z } from 'zod';
 
 const tags = ['Students'];
@@ -15,22 +14,16 @@ export type UpdatedStudent = z.infer<typeof updatedStudentSchema>;
 export const updateStudentSchema = {
   tags,
   body: z.object({
-    ra: z.coerce.number().nullable().openapi({
+    ra: z.coerce.number().nullable().meta({
       example: 112222332,
     }),
-    login: z.string().openapi({
+    login: z.string().meta({
       example: 'john.doe',
     }),
     studentId: z.number().int().optional(),
     graduationId: z.number().int().optional(),
   }),
   response: {
-    200: {
-      content: {
-        'application/json': {
-          schema: updatedStudentSchema,
-        },
-      },
-    },
+    200: updatedStudentSchema,
   },
-} satisfies FastifyZodOpenApiSchema;
+} satisfies FastifySchema;
