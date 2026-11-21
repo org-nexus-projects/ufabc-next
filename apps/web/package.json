@@ -60,6 +60,6 @@
     "sass-loader": "catalog:",
     "typescript": "5.9.3",
     "vite": "catalog:",
-    "vitest": "3.2.7"
+    "vitest": "4.1.11"
   }
 }
