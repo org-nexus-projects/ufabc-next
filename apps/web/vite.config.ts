@@ -1,6 +1,8 @@
 import { fileURLToPath } from 'node:url';
 
 import vue from '@vitejs/plugin-vue';
+import serveStatic from 'serve-static';
+import type { Plugin } from 'vite';
 import { defineConfig, loadEnv } from 'vite';
 
 const workspaceRoot = fileURLToPath(new URL('../..', import.meta.url));
@@ -9,14 +11,50 @@ const parserApiBaseUrl = 'https://ufabc-parser.com/v2';
 
 const webTargetConfig = {
   dev: {
-    appBaseUrl: '/',
     appEnv: 'local',
   },
   prod: {
-    appBaseUrl: '/app',
     appEnv: 'production',
   },
 } as const;
+
+// Serve the public site before Vite applies the portal's /app base path.
+function staticSite(): Plugin {
+  const serve = serveStatic(
+    fileURLToPath(new URL('../static/', import.meta.url)),
+    { extensions: ['html'], fallthrough: false }
+  );
+  return {
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const { pathname, search } = new URL(
+          req.url ?? '/',
+          'http://localhost'
+        );
+        if (pathname === '/app' || pathname.startsWith('/app/')) {
+          next();
+          return;
+        }
+        // The OAuth callback still returns local sessions to /login.
+        if (pathname === '/login') {
+          res.writeHead(302, { Location: `/app/login${search}` }).end();
+          return;
+        }
+        if (pathname === '/camiseta' || pathname === '/camiseta.html') {
+          req.url = `/temp/camiseta.html${search}`;
+        }
+        serve(req, res, (error) => {
+          if (error?.statusCode === 404) {
+            res.writeHead(404).end('Not found');
+            return;
+          }
+          next(error);
+        });
+      });
+    },
+    name: 'static-site',
+  };
+}
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, workspaceRoot, '');
@@ -36,7 +74,7 @@ export default defineConfig(({ mode }) => {
   );
   const selectedEnv = {
     ...selectedProfileEnv,
-    VITE_APP_BASE_URL: targetConfig.appBaseUrl,
+    VITE_APP_BASE_URL: '/app',
     VITE_APP_ENV: targetConfig.appEnv,
     VITE_PARSER_API_BASE_URL: parserApiBaseUrl,
   };
@@ -50,7 +88,7 @@ export default defineConfig(({ mode }) => {
       sourcemap: false,
     },
     envDir: workspaceRoot,
-    plugins: [vue()],
+    plugins: [staticSite(), vue()],
     preview: {
       host: true,
       port: 3000,

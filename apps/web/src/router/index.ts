@@ -24,7 +24,6 @@ const SignUpPage = () => import('@/pages/SignUp/SignUpPage.vue');
 const ConfirmationPage = () =>
   import('@/pages/Confirmation/ConfirmationPage.vue');
 const RecoveryPage = () => import('@/pages/Recovery/RecoveryPage.vue');
-const LoginPage = () => import('@/pages/Login/LoginPage.vue');
 const CalengradePage = () => import('@/pages/Calengrade/CalengradePage.vue');
 const WhatsappGroupsPage = () =>
   import('@/pages/WhatsappGroups/WhatsappGroupsPage.vue');
@@ -132,7 +131,9 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
     name: 'login',
-    component: LoginPage,
+    components: import.meta.env.DEV
+      ? { default: () => import('@/pages/Login/LoginPage.vue') }
+      : {},
     meta: {
       title: 'Entrar no Next',
       guestOnly: true,
@@ -209,6 +210,11 @@ router.beforeEach(async (to) => {
 
   const tokenRedirect = await handleAuthValidationIfNeeded(to);
   if (tokenRedirect) return tokenRedirect;
+
+  if (to.name === 'login' && import.meta.env.PROD) {
+    window.location.assign(LANDING_PAGE_PATH);
+    return false;
+  }
 
   const authStatusRedirect = handleAuthStatus();
   if (authStatusRedirect) return authStatusRedirect;

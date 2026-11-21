@@ -51,6 +51,7 @@
     "@types/lodash.debounce": "catalog:",
     "@types/mixpanel-browser": "catalog:",
     "@types/node": "catalog:",
+    "@types/serve-static": "^2.2.0",
     "@vitejs/plugin-vue": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "globals": "catalog:",
@@ -58,6 +59,7 @@
     "msw": "catalog:",
     "sass": "catalog:",
     "sass-loader": "catalog:",
+    "serve-static": "2.2.1",
     "typescript": "5.9.3",
     "vite": "catalog:",
     "vitest": "3.2.7"
