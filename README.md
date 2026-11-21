@@ -78,7 +78,7 @@ Inicie os serviços:
 pnpm dev --web dev --core --jobs off
 
 
-Aguarde os serviços iniciarem e acesse http://localhost:3000/login.
+Aguarde os serviços iniciarem e acesse http://localhost:3000.
 
 Insira um e-mail autorizado (ex: next.dev@aluno.ufabc.edu.br) e clique em Entrar no ambiente DEV.
 
@@ -92,7 +92,10 @@ pnpm --filter @next/core dev
 pnpm --filter @next/extension dev
 ```
 
-`apps/static` contém arquivos estáticos e não possui processo de desenvolvimento próprio no workspace.
+Ao iniciar o portal com Vite, a landing de `apps/static` fica disponível em
+http://localhost:3000/ e o portal em http://localhost:3000/app/. O login do
+portal fica em `/app/login` para os dois alvos de API.
+`apps/static` não possui processo de desenvolvimento próprio no workspace.
 
 Os manifests `package.json` são a fonte de verdade para os demais comandos e pré-requisitos de cada área.
 
