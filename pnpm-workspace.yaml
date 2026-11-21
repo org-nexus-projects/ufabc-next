@@ -146,7 +146,7 @@ catalog:
   vee-validate: 4.15.1
   vite: 6.4.5
   vite-tsconfig-paths: ^6.0.3
-  vitest: 3.2.4
+  vitest: 4.1.11
   vue-sonner: ^1.2.5
   vue-tsgo: ^0.2.2
   vue-zustand: 0.6.0
