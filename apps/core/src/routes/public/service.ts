@@ -6,6 +6,9 @@ export async function getAllCourses() {
     UFCourseIds: number[];
   }>([
     {
+      $match: { active: { $ne: false } },
+    },
+    {
       $unwind: '$cursos',
     },
     {
